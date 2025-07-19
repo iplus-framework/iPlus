@@ -1054,12 +1054,12 @@ namespace gip.core.autocomponent
         /// <param name="startOptions">Start-Options</param>
         /// <returns></returns>
         [ACMethodInfo("ACComponent", "en{'Start ACComponent'}de{'Start ACComponent'}", 9999)]
-        public virtual IACComponent StartComponent(string acIdentifier, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
+        public virtual IACObjectWithInit StartComponent(string acIdentifier, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
         {
             return StartComponent(CreateStartCompResult(acIdentifier), content, acParameter, startOptions);
         }
 
-        protected virtual IACComponent StartComponent(StartCompResult startCompResult, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
+        protected virtual IACObjectWithInit StartComponent(StartCompResult startCompResult, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
         {
             if (startCompResult == null)
                 return null;
@@ -1130,7 +1130,7 @@ namespace gip.core.autocomponent
         /// <param name="asProxy"></param>
         /// <param name="acIdentifier">Identifier which should given to the new created instance</param>
         /// <returns></returns>
-        public virtual IACComponent StartComponent(ACClass acClass, object content, ACValueList parameterList, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false, string acIdentifier = "")
+        public virtual IACObjectWithInit StartComponent(ACClass acClass, object content, ACValueList parameterList, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false, string acIdentifier = "")
         {
             Type acObjectType = null;
             // ACClass is null, when Component is deleted in Development-Environment ond client side, but server was not restarted
@@ -1189,7 +1189,7 @@ namespace gip.core.autocomponent
         /// <param name="startChildMode">Controls if further childrens should be created automatically</param>
         /// <param name="asProxy">Force to create instance as a proxy</param>
         /// <returns></returns>
-        public virtual IACComponent StartComponent(ACChildInstanceInfo instanceInfo, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false)
+        public virtual IACObjectWithInit StartComponent(ACChildInstanceInfo instanceInfo, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false)
         {
             if (instanceInfo == null)
                 return null;
@@ -1851,7 +1851,6 @@ namespace gip.core.autocomponent
         {
             get
             {
-
                 using (ACMonitor.Lock(LockMemberList_20020))
                 {
                     if (_ACMemberList != null)
@@ -2115,6 +2114,20 @@ namespace gip.core.autocomponent
             acParameterList.Add(new ACValue("ACMemberList", acObject));
 
             ChildAddedEvent.Raise(acParameterList);
+        }
+
+        public virtual IEnumerable<IACObject> ACObjectChilds
+        {
+            get
+            {
+                using (ACMonitor.Lock(LockMemberList_20020))
+                {
+                    if (_ACMemberList != null)
+                        return _ACMemberList.Where(c => c is IACObjectWithInit).Select(c => c as IACObjectWithInit).ToArray();
+                    else
+                        return new IACObjectWithInit[] { };
+                }
+            }
         }
         #endregion
 

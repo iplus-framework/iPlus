@@ -704,7 +704,7 @@ namespace gip.bso.iplus
                         if (childsWF != null && childsWF.Any())
                         {
                             ACChildInstanceInfo childWF = childsWF.First();
-                            wfInstance = pAppManager.StartComponent(childWF, Global.ACStartTypes.Automatic, true);
+                            wfInstance = pAppManager.StartComponent(childWF, Global.ACStartTypes.Automatic, true) as IACComponent;
                         }
                     }
                     else

@@ -90,6 +90,30 @@ namespace gip.core.autocomponent
             }
         }
 
+        public ACQueryDefInstance CreateQueryInstanceByClass(IACComponent acComponentParent, ACClass qryACClass, string keyForLocalConfigACUrl, bool forVBControl = false)
+        {
+            if (qryACClass == null)
+                return null;
+            if (string.IsNullOrEmpty(keyForLocalConfigACUrl))
+            {
+                ACValueList acValueList = new ACValueList();
+                acValueList.Add(new ACValue(Const.PN_LocalConfigACUrl, Const.TNameString, "", qryACClass.ACIdentifier));
+                ACQueryDefInstance queryDef = new ACQueryDefInstance(qryACClass, qryACClass, acComponentParent, acValueList);
+                queryDef.ACInit(forVBControl ? Global.ACStartTypes.None : Global.ACStartTypes.Manually);
+                queryDef.ACPostInit();
+                return queryDef;
+            }
+            else
+            {
+                ACValueList acValueList = new ACValueList();
+                acValueList.Add(new ACValue(Const.PN_LocalConfigACUrl, Const.TNameString, "", keyForLocalConfigACUrl));
+                ACQueryDefInstance queryDef = new ACQueryDefInstance(qryACClass, qryACClass, acComponentParent, acValueList);
+                queryDef.ACInit(forVBControl ? Global.ACStartTypes.None : Global.ACStartTypes.Manually);
+                queryDef.ACPostInit();
+                return queryDef;
+            }
+        }
+
         [ACMethodInfo("", "en{'Create Query by Class Config'}de{'Anfrage anhand Klasse Config erzeugen'}", 9999)]
         public ACQueryDefinition CreateQueryByClassWithConfig(IACComponent acComponentParent, ACClass qryACClass, string configXML, bool forVBControl = false)
         {
@@ -99,28 +123,71 @@ namespace gip.core.autocomponent
             return acQueryDefinition;
         }
 
+        public ACQueryDefInstance GetOrCreateQueryInstance(ACClass requestedClass)
+        {
+            if (requestedClass == null)
+                return null;
+            if (!(requestedClass.ACKind == Global.ACKinds.TACDBA || requestedClass.ACKind == Global.ACKinds.TACQRY))
+                return null;
+            ACClass qryClass = requestedClass;
+            if (requestedClass.ACKind == Global.ACKinds.TACDBA)
+            {
+                qryClass = requestedClass.PrimaryNavigationquery();
+                if (qryClass == null)
+                    return null; // no query class defined for this entity class
+            }
 
-#region Execute-Helper-Handlers
+            ACQueryDefInstance defInstance = ACMemberList.Where(c => c.ACIdentifier == qryClass.ACIdentifier && c is ACQueryDefInstance).FirstOrDefault() as ACQueryDefInstance;
+            if (defInstance == null)
+            {
+                defInstance = CreateQueryInstanceByClass(this, qryClass, null);
+                if (defInstance == null)
+                    return null; // query definition could not be created
+                if (defInstance.TakeCount <= 0 && Root != null && Root.Environment != null)
+                    defInstance.TakeCount = Root.Environment.AccessDefaultTakeCount;
+                ACMemberList.Add(defInstance);
+            }
+            return defInstance;
+        }
+
+        public override object ACUrlCommand(string acUrl, params object[] acParameter)
+        {
+            return base.ACUrlCommand(acUrl, acParameter);
+        }
+
+        protected override IACObjectWithInit StartComponent(StartCompResult startCompResult, object content, Object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default)
+        {
+            if (startCompResult.ACClass == null)
+            {
+                startCompResult.ACClass = Root.Database.ContextIPlus.GetACType(startCompResult.ACClassName);
+                if (startCompResult.ACClass == null && startCompResult.ACClass.ACKind != Global.ACKinds.TACDBA)
+                    return null;
+            }
+            return GetOrCreateQueryInstance(startCompResult.ACClass);
+        }
+
+
+        #region Execute-Helper-Handlers
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
             switch (acMethodName)
             {
-                case"CreateQuery":
+                case nameof(CreateQuery):
                     result = CreateQuery((IACComponent)acParameter[0], (String)acParameter[1], (String)acParameter[2], acParameter.Count() == 4 ? (bool)acParameter[3] : false);
                     return true;
-                case"CreateQueryByClass":
+                case nameof(CreateQueryByClass):
                     result = CreateQueryByClass((IACComponent)acParameter[0], (ACClass)acParameter[1], (String)acParameter[2], acParameter.Count() == 4 ? (bool)acParameter[3] : false);
                     return true;
-                case"CreateQueryByClassWithConfig":
+                case nameof(CreateQueryByClassWithConfig):
                     result = CreateQueryByClassWithConfig((IACComponent)acParameter[0], (ACClass)acParameter[1], (String)acParameter[2], acParameter.Count() == 4 ? (bool)acParameter[3] : false);
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
-#endregion
+        #endregion
 
 
     }

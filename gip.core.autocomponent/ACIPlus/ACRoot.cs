@@ -240,7 +240,7 @@ namespace gip.core.autocomponent
                 // 2. Instanzen von ACProject erzeugen
                 foreach (var userACProject in userInstance.VBUser.VBUserACProject_VBUser.OrderBy(c => c.ACProject.ACProjectNo))
                 {
-                    IACComponent acObjectNew = null;
+                    IACObjectWithInit acObjectNew = null;
 
                     gip.core.autocomponent.Messages.ConsoleMsg("System", "Initializing " + userACProject.ACProject.RootClass.ACIdentifier + (userACProject.IsClient ? " (Client)..." : " (Server)..."));
 
@@ -287,7 +287,7 @@ namespace gip.core.autocomponent
                     // 2. Instanzen von ACProject erzeugen
                     foreach (var acProject in queryProjects)
                     {
-                        IACComponent acObjectNew = null;
+                        IACObjectWithInit acObjectNew = null;
 
                         gip.core.autocomponent.Messages.ConsoleMsg("System", "Initializing Test " + acProject.RootClass.ACIdentifier);
 

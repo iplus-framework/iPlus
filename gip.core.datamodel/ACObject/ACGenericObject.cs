@@ -13,7 +13,9 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Transactions;
 
@@ -53,6 +55,7 @@ namespace gip.core.datamodel
             {
                 _ACIdentifier = TypeACClass.ACIdentifier;
             }
+            _Content = content;
         }
 
         /// <summary>
@@ -263,7 +266,7 @@ namespace gip.core.datamodel
         /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
         /// </summary>
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
-        public IACType ACType
+        public virtual IACType ACType
         {
             get
             {
@@ -271,7 +274,7 @@ namespace gip.core.datamodel
             }
         }
 
-        public IACType ACTypeIfGeneric
+        public virtual IACType ACTypeIfGeneric
         {
             get
             {
@@ -361,6 +364,49 @@ namespace gip.core.datamodel
                 return _ACType;
             }
         }
-#endregion
+
+        protected IACObject _Content = null;
+        public IACObject Content
+        {
+            get { return _Content; }
+            set { _Content = value; }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        /// <summary>
+        /// Raises the INotifyPropertyChanged.PropertyChanged-Event.
+        /// </summary>
+        /// <param name="name">Name of the property</param>
+        [ACMethodInfo("ACComponent", "en{'PropertyChanged'}de{'PropertyChanged'}", 9999)]
+        public virtual void OnPropertyChanged([CallerMemberName] string name = "")
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
+        public virtual IACComponent ParentACComponent => ParentACObject as IACComponent;
+
+        public ACRef<IACComponent> ACRef => new ACRef<IACComponent>(this);
+
+        public object Value
+        {
+            get
+            {
+                return this;
+            }
+            set
+            {
+                OnMemberChanged();
+            }
+        }
+
+
+        public void OnMemberChanged(EventArgs e = null)
+        {
+        }
+
+        public void RecycleMemberAndAttachTo(IACComponent recycledComponent)
+        {
+        }
+        #endregion
     }
 }

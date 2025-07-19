@@ -182,6 +182,8 @@ namespace gip.core.datamodel
         /// </summary>
         Int32 AccessDefaultTakeCount { get; }
 
+        bool UseDynLINQ { get; }
+
         #endregion
 
 

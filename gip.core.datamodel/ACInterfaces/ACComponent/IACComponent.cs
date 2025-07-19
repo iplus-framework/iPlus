@@ -383,7 +383,7 @@ namespace gip.core.datamodel
         /// <param name="asProxy"></param>
         /// <param name="acNameInstance">Identifier which should given to the new created instance</param>
         /// <returns></returns>
-        IACComponent StartComponent(ACClass acClass, object content, ACValueList acParameter, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false, string acNameInstance = "");
+        IACObjectWithInit StartComponent(ACClass acClass, object content, ACValueList acParameter, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false, string acNameInstance = "");
 
 
         /// <summary>
@@ -402,7 +402,7 @@ namespace gip.core.datamodel
         /// The StartComponent method internally converts the array into an ACValueList.</param>
         /// <param name="startOptions">Start-Options</param>
         /// <returns></returns>
-        IACComponent StartComponent(string acName, object content, object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default);
+        IACObjectWithInit StartComponent(string acName, object content, object[] acParameter, ACStartCompOptions startOptions = ACStartCompOptions.Default);
 
 
         /// <summary>
@@ -412,7 +412,7 @@ namespace gip.core.datamodel
         /// <param name="startChildMode">Controls if further childrens should be created automatically</param>
         /// <param name="asProxy">Force to create instance as a proxy</param>
         /// <returns></returns>
-        IACComponent StartComponent(ACChildInstanceInfo instanceInfo, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false);
+        IACObjectWithInit StartComponent(ACChildInstanceInfo instanceInfo, Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic, bool asProxy = false);
 
 
         /// <summary>

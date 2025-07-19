@@ -26,6 +26,7 @@ namespace gip.core.autocomponent
             _AccessDefaultTakeCount = new ACPropertyConfigValue<int>(this, "AccessDefaultTakeCount", ACQueryDefinition.C_DefaultTakeCount);
             if (_AccessDefaultTakeCount.ValueT == 0)
                 _AccessDefaultTakeCount.ValueT = ACQueryDefinition.C_DefaultTakeCount;
+            _UseDynLINQ = new ACPropertyConfigValue<bool>(this, "UseDynLINQ", false);
             _Datapath = new ACPropertyConfigValue<string>(this, "Datapath", "");
             _MaxDBConnectionCount = new ACPropertyConfigValue<int>(this, "MaxDBConnectionCount", 0);
             _MaxWCFConnectionCount = new ACPropertyConfigValue<int>(this, "MaxWCFConnectionCount", 0);
@@ -439,6 +440,25 @@ namespace gip.core.autocomponent
                 _AccessDefaultTakeCount.ValueT = value;
             }
         }
+
+
+        private ACPropertyConfigValue<bool> _UseDynLINQ;
+        /// <summary>
+        /// Maximum of records that should be returned via ACAccess
+        /// </summary>
+        [ACPropertyConfig("en{'Use Dynamic LINQ for Queries'}de{'Verwende Dynamic LINQ für Abfragen'}", DefaultValue = (bool)false)]
+        public bool UseDynLINQ
+        {
+            get
+            {
+                return _UseDynLINQ.ValueT;
+            }
+            set
+            {
+                _UseDynLINQ.ValueT = value;
+            }
+        }
+
         #endregion
 
 

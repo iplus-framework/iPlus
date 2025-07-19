@@ -201,13 +201,13 @@ namespace gip.core.datamodel
         [ACMethodCommand("Navigation", "en{'Navigate to the first record'}de{'Zum ersten Datensatz navigieren'}", (short)MISort.NavigateFirst)]
         public void NavigateFirst()
         {
-            if (ParentACComponent == null)
+            if (ParentBSO == null)
                 return;
             // Nur BSOS's auf Hauptebene sollten automatisch gespeichert werden bei Datensatzwechsel,
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentACComponent.ACSaveOrUndoChanges())
+                if (!ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             NavRowCurrent = 0;
@@ -230,13 +230,13 @@ namespace gip.core.datamodel
         [ACMethodCommand("Navigate to the previous record", "en{'Previous'}de{'Zum vorherigen Datensatz navigieren'}", (short)MISort.NavigatePrev)]
         public void NavigatePrev()
         {
-            if (ParentACComponent == null)
+            if (ParentBSO == null)
                 return;
             // Nur BSOS's auf Hauptebene sollten automatisch gespeichert werden bei Datensatzwechsel,
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentACComponent.ACSaveOrUndoChanges())
+                if (!ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             if (NavRowCurrent > 0)
@@ -260,13 +260,13 @@ namespace gip.core.datamodel
         [ACMethodCommand("Navigation", "en{'Navigate to the next record'}de{'Zum nächsten Datensatz navigieren'}", (short)MISort.NavigateNext)]
         public void NavigateNext()
         {
-            if (ParentACComponent == null)
+            if (ParentBSO == null)
                 return;
             // Nur BSOS's auf Hauptebene sollten automatisch gespeichert werden bei Datensatzwechsel,
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentACComponent.ACSaveOrUndoChanges())
+                if (!ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             if (NavRowCurrent - 1 < NavRowCount)
@@ -290,13 +290,13 @@ namespace gip.core.datamodel
         [ACMethodCommand("Navigation", "en{'Navigate to the last record'}de{'Zum letzten Datensatz navigieren'}", (short)MISort.NavigateLast)]
         public void NavigateLast()
         {
-            if (ParentACComponent == null)
+            if (ParentBSO == null)
                 return;
             // Nur BSOS's auf Hauptebene sollten automatisch gespeichert werden bei Datensatzwechsel,
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentACComponent.ACSaveOrUndoChanges())
+                if (!ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             if (NavRowCurrent - 1 < NavRowCount)

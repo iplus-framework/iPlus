@@ -15,7 +15,7 @@ namespace gip.core.autocomponent
     /// Therefore one PAEdge-Instance occurs in the Connectonslist of two Connectonpoints (Source and Target).
     /// </summary>
     [DataContract]
-    [ACQueryInfoPrimary(Const.PackName_VarioSystem, "PAEdge", "en{'PAEdge'}de{'PAEdge'}", typeof(PAEdge), "","","")]
+    [ACQueryInfoPrimary(Const.PackName_VarioSystem, "PAEdge", "en{'PAEdge'}de{'PAEdge'}", typeof(PAEdge), "", "", "")]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Relationship between two Connectionpoints'}de{'Beziehung zwischen zwei Verbindungspunkten'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class PAEdge : IACObject, IACEdge, INotifyPropertyChanged
     {

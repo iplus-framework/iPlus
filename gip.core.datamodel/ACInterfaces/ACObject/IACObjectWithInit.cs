@@ -12,6 +12,7 @@
 // <summary></summary>
 // ***********************************************************************
 using System;
+using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
@@ -19,7 +20,7 @@ namespace gip.core.datamodel
     /// Interface for implementing simple objects with the life-cycle phases of iPlus 
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'IACObjectWithInit'}de{'IACObjectWithInit'}", Global.ACKinds.TACInterface)]
-    public interface IACObjectWithInit : IACObject
+    public interface IACObjectWithInit : IACObject, IACMember
     {
         /// <summary>
         /// The ACInit method is called directly after construction. 
@@ -81,5 +82,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="acObject">The child</param>
         void AddChild(IACObject acObject);
+
+        IEnumerable<IACObject> ACObjectChilds { get; }
     }
 }
