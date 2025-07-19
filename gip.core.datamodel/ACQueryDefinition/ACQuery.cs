@@ -68,32 +68,43 @@ namespace gip.core.datamodel
         /// <returns>IEnumerable.</returns>
         public static IQueryable ACSelect(this IACObject acObject, ACQueryDefinition queryDefinition, string childACUrl, MergeOption mergeOption = MergeOption.AppendOnly)
         {
-            MethodInfo miDynQuery = _DynQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType });
-            MethodInfo miEntitySQL = _EntityQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType });
             Type typeParent = acObject.GetType();
-
             try
             {
                 if (acObject is IACEntityObjectContext)
                 {
                     PropertyInfo pi = typeParent.GetProperty(childACUrl);
-                    if (pi != null)
+                    if (pi != null && ((!UseDynLINQ && !string.IsNullOrEmpty(queryDefinition.EntitySQL)) || !string.IsNullOrEmpty(queryDefinition.EntitySQL_FromEdit)))
                     {
-                        //if (typeof(ObjectQuery).IsAssignableFrom(pi.PropertyType))
-                        //    return miEntitySQL.Invoke(null, new object[] { acObject, queryDefinition, childACUrl, mergeOption }) as IQueryable;
-                        //else
-                        return miDynQuery.Invoke(null, new object[] { pi.GetValue(acObject, null), queryDefinition, mergeOption }) as IQueryable;
-                    }
-                    else
-                    {
+                        MethodInfo miEntitySQL = _EntityQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType });
+
                         var childProp = acObject.ACUrlCommand(childACUrl);
                         if (childProp == null)
                             return null;
-                        return miDynQuery.Invoke(null, new object[] { childProp, queryDefinition, mergeOption }) as IQueryable;
+                        return miEntitySQL.Invoke(null, new object[] { childProp, acObject, queryDefinition, childACUrl, mergeOption }) as IQueryable;
+                    }
+                    else
+                    {
+                        MethodInfo miDynQuery = _DynQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType });
+                        if (pi != null)
+                        {
+                            //if (typeof(ObjectQuery).IsAssignableFrom(pi.PropertyType))
+                            //    return miEntitySQL.Invoke(null, new object[] { acObject, queryDefinition, childACUrl, mergeOption }) as IQueryable;
+                            //else
+                            return miDynQuery.Invoke(null, new object[] { pi.GetValue(acObject, null), queryDefinition, mergeOption }) as IQueryable;
+                        }
+                        else
+                        {
+                            var childProp = acObject.ACUrlCommand(childACUrl);
+                            if (childProp == null)
+                                return null;
+                            return miDynQuery.Invoke(null, new object[] { childProp, queryDefinition, mergeOption }) as IQueryable;
+                        }
                     }
                 }
                 else
                 {
+                    MethodInfo miDynQuery = _DynQueryMethod.MakeGenericMethod(new Type[] { queryDefinition.QueryType.ObjectType });
                     var childProp = typeParent.InvokeMember(childACUrl, Global.bfGetProp, null, acObject, null);
                     if (childProp == null)
                         return null;
@@ -259,17 +270,11 @@ namespace gip.core.datamodel
             queryDefinition.QueryContext = context;
             if (ACQueryDefinition.C_SQLNamedParams)
             {
-                //var formatableString = FormattableStringFactory.Create(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => c.Value).ToArray());
-                //var dynQuery = source.FromSql<TEntity>(formatableString);
                 dynQuery = source.FromSqlRaw<TEntity>(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => new Microsoft.Data.SqlClient.SqlParameter(c.Name, c.Value)).ToArray());
-                //dynQuery = source.FromSqlInterpolated<TEntity>(formatableString);
             }
             else
             {
-                //var formatableString = FormattableStringFactory.Create(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => c.Value).ToArray());
-                //dynQuery = source.FromSql<TEntity>(formatableString);
                 dynQuery = source.FromSqlRaw<TEntity>(queryDefinition.EntitySQL, queryDefinition.SQLParameters.Select(c => c.Value).ToArray());
-                //dynQuery = source.FromSqlInterpolated<TEntity>(formatableString);
             }
             return dynQuery;
         }

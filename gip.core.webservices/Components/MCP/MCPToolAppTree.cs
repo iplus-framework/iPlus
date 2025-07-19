@@ -76,7 +76,7 @@ namespace gip.core.webservices
         #region Methods
 
         #region Thesaurus
-        public string AppGetThesaurus(IACComponent requester, string i18nLangTag, int category = 0)
+        public string get_thesaurus(IACComponent requester, string i18nLangTag, int category = 0)
         {
             try
             {
@@ -89,7 +89,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetThesaurus), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(get_thesaurus), ex, true);
                 return CreateExceptionResponse(ex);
             }
         }
@@ -98,7 +98,7 @@ namespace gip.core.webservices
         {
             // TODO: Thread-Safety
             Dictionary<Guid, gip.core.datamodel.ACClass> thesaurusByCId = new Dictionary<Guid, gip.core.datamodel.ACClass>();
-            Dictionary<string, gip.core.datamodel.ACClass>[] thesaurusByACId = new Dictionary<string, gip.core.datamodel.ACClass>[4];
+            Dictionary<string, gip.core.datamodel.ACClass>[] thesaurusByACId = new Dictionary<string, gip.core.datamodel.ACClass>[5];
             for (int i = 0; i < thesaurusByACId.Length; i++)
             {
                 thesaurusByACId[i] = new Dictionary<string, gip.core.datamodel.ACClass>();
@@ -164,6 +164,21 @@ namespace gip.core.webservices
                 }
             }
 
+            // Populate thesaurus for queries (category 4)
+            dynamicClasses = null;
+            using (ACMonitor.Lock(db.QueryLock_1X000))
+            //using (Database db = new Database())
+            {
+                dynamicClasses = db.ACClass.Where(c => c.ACKindIndex == (short)Global.ACKinds.TACQRY && c.ACClass1_ParentACClass != null && c.ACClass1_ParentACClass.ACKindIndex == (short)Global.ACKinds.TACQueries).AsEnumerable();
+            }
+            if (dynamicClasses != null)
+            {
+                foreach (gip.core.datamodel.ACClass cls in dynamicClasses)
+                {
+                    PopulateThesaurus(cls, ref thesaurusByCId, ref thesaurusByACId[4]);
+                }
+            }
+
             using (ACMonitor.Lock(_80000_Lock))
             {
                 _ThesaurusByCId = thesaurusByCId;
@@ -218,7 +233,7 @@ namespace gip.core.webservices
 
 
         #region TypeInfo
-        public string AppGetTypeInfos(IACComponent requester, string acIdentifiers, string i18nLangTag, bool getDerivedTypes = false, bool getBaseTypes = false)
+        public string get_type_infos(IACComponent requester, string acIdentifiers, string i18nLangTag, bool getDerivedTypes = false, bool getBaseTypes = false)
         {
             try
             {
@@ -248,6 +263,11 @@ namespace gip.core.webservices
 
                         if (cls != null)
                         {
+                            string manualMCP = cls.Comment;
+                            if (!getBaseTypes && (cls.ACKind == Global.ACKinds.TACQRY || string.IsNullOrEmpty(cls.Comment)) && cls.BaseClass != null)
+                            {
+                                manualMCP += String.Format(" Manual from base class {0}: {1}", cls.BaseClass.ACIdentifier, cls.BaseClass.Comment);
+                            }
                             typeInfos.Add(new MCP_TypeInfo
                             {
                                 ACIdentifier = cls.ACIdentifier,
@@ -260,7 +280,7 @@ namespace gip.core.webservices
                                 IsWorkflowType = cls.IsWorkflowType,
                                 IsMultiInstanceType = cls.IsMultiInstance || cls.IsWorkflowType,
                                 IsCodeOnGithub = !string.IsNullOrEmpty(cls.AssemblyQualifiedName),
-                                ManualMCP = cls.Comment
+                                ManualMCP = manualMCP
                             });
 
                             if (getDerivedTypes || getBaseTypes)
@@ -297,7 +317,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetTypeInfos), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(get_type_infos), ex, true);
                 return CreateExceptionResponse(ex);
             }
         }
@@ -305,7 +325,7 @@ namespace gip.core.webservices
 
 
         #region InstanceInfo
-        public virtual string AppGetInstanceInfo(IACComponent requester, string classIDs, string searchConditions, bool isCompositeSearch)
+        public virtual string get_instance_info(IACComponent requester, string classIDs, string searchConditions, bool isCompositeSearch)
         {
             try
             { 
@@ -332,7 +352,7 @@ namespace gip.core.webservices
                             if (thesaurausCls != null)
                             {
                                 classGuid = thesaurausCls.ACClassID;
-                                sb.AppendLine(string.Format("You didn't provide a valid ClassID (CId field) but you passed a valid ACIdentifer '{0}' instead. It was resolved to {1}. Next time, please call the {2} method first.", classId, classGuid, nameof(AppGetTypeInfos)));
+                                sb.AppendLine(string.Format("You didn't provide a valid ClassID (CId field) but you passed a valid ACIdentifer '{0}' instead. It was resolved to {1}. Next time, please call the {2} method first.", classId, classGuid, nameof(get_type_infos)));
                                 sendRecommendation = true;
                             }
                             else
@@ -357,14 +377,54 @@ namespace gip.core.webservices
                     }
                     if (classSearchConditions.Any())
                     {
-                        List<Tuple<MatchingCondition, IACComponent>> matchedComponents = new List<Tuple<MatchingCondition, IACComponent>>();
+                        var acKind = classSearchConditions.FirstOrDefault().Class.ACKind;
+
+                        List<Tuple<MatchingCondition, IACObjectWithInit>> matchedComponents = new List<Tuple<MatchingCondition, IACObjectWithInit>>();
                         foreach (var rootApp in ACRoot.SRoot.ACComponentChilds)
                         {
-                            //if (rootApp is IAppManager manager)
-                            //{
-                                // TODO: Optimize, Ignore unecessary applications
-                                SearchMatchingComponents(rootApp, ref matchedComponents, classSearchConditions, isCompositeSearch);
-                            //}
+                            if (   (acKind >= Global.ACKinds.TACBSO && acKind <= Global.ACKinds.TACBSOReport && !(rootApp is IBusinessobjects))
+                                || ((acKind == Global.ACKinds.TACDBA || acKind == Global.ACKinds.TACQRY) && !(rootApp is IQueries))
+                                )
+                                continue; // Skip if the rootApp is not a business object manager
+
+                            if ((acKind == Global.ACKinds.TACDBA || acKind == Global.ACKinds.TACQRY) && rootApp is Queries)
+                            {
+                                // Searching is not allowed
+                                if (!String.IsNullOrEmpty(searchConditions))
+                                {
+                                    sb.AppendLine($"Search conditions for the database search must not be passed here. " +
+                                        $"Create an ACUrl from the returned tree structure that references the query instance component for the database table (currently passed classID) . " +
+                                        $"Then call the QueryDatabase method on the query instance component with execute_acurl_command and pass the search parameters. " +
+                                        $"First, query the QueryDatabase method signature using get_method_info to understand the parameters.");
+                                    sendRecommendation = true;
+                                    searchConditions = null;
+                                    foreach (var searchCondition in classSearchConditions)
+                                    {
+                                        searchCondition.SearchTerm = null;
+                                    }
+                                }
+                                if (acKind == Global.ACKinds.TACDBA)
+                                {
+                                    sb.AppendLine($"You passed a classID of entity framework type instead of the corresponding query type of category 4. " +
+                                        $"Therefore, a suitable standard query class (ACQueryDefinition) is searched for that is suitable for querying the database for this table or entity class. " +
+                                        $"Next time, try to find a suitable query for category 4 from get_thesaurus.");
+                                    sendRecommendation = true;
+                                }
+                                Queries queries = rootApp as Queries;
+                                foreach (var searchCondition in classSearchConditions)
+                                {
+                                    // Ensure that an Instance of the query exists for the class
+                                    var instance = queries.GetOrCreateQueryInstance(searchCondition.Class);
+                                    if (instance != null && acKind == Global.ACKinds.TACDBA)
+                                    {
+                                        var classQRY = instance.ACType as gip.core.datamodel.ACClass;
+                                        sb.AppendLine($"Your passed classID '{searchCondition.Class.ACClassID}' was replaced by a derived instance of ACQueryDefintion classID '{classQRY.ACClassID}' ACIdentifier '{classQRY.ACIdentifier}'. " +
+                                            $"Use get_type_infos and get_property_info and get_method_info to understand how to work with query components. ");
+                                        searchCondition.Class = classQRY;
+                                    }
+                                }
+                            }
+                            SearchMatchingComponents(rootApp, ref matchedComponents, classSearchConditions, isCompositeSearch);
                         }
                         instanceInfo = BuildInstanceInfo(ACRoot.SRoot, matchedComponents);
                     }
@@ -389,7 +449,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetInstanceInfo), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(get_instance_info), ex, true);
                 return CreateExceptionResponse(ex);
             }
         }
@@ -437,12 +497,12 @@ namespace gip.core.webservices
             }
         }
 
-        protected void SearchMatchingComponents(IACComponent component, ref List<Tuple<MatchingCondition, IACComponent>> matchedComponents, List<SearchCondition> classSearchConditions, bool isCompositeSearch)
+        protected void SearchMatchingComponents(IACObjectWithInit component, ref List<Tuple<MatchingCondition, IACObjectWithInit>> matchedComponents, List<SearchCondition> classSearchConditions, bool isCompositeSearch)
         {
             MatchingConditions matchingConditions = new MatchingConditions(classSearchConditions);
-            IACComponent nextComp = component;
+            IACObjectWithInit nextComp = component;
             MatchingCondition mcNextComp = null;
-            IACComponent firstMatch = null;
+            IACObjectWithInit firstMatch = null;
             MatchingCondition mcFirstMatch = null;
             while (nextComp != null && nextComp != ACRoot.SRoot)
             {
@@ -451,10 +511,10 @@ namespace gip.core.webservices
                 {
                     if (matchingCondition.IsMatched)
                         continue; // Skip if this condition is already matched
-                    if (nextComp.ComponentClass.IsDerivedClassFrom(matchingCondition.Class)
+                    if ((nextComp.ACType as gip.core.datamodel.ACClass).IsDerivedClassFrom(matchingCondition.Class)
                         && (string.IsNullOrEmpty(matchingCondition.SearchTerm)
-                           || nextComp.ComponentClass.ACIdentifier.Contains(matchingCondition.SearchTerm, StringComparison.InvariantCultureIgnoreCase)
-                           || nextComp.ComponentClass.ACCaption.Contains(matchingCondition.SearchTerm, StringComparison.InvariantCultureIgnoreCase)))
+                           || (nextComp.ACType as gip.core.datamodel.ACClass).ACIdentifier.Contains(matchingCondition.SearchTerm, StringComparison.InvariantCultureIgnoreCase)
+                           || (nextComp.ACType as gip.core.datamodel.ACClass).ACCaption.Contains(matchingCondition.SearchTerm, StringComparison.InvariantCultureIgnoreCase)))
                     {
                         mcNextComp = matchingCondition;
                         if (firstMatch == null)
@@ -464,29 +524,31 @@ namespace gip.core.webservices
                         }
                         matchingCondition.IsMatched = true; // Mark this condition as matched
                         if (!isCompositeSearch)
-                            matchedComponents.Add(new Tuple<MatchingCondition, IACComponent>(matchingCondition, nextComp));
+                            matchedComponents.Add(new Tuple<MatchingCondition, IACObjectWithInit>(matchingCondition, nextComp));
                         break;
                     }
                 }
                 if (isCompositeSearch && matchingConditions.IsFullyMatched)
                 {
-                    matchedComponents.Add(firstMatch != null ? new Tuple<MatchingCondition, IACComponent>(mcFirstMatch, firstMatch) : new Tuple<MatchingCondition, IACComponent>(mcNextComp,nextComp));
+                    matchedComponents.Add(firstMatch != null ? new Tuple<MatchingCondition, IACObjectWithInit>(mcFirstMatch, firstMatch) : new Tuple<MatchingCondition, IACObjectWithInit>(mcNextComp,nextComp));
                     break;
                 }
                 if (!isCompositeSearch)
                     break;
                 // Move to the next component in the hierarchy
-                nextComp = nextComp.ParentACComponent; // This should be set to the next component in your logic
+                nextComp = nextComp.ParentACObject as IACObjectWithInit; // This should be set to the next component in your logic
             }
 
-            foreach (var child in component.ACComponentChilds)
+            foreach (IACObjectWithInit child in component.ACObjectChilds)
             {
+                if (child == null)
+                    continue;
                 // Recursively search in child components
                 SearchMatchingComponents(child, ref matchedComponents, classSearchConditions, isCompositeSearch);
             }
         }
 
-        protected MCP_InstanceInfo BuildInstanceInfo(IACComponent root, List<Tuple<MatchingCondition, IACComponent>> matchedComponents)
+        protected MCP_InstanceInfo BuildInstanceInfo(IACObjectWithInit root, List<Tuple<MatchingCondition, IACObjectWithInit>> matchedComponents)
         {
             if (matchedComponents == null || !matchedComponents.Any())
                 return null;
@@ -495,14 +557,14 @@ namespace gip.core.webservices
                 BaseClassID = Guid.Empty.ToString(), // Default value if no base class is found
                 ACIdentifier = root.ACIdentifier,
                 Description = root.ACCaption,
-                ClassID = root.ComponentClass.ACClassID.ToString()
+                ClassID = (root.ACType as gip.core.datamodel.ACClass).ACClassID.ToString()
             };
 
             foreach (var matchingTuple in matchedComponents)
             {
                 MCP_InstanceInfo mcpInstance = mcpRoot;
-                List<IACComponent> reversePath = GetReversePath(root, matchingTuple.Item2);
-                foreach (IACComponent instanceInPath in reversePath)
+                List<IACObjectWithInit> reversePath = GetReversePath(root, matchingTuple.Item2);
+                foreach (IACObjectWithInit instanceInPath in reversePath)
                 {
                     MCP_InstanceInfo mcpChild = mcpInstance.Childs.Where(c => c.ACIdentifier == instanceInPath.ACIdentifier).FirstOrDefault();
                     if (mcpChild == null)
@@ -511,8 +573,8 @@ namespace gip.core.webservices
                         {
                             ACIdentifier = instanceInPath.ACIdentifier,
                             Description = instanceInPath.ACCaption,
-                            ClassID = instanceInPath.ComponentClass?.ACClassID.ToString(),
-                            BaseClassID = instanceInPath.ComponentClass?.BaseClass?.ACClassID.ToString(),
+                            ClassID = (instanceInPath.ACType as gip.core.datamodel.ACClass)?.ACClassID.ToString(),
+                            BaseClassID = (instanceInPath.ACType as gip.core.datamodel.ACClass)?.BaseClass?.ACClassID.ToString(),
                             MatchingBaseClassID = matchingTuple.Item2 == instanceInPath ? matchingTuple.Item1.Class.ACClassID.ToString() : null
                         };
                         mcpInstance.Childs.Add(mcpChild);
@@ -524,13 +586,13 @@ namespace gip.core.webservices
             return mcpRoot;
         }
 
-        protected List<IACComponent> GetReversePath(IACComponent root, IACComponent instance)
+        protected List<IACObjectWithInit> GetReversePath(IACObjectWithInit root, IACObjectWithInit instance)
         {
-            List<IACComponent> reversePath = new List<IACComponent>();
+            List<IACObjectWithInit> reversePath = new List<IACObjectWithInit>();
             do
             {
                 reversePath.Insert(0, instance); // Insert at the beginning to reverse the order
-                instance = instance.ParentACComponent; // Assuming ParentACComponent is the property to get the parent
+                instance = instance.ParentACObject as IACObjectWithInit; // Assuming ParentACComponent is the property to get the parent
                 if (instance == root)
                     break;
             }
@@ -541,7 +603,7 @@ namespace gip.core.webservices
 
 
         #region Property Info
-        public string AppGetPropertyInfo(IACComponent requester, string classID)
+        public string get_property_info(IACComponent requester, string classID)
         {
             try
             {
@@ -574,7 +636,8 @@ namespace gip.core.webservices
                                     IsReadOnly = !acProp.IsInput,
                                     Group = acProp.ACGroup,
                                     InnerDataTypeClassID = acProp.ValueTypeACClassID.ToString(),
-                                    GenericTypeClassID = genericACClass != null ? genericACClass.ACClassID.ToString() : null
+                                    GenericTypeClassID = genericACClass != null ? genericACClass.ACClassID.ToString() : null,
+                                    ManualMCP = acProp.Comment
                                 };
 
                                 properties.Add(propInfo);
@@ -604,7 +667,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetPropertyInfo), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(get_property_info), ex, true);
                 return CreateExceptionResponse(ex);
             }
 
@@ -614,7 +677,7 @@ namespace gip.core.webservices
 
 
         #region Method Info
-        public string AppGetMethodInfo(IACComponent requester, string classID)
+        public string get_method_info(IACComponent requester, string classID)
         {
             try
             {
@@ -704,7 +767,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetMethodInfo), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(get_method_info), ex, true);
                 return CreateExceptionResponse(ex);
             }
 
@@ -713,7 +776,7 @@ namespace gip.core.webservices
         #endregion
 
         #region ACUrlCommand
-        public string ExecuteACUrlCommand(IACComponent requester, string acUrl, bool writeProperty = false, ushort detailLevel = 0, string parametersJson = "")
+        public string execute_acurl_command(IACComponent requester, string acUrl, bool writeProperty = false, ushort detailLevel = 0, string parametersJson = "")
         {
             try
             {
@@ -759,15 +822,19 @@ namespace gip.core.webservices
                             string methodName = acUrlCommand.Substring(indexMethodDelimiter + 1);
                             if (!string.IsNullOrEmpty(acUrlOfInstance) && !string.IsNullOrEmpty(methodName))
                             {
-                                ACComponent acComp = ACRoot.SRoot.ACUrlCommand(acUrlOfInstance, null) as ACComponent;
-                                if (acComp != null)
+                                IACObjectWithInit acObj = ACRoot.SRoot.ACUrlCommand(acUrlOfInstance, null) as IACObjectWithInit;
+                                if (acObj != null)
                                 {
                                     object[] parameters = null;
                                     if (parametersKVP != null && parametersKVP.Any())
-                                        parameters = ConvertKVPValues(acComp, methodName, parametersKVP, i, countACUrlCommands, sbErr, sbRec);
+                                        parameters = ConvertKVPValues(acObj, methodName, parametersKVP, i, countACUrlCommands, sbErr, sbRec);
                                     else if (bulkValues != null && bulkValues.Any())
-                                        parameters = ConvertBulkValues(acComp, methodName, bulkValues, i, countACUrlCommands, sbErr, sbRec);
-                                    result = acComp.ExecuteMethod(methodName, parameters);
+                                        parameters = ConvertBulkValues(acObj, methodName, bulkValues, i, countACUrlCommands, sbErr, sbRec);
+                                    IACComponent acComp = acObj as IACComponent;
+                                    if (acComp != null)
+                                        result = acComp.ExecuteMethod(methodName, parameters);
+                                    else
+                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters);
                                 }
                                 else
                                 {
@@ -779,12 +846,12 @@ namespace gip.core.webservices
                                         if (lastComp != lastElement)
                                         {
                                             sbErr.AppendLine(string.Format("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element with address {0}, which is an instance derived from ACComponent. " +
-                                                "Check the method signature of method {1} using AppGetMethodInfo and you may need to pass the property name {2} as a parameter.", lastComp.ACUrl, methodName, lastElement.ACUrl.Replace(lastComp.ACUrl, "")));
+                                                "Check the method signature of method {1} using get_method_info and you may need to pass the property name {2} as a parameter.", lastComp.ACUrl, methodName, lastElement.ACUrl.Replace(lastComp.ACUrl, "")));
                                         }
                                         else
                                         {
                                             sbErr.AppendLine("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
-                                                "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.");
+                                                "Check the method signature of method {0} using get_method_info and you may need to pass the property name as a parameter.");
                                         }
                                     }
                                     else
@@ -792,7 +859,7 @@ namespace gip.core.webservices
 
                                         // You can't make method calls on properties. Use the parent element, which is a component, for that.
                                         sbErr.AppendLine("Incorrect addressing of method calls! You cannot make method calls on properties. Use the next parent element which is an instance derived from ACComponent. " +
-                                            "Check the method signature of method {0} using AppGetMethodInfo and you may need to pass the property name as a parameter.");
+                                            "Check the method signature of method {0} using get_method_info and you may need to pass the property name as a parameter.");
                                     }
                                 }
                             }
@@ -893,6 +960,17 @@ namespace gip.core.webservices
                             Error = errorMsg,
                             Recommendation = recommendation
                         };
+                        if (result != null && result is IDisposable disposableResult)
+                        {
+                            try
+                            {
+                                disposableResult.Dispose();
+                            }
+                            catch (Exception ex)
+                            {
+                                requester.Messages.LogException(requester.GetACUrl(), nameof(execute_acurl_command), ex, true);
+                            }
+                        }
                         results.Add(response);
                         i++;
                     }
@@ -902,7 +980,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(ExecuteACUrlCommand), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(execute_acurl_command), ex, true);
                 return CreateExceptionResponse(ex);
             }
         }
@@ -1046,7 +1124,7 @@ namespace gip.core.webservices
 
 
         #region Create new Instance
-        public virtual string AppCreateNewInstance(IACComponent requester, string classID, string acUrl)
+        public virtual string create_new_instance(IACComponent requester, string classID, string acUrl)
         {
             try
             {
@@ -1075,34 +1153,54 @@ namespace gip.core.webservices
                 }
                 if (classGuid != Guid.Empty && ThesaurusByCId.TryGetValue(classGuid, out gip.core.datamodel.ACClass cls))
                 {
-                    IACComponent parentComp = ACRoot.SRoot.ACUrlCommand(acUrl, null) as IACComponent;
-                    if (parentComp != null)
+                    if ((cls.ACKind < Global.ACKinds.TACBSO || cls.ACKind > Global.ACKinds.TACBSOReport) && cls.ACKind != Global.ACKinds.TACQRY)
                     {
-                        IACComponent newInstance = parentComp.StartComponent(cls, cls, new ACValueList()
+                        if (cls.ACKind == Global.ACKinds.TACDBA)
+                        {
+                            sb.AppendLine($"Database objects or entity framework objects can't be instantiated with create_new_instance. Only Businessobjects (get_thesaurus in category 2). " +
+                                $"To perform queries on databases use execute_acurl_command with acUrl parameter '\\Root\\Queries\\ACIdentifier'. " +
+                                $"ACIdentifier is the query class (get_thesaurus in category 4) for the entity framework Class or database Tablename." +
+                                $"In this case the acUrl parameter is '\\Root\\Queries\\{cls.ACIdentifier}'. " +
+                                $"Calling execute_acurl_command without parameters returns information (metadata) about the Query. " +
+                                $"For reading data from the Database pass the filter parameters (field and value) in parametersJson.");
+                        }
+                        else
+                        {
+                            sb.AppendLine($"this type of class can't be instantiated with create_new_instance. Only Businessobjects (get_thesaurus in category 2).");
+                        }
+                        sendRecommendation = true;
+                    }
+                    else
+                    {
+                        IACComponent parentComp = ACRoot.SRoot.ACUrlCommand(acUrl, null) as IACComponent;
+                        if (parentComp != null)
+                        {
+                            IACComponent newInstance = parentComp.StartComponent(cls, cls, new ACValueList()
                                     {
                                             // Always use a separate Context for new instances when using MCP to avoid conflicts if multiple Agents are working with iplus at the same time
                                             new ACValue(Const.ParamSeperateContext, typeof(bool), true)
                                             //,new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
                                     }) as IACComponent;
-                        if (newInstance != null)
-                        {
-                            instanceInfo = BuildInstanceInfo(ACRoot.SRoot, 
-                                new List<Tuple<MatchingCondition, IACComponent>>() 
-                                { 
-                                    new Tuple<MatchingCondition, IACComponent>(new MatchingCondition() { Class = cls, IsMatched = true }, newInstance) 
-                                }
-                                );
+                            if (newInstance != null)
+                            {
+                                instanceInfo = BuildInstanceInfo(ACRoot.SRoot,
+                                    new List<Tuple<MatchingCondition, IACObjectWithInit>>()
+                                    {
+                                        new Tuple<MatchingCondition, IACObjectWithInit>(new MatchingCondition() { Class = cls, IsMatched = true }, newInstance)
+                                    }
+                                    );
+                            }
+                            else
+                            {
+                                sb.AppendLine($"Failed to create new instance of class '{cls.ACIdentifier}' at ACUrl '{acUrl}'");
+                                sendRecommendation = true;
+                            }
                         }
                         else
                         {
-                            sb.AppendLine($"Failed to create new instance of class '{cls.ACIdentifier}' at ACUrl '{acUrl}'");
+                            sb.AppendLine($"Parent component not found for ACUrl '{acUrl}'");
                             sendRecommendation = true;
                         }
-                    }
-                    else
-                    {
-                        sb.AppendLine($"Parent component not found for ACUrl '{acUrl}'");
-                        sendRecommendation = true;
                     }
                 }
                 else
@@ -1130,7 +1228,7 @@ namespace gip.core.webservices
             }
             catch (Exception ex)
             {
-                requester.Messages.LogException(requester.GetACUrl(), nameof(AppGetInstanceInfo), ex, true);
+                requester.Messages.LogException(requester.GetACUrl(), nameof(get_instance_info), ex, true);
                 return CreateExceptionResponse(ex);
             }
         }

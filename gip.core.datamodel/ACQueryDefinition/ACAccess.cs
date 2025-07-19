@@ -77,7 +77,7 @@ namespace gip.core.datamodel
         }
 
         [ACPropertyInfo(9999)]
-        public virtual IACBSO ParentACComponent
+        public virtual IACBSO ParentBSO
         {
             get
             {
@@ -394,20 +394,6 @@ namespace gip.core.datamodel
         public event NavSearchEventHandler NavSearchExecuting;
 
         public event NavSearchExecutedEventHandler NavSearchExecuted;
-
-        /// <summary>
-        /// Property-Changed event
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        protected void OnPropertyChanged([CallerMemberName] string name = "")
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
 
         #endregion
     }

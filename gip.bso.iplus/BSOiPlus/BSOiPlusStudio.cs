@@ -2536,6 +2536,7 @@ namespace gip.bso.iplus
             {
                 case Global.ACKinds.TACDBA:
                     nextLayouts.Add("TabOverview");
+                    nextLayouts.Add("TabMethod");
                     nextLayouts.Add("TabProperty");
                     nextLayouts.Add("TabDesign");
                     nextLayouts.Add("TabConfig");
@@ -2705,6 +2706,7 @@ namespace gip.bso.iplus
                 case Global.ACKinds.TPWNodeWorkflow: // 6330
                 case Global.ACKinds.TPWNodeStart: // 6380
                 case Global.ACKinds.TPWNodeEnd: // 6390
+                case Global.ACKinds.TACObject:
                     return true;
             }
             return false;
@@ -2758,6 +2760,7 @@ namespace gip.bso.iplus
                 case Global.ACKinds.TPWNodeWorkflow: // 6330
                 case Global.ACKinds.TPWNodeStart: // 6380
                 case Global.ACKinds.TPWNodeEnd: // 6390
+                case Global.ACKinds.TACObject:
                     return true;
             }
             return false;

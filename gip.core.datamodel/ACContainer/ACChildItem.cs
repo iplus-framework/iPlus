@@ -36,7 +36,7 @@ namespace gip.core.datamodel
                     if (item == null)
                         item = ParentComponent.ACUrlCommand("?" + InstanceName) as IACComponent;
                     if (item == null)
-                        item = ParentComponent.StartComponent(InstanceName, null, new object[] { });
+                        item = ParentComponent.StartComponent(InstanceName, null, new object[] { }) as IACComponent;
                     if (item != null)
                         value = (T)item;
                 }

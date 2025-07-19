@@ -20,6 +20,7 @@ using System.Runtime.Serialization;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -32,7 +33,18 @@ namespace gip.core.datamodel
     /// <seealso cref="gip.core.datamodel.IVBDataCheckbox" />
     /// <seealso cref="System.ComponentModel.INotifyPropertyChanged" />
     /// <seealso cref="System.ICloneable" />
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Querydefinition'}de{'Abfragedefinition'}", Global.ACKinds.TACQRY, Global.ACStorableTypes.NotStorable, true, false)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Querydefinition'}de{'Abfragedefinition'}", Global.ACKinds.TACQRY, Global.ACStorableTypes.NotStorable, true, false, 
+        Description = @"ACQueryDefinition is a serializable and persistable class for building, storing, and executing user-defined queries in the iPlus system. 
+        It allows dynamic construction of queries by manipulating filter and sort columns, supports configuration persistence, and generates LINQ and Entity-SQL statements for querying Entity Framework data sources. 
+        MCP-Agents can use this class to define, modify, and execute queries against business objects, manage query configurations, and retrieve results with custom filtering and sorting. 
+        The class provides methods for loading/saving query definitions, cloning, and comparing query parameters, making it suitable for scenarios where flexible, 
+        user-driven data retrieval is required in MCP workflows or UI components. The ACQueryDefInstance class, derived from ACQueryDefinition, is used to instantiate ACQueryDefinition as a component. 
+        These component instances are located at the address '\\Root\\Queries\\{name of the query class}' e.g. '\\Root\\Queries\\QRYPartslist' . 
+        Agents access the instance address using get_thesaurus of category 4 and get_instance_info. 
+        The class's instructions can be read using get_method_info and get_property_info, and the command can then be executed using execute_acurl_command.
+        ACQueryDefinitions instantiated as components are stateless. Properties can be read as default values, but not written. 
+This is because with each database query, the entire instance is cloned, and the filter values, and thus the SQL statement, are dynamically changed. 
+In business objects, ACQueryDefinitions are stateful because each business object is a separate instance, and thus the properties can be changed.")]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACQueryDefinition.ClassName, "en{'Querydefinition'}de{'Abfragedefinition'}", typeof(ACQueryDefinition), "ACObjectChilds", Const.ACIdentifierPrefix, Const.ACIdentifierPrefix)]
     [ACClassConstructorInfo(
         new object[]
@@ -202,7 +214,9 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
         [DataMember]
-        [ACPropertyInfo(1, "", "en{'Querytype'}de{'Abfragetyp'}")]
+        [ACPropertyInfo(1, "", "en{'Entity class or Table that is queried '}de{'Entity Klasse bzw. Tabelle die Abgefragt wird'}", 
+            Description = "Entity class or table that is queried with this component. " +
+            "Call get_property_info to find out which fields the table has in order to pass additional search conditions to the QueryDatabase method.")]
         public ACClass QueryType
         {
             get;
@@ -242,7 +256,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value><c>true</c> if this instance is used; otherwise, <c>false</c>.</value>
         [DataMember]
-        [ACPropertyInfo(4, "", "en{'Used'}de{'Verwendet'}")]
+        [ACPropertyInfo(4, "", "en{'Used'}de{'Verwendet'}", Description = "Deprecated Property")]
         public bool IsUsed
         {
             get
@@ -266,7 +280,10 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>The global search word.</value>
         [DataMember]
-        [ACPropertyInfo(5, "", "en{'Filter'}de{'Filter'}")]
+        [ACPropertyInfo(5, "", "en{'Global search word'}de{'Globales Suchwort'}", 
+            Description = "Global search term displayed in the ribbon and at the top of the query dialog. " +
+            "This search term is set for all ACFilterItem elements in the ACFilterColumns list " +
+            "where the UsedInGlobalSearch property is true. Typically, these search fields are ORed.")]
         public string SearchWord
         {
             get
@@ -297,7 +314,8 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>Count of records</value>
         [DataMember]
-        [ACPropertyInfo(9, "", "en{'Limit Record Count'}de{'Limit Anzahl Datensätze'}")]
+        [ACPropertyInfo(9, "", "en{'Limit Record Count'}de{'Limit Anzahl Datensätze'}", 
+            Description = "Use these parameters to control the maximum number of records returned by the database. Equivalent to the TOP statement.")]
         public int TakeCount
         {
             get
@@ -382,7 +400,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>List of ACColumnItem</value>
         [DataMember]
-        [ACPropertyInfo(6, "", "en{'Columns'}de{'Spalten'}")]
+        [ACPropertyInfo(6, "", "en{'Columns'}de{'Spalten'}", Description = "Standard columns to be displayed in datagrids or item controls if no special columns have been specified in the XAML.")]
         public List<ACColumnItem> ACColumns
         {
             get
@@ -408,7 +426,10 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>List of ACFilterItem</value>
         [IgnoreDataMember]
-        [ACPropertyInfo(7, "", "en{'Filter Columns'}de{'Filterspalten'}")]
+        [ACPropertyInfo(7, "", "en{'Filter Columns'}de{'Filterspalten'}", 
+            Description = "List of search conditions. ACFilterItem can also be parentheses or Boolean operators if PropertyName is empty. " +
+            "Use get_property_info to determine which properties ACFilterItem has. " +
+            "An SQL query is generated from the search conditions and is located in the EntitySQL_FromItems property. Equivalent to the WHERE statement.")]
         public BindingList<ACFilterItem> ACFilterColumns
         {
             get
@@ -432,7 +453,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value>List of ACSortItem</value>
         [IgnoreDataMember]
-        [ACPropertyInfo(8, "", "en{'Sorting Columns'}de{'Sortierung'}")]
+        [ACPropertyInfo(8, "", "en{'Sorting Columns'}de{'Sortierung'}", Description = "Sort order. Equivalent to the ORDER statement.")]
         public BindingList<ACSortItem> ACSortColumns
         {
             get
@@ -599,6 +620,10 @@ namespace gip.core.datamodel
                 if (_SQLParameters != null)
                     return _SQLParameters;
                 return FilterParameters;
+            }
+            set
+            {
+                _SQLParameters = value;
             }
         }
 
@@ -779,7 +804,12 @@ namespace gip.core.datamodel
         private string _EntitySQL_FromEdit = null;
         /// <summary>Entity-SQL Statemenet, that can be manipulated in the Query-Dialog by the user</summary>
         /// <value>Entity-SQL-string</value>
-        [ACPropertyInfo(9999, "", "en{'Edit SQL Statement'}de{'Editiere SQL Anweisung'}")]
+        [ACPropertyInfo(9999, "", "en{'Edit SQL Statement'}de{'Editiere SQL Anweisung'}",
+            Description = "Custom query. The main table with the alias 'c' must always be used. " +
+            "Aliases for joins start with the letter 'j' and a consecutive number starting from 0. " +
+            "As a parameter placeholder, use '@' + join alias + parameter name (field name) of the ACFilterItem. " +
+            "Example:\r\nSELECT TOP 500 c.* FROM Partslist AS c LEFT JOIN Material AS j0 ON j0.MaterialID = c.MaterialID LEFT JOIN MDUnit AS j1 ON j1.MDUnitID = c.MDUnitID WHERE c.DeleteDate IS NULL AND (c.PartslistNo LIKE @cPartslistNo) AND c.IsEnabled = @cIsEnabled AND j0.MaterialNo LIKE @j0MaterialNo AND j1.MDUnitName LIKE @j1MDUnitName ORDER BY c.PartslistNo ASC, c.PartslistVersion ASC \r\n" +
+            "To generate SQL statements, use the GitHub MCP tool to analyze the context class derived from DbContext and the relations described via the Fluent API. For iPlus, this is the class 'iPlusV5Context' iPlus-MES 'iPlusMESV5Context'.")]
         public string EntitySQL_FromEdit
         {
             get
@@ -797,7 +827,8 @@ namespace gip.core.datamodel
         private string _EntitySQL_FromItems = null;
         /// <summary>Entity-SQL Where-Clause, that is generated from ACFilterColumns and ACSortColumns</summary>
         /// <value>Entity-SQL-string</value>
-        [ACPropertyInfo(9999, "", "en{'Generated SQL Statement'}de{'Generierte SQL Anweisung'}")]
+        [ACPropertyInfo(9999, "", "en{'Generated SQL Statement'}de{'Generierte SQL Anweisung'}", 
+            Description = "The SQL statement generated from ACFilterColumns and ACSortColumns.")]
         public string EntitySQL_FromItems
         {
             get
@@ -813,15 +844,26 @@ namespace gip.core.datamodel
 
         /// <summary>Entity-SQL statemenet, that is used for exceuting query</summary>
         /// <value>Entity-SQL-string</value>
-        [ACPropertyInfo(9999, "", "en{'Active SQL Statement'}de{'Aktive SQL Anweisung'}")]
+        [ACPropertyInfo(9999, "", "en{'Active SQL Statement'}de{'Aktive SQL Anweisung'}" , 
+            Description = "SQL query sent to the database using the FromSqlRaw method. " +
+            "If EntitySQL_FromEdit is explicitly set, EntitySQL_FromEdit is used; otherwise, EntitySQL_FromItems is used.")]
         public string EntitySQL
         {
             get
             {
                 if (!String.IsNullOrEmpty(EntitySQL_FromEdit))
                 {
-                    if (EntitySQL_FromEdit.StartsWith(SelectPartOfEntitySQL))
+                    if (EntitySQL_FromEdit.StartsWith(SelectPartOfEntitySQL)
+                        || EntitySQL_FromEdit.StartsWith(String.Format("SELECT c.* FROM {0} AS c ", this.QueryType.ACIdentifier))
+                       )
+                    {
                         return EntitySQL_FromEdit;
+                    }
+                    else if (EntitySQL_FromEdit.StartsWith("SELECT") && EntitySQL_FromEdit.Contains(String.Format("FROM {0} AS c ", this.QueryType.ACIdentifier)))
+                    {
+                        throw new ArgumentException("EntitySQL_FromEdit must start with 'SELECT TOP {count} c.*' or 'SELECT c.* FROM {Table} AS c'. " +
+                            "In the entity framework, no explicit columns can be specified using FromSqlRaw.");
+                    }
                     return SelectPartOfEntitySQL + EntitySQL_FromEdit;
                 }
                 return EntitySQL_FromItems;
@@ -1144,6 +1186,7 @@ namespace gip.core.datamodel
             this._LINQPredicateOrderBy_FromItems = from._LINQPredicateOrderBy_FromItems;
             this.EntitySQL_FromEdit = from.EntitySQL_FromEdit;
             this._EntitySQL_FromItems = from._EntitySQL_FromItems;
+            this._SQLParameters = from._SQLParameters;
 
             // Lists
             if (withColumns)
@@ -1195,7 +1238,6 @@ namespace gip.core.datamodel
 
             this.EntitySQL_FromEdit = from.EntitySQL_FromEdit;
             this._EntitySQL_FromItems = from._EntitySQL_FromItems;
-
         }
 
         private void CopyFilterList(BindingList<ACFilterItem> source, BindingList<ACFilterItem> target)
@@ -1927,7 +1969,7 @@ namespace gip.core.datamodel
         }
 
 
-        /// <summary>Compares the passed filter-list with ACFilterColumns. If anything is different, then the Items in this query definition are replaced with the passed ones.</summary>
+        /// <summary>Compares passed filter-list with ACFilterColumns. If anything is different, then the Items in this query definition are replaced with the passed ones.</summary>
         /// <param name="filterItems">The filter items that should be compared with ACFilterColumns</param>
         /// <param name="onlyDefaultParameters">if set to <c>true</c> only items with IsConfiguration=true are compared.</param>
         /// <param name="compareSearchWords">if set to <c>true</c> the the SearchWord-Property will also be compared</param>
@@ -2177,11 +2219,46 @@ namespace gip.core.datamodel
 
 #endregion
 
-#endregion
+#region Instance-Methods
+        [ACMethodInfo("", "en{'Database query via search params'}de{'Datenbankabfrage per Suchparameter'}", 300, false, IsCommand = false, IsInteraction = false,
+            Description = @"Executes database query with optional search parameters.
+            Parameters must be passed as alternating key-value pairs (key1, value1, key2, value2, ...).
+            Keys correspond to property names from the ACFilterColumns collection or entity type properties.
+            Values will be converted to string and used for equality comparison.
+            If a matching ACFilterItem exists in QueryDefinition.ACFilterColumns, its SearchWord will be updated.
+            If no matching filter exists, a new ACFilterItem with equal operator will be created.
+            Only field names that exist in the database table are valid. The QueryType property specifies which table or class queries are performed on.
+            Example: QueryDatabase('MaterialNo', 'MAT123', 'IsActive', true)")]
+        public virtual IEnumerable<VBEntityObject> QueryDatabase(params Object[] acParameter)
+        {
+            throw new NotImplementedException("This method should be overridden in derived classes to implement the database query logic.");
+        }
 
-#region private
+        [ACMethodInfo("", "en{'Database query via SQL-Statement'}de{'Datenbankabfrage per SQL-Anweisung'}", 301, false, IsCommand = false, IsInteraction = false,
+            Description = @"Executes custom queries with a passed sqlStatement with optional search parameters.
+            Parameters must be passed as alternating key-value pairs (key1, value1, key2, value2, ...).
+            Keys correspond to property names from the ACFilterColumns collection or entity type properties.
+            If a matching ACFilterItem exists in QueryDefinition.ACFilterColumns, its SearchWord will be updated.
+            If no matching filter exists, a new ACFilterItem with equal operator will be created.
+            Only field names that exist in the database table are valid. The QueryType property specifies which table or class queries are performed on.\r\n
+            Parameter 'sqlStatement':\r\n
+            The main table with the alias 'c' must always be used.
+            Aliases for joins start with the letter 'j' and a consecutive number starting from 0. 
+            As a parameter placeholder, use '@' + join alias + parameter name (field name) of the ACFilterItem.
+            Example:\r\nSELECT TOP 500 c.* FROM Partslist AS c LEFT JOIN Material AS j0 ON j0.MaterialID = c.MaterialID LEFT JOIN MDUnit AS j1 ON j1.MDUnitID = c.MDUnitID WHERE c.DeleteDate IS NULL AND (c.PartslistNo LIKE @cPartslistNo) AND c.IsEnabled = @cIsEnabled AND j0.MaterialNo LIKE @j0MaterialNo AND j1.MDUnitName LIKE @j1MDUnitName ORDER BY c.PartslistNo ASC, c.PartslistVersion ASC \r\n
+            To generate SQL statements, use the GitHub MCP tool to analyze the context class derived from DbContext and the relations described via the Fluent API. 
+            For iPlus, this is the class 'iPlusV5Context' iPlus-MES 'iPlusMESV5Context'.
+            Parameter 'acParameter':\r\n
+            Example: 'MaterialNo', 'MAT123', 'IsActive', 'true'")]
+        public virtual IEnumerable<VBEntityObject> QueryDatabaseSQL(string sqlStatement, params Object[] acParameter)
+        {
+            throw new NotImplementedException("This method should be overridden in derived classes to implement the database query logic.");
+        }
+        #endregion
 
-#region Init-Methods
+        #region private
+
+        #region Init-Methods
         /// <summary>
         /// Inits the AC columns.
         /// </summary>
@@ -2304,7 +2381,7 @@ namespace gip.core.datamodel
 
 #endregion
 
-#region ACAccess
+        #region ACAccess
         private ACValueList GetParameterACAccess(string acGroup)
         {
             ACValueList acValueList = new ACValueList();
@@ -2312,33 +2389,19 @@ namespace gip.core.datamodel
             acValueList.Add(new ACValue(Const.ACGroup, Const.TNameString, "", acGroup));
             return acValueList;
         }
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
-#endregion
+        #region Eventhandling
 
-#region Eventhandling
-
-#region PropertyChanged
-        /// <summary>
-        /// Notifies the property changed.
-        /// </summary>
-        /// <param name="info">The info.</param>
-        private void OnPropertyChanged(String info)
+        #region PropertyChanged
+        public override void OnPropertyChanged([CallerMemberName] string name = "")
         {
             if (SaveToACConfigOff)
                 return;
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(info));
-            }
+            base.OnPropertyChanged(name);
         }
-
-        /// <summary>
-        /// Occurs when [property changed].
-        /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
 
         private bool _ACFilterColumnsSubscribed = false;
         protected virtual void ACFilterColumns_ListChanged(object sender, ListChangedEventArgs e)
@@ -2358,9 +2421,12 @@ namespace gip.core.datamodel
             ResetQueryStrings();
         }
 
-#endregion
+        #endregion
+
+        #endregion
+
+        #endregion
 
 #endregion
-
     }
 }

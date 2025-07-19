@@ -220,7 +220,7 @@ namespace gip.core.webservices
                             detailLevel++;
                         while (type != null)
                         {
-                            if ((!type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type))
+                            if ((!type.IsGenericType && (typeof(IACObjectKeyComparer).IsAssignableFrom(type) || typeof(IACObjectKeyComparer[]).IsAssignableFrom(type)))
                                 || (type.IsGenericType && typeof(IACObjectKeyComparer).IsAssignableFrom(type.GetGenericArguments()[0])))
                             {
                                 serializeJSON = true;
@@ -279,17 +279,35 @@ namespace gip.core.webservices
                                             new JsonSerializerOptions { WriteIndented = false });
         }
 
-        public object[] ConvertKVPValues(ACComponent aCComponent, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
+        public object[] ConvertKVPValues(IACObjectWithInit acObj, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
         {
-            string acMethodName1;
-            ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
+            string acMethodName1 = null;
+            ACClassMethod acClassMethod = null;
+            ACComponent aCComponent = acObj as ACComponent;
+            if (aCComponent != null)
+                acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
+            else
+            {
+                gip.core.datamodel.ACClass acClass = acObj.ACType as gip.core.datamodel.ACClass;
+                if (acClass != null)
+                {
+                    int pos = acMethodName.IndexOf('!');
+                    if (pos == 0)
+                        acMethodName1 = acMethodName.Substring(1);
+                    else
+                        acMethodName1 = acMethodName;
+                    acClassMethod = acClass.GetMethod(acMethodName1);
+                }
+                else
+                    throw new ArgumentException(String.Format("The object {0} is not a valid ACComponent or ACClass. Cannot find method {1}.", acObj.ACIdentifier, acMethodName));
+            }
             if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
             {
-                throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using AppGetMethodInfo() and read the required parameter list of the method signature.", acMethodName));
+                throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using get_method_info() and read the required parameter list of the method signature.", acMethodName));
                 //return kvpParams.Select(c => c.Value).ToArray();
             }
 
-            IACEntityObjectContext dbContext = aCComponent.Database != null ? aCComponent.Database : ACRoot.SRoot.Database.ContextIPlus;
+            IACEntityObjectContext dbContext = aCComponent != null && aCComponent.Database != null ? aCComponent.Database : ACRoot.SRoot.Database.ContextIPlus;
 
             ACMethod acMethod = acClassMethod.TypeACSignature();
             if (acMethod == null)
@@ -298,15 +316,30 @@ namespace gip.core.webservices
             int i = 0;
             bool hasKeys = true;
             List<object> convParams = new List<object>();
-            List<KeyValuePair<string, object>> kvpParams1 = kvpParams;
+            List<KeyValuePair<string, object>> kvpParams1 = kvpParams.ToList();
+            List<object> dynParams = null;
+            string dynParamsKey = null;
             // If bulk operations and for each method the LLM has passed separate parameterset, then split the parameters
             if (acMethod.ParameterValueList.Count < kvpParams.Count)
             {
+                if (acMethod.ParameterValueList.Count == 1)
+                {
+                    if (acMethod.ParameterValueList[0].ObjectType == typeof(object[]))
+                        return kvpParams.Select(c => c.Value).ToArray();
+                }
                 kvpParams1 = new List<KeyValuePair<string, object>>();
                 int offset = currCommandPos * acMethod.ParameterValueList.Count;
                 for (int j = 0; j < acMethod.ParameterValueList.Count; j++)
                 {
-                    kvpParams1.Add(kvpParams[j + offset]);
+                    if (dynParams == null && acMethod.ParameterValueList[j].ObjectType == typeof(object[]))
+                    {
+                        dynParams = new List<object>();
+                        dynParamsKey = kvpParams[j + offset].Key;
+                    }
+                    if (dynParams != null)
+                        dynParams.Add(kvpParams[j + offset].Value);
+                    else
+                        kvpParams1.Add(kvpParams[j + offset]);
                 }
             }
             else if (acMethod.ParameterValueList.Count > kvpParams.Count)
@@ -314,18 +347,41 @@ namespace gip.core.webservices
                 throw new ArgumentException(String.Format("Too few parameters were passed {0}. The method {1} requires {2} parameters. Read the method signature and correct your parameter passing accordingly.", kvpParams.Count, acMethodName, acMethod.ParameterValueList.Count));
             }
 
+            if (dynParams != null && !string.IsNullOrEmpty(dynParamsKey))
+                kvpParams1.Add(new KeyValuePair<string, object>(dynParamsKey, dynParams.ToArray()));
+
+            List<object> dynParams2 = null;
             foreach (KeyValuePair<string, object> kvp in kvpParams1)
             {
                 if (i == 0 && kvp.Key == "0")
                     hasKeys = false;
 
+                if (dynParams2 != null)
+                {
+                    dynParams2.Add(kvp.Value);
+                    continue;
+                }
                 if (!hasKeys)
                 {
-                    if (kvp.Value is string)
+                    if (kvp.Value is object[])
+                    {
+                        convParams.Add(kvp.Value);
+                        break;
+                    }
+                    else if (kvp.Value is string)
                     {
                         ACValue acValue = acMethod.ParameterValueList[i];
                         if (acValue != null)
-                            convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
+                        {
+                            if (acValue.ObjectType == typeof(object[]))
+                            {
+                                dynParams2 = new List<object>();
+                                dynParams2.Add(kvp.Value);
+                                continue;
+                            }
+                            else
+                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
+                        }
                     }
                     else
                         convParams.Add(kvp.Value);
@@ -335,7 +391,18 @@ namespace gip.core.webservices
                     ACValue acValue = acMethod.ParameterValueList.GetACValue(kvp.Key);
                     if (acValue != null)
                     {
-                        if (kvp.Value is string)
+                        if (acValue.ObjectType == typeof(object[]))
+                        {
+                            dynParams2 = new List<object>();
+                            dynParams2.Add(kvp.Value);
+                            continue;
+                        }
+                        else if (kvp.Value is object[])
+                        {
+                            convParams.Add(kvp.Value);
+                            break;
+                        }
+                        else if (kvp.Value is string)
                         {
                             if (passACMethodAsParam)
                                 acValue.Value = ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext);
@@ -357,7 +424,12 @@ namespace gip.core.webservices
                             sbRec = new StringBuilder();
                             sbRec.AppendLine(String.Format("You passed wrong parameter names! The method {0} requires the following parameters:", acMethodName));
                         }
-                        if (kvp.Value is string)
+                        if (kvp.Value is object[])
+                        {
+                            convParams.Add(kvp.Value);
+                            break;
+                        }
+                        else if (kvp.Value is string)
                         {
                             acValue = acMethod.ParameterValueList[i];
                             if (acValue != null)
@@ -374,39 +446,66 @@ namespace gip.core.webservices
                 i++;
             }
 
+            if (dynParams2 != null)
+                convParams.Add(dynParams2.ToArray());
+
             if (passACMethodAsParam)
                 convParams.Add(acMethod);
 
             return convParams.ToArray();
         }
 
-        public object[] ConvertBulkValues(ACComponent aCComponent, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
+        public object[] ConvertBulkValues(IACObjectWithInit acObj, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
         {
-            string acMethodName1;
-            ACClassMethod acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
+            string acMethodName1 = null;
+            ACClassMethod acClassMethod = null;
+            ACComponent aCComponent = acObj as ACComponent;
+            if (aCComponent != null)
+                acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
+            else
+            {
+                gip.core.datamodel.ACClass acClass = acObj.ACType as gip.core.datamodel.ACClass;
+                if (acClass != null)
+                {
+                    int pos = acMethodName.IndexOf('!');
+                    if (pos == 0)
+                        acMethodName1 = acMethodName.Substring(1);
+                    else
+                        acMethodName1 = acMethodName;
+                    acClassMethod = acClass.GetMethod(acMethodName1);
+                }
+                else
+                    throw new ArgumentException(String.Format("The object {0} is not a valid ACComponent or ACClass. Cannot find method {1}.", acObj.ACIdentifier, acMethodName));
+            }
             if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
             {
-                throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using AppGetMethodInfo() and read the required parameter list of the method signature.", acMethodName));
+                throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using get_method_info() and read the required parameter list of the method signature.", acMethodName));
                 //return bulkValues.Select(c => (object)c).ToArray();
             }
+
+            IACEntityObjectContext dbContext = aCComponent != null && aCComponent.Database != null ? aCComponent.Database : ACRoot.SRoot.Database.ContextIPlus;
 
             ACMethod acMethod = acClassMethod.TypeACSignature();
             if (acMethod == null)
                 return bulkValues.Select(c => (object)c).ToArray();
             bool passACMethodAsParam = acClassMethod.IsParameterACMethod || (acClassMethod.BasedOnACClassMethod != null && acClassMethod.BasedOnACClassMethod.IsParameterACMethod);
             int i = 0;
-            bool hasKeys = true;
             List<object> convParams = new List<object>();
-
-            List<string> bulkValues1 = bulkValues.ToList();
+            List<object> bulkValues1 = bulkValues.Select(c => (object)c).ToList();
+            List<object> dynParams = null;
             // If bulk operations and for each method the LLM has passed separate parameterset, then split the parameters
             if (acMethod.ParameterValueList.Count < bulkValues.Count())
             {
-                bulkValues1 = new List<string>();
+                bulkValues1 = new List<object>();
                 int offset = currCommandPos * acMethod.ParameterValueList.Count;
                 for (int j = 0; j < acMethod.ParameterValueList.Count; j++)
                 {
-                    bulkValues1.Add(bulkValues[j + offset]);
+                    if (dynParams == null && acMethod.ParameterValueList[j].ObjectType == typeof(object[]))
+                        dynParams = new List<object>();
+                    if (dynParams != null)
+                        dynParams.Add(bulkValues[j + offset]);
+                    else
+                        bulkValues1.Add(bulkValues[j + offset]);
                 }
             }
             else if (acMethod.ParameterValueList.Count > bulkValues.Count())
@@ -414,14 +513,21 @@ namespace gip.core.webservices
                 throw new ArgumentException(String.Format("Too few parameters were passed {0}. The method {1} requires {2} parameters. Read the method signature and correct your parameter passing accordingly.", bulkValues.Count(), acMethodName, acMethod.ParameterValueList.Count));
             }
 
-            foreach (string bulkValue in bulkValues1)
+            if (dynParams != null)
+                convParams.Add(dynParams.ToArray());
+
+            foreach (object bulkValue in bulkValues1)
             {
-                if (!hasKeys)
+                if (bulkValue is object[])
                 {
-                    ACValue acValue = acMethod.ParameterValueList[i];
-                    if (acValue != null)
-                        convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, bulkValue, true, aCComponent.Database.ContextIPlus));
+                    convParams.Add(bulkValue);
+                    break;
                 }
+                ACValue acValue = acMethod.ParameterValueList[i];
+                if (acValue != null)
+                    convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, bulkValue as string, true, dbContext.ContextIPlus));
+                else
+                    convParams.Add(bulkValue);
                 i++;
             }
 

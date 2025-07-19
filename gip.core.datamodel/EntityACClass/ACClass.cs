@@ -1532,10 +1532,13 @@ namespace gip.core.datamodel
         private void BuildInheritedMethodList(ref List<ACClassMethod> acClassMethodList, bool forceRefreshFromDB, bool withOverrides)
         {
             ACClassMethod[] allMethods = LoadMethodListWithRelations(forceRefreshFromDB);
-            foreach (var acClassMethod in allMethods)
+            if (allMethods != null)
             {
-                if (withOverrides || !acClassMethodList.Where(c => c.ACIdentifier == acClassMethod.ACIdentifier).Any())
-                    acClassMethodList.Add(acClassMethod);
+                foreach (var acClassMethod in allMethods)
+                {
+                    if (withOverrides || !acClassMethodList.Where(c => c.ACIdentifier == acClassMethod.ACIdentifier).Any())
+                        acClassMethodList.Add(acClassMethod);
+                }
             }
 
             if (BaseClass != null)
