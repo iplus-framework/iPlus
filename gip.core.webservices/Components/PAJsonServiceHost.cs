@@ -108,6 +108,9 @@ namespace gip.core.webservices
 
                         builder.ConfigureAllServiceHostBase((serviceHostBase) =>
                         {
+                            // Set the authorization manager
+                            serviceHostBase.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
+
                             ServiceMetadataBehavior metad = serviceHostBase.Description.Behaviors.Find<ServiceMetadataBehavior>();
                             if (metad == null)
                             {
