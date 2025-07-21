@@ -137,7 +137,7 @@ namespace gip.core.webservices
         [Description("(5) Component Method Discovery: " +
             "Lists all available methods of a component type or instance with their parameters. " +
             "Use this before invoking methods via execute_acurl_command to discover available method names and their parameters. " +
-            "ALWAYS check available methods FIRST when you need to perform operations or change component states BEFORE you set property values directly which you have discovered via get_property_info. " +
+            "ALWAYS check available methods FIRST when you need to PERFORM operations or CHANGE component states BEFORE you set property values directly which you have discovered via get_property_info. " +
             "Method names (ACId field) with the 'IsEnabled' prefix should be called first, before the same named method without this prefix, " +
             "so that you can check whether the method is allowed to be executed at all. " +
             "If there is no suitable IsEnabled method, you can always call the method. ")]
@@ -154,8 +154,11 @@ namespace gip.core.webservices
         [Description("(6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). " +
             "SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. " +
             "The ACUrl uses ACIdentifiers (ACId field) separated by backslashes to address the complete path from root to target component. " +
-            "For state changes and operations, use method invocation (!MethodName) rather than property assignment. Check available methods first with get_method_info. " +
-            "Consider using the GitHub MCP server to read the source code before calling execute_acurl_command to better understand which methods can be executed in which object state.")]
+            "To QUERY the state of components, prefer reading properties instead of method calls. " +
+            "For state CHANGES and OPERATIONS, use method invocation (!MethodName) rather than property assignment. Check available methods first with get_method_info. " +
+            "Consider using the GitHub MCP server to read the source code before calling execute_acurl_command to better understand which methods can be executed in which object state. " +
+            "Calling void methods without a return value does not necessarily mean that the operation was performed successfully if the response is \"Success: true\". " +
+            "It simply means that the method could be called. Whether the desired operation was performed can only be verified by reading the object state or property values.")]
         public static string execute_acurl_command(
             IACComponent mcpHost,
             [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation\r\n" +

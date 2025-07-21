@@ -279,28 +279,11 @@ namespace gip.core.webservices
                                             new JsonSerializerOptions { WriteIndented = false });
         }
 
-        public object[] ConvertKVPValues(IACObjectWithInit acObj, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
+        public object[] ConvertKVPValues(IACObjectWithInit acObj, string acMethodName, List<KeyValuePair<string, object>> kvpParams, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec, out ACClassMethod acClassMethod)
         {
             string acMethodName1 = null;
-            ACClassMethod acClassMethod = null;
             ACComponent aCComponent = acObj as ACComponent;
-            if (aCComponent != null)
-                acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
-            else
-            {
-                gip.core.datamodel.ACClass acClass = acObj.ACType as gip.core.datamodel.ACClass;
-                if (acClass != null)
-                {
-                    int pos = acMethodName.IndexOf('!');
-                    if (pos == 0)
-                        acMethodName1 = acMethodName.Substring(1);
-                    else
-                        acMethodName1 = acMethodName;
-                    acClassMethod = acClass.GetMethod(acMethodName1);
-                }
-                else
-                    throw new ArgumentException(String.Format("The object {0} is not a valid ACComponent or ACClass. Cannot find method {1}.", acObj.ACIdentifier, acMethodName));
-            }
+            acClassMethod = GetACClassMethod(acObj, acMethodName, out acMethodName1);
             if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
             {
                 throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using get_method_info() and read the required parameter list of the method signature.", acMethodName));
@@ -455,28 +438,12 @@ namespace gip.core.webservices
             return convParams.ToArray();
         }
 
-        public object[] ConvertBulkValues(IACObjectWithInit acObj, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec)
+        public object[] ConvertBulkValues(IACObjectWithInit acObj, string acMethodName, string[] bulkValues, int currCommandPos, int countACUrlCommands, StringBuilder sbErr, StringBuilder sbRec, out ACClassMethod acClassMethod)
         {
             string acMethodName1 = null;
-            ACClassMethod acClassMethod = null;
+            acClassMethod = GetACClassMethod(acObj, acMethodName, out acMethodName1);
             ACComponent aCComponent = acObj as ACComponent;
-            if (aCComponent != null)
-                acClassMethod = aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
-            else
-            {
-                gip.core.datamodel.ACClass acClass = acObj.ACType as gip.core.datamodel.ACClass;
-                if (acClass != null)
-                {
-                    int pos = acMethodName.IndexOf('!');
-                    if (pos == 0)
-                        acMethodName1 = acMethodName.Substring(1);
-                    else
-                        acMethodName1 = acMethodName;
-                    acClassMethod = acClass.GetMethod(acMethodName1);
-                }
-                else
-                    throw new ArgumentException(String.Format("The object {0} is not a valid ACComponent or ACClass. Cannot find method {1}.", acObj.ACIdentifier, acMethodName));
-            }
+            acClassMethod = GetACClassMethod(acObj, acMethodName, out acMethodName1);
             if (acClassMethod == null || String.IsNullOrEmpty(acMethodName1))
             {
                 throw new ArgumentException(String.Format("Methodname {0} doesn't exist. First, search for the correct method using get_method_info() and read the required parameter list of the method signature.", acMethodName));
@@ -541,6 +508,28 @@ namespace gip.core.webservices
                 convParams.Add(acMethod);
 
             return convParams.ToArray();
+        }
+
+        public ACClassMethod GetACClassMethod(IACObjectWithInit acObj, string acMethodName, out string acMethodName1)
+        {
+            ACComponent aCComponent = acObj as ACComponent;
+            if (aCComponent != null)
+                return aCComponent.GetACClassMethod(acMethodName, out acMethodName1);
+            else
+            {
+                gip.core.datamodel.ACClass acClass = acObj.ACType as gip.core.datamodel.ACClass;
+                if (acClass != null)
+                {
+                    int pos = acMethodName.IndexOf('!');
+                    if (pos == 0)
+                        acMethodName1 = acMethodName.Substring(1);
+                    else
+                        acMethodName1 = acMethodName;
+                    return acClass.GetMethod(acMethodName1);
+                }
+                else
+                    throw new ArgumentException(String.Format("The object {0} is not a valid ACComponent or ACClass. Cannot find method {1}.", acObj.ACIdentifier, acMethodName));
+            }
         }
 
         public static JsonSerializerOptions GetNewSerializerOptions(ushort detailLevel, string[] requestedFields, Dictionary<string, gip.core.datamodel.ACClass> entityTypes)

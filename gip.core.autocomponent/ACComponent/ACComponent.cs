@@ -3171,7 +3171,9 @@ namespace gip.core.autocomponent
                         else
                             mi = ACType.ObjectType.GetMethod(isEnabledMethodName, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
                         if (mi == null)
-                            return false;
+                        {
+                            throw new NullReferenceException(String.Format("IsEnabledMethod '{0}' doesn't exist", isEnabledMethodName));
+                        }
                     }
                 }
                 if (mi != null)

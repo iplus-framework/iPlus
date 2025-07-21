@@ -825,16 +825,53 @@ namespace gip.core.webservices
                                 IACObjectWithInit acObj = ACRoot.SRoot.ACUrlCommand(acUrlOfInstance, null) as IACObjectWithInit;
                                 if (acObj != null)
                                 {
+                                    ACClassMethod acClassMethod = null;
                                     object[] parameters = null;
                                     if (parametersKVP != null && parametersKVP.Any())
-                                        parameters = ConvertKVPValues(acObj, methodName, parametersKVP, i, countACUrlCommands, sbErr, sbRec);
+                                        parameters = ConvertKVPValues(acObj, methodName, parametersKVP, i, countACUrlCommands, sbErr, sbRec, out acClassMethod);
                                     else if (bulkValues != null && bulkValues.Any())
-                                        parameters = ConvertBulkValues(acObj, methodName, bulkValues, i, countACUrlCommands, sbErr, sbRec);
-                                    IACComponent acComp = acObj as IACComponent;
-                                    if (acComp != null)
-                                        result = acComp.ExecuteMethod(methodName, parameters);
+                                        parameters = ConvertBulkValues(acObj, methodName, bulkValues, i, countACUrlCommands, sbErr, sbRec, out acClassMethod);
+                                    if (acClassMethod == null)
+                                    {
+                                        string methodName2 = methodName;
+                                        acClassMethod = GetACClassMethod(acObj, methodName, out methodName2);
+                                        if (acClassMethod == null)
+                                        {
+                                            if (methodName.StartsWith(Const.IsEnabledPrefix))
+                                            {
+                                                methodName2 = methodName.Substring(Const.IsEnabledPrefix.Length);
+                                                if (String.IsNullOrEmpty(methodName2))
+                                                {
+                                                    sbErr.AppendLine(String.Format("Method {0} doesn't exist. A method name consisting only of the prefix {1} without a postfix referring to the actual method whose callability is to be checked cannot exist. Use get_method_info to check which methods are available.", methodName, Const.IsEnabledPrefix));
+                                                }
+                                                else
+                                                {
+                                                    acClassMethod = GetACClassMethod(acObj, methodName2, out methodName2);
+                                                    if (acClassMethod == null)
+                                                    {
+                                                        sbErr.AppendLine(string.Format("Method {0} not found on ACUrl {1}. Therefore there can be no {2}} method {3}. Check available methods using get_method_info.", methodName2, acUrlOfInstance, Const.IsEnabledPrefix, methodName));
+                                                    }
+                                                    else if (acClassMethod.IsAutoenabled)
+                                                    {
+                                                        sbRec.AppendLine(String.Format("Method {0} with the {1}-Prefix doesn't exist for Method {2}. This method is therefore automatically enabled and always callable. Avoid calling it next time!", methodName, Const.IsEnabledPrefix, methodName2));
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if (acClassMethod == null)
+                                    {
+                                        if (sbErr.Length <= 0)
+                                            sbErr.AppendLine(string.Format("Method {0} not found on ACUrl {1}. Check available methods using get_method_info.", methodName, acUrlOfInstance));
+                                    }
                                     else
-                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters);
+                                    {
+                                        IACComponent acComp = acObj as IACComponent;
+                                        if (acComp != null)
+                                            result = acComp.ExecuteMethod(methodName, parameters);
+                                        else
+                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters);
+                                    }
                                 }
                                 else
                                 {
@@ -973,6 +1010,8 @@ namespace gip.core.webservices
                         }
                         results.Add(response);
                         i++;
+                        sbErr = new StringBuilder();
+                        sbRec = new StringBuilder();
                     }
                 }
 
