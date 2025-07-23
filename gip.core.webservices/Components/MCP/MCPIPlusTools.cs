@@ -53,10 +53,11 @@ namespace gip.core.webservices
             string i18nLangTag,
             [Description("0 = Types for static components that are instantiated during startup and added to the application tree, thus existing statically throughout runtime (Default).\r\n" +
                         "1 = Types for dynamic components that are created during runtime and automatically added to or removed from the application tree when they are no longer needed. These are usually workflow components.\r\n" +
-                        "2 = Types for dynamic components 'business objects' or 'apps' that are instantiated at the request of a user and used exclusively by that user to operate apps and primarily work with database data.\r\n" +
+                        "2 = Types for dynamic components 'business objects' or 'apps' that are instantiated at the request of a user and used exclusively by that user to operate apps/programs and handle business processes.\r\n" +
                         "3 = Types of database objects (Entity Framework) or tables. For each type (table), there are one or more database query components (category 4) with which database queries for this table are executed.\r\n" +
                         "4 = Types of database query components. Database query components are Instances of ACQueryDefinition and contain predefined database queries with predefined search parameters that can optionally be filled in with values by the user. " +
-                        "Determine the address (ACUrl) of the component using get_instance_info and call the corresponding search method using execute_acurl_command, which you previously determined using get_method_info.")]
+                        "Determine the address (ACUrl) of the component using get_instance_info and call the corresponding search method using execute_acurl_command, which you previously determined using get_method_info. " +
+                        "As long as no database data is to be changed and only data is to be read, PREFER query components to business objects (category 2).")]
             int category = 0)
         {
             return _appTree.get_thesaurus(mcpHost, i18nLangTag, category);

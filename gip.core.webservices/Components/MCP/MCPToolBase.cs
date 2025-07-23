@@ -339,13 +339,13 @@ namespace gip.core.webservices
                 if (i == 0 && kvp.Key == "0")
                     hasKeys = false;
 
-                if (dynParams2 != null)
-                {
-                    dynParams2.Add(kvp.Value);
-                    continue;
-                }
                 if (!hasKeys)
                 {
+                    if (dynParams2 != null)
+                    {
+                        dynParams2.Add(kvp.Value);
+                        continue;
+                    }
                     if (kvp.Value is object[])
                     {
                         convParams.Add(kvp.Value);
@@ -371,13 +371,86 @@ namespace gip.core.webservices
                 }
                 else
                 {
+                    if (dynParams2 != null)
+                    {
+                        dynParams2.Add(kvp.Key);
+                        dynParams2.Add(kvp.Value);
+                        continue;
+                    }
                     ACValue acValue = acMethod.ParameterValueList.GetACValue(kvp.Key);
                     if (acValue != null)
                     {
                         if (acValue.ObjectType == typeof(object[]))
                         {
                             dynParams2 = new List<object>();
-                            dynParams2.Add(kvp.Value);
+
+                            // Check if the value is a JSON array string
+                            if (kvp.Value is string jsonString &&
+                                !string.IsNullOrEmpty(jsonString) &&
+                                jsonString.TrimStart().StartsWith("["))
+                            {
+                                try
+                                {
+                                    using var document = JsonDocument.Parse(jsonString);
+                                    var root = document.RootElement;
+
+                                    if (root.ValueKind == JsonValueKind.Array)
+                                    {
+                                        // Deserialize JSON array and add elements based on type
+                                        foreach (var element in root.EnumerateArray())
+                                        {
+                                            if (element.ValueKind == JsonValueKind.Object)
+                                            {
+                                                // For objects, add key and value separately
+                                                foreach (var property in element.EnumerateObject())
+                                                {
+                                                    dynParams2.Add(property.Name); // Add key
+
+                                                    var value = property.Value.ValueKind switch
+                                                    {
+                                                        JsonValueKind.String => property.Value.GetString(),
+                                                        JsonValueKind.Number => property.Value.TryGetInt32(out int intVal) ? (object)intVal : property.Value.GetDouble(),
+                                                        JsonValueKind.True => true,
+                                                        JsonValueKind.False => false,
+                                                        JsonValueKind.Null => null,
+                                                        _ => property.Value.ToString()
+                                                    };
+                                                    dynParams2.Add(value); // Add value
+                                                }
+                                            }
+                                            else
+                                            {
+                                                // For simple values, add the element directly
+                                                var value = element.ValueKind switch
+                                                {
+                                                    JsonValueKind.String => element.GetString(),
+                                                    JsonValueKind.Number => element.TryGetInt32(out int intVal) ? (object)intVal : element.GetDouble(),
+                                                    JsonValueKind.True => true,
+                                                    JsonValueKind.False => false,
+                                                    JsonValueKind.Null => null,
+                                                    _ => element.ToString()
+                                                };
+                                                dynParams2.Add(value);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // Not an array, add the original value
+                                        dynParams2.Add(kvp.Value);
+                                    }
+                                }
+                                catch (JsonException)
+                                {
+                                    // JSON parsing failed, add the original value
+                                    dynParams2.Add(kvp.Value);
+                                }
+                            }
+                            else
+                            {
+                                // Not a JSON string, add the original value
+                                dynParams2.Add(kvp.Value);
+                            }
                             continue;
                         }
                         else if (kvp.Value is object[])
@@ -417,8 +490,22 @@ namespace gip.core.webservices
                             acValue = acMethod.ParameterValueList[i];
                             if (acValue != null)
                             {
-                                convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
-                                sbRec.AppendLine(String.Format("Right Parametername is {0} and you passed {1}. This value {2} was used and the method call may fail.", acValue.ACIdentifier, kvp.Key, kvp.Value));
+                                if (acValue.ObjectFullType == typeof(object[]))
+                                {
+                                    dynParams2 = new List<object>();
+                                    dynParams2.Add(kvp.Key);
+                                    dynParams2.Add(kvp.Value);
+                                    sbRec.AppendLine(String.Format("According to the method signature, the next parameter name should be '{0}'. However, you used the parameter name '{1}'. This parameter is a dynamic parameter list of type object[]. " +
+                                        "Therefore the key '{1}' and the value '{2}' are now passed into this params object[]. " +
+                                        "The method call may fail. Next time consider passing a JSON array for parameter '{0}'.\r\n ", 
+                                        acValue.ACIdentifier, kvp.Key, kvp.Value));
+                                    continue;
+                                }
+                                else
+                                {
+                                    convParams.Add(ACConvert.XMLToObject(acValue.ObjectFullType, kvp.Value as string, true, dbContext));
+                                    sbRec.AppendLine(String.Format("According to the method signature, the next parameter name should be '{0}'. However, you used the parameter name '{1}'. The value '{2}' was used now for '[0}' and the method call may fail.", acValue.ACIdentifier, kvp.Key, kvp.Value));
+                                }
                             }
                         }
                         else

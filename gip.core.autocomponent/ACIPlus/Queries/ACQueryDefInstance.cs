@@ -211,8 +211,12 @@ namespace gip.core.autocomponent
             queryDef.QueryContext = context;
             if (!string.IsNullOrEmpty(queryDef.EntitySQL_FromEdit))
             {
-                queryDef.RebuildEntitySQLFromItems();
-                if (queryDef.EntitySQL_FromEdit.StartsWith("SELECT") && queryDef.EntitySQL_FromEdit.Contains(String.Format("FROM {0} AS c ", entityType.ACIdentifier)))
+                if (   !queryDef.EntitySQL_FromEdit.StartsWith("SELECT") 
+                    || !queryDef.EntitySQL_FromEdit.Contains(String.Format("FROM {0} AS c ", entityType.ACIdentifier))
+                    || !queryDef.EntitySQL_FromEdit.Contains(" c.* ")
+                    || queryDef.EntitySQL_FromEdit.Contains(", c.*")
+                    || queryDef.EntitySQL_FromEdit.Contains(",c.*")
+                    || queryDef.EntitySQL_FromEdit.Contains("c.*,"))
                 {
                     throw new ArgumentException("sqlStatement must start with 'SELECT TOP {count} c.*' or 'SELECT c.* FROM {Table} AS c'. " +
                         "In the entity framework, no explicit columns can be specified using FromSqlRaw.");
