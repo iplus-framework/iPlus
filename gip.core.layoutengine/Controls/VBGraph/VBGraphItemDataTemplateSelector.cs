@@ -71,81 +71,45 @@ namespace gip.core.layoutengine
             if (item == null)
                 return null;
 
-            IVBContent acObject = item as IVBContent;
-            if (acObject == null)
+            IACObject contextObject = item as IACObject;
+            IACInteractiveObject acInteractiveObject = item as IACInteractiveObject;
+            if (acInteractiveObject != null && acInteractiveObject.ContextACObject != null)
+                contextObject = acInteractiveObject.ContextACObject;
+            if (contextObject == null)
                 return null;
 
             string stringValue = "";
 
             if(!string.IsNullOrEmpty(DataTemplateValueACUrl))
-                stringValue = acObject.ContextACObject.GetValue(DataTemplateValueACUrl).ToString();
+                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, item).ToString();
             else
-                stringValue = acObject.ContextACObject.ToString();
+                stringValue = contextObject.ToString();
 
-            if (stringValue == DataTemplate0Value)
-                return DataTemplate0;
-
-            if (stringValue == DataTemplate1Value)
-                return DataTemplate1;
-
-            if (stringValue == DataTemplate2Value)
-                return DataTemplate2;
-
-            if (stringValue == DataTemplate3Value)
-                return DataTemplate3;
-
-            if (stringValue == DataTemplate4Value)
-                return DataTemplate4;
-
-            if (stringValue == DataTemplate5Value)
-                return DataTemplate5;
-
-            if (stringValue == DataTemplate6Value)
-                return DataTemplate6;
-
-            if (stringValue == DataTemplate7Value)
-                return DataTemplate7;
-
-            if (stringValue == DataTemplate8Value)
-                return DataTemplate8;
-
-            if (stringValue == DataTemplate9Value)
-                return DataTemplate9;
-
-            if (stringValue == DataTemplate10Value)
-                return DataTemplate10;
-
-            if (stringValue == DataTemplate11Value)
-                return DataTemplate11;
-
-            if (stringValue == DataTemplate12Value)
-                return DataTemplate12;
-
-            if (stringValue == DataTemplate13Value)
-                return DataTemplate13;
-
-            if (stringValue == DataTemplate14Value)
-                return DataTemplate14;
-
-            if (stringValue == DataTemplate15Value)
-                return DataTemplate15;
-
-            if (stringValue == DataTemplate16Value)
-                return DataTemplate16;
-
-            if (stringValue == DataTemplate17Value)
-                return DataTemplate17;
-
-            if (stringValue == DataTemplate18Value)
-                return DataTemplate18;
-
-            if (stringValue == DataTemplate19Value)
-                return DataTemplate19;
-
-            if (stringValue == DataTemplate20Value)
-                return DataTemplate20;
-
-            return DataTemplate1;
+            return stringValue switch
+            {
+                var value when value == DataTemplate0Value => DataTemplate0,
+                var value when value == DataTemplate1Value => DataTemplate1,
+                var value when value == DataTemplate2Value => DataTemplate2,
+                var value when value == DataTemplate3Value => DataTemplate3,
+                var value when value == DataTemplate4Value => DataTemplate4,
+                var value when value == DataTemplate5Value => DataTemplate5,
+                var value when value == DataTemplate6Value => DataTemplate6,
+                var value when value == DataTemplate7Value => DataTemplate7,
+                var value when value == DataTemplate8Value => DataTemplate8,
+                var value when value == DataTemplate9Value => DataTemplate9,
+                var value when value == DataTemplate10Value => DataTemplate10,
+                var value when value == DataTemplate11Value => DataTemplate11,
+                var value when value == DataTemplate12Value => DataTemplate12,
+                var value when value == DataTemplate13Value => DataTemplate13,
+                var value when value == DataTemplate14Value => DataTemplate14,
+                var value when value == DataTemplate15Value => DataTemplate15,
+                var value when value == DataTemplate16Value => DataTemplate16,
+                var value when value == DataTemplate17Value => DataTemplate17,
+                var value when value == DataTemplate18Value => DataTemplate18,
+                var value when value == DataTemplate19Value => DataTemplate19,
+                var value when value == DataTemplate20Value => DataTemplate20,
+                _ => DataTemplate1
+            };
         }
     }
 }

@@ -130,7 +130,8 @@ namespace gip.core.webservices
                 var builder = WebApplication.CreateBuilder();
                 builder.Services.AddMcpServer()
                     .WithHttpTransport()
-                    .WithTools<MCPIPlusTools>();
+                    .WithTools<MCPIPlusTools>()
+                    .WithPrompts<MCPIPlusPrompts>();
 
                 builder.Logging.AddConsole(options =>
                 {
@@ -166,7 +167,7 @@ namespace gip.core.webservices
                     }
                 });
 
-                Messages.LogInfo(GetACUrl(), "StartMcpServer", "MCP Server started successfully");
+                Messages.LogInfo(GetACUrl(), "StartMcpServer", "MCP Server started successfully with prompts");
             }
             catch (Exception ex)
             {
@@ -223,6 +224,6 @@ namespace gip.core.webservices
             base.AcknowledgeAlarms();
         }
 
-#endregion
+        #endregion
     }
 }
