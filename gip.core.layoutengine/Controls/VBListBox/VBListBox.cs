@@ -466,7 +466,7 @@ namespace gip.core.layoutengine
             if (ACQueryDefinition != null)
                 vbShowColumns = ACQueryDefinition.GetACColumns(this.VBShowColumns);
 
-            if ((vbShowColumns == null || !vbShowColumns.Any()) && ItemTemplate == null)
+            if ((vbShowColumns == null || !vbShowColumns.Any()) && ItemTemplate == null && ItemTemplateSelector == null)
             {
                 this.Root().Messages.LogDebug("Error00005", "VBListBox", VBShowColumns + " " + VBContent);
                 //this.Root().Messages.Error(ContextACObject, "Error00005", "VBListBox", VBShowColumns, VBContent);
@@ -574,8 +574,12 @@ namespace gip.core.layoutengine
                 Focus();
                 //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
+        }
 
-            
+        private void ObservableColl_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (IsEnabledScrollIntoView)
+                (VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(ScrollViewer)) as ScrollViewer)?.ScrollToEnd();
         }
 
         private void LoadCyclicDataRefreshProperty()
@@ -594,7 +598,7 @@ namespace gip.core.layoutengine
 
         private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)
         {
-            if(ItemsSource != null && ItemsSource is ICyclicRefreshableCollection)
+            if (ItemsSource != null && ItemsSource is ICyclicRefreshableCollection)
             {
                 (ItemsSource as ICyclicRefreshableCollection).Refresh();
             }
@@ -689,6 +693,11 @@ namespace gip.core.layoutengine
         void VB_TargetUpdated(object sender, DataTransferEventArgs e)
         {
             UpdateControlMode();
+            //System.Collections.Specialized.INotifyCollectionChanged observableColl = ItemsSource as System.Collections.Specialized.INotifyCollectionChanged;
+            //if (observableColl != null && IsEnabledScrollIntoView)
+            //{
+            //    observableColl.CollectionChanged += ObservableColl_CollectionChanged;
+            //}
         }
         #endregion
 
@@ -776,7 +785,7 @@ namespace gip.core.layoutengine
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
         {
             base.OnSelectionChanged(e);
-            if(IsEnabledScrollIntoView && SelectionMode == SelectionMode.Single && e.AddedItems != null && e.AddedItems.Count > 0)
+            if (IsEnabledScrollIntoView && SelectionMode == SelectionMode.Single && e.AddedItems != null && e.AddedItems.Count > 0)
                 ScrollIntoView(e.AddedItems[0]);
         }
 

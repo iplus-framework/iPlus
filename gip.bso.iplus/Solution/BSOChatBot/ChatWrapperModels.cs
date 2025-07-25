@@ -159,13 +159,55 @@ namespace gip.bso.iplus
         {
             get
             {
-                if (!string.IsNullOrEmpty(Text))
-                    return Text;
+                //string shortText = Text;
+                //if (!string.IsNullOrEmpty(shortText))
+                //{
+                //    if (shortText.Length < 1000)
+                //        return shortText;
+                //    else
+                //        return shortText.Substring(1000) + "...";
+                //}
 
+                StringBuilder sb = new StringBuilder();
                 if (Contents?.Any() == true)
                 {
-                    var textContents = Contents.Where(c => c.Kind == "TextContent").Select(c => c.Text);
-                    return string.Join(" ", textContents);
+                    if (sb.Length > 0)
+                        sb.Append(" ");
+                    foreach (var content in Contents)
+                    {
+                        if (content.Content is FunctionCallContent fc)
+                        {
+                            sb.Append("Call:" + fc.Name);
+                        }
+                        else if (content.Content is FunctionResultContent fr)
+                        {
+                            sb.Append("Result:" + fr.CallId);
+                        }
+                        else if (content.Content is TextReasoningContent tr)
+                        {
+                            sb.Append(tr.Text);
+                        }
+                        else if (content.Content is TextContent tx)
+                        {
+                            sb.Append(tx.Text);
+                        }
+                        else if (content.Content is DataContent dt)
+                        {
+                            sb.Append(dt.Uri);
+                        }
+                        else if (content.Content is ErrorContent ec)
+                        {
+                            sb.Append(ec.Message);
+                        }
+                        else if (content.Content is UriContent uc)
+                        {
+                            sb.Append(uc.Uri.ToString());
+                        }
+                    }
+                    if (sb.Length > 1000)
+                        return sb.ToString(0, 1000) + "...";
+                    else
+                        return sb.ToString();
                 }
 
                 return string.Empty;
@@ -189,6 +231,68 @@ namespace gip.bso.iplus
         [JsonIgnore]
         [ACPropertyInfo(9, "", "en{'Has Usage Info'}de{'Hat Nutzungsinfo'}")]
         public bool HasUsageInfo => UsageInfo != null;
+
+        [JsonIgnore]
+        [ACPropertyInfo(10, "", "en{'Tooltip text'}de{'Tooltip text'}")]
+        public string FullContentAsText
+        {
+            get
+            {
+                StringBuilder sb = new StringBuilder();
+                if (Contents?.Any() == true)
+                {
+                    //if (sb.Length > 0)
+                    //    sb.Append(" ");
+                    foreach (var content in Contents)
+                    {
+                        if (content.Content is FunctionCallContent fc)
+                        {
+                            sb.Append(fc.Name);
+                            if (fc.Arguments != null)
+                            {
+                                sb.Append(" ");
+                                sb.AppendLine(string.Join(", ", fc.Arguments));
+                            }
+                            else
+                                sb.AppendLine(";");
+                        }
+                        else if (content.Content is FunctionResultContent fr)
+                        {
+                            sb.Append(fr.CallId);
+                            if (fr.Result != null)
+                                sb.AppendLine(fr.Result.ToString());
+                            else
+                                sb.AppendLine(";");
+                        }
+                        else if (content.Content is TextReasoningContent tr)
+                        {
+                            if (sb.Length > 0)
+                                sb.Append(" ");
+                            sb.Append(tr.Text);
+                        }
+                        else if (content.Content is TextContent tx)
+                        {
+                            sb.AppendLine(tx.Text);
+                        }
+                        else if (content.Content is DataContent dt)
+                        {
+                            sb.AppendLine(dt.Uri);
+                        }
+                        else if (content.Content is ErrorContent ec)
+                        {
+                            sb.AppendLine(ec.Message);
+                        }
+                        else if (content.Content is UriContent uc)
+                        {
+                            sb.AppendLine(uc.Uri.ToString());
+                        }
+                    }
+                    return sb.ToString();
+                }
+
+                return string.Empty;
+            }
+        }
 
         public void AttachBSO(BSOChatBot chatBot)
         {
@@ -416,15 +520,56 @@ namespace gip.bso.iplus
         }
 
         [JsonIgnore]
-        [ACPropertyInfo(5, "", "en{'Display Content'}de{'Anzeigeinhalt'}")]
+        [ACPropertyInfo(5, "", "en{'Short Content'}de{'Verkürzter Inhalt'}")]
         public string DisplayContent
         {
             get
             {
-                if (Role == "AI" && Updates?.Any() == true)
+                if (ChatMessageRole.HasValue && ChatMessageRole.Value == ChatRole.Assistant && Updates?.Any() == true)
                 {
-                    var allText = string.Join("", Updates.Select(u => u.DisplayText));
-                    return !string.IsNullOrEmpty(allText) ? allText : Content;
+                    var allText = string.Join("", Updates.Where(c => c.Content != null && c.Content.Kind == nameof(TextContent)).Select(c => c.DisplayText));
+                    if (!string.IsNullOrEmpty(allText))
+                    {
+                        // Check line count first
+                        var lines = allText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                        if (lines.Length > 8)
+                            allText = string.Join(System.Environment.NewLine, lines.Take(8)) + "...";
+                        // Check length and truncate if necessary
+                        if (allText.Length > 1000)
+                            allText = allText.Substring(0, 1000) + "...";
+
+                        return allText;
+                    }
+                    else
+                        return Content;
+                }
+                return Content;
+            }
+        }
+
+        [JsonIgnore]
+        [ACPropertyInfo(5, "", "en{'Full Content as Text'}de{'Vollständiger Inhalt als Text'}")]
+        public string FullContentAsText
+        {
+            get
+            {
+                if (ChatMessageRole.HasValue && ChatMessageRole.Value == ChatRole.Assistant && Updates?.Any() == true)
+                {
+                    return string.Join("", Updates.Select(c => c.FullContentAsText));
+                }
+                return Content;
+            }
+        }
+
+        [JsonIgnore]
+        [ACPropertyInfo(5, "", "en{'Only Content which is Text'}de{'Nur Inhalte die Text sind'}")]
+        public string OnlyTextContent
+        {
+            get
+            {
+                if (Updates?.Any() == true)
+                {
+                    return string.Join("", Updates.Select(u => u.Text ?? ""));
                 }
                 return Content;
             }
@@ -476,8 +621,8 @@ namespace gip.bso.iplus
 
         public void Refresh()
         {
-            OnPropertyChanged(DisplayContent);
-            OnPropertyChanged(TokenUsageSummary);
+            OnPropertyChanged(nameof(DisplayContent));
+            OnPropertyChanged(nameof(TokenUsageSummary));
         }
 
         public void AttachBSO(BSOChatBot chatBot)
