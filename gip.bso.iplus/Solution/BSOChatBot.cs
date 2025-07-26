@@ -300,6 +300,7 @@ IMPORTANT NOTES:
                     _DummyDesignForChat.ACClassID = ComponentClass.ACClassID;
                     _DummyDesignForChat.ACIdentifier = nameof(_DummyDesignForChat);
                     _DummyDesignForChat.ACCaptionTranslation = "en{'Dummy Design for Chat History'}de{'Dummy Design für Chat Historie'}";
+                    Db.ACClassDesign.Add(_DummyDesignForChat);
                     Db.ACSaveChanges();
                 }
             }
@@ -514,7 +515,12 @@ IMPORTANT NOTES:
             if (string.IsNullOrWhiteSpace(ChatInput) || _CurrentChatClient == null)
                 return;
 
-            EnsureMCPClientsInitialized();
+            bool isConnected = await EnsureMCPClientsInitialized();
+            if (!isConnected)
+            {
+                ChatOutput = "MCP client not connected or connection failed.";
+                return;
+            }
 
             if (_SelectedChatHistoryDesign == null)
                 NewChat();
@@ -570,6 +576,7 @@ IMPORTANT NOTES:
                     if (AgentStopRequested)
                         break;
                 }
+                OnPropertyChanged(nameof(SelectedChatMessage));
 
                 if (_SelectedChatHistoryDesign != null && (string.IsNullOrEmpty(_SelectedChatHistoryDesign.ACIdentifier) || _SelectedChatHistoryDesign.ACIdentifier.StartsWith("###")))
                 {
@@ -656,6 +663,8 @@ IMPORTANT NOTES:
                 newChatDesign.VBUserID = Root.Environment.User.VBUserID;
                 newChatDesign.ACClassDesignID = _DummyDesignForChat.ACClassDesignID;
                 newChatDesign.ACIdentifier = nameof(ChatHistoryList);
+                newChatDesign.XMLDesign = "";
+                Db.VBUserACClassDesign.Add(newChatDesign);
                 Db.ACSaveChanges();
                 var configWrapper = new ChatConfigWrapper(null, newChatDesign.VBUserACClassDesignID, String.Format("###{0:yyyy-MM-dd-HH:mm:ss.ffff}", newChatDesign.InsertDate), newChatDesign.InsertDate);
                 ChatHistoryList.Add(configWrapper);
