@@ -13,7 +13,8 @@ namespace gip.core.autocomponent
     /// Baseclass for modules/elements/components which exists in the real word (physical)
     /// </summary>
     /// <seealso cref="gip.core.autocomponent.PAClassAlarmingBase" />
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAClassPhysicalBase'}de{'PAClassPhysicalBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAClassPhysicalBase'}de{'PAClassPhysicalBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, true,
+        Description = "Abstract base class for representing physical components, devices, and equipment that exist in the real world within industrial automation systems. This class provides the foundational framework for managing physical assets such as sensors, actuators, motors, valves, pumps, and other field devices that interface with PLCs and control systems. It extends PAClassAlarmingBase to include alarm management capabilities and adds operating mode management with three standard modes: Automatic (device operates according to programmed sequences), Manual (operator can directly control the device), and Maintenance (device is prepared for service activities with safety measures). The class handles bidirectional communication with PLCs through OperatingMode (read from PLC) and ReqOperatingMode (write to PLC) properties, supports property logging for equipment analysis and OEE calculations, and provides context menu operations for switching between operating modes. Use this class as the base for any component that represents a tangible physical device in your automation system that requires operating mode management, alarm handling, and integration with plant control systems.")]
     public abstract class PAClassPhysicalBase : PAClassAlarmingBase
     {
         #region c'tors
@@ -103,7 +104,8 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Switches this physical object to automatic operation mode.
         /// </summary>
-        [ACMethodInteraction("OperatingMode", "en{'Automatic mode'}de{'Automatikbetrieb'}", 200, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
+        [ACMethodInteraction("OperatingMode", "en{'Automatic mode'}de{'Automatikbetrieb'}", 200, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands, 
+            Description = "Switches the physical component from manual to automatic operating mode. In automatic mode, the component operates according to programmed sequences and workflows without manual intervention. This method can only be called when the current operating mode is Manual.")]
         public virtual void SwitchToAutomatic()
         {
             if (!IsEnabledSwitchToAutomatic())
@@ -122,7 +124,8 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Switches this physical object to manual operation mode.
         /// </summary>
-        [ACMethodInteraction("OperatingMode", "en{'Manual mode'}de{'Handbetrieb'}", 201, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
+        [ACMethodInteraction("OperatingMode", "en{'Manual mode'}de{'Handbetrieb'}", 201, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands,
+            Description = "Switches the physical component to manual operating mode. In manual mode, operators can directly control the component through manual commands and interactions. This method can be called when the current operating mode is either Automatic or Maintenance.")]
         public virtual void SwitchToManual()
         {
             if (!IsEnabledSwitchToManual())
@@ -141,7 +144,8 @@ namespace gip.core.autocomponent
         /// <summary>
         /// Switches this physical object to maintenance mode.
         /// </summary>
-        [ACMethodInteraction("OperatingMode", "en{'Maintenance mode'}de{'Wartungsbetrieb'}", 202, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]
+        [ACMethodInteraction("OperatingMode", "en{'Maintenance mode'}de{'Wartungsbetrieb'}", 202, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands,
+            Description = "Switches the physical component to maintenance operating mode. In maintenance mode, the component is prepared for service, repair, or calibration activities with appropriate safety measures activated. This method can only be called when the current operating mode is Manual. Switching to maintenance mode triggers alarm notifications.")]
         public virtual void SwitchToMaintenance()
         {
             if (!IsEnabledSwitchToMaintenance())

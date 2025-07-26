@@ -11,7 +11,10 @@ using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPropertyLog Service'}de{'ACPropertyLog Service'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'ACPropertyLog Service'}de{'ACPropertyLog Service'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, true,
+        Description = @"This is a class that logs the property changes of all components in the entire namespace. 
+Do not use this class — not even to query histories! Instead, use the GetArchiveLog() method, which you call directly on the instance from which you want to query the values. 
+To display the logged property changes, please use the VBBSOPropertyLogPresenter or BSOPropertyLogPresenterVB (MES) business objects.")]
     public class ACPropertyLogService : PARole
     {
         public const string ClassName = "ACPropertyLogService";
@@ -155,8 +158,6 @@ namespace gip.core.autocomponent
         }
 
         #endregion
-
-
 
         protected virtual void OnPropertyValueChanged(object sender, ACPropertyNetSendEventArgs e)
         {

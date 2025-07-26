@@ -14,7 +14,8 @@ namespace gip.core.processapplication
     /// One-Way-Actuator
     /// Ein-Wege-Stellglied: Ein-Wege-Ventil, Klappe, Schieber
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'1-Way Actuator'}de{'1-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'1-Way Actuator'}de{'1-Wege Stellglied'}", Global.ACKinds.TPAModule, Global.ACStorableTypes.Required, false, true,
+        Description = "Represents a one-way actuator component for controlling single-directional flow devices such as one-way valves, flaps, and sliders in industrial automation systems. This class provides basic open/close functionality with a single position feedback (Pos1Open) from the PLC and a single control request (ReqPos1Open) to the PLC. The actuator supports configurable behavior through the Behaviour parameter where 0 represents normal operation (true=open, false=close) and 1 represents inverted operation. The class includes material connection points for inlet (PAPointMatIn1) and outlet (PAPointMatOut1) to support routing and material flow visualization. Operating mode restrictions ensure manual control only, with automatic request reset when switching to automatic mode. The component tracks operational statistics including switching frequency, turn-on/turn-off timestamps, and operating time calculations. Use this as the base class for specific one-way actuator types like valves (PAEActValve), flaps (PAEActFlap), and sliders (PAEActSlider) in your process automation applications.")]
     public class PAEActuator1way : PAEActuatorBase
     {
         #region c'tors
@@ -128,7 +129,8 @@ namespace gip.core.processapplication
         }
         #endregion
 
-        [ACMethodInteraction("", "en{'Open'}de{'Öffnen'}", 600, true, "", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("", "en{'Open'}de{'Öffnen'}", 600, true, "", Global.ACKinds.MSMethodPrePost, 
+            Description = "Opens the one-way actuator by setting the position request signal to the PLC. This method activates the actuator to allow material flow through the connected path. The method can only be executed in Manual operating mode when no interlock is active and when the actuator is currently not in the open position. The actual opening behavior depends on the Behaviour configuration parameter where 0 means normal operation (request true = open) and 1 means inverted operation (request false = open).")]
         public void Open()
         {
             if (!IsEnabledOpen())
@@ -160,8 +162,8 @@ namespace gip.core.processapplication
                 ReqPos1Open.ValueT = true;
         }
 
-
-        [ACMethodInteraction("", "en{'Close'}de{'Schliessen'}", 601, true, "", Global.ACKinds.MSMethodPrePost)]
+        [ACMethodInteraction("", "en{'Close'}de{'Schliessen'}", 601, true, "", Global.ACKinds.MSMethodPrePost,
+            Description = "Closes the one-way actuator by setting the position request signal to the PLC. This method deactivates the actuator to block material flow through the connected path. The method can only be executed in Manual operating mode. The actual closing behavior depends on the Behaviour configuration parameter where 0 means normal operation (request false = close) and 1 means inverted operation (request true = close). This method is also called automatically when switching to maintenance mode to ensure a safe state.")]
         public void Close()
         {
             if (!IsEnabledClose())
