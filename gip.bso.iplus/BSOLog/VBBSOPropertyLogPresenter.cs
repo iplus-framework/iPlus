@@ -14,7 +14,9 @@ namespace gip.bso.iplus
     /// <summary>
     /// Presenter for the Plant analysis
     /// </summary>fACPropertyLogModel
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'Analysis of property logs'}de{'Auswertung der Eigenschaftsprotokolle'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'Analysis of property logs'}de{'Auswertung der Eigenschaftsprotokolle'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true,
+        Description = "Base class to graphically display changes in property values logged by ACPropertyLogService. Do not use this class for query historical values ​​of a property as a time series (SCADA Historians)! " +
+        "Instead, use the GetArchiveLog() method, which you call directly on the instance from which you want to retrieve the values.")]
     public class VBBSOPropertyLogPresenter : ACBSO
     {
         #region c'tors
