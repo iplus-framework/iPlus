@@ -19,26 +19,26 @@ namespace gip.bso.iplus
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Chatbot History'}de{'Chatbot Historie'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, false, false)]
     public class ChatConfigWrapper : ChatWrapperBase
     {
-        private Guid _ACClassConfigID;
+        private Guid _VBUserACClassDesignID;
         private string _Comment;
         private DateTime _InsertDate;
 
-        public ChatConfigWrapper(IACObject parentACObject, Guid aCClassConfigID, string comment, DateTime insertDate) : base(parentACObject)
+        public ChatConfigWrapper(IACObject parentACObject, Guid vbUserACClassDesignID, string comment, DateTime insertDate) : base(parentACObject)
         {
-            _ACClassConfigID = aCClassConfigID;
+            _VBUserACClassDesignID = vbUserACClassDesignID;
             _Comment = comment;
             _InsertDate = insertDate;
         }
 
-        public Guid ACClassConfigID
+        public Guid VBUserACClassDesignID
         {
-            get => _ACClassConfigID;
+            get => _VBUserACClassDesignID;
             set
             {
-                if (_ACClassConfigID != value)
+                if (_VBUserACClassDesignID != value)
                 {
-                    _ACClassConfigID = value;
-                    OnPropertyChanged(nameof(ACClassConfigID));
+                    _VBUserACClassDesignID = value;
+                    OnPropertyChanged(nameof(VBUserACClassDesignID));
                 }
             }
         }

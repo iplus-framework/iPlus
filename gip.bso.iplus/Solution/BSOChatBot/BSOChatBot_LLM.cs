@@ -46,7 +46,6 @@ namespace gip.bso.iplus
         #region LLM Properties
 
         private bool _LLMPropsChanged = false;
-
         private List<string> _aiClientTypes;
         [ACPropertyList(5, "AIClientTypes", "en{'AI Client Types'}de{'AI Client Typen'}")]
         public List<string> AIClientTypes
@@ -120,7 +119,7 @@ namespace gip.bso.iplus
 
 
         private List<ChatClientSettings> _ChatClientSettingsList;
-        [ACPropertyList(18, "ChatClientSettings", "en{'Settings of Chat Clients'}de{'Settings of Chat Clients'}")]
+        [ACPropertyList(18, "ChatClientSettings", "en{'Settings of Chat Clients'}de{'Settings of Chat Clients'}", Description = "List of possible language models available as chatbot/agent.")]
         public List<ChatClientSettings> ChatClientSettingsList
         {
             get
@@ -140,7 +139,8 @@ namespace gip.bso.iplus
         }
 
         private ChatClientSettings _SelectedChatClientSettings;
-        [ACPropertySelected(19, "ChatClientSettings", "en{'Selected Chat Client Settings'}de{'Ausgewählte Chat Client Einstellungen'}")]
+        [ACPropertySelected(19, "ChatClientSettings", "en{'Selected Chat Client Settings'}de{'Ausgewählte Chat Client Einstellungen'}", 
+            Description = "Selected language model that will perform the tasks as an agent. When opening the BSOChatBot, the language model will be selected where IsDefault ins true the ChatClientSettingsList.")]
         public ChatClientSettings SelectedChatClientSettings
         {
             get { return _SelectedChatClientSettings; }
@@ -165,6 +165,17 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _isConnected = false;
+        [ACPropertyInfo(10, "IsConnected", "en{'Is connected to language model'}de{'Ist mit Sprachmodell verbunden'}")]
+        public bool IsConnected
+        {
+            get { return _isConnected; }
+            set
+            {
+                _isConnected = value;
+                OnPropertyChanged();
+            }
+        }
         #endregion
 
         #endregion
@@ -230,7 +241,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Saves the available chat client settings to the ChatClientConfig JSON configuration
         /// </summary>
-        [ACMethodCommand("SaveChatClientSettings", "en{'Save Chat Client Settings'}de{'Chat Client Einstellungen speichern'}", 108)]
+        [ACMethodCommand("ChatClientSettings", "en{'Save Chat Client Settings'}de{'Chat Client Einstellungen speichern'}", 108)]
         public void SaveChatClientSettings()
         {
             try
@@ -256,7 +267,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Adds a new chat client setting based on current properties
         /// </summary>
-        [ACMethodCommand("AddChatClientSetting", "en{'Add Chat Client Setting'}de{'Chat Client Einstellung hinzufügen'}", 109)]
+        [ACMethodCommand("ChatClientSettings", "en{'Add Chat Client Setting'}de{'Chat Client Einstellung hinzufügen'}", 109)]
         public void AddChatClientSetting()
         {
             try
@@ -304,7 +315,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Removes the selected chat client setting
         /// </summary>
-        [ACMethodCommand("RemoveChatClientSetting", "en{'Remove Chat Client Setting'}de{'Chat Client Einstellung entfernen'}", 110)]
+        [ACMethodCommand("ChatClientSettings", "en{'Remove Chat Client Setting'}de{'Chat Client Einstellung entfernen'}", 110)]
         public void RemoveChatClientSetting()
         {
             try
@@ -409,7 +420,11 @@ namespace gip.bso.iplus
             }
         }
 
-        [ACMethodInfo("TestConnection", "en{'Test Connection'}de{'Verbindung testen'}", 104)]
+        [ACMethodInfo("ChatClientSettings", "en{'Test Connection to language model'}de{'Verbindung zum Sprachmodell testen'}", 104, 
+            Description = @"A connection is established to the configured language model. 
+            This method is asynchronous and must wait until the connection is established, 
+            which is signaled by the IsConnected property. This method mustn't be called explicitly. 
+            It is called implicitly with the first call of SendMessage.")]
         public async Task TestConnection()
         {
             EnsureAIClientsInitialized();

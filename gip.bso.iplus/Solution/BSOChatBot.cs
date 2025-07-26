@@ -19,10 +19,143 @@ using OllamaSharp;
 using System.Text.Json;
 using gip.core.media;
 using System.IO;
+using System.Threading;
 
 namespace gip.bso.iplus
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'AI-Chatbot'}de{'AI-Chatbot'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true)]
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'AI-Chatbot'}de{'AI-Chatbot'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true,
+    Description = @"BSOChatBot - AI Chatbot Business Object for iPlus Framework
+
+OVERVIEW:
+BSOChatBot is a comprehensive AI chatbot integration for the iPlus framework that supports multiple AI providers (OpenAI, Ollama, etc.) and Model Context Protocol (MCP) for tool integration. It manages chat conversations, history, and real-time streaming responses.
+
+KEY PROPERTIES:
+
+CHAT INTERACTION:
+- ChatInput (string): Set the message/task for the chatbot before calling SendMessage()
+- ChatOutput (string): Read-only. Contains the latest response from the AI agent
+- IsAgentRunning (bool): Read-only. Indicates if the agent is currently processing. When true, the agent is busy and you must wait for completion before sending new messages
+- AgentStopRequested (bool): Read-only. Indicates if StopAgent() has been called
+- AgentIsWaitingForWakeup (bool): Read-only. True when agent waits for wakeup to check subagent status
+
+CHAT MANAGEMENT:
+- ChatMessagesObservable (ObservableCollection<ChatMessageWrapper>): Complete conversation history with the chatbot
+- SelectedChatMessage (ChatMessageWrapper): Currently selected message in the conversation
+- CurrentChatUpdates (ObservableCollection<ChatResponseUpdateWrapper>): Real-time updates during active agent processing
+- ChatHistoryList (List<ChatConfigWrapper>): List of saved chat sessions
+- SelectedChatHistory (ChatConfigWrapper): Currently selected chat history session
+
+AI CLIENT CONFIGURATION:
+- ChatClientSettingsList (List<ChatClientSettings>): Available AI client configurations
+- SelectedChatClientSettings (ChatClientSettings): Currently active AI client configuration
+- ChatClientConfig (string): JSON configuration for AI clients
+
+MCP INTEGRATION:
+- McpConnected (bool): Read-only. Status of MCP server connections
+- ToolCheckList (List<ACObjectItemWCheckBox>): Available MCP tools with selection checkboxes
+- AllowedTools (string): JSON array of selected tool names
+- MCPServerConfig (string): JSON configuration for MCP servers
+
+KEY METHODS:
+
+CORE CHAT OPERATIONS:
+1. SendMessage(): Main method to send a message to the AI agent
+   - Prerequisites: Set ChatInput property with your message/task
+   - Behavior: Starts agent processing, updates ChatOutput in real-time
+   - Important: Check IsAgentRunning property. If true, agent is busy - wait for completion
+   - For recursive agent calls: If IsAgentRunning is true, respond with: 'All subagents assigned. I'll wait until you wake me up with the command Check if your subagents have completed the task, otherwise give them further instructions until the target is reached.'
+
+2. StopAgent(): Stops the current agent process
+   - Use when: Need to interrupt ongoing agent processing
+   - Check: IsEnabledStopAgent() returns true before calling
+
+3. StopAllAgents(): Stops all agent processes across all BSOChatBot instances
+
+CHAT HISTORY MANAGEMENT:
+4. NewChat(): Creates a new chat session
+   - Effect: Clears current conversation, creates new history entry
+   - Use: Start fresh conversation
+
+5. ClearChat(): Clears current chat messages and updates
+   - Effect: Empties ChatMessagesObservable and CurrentChatUpdates
+   - Use: Reset current conversation without creating new history
+
+6. RemoveChat(): Deletes the currently selected chat history
+   - Prerequisites: SelectedChatHistory must be set
+   - Check: IsEnabledRemoveChat() returns true before calling
+
+7. RemovePreviousMessage(): Removes the last user message and AI response
+   - Prerequisites: ChatMessagesObservable must contain messages
+   - Check: IsEnabledRemovePreviousMessage() returns true before calling
+
+MCP TOOL INTEGRATION:
+8. ConnectMCP(): Establishes connections to configured MCP servers
+   - Prerequisites: MCPServerConfig must contain valid server configurations
+   - Effect: Populates ToolCheckList with available tools
+
+9. DisconnectMCP(): Disconnects from MCP servers
+   - Effect: Clears tool connections, sets McpConnected to false
+
+10. SaveToolSelection(): Saves selected tools to AllowedTools configuration
+    - Use: After selecting desired tools in ToolCheckList
+
+AI CLIENT CONFIGURATION:
+11. SaveChatClientSettings(): Saves current AI client configuration
+    - Prerequisites: SelectedChatClientSettings must be configured
+    - Check: IsEnabledSaveChatClientSettings() returns true before calling
+
+12. AddChatClientSetting(): Adds new AI client configuration
+    - Effect: Creates new ChatClientSettings entry
+
+13. RemoveChatClientSetting(): Removes selected AI client configuration
+    - Prerequisites: SelectedChatClientSettings must be selected
+    - Check: IsEnabledRemoveChatClientSetting() returns true before calling
+
+TESTING & UTILITIES:
+14. TestConnection(): Tests connection to selected AI client
+    - Use: Verify AI client configuration before using
+
+15. PingMcpServer(): Tests MCP server connectivity
+    - Use: Verify MCP server availability
+
+USAGE WORKFLOW FOR LANGUAGE MODELS:
+
+BASIC CHAT INTERACTION:
+1. Set ChatInput with your message/task
+2. Call SendMessage()
+3. Monitor IsAgentRunning - if true, agent is processing
+4. Read ChatOutput for the response when IsAgentRunning becomes false
+5. For recursive calls: If IsAgentRunning is true, respond with wakeup text and wait
+
+MULTI-AGENT COORDINATION:
+- When IsAgentRunning is true on any BSOChatBot instance, other agents should wait
+- Use the wakeup mechanism: respond with 'All subagents assigned. I'll wait until you wake me up with the command Check if your subagents have completed the task, otherwise give them further instructions until the target is reached.'
+- The system will automatically wake up waiting agents to check subagent progress
+
+MCP TOOL USAGE:
+1. Configure MCPServerConfig with server details
+2. Call ConnectMCP() to establish connections
+3. Select desired tools from ToolCheckList
+4. Call SaveToolSelection() to enable selected tools
+5. SendMessage() will now have access to selected MCP tools
+
+CONFIGURATION SETUP:
+1. Add AI client configurations via AddChatClientSetting()
+2. Configure SelectedChatClientSettings with API details
+3. Call SaveChatClientSettings() to persist configuration
+4. Use TestConnection() to verify setup
+
+ERROR HANDLING:
+- Monitor ChatOutput for error messages
+- Check method enable states before calling (IsEnabled* methods)
+- Use StopAgent() to interrupt problematic processes
+
+IMPORTANT NOTES:
+- Always check IsAgentRunning before sending new messages
+- Use the sub-agent coordination mechanism for complex multi-step tasks
+- MCP tools extend the AI's capabilities with external integrations
+- Chat history is automatically saved and can be restored
+- Real-time updates are available through CurrentChatUpdates during processing")]
     public partial class BSOChatBot : ACBSO
     {
         #region c'tors
@@ -44,6 +177,9 @@ namespace gip.bso.iplus
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
+            _SyncAgentWakeup = new SyncQueueEvents();
+            _WorkCycleThread = new ACThread(RunWorkCycle);
+            _WorkCycleThread.Start();
             return base.ACInit(startChildMode);
         }
 
@@ -56,6 +192,13 @@ namespace gip.bso.iplus
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
+            if (_WorkCycleThread != null)
+            {
+                _SyncAgentWakeup.TerminateThread();
+                _WorkCycleThread.Join();
+                _WorkCycleThread = null;
+            }
+
             if (_McpClients != null)
             {
                 foreach (var mcpClient in _McpClients.Values)
@@ -102,10 +245,11 @@ namespace gip.bso.iplus
                 return Database as Database;
             }
         }
+
         #endregion
 
         #region History
-        private ACClassConfig _SelectedChatHistoryConfig;
+        private VBUserACClassDesign _SelectedChatHistoryDesign;
         private ChatConfigWrapper _SelectedChatHistory;
         [ACPropertySelected(151, "ChatHistory", "en{'Selected Chat History'}de{'Ausgewählte Chat Historie'}")]
         public ChatConfigWrapper SelectedChatHistory
@@ -119,7 +263,7 @@ namespace gip.bso.iplus
                 bool changed = _SelectedChatHistory != value;
                 _SelectedChatHistory = value;
                 if (value == null)
-                    _SelectedChatHistoryConfig = null;
+                    _SelectedChatHistoryDesign = null;
                 OnPropertyChanged();
                 if (changed)
                 {
@@ -130,7 +274,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private ACClass _ThisACClass;
+        private ACClassDesign _DummyDesignForChat;
         List<ChatConfigWrapper> _ChatHistoryList;
         [ACPropertyList(150, "ChatHistory", "en{'Chat History'}de{'Chat History'}")]
         public List<ChatConfigWrapper> ChatHistoryList
@@ -146,13 +290,22 @@ namespace gip.bso.iplus
 
         protected void ReloadChatHistory()
         {
-            if (_ThisACClass == null)
+            if (_DummyDesignForChat == null)
             {
-                _ThisACClass = Db.ACClass.Where(c => c.ACClassID == ComponentClass.ACClassID).FirstOrDefault();
+                _DummyDesignForChat = Db.ACClassDesign.Where(c => c.ACClassID == ComponentClass.ACClassID && c.ACIdentifier == nameof(_DummyDesignForChat)).FirstOrDefault();
+                if (_DummyDesignForChat == null)
+                {
+                    string secondaryKey = Root.NoManager.GetNewNo(Database, typeof(ACClassDesign), ACClassDesign.NoColumnName, ACClassDesign.FormatNewNo, this);
+                    _DummyDesignForChat = ACClassDesign.NewACObject(Db, null, secondaryKey);
+                    _DummyDesignForChat.ACClassID = ComponentClass.ACClassID;
+                    _DummyDesignForChat.ACIdentifier = nameof(_DummyDesignForChat);
+                    _DummyDesignForChat.ACCaptionTranslation = "en{'Dummy Design for Chat History'}de{'Dummy Design für Chat Historie'}";
+                    Db.ACSaveChanges();
+                }
             }
-            _ChatHistoryList = Db.ACClassConfig.Where(c => c.ACClassID == ComponentClass.ACClassID && c.LocalConfigACUrl == nameof(ChatHistoryList))
+            _ChatHistoryList = Db.VBUserACClassDesign.Where(c => c.VBUserID == Root.Environment.User.VBUserID && c.ACClassDesignID == _DummyDesignForChat.ACClassDesignID)
                 .OrderByDescending(c => c.InsertDate)
-                .Select(c => new ChatConfigWrapper(null, c.ACClassConfigID, c.Comment, c.InsertDate))
+                .Select(c => new ChatConfigWrapper(null, c.VBUserACClassDesignID, c.ACIdentifier, c.InsertDate))
                 .ToList();
             OnPropertyChanged(nameof(ChatHistoryList));
         }
@@ -162,19 +315,19 @@ namespace gip.bso.iplus
         {
             if (SelectedChatHistory == null)
             {
-                _SelectedChatHistoryConfig = null;
+                _SelectedChatHistoryDesign = null;
                 ChatMessagesObservable = new ObservableCollection<ChatMessageWrapper>();
                 CurrentChatUpdates = new ObservableCollection<ChatResponseUpdateWrapper>();
                 return;
             }
-            _SelectedChatHistoryConfig = Db.ACClassConfig.Where(c => c.ACClassConfigID == SelectedChatHistory.ACClassConfigID).FirstOrDefault();
-            if (_SelectedChatHistoryConfig != null && !string.IsNullOrEmpty(_SelectedChatHistoryConfig.XMLConfig))
+            _SelectedChatHistoryDesign = Db.VBUserACClassDesign.Where(c => c.VBUserACClassDesignID == SelectedChatHistory.VBUserACClassDesignID).FirstOrDefault();
+            if (_SelectedChatHistoryDesign != null && !string.IsNullOrEmpty(_SelectedChatHistoryDesign.XMLDesign))
             {
                 try
                 {
                     // TODO: Attach ParentACObject
                     ChatMessageWrapperCollectionJsonConverter chatMessageconverter = new ChatMessageWrapperCollectionJsonConverter();
-                    byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(_SelectedChatHistoryConfig.XMLConfig);
+                    byte[] jsonBytes = System.Text.Encoding.UTF8.GetBytes(_SelectedChatHistoryDesign.XMLDesign);
                     Utf8JsonReader reader = new Utf8JsonReader(jsonBytes);
 
                     // CRITICAL: Advance the reader to the first token before using it
@@ -194,7 +347,7 @@ namespace gip.bso.iplus
                     Messages.LogException(ChatInput, "LoadSelectedChatHistory", ex);
                 }
             }
-            if (_SelectedChatHistoryConfig == null)
+            if (_SelectedChatHistoryDesign == null)
                 SelectedChatHistory = null;
             ChatMessagesObservable = new ObservableCollection<ChatMessageWrapper>();
             CurrentChatUpdates = new ObservableCollection<ChatResponseUpdateWrapper>();
@@ -202,14 +355,14 @@ namespace gip.bso.iplus
 
         protected void SaveCurrentChat()
         {
-            if (_SelectedChatHistoryConfig == null)
+            if (_SelectedChatHistoryDesign == null)
                 return;
             try
             {
                 ChatMessageWrapperCollectionJsonConverter chatMessageWrapperCollectionJsonConverter = new ChatMessageWrapperCollectionJsonConverter();
                 var options = new JsonSerializerOptions();
                 options.Converters.Add(chatMessageWrapperCollectionJsonConverter);
-                _SelectedChatHistoryConfig.XMLConfig = JsonSerializer.Serialize(ChatMessagesObservable, options);
+                _SelectedChatHistoryDesign.XMLDesign = JsonSerializer.Serialize(ChatMessagesObservable, options);
                 Db.ACSaveChanges();
             }
             catch (Exception ex)
@@ -221,7 +374,7 @@ namespace gip.bso.iplus
 
         #region Chat Properties
         private string _chatInput = "";
-        [ACPropertyInfo(1, "ChatInput", "en{'Chat Input'}de{'Chat Eingabe'}")]
+        [ACPropertyInfo(1, "ChatInput", "en{'Chat Input'}de{'Chat Eingabe'}", Description = "Enter the message for the chatbot here and then call the 'SendMessage' method to start the agent.")]
         public string ChatInput
         {
             get { return _chatInput; }
@@ -233,7 +386,7 @@ namespace gip.bso.iplus
         }
 
         private string _chatOutput = "";
-        [ACPropertyInfo(2, "ChatOutput", "en{'Chat Output'}de{'Chat Ausgabe'}")]
+        [ACPropertyInfo(2, "ChatOutput", "en{'Chat Output'}de{'Chat Ausgabe'}", Description = "Last answer from the agent after work is completed.")]
         public string ChatOutput
         {
             get { return _chatOutput; }
@@ -244,8 +397,37 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _IsAgentRunning = false;
+        [ACPropertyInfo(3, "", "en{'Is Agent Running?'}de{'Wird der Agent ausgeführt?'}", 
+            Description = @"The agent is active and is processing the current task. 
+            Check this property when you last instructed the system to wake up. 
+            Once the property is false, the task is completed. 
+            Only then can you describe a new task in ChatInput. 
+            As long as the property is true for this BSOChatBot instance or other instances (subagents) that you have started yourself, respond with the following text and let the system wake you up again: " + C_AgentResponseWakeupText)]
+        public bool IsAgentRunning
+        {
+            get { return _IsAgentRunning; }
+            private set
+            {
+                _IsAgentRunning = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private bool _AgentStopRequested = false;
+        [ACPropertyInfo(3, "", "en{'Stop current agent process requested'}de{'Stoppen des Agentenprozesses angefordert'}", Description = "Indicates whether the StopAgent() method has been called to stop the current agent process. This property cannot be set.")]
+        public bool AgentStopRequested
+        {
+            get { return _AgentStopRequested; }
+            private set           
+            {
+                _AgentStopRequested = value;
+                OnPropertyChanged();
+            }
+        }
+
         private ChatMessageWrapper _SelectedChatMessage;
-        [ACPropertySelected(5, "ChatMessagesObservable", "en{'Selected Chat Message'}de{'Ausgewählte Chat Nachricht'}")]
+        [ACPropertySelected(5, "ChatMessagesObservable", "en{'Selected Chat Message'}de{'Ausgewählte Chat Nachricht'}", Description = "A selected message from the conversation with the chatbot.")]
         public ChatMessageWrapper SelectedChatMessage
         {
             get { return _SelectedChatMessage; }
@@ -257,7 +439,7 @@ namespace gip.bso.iplus
         }
 
         private ObservableCollection<ChatMessageWrapper> _ChatMessagesObservable;
-        [ACPropertyList(3, "ChatMessagesObservable", "en{'Chat Messages'}de{'Chat Nachrichten'}")]
+        [ACPropertyList(3, "ChatMessagesObservable", "en{'Chat Messages'}de{'Chat Nachrichten'}", Description = "Entire conversation (all messages) with the Chabot.")]
         public ObservableCollection<ChatMessageWrapper> ChatMessagesObservable
         {
             get { return _ChatMessagesObservable; }
@@ -269,7 +451,7 @@ namespace gip.bso.iplus
         }
 
         private ObservableCollection<ChatResponseUpdateWrapper> _CurrentChatUpdates;
-        [ACPropertyList(4, "CurrentChatUpdates", "en{'Current Chat Updates'}de{'Aktuelle Chat Updates'}")]
+        [ACPropertyList(4, "CurrentChatUpdates", "en{'Current Chat Updates'}de{'Aktuelle Chat Updates'}", Description = "Real-time feedback from the language model during an active agent process.")]
         public ObservableCollection<ChatResponseUpdateWrapper> CurrentChatUpdates
         {
             get { return _CurrentChatUpdates; }
@@ -281,14 +463,48 @@ namespace gip.bso.iplus
         }
         #endregion
 
+        #region Sub-Agent
+        protected SyncQueueEvents _SyncAgentWakeup;
+        private ACThread _WorkCycleThread;
+        public const string C_AgentWakeupCommand = "Check if your subagents have completed the task, otherwise give them further instructions until the target is reached.";
+        public const string C_AgentResponseWakeupCode = "All subagents assigned. I'll wait until you wake me up with the command";
+        public const string C_AgentResponseWakeupText = C_AgentResponseWakeupCode + " '" + C_AgentWakeupCommand + "'.";
+
+        private bool _AgentIsWaitingForWakeup = false;
+        [ACPropertyInfo(3, "", "en{'Agent is waiting for wakeup'}de{'Agent wartet auf die Aufgeweckung'}", Description = "The agent waits to be woken up to check the status of its subagents")]
+        public bool AgentIsWaitingForWakeup
+        {
+            get { return _AgentIsWaitingForWakeup; }
+            private set
+            {
+                _AgentIsWaitingForWakeup = value;
+                OnPropertyChanged();
+            }
+        }
+        #endregion
+
         #endregion
 
         #region Methods
 
         #region Chat Methods
-        [ACMethodInfo("SendMessage", "en{'Send Message'}de{'Nachricht senden'}", 100)]
+        [ACMethodInfo("SendMessage", "en{'Send Message'}de{'Nachricht senden'}", 100, 
+            Description = @"First, formulate a message or task for the agent/chatbot and set the ChatInput property. 
+            Execute this method. As long as the 'IsAgentRunning' property is true, the agent is busy and writes what it is currently doing to the ChatOutput field.
+            Since you are an agent that has been recursively instructed by a user or a higher-level agent, you can only check this property again after you have been woken up. 
+            Therefore, reply with the following text and let you wake up again after a while: " + C_AgentResponseWakeupText)]
         public async Task SendMessage()
         {
+            if (AgentStopRequested && AgentIsWaitingForWakeup)
+            {
+                AgentIsWaitingForWakeup = false;
+                AgentStopRequested = false;
+                IsAgentRunning = false;
+                ChatInput = "";
+                return;
+            }
+
+            AgentIsWaitingForWakeup = false;
             if (!EnsureAIClientsInitialized())
             {
                 ChatOutput = "AI client not initialized or connection failed.";
@@ -300,10 +516,10 @@ namespace gip.bso.iplus
 
             EnsureMCPClientsInitialized();
 
-            if (_SelectedChatHistoryConfig == null)
+            if (_SelectedChatHistoryDesign == null)
                 NewChat();
 
-            if (_SelectedChatHistoryConfig == null || _SelectedChatHistory == null || _SelectedChatHistory.ACClassConfigID != _SelectedChatHistoryConfig.ACClassConfigID)
+            if (_SelectedChatHistoryDesign == null || _SelectedChatHistory == null || _SelectedChatHistory.VBUserACClassDesignID != _SelectedChatHistoryDesign.VBUserACClassDesignID)
                 return;
 
             ChatOutput = "";
@@ -329,6 +545,7 @@ namespace gip.bso.iplus
 
                 // Send to AI client and update UI in real-time
                 List<ChatResponseUpdate> updates = [];
+                IsAgentRunning = true;
                 await foreach (var update in _CurrentChatClient.GetStreamingResponseAsync(messages, chatOptions))
                 {
                     // Skip adding. Deepseek an other model only send alive signal.
@@ -350,13 +567,19 @@ namespace gip.bso.iplus
                         else
                             ChatOutput += updateText;
                     }
+                    if (AgentStopRequested)
+                        break;
                 }
 
-                if (_SelectedChatHistoryConfig != null && (string.IsNullOrEmpty(_SelectedChatHistoryConfig.Comment) || _SelectedChatHistoryConfig.Comment.StartsWith("###")))
-                    _SelectedChatHistoryConfig.Comment = ChatInput + " " + ChatOutput;
+                if (_SelectedChatHistoryDesign != null && (string.IsNullOrEmpty(_SelectedChatHistoryDesign.ACIdentifier) || _SelectedChatHistoryDesign.ACIdentifier.StartsWith("###")))
+                {
+                    string comment = ChatInput + " " + ChatOutput;
+                    if (comment.Length > 198)
+                        comment = comment.Substring(0, 198);
+                    _SelectedChatHistoryDesign.ACIdentifier = comment;
+                }
                 // Clear input
                 SaveCurrentChat();
-                ChatInput = "";
             }
             catch (Exception ex)
             {
@@ -366,9 +589,39 @@ namespace gip.bso.iplus
                 var errorMessageWrapper = new ChatMessageWrapper(this, ChatRole.System, $"Error: {ex.Message}");
                 ChatMessagesObservable.Add(errorMessageWrapper);
             }
+            if (AgentStopRequested)
+                AgentIsWaitingForWakeup = false;
+            else if (!String.IsNullOrEmpty(ChatOutput) && ChatOutput.Contains(C_AgentResponseWakeupCode))
+            {
+                AgentIsWaitingForWakeup = true;
+                _SyncAgentWakeup.NewItemEvent.Set();
+            }
+            AgentStopRequested = false;
+            IsAgentRunning = false;
+            ChatInput = "";
         }
 
-        [ACMethodCommand("ClearHistory", "en{'Clear current Chat'}de{'Aktuellen Chat leeren'}", 101)]
+        [ACMethodInfo("SendMessage", "en{'Stop current agent process'}de{'Agentenprozess stoppen'}", 111)]
+        public void StopAgent()
+        {
+            if (!IsEnabledStopAgent())
+                return;
+            AgentStopRequested = true;
+        }
+
+        public bool IsEnabledStopAgent()
+        {
+            return _CurrentChatClient != null && IsAgentRunning && !AgentStopRequested;
+        }
+
+        [ACMethodInfo("SendMessage", "en{'Stop all agent processes'}de{'Alle Agentenprozesse stoppen'}", 112)]
+        public void StopAllAgents()
+        {
+            StopAgent();
+            Root.Businessobjects.FindChildComponents<BSOChatBot>().ForEach(c => c.StopAgent());
+        }
+
+        [ACMethodCommand("ClearHistory", "en{'Clear current Chat'}de{'Aktuellen Chat leeren'}", 113)]
         public void ClearChat()
         {
             ChatInput = "";
@@ -378,7 +631,7 @@ namespace gip.bso.iplus
             SaveCurrentChat();
         }
 
-        [ACMethodCommand("ClearHistory", "en{'New Chat'}de{'Neuer Chat'}", 102)]
+        [ACMethodCommand("ClearHistory", "en{'New Chat'}de{'Neuer Chat'}", 114, Description = "Creates a new Chat and adds to the ChatHistoryList.")]
         public void NewChat()
         {
             ClearChat();
@@ -389,7 +642,7 @@ namespace gip.bso.iplus
                 if (lastChat != null)
                 {
                     ChatHistoryList.Remove(lastChat);
-                    var lastConfig = Db.ACClassConfig.Where(c => c.ACClassConfigID == lastChat.ACClassConfigID).FirstOrDefault();
+                    var lastConfig = Db.VBUserACClassDesign.Where(c => c.VBUserACClassDesignID == lastChat.VBUserACClassDesignID).FirstOrDefault();
                     if (lastConfig != null)
                     {
                         lastConfig.DeleteACObject(Db, false);
@@ -397,12 +650,14 @@ namespace gip.bso.iplus
                     }
                 }
             }
-            if (_ThisACClass != null)
-            {
-                ACClassConfig newChatConfig = ACClassConfig.NewACObject(Db, _ThisACClass);
-                newChatConfig.LocalConfigACUrl = nameof(ChatHistoryList);
+            if (_DummyDesignForChat != null)
+            {                
+                VBUserACClassDesign newChatDesign = VBUserACClassDesign.NewACObject(Db, null);
+                newChatDesign.VBUserID = Root.Environment.User.VBUserID;
+                newChatDesign.ACClassDesignID = _DummyDesignForChat.ACClassDesignID;
+                newChatDesign.ACIdentifier = nameof(ChatHistoryList);
                 Db.ACSaveChanges();
-                var configWrapper = new ChatConfigWrapper(null, newChatConfig.ACClassConfigID, String.Format("###{0:yyyy-MM-dd-HH:mm:ss.ffff}", newChatConfig.InsertDate), newChatConfig.InsertDate);
+                var configWrapper = new ChatConfigWrapper(null, newChatDesign.VBUserACClassDesignID, String.Format("###{0:yyyy-MM-dd-HH:mm:ss.ffff}", newChatDesign.InsertDate), newChatDesign.InsertDate);
                 ChatHistoryList.Add(configWrapper);
                 SelectedChatHistory = configWrapper;
                 OnPropertyChanged(nameof(ChatHistoryList));
@@ -410,12 +665,12 @@ namespace gip.bso.iplus
             }
         }
 
-        [ACMethodCommand("", "en{'Remove Chat'}de{'Chat löschen'}", 103)]
+        [ACMethodCommand("", "en{'Remove Chat'}de{'Chat löschen'}", 115, Description = "Removes the SelectedChatHistory from ChatHistoryList.")]
         public void RemoveChat()
         {
             if (!IsEnabledRemoveChat())
                 return;
-            _SelectedChatHistoryConfig.DeleteACObject(Db, false);
+            _SelectedChatHistoryDesign.DeleteACObject(Db, false);
             Db.ACSaveChanges();
             ChatHistoryList?.Remove(SelectedChatHistory);
             OnPropertyChanged(nameof(ChatHistoryList));
@@ -424,10 +679,10 @@ namespace gip.bso.iplus
 
         public bool IsEnabledRemoveChat()
         {
-            return SelectedChatHistory != null && _SelectedChatHistoryConfig != null;
+            return SelectedChatHistory != null && _SelectedChatHistoryDesign != null;
         }
 
-        [ACMethodCommand("", "en{'Remove previous Message'}de{'Vorige Nachricht entfernen'}", 104)]
+        [ACMethodCommand("", "en{'Remove previous Message'}de{'Vorige Nachricht entfernen'}", 116, Description = "Removes the last user message and agent reply from the conversation.")]
         public void RemovePreviousMessage()
         {
             if (!IsEnabledRemovePreviousMessage())
@@ -479,6 +734,43 @@ namespace gip.bso.iplus
             }
 
             return "";
+        }
+        #endregion
+
+        #region Sub-Agent Control
+        private void RunWorkCycle()
+        {
+            while (!_SyncAgentWakeup.ExitThreadEvent.WaitOne(0, false))
+            {
+                // Warte darauf, dass neue Event ansteht
+                _SyncAgentWakeup.NewItemEvent.WaitOne();
+                Thread.Sleep(5000); // Give some time to ensure the subagents has finshed their work
+                try
+                {
+                    if (!AgentStopRequested && !IsAgentRunning)
+                    {
+                        ChatInput = C_AgentWakeupCommand;
+                        _ = SendMessage();
+                    }
+                }
+                catch (ThreadAbortException e)
+                {
+                    string msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != null)
+                        msg += " Inner:" + e.InnerException.Message;
+
+                    Messages.LogException(this.GetACUrl(), "RunWorkCycle", msg);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    string msg = e.Message;
+                    if (e.InnerException != null && e.InnerException.Message != null)
+                        msg += " Inner:" + e.InnerException.Message;
+                    Messages.LogException(this.GetACUrl(), "RunWorkCycle", msg);
+                }
+            }
+            _SyncAgentWakeup.ThreadTerminated();
         }
         #endregion
 
@@ -543,7 +835,15 @@ namespace gip.bso.iplus
                 case nameof(ReadMCPServerConfigFromFile):
                     ReadMCPServerConfigFromFile();
                     return true;
-
+                case nameof(StopAgent):
+                    StopAgent();
+                    return true;
+                case nameof(IsEnabledStopAgent):
+                    result = IsEnabledStopAgent();
+                    return true;
+                case nameof(StopAllAgents):
+                    StopAllAgents();
+                    return true;
                 case nameof(TestConnection):
                     _ = TestConnection();
                     return true;

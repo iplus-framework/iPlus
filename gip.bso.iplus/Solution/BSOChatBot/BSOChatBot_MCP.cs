@@ -26,19 +26,6 @@ namespace gip.bso.iplus
     {
         #region Properties
 
-        private bool _isConnected = false;
-        [ACPropertyInfo(10, "IsConnected", "en{'Is Connected'}de{'Ist Verbunden'}")]
-        public bool IsConnected
-        {
-            get { return _isConnected; }
-            set
-            {
-                _isConnected = value;
-                OnPropertyChanged();
-            }
-        }
-
-
         protected ACPropertyConfigValue<string> _MCPServerConfig;
         [ACPropertyInfo(12, "McpServerCommand", "en{'MCP Server JSON config'}de{'MCP Server JSON config'}")]
         public string MCPServerConfig
@@ -145,7 +132,7 @@ namespace gip.bso.iplus
             return McpConnected;
         }
 
-        [ACMethodCommand("", "en{'Read MCP-Config from file'}de{'MCP-Konfiguration von Datei lesen'}", 106)]
+        [ACMethodCommand("MCP", "en{'Read MCP-Config from file'}de{'MCP-Konfiguration von Datei lesen'}", 106)]
         public void ReadMCPServerConfigFromFile()
         {
             try
@@ -178,7 +165,7 @@ namespace gip.bso.iplus
             }
         }
 
-        [ACMethodInfo("PingMcpServer", "en{'Ping MCP Server'}de{'MCP Server anpingen'}", 105)]
+        [ACMethodInfo("MCP", "en{'Ping MCP Server'}de{'MCP Server anpingen'}", 105)]
         public async Task PingMcpServer()
         {
             if (_McpClients == null || _McpClients.Count == 0)
@@ -204,7 +191,10 @@ namespace gip.bso.iplus
             ChatOutput = $"MCP server ping results:\n{string.Join("\n", results)}";
         }
 
-        [ACMethodInfo("ConnectMCP", "en{'Connect MCP'}de{'MCP verbinden'}", 102)]
+        [ACMethodInfo("MCP", "en{'Connect MCP'}de{'MCP verbinden'}", 102, 
+            Description = @"A connection is established to the configured MCP servers. 
+            This method is asynchronous and must wait until the connections are established, which is signaled by the McpConnected property. 
+            This method mustn't be called explicitly. It is called implicitly with the first call of SendMessage.")]
         public async Task ConnectMCP()
         {
             try
@@ -232,6 +222,9 @@ namespace gip.bso.iplus
 
                 // Clear existing connections
                 await DisconnectMCP();
+
+                if (_CurrentChatClient == null)
+                    EnsureAIClientsInitialized();
 
                 int totalTools = 0;
                 var connectedServers = new List<string>();
@@ -306,7 +299,7 @@ namespace gip.bso.iplus
             }
         }
 
-        [ACMethodInfo("DisconnectMCP", "en{'Disconnect MCP'}de{'MCP trennen'}", 103)]
+        [ACMethodInfo("MCP", "en{'Disconnect MCP'}de{'MCP trennen'}", 103)]
         public async Task DisconnectMCP()
         {
             try
@@ -385,7 +378,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Saves the currently selected tools to the AllowedTools JSON configuration
         /// </summary>
-        [ACMethodCommand("SaveToolSelection", "en{'Save Tool Selection'}de{'Tool-Auswahl speichern'}", 107)]
+        [ACMethodCommand("MCP", "en{'Save Tool Selection'}de{'Tool-Auswahl speichern'}", 107)]
         public void SaveToolSelection()
         {
             try
