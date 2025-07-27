@@ -23,7 +23,7 @@ using System.Threading;
 
 namespace gip.bso.iplus
 {
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'AI-Chatbot'}de{'AI-Chatbot'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, false, true,
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'AI-Chatbot'}de{'AI-Chatbot'}", Global.ACKinds.TACBSO, Global.ACStorableTypes.NotStorable, true, true,
     Description = @"BSOChatBot - AI Chatbot Business Object for iPlus Framework
 
 OVERVIEW:
@@ -573,10 +573,11 @@ IMPORTANT NOTES:
                         else
                             ChatOutput += updateText;
                     }
+                    OnPropertyChanged(nameof(SelectedChatMessage));
+                    SelectedChatMessage.Refresh();
                     if (AgentStopRequested)
                         break;
                 }
-                OnPropertyChanged(nameof(SelectedChatMessage));
 
                 if (_SelectedChatHistoryDesign != null && (string.IsNullOrEmpty(_SelectedChatHistoryDesign.ACIdentifier) || _SelectedChatHistoryDesign.ACIdentifier.StartsWith("###")))
                 {
@@ -662,11 +663,12 @@ IMPORTANT NOTES:
                 VBUserACClassDesign newChatDesign = VBUserACClassDesign.NewACObject(Db, null);
                 newChatDesign.VBUserID = Root.Environment.User.VBUserID;
                 newChatDesign.ACClassDesignID = _DummyDesignForChat.ACClassDesignID;
-                newChatDesign.ACIdentifier = nameof(ChatHistoryList);
+                string comment = String.Format("###{0:yyyy-MM-dd-HH:mm:ss.ffff}", DateTime.Now);
+                newChatDesign.ACIdentifier = comment;
                 newChatDesign.XMLDesign = "";
                 Db.VBUserACClassDesign.Add(newChatDesign);
                 Db.ACSaveChanges();
-                var configWrapper = new ChatConfigWrapper(null, newChatDesign.VBUserACClassDesignID, String.Format("###{0:yyyy-MM-dd-HH:mm:ss.ffff}", newChatDesign.InsertDate), newChatDesign.InsertDate);
+                var configWrapper = new ChatConfigWrapper(null, newChatDesign.VBUserACClassDesignID, comment, newChatDesign.InsertDate);
                 ChatHistoryList.Add(configWrapper);
                 SelectedChatHistory = configWrapper;
                 OnPropertyChanged(nameof(ChatHistoryList));
@@ -753,10 +755,11 @@ IMPORTANT NOTES:
             {
                 // Warte darauf, dass neue Event ansteht
                 _SyncAgentWakeup.NewItemEvent.WaitOne();
-                Thread.Sleep(5000); // Give some time to ensure the subagents has finshed their work
+                if (AgentIsWaitingForWakeup)
+                    Thread.Sleep(5000); // Give some time to ensure the subagents has finshed their work
                 try
                 {
-                    if (!AgentStopRequested && !IsAgentRunning)
+                    if (!AgentStopRequested && !IsAgentRunning && AgentIsWaitingForWakeup)
                     {
                         ChatInput = C_AgentWakeupCommand;
                         _ = SendMessage();

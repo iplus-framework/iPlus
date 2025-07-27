@@ -27,6 +27,7 @@ namespace gip.core.datamodel
             if (parentACObject is VBUser)
             {
                 VBUser user = parentACObject as VBUser;
+                entity.VBUserID = user.VBUserID;
                 entity.VBUser = user;
             }
             entity.SetInsertAndUpdateInfo(database.UserName, database);
@@ -39,7 +40,11 @@ namespace gip.core.datamodel
             // Bei Systembelegung gibt es keine Vorbelegung, da hier kein Customizing erwünscht ist
             VBUserACClassDesign entity = VBUserACClassDesign.NewACObject(database, vbUser);
             if (acClassDesign != null)
+            {
+                entity.ACClassDesignID = acClassDesign.ACClassDesignID;
                 entity.ACClassDesign = acClassDesign;
+            }
+            database.VBUserACClassDesign.Add(entity);
             return entity;
         }
         #endregion

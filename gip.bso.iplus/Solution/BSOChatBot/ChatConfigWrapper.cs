@@ -73,5 +73,6 @@ namespace gip.bso.iplus
 
         public override ChatRole? ChatMessageRole => null;
     }
+   
     #endregion
 }
