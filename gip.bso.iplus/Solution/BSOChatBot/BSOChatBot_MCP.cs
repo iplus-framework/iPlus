@@ -314,6 +314,7 @@ namespace gip.bso.iplus
                     Command = serverInfo.command,
                     Arguments = serverInfo.args ?? new string[0],
                     Name = serverName,
+                    EnvironmentVariables = serverInfo.env,
                 }, _LoggerFactory);
 
                 // Connect to MCP server with timeout

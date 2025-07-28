@@ -52,6 +52,9 @@ namespace gip.core.autocomponent
 
         public override IEnumerable<VBEntityObject> QueryDatabase(params Object[] acParameter)
         {
+            // Flatten any nested object arrays
+            acParameter = FlattenParameters(acParameter);
+
             ACQueryDefinition queryDef = Clone() as ACQueryDefinition;
             ACClass entityType = this.QueryType as ACClass;
             // Convert acParameter into key-value pairs,             // TODO: MAterial.Subproperty
@@ -283,6 +286,48 @@ namespace gip.core.autocomponent
             get
             {
                 return this._ACType;
+            }
+        }
+
+        /// <summary>
+        /// Flattens nested object arrays into a single flat array.
+        /// Handles cases where acParameter contains nested object[] arrays.
+        /// </summary>
+        /// <param name="parameters">The parameters array that might contain nested arrays</param>
+        /// <returns>A flattened array with all nested arrays expanded</returns>
+        private Object[] FlattenParameters(Object[] parameters)
+        {
+            if (parameters == null || parameters.Length == 0)
+                return parameters;
+
+            var flatList = new List<object>();
+            FlattenParametersRecursive(parameters, flatList);
+
+            return flatList.ToArray();
+        }
+
+        /// <summary>
+        /// Recursively flattens parameter arrays
+        /// </summary>
+        /// <param name="items">Current array to process</param>
+        /// <param name="flatList">The flat list to add items to</param>
+        private void FlattenParametersRecursive(Object[] items, List<object> flatList)
+        {
+            if (items == null)
+                return;
+
+            foreach (var item in items)
+            {
+                if (item is Object[] nestedArray)
+                {
+                    // Recursively flatten nested arrays
+                    FlattenParametersRecursive(nestedArray, flatList);
+                }
+                else
+                {
+                    // Add non-array items directly
+                    flatList.Add(item);
+                }
             }
         }
 

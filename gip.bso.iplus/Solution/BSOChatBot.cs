@@ -547,6 +547,10 @@ IMPORTANT NOTES:
                     chatOptions.Tools = selectedTools;
                     chatOptions.AllowMultipleToolCalls = true;
                     chatOptions.ToolMode = ChatToolMode.RequireAny;
+#if DEBUG
+                    // Dummy hook to be able to set a breakpoint into McpClientTool.CallAsync or FunctionInvokingChatClient.InstrumentedInvokeFunctionAsync to see which parameters are passed to MCP
+                    _ = selectedTools.FirstOrDefault().Description;
+#endif
                 }
 
                 // Send to AI client and update UI in real-time
