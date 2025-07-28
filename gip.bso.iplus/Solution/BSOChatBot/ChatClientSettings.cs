@@ -205,6 +205,18 @@ namespace gip.bso.iplus
             }
         }
 
+        [JsonIgnore]
+        private bool? _AllowMultipleToolCalls = false;
+        [ACPropertyInfo(15, "", "en{'Allow parallel tool calls'}de{'Erlaube parallele Toolaurufe'}")]
+        public bool? AllowMultipleToolCalls
+        {
+            get => _AllowMultipleToolCalls;
+            set
+            {
+                SetProperty(ref _AllowMultipleToolCalls, value);
+            }
+        }
+
         public ChatClientSettings()
         {
             AdditionalProperties = new Dictionary<string, object>();
@@ -223,7 +235,8 @@ namespace gip.bso.iplus
                 FrequencyPenalty = FrequencyPenalty,
                 PresencePenalty = PresencePenalty,
                 StopSequences = StopSequences,
-                Seed = Seed
+                Seed = Seed,
+                AllowMultipleToolCalls = AllowMultipleToolCalls,
             };
 
             if (AdditionalProperties != null)

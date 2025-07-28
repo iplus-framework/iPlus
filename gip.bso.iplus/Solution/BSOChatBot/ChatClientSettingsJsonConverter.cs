@@ -107,38 +107,41 @@ namespace Microsoft.Extensions.AI
 
                     switch (propertyName)
                     {
-                        case "Endpoint":
+                        case nameof(ChatClientSettings.Endpoint):
                             settings.Endpoint = reader.GetString();
                             break;
-                        case "ApiKey":
+                        case nameof(ChatClientSettings.ApiKey):
                             settings.ApiKey = reader.GetString();
                             break;
-                        case "ModelName":
+                        case nameof(ChatClientSettings.ModelName):
                             settings.ModelName = reader.GetString();
                             break;
-                        case "AIClientType":
+                        case nameof(ChatClientSettings.AIClientType):
                             settings.AIClientType = reader.GetString();
                             break;
-                        case "MaxOutputTokens":
+                        case nameof(ChatClientSettings.MaxOutputTokens):
                             settings.MaxOutputTokens = reader.TokenType == JsonTokenType.Null ? null : reader.GetInt32();
                             break;
-                        case "Temperature":
+                        case nameof(ChatClientSettings.Temperature):
                             settings.Temperature = reader.TokenType == JsonTokenType.Null ? null : reader.GetSingle();
                             break;
-                        case "TopP":
+                        case nameof(ChatClientSettings.TopP):
                             settings.TopP = reader.TokenType == JsonTokenType.Null ? null : reader.GetSingle();
                             break;
-                        case "FrequencyPenalty":
+                        case nameof(ChatClientSettings.FrequencyPenalty):
                             settings.FrequencyPenalty = reader.TokenType == JsonTokenType.Null ? null : reader.GetSingle();
                             break;
-                        case "PresencePenalty":
+                        case nameof(ChatClientSettings.PresencePenalty):
                             settings.PresencePenalty = reader.TokenType == JsonTokenType.Null ? null : reader.GetSingle();
                             break;
-                        case "Seed":
+                        case nameof(ChatClientSettings.Seed):
                             settings.Seed = reader.TokenType == JsonTokenType.Null ? null : reader.GetInt64();
                             break;
-                        case "IncludeApiKeyInSerialization":
+                        case nameof(ChatClientSettings.IncludeApiKeyInSerialization):
                             settings.IncludeApiKeyInSerialization = reader.GetBoolean();
+                            break;
+                        case nameof(ChatClientSettings.AllowMultipleToolCalls):
+                            settings.AllowMultipleToolCalls = reader.TokenType == JsonTokenType.Null ? null : reader.GetBoolean();
                             break;
                         default:
                             reader.Skip();
@@ -160,36 +163,39 @@ namespace Microsoft.Extensions.AI
 
             writer.WriteStartObject();
 
-            writer.WriteString("Endpoint", value.Endpoint);
+            writer.WriteString(nameof(ChatClientSettings.Endpoint), value.Endpoint);
             
             // Conditionally serialize ApiKey
             if (value.IncludeApiKeyInSerialization)
             {
-                writer.WriteString("ApiKey", value.ApiKey);
+                writer.WriteString(nameof(ChatClientSettings.ApiKey), value.ApiKey);
             }
 
-            writer.WriteString("ModelName", value.ModelName);
-            writer.WriteString("AIClientType", value.AIClientType);
+            writer.WriteString(nameof(ChatClientSettings.ModelName), value.ModelName);
+            writer.WriteString(nameof(ChatClientSettings.AIClientType), value.AIClientType);
 
             if (value.MaxOutputTokens.HasValue)
-                writer.WriteNumber("MaxOutputTokens", value.MaxOutputTokens.Value);
+                writer.WriteNumber(nameof(ChatClientSettings.MaxOutputTokens), value.MaxOutputTokens.Value);
 
             if (value.Temperature.HasValue)
-                writer.WriteNumber("Temperature", value.Temperature.Value);
+                writer.WriteNumber(nameof(ChatClientSettings.Temperature), value.Temperature.Value);
 
             if (value.TopP.HasValue)
-                writer.WriteNumber("TopP", value.TopP.Value);
+                writer.WriteNumber(nameof(ChatClientSettings.TopP), value.TopP.Value);
 
             if (value.FrequencyPenalty.HasValue)
-                writer.WriteNumber("FrequencyPenalty", value.FrequencyPenalty.Value);
+                writer.WriteNumber(nameof(ChatClientSettings.FrequencyPenalty), value.FrequencyPenalty.Value);
 
             if (value.PresencePenalty.HasValue)
-                writer.WriteNumber("PresencePenalty", value.PresencePenalty.Value);
+                writer.WriteNumber(nameof(ChatClientSettings.PresencePenalty), value.PresencePenalty.Value);
 
             if (value.Seed.HasValue)
-                writer.WriteNumber("Seed", value.Seed.Value);
+                writer.WriteNumber(nameof(ChatClientSettings.Seed), value.Seed.Value);
 
-            writer.WriteBoolean("IncludeApiKeyInSerialization", value.IncludeApiKeyInSerialization);
+            if (value.AllowMultipleToolCalls.HasValue)
+                writer.WriteBoolean(nameof(ChatClientSettings.AllowMultipleToolCalls), value.AllowMultipleToolCalls.Value);
+
+            writer.WriteBoolean(nameof(ChatClientSettings.IncludeApiKeyInSerialization), value.IncludeApiKeyInSerialization);
 
             writer.WriteEndObject();
         }

@@ -523,7 +523,11 @@ IMPORTANT NOTES:
             }
 
             if (_SelectedChatHistoryDesign == null)
+            {
+                string chatInputTmp = ChatInput;
                 NewChat();
+                ChatInput = chatInputTmp;
+            }
 
             if (_SelectedChatHistoryDesign == null || _SelectedChatHistory == null || _SelectedChatHistory.VBUserACClassDesignID != _SelectedChatHistoryDesign.VBUserACClassDesignID)
                 return;
@@ -545,7 +549,6 @@ IMPORTANT NOTES:
                     // Use only the selected tools instead of all available tools
                     var selectedTools = GetSelectedTools();
                     chatOptions.Tools = selectedTools;
-                    chatOptions.AllowMultipleToolCalls = true;
                     chatOptions.ToolMode = ChatToolMode.RequireAny;
 #if DEBUG
                     // Dummy hook to be able to set a breakpoint into McpClientTool.CallAsync or FunctionInvokingChatClient.InstrumentedInvokeFunctionAsync to see which parameters are passed to MCP
@@ -600,6 +603,7 @@ IMPORTANT NOTES:
                 // Add error message to observable collection
                 var errorMessageWrapper = new ChatMessageWrapper(this, ChatRole.System, $"Error: {ex.Message}");
                 ChatMessagesObservable.Add(errorMessageWrapper);
+                SaveCurrentChat();
             }
             if (AgentStopRequested)
                 AgentIsWaitingForWakeup = false;

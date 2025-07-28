@@ -162,10 +162,10 @@ namespace gip.bso.iplus
                 //string shortText = Text;
                 //if (!string.IsNullOrEmpty(shortText))
                 //{
-                //    if (shortText.Length < 1000)
+                //    if (shortText.Length < 600)
                 //        return shortText;
                 //    else
-                //        return shortText.Substring(1000) + "...";
+                //        return shortText.Substring(600) + "...";
                 //}
 
                 StringBuilder sb = new StringBuilder();
@@ -204,8 +204,8 @@ namespace gip.bso.iplus
                             sb.Append(uc.Uri.ToString());
                         }
                     }
-                    if (sb.Length > 1000)
-                        return sb.ToString(0, 1000) + "...";
+                    if (sb.Length > 600)
+                        return sb.ToString(0, 600) + "...";
                     else
                         return sb.ToString();
                 }
@@ -535,8 +535,8 @@ namespace gip.bso.iplus
                         if (lines.Length > 8)
                             allText = string.Join(System.Environment.NewLine, lines.Take(8)) + "...";
                         // Check length and truncate if necessary
-                        if (allText.Length > 1000)
-                            allText = allText.Substring(0, 1000) + "...";
+                        if (allText.Length > 600)
+                            allText = allText.Substring(0, 600) + "...";
 
                         return allText;
                     }
