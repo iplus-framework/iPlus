@@ -552,14 +552,19 @@ namespace gip.core.layoutengine
             if (ContextACObject is IACComponent)
             {
                 ACClassDesign acClassDesign = ContentACObject as ACClassDesign;
-                VBUserACClassDesign userDesign = acClassDesign.VBUserACClassDesign_ACClassDesign.FirstOrDefault(c => c.VBUserID == this.Root().Environment.User.VBUserID);
-                if (userDesign == null)
-                    userDesign = VBUserACClassDesign.NewVBUserACClassDesign((ContextACObject as IACComponent).Database.ContextIPlus, this.Root().Environment.User, acClassDesign);
-                if (persistUserContent)
-                    userDesign.XMLDesign = xUserContent.ToString();
-                else
-                    userDesign.XMLDesign = xDefaultContent.ToString();
-                (ContextACObject as IACComponent).Database.ACSaveChanges();
+                if (acClassDesign != null && acClassDesign.Database != null)
+                {
+                    VBUserACClassDesign userDesign = acClassDesign.VBUserACClassDesign_ACClassDesign.FirstOrDefault(c => c.VBUserID == this.Root().Environment.User.VBUserID);
+                    if (userDesign == null)
+                        userDesign = VBUserACClassDesign.NewVBUserACClassDesign(acClassDesign.Database.ContextIPlus, this.Root().Environment.User, acClassDesign);
+                    if (persistUserContent)
+                        userDesign.XMLDesign = xUserContent.ToString();
+                    else
+                        userDesign.XMLDesign = xDefaultContent.ToString();
+                    var msg = acClassDesign.Database.ACSaveChanges();
+                    if (msg != null)
+                        acClassDesign.Database.ACUndoChanges();
+                }
             }
         }
 
