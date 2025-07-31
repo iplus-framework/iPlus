@@ -12,6 +12,7 @@ using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using System.Text.Json.Serialization;
+using System.Text.Json;
 
 namespace gip.bso.iplus
 {
@@ -171,6 +172,7 @@ namespace gip.bso.iplus
 
         [JsonIgnore]
         private Dictionary<string, object> _AdditionalProperties;
+        [JsonIgnore]
         [ACPropertyInfo(13, "", "en{'Additional Properties'}de{'Zusätzliche Eigenschaften'}")]
         public Dictionary<string, object> AdditionalProperties
         {
@@ -217,6 +219,134 @@ namespace gip.bso.iplus
             }
         }
 
+        [JsonIgnore]
+        private ChatToolMode _ToolMode;
+        public ChatToolMode ToolMode
+        {
+            get => _ToolMode;
+            set
+            {
+                SetProperty(ref _ToolMode, value);
+                if (_ToolMode == ChatToolMode.RequireAny)
+                    _ToolRequired = true;
+                else if (_ToolMode == ChatToolMode.None)
+                    _ToolRequired = false;
+                else
+                    _ToolRequired = null; // Auto mode
+                OnPropertyChanged(nameof(ToolRequired));
+            }
+        }
+
+        [JsonIgnore]
+        private bool? _ToolRequired;
+        [JsonIgnore]
+        [ACPropertyInfo(17, "", "en{'Force Tool Usage'}de{'Erzwinge Toolverwendung'}")]
+        public bool? ToolRequired
+        {
+            get => _ToolRequired;
+            set
+            {
+                SetProperty(ref _ToolRequired, value);
+                if (value.HasValue && value.Value)
+                    _ToolMode = ChatToolMode.RequireAny;
+                else if (value.HasValue && !value.Value)
+                    _ToolMode = ChatToolMode.None;
+                else
+                    _ToolMode = ChatToolMode.Auto; // Default to Auto if null
+                OnPropertyChanged(nameof(ToolMode));
+            }
+        }
+
+        [JsonIgnore]
+        private bool? _useCaching = null;
+        [ACPropertyInfo(9, "", "en{'Prompt-Caching'}de{'Prompt-Caching'}")]
+        public bool? UseCaching
+        {
+            get { return _useCaching; }
+            set
+            {
+                SetProperty(ref _useCaching, value);
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Example JSON representation of AdditionalProperties:
+        /// {
+        ///   "reasoning": {
+        ///     "effort": "high",
+        ///     "max_tokens": 2000,
+        ///     "exclude": false,
+        ///     "enabled": true
+        ///   }
+        /// }
+        /// </summary>
+        [JsonIgnore]
+        private string _AdditionalPropertiesJSON;
+        [ACPropertyInfo(16, "", "en{'Additional Properties JSON'}de{'Zusätzliche Eigenschaften JSON'}")]
+        public string AdditionalPropertiesJSON
+        {
+            get => _AdditionalPropertiesJSON;
+            set
+            {
+                SetProperty(ref _AdditionalPropertiesJSON, value);
+                // Parse JSON and populate AdditionalProperties when set
+                if (!string.IsNullOrWhiteSpace(value))
+                {
+                    try
+                    {
+                        var jsonDoc = JsonDocument.Parse(value);
+                        AdditionalProperties = ParseJsonElement(jsonDoc.RootElement);
+                    }
+                    catch (JsonException)
+                    {
+                        // If JSON is invalid, clear AdditionalProperties
+                        AdditionalProperties = new Dictionary<string, object>();
+                    }
+                }
+                else
+                {
+                    AdditionalProperties = new Dictionary<string, object>();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Helper method to parse JsonElement into Dictionary string, object
+        /// </summary>
+        private Dictionary<string, object> ParseJsonElement(JsonElement element)
+        {
+            var result = new Dictionary<string, object>();
+            
+            if (element.ValueKind == JsonValueKind.Object)
+            {
+                foreach (var property in element.EnumerateObject())
+                {
+                    result[property.Name] = ParseJsonValue(property.Value);
+                }
+            }
+            
+            return result;
+        }
+
+        /// <summary>
+        /// Helper method to parse JsonElement values into appropriate .NET types
+        /// </summary>
+        private object ParseJsonValue(JsonElement element)
+        {
+            return element.ValueKind switch
+            {
+                JsonValueKind.String => element.GetString(),
+                JsonValueKind.Number => element.TryGetInt32(out var intVal) ? intVal : element.GetDouble(),
+                JsonValueKind.True => true,
+                JsonValueKind.False => false,
+                JsonValueKind.Null => null,
+                JsonValueKind.Object => ParseJsonElement(element),
+                JsonValueKind.Array => element.EnumerateArray().Select(ParseJsonValue).ToArray(),
+                _ => null
+            };
+        }
+
         public ChatClientSettings()
         {
             AdditionalProperties = new Dictionary<string, object>();
@@ -237,6 +367,7 @@ namespace gip.bso.iplus
                 StopSequences = StopSequences,
                 Seed = Seed,
                 AllowMultipleToolCalls = AllowMultipleToolCalls,
+                ToolMode = ToolMode
             };
 
             if (AdditionalProperties != null)
@@ -268,7 +399,9 @@ namespace gip.bso.iplus
                 FrequencyPenalty = chatOptions.FrequencyPenalty,
                 PresencePenalty = chatOptions.PresencePenalty,
                 StopSequences = chatOptions.StopSequences.ToArray(),
-                Seed = chatOptions.Seed
+                Seed = chatOptions.Seed,
+                AllowMultipleToolCalls = chatOptions.AllowMultipleToolCalls,
+                ToolMode = chatOptions.ToolMode
             };
 
             if (chatOptions.AdditionalProperties != null)

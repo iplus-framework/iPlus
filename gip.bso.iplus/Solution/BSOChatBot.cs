@@ -169,6 +169,8 @@ IMPORTANT NOTES:
             _CurrentChatUpdates = new ObservableCollection<ChatResponseUpdateWrapper>();
             _AllowedTools = new ACPropertyConfigValue<string>(this, nameof(AllowedTools), "[]");
             _ToolCheckList = new List<ACObjectItemWCheckBox>();
+            _HttpTimeOut = new ACPropertyConfigValue<uint>(this, nameof(HttpTimeOut), 0);
+            _OllamaKeepAlive = new ACPropertyConfigValue<string>(this, nameof(OllamaKeepAlive), "10m");
             //Endpoint = "https://openrouter.ai/api/v1";
             //ApiKey = "";
             //ModelName = "google/gemini-2.0-flash-exp:free";
@@ -543,17 +545,24 @@ IMPORTANT NOTES:
                 // Create chat options with selected tools from MCP
                 var chatOptions = new ChatOptions();
                 if (SelectedChatClientSettings != null)
+                {
                     chatOptions = SelectedChatClientSettings.ToChatOptions();
+                    if (_CurrentChatClient is OllamaApiClient ollamaClient)
+                    {
+                        if (UseCaching.HasValue && UseCaching.Value)
+                            chatOptions.AddOllamaOption(OllamaSharp.Models.OllamaOption.NumKeep, -1);
+                        if (!string.IsNullOrEmpty(OllamaKeepAlive))
+                            chatOptions.AdditionalProperties.Add("keep_alive", OllamaKeepAlive);
+                    }
+                }
                 if (_McpClients != null && _McpClients.Count > 0 && McpConnected)
                 {
                     // Use only the selected tools instead of all available tools
-                    var selectedTools = GetSelectedTools();
-                    chatOptions.Tools = selectedTools;
-                    chatOptions.ToolMode = ChatToolMode.RequireAny;
-#if DEBUG
+                    chatOptions.Tools = GetSelectedTools();
+                    #if DEBUG
                     // Dummy hook to be able to set a breakpoint into McpClientTool.CallAsync or FunctionInvokingChatClient.InstrumentedInvokeFunctionAsync to see which parameters are passed to MCP
-                    _ = selectedTools.FirstOrDefault().Description;
-#endif
+                    _ = chatOptions.Tools?.FirstOrDefault().Description;
+                    #endif
                 }
 
                 // Send to AI client and update UI in real-time
@@ -650,7 +659,6 @@ IMPORTANT NOTES:
         [ACMethodCommand("ClearHistory", "en{'New Chat'}de{'Neuer Chat'}", 114, Description = "Creates a new Chat and adds to the ChatHistoryList.")]
         public void NewChat()
         {
-            ClearChat();
             SelectedChatHistory = null;
             if (ChatHistoryList != null && ChatHistoryList.Count > 50)
             {
@@ -678,9 +686,9 @@ IMPORTANT NOTES:
                 Db.ACSaveChanges();
                 var configWrapper = new ChatConfigWrapper(null, newChatDesign.VBUserACClassDesignID, comment, newChatDesign.InsertDate);
                 ChatHistoryList.Add(configWrapper);
-                SelectedChatHistory = configWrapper;
                 OnPropertyChanged(nameof(ChatHistoryList));
                 SelectedChatHistory = configWrapper;
+                ClearChat();
             }
         }
 

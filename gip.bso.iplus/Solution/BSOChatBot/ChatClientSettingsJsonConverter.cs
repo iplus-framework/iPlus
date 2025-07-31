@@ -143,6 +143,45 @@ namespace Microsoft.Extensions.AI
                         case nameof(ChatClientSettings.AllowMultipleToolCalls):
                             settings.AllowMultipleToolCalls = reader.TokenType == JsonTokenType.Null ? null : reader.GetBoolean();
                             break;
+                        case nameof(ChatClientSettings.IsDefault):
+                            settings.IsDefault = reader.GetBoolean();
+                            break;
+                        case nameof(ChatClientSettings.UseCaching):
+                            settings.UseCaching = reader.TokenType == JsonTokenType.Null ? null : reader.GetBoolean();
+                            break;
+                        case nameof(ChatClientSettings.AdditionalPropertiesJSON):
+                            settings.AdditionalPropertiesJSON = reader.GetString();
+                            break;
+                        case nameof(ChatClientSettings.ToolMode):
+                            if (reader.TokenType == JsonTokenType.Null)
+                            {
+                                settings.ToolMode = null;
+                            }
+                            else if (reader.TokenType == JsonTokenType.String)
+                            {
+                                var toolModeString = reader.GetString();
+                                if (string.IsNullOrEmpty(toolModeString) || toolModeString == nameof(ChatToolMode.Auto))
+                                    settings.ToolMode = ChatToolMode.Auto;
+                                else if (toolModeString == nameof(ChatToolMode.None))
+                                    settings.ToolMode = ChatToolMode.None;
+                                else if (toolModeString == nameof(ChatToolMode.RequireAny))
+                                    settings.ToolMode = ChatToolMode.RequireAny;
+                            }
+                            break;
+                        case nameof(ChatClientSettings.StopSequences):
+                            if (reader.TokenType == JsonTokenType.StartArray)
+                            {
+                                var stopSequences = new List<string>();
+                                while (reader.Read() && reader.TokenType != JsonTokenType.EndArray)
+                                {
+                                    if (reader.TokenType == JsonTokenType.String)
+                                    {
+                                        stopSequences.Add(reader.GetString());
+                                    }
+                                }
+                                settings.StopSequences = stopSequences.ToArray();
+                            }
+                            break;
                         default:
                             reader.Skip();
                             break;
@@ -196,6 +235,36 @@ namespace Microsoft.Extensions.AI
                 writer.WriteBoolean(nameof(ChatClientSettings.AllowMultipleToolCalls), value.AllowMultipleToolCalls.Value);
 
             writer.WriteBoolean(nameof(ChatClientSettings.IncludeApiKeyInSerialization), value.IncludeApiKeyInSerialization);
+            writer.WriteBoolean(nameof(ChatClientSettings.IsDefault), value.IsDefault);
+
+            if (value.UseCaching.HasValue)
+                writer.WriteBoolean(nameof(ChatClientSettings.UseCaching), value.UseCaching.Value);
+
+            if (value.ToolMode != null)
+            {
+                if (value.ToolMode == ChatToolMode.None)
+                    writer.WriteString(nameof(ChatClientSettings.ToolMode), nameof(ChatToolMode.None));
+                else if (value.ToolMode == ChatToolMode.RequireAny)
+                    writer.WriteString(nameof(ChatClientSettings.ToolMode), nameof(ChatToolMode.RequireAny));
+                else
+                    writer.WriteString(nameof(ChatClientSettings.ToolMode), nameof(ChatToolMode.Auto));
+            }
+
+            if (value.StopSequences != null && value.StopSequences.Length > 0)
+            {
+                writer.WriteStartArray(nameof(ChatClientSettings.StopSequences));
+                foreach (var sequence in value.StopSequences)
+                {
+                    writer.WriteStringValue(sequence);
+                }
+                writer.WriteEndArray();
+            }
+
+            // Serialize AdditionalPropertiesJSON instead of AdditionalProperties
+            if (!string.IsNullOrEmpty(value.AdditionalPropertiesJSON))
+            {
+                writer.WriteString(nameof(ChatClientSettings.AdditionalPropertiesJSON), value.AdditionalPropertiesJSON);
+            }
 
             writer.WriteEndObject();
         }

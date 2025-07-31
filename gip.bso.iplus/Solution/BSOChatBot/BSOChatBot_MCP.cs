@@ -29,13 +29,24 @@ namespace gip.bso.iplus
         #region Properties
 
         protected ACPropertyConfigValue<string> _MCPServerConfig;
-        [ACPropertyInfo(12, "McpServerCommand", "en{'MCP Server JSON config'}de{'MCP Server JSON config'}")]
+        [ACPropertyConfig("en{'MCP Server JSON config'}de{'MCP Server JSON config'}")]
         public string MCPServerConfig
         {
             get { return _MCPServerConfig.ValueT; }
             set
             {
                 _MCPServerConfig.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        [ACPropertyInfo(12, "", "en{'MCP Server JSON config'}de{'MCP Server JSON config'}")]
+        public string MCPServerConfigProp
+        {
+            get { return MCPServerConfig; }
+            set
+            {
+                MCPServerConfig = value;
                 OnPropertyChanged();
             }
         }
@@ -106,7 +117,7 @@ namespace gip.bso.iplus
         }
 
         protected ACPropertyConfigValue<string> _AllowedTools;
-        [ACPropertyInfo(62, "McpServerCommand", "en{'JSON Array with allowed toolnames}de{'JSON Array with allowed toolnames'}")]
+        [ACPropertyConfig("en{'JSON Array with allowed toolnames}de{'JSON Array with allowed toolnames'}")]
         public string AllowedTools
         {
             get { return _AllowedTools.ValueT; }

@@ -24,7 +24,7 @@ namespace gip.core.autocomponent
     /// Set or read properties as needed, such as CurrentQueryACClassDesign, CurrentProgressInfo, or DataExportFilePath.
     /// To interact with printing, call IsEnabledQueryPrintDlg(), QueryPrintDlg(), IsEnabledQueryPreviewDlg(), QueryPreviewDlg(), or QueryDesignDlg() depending on the workflow.
     /// To manage changes, call Save() method, that is implemented in the derived classes, to prompt the user for save or undo actions. Undo logic can be invoked via UndoSave(), that is also implemented in the derived classes.
-    /// Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSO.cs&type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
+    /// Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSO.cs&amp;type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
     /// </summary>
     [ACClassInfo(
         Const.PackName_VarioSystem,

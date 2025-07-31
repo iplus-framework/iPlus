@@ -19,6 +19,10 @@ using OllamaSharp;
 using System.Text.Json;
 using gip.core.media;
 using System.IO;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
+using System.Net.Http;
 
 namespace gip.bso.iplus
 {
@@ -31,13 +35,41 @@ namespace gip.bso.iplus
         private const string C_DefaultModelName = "google/gemini-2.0-flash-exp:free";
 
         protected ACPropertyConfigValue<string> _ChatClientConfig;
-        [ACPropertyInfo(10, "", "en{'Chat client JSON config'}de{'Chat client JSON config'}")]
+        [ACPropertyConfig("en{'Chat client JSON config'}de{'Chat client JSON config'}")]
         public string ChatClientConfig
         {
             get { return _ChatClientConfig.ValueT; }
             set
             {
                 _ChatClientConfig.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        protected ACPropertyConfigValue<uint> _HttpTimeOut;
+        [ACPropertyConfig("en{'Http Timeout seconds'}de{'Http Timeout sekunden'}", DefaultValue = 0)]
+        public uint HttpTimeOut
+        {
+            get { return _HttpTimeOut.ValueT; }
+            set
+            {
+                _HttpTimeOut.ValueT = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// https://ollama.readthedocs.io/en/api/
+        /// 10m, 30m, 1h, 2h, 4h, 8h, 12h, 24h
+        /// </summary>
+        protected ACPropertyConfigValue<string> _OllamaKeepAlive;
+        [ACPropertyConfig("en{'Ollama keep_alive'}de{'Ollama keep_alive'}", DefaultValue = "10m")]
+        public string OllamaKeepAlive
+        {
+            get { return _OllamaKeepAlive.ValueT; }
+            set
+            {
+                _OllamaKeepAlive.ValueT = value;
                 OnPropertyChanged();
             }
         }
@@ -117,6 +149,19 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool? _useCaching = null;
+        [ACPropertyInfo(9, "", "en{'Prompt-Caching'}de{'Prompt-Caching'}")]
+        public bool? UseCaching
+        {
+            get { return _useCaching; }
+            set
+            {
+                if (_useCaching != value)
+                    _LLMPropsChanged = true;
+                _useCaching = value;
+                OnPropertyChanged();
+            }
+        }
 
         private List<ChatClientSettings> _ChatClientSettingsList;
         [ACPropertyList(18, "ChatClientSettings", "en{'Settings of Chat Clients'}de{'Settings of Chat Clients'}", Description = "List of possible language models available as chatbot/agent.")]
@@ -153,6 +198,7 @@ namespace gip.bso.iplus
                     ApiKey = _SelectedChatClientSettings.ApiKey;
                     ModelName = _SelectedChatClientSettings.ModelName;
                     SelectedAIClientType = _SelectedChatClientSettings.AIClientType;
+                    UseCaching = _SelectedChatClientSettings.UseCaching;
                 }
                 else
                 {
@@ -160,6 +206,7 @@ namespace gip.bso.iplus
                     ApiKey = "";
                     ModelName = C_DefaultModelName;
                     SelectedAIClientType = "OpenAICompatible";
+                    UseCaching = null;
                 }
                 OnPropertyChanged();
             }
@@ -278,7 +325,8 @@ namespace gip.bso.iplus
                     Endpoint = Endpoint,
                     ApiKey = ApiKey,
                     ModelName = ModelName,
-                    AIClientType = SelectedAIClientType
+                    AIClientType = SelectedAIClientType,
+                    UseCaching = null
                 };
 
                 // Check if this setting already exists
@@ -383,24 +431,33 @@ namespace gip.bso.iplus
             switch (SelectedAIClientType)
             {
                 case "Ollama":
-                    return new OllamaApiClient(new Uri(Endpoint), ModelName);
+                    OllamaApiClient ollama = null;
+                    if (this.HttpTimeOut == 0)
+                        ollama = new OllamaApiClient(new Uri(Endpoint), ModelName);
+                    else
+                        ollama = new OllamaApiClient(new HttpClient { BaseAddress = new Uri(Endpoint), Timeout = TimeSpan.FromSeconds(HttpTimeOut) }, ModelName);
+                    return ollama;
                 case "OpenAICompatible":
-                    return new OpenAI.Chat.ChatClient(ModelName,
+                    var chatClient = new OpenAI.Chat.ChatClient(ModelName,
                         new System.ClientModel.ApiKeyCredential(ApiKey),
                         new OpenAI.OpenAIClientOptions() { Endpoint = new Uri(Endpoint) })
                     .AsIChatClient()
                     .AsBuilder()
                     .UseFunctionInvocation()
-                    .UseOpenTelemetry(loggerFactory: loggerFactory)
-                    .Build();
+                    .UseOpenTelemetry(loggerFactory: loggerFactory);
+                    if (UseCaching.HasValue && UseCaching.Value)
+                        chatClient.UseDistributedCache(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
+                    return chatClient.Build();
                 case "OpenAI":
-                    return new OpenAI.OpenAIClient(ApiKey)
+                    var openai = new OpenAI.OpenAIClient(ApiKey)
                         .GetChatClient(ModelName)
                         .AsIChatClient()
                         .AsBuilder()
                         .UseFunctionInvocation()
-                        .UseOpenTelemetry(loggerFactory: loggerFactory)
-                        .Build();
+                        .UseOpenTelemetry(loggerFactory: loggerFactory);
+                    if (UseCaching.HasValue && UseCaching.Value)
+                        openai.UseDistributedCache(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
+                    return openai.Build();
                 default:
                     throw new InvalidOperationException($"Unknown AI client type: {SelectedAIClientType}");
             }
