@@ -71,16 +71,19 @@ namespace gip.core.layoutengine
             if (item == null)
                 return null;
 
-            IVBContent acObject = item as IVBContent;
-            if (acObject == null)
+            IACObject contextObject = item as IACObject;
+            IACInteractiveObject acInteractiveObject = item as IACInteractiveObject;
+            if (acInteractiveObject != null && acInteractiveObject.ContextACObject != null)
+                contextObject = acInteractiveObject.ContextACObject;
+            if (contextObject == null)
                 return null;
 
             string stringValue = "";
 
-            if(!string.IsNullOrEmpty(DataTemplateValueACUrl))
-                stringValue = acObject.ContextACObject.GetValue(DataTemplateValueACUrl).ToString();
+            if (!string.IsNullOrEmpty(DataTemplateValueACUrl))
+                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, item).ToString();
             else
-                stringValue = acObject.ContextACObject.ToString();
+                stringValue = contextObject.ToString();
 
             if (stringValue == DataTemplate0Value)
                 return DataTemplate0;

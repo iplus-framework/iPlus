@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.Threading;
 using gip.core.datamodel;
 using System.Data.SqlClient;
+using System.Collections.Concurrent;
 
 namespace gip.core.autocomponent
 {
@@ -758,10 +759,13 @@ namespace gip.core.autocomponent
             get
             {
                 string threadName = Thread.CurrentThread.Name;
-                if (String.IsNullOrEmpty(threadName))
+                if (String.IsNullOrEmpty(threadName) || !threadName.StartsWith("ACUrl:"))
+                {
+                    VBUser user = GetInvokingUserInThread(Thread.CurrentThread.GetHashCode());
+                    if (user != null)
+                        return user;
                     return Environment.User;
-                if (!threadName.StartsWith("ACUrl:"))
-                    return Environment.User;
+                }
                 string acUrl = threadName.Substring(6);
                 int indexEnd = acUrl.IndexOf(";");
                 if (indexEnd > 0)
@@ -771,6 +775,51 @@ namespace gip.core.autocomponent
                     return Environment.User;
                 return serviceChannel.ConnectedUser;
             }
+        }
+
+        private ConcurrentDictionary<int, VBUser> _InvokingUserInThread = new ConcurrentDictionary<int, VBUser>();
+        public bool BeginInvokeUserInThread(int threadKey, VBUser user)
+        {
+            if (user == null || threadKey <= 0)
+                return false;
+            return _InvokingUserInThread.TryAdd(threadKey, user);
+        }
+
+        public VBUser EndInvokeUserInThread(int threadKey)
+        {
+            if (threadKey <= 0)
+                return null;
+            if (_InvokingUserInThread.TryRemove(threadKey, out VBUser user))
+                return user;
+            return null;
+        }
+
+        public VBUser GetInvokingUserInThread(int threadKey)
+        {
+            VBUser user;
+            _InvokingUserInThread.TryGetValue(threadKey, out user);
+            return user;
+        }
+
+        private class VBUserThreadCookie : IDisposable
+        {
+            private ACRoot _Root;
+            private VBUser _User;
+            public VBUserThreadCookie(ACRoot root, VBUser user)
+            {
+                _Root = root;
+                _User = user;
+                _Root.BeginInvokeUserInThread(Thread.CurrentThread.GetHashCode(), user);
+            }
+            public void Dispose()
+            {
+                _Root.EndInvokeUserInThread(Thread.CurrentThread.GetHashCode());
+            }
+        }
+
+        public IDisposable UsingThread(VBUser user)
+        {
+            return new VBUserThreadCookie(this, user);
         }
 
         #endregion

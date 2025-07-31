@@ -1,4 +1,6 @@
-﻿namespace gip.core.datamodel
+﻿using System;
+
+namespace gip.core.datamodel
 {
     /// <summary>
     /// Interface for the root-instance of the whole application tree.
@@ -155,5 +157,7 @@
         string IPlusDocsServerURL { get; }
 
         IACVBNoManager NoManager { get; }
+
+        IDisposable UsingThread(VBUser user);
     }
 }

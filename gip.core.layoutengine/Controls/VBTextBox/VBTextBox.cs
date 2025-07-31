@@ -927,6 +927,8 @@ namespace gip.core.layoutengine
         /// </summary>
         public void UpdateControlMode()
         {
+            if (AutoScrollToEnd)
+                ScrollToEnd();
             IACComponent elementACComponent = ContextACObject as IACComponent;
             if (elementACComponent == null)
             {
@@ -1044,6 +1046,16 @@ namespace gip.core.layoutengine
         {
             get { return (string)GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
+        }
+
+        public static readonly DependencyProperty AutoScrollToEndProperty = DependencyProperty.Register(nameof(AutoScrollToEnd), typeof(bool), typeof(VBTextBox));
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public bool AutoScrollToEnd
+        {
+            get { return (bool)GetValue(AutoScrollToEndProperty); }
+            set { SetValue(AutoScrollToEndProperty, value); }
         }
         #endregion
 

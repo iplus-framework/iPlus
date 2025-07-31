@@ -466,7 +466,7 @@ namespace gip.core.layoutengine
             if (ACQueryDefinition != null)
                 vbShowColumns = ACQueryDefinition.GetACColumns(this.VBShowColumns);
 
-            if ((vbShowColumns == null || !vbShowColumns.Any()) && ItemTemplate == null)
+            if ((vbShowColumns == null || !vbShowColumns.Any()) && ItemTemplate == null && ItemTemplateSelector == null)
             {
                 this.Root().Messages.LogDebug("Error00005", "VBListBox", VBShowColumns + " " + VBContent);
                 //this.Root().Messages.Error(ContextACObject, "Error00005", "VBListBox", VBShowColumns, VBContent);
@@ -592,9 +592,15 @@ namespace gip.core.layoutengine
             }
         }
 
+        private void ObservableColl_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (IsEnabledScrollIntoView)
+                (VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(ScrollViewer)) as ScrollViewer)?.ScrollToEnd();
+        }
+
         private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)
         {
-            if(ItemsSource != null && ItemsSource is ICyclicRefreshableCollection)
+            if (ItemsSource != null && ItemsSource is ICyclicRefreshableCollection)
             {
                 (ItemsSource as ICyclicRefreshableCollection).Refresh();
             }
@@ -776,7 +782,7 @@ namespace gip.core.layoutengine
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
         {
             base.OnSelectionChanged(e);
-            if(IsEnabledScrollIntoView && SelectionMode == SelectionMode.Single && e.AddedItems != null && e.AddedItems.Count > 0)
+            if (IsEnabledScrollIntoView && SelectionMode == SelectionMode.Single && e.AddedItems != null && e.AddedItems.Count > 0)
                 ScrollIntoView(e.AddedItems[0]);
         }
 

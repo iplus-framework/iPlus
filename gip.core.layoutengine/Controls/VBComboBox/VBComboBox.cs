@@ -596,7 +596,7 @@ namespace gip.core.layoutengine
                     else
                         vbShowColumns = ACQueryDefinition.BuildACColumnsFromVBSource(this.VBShowColumns);
 
-                    if (vbShowColumns == null || !vbShowColumns.Any())
+                    if ((vbShowColumns == null || !vbShowColumns.Any()) && dsACTypeInfo == null || dsACTypeInfo.ObjectType != typeof(string))
                     {
                         this.Root().Messages.LogDebug("Error00005", "VBComboBox", VBShowColumns + " " + VBContent);
                         //this.Root().Messages.Error(ContextACObject, "Error00005", "VBComboBox", VBShowColumns, VBContent);
@@ -736,7 +736,7 @@ namespace gip.core.layoutengine
                     string textPath = "";
                     string selectedValuePath = null;
                     bool isACValueItem = false;
-                    if (ItemTemplate == null)
+                    if (ItemTemplate == null && vbShowColumns != null)
                     {
                         DataTemplate dataTemplate = new DataTemplate();
 
@@ -836,7 +836,7 @@ namespace gip.core.layoutengine
                         dataTemplate.VisualTree = factorySP;
                         ItemTemplate = dataTemplate;
                     }
-                    else if (vbShowColumns.Count > 0)
+                    else if (vbShowColumns != null && vbShowColumns.Count > 0)
                     {
                         IACType dsColACTypeInfo = dsACTypeInfo;
                         object dsColSource = null;
