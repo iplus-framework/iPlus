@@ -56,5 +56,13 @@ namespace gip.core.webservices
         {
             get;set;
         }
+
+#if NETFRAMEWORK
+        [IgnoreDataMember]
+        public gip.core.datamodel.VBUser VBUser
+        {
+            get; set;
+        }
+#endif
     }
 }

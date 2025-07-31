@@ -2,12 +2,16 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using gip.core.autocomponent;
 using gip.core.datamodel;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Isam.Esent.Interop;
+using ModelContextProtocol.Server;
 using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,14 +19,13 @@ using System.Threading.Tasks;
 namespace gip.core.webservices
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'MCP Server Host'}de{'MCP Server Host'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, false)]
-    public class PAMcpServerHost : PAClassAlarmingBase
+    public class PAMcpServerHost : PAWebServiceBase
     {
         #region c'tors
         public PAMcpServerHost(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
             _IsEnabled = new ACPropertyConfigValue<bool>(this, "IsEnabled", false);
-            _ServicePort = new ACPropertyConfigValue<int>(this, "ServicePort", 0);
             // Command to enable http-Service
             // >netsh http add urlacl url=http://+:ServicePort/ user="\Everyone"
             // https://nodejs.org/en/download
@@ -42,13 +45,13 @@ namespace gip.core.webservices
 
         public override bool ACPostInit()
         {
-            StartMcpServer();
+            StartService();
             return base.ACPostInit();
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
-            StopMcpServer();
+            StopService();
             bool result = base.ACDeInit(deleteACClassTask);
             return result;
         }
@@ -64,19 +67,13 @@ namespace gip.core.webservices
             set => _IsEnabled.ValueT = value;
         }
 
-        private ACPropertyConfigValue<int> _ServicePort;
-        [ACPropertyConfig("en{'Service Port number'}de{'Portnummer des Services'}")]
-        public int ServicePort
-        {
-            get => _ServicePort.ValueT;
-            set => _ServicePort.ValueT = value;
-        }
 
         [ACPropertyBindingSource(200, "Error", "en{'MCP Server Alarm'}de{'MCP Server Alarm'}", "", false, false)]
         public IACContainerTNet<PANotifyState> IsMcpServerAlarm { get; set; }
 
-        [ACPropertyBindingSource(201, "Error", "en{'Error Text'}de{'Fehlertext'}", "", true, false)]
-        public IACContainerTNet<String> ErrorText { get; set; }
+        public override Type ServiceType => null;
+
+        public override Type ServiceInterfaceType => null;
 
         private WebApplication _McpHost = null;
         //private IHost _McpHost = null;
@@ -91,32 +88,32 @@ namespace gip.core.webservices
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, gip.core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
-            switch (acMethodName)
-            {
-                case nameof(StartMcpServer):
-                    StartMcpServer();
-                    return true;
-                case nameof(IsEnabledStartMcpServer):
-                    result = IsEnabledStartMcpServer();
-                    return true;
-                case nameof(StopMcpServer):
-                    StopMcpServer();
-                    return true;
-                case nameof(IsEnabledStopMcpServer):
-                    result = IsEnabledStopMcpServer();
-                    return true;
-            }
+            //switch (acMethodName)
+            //{
+            //    case nameof(StartMcpServer):
+            //        StartMcpServer();
+            //        return true;
+            //    case nameof(IsEnabledStartMcpServer):
+            //        result = IsEnabledStartMcpServer();
+            //        return true;
+            //    case nameof(StopMcpServer):
+            //        StopMcpServer();
+            //        return true;
+            //    case nameof(IsEnabledStopMcpServer):
+            //        result = IsEnabledStopMcpServer();
+            //        return true;
+            //}
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
         #endregion
 
         [ACMethodInteraction("MCP", "en{'Start MCP Server'}de{'MCP Server starten'}", 200, true)]
-        public virtual void StartMcpServer()
+        public override void StartService()
         {
-            if (!IsEnabledStartMcpServer())
+            if (!IsEnabledStartService())
                 return;
 
-            StopMcpServer();
+            StopService();
 
             if (this.Root.RootPageWPF != null)
                 this.Root.RootPageWPF.SuppressOpenMessageBoxes = true;
@@ -128,6 +125,20 @@ namespace gip.core.webservices
                 //    .WithTools<MCPIPlusTools>();
                 
                 var builder = WebApplication.CreateBuilder();
+
+                // Add authentication and authorization
+                builder.Services.AddAuthentication()
+                    .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>("ApiKey", options => { });
+
+                builder.Services.AddAuthorization(options =>
+                {
+                    options.AddPolicy("ApiKeyPolicy", policy =>
+                    {
+                        policy.AuthenticationSchemes.Add("ApiKey");
+                        policy.RequireAuthenticatedUser();
+                    });
+                });
+
                 builder.Services.AddMcpServer()
                     .WithHttpTransport()
                     .WithTools<MCPIPlusTools>()
@@ -140,9 +151,16 @@ namespace gip.core.webservices
 
                 // Register the ACRoot as a singleton service so tools can access it
                 builder.Services.AddSingleton<IACComponent>(provider => this);
+                builder.Services.AddSingleton<ApiKeyAuthorizationFilter>();
+                builder.Services.AddSingleton<IApiKeyValidator, ApiKeyValidator>();
+                builder.Services.AddSingleton<PAMcpServerHost>(this);
+                builder.Services.AddScoped<IVBUserContextService, VBUserContextService>();
 
                 _McpHost = builder.Build();
-                (_McpHost as WebApplication).MapMcp();
+                _McpHost.UseAuthentication();
+                _McpHost.UseAuthorization();
+
+                (_McpHost as WebApplication).MapMcp().RequireAuthorization("ApiKeyPolicy");
 
                 _CancellationTokenSource = new CancellationTokenSource();
 
@@ -178,15 +196,15 @@ namespace gip.core.webservices
             }
         }
 
-        public bool IsEnabledStartMcpServer()
+        public override bool IsEnabledStartService()
         {
             return _McpHost == null && IsEnabled && ServicePort > 0;
         }
 
         [ACMethodInteraction("MCP", "en{'Stop MCP Server'}de{'MCP Server stoppen'}", 201, true)]
-        public void StopMcpServer()
+        public override void StopService()
         {
-            if (!IsEnabledStopMcpServer())
+            if (!IsEnabledStopService())
                 return;
 
             try
@@ -207,7 +225,7 @@ namespace gip.core.webservices
             }
         }
 
-        public bool IsEnabledStopMcpServer()
+        public override bool IsEnabledStopService()
         {
             return _McpHost != null;
         }
@@ -222,6 +240,44 @@ namespace gip.core.webservices
                 OnAlarmDisappeared(IsMcpServerAlarm);
             }
             base.AcknowledgeAlarms();
+        }
+
+
+        public VBUserRights ResolveUserForSession(IMcpServer server)
+        {
+            var userContextService = server.Services?.GetService(typeof(IVBUserContextService)) as VBUserContextService;
+            if (userContextService == null)
+                return null;
+            Guid? currentSessionID = userContextService.GetSessionID();
+            if (!currentSessionID.HasValue)
+                return null;
+            return GetRightsForSession(currentSessionID.Value);
+        }
+
+        private ConcurrentDictionary<Guid, VBUserRights> _Sessions = new ConcurrentDictionary<Guid, VBUserRights>();
+
+        public void AddSession(VBUserRights vbUserRights)
+        {
+            if (vbUserRights.SessionID.HasValue)
+                _Sessions.TryAdd(vbUserRights.SessionID.Value, vbUserRights);
+        }
+
+        public bool RemoveSession(Guid sessionId)
+        {
+            VBUserRights vBUserRights;
+            return _Sessions.TryRemove(sessionId, out vBUserRights);
+        }
+
+        public VBUserRights GetRightsForSession(Guid sessionId)
+        {
+            VBUserRights vBUserRights;
+            _Sessions.TryGetValue(sessionId, out vBUserRights);
+            return vBUserRights;
+        }
+
+        public override IWebHost CreateService()
+        {
+            throw new NotImplementedException();
         }
 
         #endregion

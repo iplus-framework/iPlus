@@ -227,6 +227,18 @@ namespace gip.bso.iplus
                         ChatOutput = "No MCP servers configured in JSON config";
                         return;
                     }
+                    config.mcpServers.TryGetValue("iPlus", out McpServerInfo iPlusServer);
+                    if (iPlusServer != null)
+                    {
+                        List<string> args =  iPlusServer.args != null ? iPlusServer.args.ToList() : new List<string>();
+                        if (!args.Contains("--header"))
+                        {
+                            args.Add("--header");
+                        }
+                        // ApiKeyAuthorizationFilter.ApiKeyHeaderName, ApiKeyAuthorizationFilter.CredentialSeparator
+                        args.Add(String.Format("Authorization:{0}#{1}", this.Root.Environment.User.VBUserName, this.Root.Environment.User.Password)); // TODO Current Invoking User if Agent starts subagent
+                        iPlusServer.args = args.ToArray();
+                    }
                 }
                 catch (JsonException ex)
                 {
@@ -326,7 +338,8 @@ namespace gip.bso.iplus
                     Arguments = serverInfo.args ?? new string[0],
                     Name = serverName,
                     EnvironmentVariables = serverInfo.env,
-                }, _LoggerFactory);
+                }, 
+                _LoggerFactory);
 
                 // Connect to MCP server with timeout
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30-second timeout

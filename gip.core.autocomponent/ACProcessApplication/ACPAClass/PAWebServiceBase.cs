@@ -350,13 +350,13 @@ namespace gip.core.autocomponent
             OnNewAlarmOccurred(IsServiceAlarm, message, true);
         }
 
-        public bool IsEnabledStartService()
+        public virtual bool IsEnabledStartService()
         {
             return Host == null;
         }
 
         [ACMethodInteraction("Watching", "en{'Stop Webservice'}de{'Stoppe Webdienst'}", 200, true)]
-        public void StopService()
+        public virtual void StopService()
         {
             if (!IsEnabledStopService())
                 return;
@@ -389,7 +389,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public bool IsEnabledStopService()
+        public virtual bool IsEnabledStopService()
         {
             return Host != null;
         }

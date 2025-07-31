@@ -48,6 +48,8 @@ namespace gip.core.webservices
             "Each result contains an ACIdentifier (unique type name) and Description. " +
             "Use this tool FIRST to discover what component types exist in the system before querying specific instances or type information.")]
         public static string get_thesaurus(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
             string i18nLangTag,
@@ -72,6 +74,8 @@ namespace gip.core.webservices
             "If the search is successful, you can read the class's source code to better understand how it works and in which states you can call which methods and properties using execute_acurl_command. " +
             "Source code can only be retrieved for types with IsCodeOnGithub set to true. If false, traverse the inheritance hierarchy (BaseClassId) until a class with IsCodeOnGithub true is found. ")]
         public static string get_type_infos(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("(required) Comma-separated list of ACIdentifiers (type names) from the thesaurus or ClassIDs that have already been resolved using the ACIdentifier. Can be base class names to find derived types when used with `getDerivedTypes=true`")]
             string acIdentifiersOrClassIDs,
@@ -102,6 +106,8 @@ namespace gip.core.webservices
             "If you pass ClassIDs of types in category 4, you get the ACUrl with which you can execute database queries using execute_acurl_command without having to use business objects (category 2) " +
             "with which you can also manipulate data and handle business processes.")]
         public static string get_instance_info(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("Comma-separated list of ClassIDs (values that you got from tool get_type_infos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
             string classIDs,
@@ -126,6 +132,8 @@ namespace gip.core.webservices
             "To effect state changes, ALWAYS prefer to FIRST find a suitable method via get_method_info and execute it via execute_acurl_command instead of changing the property value directly, " +
             "because the methods validate whether a command may be executed or not. ")]
         public static string get_property_info(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("ClassID of the component type whose properties you want to discover.")]
             string classID)
@@ -143,6 +151,8 @@ namespace gip.core.webservices
             "so that you can check whether the method is allowed to be executed at all. " +
             "If there is no suitable IsEnabled method, you can always call the method. ")]
         public static string get_method_info(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("ClassID of the component type whose methods you want to discover")]
             string classID)
@@ -161,6 +171,8 @@ namespace gip.core.webservices
             "Calling void methods without a return value does not necessarily mean that the operation was performed successfully if the response is \"Success: true\". " +
             "It simply means that the method could be called. Whether the desired operation was performed can only be verified by reading the object state or property values.")]
         public static string execute_acurl_command(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation\r\n" +
                 "Examples: \r\n" +
@@ -195,7 +207,10 @@ namespace gip.core.webservices
                 "The passed ID is then implicitly resolved into an object reference and assigned to the property.")]
             string parametersJson = "")
         {
-            return _appTree.execute_acurl_command(mcpHost, acUrl, writeProperty, detailLevel, parametersJson);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.execute_acurl_command(mcpHost, userRights, acUrl, writeProperty, detailLevel, parametersJson);
         }
 
         [McpServerTool]
@@ -209,6 +224,8 @@ namespace gip.core.webservices
             "Therefore, do not use other instances that you did not create yourself to ensure exclusive access.When the app is no longer needed, terminate the instance by calling execute_acurl_command with a tilde: " +
             "\\Root\\Businessobjects\\~ACIdentifier(InstanceID)")]
         public static string create_new_instance(
+            IMcpServer server,
+            RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("ClassID (values that you got from tool get_type_infos) for the component type you want to instantiate.")]
             string classID,
@@ -216,7 +233,10 @@ namespace gip.core.webservices
             "For business objects/apps, the address should always be \\Root\\Businessobjects. This is also the default address if the parameter is left empty.")]
             string acUrl)
         {
-            return _appTree.create_new_instance(mcpHost, classID, acUrl);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.create_new_instance(mcpHost, userRights, classID, acUrl);
         }
         #endregion
 

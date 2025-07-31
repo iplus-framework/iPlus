@@ -12,8 +12,8 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using static gip.core.webservices.MCPIPlusTools;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Threading;
+
 
 namespace gip.core.webservices
 {
@@ -776,10 +776,11 @@ namespace gip.core.webservices
         #endregion
 
         #region ACUrlCommand
-        public string execute_acurl_command(IACComponent requester, string acUrl, bool writeProperty = false, ushort detailLevel = 0, string parametersJson = "")
+        public string execute_acurl_command(IACComponent requester, VBUserRights userRights, string acUrl, bool writeProperty = false, ushort detailLevel = 0, string parametersJson = "")
         {
             try
             {
+                var thread = Thread.CurrentThread;
                 List<KeyValuePair<string, object>> parametersKVP = null;
                 string[] bulkValues = null;
                 StringBuilder sbErr = new StringBuilder();
@@ -1163,7 +1164,7 @@ namespace gip.core.webservices
 
 
         #region Create new Instance
-        public virtual string create_new_instance(IACComponent requester, string classID, string acUrl)
+        public virtual string create_new_instance(IACComponent requester, VBUserRights userRights, string classID, string acUrl)
         {
             try
             {

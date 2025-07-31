@@ -693,11 +693,6 @@ namespace gip.core.layoutengine
         void VB_TargetUpdated(object sender, DataTransferEventArgs e)
         {
             UpdateControlMode();
-            //System.Collections.Specialized.INotifyCollectionChanged observableColl = ItemsSource as System.Collections.Specialized.INotifyCollectionChanged;
-            //if (observableColl != null && IsEnabledScrollIntoView)
-            //{
-            //    observableColl.CollectionChanged += ObservableColl_CollectionChanged;
-            //}
         }
         #endregion
 
