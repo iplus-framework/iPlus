@@ -6,7 +6,9 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -211,6 +213,7 @@ namespace gip.core.webservices
                 Type type = result.GetType();
 
                 bool serializeJSON = false;
+                bool mimeEncoding = false;
                 if (!type.IsEnum)
                 {
                     if (typeof(System.Collections.IEnumerable).IsAssignableFrom(type))
@@ -234,24 +237,121 @@ namespace gip.core.webservices
                     {
                         serializeJSON = true;
                     }
+                    // For image processing
+                    else if (typeof(Uri).IsAssignableFrom(type))
+                    {
+                        serializeJSON = true;
+                        mimeEncoding = true;
+                    }
                 }
 
                 if (serializeJSON)
                 {
-                    string[] requestedFields = null;
-                    if (bulkParams != null && bulkParams.Length > 0)
-                        requestedFields = bulkParams;
-                    else if (parametersKVP != null && parametersKVP.Count > 0)
+                    if (mimeEncoding)
                     {
-                        requestedFields = parametersKVP.Select(c => c.Key).ToArray();
-                        if (requestedFields[0] == "0")
-                            requestedFields = parametersKVP.Select(c => c.Value as string).ToArray();
-                    }
+                        Uri imagePath = result as Uri;
+                        byte[] imageBytes = null;
+                        string mimeType = null;
 
-                    JsonSerializerOptions customOptions = GetNewSerializerOptions(detailLevel, requestedFields, EntityTypes);
-                    string jsonResult = JsonSerializer.Serialize(result, customOptions);
-                    if (!string.IsNullOrEmpty(jsonResult))
-                        return jsonResult;
+                        try
+                        {
+                            if (imagePath.IsFile || !imagePath.IsAbsoluteUri)
+                            {
+                                // Handle local file path
+                                string localPath = imagePath.IsFile ? imagePath.LocalPath : imagePath.OriginalString;
+                                if (!File.Exists(localPath))
+                                {
+                                    return JsonSerializer.Serialize(new
+                                    {
+                                        success = false,
+                                        error = $"Image file not found: {localPath}"
+                                    });
+                                }
+
+                                imageBytes = File.ReadAllBytes(localPath);
+                                mimeType = GetMimeTypeFromPath(localPath);
+                            }
+                            else if (imagePath.Scheme == "http" || imagePath.Scheme == "https")
+                            {
+                                // Handle HTTP URL - download the file
+                                using (var httpClient = new HttpClient())
+                                {
+                                    httpClient.Timeout = TimeSpan.FromSeconds(30); // Set reasonable timeout
+                                    var response = httpClient.GetAsync(imagePath).Result;
+                                    
+                                    if (!response.IsSuccessStatusCode)
+                                    {
+                                        return JsonSerializer.Serialize(new
+                                        {
+                                            success = false,
+                                            error = $"Failed to download image from URL: {imagePath}. Status: {response.StatusCode}"
+                                        });
+                                    }
+
+                                    imageBytes = response.Content.ReadAsByteArrayAsync().Result;
+                                    
+                                    // Try to get MIME type from response headers first
+                                    mimeType = response.Content.Headers.ContentType?.MediaType;
+                                    
+                                    // Fallback to URL-based detection if no content type header
+                                    if (string.IsNullOrEmpty(mimeType))
+                                    {
+                                        mimeType = GetMimeTypeFromPath(imagePath.AbsolutePath);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                return JsonSerializer.Serialize(new
+                                {
+                                    success = false,
+                                    error = $"Unsupported URI scheme: {imagePath.Scheme}. Only file paths and HTTP/HTTPS URLs are supported."
+                                });
+                            }
+
+                            // Default MIME type if detection failed
+                            if (string.IsNullOrEmpty(mimeType))
+                            {
+                                mimeType = "image/jpeg";
+                            }
+
+                            string base64Image = Convert.ToBase64String(imageBytes);
+
+                            // Return the base64 encoded image with metadata for the LLM to process
+                            return JsonSerializer.Serialize(new
+                            {
+                                uri = imagePath.ToString(),
+                                mimeType = mimeType,
+                                base64Data = base64Image,
+                                instruction = "Image for analysis. The image is provided as base64 data."
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            return JsonSerializer.Serialize(new
+                            {
+                                success = false,
+                                error = $"Error processing image from {imagePath}: {ex.Message}"
+                            });
+                        }
+                    }
+                    else
+                    {
+                        string[] requestedFields = null;
+                        if (bulkParams != null && bulkParams.Length > 0)
+                            requestedFields = bulkParams;
+                        else if (parametersKVP != null && parametersKVP.Count > 0)
+                        {
+                            requestedFields = parametersKVP.Select(c => c.Key).ToArray();
+                            if (requestedFields[0] == "0")
+                                requestedFields = parametersKVP.Select(c => c.Value as string).ToArray();
+                        }
+
+                        JsonSerializerOptions customOptions = GetNewSerializerOptions(detailLevel, requestedFields, EntityTypes);
+                        string jsonResult = JsonSerializer.Serialize(result, customOptions);
+                        if (!string.IsNullOrEmpty(jsonResult))
+                            return jsonResult;
+                    }
                 }
 
                 xmlResult = ACConvert.ObjectToXML(result, true);
@@ -650,6 +750,59 @@ namespace gip.core.webservices
             }
         }
 
+        public ClassRightManager GetRightsForUser(VBUser user, IACObjectWithInit iObject, gip.core.datamodel.ACClass acType)
+        {
+            ACComponent instance = iObject as ACComponent;
+            if (instance != null)
+            {
+                if (acType == null || instance.ComponentClass.ACClassID == acType.ACClassID)
+                    return instance.GetRightsForUser(user ?? ACRoot.SRoot.CurrentInvokingUser);
+            }
+            if (acType == null && iObject != null)
+                acType = iObject.ACType as gip.core.datamodel.ACClass;
+            if (acType == null)
+                return null;
+            return new ClassRightManager(acType, user ?? ACRoot.SRoot.CurrentInvokingUser);
+        }
+
+        public bool HasAccessRights(VBUser user, IACObjectWithInit iObject, gip.core.datamodel.ACClass acType, IACType memberType = null)
+        {
+            ClassRightManager rightManager = GetRightsForUser(user, iObject, acType);
+            if (rightManager == null)
+                return false;
+            return rightManager.GetControlMode(memberType != null ? memberType : acType) == Global.ControlModes.Enabled;
+        }
+
+
+        public static string GetMimeTypeFromUri(Uri uri)
+        {
+            string path = uri.IsFile ? uri.LocalPath : uri.AbsolutePath;
+            return GetMimeTypeFromPath(path);
+        }
+
+        public static string GetMimeTypeFromPath(string path)
+        {
+            string extension = Path.GetExtension(path).ToLower();
+
+            // If no extension found, try to infer from URL or use default
+            if (string.IsNullOrEmpty(extension))
+            {
+                return "image/jpeg"; // Default fallback
+            }
+
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                ".tiff" or ".tif" => "image/tiff",
+                ".svg" => "image/svg+xml",
+                ".ico" => "image/x-icon",
+                _ => "image/jpeg"
+            };
+        }
         #endregion
 
     }

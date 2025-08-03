@@ -597,7 +597,7 @@ namespace gip.core.layoutengine
                     else
                         vbShowColumns = ACQueryDefinition.BuildACColumnsFromVBSource(this.VBShowColumns);
 
-                    if ((vbShowColumns == null || !vbShowColumns.Any()) && dsACTypeInfo == null || dsACTypeInfo.ObjectType != typeof(string))
+                    if ((vbShowColumns == null || !vbShowColumns.Any()) && (dsACTypeInfo == null || dsACTypeInfo.ObjectType != typeof(string)))
                     {
                         this.Root().Messages.LogDebug("Error00005", "VBComboBox", VBShowColumns + " " + VBContent);
                         //this.Root().Messages.Error(ContextACObject, "Error00005", "VBComboBox", VBShowColumns, VBContent);

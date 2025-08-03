@@ -4488,7 +4488,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        protected ClassRightManager CurrentRightsOfInvoker
+        public ClassRightManager CurrentRightsOfInvoker
         {
             get
             {

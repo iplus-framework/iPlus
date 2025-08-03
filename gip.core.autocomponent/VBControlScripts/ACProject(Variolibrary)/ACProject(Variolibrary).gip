@@ -1,0 +1,21 @@
+<ACProject Type="gip.core.datamodel.ACProject" ACUrl="Database\ACProject(Variolibrary)">
+  <ACProjectNo>00000001</ACProjectNo>
+  <ACProjectName>Variolibrary</ACProjectName>
+  <ACProjectTypeIndex>100</ACProjectTypeIndex>
+  <IsEnabled>True</IsEnabled>
+  <IsGlobal>False</IsGlobal>
+  <IsWorkflowEnabled>False</IsWorkflowEnabled>
+  <IsControlCenterEnabled>False</IsControlCenterEnabled>
+  <IsVisualisationEnabled>False</IsVisualisationEnabled>
+  <IsProduction>False</IsProduction>
+  <IsDataAccess>False</IsDataAccess>
+  <Comment> </Comment>
+  <XMLConfig>i:NULL</XMLConfig>
+  <InsertName>sin</InsertName>
+  <InsertDate>2010-07-14T09:46:00.0000000</InsertDate>
+  <UpdateName>GIP</UpdateName>
+  <UpdateDate>2020-11-06T16:08:40.3870000</UpdateDate>
+  <ACProject1_BasedOnACProject>i:NULL</ACProject1_BasedOnACProject>
+  <PAAppClassAssignmentACClass>i:NULL</PAAppClassAssignmentACClass>
+  <ACIdentifier>ACProject(Variolibrary)</ACIdentifier>
+</ACProject>

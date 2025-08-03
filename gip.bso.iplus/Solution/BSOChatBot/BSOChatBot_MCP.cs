@@ -232,11 +232,15 @@ namespace gip.bso.iplus
                     {
                         List<string> args =  iPlusServer.args != null ? iPlusServer.args.ToList() : new List<string>();
                         if (!args.Contains("--header"))
-                        {
                             args.Add("--header");
-                        }
-                        // ApiKeyAuthorizationFilter.ApiKeyHeaderName, ApiKeyAuthorizationFilter.CredentialSeparator
-                        args.Add(String.Format("Authorization:{0}#{1}", this.Root.Environment.User.VBUserName, this.Root.Environment.User.Password)); // TODO Current Invoking User if Agent starts subagent
+                        if (!args.Contains("-y"))
+                            args.Add("-y");
+                        string authorization = args.Where(c => c.StartsWith("Authorization")).FirstOrDefault();
+                        if (!String.IsNullOrEmpty(authorization))
+                            args.Remove(authorization);
+                        var vbUser = this.Root.CurrentInvokingUser;
+                        if (vbUser != null)
+                            args.Add(String.Format("Authorization:{0}#{1}", vbUser.VBUserName, vbUser.Password));
                         iPlusServer.args = args.ToArray();
                     }
                 }

@@ -38,6 +38,8 @@ namespace gip.core.datamodel
         {
             get
             {
+                if (_ParameterTranslation == null)
+                    _ParameterTranslation = new Dictionary<string, string>();
                 return _ParameterTranslation;
             }
         }
@@ -46,6 +48,8 @@ namespace gip.core.datamodel
         {
             get
             {
+                if (_ResultTranslation == null)
+                    _ResultTranslation = new Dictionary<string, string>();
                 return _ResultTranslation;
             }
         }

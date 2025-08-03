@@ -121,6 +121,7 @@ namespace gip.core.datamodel
             if (entity.ACClassWF1_ParentACClassWF != null)
             {
                 var query = entity.ACClassWF1_ParentACClassWF.ACClassWF_ParentACClassWF.ToList()
+                    .Where(c => c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached)
                     .Where(c => (c.ACClassWFID != entity.ACClassWFID) && (c.ACIdentifierPrefix == acIdentifier))
                     .Select(c => c.ACInstanceNo);
                 if (query.Any())
@@ -284,7 +285,7 @@ namespace gip.core.datamodel
 
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
-                    return ACClassWF_ParentACClassWF.Where(c => c.ACIdentifier == filterValues[0]).FirstOrDefault();
+                    return ACClassWF_ParentACClassWF.Where(c => c.ACIdentifier == filterValues[0] && c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached).FirstOrDefault();
                 }
             }
 
@@ -299,7 +300,7 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetOutgoingWFEdges(IACWorkflowContext context)
         {
-            return this.ACClassWFEdge_SourceACClassWF;
+            return this.ACClassWFEdge_SourceACClassWF.Where(c => c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached);
         }
 
         /// <summary>
@@ -321,7 +322,7 @@ namespace gip.core.datamodel
         /// <value>List of edges</value>
         public IEnumerable<IACWorkflowEdge> GetIncomingWFEdges(IACWorkflowContext context)
         {
-            return this.ACClassWFEdge_TargetACClassWF;
+            return this.ACClassWFEdge_TargetACClassWF.Where(c => c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached);
         }
 
         /// <summary>
@@ -383,7 +384,7 @@ namespace gip.core.datamodel
         /// <value>List of nodes</value>
         public IEnumerable<IACWorkflowNode> GetChildWFNodes(IACWorkflowContext context)
         {
-            return ACClassWF_ParentACClassWF;
+            return ACClassWF_ParentACClassWF.Where(c => c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached);
         }
 
         /// <summary>

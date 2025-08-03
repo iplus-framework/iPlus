@@ -828,7 +828,7 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromParent(db, parentProgramLogID, acUrl);
-                query.AsQueryable().SetMergeOption(MergeOption.NoTracking);
+                query.AsQueryable().AsNoTracking();
                 return query.ToArray();
             }
         }
@@ -844,7 +844,7 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromProgram(db, programID, acUrl);
-                query.AsQueryable().SetMergeOption(MergeOption.NoTracking);
+                query.AsQueryable().AsNoTracking();
                 return query.ToArray();
             }
         }

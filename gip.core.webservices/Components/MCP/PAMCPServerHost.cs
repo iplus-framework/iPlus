@@ -12,6 +12,7 @@ using Microsoft.Isam.Esent.Interop;
 using ModelContextProtocol.Server;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -46,7 +47,14 @@ namespace gip.core.webservices
         public override bool ACPostInit()
         {
             StartService();
+            if (ApplicationManager != null)
+                ApplicationManager.ProjectWorkCycleR5min += PAMcpServerHost_ProjectWorkCycleR5min;
             return base.ACPostInit();
+        }
+
+        private void PAMcpServerHost_ProjectWorkCycleR5min(object sender, EventArgs e)
+        {
+            CleanupExpiredSessions();
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
@@ -125,6 +133,9 @@ namespace gip.core.webservices
                 //    .WithTools<MCPIPlusTools>();
                 
                 var builder = WebApplication.CreateBuilder();
+
+                // Add HttpContextAccessor
+                builder.Services.AddHttpContextAccessor();
 
                 // Add authentication and authorization
                 builder.Services.AddAuthentication()
@@ -243,15 +254,20 @@ namespace gip.core.webservices
         }
 
 
-        public VBUserRights ResolveUserForSession(IMcpServer server)
+        public VBUserRights ResolveUserForSession(IMcpServer server, bool autoremoveSessionID = false)
         {
             var userContextService = server.Services?.GetService(typeof(IVBUserContextService)) as VBUserContextService;
             if (userContextService == null)
-                return null;
+                return new VBUserRights();
             Guid? currentSessionID = userContextService.GetSessionID();
             if (!currentSessionID.HasValue)
-                return null;
-            return GetRightsForSession(currentSessionID.Value);
+                return new VBUserRights();
+            VBUserRights userRights = GetRightsForSession(currentSessionID.Value);
+            if (userRights == null)
+                userRights = new VBUserRights();
+            else if (autoremoveSessionID)
+                RemoveSession(currentSessionID.Value);
+            return userRights;
         }
 
         private ConcurrentDictionary<Guid, VBUserRights> _Sessions = new ConcurrentDictionary<Guid, VBUserRights>();
@@ -278,6 +294,42 @@ namespace gip.core.webservices
         public override IWebHost CreateService()
         {
             throw new NotImplementedException();
+        }
+
+        private readonly TimeSpan _sessionTimeout = TimeSpan.FromMinutes(30); // Configurable timeout
+        // Add the cleanup method
+        private void CleanupExpiredSessions()
+        {
+            try
+            {
+                var expiredSessions = new List<Guid>();
+                var cutoffTime = DateTime.UtcNow - _sessionTimeout;
+
+                foreach (var session in _Sessions)
+                {
+                    if (session.Value.LastAccessed < cutoffTime)
+                    {
+                        expiredSessions.Add(session.Key);
+                    }
+                }
+
+                foreach (var sessionId in expiredSessions)
+                {
+                    if (RemoveSession(sessionId))
+                    {
+                        Messages.LogDebug(GetACUrl(), "CleanupExpiredSessions", $"Expired session {sessionId} removed");
+                    }
+                }
+
+                if (expiredSessions.Count > 0)
+                {
+                    Messages.LogInfo(GetACUrl(), "CleanupExpiredSessions", $"Cleaned up {expiredSessions.Count} expired sessions");
+                }
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(GetACUrl(), "CleanupExpiredSessions", ex);
+            }
         }
 
         #endregion

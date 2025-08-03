@@ -17,22 +17,19 @@ namespace gip.core.autocomponent
 
         static PWNodeDecisionMsg()
         {
-            ACMethod method;
-            method = new ACMethod(ACStateConst.SMStarting);
-            Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
-            method.ParameterValueList.Add(new ACValue("OutIsRepeat", typeof(bool), false, Global.ParamOption.Required));
-            paramTranslation.Add("OutIsRepeat", "en{'Raise Out-event for repetition'}de{'Ausgangsevent zum Wiederholen auslösen'}");
-            method.ParameterValueList.Add(new ACValue("MessageText", typeof(string), "", Global.ParamOption.Required));
-            paramTranslation.Add("MessageText", "en{'Question text'}de{'Abfragetext'}");
-            method.ParameterValueList.Add(new ACValue("PasswordDlg", typeof(bool), false, Global.ParamOption.Required));
-            paramTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
-            method.ParameterValueList.Add(new ACValue("ForceEventPoint", typeof(ushort), 0, Global.ParamOption.Required));
-            paramTranslation.Add("ForceEventPoint", "en{'Raise Event [Off=0], [Below=1], [Sideward=2]'}de{'Erzwinge Ereignis [Aus=0], [Unten=1], [Seitlich/Else=2]'}");
-            method.ParameterValueList.Add(new ACValue("Repeats", typeof(UInt32), 0, Global.ParamOption.Optional));
-            paramTranslation.Add("Repeats", "en{'Repeats'}de{'Wiederholungen'}");
-            var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWNodeDecisionMsg), paramTranslation, null);
-            ACMethod.RegisterVirtualMethod(typeof(PWNodeDecisionMsg), ACStateConst.SMStarting, wrapper);
-
+            List<ACMethodWrapper> wrappers = ACMethod.OverrideFromBase(typeof(PWNodeDecisionMsg), ACStateConst.SMStarting);
+            if (wrappers != null)
+            {
+                foreach (ACMethodWrapper wrapper in wrappers)
+                {
+                    wrapper.Method.ParameterValueList.Add(new ACValue("OutIsRepeat", typeof(bool), false, Global.ParamOption.Required));
+                    wrapper.ParameterTranslation.Add("OutIsRepeat", "en{'Raise Out-event for repetition'}de{'Ausgangsevent zum Wiederholen auslösen'}");
+                    wrapper.Method.ParameterValueList.Add(new ACValue("MessageText", typeof(string), "", Global.ParamOption.Required));
+                    wrapper.ParameterTranslation.Add("MessageText", "en{'Question text'}de{'Abfragetext'}");
+                    wrapper.Method.ParameterValueList.Add(new ACValue("PasswordDlg", typeof(bool), false, Global.ParamOption.Required));
+                    wrapper.ParameterTranslation.Add("PasswordDlg", "en{'With password dialogue'}de{'Mit Passwort-Dialog'}");
+                }
+            }
             RegisterExecuteHandler(typeof(PWNodeDecisionMsg), HandleExecuteACMethod_PWNodeDecisionMsg);
         }
 
@@ -198,6 +195,7 @@ namespace gip.core.autocomponent
         }
 
         #endregion
+
 
         #region Planning and Testing
         protected override void DumpPropertyList(XmlDocument doc, XmlElement xmlACPropertyList, ref DumpStats dumpStats)

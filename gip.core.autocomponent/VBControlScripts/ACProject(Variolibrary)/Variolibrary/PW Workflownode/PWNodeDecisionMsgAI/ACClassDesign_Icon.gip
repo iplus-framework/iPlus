@@ -1,0 +1,28 @@
+<ACClassDesign Type="gip.core.datamodel.ACClassDesign" ACUrl="Database\ACProject(Variolibrary)\ACClass(PWNodeDecisionMsgAI)\ACClassDesign(Icon)">
+  <ACIdentifier>Icon</ACIdentifier>
+  <ACIdentifierKey>i:NULL</ACIdentifierKey>
+  <ACCaptionTranslation>en{'Icon'}</ACCaptionTranslation>
+  <ACGroup>i:NULL</ACGroup>
+  <XMLDesign></XMLDesign>
+  <DesignNo>00002880</DesignNo>
+  <ACKindIndex>12040</ACKindIndex>
+  <ACUsageIndex>4260</ACUsageIndex>
+  <SortIndex>999</SortIndex>
+  <IsRightmanagement>False</IsRightmanagement>
+  <Comment>i:NULL</Comment>
+  <IsDefault>False</IsDefault>
+  <IsResourceStyle>False</IsResourceStyle>
+  <VisualHeight>0</VisualHeight>
+  <VisualWidth>0</VisualWidth>
+  <XMLConfig>i:NULL</XMLConfig>
+  <BranchNo>0</BranchNo>
+  <DesignerMaxRecursion>i:NULL</DesignerMaxRecursion>
+  <InsertName>SUP</InsertName>
+  <InsertDate>2025-08-02T10:45:20.1630000</InsertDate>
+  <UpdateName>SUP</UpdateName>
+  <UpdateDate>2025-08-02T10:45:36.0230000</UpdateDate>
+  <BAMLDate>i:NULL</BAMLDate>
+  <ValueTypeACClass>Database\ACProject(Variolibrary)\ACClass(VBImage)</ValueTypeACClass>
+  <MenuEntry></MenuEntry>
+  <ACCaption>Icon</ACCaption>
+</ACClassDesign>

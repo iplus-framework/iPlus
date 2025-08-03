@@ -62,7 +62,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">Database-Context</param>
         /// <param name="edge">Workflow-Edge</param>
-        void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge);
+        void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge, IACWorkflowNode node, bool nodeIsTargetElseSource);
 
 
         /// <summary>

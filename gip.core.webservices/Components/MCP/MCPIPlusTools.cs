@@ -62,7 +62,10 @@ namespace gip.core.webservices
                         "As long as no database data is to be changed and only data is to be read, PREFER query components to business objects (category 2).")]
             int category = 0)
         {
-            return _appTree.get_thesaurus(mcpHost, i18nLangTag, category);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.get_thesaurus(mcpHost, userRights, i18nLangTag, category);
         }
 
 
@@ -93,7 +96,10 @@ namespace gip.core.webservices
             "Default: `false`")]
             bool getBaseTypes = false)
         {
-            return _appTree.get_type_infos(mcpHost, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.get_type_infos(mcpHost, userRights, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
         }
 
         [McpServerTool]
@@ -117,7 +123,10 @@ namespace gip.core.webservices
             "Default: `true`")]
             bool isCompositeSearch = true)
         {
-            return _appTree.get_instance_info(mcpHost, classIDs, searchConditions, isCompositeSearch);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.get_instance_info(mcpHost, userRights, classIDs, searchConditions, isCompositeSearch);
         }
 
 
@@ -138,7 +147,10 @@ namespace gip.core.webservices
             [Description("ClassID of the component type whose properties you want to discover.")]
             string classID)
         {
-            return _appTree.get_property_info(mcpHost, classID);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.get_property_info(mcpHost, userRights, classID);
         }
 
 
@@ -157,7 +169,10 @@ namespace gip.core.webservices
             [Description("ClassID of the component type whose methods you want to discover")]
             string classID)
         {
-            return _appTree.get_method_info(mcpHost, classID);
+            VBUserRights userRights = null;
+            if (mcpHost is PAMcpServerHost host)
+                userRights = host.ResolveUserForSession(server);
+            return _appTree.get_method_info(mcpHost, userRights,classID);
         }
 
 

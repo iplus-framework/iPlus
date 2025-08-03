@@ -842,7 +842,8 @@ namespace gip.bso.iplus
                 return;
             var newWF = CurrentACClassMethod.WorkflowClone(newACIdentifier);
             CurrentACClass.ACClassMethod_ACClass.Add(newWF);
-            Save();
+            Database.ACSaveChanges();
+            //Save();
             _ACClassMethodList = null;
             OnPropertyChanged("ACClassMethodList");
             CurrentACClassMethod = ACClassMethodList.FirstOrDefault(x => x.ACClassMethodID == newWF.ACClassMethodID);

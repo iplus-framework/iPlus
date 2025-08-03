@@ -12,6 +12,7 @@ using Microsoft.Extensions.AI;
 using ModelContextProtocol.Client;
 using ModelContextProtocol.Protocol;
 using System.Text.Json.Serialization;
+using System.IO;
 
 namespace gip.bso.iplus
 {
@@ -461,6 +462,13 @@ namespace gip.bso.iplus
             _updates = new ObservableCollection<ChatResponseUpdateWrapper>();
         }
 
+        public ChatMessageWrapper(IACObject parentACObject, IList<AIContent> content, ChatRole chatRole) : base(parentACObject)
+        {
+            _WrappedChatMessage = new ChatMessage(chatRole, content);
+            _timestamp = DateTime.Now;
+            _updates = new ObservableCollection<ChatResponseUpdateWrapper>();
+        }
+
         [JsonIgnore]
         private ChatMessage _WrappedChatMessage;
         [JsonIgnore]
@@ -671,6 +679,32 @@ namespace gip.bso.iplus
             messages.Add(message);
         }
 
+        public static void AddUserMessage(this ObservableCollection<ChatMessageWrapper> messages, BSOChatBot chatBot, string messageText, IList<string> images)
+        {
+            List<AIContent> listAIContent = new List<AIContent>();
+            listAIContent.Add(new TextContent(messageText));
+
+            foreach (string imagePath in images)
+            {
+                // Convert local file path to file URI
+                Uri imageUri = new Uri(imagePath, UriKind.Absolute);
+                if (imageUri.IsFile || !imageUri.IsAbsoluteUri)
+                {
+                    string localPath = imageUri.IsFile ? imageUri.LocalPath : imageUri.OriginalString;
+                    var imageBytes = File.ReadAllBytes(localPath);
+                    string mimeType = GetMimeTypeFromPath(localPath);
+                    listAIContent.Add(new DataContent(imageBytes, mimeType));
+                }
+                else
+                {
+                    string mimeType = GetMimeTypeFromUri(imageUri);
+                    listAIContent.Add(new UriContent(imageUri, mimeType));
+                }
+            }
+            var message = new ChatMessageWrapper(chatBot, listAIContent, ChatRole.User);
+            messages.Add(message);
+        }
+
         public static ChatMessageWrapper CreateAndAddNewAssistentMessage(this ObservableCollection<ChatMessageWrapper> messages, BSOChatBot chatBot)
         {
             var message = new ChatMessageWrapper(chatBot, ChatRole.Assistant, null);
@@ -687,6 +721,36 @@ namespace gip.bso.iplus
             }
 
             return conversationList;
+        }
+
+        public static string GetMimeTypeFromUri(Uri uri)
+        {
+            string path = uri.IsFile ? uri.LocalPath : uri.AbsolutePath;
+            return GetMimeTypeFromPath(path);
+        }
+
+        public static string GetMimeTypeFromPath(string path)
+        {
+            string extension = Path.GetExtension(path).ToLower();
+
+            // If no extension found, try to infer from URL or use default
+            if (string.IsNullOrEmpty(extension))
+            {
+                return "image/jpeg"; // Default fallback
+            }
+
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => "image/jpeg",
+                ".png" => "image/png",
+                ".gif" => "image/gif",
+                ".bmp" => "image/bmp",
+                ".webp" => "image/webp",
+                ".tiff" or ".tif" => "image/tiff",
+                ".svg" => "image/svg+xml",
+                ".ico" => "image/x-icon",
+                _ => "image/jpeg"
+            };
         }
     }
 

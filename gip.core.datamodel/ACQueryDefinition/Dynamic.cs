@@ -3615,10 +3615,7 @@ namespace gip.core.datamodel
                     query.MergeOption = Option;
             }
 #endif
-            throw new NotImplementedException();
-#if !EFCR
             return source;
-#endif
         }
 
 #if !EFCR

@@ -249,8 +249,12 @@ namespace gip.core.manager
                 newEdge = vbWorkflow.CreateNewEdge(Database);
             newEdge.FromWFNode = visualClassFrom;
             newEdge.SourceACClassProperty = sourceACClassProperty;
+            if (visualClassFrom != null)
+                (visualClassFrom as ACClassWF).ACClassWFEdge_SourceACClassWF.Add(newEdge as ACClassWFEdge);
             newEdge.ToWFNode = visualClassTo;
             newEdge.TargetACClassProperty = targetACClassProperty;
+            if (visualClassTo != null)
+                (visualClassTo as ACClassWF).ACClassWFEdge_TargetACClassWF.Add(newEdge as ACClassWFEdge);
             newEdge.ConnectionType = connectionType;
             vbWorkflow.AddEdge(newEdge);
             WPFProxy.AddToVisualChangeList(newEdge, ((short)LayoutActionType.InsertEdge), newEdge.SourceACConnector, newEdge.TargetACConnector);
@@ -494,7 +498,7 @@ namespace gip.core.manager
         #endregion
 
         #region Delete
-        [ACMethodInteraction("WF", Const.Delete, (short)MISort.Delete, true)]
+        [ACMethodInteraction("WF", "en{'Delete'}de{'Löschen'}", (short)MISort.Delete, true)]
         public virtual bool DeleteVBVisual()
         {
             return false;

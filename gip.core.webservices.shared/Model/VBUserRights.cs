@@ -63,6 +63,13 @@ namespace gip.core.webservices
         {
             get; set;
         }
+
+        // Add timestamp for potential timeout-based cleanup
+        [IgnoreDataMember]
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        [IgnoreDataMember]
+        public DateTime LastAccessed { get; set; } = DateTime.UtcNow;
 #endif
     }
 }

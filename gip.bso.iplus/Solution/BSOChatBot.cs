@@ -156,14 +156,14 @@ IMPORTANT NOTES:
 - MCP tools extend the AI's capabilities with external integrations
 - Chat history is automatically saved and can be restored
 - Real-time updates are available through CurrentChatUpdates during processing")]
-    public partial class BSOChatBot : ACBSO
+    public partial class BSOChatBot : ACBSO, IACAIAgent
     {
         #region c'tors
 
         public BSOChatBot(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _MCPServerConfig = new ACPropertyConfigValue<string>(this, nameof(MCPServerConfig), "{\r\n  \"mcpServers\": {\r\n    \"iPlus\": {\r\n      \"command\": \"npx\",\r\n      \"args\": [\r\n        \"mcp-remote\",\r\n        \"http://localhost:8750/sse\",\r\n        \"--allow-http\"\r\n      ]\r\n    },\r\n    \"github\": {\r\n      \"command\": \"npx\",\r\n      \"args\": [\r\n        \"-y\",\r\n        \"@modelcontextprotocol/server-github\"\r\n      ],\r\n      \"env\": {\r\n        \"GITHUB_PERSONAL_ACCESS_TOKEN\": \"<YOUR_TOKEN>\"\r\n      }\r\n    }\r\n  }\r\n}");
+            _MCPServerConfig = new ACPropertyConfigValue<string>(this, nameof(MCPServerConfig), "{\r\n  \"mcpServers\": {\r\n    \"iPlus\": {\r\n      \"command\": \"npx\",\r\n      \"args\": [\r\n        \"-y\",\r\n        \"mcp-remote\",\r\n        \"http://localhost:8750/sse\",\r\n        \"--allow-http\",\r\n        \"--header\"\r\n      ]\r\n    },\r\n    \"github\": {\r\n      \"command\": \"npx\",\r\n      \"args\": [\r\n        \"-y\",\r\n        \"@modelcontextprotocol/server-github\"\r\n      ],\r\n      \"env\": {\r\n        \"GITHUB_PERSONAL_ACCESS_TOKEN\": \"<YOUR_TOKEN>\"\r\n      }\r\n    }\r\n  }\r\n}");
             _ChatClientConfig = new ACPropertyConfigValue<string>(this, nameof(ChatClientConfig), "[]");
             _ChatMessagesObservable = new ObservableCollection<ChatMessageWrapper>();
             _CurrentChatUpdates = new ObservableCollection<ChatResponseUpdateWrapper>();
@@ -272,6 +272,7 @@ IMPORTANT NOTES:
                     LoadSelectedChatHistory();
                     ChatInput = "";
                     ChatOutput = "";
+                    ChatImages = "";
                 }
             }
         }
@@ -400,6 +401,59 @@ IMPORTANT NOTES:
             }
         }
 
+        private string _chatImages = "";
+        [ACPropertyInfo(11, "ChatInput", "en{'Chat Input Images'}de{'Chat Eingabe Bilder'}", Description = "Pass a semicolon-separated list of paths or http-URL to image files here.")]
+        public string ChatImages
+        {
+            get { return _chatImages; }
+            set
+            {
+                _chatImages = value;
+                // Split the semicolon-separated paths and populate ImagePaths
+                if (string.IsNullOrWhiteSpace(value))
+                {
+                    _ImagePaths = new List<string>();
+                }
+                else
+                {
+                    _ImagePaths = value.Split(';')
+                                      .Select(path => path.Trim())
+                                      .Where(path => !string.IsNullOrWhiteSpace(path) && (path.StartsWith("http") || File.Exists(path)))
+                                      .ToList();
+                }
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ImagePaths));
+                if (!_ImagePaths.Any())
+                    SelectedImagePath = null;
+                else
+                    OnPropertyChanged(nameof(SelectedImagePath));
+            }
+        }
+
+        private List<string> _ImagePaths;
+        [ACPropertyList(12, "ImagePaths", "en{'List of Images'}de{'Liste von Bilddateien'}")]
+        public List<string> ImagePaths
+        {
+            get
+            {
+                if (_ImagePaths == null)
+                    _ImagePaths = new List<string>();
+                return _ImagePaths;
+            }
+        }
+
+        private string _SelectedImagePath;
+        [ACPropertySelected(13, "ImagePaths", "en{'Selected Image'}de{'Ausgewählte Bilddatei'}")]
+        public string SelectedImagePath
+        {
+            get { return _SelectedImagePath; }
+            set
+            {
+                _SelectedImagePath = value;
+                OnPropertyChanged();
+            }
+        }
+
         private bool _IsAgentRunning = false;
         [ACPropertyInfo(3, "", "en{'Is Agent Running?'}de{'Wird der Agent ausgeführt?'}", 
             Description = @"The agent is active and is processing the current task. 
@@ -504,6 +558,7 @@ IMPORTANT NOTES:
                 AgentStopRequested = false;
                 IsAgentRunning = false;
                 ChatInput = "";
+                ChatImages = "";
                 return;
             }
 
@@ -527,8 +582,14 @@ IMPORTANT NOTES:
             if (_SelectedChatHistoryDesign == null)
             {
                 string chatInputTmp = ChatInput;
+                var imagePaths = this.ImagePaths;
+                var chatImages = this.ChatImages;
                 NewChat();
                 ChatInput = chatInputTmp;
+                if (imagePaths != null && imagePaths.Any() && this.ImagePaths != imagePaths)
+                    this.ImagePaths.AddRange(imagePaths);
+                else
+                    this.ChatImages = chatImages;
             }
 
             if (_SelectedChatHistoryDesign == null || _SelectedChatHistory == null || _SelectedChatHistory.VBUserACClassDesignID != _SelectedChatHistoryDesign.VBUserACClassDesignID)
@@ -538,7 +599,10 @@ IMPORTANT NOTES:
             try
             {
                 CurrentChatUpdates = new ObservableCollection<ChatResponseUpdateWrapper>();
-                ChatMessagesObservable.AddUserMessage(this, ChatInput);
+                if (ImagePaths == null || !ImagePaths.Any())
+                    ChatMessagesObservable.AddUserMessage(this, ChatInput);
+                else
+                    ChatMessagesObservable.AddUserMessage(this, ChatInput, ImagePaths);
                 var aiMessageWrapper = ChatMessagesObservable.CreateAndAddNewAssistentMessage(this);
                 SelectedChatMessage = aiMessageWrapper;
                 var messages = ChatMessagesObservable.GetConversations();
@@ -624,6 +688,7 @@ IMPORTANT NOTES:
             AgentStopRequested = false;
             IsAgentRunning = false;
             ChatInput = "";
+            ChatImages = "";
         }
 
         [ACMethodInfo("SendMessage", "en{'Stop current agent process'}de{'Agentenprozess stoppen'}", 111)]
@@ -651,6 +716,7 @@ IMPORTANT NOTES:
         {
             ChatInput = "";
             ChatOutput = "";
+            ChatImages = "";
             ChatMessagesObservable.Clear();
             CurrentChatUpdates.Clear();
             SaveCurrentChat();
@@ -731,6 +797,46 @@ IMPORTANT NOTES:
         public bool IsEnabledRemovePreviousMessage()
         {
             return ChatMessagesObservable != null && ChatMessagesObservable.Count > 0;
+        }
+
+        [ACMethodCommand("MCP", "en{'Add file image'}de{'Bilddatei hinzufügen'}", 116, Description = "Opens a File-Dialog and adds a image to the ImagePaths List")]
+        public void OpenDialogSelectImage()
+        {
+            try
+            {
+
+                ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
+                string filePath = mediaController.OpenFileDialog(
+                    false,
+                    "",
+                    false,
+                    null,
+                    new Dictionary<string, string>()
+                    {
+                    {
+                        "Select an Image-File",
+                        "*.jpg;*.png;*.gif;*.bmp;*.webp"
+                    }
+                    });
+
+                if (filePath != null && File.Exists(filePath))
+                {
+                    ImagePaths.Add(filePath);
+                    OnPropertyChanged(nameof(ImagePaths));
+                    OnPropertyChanged(nameof(SelectedImagePath));
+                }
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(this.GetACUrl(), "OpenDialogSelectImage", ex);
+                Root.Messages.Error(this, "Error selecting Image file: " + ex.Message, true);
+            }
+        }
+
+        [ACMethodCommand("MCP", "en{'Remove all images'}de{'Alle Bilddateien entfernen'}", 116, Description = "Empties ImagePaths List")]
+        public void ClearImagePathList()
+        {
+            ChatImages = null;
         }
         #endregion
 
@@ -860,6 +966,16 @@ IMPORTANT NOTES:
                 case nameof(IsEnabledRemoveChatClientSetting):
                     result = IsEnabledRemoveChatClientSetting();
                     return true;
+                case nameof(SelectChatClientSettingsByModelName):
+                    if (acParameter != null && acParameter.Length > 0 && acParameter[0] is string modelName)
+                    {
+                        result = SelectChatClientSettingsByModelName(modelName);
+                        return true;
+                    }
+                    break;
+                case nameof(IsEnabledSelectChatClientSettingsByModelName):
+                    result = IsEnabledSelectChatClientSettingsByModelName();
+                    return true;
                 case nameof(ReadMCPServerConfigFromFile):
                     ReadMCPServerConfigFromFile();
                     return true;
@@ -885,6 +1001,12 @@ IMPORTANT NOTES:
                         return true;
                     }
                     break;
+                case nameof(OpenDialogSelectImage):
+                    OpenDialogSelectImage();
+                    return true;
+                case nameof(ClearImagePathList):
+                    ClearImagePathList();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }

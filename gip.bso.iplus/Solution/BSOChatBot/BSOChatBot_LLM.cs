@@ -212,6 +212,19 @@ namespace gip.bso.iplus
             }
         }
 
+        /// <summary>
+        /// Gets the name of the selected model from the chat client settings.
+        /// </summary>
+        public string SelectedModelName
+        {
+            get
+            {
+                if (SelectedChatClientSettings != null)
+                    return SelectedChatClientSettings.ModelName;
+                return ModelName;
+            }
+        }
+
         private bool _isConnected = false;
         [ACPropertyInfo(10, "IsConnected", "en{'Is connected to language model'}de{'Ist mit Sprachmodell verbunden'}")]
         public bool IsConnected
@@ -509,6 +522,57 @@ namespace gip.bso.iplus
                 IsConnected = false;
             }
         }
+        #endregion
+
+        #region Select Chat Client Settings by Model Name
+
+        /// <summary>
+        /// Selects a chat client setting by model name from the ChatClientSettingsList
+        /// </summary>
+        /// <param name="modelName">The name of the model to search for</param>
+        /// <returns>A tuple containing success status and message</returns>
+        [ACMethodCommand("ChatClientSettings", "en{'Select Model by Name'}de{'Modell nach Name auswählen'}", 120, 
+            Description = "Selects a chat client setting by model name from the ChatClientSettingsList.")]
+        public (bool success, string message) SelectChatClientSettingsByModelName(string modelName)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(modelName))
+                {
+                    return (false, "Model name cannot be empty.");
+                }
+
+                if (ChatClientSettingsList == null || !ChatClientSettingsList.Any())
+                {
+                    return (false, "No chat client settings available.");
+                }
+
+                // Search for the model name in the ChatClientSettingsList
+                var foundSetting = ChatClientSettingsList.FirstOrDefault(s => 
+                    string.Equals(s.ModelName, modelName, StringComparison.OrdinalIgnoreCase));
+
+                if (foundSetting != null)
+                {
+                    SelectedChatClientSettings = foundSetting;
+                    return (true, $"Successfully selected model: {foundSetting.ModelName} ({foundSetting.AIClientType})");
+                }
+                else
+                {
+                    return (false, $"Model '{modelName}' not found in available chat client settings.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Messages.LogException(this.GetACUrl(), "SelectChatClientSettingsByModelName", ex);
+                return (false, $"Error selecting model '{modelName}': {ex.Message}");
+            }
+        }
+
+        public bool IsEnabledSelectChatClientSettingsByModelName()
+        {
+            return ChatClientSettingsList != null && ChatClientSettingsList.Any();
+        }
+
         #endregion
 
         #endregion

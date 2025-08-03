@@ -783,7 +783,7 @@ namespace gip.core.manager
         protected bool DeleteWF(IACWorkflowDesignContext vbWorkflow, PWOfflineNodeMethod pwObjectNode)
         {
             IACWorkflowNode visualGroup = pwObjectNode.ContentACClassWF as IACWorkflowNode;
-            IACEntityObjectContext tmpDatabase = ACObjectContextManager.GetContext(RootDbOpQueue.ClassName + "." + RootDbOpQueue.AppContextPropName) as IACEntityObjectContext;
+            IACEntityObjectContext tmpDatabase = pwObjectNode.ContentACClassWF.Database;
             if (tmpDatabase == null) // if not exist iPlus is used
                 tmpDatabase = Database;
             IACConfigProvider configProvider = tmpDatabase.ACUrlCommand("\\LocalServiceObjects\\VarioConfigManager") as IACConfigProvider;
@@ -813,36 +813,36 @@ namespace gip.core.manager
 
         protected bool DeleteWFEdge(IACWorkflowDesignContext vbWorkflow, IACWorkflowNode vbVisualWF)
         {
-            List<IACWorkflowNode> fromClasss = new List<IACWorkflowNode>();
+            List<IACWorkflowNode> fromClass = new List<IACWorkflowNode>();
             List<ACClassProperty> fromPoints = new List<ACClassProperty>();
-            List<IACWorkflowNode> toClasss = new List<IACWorkflowNode>();
+            List<IACWorkflowNode> toClass = new List<IACWorkflowNode>();
             List<ACClassProperty> toPoints = new List<ACClassProperty>();
 
             // Alle oberen Kanten löschen
             while (vbVisualWF.GetIncomingWFEdges(vbWorkflow).Any())
             {
                 var edge1 = vbVisualWF.GetIncomingWFEdges(vbWorkflow).ElementAt(0);
-                fromClasss.Add(edge1.FromWFNode);
+                fromClass.Add(edge1.FromWFNode);
                 fromPoints.Add(edge1.SourceACClassProperty);
                 WPFProxyWorkflowMethod.AddToVisualChangeList(edge1, (short)VBDesigner.LayoutActionType.DeleteEdge, edge1.SourceACConnector, edge1.TargetACConnector);
-                vbWorkflow.DeleteEdge(Database.ContextIPlus, edge1);
+                vbWorkflow.DeleteEdge(Database.ContextIPlus, edge1, vbVisualWF, true);
             }
             // Alle unteren Kanten löschen
             while (vbVisualWF.GetOutgoingWFEdges(vbWorkflow).Any())
             {
                 var edge2 = vbVisualWF.GetOutgoingWFEdges(vbWorkflow).ElementAt(0);
-                toClasss.Add(edge2.ToWFNode);
+                toClass.Add(edge2.ToWFNode);
                 toPoints.Add(edge2.TargetACClassProperty);
                 WPFProxyWorkflowMethod.AddToVisualChangeList(edge2, (short)VBDesigner.LayoutActionType.DeleteEdge, edge2.SourceACConnector, edge2.TargetACConnector);
-                vbWorkflow.DeleteEdge(Database.ContextIPlus, edge2);
+                vbWorkflow.DeleteEdge(Database.ContextIPlus, edge2, vbVisualWF, false);
             }
 
-            for (int i = 0; i < fromClasss.Count; i++)
+            for (int i = 0; i < fromClass.Count; i++)
             {
-                for (int j = 0; j < toClasss.Count; j++)
+                for (int j = 0; j < toClass.Count; j++)
                 {
-                    if (!vbWorkflow.AllWFEdges.Any(c => c.FromWFNode.XName == fromClasss[i].XName && c.ToWFNode.XName == toClasss[j].XName))
-                        CreateWFEdge(vbWorkflow, fromClasss[i], fromPoints[i], toClasss[j], toPoints[j], Global.ConnectionTypes.StartTrigger);
+                    if (!vbWorkflow.AllWFEdges.Any(c => c.FromWFNode.XName == fromClass[i].XName && c.ToWFNode.XName == toClass[j].XName))
+                        CreateWFEdge(vbWorkflow, fromClass[i], fromPoints[i], toClass[j], toPoints[j], Global.ConnectionTypes.StartTrigger);
                 }
             }
             return true;

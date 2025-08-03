@@ -46,9 +46,33 @@ namespace gip.core.webservices
             if (!_apiKeyValidator.IsValid(apiKey, context.HttpContext))
             {
                 context.Result = new UnauthorizedResult();
+                return;
             }
+
+            // Register cleanup when request completes
+            context.HttpContext.Response.OnCompleted(() =>
+            {
+                CleanupSession(context.HttpContext);
+                return Task.CompletedTask;
+            });
         }
 
+        private static void CleanupSession(HttpContext context)
+        {
+            try
+            {
+                if (context.Items.TryGetValue(VBUserContextService.SessionIDKey, out object sessionId) && sessionId is Guid guid)
+                {
+                    var serviceHost = PAWebServiceBase.FindPAWebService<PAMcpServerHost>(context.Connection.LocalPort);
+                    if (serviceHost != null)
+                        serviceHost.RemoveSession(guid);
+                }
+            }
+            catch (Exception ex)
+            {
+                ACRoot.SRoot.Messages.LogException("ApiKeyAuthorizationFilter", "CleanupSession", ex);
+            }
+        }
     }
 
     public class ApiKeyValidator : IApiKeyValidator
@@ -136,6 +160,13 @@ namespace gip.core.webservices
                 return Task.FromResult(AuthenticateResult.Fail("Invalid API Key"));
             }
 
+            // Register cleanup when request completes
+            Context.Response.OnCompleted(() =>
+            {
+                CleanupSession(Context);
+                return Task.CompletedTask;
+            });
+
             var claims = new[]
             {
                 new Claim(ClaimTypes.Name, "API User"),
@@ -147,6 +178,23 @@ namespace gip.core.webservices
             var ticket = new AuthenticationTicket(principal, Scheme.Name);
 
             return Task.FromResult(AuthenticateResult.Success(ticket));
+        }
+
+        private static void CleanupSession(HttpContext context)
+        {
+            try
+            {
+                if (context.Items.TryGetValue(VBUserContextService.SessionIDKey, out object sessionId) && sessionId is Guid guid)
+                {
+                    var serviceHost = PAWebServiceBase.FindPAWebService<PAMcpServerHost>(context.Connection.LocalPort);
+                    if (serviceHost != null)
+                        serviceHost.RemoveSession(guid);
+                }
+            }
+            catch (Exception ex)
+            {
+                ACRoot.SRoot.Messages.LogException("ApiKeyAuthenticationHandler", "CleanupSession", ex);
+            }
         }
     }
 

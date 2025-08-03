@@ -131,7 +131,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        public bool IsSkippingNeeded
+        public virtual bool IsSkippingNeeded
         {
             get
             {

@@ -479,12 +479,14 @@ namespace gip.core.datamodel
 
             // Step 1. Prepare  new objecs
             ACClassMethod clonedWF = (ACClassMethod)this.Clone();
+            KeyValuePair<Guid, Guid> newIDWF = new KeyValuePair<Guid, Guid>(clonedWF.ACClassMethodID, Guid.NewGuid());
+            clonedWF.ACClassMethodID = newIDWF.Value;
             clonedWF.ACIdentifier = newACIdentifier;
+            clonedWF.Database.ACClassMethod.Add(clonedWF);
             List<ACClassWF> clonedWFNodes = ACClassWF_ACClassMethod.ToList().Select(x => (ACClassWF)x.Clone()).ToList();
             List<ACClassWFEdge> clonedWFEdges = ACClassWFEdge_ACClassMethod.ToList().Select(x => (ACClassWFEdge)x.Clone()).ToList();
 
             // Step 2. Prepare new IDs connection data: new IDs, ACIdentifiers and XNames (Nos)
-            KeyValuePair<Guid, Guid> newIDWF = new KeyValuePair<Guid, Guid>(clonedWF.ACClassMethodID, Guid.NewGuid());
             List<NewIDWFNodeModel> newIDWFNodes = clonedWFNodes.Select(x =>
                new NewIDWFNodeModel
                {
@@ -594,10 +596,14 @@ namespace gip.core.datamodel
                     node.ParentACClassWFID = parentNewNode.ACClassWFID;
                 }
                 clonedWF.ACClassWF_ACClassMethod.Add(node);
+                clonedWF.Database.ACClassWF.Add(node);
             }
 
             foreach (var edge in processedEdges)
+            {
                 clonedWF.ACClassWFEdge_ACClassMethod.Add(edge);
+                clonedWF.Database.ACClassWFEdge.Add(edge);
+            }
 
             // Step 6. XAML process
             string xaml = clonedWF.XMLDesign;
@@ -663,7 +669,10 @@ namespace gip.core.datamodel
             }
 
             foreach (var config in clonedConfigs)
+            {
                 clonedWF.ACClassMethodConfig_ACClassMethod.Add(config);
+                clonedWF.Database.ACClassMethodConfig.Add(config);
+            }
 
             return clonedWF;
         }
@@ -1525,7 +1534,7 @@ namespace gip.core.datamodel
                         //ACClassWF_ACClassMethodReference.Load();
                     }
                 }
-                return ACClassWF_ACClassMethod.ToList(); // ToList, damit Query Thread-Safe
+                return ACClassWF_ACClassMethod.AsEnumerable().Where(c => c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached).ToList(); // ToList, damit Query Thread-Safe
             }
         }
 
@@ -1558,7 +1567,7 @@ namespace gip.core.datamodel
 
                 using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                 {
-                    return ACClassWFEdge_ACClassMethod.Select(c => c as IACWorkflowEdge);
+                    return ACClassWFEdge_ACClassMethod.Where(c => c.EntityState != EntityState.Deleted && c.EntityState != EntityState.Detached).Select(c => c as IACWorkflowEdge);
                 }
             }
         }
@@ -1620,11 +1629,11 @@ namespace gip.core.datamodel
                 {
                     foreach (var edge1 in childClass.GetIncomingWFEdges(this).ToList())
                     {
-                        DeleteEdge(database, edge1);
+                        DeleteEdge(database, edge1, childClass ,true);
                     }
                     foreach (var edge2 in childClass.GetOutgoingWFEdges(this).ToList())
                     {
-                        DeleteEdge(database, edge2);
+                        DeleteEdge(database, edge2, childClass, false);
                     }
                     DeleteNode(database, childClass as IACWorkflowNode, null);
                 }
@@ -1657,17 +1666,31 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="database">The database.</param>
         /// <param name="edge"></param>
-        public void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge)
+        public void DeleteEdge(IACEntityObjectContext database, IACWorkflowEdge edge, IACWorkflowNode node, bool nodeIsTargetElseSource)
         {
             using (ACMonitor.Lock(this.Database.QueryLock_1X000))
             {
                 if (edge is ACClassWFEdge)
                 {
                     ACClassWFEdge acClassWFEdge = edge as ACClassWFEdge;
-                    if (acClassWFEdge.ACClassMethod == this)
+                    if (acClassWFEdge.ACClassMethod == this || ACClassWFEdge_ACClassMethod.Contains(acClassWFEdge))
                     {
                         ACClassWFEdge_ACClassMethod.Remove(acClassWFEdge);
                         database.Remove(acClassWFEdge);
+                    }
+                    if (node != null && node is ACClassWF)
+                    {
+                        ACClassWF acClassWF = node as ACClassWF;
+                        if (nodeIsTargetElseSource)
+                        {
+                            // Remove Edge from Target
+                            acClassWF.ACClassWFEdge_TargetACClassWF.Remove(acClassWFEdge);
+                        }
+                        else
+                        {
+                            // Remove Edge from Source
+                            acClassWF.ACClassWFEdge_SourceACClassWF.Remove(acClassWFEdge);
+                        }
                     }
                 }
             }

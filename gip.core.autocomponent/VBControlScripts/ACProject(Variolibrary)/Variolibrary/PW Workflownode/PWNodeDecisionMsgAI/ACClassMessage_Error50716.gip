@@ -1,0 +1,12 @@
+<ACClassMessage Type="gip.core.datamodel.ACClassMessage" ACUrl="Database\ACProject(Variolibrary)\ACClass(PWNodeDecisionMsgAI)\ACClassMessage(Error50716)">
+  <ACIdentifier>Error50716</ACIdentifier>
+  <ACIdentifierKey>i:NULL</ACIdentifierKey>
+  <ACCaptionTranslation>en{'The AI-Agent did not make a decision. Please investigate and complete the node manually.'}de{'Der KI-Agent traf keine Entscheidung. Schauen Sie bitte nach und beenden Sie den Worklfowknoten selbst.'}</ACCaptionTranslation>
+  <BranchNo>0</BranchNo>
+  <InsertName>SUP</InsertName>
+  <InsertDate>2025-08-03T06:39:38.9370000</InsertDate>
+  <UpdateName>SUP</UpdateName>
+  <UpdateDate>2025-08-03T06:41:52.7130000</UpdateDate>
+  <ACCaption>The AI-Agent did not make a decision. Please investigate and complete the node manually.</ACCaption>
+  <XMLConfig>i:NULL</XMLConfig>
+</ACClassMessage>
