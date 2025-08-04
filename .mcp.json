@@ -1,0 +1,34 @@
+{
+  // Uncomment these lines to use the iplus-MCP server with github copilot in agent mode
+  "servers": {
+    //"iPlus": {
+    //  "type": "http",
+    //  "url": "http://localhost:8750/sse"
+    //},
+    //"github": {
+    //  "type": "http",
+    //  "url": "https://api.githubcopilot.com/mcp/"
+    //},
+    "iPlus": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:8750/sse",
+        "--allow-http",
+        "--header",
+        "Authorization:00#00"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-github"
+      ],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOURTOKEN>"
+      }
+    }
+  }
+}
