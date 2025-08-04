@@ -50,7 +50,8 @@ namespace gip.core.autocomponent
             paramTranslation.Add("ForceEventPoint", "en{'Raise Event [Off=0], [Below=1], [Sideward=2]'}de{'Erzwinge Ereignis [Aus=0], [Unten=1], [Seitlich/Else=2]'}");
             method.ParameterValueList.Add(new ACValue("Repeats", typeof(UInt32), 0, Global.ParamOption.Optional));
             paramTranslation.Add("Repeats", "en{'Repeats'}de{'Wiederholungen'}");
-            var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWNodeDecisionFunc), paramTranslation, null);
+            Dictionary<string, string> resultTranslation = new Dictionary<string, string>();
+            var wrapper = new ACMethodWrapper(method, "en{'Configuration'}de{'Konfiguration'}", typeof(PWNodeDecisionFunc), paramTranslation, resultTranslation);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeDecisionFunc), ACStateConst.SMStarting, wrapper);
 
 

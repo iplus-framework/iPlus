@@ -809,11 +809,13 @@ namespace gip.core.autocomponent
             {
                 _Root = root;
                 _User = user;
-                _Root.BeginInvokeUserInThread(Thread.CurrentThread.GetHashCode(), user);
+                if (_User != null)
+                    _Root.BeginInvokeUserInThread(Thread.CurrentThread.GetHashCode(), user);
             }
             public void Dispose()
             {
-                _Root.EndInvokeUserInThread(Thread.CurrentThread.GetHashCode());
+                if (_User != null)
+                    _Root.EndInvokeUserInThread(Thread.CurrentThread.GetHashCode());
             }
         }
 

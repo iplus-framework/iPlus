@@ -573,9 +573,13 @@ namespace gip.core.layoutengine
             {
                 Focus();
                 //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
-            }
+            }            
+        }
 
-            
+        private void ObservableColl_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (IsEnabledScrollIntoView)
+                (VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(ScrollViewer)) as ScrollViewer)?.ScrollToEnd();
         }
 
         private void LoadCyclicDataRefreshProperty()
@@ -590,12 +594,6 @@ namespace gip.core.layoutengine
                     _cyclickDataRefreshDispTimer.Start();
                 }
             }
-        }
-
-        private void ObservableColl_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (IsEnabledScrollIntoView)
-                (VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(ScrollViewer)) as ScrollViewer)?.ScrollToEnd();
         }
 
         private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)

@@ -855,7 +855,8 @@ namespace gip.core.manager
         protected bool DeleteWF(IACWorkflowDesignContext vbWorkflow, PWOfflineNodeMethod pwObjectNode)
         {
             IACWorkflowNode visualGroup = pwObjectNode.ContentACClassWF as IACWorkflowNode;
-            IACEntityObjectContext tmpDatabase = ACObjectContextManager.GetContext(RootDbOpQueue.ClassName + "." + RootDbOpQueue.AppContextPropName) as IACEntityObjectContext;
+            IACEntityObjectContext tmpDatabase = pwObjectNode.ContentACClassWF.Database;
+            //IACEntityObjectContext tmpDatabase = ACObjectContextManager.GetContext(RootDbOpQueue.ClassName + "." + RootDbOpQueue.AppContextPropName) as IACEntityObjectContext;
             if (tmpDatabase == null) // if not exist iPlus is used
                 tmpDatabase = Database;
             IACConfigProvider configProvider = tmpDatabase.ACUrlCommand("\\LocalServiceObjects\\VarioConfigManager") as IACConfigProvider;
