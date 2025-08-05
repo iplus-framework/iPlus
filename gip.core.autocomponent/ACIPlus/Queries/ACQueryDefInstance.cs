@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.ComponentModel;
-using System.Data.Entity;
+using Microsoft.EntityFrameworkCore;
 using System.Collections;
 using System.Text.Json;
 
@@ -225,8 +225,8 @@ namespace gip.core.autocomponent
                         "In the entity framework, no explicit columns can be specified using FromSqlRaw.");
                 }
             }
-            IQueryable queryable = context.ACSelect(queryDef).AsNoTracking();
-            var result = queryable as IQueryable<VBEntityObject>;
+            IQueryable queryable = context.ACSelect(queryDef);
+            var result = (queryable as IQueryable<VBEntityObject>).AsNoTracking();
             return new DisposableCallback<VBEntityObject>(context, result);
         }
 

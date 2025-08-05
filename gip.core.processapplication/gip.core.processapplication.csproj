@@ -48,8 +48,13 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Ports" Version="9.0.5" />
+    <PackageReference Include="System.IO.Ports" Version="$(NetCorePackageVersion)" />
     <None Update="readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

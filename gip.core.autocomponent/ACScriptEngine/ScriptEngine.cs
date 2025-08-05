@@ -10,7 +10,6 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using System.IO;
-using Microsoft.CSharp;
 using System.CodeDom.Compiler;
 using System.CodeDom;
 using System.Text;
@@ -285,6 +284,43 @@ namespace gip.core.autocomponent
         /// <returns>A <see cref="SyntaxTree"/> containing the code to be compiled.</returns>
         private string GetCode(IEnumerable<string> namespaces)
         {
+            var sb = new StringBuilder();
+
+            // Add using statements
+            sb.AppendLine("using System;");
+            foreach (string namespaceName in namespaces)
+            {
+                sb.AppendLine($"using {namespaceName};");
+            }
+
+            sb.AppendLine();
+
+            // Add namespace declaration
+            sb.AppendLine($"namespace {C_ScriptNamespace}");
+            sb.AppendLine("{");
+
+            // Add static class declaration
+            sb.AppendLine($"    public static class {C_ScriptStaticClassName}");
+            sb.AppendLine("    {");
+
+            // Add the actual script methods
+            string scriptMethods = _Scripts.ToString();
+            if (!string.IsNullOrEmpty(scriptMethods))
+            {
+                // Indent each line of the script methods
+                var lines = scriptMethods.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string line in lines)
+                {
+                    sb.AppendLine($"        {line}");
+                }
+            }
+
+            sb.AppendLine("    }"); // Close class
+            sb.AppendLine("}");     // Close namespace
+
+            return sb.ToString();
+
+            /* Obosolete Code for CodeDom
             // Create a new CodeCompileUnit to contain the program graph
             CodeCompileUnit compileUnit = new CodeCompileUnit();
 
@@ -320,6 +356,7 @@ namespace gip.core.autocomponent
             }
 
             return sb.ToString();
+            */
         }
 
         public void RegisterScript(string acMethodName, string sourcecode, bool continueOnError)

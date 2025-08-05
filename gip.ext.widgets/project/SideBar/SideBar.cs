@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Reflection.Metadata;
 using System.Windows.Forms;
 
 namespace gip.ext.widgets.SideBar
@@ -62,8 +64,9 @@ namespace gip.ext.widgets.SideBar
 		
 		Point mousePosition;
 		bool  doAddTab = false;
-		
-		public bool DoAddTab {
+
+        private bool ShouldSerializeDoAddTab() => false;
+        public bool DoAddTab {
 			get {
 				return doAddTab;
 			}
@@ -74,8 +77,9 @@ namespace gip.ext.widgets.SideBar
 		
 		ISideTabFactory     sideTabFactory     = new DefaultSideTabFactory();
 		ISideTabItemFactory sideTabItemFactory = new DefaultSideTabItemFactory();
-		
-		public ISideTabItemFactory SideTabItemFactory {
+
+        private bool ShouldSerializeSideTabItemFactory() => false;
+        public ISideTabItemFactory SideTabItemFactory {
 			get {
 				return sideTabItemFactory;
 			}
@@ -83,8 +87,9 @@ namespace gip.ext.widgets.SideBar
 				sideTabItemFactory = value;
 			}
 		}
-		
-		public ISideTabFactory SideTabFactory {
+
+        private bool ShouldSerializeSideTabFactory() => false;
+        public ISideTabFactory SideTabFactory {
 			get {
 				return sideTabFactory;
 			}
@@ -98,8 +103,9 @@ namespace gip.ext.widgets.SideBar
 				return sideTabs;
 			}
 		}
-		
-		public SideTab ActiveTab {
+
+        private bool ShouldSerializeActiveTab() => false;
+        public SideTab ActiveTab {
 			get {
 				return activeTab;
 			}
@@ -710,8 +716,9 @@ namespace gip.ext.widgets.SideBar
 		{
 			SideBarControl sideBar = null;
 			Point   mousePosition;
-			
-			public SideBarControl SideBar {
+
+			private bool ShouldSerializeSideBar() => false;
+            public SideBarControl SideBar {
 				get {
 					return sideBar;
 				}
@@ -1070,8 +1077,8 @@ namespace gip.ext.widgets.SideBar
 		}
 	}
 	
-	public class SpecialDataObject : System.Windows.Forms.IDataObject
-	{
+	public class SpecialDataObject : System.Windows.Forms.IDataObject //, ITypedDataObject
+    {
 		List<object> dataObjects = new List<object>();
 		public object GetData(string format)
 		{
@@ -1155,5 +1162,25 @@ namespace gip.ext.widgets.SideBar
 		{
 			
 		}
-	}
+
+        public bool TryGetData<[DynamicallyAccessedMembers((DynamicallyAccessedMemberTypes)(-1))] T>([MaybeNullWhen(false), NotNullWhen(true)] out T data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetData<[DynamicallyAccessedMembers((DynamicallyAccessedMemberTypes)(-1))] T>(string format, [MaybeNullWhen(false), NotNullWhen(true)] out T data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetData<[DynamicallyAccessedMembers((DynamicallyAccessedMemberTypes)(-1))] T>(string format, bool autoConvert, [MaybeNullWhen(false), NotNullWhen(true)] out T data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool TryGetData<[DynamicallyAccessedMembers((DynamicallyAccessedMemberTypes)(-1))] T>(string format, Func<TypeName, Type> resolver, bool autoConvert, [MaybeNullWhen(false), NotNullWhen(true)] out T data)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

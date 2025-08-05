@@ -38,10 +38,21 @@
   <ItemGroup>
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Microsoft.EntityFrameworkCore.Relational">
+      <HintPath>$(EFCoreIncludeDir)\EFCore.Relational\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.SqlServer">
+      <HintPath>$(EFCoreIncludeDir)\EFCore.SqlServer\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)" />
+    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Relational" Version="$(NetCorePackageVersion)" />
+    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)" />
   </ItemGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)\gip.core.archiver.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />

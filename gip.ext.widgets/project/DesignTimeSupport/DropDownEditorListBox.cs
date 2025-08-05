@@ -29,8 +29,9 @@ namespace gip.ext.widgets.DesignTimeSupport
 			
 			AddDropDownItems();
 		}
-		
-		public string Value {
+
+        private bool ShouldSerializeValue() => false;
+        public string Value {
 			get {
 				return dropDownValue;
 			}

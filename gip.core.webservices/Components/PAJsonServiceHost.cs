@@ -85,7 +85,7 @@ namespace gip.core.webservices
                 })
                 .Configure(app =>
                 {
-                    app.UseMiddleware<SwaggerMiddleware>();
+                    app.UseSwagger();
                     app.UseSwaggerUI();
                     app.UseServiceModel(builder =>
                     {

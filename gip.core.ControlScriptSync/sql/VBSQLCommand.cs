@@ -3,7 +3,6 @@ using gip.core.datamodel;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;

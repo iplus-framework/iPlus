@@ -48,6 +48,14 @@
     <ProjectReference Include="..\gip.core.media\gip.core.media.csproj" />
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Microsoft.EntityFrameworkCore.Relational">
+      <HintPath>$(EFCoreIncludeDir)\EFCore.Relational\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <None Update="VBControlScripts\2021-03-03 12-32_ihrastinski.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -176,12 +184,12 @@
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Google.Cloud.Translate.V3" Version="3.9.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="9.7.1" />
     <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.7.1-preview.1.25365.4" />
     <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.3" />
-    <PackageReference Include="OllamaSharp" Version="5.3.1" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.5" />
+    <PackageReference Include="OllamaSharp" Version="5.3.4" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
     <PackageReference Include="TextCopy" Version="6.2.1" />
   </ItemGroup>
   <PropertyGroup />

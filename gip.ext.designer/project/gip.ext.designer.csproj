@@ -62,6 +62,11 @@
     <ProjectReference Include="..\..\gip.ext.widgets\Project\gip.ext.widgets.csproj" />
     <ProjectReference Include="..\..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>..\$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\Class.png" />
   </ItemGroup>

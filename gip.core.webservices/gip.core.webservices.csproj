@@ -40,15 +40,20 @@
     <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreWCF.ConfigurationManager" Version="1.6.0" />
-    <PackageReference Include="CoreWCF.Http" Version="1.6.0" />
-    <PackageReference Include="CoreWCF.Primitives" Version="1.6.0" />
-    <PackageReference Include="CoreWCF.WebHttp" Version="1.6.0" />
+    <PackageReference Include="CoreWCF.ConfigurationManager" Version="$(CoreWCFVersion)" />
+    <PackageReference Include="CoreWCF.Http" Version="$(CoreWCFVersion)" />
+    <PackageReference Include="CoreWCF.Primitives" Version="$(CoreWCFVersion)" />
+    <PackageReference Include="CoreWCF.WebHttp" Version="$(CoreWCFVersion)" />
     <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.3" />
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.9.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
     <PackageReference Include="EntityFramework" Version="6.5.1" />
     <!--<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />-->

@@ -34,7 +34,7 @@ namespace gip.core.datamodel
             }
 
             model.Customize();
-            _instance = model;
+            _instance = (iPlusV5ContextModel)model.FinalizeModel();
         }
 
         private static iPlusV5ContextModel _instance;
