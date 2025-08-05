@@ -60,6 +60,8 @@ Restore the SQL Server backup file located in the "Database" folder.
 4. **Open project in Microsoft Visual Studio:**
   - Modify the ConnectionStrings.config file: Follow the instructions on [gipSoft's documentation site](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=193d292e-df31-405e-a3e9-f1116846bf86#ItemTextTranslationID_d0551cc7-f767-4790-8ecb-8771836ebac7)
   - Compile the solution an set gip.iplus.client.exe as start project.
+  - For building ef-models follow the instructions on [EF core tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
+  - dotnet tool update --global dotnet-ef  (optional version e.g.: --version 10.0.0-preview.6.25358.103)
 
 5. **Execute gip.iplus.client.exe**  
   - Login with user "superuser" and password "superuser" to **start as a client**. Login with user "00" and password "00" to **start as a service**. After starting the service, your local IP is remembered and you can start a second instance an logon as client to establish the Client-Server-Connection. If you have problems, that the Client doesn't connect with the server read the [network configuration section](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=a7424f03-cbff-4f68-90eb-262b3fdcba1c#ItemTextTranslationID_bf788469-8a2f-4a7c-ad78-2710960096dc). For [running on Linux read here](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=9df14383-a4e5-4a3d-81d5-5dccf80d6c4e).
