@@ -279,8 +279,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                return MergeOption.AppendOnly;
-                //return IsChanged ? MergeOption.AppendOnly : MergeOption.OverwriteChanges;
+                return IsChanged ? MergeOption.AppendOnly : MergeOption.OverwriteChanges;
             }
         }
 
@@ -1234,6 +1233,14 @@ namespace gip.core.datamodel
             if (_ACTypeCache.TryGetValue(type, out acClass))
                 return acClass;
 
+            Type genericType = null;
+            if (type.IsGenericType)
+            {
+                genericType = getOuterTypeIfGeneric ? type.GetGenericTypeDefinition() : type.GetGenericArguments()[0];
+                if (_ACTypeCache.TryGetValue(genericType, out acClass))
+                    return acClass;
+            }
+
             using (ACMonitor.Lock(QueryLock_1X000))
             {
                 acClass = s_cQry_TypeCache(this, type.AssemblyQualifiedName);
@@ -1257,11 +1264,6 @@ namespace gip.core.datamodel
             }
             if (!type.IsGenericType)
                 return null;
-
-            //Type genericType = type.GetGenericTypeDefinition();
-            Type genericType = getOuterTypeIfGeneric ? type.GetGenericTypeDefinition() : type.GetGenericArguments()[0];
-            if (_ACTypeCache.TryGetValue(genericType, out acClass))
-                return acClass;
 
             using (ACMonitor.Lock(QueryLock_1X000))
             {
