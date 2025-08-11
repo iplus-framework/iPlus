@@ -93,7 +93,7 @@ public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? ACProgramLogID 
     {
         get { return _ACProgramLogID; }
-        set { SetProperty<Guid?>(ref _ACProgramLogID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ACProgramLogID, value, "ACProgramLog", _ACProgramLog, ACProgramLog != null ? ACProgramLog.ACProgramLogID : default(Guid?)); }
     }
 
     string _InsertName;
@@ -135,7 +135,7 @@ public partial class MsgAlarmLog : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? ACClassID 
     {
         get { return _ACClassID; }
-        set { SetProperty<Guid?>(ref _ACClassID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ACClassID, value, "ACClass", _ACClass, ACClass != null ? ACClass.ACClassID : default(Guid?)); }
     }
 
     private ACClass _ACClass;

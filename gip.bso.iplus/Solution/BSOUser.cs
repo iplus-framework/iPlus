@@ -20,6 +20,7 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
 using System.Text.RegularExpressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {

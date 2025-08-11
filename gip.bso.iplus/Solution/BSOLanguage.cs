@@ -18,6 +18,7 @@ using System.Text;
 using gip.core.datamodel;
 //using gip.core.manager;
 using gip.core.autocomponent;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {
@@ -140,11 +141,12 @@ namespace gip.bso.iplus
             }
             set
             {
-                if(value != SelectedLanguage)
-                {
-                    SetCurrentSelectedValue(value);
-                    OnPropertyChanged("SelectedLanguage");
-                }
+                if (AccessPrimary == null) 
+                    return; 
+                AccessPrimary.Selected = value;
+                if (CurrentLanguage != SelectedLanguage)
+                    CurrentLanguage = SelectedLanguage;
+                OnPropertyChanged("SelectedLanguage");
             }
         }
 
@@ -159,15 +161,17 @@ namespace gip.bso.iplus
         {
             get
             {
-                if (AccessPrimary == null) return null; return AccessPrimary.Current;
+                if (AccessPrimary == null) 
+                    return null; 
+                return AccessPrimary.Current;
             }
             set
             {
-                if(value != CurrentLanguage)
-                {
-                    SetCurrentSelectedValue(value);
-                    OnPropertyChanged("CurrentLanguage");
-                }
+                if (AccessPrimary == null) return; 
+                AccessPrimary.Current = value;
+                OnPropertyChanged();
+                if (CurrentLanguage != SelectedLanguage)
+                    SelectedLanguage = CurrentLanguage;
             }
         }
 
@@ -241,6 +245,7 @@ namespace gip.bso.iplus
         {
             if (!PreExecute("Load"))
                 return;
+            //var test = Db.VBLanguage.Where(c => c.SortIndex >= 0).Refresh(MergeOption.OverwriteChanges).FirstOrDefault();
             LoadEntity<VBLanguage>(requery, () => SelectedLanguage, () => CurrentLanguage, c => CurrentLanguage = c,
                         Db.VBLanguage
                         .Where(c => c.VBLanguageID == SelectedLanguage.VBLanguageID));

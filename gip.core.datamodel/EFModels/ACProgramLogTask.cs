@@ -30,7 +30,7 @@ public partial class ACProgramLogTask : VBEntityObject , IInsertInfo, IUpdateInf
     public Guid ACProgramLogID 
     {
         get { return _ACProgramLogID; }
-        set { SetProperty<Guid>(ref _ACProgramLogID, value); }
+        set { SetForeignKeyProperty<Guid>(ref _ACProgramLogID, value, "ACProgramLog", _ACProgramLog, ACProgramLog != null ? ACProgramLog.ACProgramLogID : default(Guid)); }
     }
 
     string _ACClassMethodXAML;

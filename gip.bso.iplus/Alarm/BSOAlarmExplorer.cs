@@ -11,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Threading;
 using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.bso.iplus
 {
@@ -582,8 +583,9 @@ namespace gip.bso.iplus
             if (!string.IsNullOrEmpty(AlarmSourceText))
                 query = query.Where(c => (c.ACClass != null && c.ACClass.ACURLComponentCached == AlarmSourceText) ||
                                          (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText)).AsQueryable();
-
-            //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+#if EFCR
+            query = query.Refresh(MergeOption.OverwriteChanges);
+#endif
 
             _MsgAlarmLogList = query.OrderByDescending(c => c.TimeStampOccurred).ToList();
             OnPropertyChanged("MsgAlarmLogList");
@@ -630,7 +632,7 @@ namespace gip.bso.iplus
             AlarmLogStatisticList = result.OrderByDescending(c => c.AlarmsCount).ToList();
         }
 
-        #endregion
+#endregion
 
         #region Methods => AlarmMessengerConfiguration
 
@@ -805,7 +807,7 @@ namespace gip.bso.iplus
 
         #endregion
 
-        #endregion
+#endregion
 
         #region Event-Handling
         ACPointEventSubscr _EventSubscr;

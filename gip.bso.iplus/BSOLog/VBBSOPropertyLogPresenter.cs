@@ -1005,7 +1005,10 @@ namespace gip.bso.iplus
                             .AsQueryable();
             string acUrl = SelectedPropertyLog.ACUrl;
 
-            //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+#if EFCR
+            query = query.Refresh(MergeOption.OverwriteChanges);
+#endif
+
             AlarmsSubAlarmsList = query.AsEnumerable()
                                         .Where(c =>    (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) 
                                                     || (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));

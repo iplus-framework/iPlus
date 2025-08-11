@@ -25,6 +25,7 @@ using System.Threading;
 using System.Collections;
 using gip.core.datamodel;
 using System.Runtime.Serialization;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {
@@ -3590,41 +3591,26 @@ namespace gip.core.datamodel
             return -1;
         }
 
-        public static IQueryable<T> AutoMergeOption<T>(this IQueryable<T> source)
+        public static IQueryable<T> AutoMergeOption<T>(this IQueryable<T> source, IACEntityObjectContext context)
         {
-#if !EFCR
-            ObjectQuery<T> query = source as ObjectQuery<T>;
-            if (query != null)
-            {
-                IACEntityObjectContext context = query.Context as IACEntityObjectContext;
-                if (context != null)
-                    query.MergeOption = context.RecommendedMergeOption;
-            }
+            if (source == null || context == null)
+               throw new ArgumentNullException(nameof(context));
+#if EFCR
+            if (context != null)
+                source = source.Refresh(context.RecommendedMergeOption);
 #endif
             return source;
         }
 
-        public static IQueryable<T> SetMergeOption<T>(this IQueryable<T> source, MergeOption Option)
+        public static IQueryable<T> SetMergeOption<T>(this IQueryable<T> source, MergeOption option)
         {
-#if !EFCR
-            ObjectQuery<T> query = source as ObjectQuery<T>;
-            if (query != null)
-            {
-                IACEntityObjectContext context = query.Context as IACEntityObjectContext;
-                if (context != null)
-                    query.MergeOption = Option;
-            }
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+#if EFCR
+            source = source.Refresh(option);
 #endif
             return source;
         }
-
-#if !EFCR
-        public static ObjectQuery<T> Include<T>(this ObjectQuery<T> source, Expression<Func<T, object>> exp)
-        {
-            var path = GetPath(exp);
-            return source.Include(path);
-        }
-#endif
 
         private static string GetPath(Expression exp)
         {

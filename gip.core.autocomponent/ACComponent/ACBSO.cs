@@ -481,7 +481,7 @@ namespace gip.core.autocomponent
                     ACSaveOrUndoChanges();
                     if (requery)
                     {
-                        currentSetter(query.AutoMergeOption().FirstOrDefault());
+                        currentSetter(query.AutoMergeOption(Database).FirstOrDefault());
 
                         // Falls Neu angelegt und nicht gespeichert, dann ist Datenbankabfrage natürlich leer
                         if (currentGetter() == null)
@@ -499,7 +499,7 @@ namespace gip.core.autocomponent
                 Func<TEntity> oneGetter = selectedGetter != null ? selectedGetter : currentGetter;
                 if (oneGetter() != null)
                 {
-                    currentSetter(query.AutoMergeOption().FirstOrDefault());
+                    currentSetter(query.AutoMergeOption(Database).FirstOrDefault());
                 }
             }
         }

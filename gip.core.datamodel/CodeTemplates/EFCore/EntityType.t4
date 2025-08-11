@@ -15,6 +15,8 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore" #>
 <#@ import namespace="Microsoft.EntityFrameworkCore.Design" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Scaffolding" #>
 <#
     if (EntityType.IsSimpleManyToManyJoinEntityType())
     {
@@ -150,14 +152,33 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
         var needsInitializer = Options.UseNullableReferenceTypes && !property.IsNullable && !property.ClrType.IsValueType;
         bool needsOverride = property.Name == ("ACIdentifier") || property.Name == ("XMLConfig");
         bool needsNew = property.Name == ("EntityKey");
+        bool changeTrackingProxiesUsed = false;
+
+        string navigationName;
+        string navigationKeyPath;
+        bool hasNavigation = GetNavigationInfoForProperty(Options, EntityType, property, out navigationName, out navigationKeyPath);
+        if (hasNavigation)
+        {
 #>
     <#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #> _<#= property.Name #>;
-    public <#= needsOverride ? "override " : "" #><#= needsNew ? "new " : "" #><#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
+    public <#= needsOverride ? "override " : changeTrackingProxiesUsed ? "virtual " : "" #><#= needsNew ? "new " : "" #><#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
+    {
+        get { return _<#= property.Name#>; }
+        set { SetForeignKeyProperty<<#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #>>(ref _<#= property.Name#>, value, "<#= navigationName#>", _<#= navigationName#>, <#= navigationName#> != null ? <#= navigationKeyPath#> : default(<#= code.Reference(property.ClrType)#>)); }
+    }<#= needsInitializer ? " = null!;" : "" #>
+<#
+        }
+        else
+        {
+#>
+    <#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #> _<#= property.Name #>;
+    public <#= needsOverride ? "override " : changeTrackingProxiesUsed ? "virtual " : "" #><#= needsNew ? "new " : "" #><#= code.Reference(property.ClrType) #><#= needsNullable ? "?" : "" #> <#= property.Name #> 
     {
         get { return _<#= property.Name#>; }
         set { SetProperty<<#=code.Reference(property.ClrType)#><#= needsNullable ? "?" : "" #>>(ref _<#= property.Name#>, value); }
     }<#= needsInitializer ? " = null!;" : "" #>
 <#
+        }
         firstProperty = false;
     }
 
@@ -175,7 +196,7 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
             }
         }
 
-        var targetType = navigation.TargetEntityType.Name;
+        string targetType = navigation.TargetEntityType.Name;
         if (targetType.Contains("@"))
             targetType = targetType.Remove(0,1);
         string navName = navigation.Name;
@@ -202,7 +223,7 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
     public virtual ICollection<<#= targetType #>> <#= relName #>
     {
         get { return LazyLoader.Load(this, ref _<#= relName #>); }
-        set { _<#= relName #> = value; }
+        set { SetProperty<ICollection<<#= targetType #>>>(ref _<#= relName #>, value); }
     }
 
     public bool <#= relName #>_IsLoaded
@@ -221,17 +242,10 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
         }
         else
         {
-            var needsNullable = Options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
-            var needsInitializer = Options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
-            string navPIdname = "";
-            if (!(navigation.ForeignKey.IsRequired && navigation.IsOnDependent) && targetType == EntityType.Name || navigation.Name == "BasedOn"+targetType)
-            {
-                navPIdname = targetType+"1_"+navName;
-            }
-            else
-            {
-                navPIdname = navigation.Name;
-            }
+            bool needsNullable;
+            bool needsInitializer;
+            string navPIdname;
+            GetDeclarationInfoForNavigation(Options, EntityType, navigation, targetType, out needsNullable, out needsInitializer, out navPIdname);
         #>
     private <#= targetType #><#= needsNullable ? "?" : "" #> _<#= navPIdname #>;
     public virtual <#= targetType #><#= needsNullable ? "?" : "" #> <#= navPIdname #>
@@ -274,7 +288,7 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
     public virtual ICollection<<#= skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name #>
     {
         get { return LazyLoader.Load(this, ref _<#= skipNavigation.Name #>); }
-        set { _<#= skipNavigation.Name #> = value; }
+        set { SetProperty<ICollection<<#= skipNavigation.TargetEntityType.Name #>>>(ref _<#= skipNavigation.Name #>, value); }
     }
 
     public virtual CollectionEntry <#= skipNavigation.Name + "Reference"#>
@@ -299,4 +313,50 @@ using <#= ns #>;
     WriteLine("");
 
     GenerationEnvironment.Append(previousOutput);
+#>
+<#+
+public void GetDeclarationInfoForNavigation(ModelCodeGenerationOptions options, IEntityType entityType, INavigation navigation, string targetType, out bool needsNullable, out bool needsInitializer, out string navigationName)
+{
+    if (string.IsNullOrEmpty(targetType))
+    {
+        targetType = navigation.TargetEntityType.Name;
+        if (targetType.Contains("@"))
+            targetType = targetType.Remove(0, 1);
+    }
+    string navName = navigation.Name;
+
+    needsNullable = options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
+    needsInitializer = options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
+    navigationName = "";
+    if (!(navigation.ForeignKey.IsRequired && navigation.IsOnDependent) && targetType == entityType.Name || navigation.Name == "BasedOn" + targetType)
+    {
+        navigationName = targetType + "1_" + navName;
+    }
+    else
+    {
+        navigationName = navigation.Name;
+    }
+}
+public bool GetNavigationInfoForProperty(ModelCodeGenerationOptions options, IEntityType entityType, IProperty property, out string navigationName, out string navigationKeyPath)
+{
+    navigationName = null;
+    navigationKeyPath = null;
+    if (!property.IsForeignKey())
+        return false;
+    IForeignKey foreignKey = property.GetContainingForeignKeys().FirstOrDefault();
+    if (foreignKey == null)
+        return false;
+    INavigation navigation = foreignKey.GetNavigation(true);
+    if (navigation == null)
+        navigation = foreignKey.GetNavigation(false);
+    if (navigation == null)
+        return false;
+    bool needsNullable, needsInitializer;
+    GetDeclarationInfoForNavigation(options, entityType, navigation, null, out needsNullable, out needsInitializer, out navigationName);
+    if (navigation.ForeignKey == null || navigation.ForeignKey.PrincipalKey == null)
+        return false;
+    string fkID = navigation.ForeignKey.PrincipalKey.Properties.FirstOrDefault().Name;
+    navigationKeyPath = $"{navigationName}.{fkID}";
+    return true;
+}
 #>

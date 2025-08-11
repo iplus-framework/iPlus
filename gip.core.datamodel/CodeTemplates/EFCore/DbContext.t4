@@ -15,6 +15,7 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore.Infrastructure" #>
 <#@ import namespace="Microsoft.EntityFrameworkCore.Scaffolding" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Metadata" #>
 <#
     if (!ProductInfo.GetVersion().StartsWith("7.0"))
     {
@@ -100,6 +101,8 @@ public partial class <#= Options.ContextName #> : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         optionsBuilder.AddInterceptors(new ACMaterializationInterceptor())
+            //.UseLazyLoadingProxies()
+            //.UseChangeTrackingProxies()
             .UseModel(<#=Options.ContextName#>Model.Instance)
             .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
             //Uncomment connection string when generating new CompiledModels
@@ -283,6 +286,7 @@ public partial class <#= Options.ContextName #> : DbContext
             }
 #>
            entity.HasOne(d => d.<#= navPIdname #>).<#= foreignKey.IsUnique ? "WithOne" : "WithMany" #>(p => p.<#= relName #>)<#= code.Fragment(foreignKeyFluentApiCalls, indent: 4) #>;
+           //entity.Navigation(d => d.<#= navPIdname #>).UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
 <#
             anyEntityTypeConfiguration = true;
         }
@@ -382,6 +386,10 @@ public partial class <#= Options.ContextName #> : DbContext
         WriteLine("");
     }
 #>
+        modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications)
+                    .UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
+                    // For change tracking proxies if UseChangeTrackingProxies() is set: .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)
+
         OnModelCreatingPartial(modelBuilder);
     }
 

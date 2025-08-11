@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {

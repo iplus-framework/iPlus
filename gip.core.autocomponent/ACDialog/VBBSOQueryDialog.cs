@@ -1038,24 +1038,22 @@ namespace gip.core.autocomponent
 
         #region EventHandling
         // TODO: Remove WPF-Dependencies
-#if EFCR
-        [ACMethodInfo("", "en{'Key event'}de{'Tastatur Ereignis'}", 9999, false)]
-        public void OnKeyEvent(KeyEventArgs e)
-        {
-            IVBContent control = e.Source as IVBContent;
-            if (control != null && control.VBContent == "CurrentQueryDefinition\\SearchWord")
-            {
-                if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftCtrl))
-                {
-                    OK();
-                }
-            }
-        }
-#else
+        //[ACMethodInfo("", "en{'Key event'}de{'Tastatur Ereignis'}", 9999, false)]
+        //public void OnKeyEvent(KeyEventArgs e)
+        //{
+        //    IVBContent control = e.Source as IVBContent;
+        //    if (control != null && control.VBContent == "CurrentQueryDefinition\\SearchWord")
+        //    {
+        //        if (e.Key == Key.Enter && Keyboard.IsKeyDown(Key.LeftCtrl))
+        //        {
+        //            OK();
+        //        }
+        //    }
+        //}
+
         public void OnKeyEvent(object e)
         {
         }
-#endif
         #endregion
 
         #region DragAndDrop

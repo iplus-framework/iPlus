@@ -56,7 +56,7 @@
     <Reference Include="Microsoft.EntityFrameworkCore.SqlServer">
       <HintPath>$(EFCoreIncludeDir)\EFCore.SqlServer\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Microsoft.EntityFrameworkCore.Relational">
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational">
       <HintPath>$(EFCoreIncludeDir)\EFCore.Relational\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
     </Reference>
   </ItemGroup>
@@ -203,10 +203,10 @@
     <Compile Remove="ACThreadHandling\ACEntityOpQueue.cs" />
   </ItemGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
+    <DefineConstants>NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DefineConstants>$(DefineConstants);NETFRAMEWORK</DefineConstants>
+    <DefineConstants>NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
   </PropertyGroup>
   <Import Project="..\gip.core.autocomponent.shared\gip.core.autocomponent.shared.projitems" Label="Shared" />
 </Project>

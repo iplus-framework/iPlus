@@ -550,25 +550,25 @@ namespace gip.core.datamodel
 
         public static string FactoryEntityConnectionString(SQLInstanceInfo serverInfo, bool iPlusContext)
         {
-#if !EFCR
-            string connStringID = iPlusContext ? "iPlusV4_Entities" : "iPlusMESV4_Entities";
-            ConnectionStringSettings csSettings = System.Configuration.ConfigurationManager.ConnectionStrings[connStringID];
-            string originalConnectionString = csSettings.ConnectionString;
-            var ecsBuilder = new EntityConnectionStringBuilder(originalConnectionString);
-            SqlConnectionStringBuilder sqlCsBuilder = new SqlConnectionStringBuilder(ecsBuilder.ProviderConnectionString)
-            {
-                DataSource = serverInfo.ServerName,
-                InitialCatalog = serverInfo.Database,
-                UserID = serverInfo.Username,
-                Password = serverInfo.Password
-            };
-            var providerConnectionString = sqlCsBuilder.ToString();
-            ecsBuilder.ProviderConnectionString = providerConnectionString;
-            string contextConnectionString = ecsBuilder.ToString();
-            contextConnectionString = contextConnectionString.Replace("Application Name", "App");
-            contextConnectionString = contextConnectionString.Replace(@".\\", @".\");
-            return contextConnectionString;
-#endif
+//#if !EFCR
+//            string connStringID = iPlusContext ? "iPlusV4_Entities" : "iPlusMESV4_Entities";
+//            ConnectionStringSettings csSettings = System.Configuration.ConfigurationManager.ConnectionStrings[connStringID];
+//            string originalConnectionString = csSettings.ConnectionString;
+//            var ecsBuilder = new EntityConnectionStringBuilder(originalConnectionString);
+//            SqlConnectionStringBuilder sqlCsBuilder = new SqlConnectionStringBuilder(ecsBuilder.ProviderConnectionString)
+//            {
+//                DataSource = serverInfo.ServerName,
+//                InitialCatalog = serverInfo.Database,
+//                UserID = serverInfo.Username,
+//                Password = serverInfo.Password
+//            };
+//            var providerConnectionString = sqlCsBuilder.ToString();
+//            ecsBuilder.ProviderConnectionString = providerConnectionString;
+//            string contextConnectionString = ecsBuilder.ToString();
+//            contextConnectionString = contextConnectionString.Replace("Application Name", "App");
+//            contextConnectionString = contextConnectionString.Replace(@".\\", @".\");
+//            return contextConnectionString;
+//#endif
             throw new NotImplementedException();
         }
 

@@ -457,6 +457,7 @@ namespace gip.core.datamodel
 
         #region License
 
+        [NotMapped]
         private bool? _IsPackageLicensed = null;
         /// <summary>
         /// Gets a value indicating whether this instance has licence.
@@ -1557,34 +1558,23 @@ namespace gip.core.datamodel
                     || forceRefreshFromDB)
                 {
                     bool wasLoaded = ACClassMethod_ACClass_IsLoaded;
-                    allMethods = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass)
-                            .Query()
-                            .Include(c => c.PWACClass)
+                    var query = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass).Query();
+#if EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query = query.Refresh(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
+#endif
+                    query = query.Include(c => c.PWACClass)
                             .Include(c => c.ValueTypeACClass)
                             .Include(c => c.ACClass)
                             .Include(c => c.ACClassMethod1_ParentACClassMethod)
                             .Include(c => c.AttachedFromACClass)
-                            .OrderBy(c => c.ACIdentifier)
-                            .ToArray();
-
-                    //MergeOption.OverwriteChanges
+                            .OrderBy(c => c.ACIdentifier);
+#if !EFCR
                     if (wasLoaded && forceRefreshFromDB)
-                        allMethods.SynchronizeCollections<ACClassMethod>(ACClassMethod_ACClass);
+                        query.SynchronizeCollections<ACClassMethod>(ACClassMethod_ACClass);
+#endif
 
-                    //MergeOption.AppendOnly
-                    //else
-                    //    ACClassMethod_ACClassReference.Load();
-
-                    //allMethods = Context.Entry(this).Collection(c => c.ACClassMethod_ACClass)
-                    //                            .Query()
-                    //                            .Include(c => c.PWACClass)
-                    //                            .Include(c => c.ValueTypeACClass)
-                    //                            .Include(c => c.ACClass)
-                    //                            .Include(c => c.ACClassMethod1_ParentACClassMethod)
-                    //                            .Include(c => c.AttachedFromACClass)
-                    //                            .OrderBy(c => c.ACIdentifier)
-                    //                            .ToArray();
-                    
+                    allMethods = query.ToArray();
                 }
                 else
                     allMethods = ACClassMethod_ACClass.ToArray();
@@ -2123,41 +2113,26 @@ namespace gip.core.datamodel
             try
             {
                 if (!ACClassProperty_ACClass_IsLoaded && EntityState != EntityState.Added
-                || forceRefreshFromDB)
+                    || forceRefreshFromDB)
                 {
                     bool wasLoaded = ACClassProperty_ACClass_IsLoaded;
-                    allProperties = Context.Entry(this).Collection(c => c.ACClassProperty_ACClass)
-                    .Query()
-                    .Include(c => c.ValueTypeACClass)
+                    var query = Context.Entry(this).Collection(c => c.ACClassProperty_ACClass).Query();
+#if EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query = query.Refresh(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
+#endif
+                    query = query.Include(c => c.ValueTypeACClass)
                     .Include(c => c.ACClass)
                     .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
                     .Include(c => c.ACClassProperty1_ParentACClassProperty)
                     .Include(nameof(ACClassProperty.ACClassPropertyRelation_SourceACClassProperty))
                     .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
-                    .OrderBy(c => c.ACIdentifier)
-                    .ToArray();
-                    //MergeOption.OverwriteChanges
-                    if (wasLoaded && forceRefreshFromDB)
-                    {
-                        // Alternative to prevent a second roundtrip to database:
-                        allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
-                        //_ = ACClassProperty_ACClass;
-                        // Is this then Necessary?
-                        //ACClassProperty_ACClass.AutoLoad(ACClassProperty_ACClassReference, this);
-                        //allProperties = ACClassProperty_ACClass.ToArray();
-                        //allProperties.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
-                    }                     ////MergeOption.AppendOnly
-                    //else
-                    //    ACClassProperty_ACClassReference.Load();                     //allProperties = Context.Entry(this).Collection(c => c.ACClassProperty_ACClass)
-                    //                            .Query()
-                    //                            .Include(c => c.ValueTypeACClass)
-                    //                            .Include(c => c.ACClass)
-                    //                            .Include(c => c.ACClassProperty1_BasedOnACClassProperty)
-                    //                            .Include(c => c.ACClassProperty1_ParentACClassProperty)
-                    //                            .Include(nameof(ACClassProperty.ACClassPropertyRelation_SourceACClassProperty))
-                    //                            .Include(nameof(ACClassProperty.ACClassPropertyRelation_TargetACClassProperty))
-                    //                            .OrderBy(c => c.ACIdentifier)
-                    //                            .ToArray();
+                    .OrderBy(c => c.ACIdentifier);
+#if! EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query.SynchronizeCollections<ACClassProperty>(ACClassProperty_ACClass);
+#endif
+                    allProperties = query.ToArray();
                 }
                 else
                     allProperties = ACClassProperty_ACClass.ToArray();
@@ -2426,26 +2401,19 @@ namespace gip.core.datamodel
                     || forceRefreshFromDB)
                 {
                     bool wasLoaded = ACClassDesign_ACClass_IsLoaded;
-                    allDesigns = Context.Entry(this).Collection(c => c.ACClassDesign_ACClass)
-                                                .Query()
-                                                .Include(c => c.ValueTypeACClass)
-                                                .Include(c => c.ACClass)
-                                                .OrderBy(c => c.ACIdentifier)
-                                                .ToArray();
-                    //MergeOption.OverwriteChanges
-                    if (wasLoaded & forceRefreshFromDB)
-                        allDesigns.SynchronizeCollections<ACClassDesign>(ACClassDesign_ACClass);
-
-                    //MergeOption.AppendOnly
-                    //else
-                    //    ACClassDesign_ACClassReference.Load();
-
-                    //allDesigns = Context.Entry(this).Collection(c => c.ACClassDesign_ACClass)
-                    //                            .Query()
-                    //                            .Include(c => c.ValueTypeACClass)
-                    //                            .Include(c => c.ACClass)
-                    //                            .OrderBy(c => c.ACIdentifier)
-                    //                            .ToArray();
+                    var query = Context.Entry(this).Collection(c => c.ACClassDesign_ACClass).Query();
+#if EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query = query.Refresh(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
+#endif
+                    query = query.Include(c => c.ValueTypeACClass)
+                                .Include(c => c.ACClass)
+                                .OrderBy(c => c.ACIdentifier);
+#if !EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query.SynchronizeCollections<ACClassDesign>(ACClassDesign_ACClass);
+#endif
+                    allDesigns = query.ToArray();
                 }
                 else
                     allDesigns = ACClassDesign_ACClass.ToArray();
@@ -2579,23 +2547,18 @@ namespace gip.core.datamodel
                     || forceRefreshFromDB)
                 {
                     bool wasLoaded = ACClassText_ACClass_IsLoaded;
-                    allTexts = Context.Entry(this).Collection(c => c.ACClassText_ACClass)
-                                                .Query()
-                                                .Include(c => c.ACClass)
-                                                .OrderBy(c => c.ACIdentifier)
-                                                .ToArray();
-                    //MergeOption.OverwriteChanges
-                    if (wasLoaded & forceRefreshFromDB)
-                        allTexts.SynchronizeCollections<ACClassText>(ACClassText_ACClass);
-                    //MergeOption.AppendOnly
-                    //else
-                    //    ACClassText_ACClassReference.Load();
-
-                    //allTexts = Context.Entry(this).Collection(c => c.ACClassText_ACClass)
-                    //                            .Query()
-                    //                            .Include(c => c.ACClass)
-                    //                            .OrderBy(c => c.ACIdentifier)
-                    //                            .ToArray();
+                    var query = Context.Entry(this).Collection(c => c.ACClassText_ACClass).Query();
+#if EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query = query.Refresh(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
+#endif
+                    query = query.Include(c => c.ACClass)
+                                 .OrderBy(c => c.ACIdentifier);
+#if !EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query.SynchronizeCollections<ACClassText>(ACClassText_ACClass);
+#endif
+                    allTexts = query.ToArray();
                 }
                 else
                     allTexts = ACClassText_ACClass.ToArray();
@@ -2729,23 +2692,17 @@ namespace gip.core.datamodel
                     || forceRefreshFromDB)
                 {
                     bool wasLoaded = ACClassMessage_ACClass_IsLoaded;
-                    allMessages = Context.Entry(this).Collection(c => c.ACClassMessage_ACClass)
-                            .Query()
-                            .Include(c => c.ACClass)
-                            .OrderBy(c => c.ACIdentifier)
-                            .ToArray();
-                    //MergeOption.OverwriteChanges
-                    if (wasLoaded & forceRefreshFromDB)
-                        allMessages.SynchronizeCollections<ACClassMessage>(ACClassMessage_ACClass);
-                    //MergeOption.AppendOnly
-                    //else
-                    //    ACClassMessage_ACClassReference.Load();
-
-                    //allMessages = Context.Entry(this).Collection(c => c.ACClassMessage_ACClass)
-                    //                            .Query()
-                    //                            .Include(c => c.ACClass)
-                    //                            .OrderBy(c => c.ACIdentifier)
-                    //                            .ToArray();
+                    var query = Context.Entry(this).Collection(c => c.ACClassMessage_ACClass).Query();
+#if EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query = query.Refresh(forceRefreshFromDB ? MergeOption.OverwriteChanges : MergeOption.AppendOnly);
+#endif
+                    query = query.Include(c => c.ACClass).OrderBy(c => c.ACIdentifier);
+#if !EFCR
+                    if (wasLoaded && forceRefreshFromDB)
+                        query.SynchronizeCollections<ACClassMessage>(ACClassMessage_ACClass);
+#endif
+                    allMessages = query.ToArray();  
                 }
                 else
                     allMessages = ACClassMessage_ACClass.ToArray();
@@ -2849,7 +2806,9 @@ namespace gip.core.datamodel
         }
 
 
+        [NotMapped]
         private bool _ACClassForEnumListChecked = false;
+        [NotMapped]
         private ACClass _ACClassForEnumList = null;
         /// <summary>
         /// Gets my AC class BSO.
@@ -2877,7 +2836,9 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         private bool _ACValueListForEnumChecked = false;
+        [NotMapped]
         private ACValueItemList _ACValueListForEnum = null;
         [NotMapped]
         public ACValueItemList ACValueListForEnum
@@ -3034,6 +2995,7 @@ namespace gip.core.datamodel
         /// Gets a value indicating whether this instance is class instantiable as proxy.
         /// </summary>
         /// <value><c>true</c> if this instance is class instantiable as proxy; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool IsClassInstantiableAsProxy
         {
             get
@@ -3058,6 +3020,7 @@ namespace gip.core.datamodel
         /// Gets a value indicating whether this instance is workflow type.
         /// </summary>
         /// <value><c>true</c> if this instance is workflow type; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool IsWorkflowType
         {
             get
@@ -3079,6 +3042,7 @@ namespace gip.core.datamodel
         /// Gets a value indicating whether this instance is application type.
         /// </summary>
         /// <value><c>true</c> if this instance is application type; otherwise, <c>false</c>.</value>
+        [NotMapped]
         public bool IsApplicationType
         {
             get
@@ -3184,6 +3148,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         Type _ObjectType = null;
         /// <summary>
         /// Returns the .NET-Type (If Property is a generic it returns the inner type)
@@ -3237,10 +3202,10 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
 
-#region Misc Properties and Methods
+        #region Misc Properties and Methods
 
         //#region IACWorkflowObject Member
 
@@ -3278,11 +3243,12 @@ namespace gip.core.datamodel
 
         //#endregion
 
-#region Rightmanagement
+        #region Rightmanagement
         /// <summary>
         /// Determines whether [is any child with rightmanagement].
         /// </summary>
         /// <returns><c>true</c> if [is any child with rightmanagement]; otherwise, <c>false</c>.</returns>
+        [NotMapped]
         public bool IsAnyChildWithRightmanagement
         {
             get
@@ -3305,6 +3271,7 @@ namespace gip.core.datamodel
         /// <summary>
         /// The _ right manager
         /// </summary>
+        [NotMapped]
         ClassRightManager _RightManager = null;
         /// <summary>
         /// Gets the right manager.
@@ -3459,11 +3426,12 @@ namespace gip.core.datamodel
         {
             return ACCaption;
         }
-#endregion
+        #endregion
 
 
-#region Private Methods
+        #region Private Methods
 
+        [NotMapped]
         bool bRefreshConfig = false;
         protected override void OnPropertyChanging<T>(T newValue, string propertyName, bool afterChange)
         {
@@ -3543,13 +3511,14 @@ namespace gip.core.datamodel
             OnPropertyChanged("ACUrlComponent");
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
 
 
-#region Configuration
+        #region Configuration
 
+        [NotMapped]
         private string configStoreName;
         [NotMapped]
         public string ConfigStoreName

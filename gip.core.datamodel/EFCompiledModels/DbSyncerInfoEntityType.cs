@@ -20,6 +20,7 @@ namespace gip.core.datamodel
                 "gip.core.datamodel.DbSyncerInfo",
                 typeof(DbSyncerInfo),
                 baseEntityType,
+                changeTrackingStrategy: ChangeTrackingStrategy.ChangedNotifications,
                 indexerPropertyInfo: RuntimeEntityType.FindIndexerProperty(typeof(DbSyncerInfo)),
                 propertyCount: 5,
                 navigationCount: 1,
@@ -33,6 +34,7 @@ namespace gip.core.datamodel
                 typeof(int),
                 propertyInfo: typeof(DbSyncerInfo).GetProperty("DbSyncerInfoID", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DbSyncerInfo).GetField("_DbSyncerInfoID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.PreferFieldDuringConstruction,
                 valueGenerated: ValueGenerated.OnAdd,
                 afterSaveBehavior: PropertySaveBehavior.Throw,
                 sentinel: 0);
@@ -43,6 +45,7 @@ namespace gip.core.datamodel
                 typeof(string),
                 propertyInfo: typeof(DbSyncerInfo).GetProperty("DbSyncerInfoContextID", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DbSyncerInfo).GetField("_DbSyncerInfoContextID", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.PreferFieldDuringConstruction,
                 maxLength: 10);
             dbSyncerInfoContextID.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
@@ -51,6 +54,7 @@ namespace gip.core.datamodel
                 typeof(DateTime),
                 propertyInfo: typeof(DbSyncerInfo).GetProperty("ScriptDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DbSyncerInfo).GetField("_ScriptDate", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.PreferFieldDuringConstruction,
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
             scriptDate.AddAnnotation("Relational:ColumnType", "datetime");
             scriptDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -60,6 +64,7 @@ namespace gip.core.datamodel
                 typeof(string),
                 propertyInfo: typeof(DbSyncerInfo).GetProperty("UpdateAuthor", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DbSyncerInfo).GetField("_UpdateAuthor", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.PreferFieldDuringConstruction,
                 maxLength: 40,
                 unicode: false);
             updateAuthor.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
@@ -69,6 +74,7 @@ namespace gip.core.datamodel
                 typeof(DateTime),
                 propertyInfo: typeof(DbSyncerInfo).GetProperty("UpdateDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(DbSyncerInfo).GetField("_UpdateDate", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyAccessMode: PropertyAccessMode.PreferFieldDuringConstruction,
                 sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
             updateDate.AddAnnotation("Relational:ColumnType", "datetime");
             updateDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);

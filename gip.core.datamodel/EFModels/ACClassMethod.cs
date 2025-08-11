@@ -30,7 +30,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid ACClassID 
     {
         get { return _ACClassID; }
-        set { SetProperty<Guid>(ref _ACClassID, value); }
+        set { SetForeignKeyProperty<Guid>(ref _ACClassID, value, "ACClass", _ACClass, ACClass != null ? ACClass.ACClassID : default(Guid)); }
     }
 
     string _ACIdentifier;
@@ -163,7 +163,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? PWACClassID 
     {
         get { return _PWACClassID; }
-        set { SetProperty<Guid?>(ref _PWACClassID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _PWACClassID, value, "PWACClass", _PWACClass, PWACClass != null ? PWACClass.ACClassID : default(Guid?)); }
     }
 
     bool _ContinueByError;
@@ -177,7 +177,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? ValueTypeACClassID 
     {
         get { return _ValueTypeACClassID; }
-        set { SetProperty<Guid?>(ref _ValueTypeACClassID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ValueTypeACClassID, value, "ValueTypeACClass", _ValueTypeACClass, ValueTypeACClass != null ? ValueTypeACClass.ACClassID : default(Guid?)); }
     }
 
     string _GenericType;
@@ -191,7 +191,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? ParentACClassMethodID 
     {
         get { return _ParentACClassMethodID; }
-        set { SetProperty<Guid?>(ref _ParentACClassMethodID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ParentACClassMethodID, value, "ACClassMethod1_ParentACClassMethod", _ACClassMethod1_ParentACClassMethod, ACClassMethod1_ParentACClassMethod != null ? ACClassMethod1_ParentACClassMethod.ACClassMethodID : default(Guid?)); }
     }
 
     string _XMLACMethod;
@@ -268,7 +268,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? AttachedFromACClassID 
     {
         get { return _AttachedFromACClassID; }
-        set { SetProperty<Guid?>(ref _AttachedFromACClassID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _AttachedFromACClassID, value, "AttachedFromACClass", _AttachedFromACClass, AttachedFromACClass != null ? AttachedFromACClass.ACClassID : default(Guid?)); }
     }
 
     bool _IsStatic;
@@ -316,7 +316,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassMethodConfig> ACClassMethodConfig_ACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassMethodConfig_ACClassMethod); }
-        set { _ACClassMethodConfig_ACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassMethodConfig>>(ref _ACClassMethodConfig_ACClassMethod, value); }
     }
 
     public bool ACClassMethodConfig_ACClassMethod_IsLoaded
@@ -336,7 +336,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassWF> ACClassWF_ACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassWF_ACClassMethod); }
-        set { _ACClassWF_ACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassWF>>(ref _ACClassWF_ACClassMethod, value); }
     }
 
     public bool ACClassWF_ACClassMethod_IsLoaded
@@ -356,7 +356,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_ACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassWFEdge_ACClassMethod); }
-        set { _ACClassWFEdge_ACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassWFEdge>>(ref _ACClassWFEdge_ACClassMethod, value); }
     }
 
     public bool ACClassWFEdge_ACClassMethod_IsLoaded
@@ -376,7 +376,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_SourceACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassWFEdge_SourceACClassMethod); }
-        set { _ACClassWFEdge_SourceACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassWFEdge>>(ref _ACClassWFEdge_SourceACClassMethod, value); }
     }
 
     public bool ACClassWFEdge_SourceACClassMethod_IsLoaded
@@ -396,7 +396,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassWFEdge> ACClassWFEdge_TargetACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassWFEdge_TargetACClassMethod); }
-        set { _ACClassWFEdge_TargetACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassWFEdge>>(ref _ACClassWFEdge_TargetACClassMethod, value); }
     }
 
     public bool ACClassWFEdge_TargetACClassMethod_IsLoaded
@@ -416,7 +416,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassWF> ACClassWF_RefPAACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassWF_RefPAACClassMethod); }
-        set { _ACClassWF_RefPAACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassWF>>(ref _ACClassWF_RefPAACClassMethod, value); }
     }
 
     public bool ACClassWF_RefPAACClassMethod_IsLoaded
@@ -436,7 +436,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACProgram> ACProgram_ProgramACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACProgram_ProgramACClassMethod); }
-        set { _ACProgram_ProgramACClassMethod = value; }
+        set { SetProperty<ICollection<ACProgram>>(ref _ACProgram_ProgramACClassMethod, value); }
     }
 
     public bool ACProgram_ProgramACClassMethod_IsLoaded
@@ -476,7 +476,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassMethod> ACClassMethod_ParentACClassMethod
     {
         get { return LazyLoader.Load(this, ref _ACClassMethod_ParentACClassMethod); }
-        set { _ACClassMethod_ParentACClassMethod = value; }
+        set { SetProperty<ICollection<ACClassMethod>>(ref _ACClassMethod_ParentACClassMethod, value); }
     }
 
     public bool ACClassMethod_ParentACClassMethod_IsLoaded
@@ -536,7 +536,7 @@ public partial class ACClassMethod : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<VBGroupRight> VBGroupRight_ACClassMethod
     {
         get { return LazyLoader.Load(this, ref _VBGroupRight_ACClassMethod); }
-        set { _VBGroupRight_ACClassMethod = value; }
+        set { SetProperty<ICollection<VBGroupRight>>(ref _VBGroupRight_ACClassMethod, value); }
     }
 
     public bool VBGroupRight_ACClassMethod_IsLoaded

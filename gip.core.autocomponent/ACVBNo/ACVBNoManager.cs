@@ -195,7 +195,9 @@ namespace gip.core.autocomponent
                 return null;
             //Originally query was of IQueryable Type but EF.CompileQuery's return type cannot be of IQueryable, use IEnumerable instead. https://github.com/dotnet/efcore/issues/27657
             IEnumerable<VBNoConfiguration> query = s_cQry_ConfigName(database, entityNoFieldName);
-            //query.MergeOption = MergeOption.OverwriteChanges;
+#if EFCR
+            query = (query as IQueryable<VBNoConfiguration>)?.Refresh(MergeOption.OverwriteChanges);
+#endif
             return query.FirstOrDefault();
         }
 
@@ -205,7 +207,9 @@ namespace gip.core.autocomponent
                 return null;
             //Originally query was of IQueryable Type but EF.CompileQuery's return type cannot be of IQueryable, use IEnumerable instead. https://github.com/dotnet/efcore/issues/27657
             IEnumerable<VBNoConfiguration> query = s_cQry_ConfigID(database, noConfigurationID);
-            //query.MergeOption = MergeOption.OverwriteChanges;
+#if EFCR
+            query = (query as IQueryable<VBNoConfiguration>)?.Refresh(MergeOption.OverwriteChanges);
+#endif
             return query.FirstOrDefault();
         }
 

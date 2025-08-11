@@ -25,6 +25,10 @@ using System.Reflection;
 using Microsoft.IdentityModel.Protocols.WsTrust;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Xml.Serialization;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace gip.core.datamodel
 {
@@ -38,7 +42,7 @@ namespace gip.core.datamodel
     /// </summary>
     [Serializable]
     [DataContract(IsReference = true)]
-    public class VBEntityObject : EntityBase, IACObjectEntity, IACEntityProperty, IACObjectKeyComparer
+    public class VBEntityObject : EntityBase, IACObjectEntity, IACEntityProperty, IACObjectKeyComparer//, INotifyPropertyChanging
     {
 
         #region IACObject
@@ -236,9 +240,9 @@ namespace gip.core.datamodel
 
         public virtual void RevertDeleteACObject(IACEntityObjectContext database)
         {
-            EntityState = EntityState.Modified;
-            EntityState = EntityState.Unchanged;
-            AutoRefresh();
+            var entry = database.Entry(this);
+            if (entry != null)
+                entry.RevertDelete();
         }
 
 
@@ -422,6 +426,8 @@ namespace gip.core.datamodel
         IACEntityObjectContext _context;
         EntityKey _DetachedKey = null;
 
+        //public event PropertyChangingEventHandler PropertyChanging;
+
         [NotMapped]
         [XmlIgnore]
         public IACEntityObjectContext Context
@@ -471,8 +477,6 @@ namespace gip.core.datamodel
             _context = null;
         }
 
-        #endregion
-
         [NotMapped]
         public EntityState EntityState
         {
@@ -498,7 +502,7 @@ namespace gip.core.datamodel
             }
         }
 
-        public virtual void OnObjectMaterialized(IACEntityObjectContext context)
+        internal virtual void OnObjectMaterialized(IACEntityObjectContext context)
         {
             _DetachedKey = null;
             Context = context;
@@ -586,6 +590,30 @@ namespace gip.core.datamodel
                 return pkey.Properties.Any(c => c.Name == propertyName);
             }
             return false;
+        }
+
+        protected virtual bool SetForeignKeyProperty<T>(ref T backingStore, T value, string navigationName, object navigationValue, T navigationKeyValue = default(T),
+            [CallerMemberName] string propertyName = "",
+            Action onChanged = null)
+        {
+            bool navChanged = !EqualityComparer<T>.Default.Equals(backingStore, value)
+                && !EqualityComparer<T>.Default.Equals(navigationKeyValue, value)
+                && !String.IsNullOrEmpty(navigationName);
+            bool propChanged = base.SetProperty<T>(ref backingStore, value, propertyName, onChanged);
+            if (navChanged)
+                OnPropertyChanged(navigationName);
+            return propChanged;
+        }
+        #endregion
+    }
+
+    public static class EntityEntryExtensions
+    {
+        public static void RevertDelete(this EntityEntry entry)
+        {
+            entry.State = EntityState.Modified;
+            entry.State = EntityState.Unchanged;
+            entry.Reload();
         }
     }
 }

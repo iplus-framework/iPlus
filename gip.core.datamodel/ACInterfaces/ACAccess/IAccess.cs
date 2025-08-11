@@ -16,6 +16,7 @@
 using System.Linq;
 using System.Collections;
 using System.ComponentModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.datamodel
 {

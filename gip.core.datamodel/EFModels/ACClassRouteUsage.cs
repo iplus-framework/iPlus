@@ -72,7 +72,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
     public virtual ICollection<ACClassRouteUsageGroup> ACClassRouteUsageGroup_ACClassRouteUsage
     {
         get { return LazyLoader.Load(this, ref _ACClassRouteUsageGroup_ACClassRouteUsage); }
-        set { _ACClassRouteUsageGroup_ACClassRouteUsage = value; }
+        set { SetProperty<ICollection<ACClassRouteUsageGroup>>(ref _ACClassRouteUsageGroup_ACClassRouteUsage, value); }
     }
 
     public bool ACClassRouteUsageGroup_ACClassRouteUsage_IsLoaded
@@ -92,7 +92,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
     public virtual ICollection<ACClassRouteUsagePos> ACClassRouteUsagePos_ACClassRouteUsage
     {
         get { return LazyLoader.Load(this, ref _ACClassRouteUsagePos_ACClassRouteUsage); }
-        set { _ACClassRouteUsagePos_ACClassRouteUsage = value; }
+        set { SetProperty<ICollection<ACClassRouteUsagePos>>(ref _ACClassRouteUsagePos_ACClassRouteUsage, value); }
     }
 
     public bool ACClassRouteUsagePos_ACClassRouteUsage_IsLoaded

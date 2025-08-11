@@ -9,6 +9,7 @@ using System.Timers;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.autocomponent
 {
@@ -555,7 +556,7 @@ namespace gip.core.autocomponent
             string acUrl = string.Empty;
             Guid currentComponentClassID = Guid.Empty;
 
-            if(CurrentACComponent != null)
+            if (CurrentACComponent != null)
             {
                 ACComponent component = CurrentACComponent as ACComponent;
                 if (component != null && component.ComponentClass != null)
@@ -568,17 +569,18 @@ namespace gip.core.autocomponent
             if (!this.QuerySubAlarms)
             {
                 var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo && c.ACClass != null && 
-                                                                         c.ACClassID == currentComponentClassID).AsQueryable();
-                //TODO EFCore not implemented
-                //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+                                                                         c.ACClassID == currentComponentClassID);
+#if EFCR
+                query = query.Refresh(MergeOption.OverwriteChanges);
+#endif
                 _MsgAlarmLogList = query.ToList();
             }
             else
             {
-                var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo).AsQueryable();
-
-                //TODO EFCore not implemented
-                //(query as ObjectQuery).MergeOption = MergeOption.OverwriteChanges;
+                var query = Database.ContextIPlus.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo);
+#if EFCR
+                query = query.Refresh(MergeOption.OverwriteChanges);
+#endif
                 _MsgAlarmLogList = query.ToList().Where(c => (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) || 
                                                              (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));
             }

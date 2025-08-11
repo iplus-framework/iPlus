@@ -30,7 +30,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid ACClassID 
     {
         get { return _ACClassID; }
-        set { SetProperty<Guid>(ref _ACClassID, value); }
+        set { SetForeignKeyProperty<Guid>(ref _ACClassID, value, "ACClass", _ACClass, ACClass != null ? ACClass.ACClassID : default(Guid)); }
     }
 
     string _ACIdentifier;
@@ -86,7 +86,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? ValueTypeACClassID 
     {
         get { return _ValueTypeACClassID; }
-        set { SetProperty<Guid?>(ref _ValueTypeACClassID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ValueTypeACClassID, value, "ValueTypeACClass", _ValueTypeACClass, ValueTypeACClass != null ? ValueTypeACClass.ACClassID : default(Guid?)); }
     }
 
     short _ACKindIndex;
@@ -239,7 +239,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<VBGroupRight> VBGroupRight_ACClassDesign
     {
         get { return LazyLoader.Load(this, ref _VBGroupRight_ACClassDesign); }
-        set { _VBGroupRight_ACClassDesign = value; }
+        set { SetProperty<ICollection<VBGroupRight>>(ref _VBGroupRight_ACClassDesign, value); }
     }
 
     public bool VBGroupRight_ACClassDesign_IsLoaded
@@ -259,7 +259,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<VBUserACClassDesign> VBUserACClassDesign_ACClassDesign
     {
         get { return LazyLoader.Load(this, ref _VBUserACClassDesign_ACClassDesign); }
-        set { _VBUserACClassDesign_ACClassDesign = value; }
+        set { SetProperty<ICollection<VBUserACClassDesign>>(ref _VBUserACClassDesign_ACClassDesign, value); }
     }
 
     public bool VBUserACClassDesign_ACClassDesign_IsLoaded
@@ -279,7 +279,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<VBUser> VBUser_MenuACClassDesign
     {
         get { return LazyLoader.Load(this, ref _VBUser_MenuACClassDesign); }
-        set { _VBUser_MenuACClassDesign = value; }
+        set { SetProperty<ICollection<VBUser>>(ref _VBUser_MenuACClassDesign, value); }
     }
 
     public bool VBUser_MenuACClassDesign_IsLoaded

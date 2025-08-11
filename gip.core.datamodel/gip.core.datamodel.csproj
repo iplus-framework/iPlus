@@ -12,7 +12,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
-    <DefineConstants>TRACE;DEBUG;NETFRAMEWORK;EFCR</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
     <DocumentationFile>
     </DocumentationFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
@@ -22,7 +22,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
-    <DefineConstants>TRACE;NETFRAMEWORK;EFCR</DefineConstants>
+    <DefineConstants>TRACE;NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
     <DocumentationFile>$(SolutionDir)bin\Release\gip.core.datamodel.XML</DocumentationFile>
     <NoWarn>SYSLIB0006,CS1591,1591</NoWarn>
   </PropertyGroup>
@@ -174,11 +174,15 @@
     <Reference Include="Microsoft.EntityFrameworkCore.SqlServer">
       <HintPath>$(EFCoreIncludeDir)\EFCore.SqlServer\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Microsoft.EntityFrameworkCore.Relational">
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational">
       <HintPath>$(EFCoreIncludeDir)\EFCore.Relational\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.EntityFrameworkCore.Proxies">
+      <HintPath>$(EFCoreIncludeDir)\EFCore.Proxies\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Proxies.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Castle.Core" Version="5.1.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
     <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)" />
@@ -188,6 +192,7 @@
       <PrivateAssets>compile</PrivateAssets>
     </PackageReference>
     <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)" />
+    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(NetCorePackageVersion)" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(NetCorePackageVersion)">
       <PrivateAssets>compile</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

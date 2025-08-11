@@ -22,7 +22,7 @@ using System.Runtime.CompilerServices;
 namespace gip.core.datamodel
 {
     [DataContract]
-    public abstract class EntityBase : INotifyPropertyChanged
+    public abstract class EntityBase : INotifyPropertyChanged //, INotifyPropertyChanging
     {
         protected bool SetProperty<T>(ref T backingStore, T value,
             [CallerMemberName]string propertyName = "",
@@ -54,5 +54,17 @@ namespace gip.core.datamodel
             changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
+
+        //#region INotifyPropertyChanging
+        //public event PropertyChangingEventHandler PropertyChanging;
+        //protected virtual void OnPropertyChanging([CallerMemberName] string propertyName = "")
+        //{
+        //    var changed = PropertyChanging;
+        //    if (changed == null)
+        //        return;
+
+        //    changed.Invoke(this, new PropertyChangingEventArgs(propertyName));
+        //}
+        //#endregion
     }
 }

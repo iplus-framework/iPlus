@@ -30,7 +30,7 @@ public partial class DbSyncerInfo : VBEntityObject
     public string DbSyncerInfoContextID 
     {
         get { return _DbSyncerInfoContextID; }
-        set { SetProperty<string>(ref _DbSyncerInfoContextID, value); }
+        set { SetForeignKeyProperty<string>(ref _DbSyncerInfoContextID, value, "DbSyncerInfoContext", _DbSyncerInfoContext, DbSyncerInfoContext != null ? DbSyncerInfoContext.DbSyncerInfoContextID : default(string)); }
     }
 
     DateTime _ScriptDate;

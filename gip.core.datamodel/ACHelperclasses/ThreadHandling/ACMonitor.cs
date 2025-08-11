@@ -519,96 +519,96 @@ namespace gip.core.datamodel
             CycleComponentNode currentChain,
             Dictionary<Thread, List<MonitorState>> locksHeldByThreads)
         {
-#if !EFCR
-            StringBuilder desc = new StringBuilder();
-            for (CycleComponentNode node = currentChain; node != null; node = node.Next)
-            {
-                desc.AppendFormat("Thread {0}, {1} waiting on {2} ({3:X}) while holding ",
-                    node.Thread.ManagedThreadId, node.Thread.Name, node.MonitorState.MonitorObject.ToString(),
-                    RuntimeHelpers.GetHashCode(node.MonitorState.MonitorObject));
-                bool needsComma = false;
-                foreach (MonitorState ms in locksHeldByThreads[node.Thread])
-                {
-                    if (needsComma) desc.Append(", ");
-                    desc.AppendFormat("{0} ({1:X})", ms.MonitorObject.ToString(),
-                        RuntimeHelpers.GetHashCode(ms.MonitorObject));
-                    needsComma = true;
-                }
+//#if !EFCR
+//            StringBuilder desc = new StringBuilder();
+//            for (CycleComponentNode node = currentChain; node != null; node = node.Next)
+//            {
+//                desc.AppendFormat("Thread {0}, {1} waiting on {2} ({3:X}) while holding ",
+//                    node.Thread.ManagedThreadId, node.Thread.Name, node.MonitorState.MonitorObject.ToString(),
+//                    RuntimeHelpers.GetHashCode(node.MonitorState.MonitorObject));
+//                bool needsComma = false;
+//                foreach (MonitorState ms in locksHeldByThreads[node.Thread])
+//                {
+//                    if (needsComma) desc.Append(", ");
+//                    desc.AppendFormat("{0} ({1:X})", ms.MonitorObject.ToString(),
+//                        RuntimeHelpers.GetHashCode(ms.MonitorObject));
+//                    needsComma = true;
+//                }
 
-                StackTrace stackTrace = null;
-                var ready = new ManualResetEventSlim();
-                new Thread(() =>
-                {
-                    ready.Set();
-                    Thread.Sleep(200);
-                    try
-                    {
-                        node.Thread.Resume();
-                    }
-                    catch (Exception e)
-                    {
-                        string msg = e.Message;
-                        if (e.InnerException != null && e.InnerException.Message != null)
-                            msg += " Inner:" + e.InnerException.Message;
+//                StackTrace stackTrace = null;
+//                var ready = new ManualResetEventSlim();
+//                new Thread(() =>
+//                {
+//                    ready.Set();
+//                    Thread.Sleep(200);
+//                    try
+//                    {
+//                        node.Thread.Resume();
+//                    }
+//                    catch (Exception e)
+//                    {
+//                        string msg = e.Message;
+//                        if (e.InnerException != null && e.InnerException.Message != null)
+//                            msg += " Inner:" + e.InnerException.Message;
 
-                        if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription", msg);
-                    }
-                }
-                ).Start();
+//                        if (Database.Root != null && Database.Root.Messages != null)
+//                            Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription", msg);
+//                    }
+//                }
+//                ).Start();
 
-                ready.Wait();
-                try
-                {
-                    desc.AppendLine();
-                    node.Thread.Suspend();
-                    stackTrace = new StackTrace(node.Thread, true);
-            desc.AppendFormat("Stacktrace of Thread: {0}, {1}", node.Thread.Name, node.Thread.ManagedThreadId);
-                    desc.AppendLine();
-                    for (int i = 0; i < stackTrace.FrameCount; i++)
-                    {
-                        StackFrame sf = stackTrace.GetFrame(i);
-                        desc.AppendFormat(" Method: {0}", sf.GetMethod());
-                        desc.AppendFormat(" File: {0}", sf.GetFileName());
-                        desc.AppendFormat(" Line Number: {0}", sf.GetFileLineNumber());
-                        desc.AppendLine();
-                    }
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+//                ready.Wait();
+//                try
+//                {
+//                    desc.AppendLine();
+//                    node.Thread.Suspend();
+//                    stackTrace = new StackTrace(node.Thread, true);
+//            desc.AppendFormat("Stacktrace of Thread: {0}, {1}", node.Thread.Name, node.Thread.ManagedThreadId);
+//                    desc.AppendLine();
+//                    for (int i = 0; i < stackTrace.FrameCount; i++)
+//                    {
+//                        StackFrame sf = stackTrace.GetFrame(i);
+//                        desc.AppendFormat(" Method: {0}", sf.GetMethod());
+//                        desc.AppendFormat(" File: {0}", sf.GetFileName());
+//                        desc.AppendFormat(" Line Number: {0}", sf.GetFileLineNumber());
+//                        desc.AppendLine();
+//                    }
+//                }
+//                catch (Exception e)
+//                {
+//                    string msg = e.Message;
+//                    if (e.InnerException != null && e.InnerException.Message != null)
+//                        msg += " Inner:" + e.InnerException.Message;
 
-                    if (Database.Root != null && Database.Root.Messages != null)
-                        Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription(10)", msg);
-                }
-                finally
-                {
-                    try
-                    {
-                        node.Thread.Resume();
-                    }
-                    catch (Exception e)
-                    {
-                        stackTrace = null;
+//                    if (Database.Root != null && Database.Root.Messages != null)
+//                        Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription(10)", msg);
+//                }
+//                finally
+//                {
+//                    try
+//                    {
+//                        node.Thread.Resume();
+//                    }
+//                    catch (Exception e)
+//                    {
+//                        stackTrace = null;
 
-                        string msg = e.Message;
-                        if (e.InnerException != null && e.InnerException.Message != null)
-                            msg += " Inner:" + e.InnerException.Message;
+//                        string msg = e.Message;
+//                        if (e.InnerException != null && e.InnerException.Message != null)
+//                            msg += " Inner:" + e.InnerException.Message;
 
-                        if (Database.Root != null && Database.Root.Messages != null)
-                            Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription(20)", msg);
-                    }
-                }
+//                        if (Database.Root != null && Database.Root.Messages != null)
+//                            Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription(20)", msg);
+//                    }
+//                }
 
-                desc.AppendLine();
-            }
-            string deadlockDesc = desc.ToString();
-            if (Database.Root != null)
-                Database.Root.Messages.LogException("ACMonitor.CreateDeadlockDescription()", "Deadlock!", deadlockDesc);
-            return deadlockDesc;
-#endif
+//                desc.AppendLine();
+//            }
+//            string deadlockDesc = desc.ToString();
+//            if (Database.Root != null)
+//                Database.Root.Messages.LogException("ACMonitor.CreateDeadlockDescription()", "Deadlock!", deadlockDesc);
+//            return deadlockDesc;
+//#endif
             return "";
         }
 

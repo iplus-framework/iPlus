@@ -11,7 +11,7 @@ namespace gip.core.datamodel
     public partial class iPlusV5ContextModel
     {
         private iPlusV5ContextModel()
-            : base(skipDetectChanges: false, modelId: new Guid("1cae6720-11e2-40df-85f4-71e8b597c212"), entityTypeCount: 47)
+            : base(skipDetectChanges: true, modelId: new Guid("d6cfc3d8-9f2b-4baa-95a8-767ca4d5337e"), entityTypeCount: 47)
         {
         }
 
@@ -210,7 +210,7 @@ namespace gip.core.datamodel
             VBUserGroupEntityType.CreateAnnotations(vBUserGroup);
             VBUserInstanceEntityType.CreateAnnotations(vBUserInstance);
 
-            AddAnnotation("ProductVersion", "10.0.0-preview.6.25358.103");
+            AddAnnotation("ProductVersion", "9.0.9");
             AddAnnotation("Relational:MaxIdentifierLength", 128);
             AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
         }

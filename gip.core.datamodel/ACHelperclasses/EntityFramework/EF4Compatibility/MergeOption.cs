@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
+#if !EFCR
     //
     // Summary:
     //     Specifies how objects being loaded into the object context are merged with objects
@@ -42,4 +43,5 @@ namespace gip.core.datamodel
         //     to facilitate loading of related objects.
         NoTracking
     }
+#endif
 }

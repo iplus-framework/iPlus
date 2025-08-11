@@ -42,7 +42,7 @@
     <Reference Include="Microsoft.EntityFrameworkCore">
       <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Microsoft.EntityFrameworkCore.Relational">
+    <Reference Include="Microsoft.EntityFrameworkCore.Relational">
       <HintPath>$(EFCoreIncludeDir)\EFCore.Relational\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Relational.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.EntityFrameworkCore.SqlServer">

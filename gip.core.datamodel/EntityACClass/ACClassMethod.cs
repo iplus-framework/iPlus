@@ -418,7 +418,7 @@ namespace gip.core.datamodel
             }
         }
 
-        public override void OnObjectMaterialized(IACEntityObjectContext context)
+        internal override void OnObjectMaterialized(IACEntityObjectContext context)
         {
             base.OnObjectMaterialized(context);
             LastReadUpdateACClassWF = UpdateDate;

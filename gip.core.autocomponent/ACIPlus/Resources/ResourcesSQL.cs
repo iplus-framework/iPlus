@@ -117,7 +117,7 @@ namespace gip.core.autocomponent
             List<SQLInstanceInfo> result = new List<SQLInstanceInfo>();
             Database db = ACObjectContextManager.GetOrCreateContext<Database>(Const.GlobalDatabase);
             // Decclare key strings 
-            ACClassConfig acClassConfig = db.ACClassConfig.Where(c => c.ACClass.ACIdentifier == "BSOiPlusResourceSelect" && c.KeyACUrl == null && c.LocalConfigACUrl == SQLConnectionList).AutoMergeOption().FirstOrDefault();
+            ACClassConfig acClassConfig = db.ACClassConfig.Where(c => c.ACClass.ACIdentifier == "BSOiPlusResourceSelect" && c.KeyACUrl == null && c.LocalConfigACUrl == SQLConnectionList).AutoMergeOption(db).FirstOrDefault();
             object storedResult = acClassConfig[Const.Value];
             if (storedResult != null && !string.IsNullOrEmpty(storedResult.ToString()))
             {

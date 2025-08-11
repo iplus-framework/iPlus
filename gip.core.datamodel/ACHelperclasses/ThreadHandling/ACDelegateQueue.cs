@@ -504,30 +504,30 @@ namespace gip.core.datamodel
         public override void ProcessAction(Action action)
         {
             // TODO: Printing of Flow-documents needs Dispatcher. Temporarily deisabled to enable Linux
-#if !EFCR
-            var currentDispatcher = Dispatcher.CurrentDispatcher;
-            if (currentDispatcher != null)
-                currentDispatcher.Invoke(DispatcherPriority.Normal, action);
-#else
+//#if !EFCR
+//            var currentDispatcher = Dispatcher.CurrentDispatcher;
+//            if (currentDispatcher != null)
+//                currentDispatcher.Invoke(DispatcherPriority.Normal, action);
+//#else
             base.ProcessAction(action);
-#endif
+
         }
 
         protected override void OnQueueProcessed(int countActions)
         {
-#if !EFCR
-            //Dispatcher.ExitAllFrames();
-            try
-            {
-                var currentDispatcher = Dispatcher.CurrentDispatcher;
-                if (currentDispatcher != null)
-                    currentDispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate () { Dispatcher.ExitAllFrames(); });
-            }
-            catch
-            {
-            }
-            GC.Collect();
-#endif
+//#if !EFCR
+//            //Dispatcher.ExitAllFrames();
+//            try
+//            {
+//                var currentDispatcher = Dispatcher.CurrentDispatcher;
+//                if (currentDispatcher != null)
+//                    currentDispatcher.Invoke(DispatcherPriority.Normal, (Action)delegate () { Dispatcher.ExitAllFrames(); });
+//            }
+//            catch
+//            {
+//            }
+//            GC.Collect();
+//#endif
             base.OnQueueProcessed(countActions);
         }
 

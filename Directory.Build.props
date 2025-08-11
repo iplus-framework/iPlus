@@ -7,7 +7,8 @@
     <EFCoreRootDir>..\..\efcore9</EFCoreRootDir>
     <EFCoreIncludeDir>$(EFCoreRootDir)\artifacts\bin</EFCoreIncludeDir>
     <EFCoreToolsDir>$(EFCoreRootDir)\src\EFCore.Tools</EFCoreToolsDir>
-    <UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
+    <UseEFCoreForkIPlus>True</UseEFCoreForkIPlus>
+    <CompilerDefFCoreForkIPlus>EFCR</CompilerDefFCoreForkIPlus>
     <CodeAnalysisVersion>4.12.0</CodeAnalysisVersion>
     <CoreWCFVersion>1.8.0</CoreWCFVersion>
   </PropertyGroup>

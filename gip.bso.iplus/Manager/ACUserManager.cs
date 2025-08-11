@@ -47,7 +47,7 @@ namespace gip.bso.iplus
         /// <returns>VBUser.</returns>
         public VBUser LoadUser(Guid userID)
         {
-            return Database.VBUser.Where(c => c.VBUserID == userID).AutoMergeOption().FirstOrDefault();
+            return Database.VBUser.Where(c => c.VBUserID == userID).AutoMergeOption(Database).FirstOrDefault();
         }
 
         /// <summary>

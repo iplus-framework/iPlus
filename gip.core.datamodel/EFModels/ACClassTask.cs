@@ -30,28 +30,28 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     public Guid? ParentACClassTaskID 
     {
         get { return _ParentACClassTaskID; }
-        set { SetProperty<Guid?>(ref _ParentACClassTaskID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ParentACClassTaskID, value, "ACClassTask1_ParentACClassTask", _ACClassTask1_ParentACClassTask, ACClassTask1_ParentACClassTask != null ? ACClassTask1_ParentACClassTask.ACClassTaskID : default(Guid?)); }
     }
 
     Guid _TaskTypeACClassID;
     public Guid TaskTypeACClassID 
     {
         get { return _TaskTypeACClassID; }
-        set { SetProperty<Guid>(ref _TaskTypeACClassID, value); }
+        set { SetForeignKeyProperty<Guid>(ref _TaskTypeACClassID, value, "TaskTypeACClass", _TaskTypeACClass, TaskTypeACClass != null ? TaskTypeACClass.ACClassID : default(Guid)); }
     }
 
     Guid? _ContentACClassWFID;
     public Guid? ContentACClassWFID 
     {
         get { return _ContentACClassWFID; }
-        set { SetProperty<Guid?>(ref _ContentACClassWFID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ContentACClassWFID, value, "ContentACClassWF", _ContentACClassWF, ContentACClassWF != null ? ContentACClassWF.ACClassWFID : default(Guid?)); }
     }
 
     Guid? _ACProgramID;
     public Guid? ACProgramID 
     {
         get { return _ACProgramID; }
-        set { SetProperty<Guid?>(ref _ACProgramID, value); }
+        set { SetForeignKeyProperty<Guid?>(ref _ACProgramID, value, "ACProgram", _ACProgram, ACProgram != null ? ACProgram.ACProgramID : default(Guid?)); }
     }
 
     string _ACIdentifier;
@@ -128,7 +128,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassTaskValue> ACClassTaskValue_ACClassTask
     {
         get { return LazyLoader.Load(this, ref _ACClassTaskValue_ACClassTask); }
-        set { _ACClassTaskValue_ACClassTask = value; }
+        set { SetProperty<ICollection<ACClassTaskValue>>(ref _ACClassTaskValue_ACClassTask, value); }
     }
 
     public bool ACClassTaskValue_ACClassTask_IsLoaded
@@ -188,7 +188,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
     public virtual ICollection<ACClassTask> ACClassTask_ParentACClassTask
     {
         get { return LazyLoader.Load(this, ref _ACClassTask_ParentACClassTask); }
-        set { _ACClassTask_ParentACClassTask = value; }
+        set { SetProperty<ICollection<ACClassTask>>(ref _ACClassTask_ParentACClassTask, value); }
     }
 
     public bool ACClassTask_ParentACClassTask_IsLoaded
