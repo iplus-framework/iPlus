@@ -16,6 +16,7 @@
 <#@ import namespace="Microsoft.EntityFrameworkCore.Scaffolding" #>
 <#@ import namespace="Microsoft.Extensions.DependencyInjection" #>
 <#@ import namespace="Microsoft.EntityFrameworkCore.Metadata" #>
+<#@ import namespace="Microsoft.EntityFrameworkCore.Scaffolding" #>
 <#
     if (!ProductInfo.GetVersion().StartsWith("7.0"))
     {
@@ -36,13 +37,6 @@
         "System.Configuration"
     };
 
-    string namespaceToTruncate = NamespaceHint;
-    int lastSeparatorIndex = namespaceToTruncate.LastIndexOf('.');
-    string namespaceTruncated = namespaceToTruncate.Substring(0, lastSeparatorIndex);
-    
-    if (namespaceTruncated != "gip.core.datamodel")
-        usings.Add("gip.core.datamodel");
-
     if (NamespaceHint != Options.ModelNamespace
         && !string.IsNullOrEmpty(Options.ModelNamespace))
     {
@@ -52,7 +46,7 @@
     if (!string.IsNullOrEmpty(NamespaceHint))
     {
 #>
-namespace <#= namespaceTruncated #>;
+namespace <#= NamespaceHint #>;
 
 <#
     }
@@ -246,47 +240,11 @@ public partial class <#= Options.ContextName #> : DbContext
             {
                 WriteLine("");
             }
-            string navName = foreignKey.PrincipalToDependent.Name;
-            string relName = navName;
-            string navPIdname = foreignKey.DependentToPrincipal.Name;
-            string targetType = entityTypeNewName;
-            if(navName.Contains("Inverse"))
-            {
-                string navNameRef = navName.Remove(0,7);
-                relName = targetType+"_"+navNameRef;
-            }
-            else
-            {
-                string pkName = foreignKey.PrincipalToDependent.ToString();
-                string pkIdName = pkName.Split("Inverse: ").Last();
-                relName = targetType+"_"+pkIdName;
-            }
-            if(!(foreignKey.IsRequired) || navPIdname == "BasedOn"+targetType)
-            {
-                foreach (var navigation in entityType.GetNavigations())
-                {
-                    if (!(navigation.ForeignKey.IsRequired && navigation.IsOnDependent))
-                    {
-                        string pkName = navigation.ForeignKey.PrincipalKey.ToString();
-                        string[] pkList = pkName.Split(' ', 3);
-                        if ((foreignKey.DependentToPrincipal.Name == navigation.Name) && targetType == navigation.TargetEntityType.Name)
-                        {
-                            navPIdname = pkList[1]+"1_"+navigation.Name;
-                        }
-                        else if(navigation.Name.Contains("InverseBasedOn"))
-                        {
-                            string[] navInvName = navigation.Name.Split("Inverse");
-                            if((foreignKey.DependentToPrincipal.Name == navInvName[1]) && targetType == navigation.TargetEntityType.Name)
-                            {
-                                navPIdname = pkList[1]+"1_"+navInvName[1];
-                            }
-                        }
-                    }
-                }
-            }
+            string navigationName;
+            string inverseNavigationName;
+            GetNavigationName(Options, entityType, foreignKey, out navigationName, out inverseNavigationName);
 #>
-           entity.HasOne(d => d.<#= navPIdname #>).<#= foreignKey.IsUnique ? "WithOne" : "WithMany" #>(p => p.<#= relName #>)<#= code.Fragment(foreignKeyFluentApiCalls, indent: 4) #>;
-           //entity.Navigation(d => d.<#= navPIdname #>).UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
+           entity.HasOne(d => d.<#= navigationName #>).<#= foreignKey.IsUnique ? "WithOne" : "WithMany" #>(p => p.<#= inverseNavigationName #>)<#= code.Fragment(foreignKeyFluentApiCalls, indent: 4) #>;
 <#
             anyEntityTypeConfiguration = true;
         }
@@ -387,8 +345,9 @@ public partial class <#= Options.ContextName #> : DbContext
     }
 #>
         modelBuilder.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangedNotifications)
+                    // For change tracking proxies if UseChangeTrackingProxies() is set: 
+                    //.HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)
                     .UsePropertyAccessMode(PropertyAccessMode.PreferFieldDuringConstruction);
-                    // For change tracking proxies if UseChangeTrackingProxies() is set: .HasChangeTrackingStrategy(ChangeTrackingStrategy.ChangingAndChangedNotifications)
 
         OnModelCreatingPartial(modelBuilder);
     }
@@ -409,4 +368,55 @@ using <#= ns #>;
     WriteLine("");
 
     GenerationEnvironment.Append(mainEnvironment);
+#>
+<#+
+    public void GetNavigationName(ModelCodeGenerationOptions options, IEntityType entityType, IForeignKey foreignKey, out string navigationName, out string inverseNavigationName)
+    {
+        string navName = null;
+        if (foreignKey.PrincipalToDependent != null)
+            navName = foreignKey.PrincipalToDependent.Name;
+        inverseNavigationName = navName;
+        navigationName = foreignKey.DependentToPrincipal.Name;
+        if (navName == null)
+            inverseNavigationName = navigationName;
+
+        //if (navigationName.StartsWith("xxx"))
+            //System.Diagnostics.Debugger.Launch();
+
+        if (navName != null)
+        {
+            if (navName.Contains("Inverse"))
+            {
+                string navNameRef = navName.Remove(0, 7);
+                inverseNavigationName = entityType.Name + "_" + navNameRef;
+            }
+            else
+            {
+                if (foreignKey.IsUnique)
+                    inverseNavigationName = entityType.Name;
+                else if (foreignKey.DependentToPrincipal != null)
+                    inverseNavigationName = entityType.Name + "_" + foreignKey.DependentToPrincipal.Name;
+            }
+        }
+
+        if (!(foreignKey.IsRequired) || (navigationName == "BasedOn" + entityType.Name))
+        {
+            INavigation navigation = foreignKey.GetNavigation(true);
+            if (navigation == null)
+                navigation = foreignKey.GetNavigation(false);
+                
+            if ((foreignKey.DependentToPrincipal.Name == navigation.Name) && entityType.Name == navigation.TargetEntityType.Name)
+            {
+                navigationName = navigation.ForeignKey.PrincipalKey.DeclaringEntityType.Name + "1_" + navigation.Name;
+            }
+            else if (navigation.Name.Contains("InverseBasedOn"))
+            {
+                string[] navInvName = navigation.Name.Split("Inverse");
+                if ((foreignKey.DependentToPrincipal.Name == navInvName[1]) && entityType.Name == navigation.TargetEntityType.Name)
+                {
+                    navigationName = navigation.ForeignKey.PrincipalKey.DeclaringEntityType.Name + "1_" + navInvName[1];
+                }
+            }
+        }
+    }
 #>

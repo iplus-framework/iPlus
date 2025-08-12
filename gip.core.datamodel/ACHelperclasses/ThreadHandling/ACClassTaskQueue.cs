@@ -450,6 +450,7 @@ namespace gip.core.datamodel
                     .Include("ACProgramLog1_ParentACProgramLog")
                     .Where(c => c.ParentACProgramLogID == parentACProgramLogID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
+                    .AsNoTracking()
             );
 
         public static readonly Func<Database, Guid, string, IEnumerable<ACProgramLog>> s_cQry_PreviousLogsFromProgram =
@@ -460,6 +461,7 @@ namespace gip.core.datamodel
                     .Include("ACProgramLog1_ParentACProgramLog")
                     .Where(c => c.ACProgramID == programID && c.ACUrl == acUrl)
                     .OrderBy(c => c.InsertDate)
+                    .AsNoTracking()
             );
 #endregion
 
@@ -828,7 +830,6 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromParent(db, parentProgramLogID, acUrl);
-                query.AsQueryable().AsNoTracking();
                 return query.ToArray();
             }
         }
@@ -844,7 +845,6 @@ namespace gip.core.datamodel
             using (Database db = new Database())
             {
                 var query = s_cQry_PreviousLogsFromProgram(db, programID, acUrl);
-                query.AsQueryable().AsNoTracking();
                 return query.ToArray();
             }
         }

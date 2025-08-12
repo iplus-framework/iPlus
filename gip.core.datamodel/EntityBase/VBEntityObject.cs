@@ -28,7 +28,7 @@ using System.Xml.Serialization;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore.Scaffolding;
+//using Microsoft.EntityFrameworkCore.Scaffolding;
 
 namespace gip.core.datamodel
 {
@@ -482,15 +482,22 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (_context == null)
-                    return EntityState.Detached;
-                else
+                try
                 {
-                    var entry = _context.Entry(this);
-                    if (entry == null)
+                    if (_context == null)
                         return EntityState.Detached;
                     else
-                        return entry.State;
+                    {
+                        var entry = _context.Entry(this);
+                        if (entry == null)
+                            return EntityState.Detached;
+                        else
+                            return entry.State;
+                    }
+                }
+                catch (ObjectDisposedException)
+                {
+                    return EntityState.Detached;
                 }
             }
             set
@@ -604,6 +611,116 @@ namespace gip.core.datamodel
                 OnPropertyChanged(navigationName);
             return propChanged;
         }
+        #endregion
+
+        #region Methods for T4-Generator
+
+        //public void GetDeclarationInfoForNavigation(ModelCodeGenerationOptions options, IEntityType entityType, INavigation navigation, string targetType, out bool needsNullable, out bool needsInitializer, out string navigationName)
+        //{
+        //    if (string.IsNullOrEmpty(targetType))
+        //    {
+        //        targetType = navigation.TargetEntityType.Name;
+        //        if (targetType.Contains("@"))
+        //            targetType = targetType.Remove(0, 1);
+        //    }
+        //    string navName = navigation.Name;
+
+        //    needsNullable = options.UseNullableReferenceTypes && !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent);
+        //    needsInitializer = options.UseNullableReferenceTypes && navigation.ForeignKey.IsRequired && navigation.IsOnDependent;
+        //    navigationName = navigation.Name;
+
+        //    if (( !(navigation.ForeignKey.IsRequired && navigation.IsOnDependent) && targetType == entityType.Name) 
+        //        || (navigation.Name == "BasedOn" + targetType)
+        //        || navigation.Name.Contains("InverseBasedOn"))
+        //    {
+        //        if ((navigation.ForeignKey.DependentToPrincipal.Name == navigation.Name) && entityType.Name == navigation.TargetEntityType.Name)
+        //        {
+        //            navigationName = navigation.ForeignKey.PrincipalKey.DeclaringEntityType.Name + "1_" + navigation.Name;
+        //        }
+        //        else if (navigation.Name.Contains("InverseBasedOn"))
+        //        {
+        //            string[] navInvName = navigation.Name.Split("Inverse");
+        //            if ((navigation.ForeignKey.DependentToPrincipal.Name == navInvName[1]) && entityType.Name == navigation.TargetEntityType.Name)
+        //            {
+        //                navigationName = navigation.ForeignKey.PrincipalKey.DeclaringEntityType.Name + "1_" + navInvName[1];
+        //            }
+        //        }
+        //    }
+        //}
+
+        //public void GetNavigationName(ModelCodeGenerationOptions options, IEntityType entityType, IForeignKey foreignKey, out string navigationName, out string inverseNavigationName)
+        //{
+        //    string navName = null;
+        //    if (foreignKey.PrincipalToDependent != null)
+        //        navName = foreignKey.PrincipalToDependent.Name;
+        //    inverseNavigationName = navName;
+        //    navigationName = foreignKey.DependentToPrincipal.Name;
+        //    if (navName == null)
+        //        inverseNavigationName = navigationName;
+
+        //    //if (navigationName.StartsWith("xxx"))
+        //        //System.Diagnostics.Debugger.Launch();
+
+        //    if (navName != null)
+        //    {
+        //        if (navName.Contains("Inverse"))
+        //        {
+        //            string navNameRef = navName.Remove(0, 7);
+        //            inverseNavigationName = entityType.Name + "_" + navNameRef;
+        //        }
+        //        else
+        //        {
+        //            if (foreignKey.IsUnique)
+        //                inverseNavigationName = entityType.Name;
+        //            else if (foreignKey.DependentToPrincipal != null)
+        //                inverseNavigationName = entityType.Name + "_" + foreignKey.DependentToPrincipal.Name;
+        //        }
+        //    }
+
+        //    if (!(foreignKey.IsRequired) || (navigationName == "BasedOn" + entityType.Name))
+        //    {
+        //        INavigation navigation = foreignKey.GetNavigation(true);
+        //        if (navigation == null)
+        //            navigation = foreignKey.GetNavigation(false);
+                
+        //        if ((foreignKey.DependentToPrincipal.Name == navigation.Name) && entityType.Name == navigation.TargetEntityType.Name)
+        //        {
+        //            navigationName = navigation.ForeignKey.PrincipalKey.DeclaringEntityType.Name + "1_" + navigation.Name;
+        //        }
+        //        else if (navigation.Name.Contains("InverseBasedOn"))
+        //        {
+        //            string[] navInvName = navigation.Name.Split("Inverse");
+        //            if ((foreignKey.DependentToPrincipal.Name == navInvName[1]) && entityType.Name == navigation.TargetEntityType.Name)
+        //            {
+        //                navigationName = navigation.ForeignKey.PrincipalKey.DeclaringEntityType.Name + "1_" + navInvName[1];
+        //            }
+        //        }
+        //    }
+        //}
+
+        //public bool GetNavigationInfoForProperty(ModelCodeGenerationOptions options, IEntityType entityType, IProperty property, out string navigationName, out string navigationKeyPath)
+        //{
+        //    navigationName = null;
+        //    navigationKeyPath = null;
+        //    if (!property.IsForeignKey())
+        //        return false;
+        //    IForeignKey foreignKey = property.GetContainingForeignKeys().FirstOrDefault();
+        //    if (foreignKey == null)
+        //        return false;
+        //    INavigation navigation = foreignKey.GetNavigation(true);
+        //    if (navigation == null)
+        //        navigation = foreignKey.GetNavigation(false);
+        //    if (navigation == null)
+        //        return false;
+        //    bool needsNullable, needsInitializer;
+        //    GetDeclarationInfoForNavigation(options, entityType, navigation, null, out needsNullable, out needsInitializer, out navigationName);
+        //    if (navigation.ForeignKey == null || navigation.ForeignKey.PrincipalKey == null)
+        //        return false;
+        //    string fkID = navigation.ForeignKey.PrincipalKey.Properties.FirstOrDefault().Name;
+        //    navigationKeyPath = $"{navigationName}.{fkID}";
+        //    return true;
+        //}
+
         #endregion
     }
 

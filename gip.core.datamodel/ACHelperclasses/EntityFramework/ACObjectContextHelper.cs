@@ -265,7 +265,7 @@ namespace gip.core.datamodel
                 try
                 {
 #if EFCR
-                    var entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(false, true, false, false);
+                    var entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(false, true, false, false).ToArray();
 #else
                     var entityStateList = trackedEntries.Where(c => c.State == EntityState.Modified);
 #endif
@@ -295,7 +295,7 @@ namespace gip.core.datamodel
                 try
                 {
 #if EFCR
-                    var entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(false, false, true, false);
+                    var entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(false, false, true, false).ToArray();
 #else
                     var entityStateList = trackedEntries.Where(c => c.State == EntityState.Deleted);
 #endif
@@ -325,7 +325,7 @@ namespace gip.core.datamodel
                 try
                 {
 #if EFCR
-                    var entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(true, false, false, false);
+                    var entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(true, false, false, false).ToArray();
 #else
                     var entityStateList = trackedEntries.Where(c => c.State == EntityState.Added);
 #endif
@@ -358,7 +358,7 @@ namespace gip.core.datamodel
                     }
 
 #if EFCR
-                    entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(true, false, false, false);
+                    entityStateList = _ObjectContext.ChangeTracker.GetEntriesForState(true, false, false, false).ToArray();
 #else
                     entityStateList = trackedEntries.Where(c => c.State == EntityState.Added);
 #endif
@@ -584,7 +584,7 @@ namespace gip.core.datamodel
             {
 #if EFCR
 
-                IEnumerable<EntityEntry> modified = _ObjectContext.ChangeTracker.GetEntriesForState(false, true, false, false);
+                IEnumerable<EntityEntry> modified = _ObjectContext.ChangeTracker.GetEntriesForState(false, true, false, false).ToArray();
 #else
                 IEnumerable<EntityEntry> trackedEntries = _ObjectContext.ChangeTracker.Entries();
                 IEnumerable<EntityEntry> modified = trackedEntries.Where(c => c.State == EntityState.Modified);
@@ -638,7 +638,7 @@ namespace gip.core.datamodel
                 }
 #if EFCR
 
-                IEnumerable<EntityEntry> added = _ObjectContext.ChangeTracker.GetEntriesForState(true, false, false, false);
+                IEnumerable<EntityEntry> added = _ObjectContext.ChangeTracker.GetEntriesForState(true, false, false, false).ToArray();
 #else
 
                 IEnumerable<EntityEntry> added = trackedEntries.Where(c => c.State == EntityState.Added);
@@ -677,7 +677,7 @@ namespace gip.core.datamodel
 
 #if EFCR
 
-                IEnumerable<EntityEntry> deleted = _ObjectContext.ChangeTracker.GetEntriesForState(false, false, true, false);
+                IEnumerable<EntityEntry> deleted = _ObjectContext.ChangeTracker.GetEntriesForState(false, false, true, false).ToArray();
 #else
 
                 IEnumerable<EntityEntry> deleted = trackedEntries.Where(c => c.State == EntityState.Deleted);
@@ -994,7 +994,7 @@ namespace gip.core.datamodel
         {
 #if EFCR
 
-            foreach (EntityEntry objectStateEntry in _ObjectContext.ChangeTracker.GetEntriesForState(false, false, false, true))
+            foreach (EntityEntry objectStateEntry in _ObjectContext.ChangeTracker.GetEntriesForState(false, false, false, true).ToArray())
 #else
 
             foreach (EntityEntry objectStateEntry in this.ObjectContext.ChangeTracker.Entries().Where(c => c.State == EntityState.Unchanged).ToArray())

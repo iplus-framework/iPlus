@@ -604,8 +604,12 @@ namespace gip.core.autocomponent
             }
             if (acClass == null)
             {
-                query = s_compiledQueryACClass_StartsWithAssemblyName.Invoke(_Database, acClassName);
-                acClass = query.FirstOrDefault();
+                acClass = s_cQry_ACClassIdentifier.Invoke(_Database, acClassName);
+                if (acClass != null)
+                {
+                    Msg msg = new Msg(eMsgLevel.Warning, String.Format("Class {0} was previously in Assembly {1}. Now its in {2}. Please ensure, that you use another classname to avoid sideeffects!", acClassName, acClass.AssemblyQualifiedName, assemblyQualifiedName));
+                    Messages.GlobalMsg.AddDetailMessage(msg);
+                }
             }
 
             if (acClass == null)
@@ -672,8 +676,13 @@ namespace gip.core.autocomponent
             }
             else
             {
+#if EFCR
+                if (acClass.AssemblyQualifiedName != assemblyQualifiedName && !(assemblyQualifiedName.Contains("Microsoft.EntityFrameworkCore") && assemblyQualifiedName.Contains("Version=42.42.42.42")))
+                    acClass.AssemblyQualifiedName = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
+#else
                 if (acClass.AssemblyQualifiedName != assemblyQualifiedName)
                     acClass.AssemblyQualifiedName = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
+#endif
 
                 if (acClassInfo.ACKind == Global.ACKinds.TPAProcessModule || acClassInfo.ACKind == Global.ACKinds.TPARole || acClassInfo.ACKind == Global.ACKinds.TACApplicationManager)
                 {
@@ -2516,7 +2525,7 @@ namespace gip.core.autocomponent
             }
         }
 
-        #endregion
+#endregion
 
         #region EntitySchemaManager
 

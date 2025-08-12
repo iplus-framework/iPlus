@@ -1,5 +1,9 @@
 <Project>
   <PropertyGroup>
+	  <!-- Set this property to true to work with the performance improved EF-Version at https://github.com/iplus-framework/efcore/tree/release/9.0 
+    until this changes are not merged into the official repository. 
+    This fork also enables automatic refreshing of entity objects from database -->
+    <UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
     <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
     <UITargetFramework>net9.0-windows7.0</UITargetFramework>
     <NetCorePackageVersion>9.0.7</NetCorePackageVersion>
@@ -7,8 +11,7 @@
     <EFCoreRootDir>..\..\efcore9</EFCoreRootDir>
     <EFCoreIncludeDir>$(EFCoreRootDir)\artifacts\bin</EFCoreIncludeDir>
     <EFCoreToolsDir>$(EFCoreRootDir)\src\EFCore.Tools</EFCoreToolsDir>
-    <UseEFCoreForkIPlus>True</UseEFCoreForkIPlus>
-    <CompilerDefFCoreForkIPlus>EFCR</CompilerDefFCoreForkIPlus>
+    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR</CompilerDefFCoreForkIPlus>
     <CodeAnalysisVersion>4.12.0</CodeAnalysisVersion>
     <CoreWCFVersion>1.8.0</CoreWCFVersion>
   </PropertyGroup>

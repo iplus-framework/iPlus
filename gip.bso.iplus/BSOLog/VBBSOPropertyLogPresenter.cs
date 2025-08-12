@@ -1001,8 +1001,7 @@ namespace gip.bso.iplus
             var query = Db.MsgAlarmLog
                             .Include(c => c.ACClass)
                             .Include(c => c.ACProgramLog)
-                            .Where(c => c.TimeStampOccurred >= FromDate && c.TimeStampOccurred <= ToDate)
-                            .AsQueryable();
+                            .Where(c => c.TimeStampOccurred >= FromDate && c.TimeStampOccurred <= ToDate);
             string acUrl = SelectedPropertyLog.ACUrl;
 
 #if EFCR

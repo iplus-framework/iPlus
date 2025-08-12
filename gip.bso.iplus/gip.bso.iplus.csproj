@@ -29,11 +29,13 @@
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
+    <DefineConstants>TRACE;DEBUG;NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>$(SolutionDir)bin\Release\gip.bso.iplus.XML</DocumentationFile>
     <NoWarn>1591</NoWarn>
+    <DefineConstants>TRACE;NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Update="System.Xml.Linq">

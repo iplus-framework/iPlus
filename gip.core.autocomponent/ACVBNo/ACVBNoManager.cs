@@ -37,14 +37,22 @@ namespace gip.core.autocomponent
         #region PrecompiledQueries
         static readonly Func<Database, Guid, IEnumerable<VBNoConfiguration>> s_cQry_ConfigID =
             EF.CompileQuery<Database, Guid, IEnumerable<VBNoConfiguration>>(
-            (ctx, noConfigurationID) => from c in ctx.VBNoConfiguration where c.VBNoConfigurationID == noConfigurationID select c
+#if EFCR
+            (ctx, noConfigurationID) => ctx.VBNoConfiguration.Where(c => c.VBNoConfigurationID == noConfigurationID).Refresh(MergeOption.OverwriteChanges)
+#else
+            (ctx, noConfigurationID) => ctx.VBNoConfiguration.Where(c => c.VBNoConfigurationID == noConfigurationID)
+#endif
         );
 
         static readonly Func<Database, string, IEnumerable<VBNoConfiguration>> s_cQry_ConfigName =
             EF.CompileQuery<Database, string, IEnumerable<VBNoConfiguration>>(
-            (ctx, noConfigurationName) => from c in ctx.VBNoConfiguration where c.VBNoConfigurationName == noConfigurationName select c
+#if EFCR
+            (ctx, noConfigurationName) => ctx.VBNoConfiguration.Where(c => c.VBNoConfigurationName == noConfigurationName).Refresh(MergeOption.OverwriteChanges)
+#else
+            (ctx, noConfigurationName) => ctx.VBNoConfiguration.Where(c => c.VBNoConfigurationName == noConfigurationName)
+#endif
         );
-        #endregion
+#endregion
 
         #region static Methods
         public static ACVBNoManager GetServiceInstance(ACComponent requester)
@@ -195,9 +203,6 @@ namespace gip.core.autocomponent
                 return null;
             //Originally query was of IQueryable Type but EF.CompileQuery's return type cannot be of IQueryable, use IEnumerable instead. https://github.com/dotnet/efcore/issues/27657
             IEnumerable<VBNoConfiguration> query = s_cQry_ConfigName(database, entityNoFieldName);
-#if EFCR
-            query = (query as IQueryable<VBNoConfiguration>)?.Refresh(MergeOption.OverwriteChanges);
-#endif
             return query.FirstOrDefault();
         }
 
@@ -207,9 +212,6 @@ namespace gip.core.autocomponent
                 return null;
             //Originally query was of IQueryable Type but EF.CompileQuery's return type cannot be of IQueryable, use IEnumerable instead. https://github.com/dotnet/efcore/issues/27657
             IEnumerable<VBNoConfiguration> query = s_cQry_ConfigID(database, noConfigurationID);
-#if EFCR
-            query = (query as IQueryable<VBNoConfiguration>)?.Refresh(MergeOption.OverwriteChanges);
-#endif
             return query.FirstOrDefault();
         }
 

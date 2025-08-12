@@ -567,22 +567,21 @@ namespace gip.bso.iplus
             if (!IsEnabledSearch())
                 return;
 
-            IQueryable<MsgAlarmLog> query = Db.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo).AsQueryable();
+            IQueryable<MsgAlarmLog> query = Db.MsgAlarmLog.Where(c => c.TimeStampOccurred >= SearchFrom && c.TimeStampOccurred <= SearchTo);
 
             if (CurrentACProject != null)
                 query = query.Where(c => (c.ACClass != null && c.ACClass.ACProjectID == CurrentACProject.ACProjectID) ||
-                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith("\\"+CurrentACProject.ACProjectName))).AsQueryable();
-                //query = query.Where(c => c.Source.StartsWith("\\" + CurrentACProject.ACProjectName)).AsQueryable();
+                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith("\\"+CurrentACProject.ACProjectName)));
 
             if (SelectedMessageLevel != null)
-                query = query.Where(c => c.MessageLevelIndex == (short)SelectedMessageLevel.Value).AsQueryable();
+                query = query.Where(c => c.MessageLevelIndex == (short)SelectedMessageLevel.Value);
 
             if (!String.IsNullOrEmpty(SearchText))
-                query = query.Where(c => c.Message.Contains(SearchText)).AsQueryable();
+                query = query.Where(c => c.Message.Contains(SearchText));
 
             if (!string.IsNullOrEmpty(AlarmSourceText))
                 query = query.Where(c => (c.ACClass != null && c.ACClass.ACURLComponentCached == AlarmSourceText) ||
-                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText)).AsQueryable();
+                                         (c.ACProgramLog != null && c.ACProgramLog.ACUrl == AlarmSourceText));
 #if EFCR
             query = query.Refresh(MergeOption.OverwriteChanges);
 #endif
