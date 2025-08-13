@@ -36,10 +36,19 @@ namespace gip.core.webservices
     public sealed class MCPIPlusTools
     {
         #region Properties
-        private static MCPToolAppTree _appTree = new MCPToolAppTree();
+        private static MCPToolAppTree _appTreeServer = new MCPToolAppTree(false);
+        private static MCPToolAppTree _appTreeLocal = new MCPToolAppTree(true);
         #endregion
 
         #region App-Services
+        private static MCPToolAppTree GetAppTree(IACComponent mcpHost)
+        {
+            if (mcpHost != null && mcpHost.ParentACComponent != null && mcpHost.ParentACComponent == ACRoot.SRoot.LocalServiceObjects)
+                return _appTreeLocal;
+            else
+                return _appTreeServer;
+        }
+
 
         #region MCP-Tools
         [McpServerTool]
@@ -65,7 +74,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.get_thesaurus(mcpHost, userRights, i18nLangTag, category);
+            return GetAppTree(mcpHost).get_thesaurus(mcpHost, userRights, i18nLangTag, category);
         }
 
 
@@ -99,7 +108,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.get_type_infos(mcpHost, userRights, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
+            return GetAppTree(mcpHost).get_type_infos(mcpHost, userRights, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
         }
 
         [McpServerTool]
@@ -126,7 +135,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.get_instance_info(mcpHost, userRights, classIDs, searchConditions, isCompositeSearch);
+            return GetAppTree(mcpHost).get_instance_info(mcpHost, userRights, classIDs, searchConditions, isCompositeSearch);
         }
 
 
@@ -150,7 +159,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.get_property_info(mcpHost, userRights, classID);
+            return GetAppTree(mcpHost).get_property_info(mcpHost, userRights, classID);
         }
 
 
@@ -172,7 +181,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.get_method_info(mcpHost, userRights,classID);
+            return GetAppTree(mcpHost).get_method_info(mcpHost, userRights,classID);
         }
 
 
@@ -225,7 +234,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.execute_acurl_command(mcpHost, userRights, acUrl, writeProperty, detailLevel, parametersJson);
+            return GetAppTree(mcpHost).execute_acurl_command(mcpHost, userRights, acUrl, writeProperty, detailLevel, parametersJson);
         }
 
         [McpServerTool]
@@ -251,7 +260,7 @@ namespace gip.core.webservices
             VBUserRights userRights = null;
             if (mcpHost is PAMcpServerHost host)
                 userRights = host.ResolveUserForSession(server);
-            return _appTree.create_new_instance(mcpHost, userRights, classID, acUrl);
+            return GetAppTree(mcpHost).create_new_instance(mcpHost, userRights, classID, acUrl);
         }
         #endregion
 

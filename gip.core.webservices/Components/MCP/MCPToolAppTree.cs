@@ -19,7 +19,14 @@ namespace gip.core.webservices
 {
     public class MCPToolAppTree : MCPToolBase
     {
+        public MCPToolAppTree(bool localUsage) 
+        {
+            _LocalUsage = localUsage;
+        }
+
         #region Properties
+        private bool _LocalUsage = false;
+
         private Dictionary<Guid, gip.core.datamodel.ACClass> _ThesaurusByCId;
         public Dictionary<Guid, gip.core.datamodel.ACClass> ThesaurusByCId
         {
@@ -112,6 +119,8 @@ namespace gip.core.webservices
             {
                 if (rootApp is IAppManager manager)
                 {
+                    if (_LocalUsage && manager.IsProxy)
+                        continue;
                     bool skipChilds = (rootApp == ACRoot.SRoot.Businessobjects
                          || rootApp == ACRoot.SRoot.Messages
                          //|| rootApp == ACRoot.SRoot.LocalServiceObjects
@@ -390,8 +399,9 @@ namespace gip.core.webservices
                             List<Tuple<MatchingCondition, IACObjectWithInit>> matchedComponents = new List<Tuple<MatchingCondition, IACObjectWithInit>>();
                             foreach (var rootApp in ACRoot.SRoot.ACComponentChilds)
                             {
-                                if ((acKind >= Global.ACKinds.TACBSO && acKind <= Global.ACKinds.TACBSOReport && !(rootApp is IBusinessobjects))
+                                if (   (acKind >= Global.ACKinds.TACBSO && acKind <= Global.ACKinds.TACBSOReport && !(rootApp is IBusinessobjects))
                                     || ((acKind == Global.ACKinds.TACDBA || acKind == Global.ACKinds.TACQRY) && !(rootApp is IQueries))
+                                    || (_LocalUsage && rootApp.IsProxy)
                                     )
                                     continue; // Skip if the rootApp is not a business object manager
 
@@ -895,10 +905,20 @@ namespace gip.core.webservices
                                         else
                                         {
                                             IACComponent acComp = acObj as IACComponent;
-                                            if (acComp != null)
-                                                result = acComp.ExecuteMethod(methodName, parameters);
+                                            if (_LocalUsage && ACRoot.SRoot.RootPageWPF != null)
+                                            {
+                                                if (acComp != null)
+                                                    result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { acComp.ExecuteMethod(methodName, parameters); });
+                                                else
+                                                    result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters); });
+                                            }
                                             else
-                                                result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters);
+                                            {
+                                                if (acComp != null)
+                                                    result = acComp.ExecuteMethod(methodName, parameters);
+                                                else
+                                                    result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters);
+                                            }
                                         }
                                     }
                                     else
@@ -930,12 +950,30 @@ namespace gip.core.webservices
                                 }
                                 else
                                 {
-                                    if (parametersKVP != null && parametersKVP.Any())
-                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray());
-                                    else if (bulkValues != null && bulkValues.Any())
-                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues.Select(c => (object)c).ToArray());
+                                    if (_LocalUsage && ACRoot.SRoot.RootPageWPF != null)
+                                    {
+                                        if (parametersKVP != null && parametersKVP.Any())
+                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { 
+                                                ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray()); 
+                                            });
+                                        else if (bulkValues != null && bulkValues.Any())
+                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => {
+                                                ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues.Select(c => (object)c).ToArray());
+                                            });
+                                        else
+                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => {
+                                                ACRoot.SRoot.ACUrlCommand(acUrlCommand, null);
+                                            });
+                                    }
                                     else
-                                        result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, null);
+                                    {
+                                        if (parametersKVP != null && parametersKVP.Any())
+                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray());
+                                        else if (bulkValues != null && bulkValues.Any())
+                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues.Select(c => (object)c).ToArray());
+                                        else
+                                            result = ACRoot.SRoot.ACUrlCommand(acUrlCommand, null);
+                                    }
                                 }
                             }
                             // Property read / write
@@ -1274,18 +1312,31 @@ namespace gip.core.webservices
                                 }
                                 else
                                 {
-                                    IACComponent newInstance = parentComp.StartComponent(cls, cls, new ACValueList()
+                                    IACComponent newInstance = null;
+                                    if (_LocalUsage && parentComp == ACRoot.SRoot.Businessobjects && ACRoot.SRoot.RootPageWPF != null)
                                     {
-                                            // Always use a separate Context for new instances when using MCP to avoid conflicts if multiple Agents are working with iplus at the same time
-                                            new ACValue(Const.ParamSeperateContext, typeof(bool), true)
-                                            //,new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
-                                    }) as IACComponent;
+                                        var snapshotBSOs = ACRoot.SRoot.Businessobjects.FindChildComponents<IACBSO>(c => c.ACIdentifier.Contains(cls.ACIdentifier), null);
+                                        string acUrlCommand = Const.BusinessobjectsACUrl + "\\#" + cls.ACIdentifier;
+                                        ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { ACRoot.SRoot.RootPageWPF.StartBusinessobject(acUrlCommand, new ACValueList()); });
+                                        var listRunningBSOs = ACRoot.SRoot.Businessobjects.FindChildComponents<IACBSO>(c => c.ACIdentifier.Contains(cls.ACIdentifier), null);
+                                        var newBSOs = listRunningBSOs.Except(snapshotBSOs).ToList();
+                                        newInstance = newBSOs.FirstOrDefault();
+                                    }
+                                    else
+                                    {
+                                        newInstance = parentComp.StartComponent(cls, cls, new ACValueList()
+                                        {
+                                                // Always use a separate Context for new instances when using MCP to avoid conflicts if multiple Agents are working with iplus at the same time
+                                                new ACValue(Const.ParamSeperateContext, typeof(bool), true)
+                                                //,new ACValue(Const.SkipSearchOnStart, typeof(bool), true)
+                                        }) as IACComponent;
+                                    }
                                     if (newInstance != null)
                                     {
                                         instanceInfo = BuildInstanceInfo(ACRoot.SRoot,
                                             new List<Tuple<MatchingCondition, IACObjectWithInit>>()
                                             {
-                                        new Tuple<MatchingCondition, IACObjectWithInit>(new MatchingCondition() { Class = cls, IsMatched = true }, newInstance)
+                                                new Tuple<MatchingCondition, IACObjectWithInit>(new MatchingCondition() { Class = cls, IsMatched = true }, newInstance)
                                             }
                                             );
                                     }

@@ -27,6 +27,34 @@ namespace gip.bso.iplus
     public partial class BSOChatBot : ACBSO
     {
         #region Properties
+        private bool _UseBotLocally = false;
+        [ACPropertyInfo(40, "", "en{'Use Bot locally'}de{'Bot lokal verwenden'}", Description = "This setting is only for humans. Don't use this property")]
+        public bool UseBotLocally
+        {
+            get { return _UseBotLocally; }
+            set
+            {
+                if (_UseBotLocally != value)
+                {
+                    OnPropertyChanged();
+                    DisconnectMCP().Wait();
+                }
+                _UseBotLocally = value;
+            }
+        }
+
+        public virtual bool IsLocalBot
+        {
+            get
+            {
+                // If UseBotLocally is true, we are using the bot locally
+                if (UseBotLocally)
+                    return true;
+                if (!(ParentACComponent is Businessobjects || ParentACComponent is PWBase))
+                    return true;
+                return false;
+            }
+        }
 
         protected ACPropertyConfigValue<string> _MCPServerConfig;
         [ACPropertyConfig("en{'MCP Server JSON config'}de{'MCP Server JSON config'}")]
@@ -150,7 +178,6 @@ namespace gip.bso.iplus
         {
             try
             {
-
                 ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
                 string filePath = mediaController.OpenFileDialog(
                     false,
@@ -227,22 +254,40 @@ namespace gip.bso.iplus
                         ChatOutput = "No MCP servers configured in JSON config";
                         return;
                     }
-                    config.mcpServers.TryGetValue("iPlus", out McpServerInfo iPlusServer);
-                    if (iPlusServer != null)
+                    if (IsLocalBot)
                     {
-                        List<string> args =  iPlusServer.args != null ? iPlusServer.args.ToList() : new List<string>();
-                        if (!args.Contains("--header"))
-                            args.Add("--header");
-                        if (!args.Contains("-y"))
-                            args.Add("-y");
-                        string authorization = args.Where(c => c.StartsWith("Authorization")).FirstOrDefault();
-                        if (!String.IsNullOrEmpty(authorization))
-                            args.Remove(authorization);
-                        var vbUser = this.Root.CurrentInvokingUser;
-                        if (vbUser != null)
-                            args.Add(String.Format("Authorization:{0}#{1}", vbUser.VBUserName, vbUser.Password));
-                        iPlusServer.args = args.ToArray();
+                        IACComponent localMCPServer = this.Root.ACUrlCommand("\\LocalServiceObjects\\LocalMCPServer") as IACComponent;
+                        if (localMCPServer == null)
+                        {
+                            ChatOutput = "Local MCP-Server not found on address \\LocalServiceObjects\\LocalMCPServer";
+                            return;
+                        }
                     }
+
+                    foreach (var serverEntry in config.mcpServers)
+                    {
+                        if (serverEntry.Key.Contains("iPlus", StringComparison.OrdinalIgnoreCase))
+                        {
+                            //config.mcpServers.TryGetValue("iPlus", out McpServerInfo iPlusServer);
+                            McpServerInfo iPlusServer = serverEntry.Value;
+                            if (iPlusServer != null)
+                            {
+                                List<string> args = iPlusServer.args != null ? iPlusServer.args.ToList() : new List<string>();
+                                if (!args.Contains("--header"))
+                                    args.Add("--header");
+                                if (!args.Contains("-y"))
+                                    args.Add("-y");
+                                string authorization = args.Where(c => c.StartsWith("Authorization")).FirstOrDefault();
+                                if (!String.IsNullOrEmpty(authorization))
+                                    args.Remove(authorization);
+                                var vbUser = this.Root.CurrentInvokingUser;
+                                if (vbUser != null)
+                                    args.Add(String.Format("Authorization:{0}#{1}", vbUser.VBUserName, vbUser.Password));
+                                iPlusServer.args = args.ToArray();
+                            }
+                        }
+                    }
+
                 }
                 catch (JsonException ex)
                 {
@@ -276,6 +321,13 @@ namespace gip.bso.iplus
 
                 foreach (var serverEntry in config.mcpServers)
                 {
+                    if (   serverEntry.Value.ForLocalBotUsage.HasValue 
+                        && (   (serverEntry.Value.ForLocalBotUsage.Value && !IsLocalBot) 
+                            || (!serverEntry.Value.ForLocalBotUsage.Value && IsLocalBot)))
+                    {
+                        continue;
+                    }
+
                     string serverName = serverEntry.Key;
                     McpServerInfo serverInfo = serverEntry.Value;
 

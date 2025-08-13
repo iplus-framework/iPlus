@@ -22,6 +22,7 @@ namespace gip.bso.iplus
 
     public class McpServerInfo
     {
+        public bool? ForLocalBotUsage { get; set; }
         public string command { get; set; }
         public string[] args { get; set; }
         public Dictionary<string, string> env { get; set; }
