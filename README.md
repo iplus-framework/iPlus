@@ -89,8 +89,7 @@ Contribute today and let's create something amazing together!
 More about our [rewarding model](https://iplus-framework.com/en/documentation/Read/Index/View/a4100937-4d88-487d-ab3b-e599412e2a2f?workspaceSchemaID=ab0bc53f-decf-4101-9cee-111b6cbc5b24).
 
 ## Limitations
-The following features and bugs, from Microsoft's repositories, prevent the efficient and productive use of iplus-framework:
-
+We have a [fork of entity framework core](https://github.com/iplus-framework/efcore/tree/ef_for_iPlus_compilable) that fixes the following issues:
 1. Ability to refresh a context from the database
 https://github.com/dotnet/efcore/issues/16491  
 This point is problematic if you are working with long-term database contexts and already loaded entity objects and relationships to other objects have to be reloaded from the database. An example would be if you change a workflow on the client side that was already in use on the server side and it has to be reloaded.
@@ -102,20 +101,19 @@ This point is problematic when you work with long-term database contexts and lar
 3. Reverting changes
 https://github.com/dotnet/efcore/issues/14594
 
-4. Obsolete constructor public StackTrace(Thread targetThread, bool needFileInfo)
+If you want to use **iPlus for productive operation** use this release 9.0 fork and **branch "ef_for_iPlus_compilable"** instead of the official nuget packages. Open the [Directory.Build.props](https://github.com/iplus-framework/iPlus/blob/main/Directory.Build.props) file and set **UseEFCoreForkIPlus to True to** include the compiled ef-assemblies.
+
+5. Obsolete constructor public StackTrace(Thread targetThread, bool needFileInfo)
 https://github.com/dotnet/runtime/issues/80555  
 This point is more of an important "nice to have". Pausing threads, analyzing the stack trace and then letting them continue running is used to [analyze deadlocks](https://iplus-framework.com/en/documentation/Read/Index/View/6a220db6-a767-40bb-bf95-395e4a289881?chapterID=a09687ec-ede3-4cba-827c-478c74b16b1a#ItemTextTranslationID_0b319477-1658-403a-bbac-bb6da719415b) in multi-threaded applications and to be able to perform good [system diagnostics](https://iplus-framework.com/en/documentation/Read/Index/View/6a220db6-a767-40bb-bf95-395e4a289881?chapterID=d45d9a09-c4d9-4cdf-8a83-910c5fdb99ba#ItemTextTranslationID_08c43200-1b1d-437b-9a1b-846d14e820d7) so that you can identify which program parts and objects are responsible for higher system loads.
 
-5. Improved INotifyCollectionChanged Handling
+6. Improved INotifyCollectionChanged Handling
 https://github.com/dotnet/wpf/issues/52  
 We have a workaround, but it should still be resolved by MS.
 
-6. DataContractSerializerOperationBehavior: Create a serializer with Resolver
+7. DataContractSerializerOperationBehavior: Create a serializer with Resolver
 https://github.com/CoreWCF/CoreWCF/pull/512  
 We have a workaround, but it should still be resolved by MS.
-
->**IMPORTANT: Please GIVE these issues a THUMBS-UP 👍 so that they can be prioritized and Microsoft developers can finally start implementing them.**
-If you want to use iplus-framework as a pure SCADA system, then the issues mentioned above are no obstacle to productive use and you can use it. If you develop your own database-based products where long-term contexts are required, then you have to wait for the fix from the EF team or you can use our previous version 4 of iplus-framework, which works with Entity Framework 4. The program code that you develop is compatible with this V5 version and you can then later convert your libraries to dotNET 8 with little adaptation work.
 
 ## Documentation
 
