@@ -54,9 +54,9 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        #endregion
 
-#region Constructors
+        #region Constructors
 
         public ACMethodWrapper(ACMethod method, string captionTranslation, Type pwClass)
         {
