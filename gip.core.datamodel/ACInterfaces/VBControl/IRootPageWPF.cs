@@ -171,5 +171,7 @@ namespace gip.core.datamodel
         FocusBSOResult FocusBSO(IACBSO bso);
 
         object DispatcherInvoke(Action action);
+
+        object DispatcherInvokeRemoteCmd(Action action, string acUrl, IACInteractiveObject obj = null, bool isMethodInvoc = true);
     }
 }

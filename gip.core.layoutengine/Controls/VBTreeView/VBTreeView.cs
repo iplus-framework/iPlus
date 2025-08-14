@@ -1150,6 +1150,7 @@ namespace gip.core.layoutengine
             Global.ControlModes controlMode = controlModeInfo.Mode;
             Enabled = controlMode >= Global.ControlModes.Enabled;
             Visible = controlMode >= Global.ControlModes.Disabled;
+            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
         }
 
         /// <summary>

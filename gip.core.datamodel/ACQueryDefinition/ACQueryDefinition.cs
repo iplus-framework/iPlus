@@ -21,6 +21,7 @@ using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
 using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace gip.core.datamodel
 {
@@ -1508,15 +1509,32 @@ In business objects, ACQueryDefinitions are stateful because each business objec
                         prevTable = table;
                         prevProperty = acClassProperty;
                     }
+                    string filterField = prevProperty.ACIdentifier;
+                    if (prevProperty != null)
+                    {
+                        if (typeof(VBEntityObject).IsAssignableFrom(prevProperty.ObjectType))
+                        {
+                            IEntityType entityType = (this.QueryContext as DbContext)?.Model.FindEntityType(QueryType.ObjectType);
+                            if (entityType != null)
+                            {
+                                INavigation navigation = entityType.FindNavigation(filterItem.PropertyName);
+                                if (navigation != null && navigation.ForeignKey != null)
+                                {
+                                    filterField = navigation.ForeignKey.Properties.FirstOrDefault().Name;
+                                }
+                            }
+                        }
+                    }
+
                     if (C_SQLNamedParams && objectParameter != null)
                     {
-                        objectParameter.Name = prevAlias + "." + prevProperty.ACIdentifier;
+                        objectParameter.Name = prevAlias + "." + filterField;
                         filterExpression.Append(objectParameter.Name);
                         objectParameter.Name = objectParameter.Name.Replace(".", "");
                         //filterExpression.Append(String.Format("{{{0}}}", objectParameter.Name));
                     }
                     else
-                        filterExpression.Append(prevAlias + "." + prevProperty.ACIdentifier);
+                        filterExpression.Append(prevAlias + "." + filterField);
                 }
                 else
                 {
@@ -1532,15 +1550,34 @@ In business objects, ACQueryDefinitions are stateful because each business objec
             {
                 if (forEntitySQL)
                 {
+                    string filterField = filterItem.PropertyName;
+                    ACClass prevTable = QueryType as ACClass;
+                    ACClassProperty acClassProperty = prevTable.Properties.Where(c => c.ACIdentifier == filterItem.PropertyName).FirstOrDefault();
+                    if (acClassProperty != null)
+                    {
+                        if (typeof(VBEntityObject).IsAssignableFrom(acClassProperty.ObjectType))
+                        {
+                            IEntityType entityType = (this.QueryContext as DbContext)?.Model.FindEntityType(QueryType.ObjectType);
+                            if (entityType != null)
+                            {
+                                INavigation navigation = entityType.FindNavigation(filterItem.PropertyName);
+                                if (navigation != null && navigation.ForeignKey != null)
+                                {
+                                    filterField = navigation.ForeignKey.Properties.FirstOrDefault().Name;
+                                }
+                            }
+                        }
+                    }
+
                     if (C_SQLNamedParams && objectParameter != null)
                     {
-                        objectParameter.Name = "c." + filterItem.PropertyName;
+                        objectParameter.Name = "c." + filterField;
                         filterExpression.Append(objectParameter.Name);
                         objectParameter.Name = objectParameter.Name.Replace(".", "");
                         //filterExpression.Append(String.Format("{{{0}}}", objectParameter.Name));
                     }
                     else
-                        filterExpression.Append("c." + filterItem.PropertyName);
+                        filterExpression.Append("c." + filterField);
                 }
                 else
                     filterExpression.Append(filterItem.PropertyName);

@@ -99,7 +99,7 @@ namespace gip.core.datamodel
         /// <returns>Global.ControlModes.</returns>
         public Global.ControlModes GetControlMode(IACType rightItem)
         {
-            if (!rightItem.IsRightmanagement || _IsSuperuser)
+            if (_IsSuperuser || rightItem == null || !rightItem.IsRightmanagement)
                 return Global.ControlModes.Enabled;
             Global.ControlModes controlMode;
             if (TryGetValue(rightItem.ACTypeID, out controlMode))

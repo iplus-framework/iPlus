@@ -908,9 +908,9 @@ namespace gip.core.webservices
                                             if (_LocalUsage && ACRoot.SRoot.RootPageWPF != null)
                                             {
                                                 if (acComp != null)
-                                                    result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { acComp.ExecuteMethod(methodName, parameters); });
+                                                    result = ACRoot.SRoot.RootPageWPF.DispatcherInvokeRemoteCmd(() => { acComp.ExecuteMethod(methodName, parameters); }, methodName, acComp);
                                                 else
-                                                    result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters); });
+                                                    result = ACRoot.SRoot.RootPageWPF.DispatcherInvokeRemoteCmd(() => { ACRoot.SRoot.ACUrlCommand(acUrlCommand, parameters); }, acUrlCommand);
                                             }
                                             else
                                             {
@@ -953,17 +953,17 @@ namespace gip.core.webservices
                                     if (_LocalUsage && ACRoot.SRoot.RootPageWPF != null)
                                     {
                                         if (parametersKVP != null && parametersKVP.Any())
-                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => { 
+                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvokeRemoteCmd(() => { 
                                                 ACRoot.SRoot.ACUrlCommand(acUrlCommand, parametersKVP.Select(c => c.Value).ToArray()); 
-                                            });
+                                            }, acUrlCommand);
                                         else if (bulkValues != null && bulkValues.Any())
-                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => {
+                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvokeRemoteCmd(() => {
                                                 ACRoot.SRoot.ACUrlCommand(acUrlCommand, bulkValues.Select(c => (object)c).ToArray());
-                                            });
+                                            }, acUrlCommand);
                                         else
-                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvoke(() => {
+                                            result = ACRoot.SRoot.RootPageWPF.DispatcherInvokeRemoteCmd(() => {
                                                 ACRoot.SRoot.ACUrlCommand(acUrlCommand, null);
-                                            });
+                                            }, acUrlCommand);
                                     }
                                     else
                                     {
@@ -1245,7 +1245,16 @@ namespace gip.core.webservices
                     return null;
                 }
             }
-            return ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+            if (_LocalUsage && ACRoot.SRoot.RootPageWPF != null)
+            {
+                return ACRoot.SRoot.RootPageWPF.DispatcherInvokeRemoteCmd(() =>
+                    {
+                        ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
+                    }, 
+                    acUrlCommand, null, true);
+            }
+            else
+                return ACRoot.SRoot.ACUrlCommand(acUrlCommand, convertedValue);
         }
         #endregion
 

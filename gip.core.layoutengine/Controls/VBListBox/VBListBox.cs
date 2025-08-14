@@ -1204,6 +1204,7 @@ namespace gip.core.layoutengine
                         IsEnabled = true;
                 }
             }
+            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
         }
 
         /// <summary>

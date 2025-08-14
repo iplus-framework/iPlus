@@ -730,6 +730,8 @@ namespace gip.core.layoutengine
                         IsEnabled = true;
                 }
             }
+
+            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, true);
         }
 
         /// <summary>
@@ -1110,6 +1112,9 @@ namespace gip.core.layoutengine
                     actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
                     if (this.IsLoaded)
                         e.CanExecute = IsEnabledACAction(actionArgs);
+
+                    //if (e.CanExecute)
+                        RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, acComponent, true);
                 }
             }
             else

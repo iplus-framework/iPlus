@@ -1,0 +1,179 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:gip.core.layoutengine">
+
+    <!-- Default Remote Command Popup Template -->
+    <DataTemplate x:Key="RemoteCommandPopupTemplate">
+      <Viewbox MinWidth="10" MinHeight="10" Stretch="Uniform">
+        <Canvas x:Name="Ebene_1" Width="228" Height="228">
+          <Path x:Name="Back" Width="228" Height="228" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="28" StrokeLineJoin="Round" Stroke="#FF0096FF" Fill="#FF0096FF" Data="F1 M 115.153,14.1532L 113.153,14.1532C 58.4767,14.1532 14.1529,58.4771 14.1529,113.153L 14.1529,115.154C 14.1529,169.83 58.4767,214.154 113.153,214.154L 115.153,214.154C 169.829,214.154 214.153,169.83 214.153,115.154L 214.153,113.153C 214.153,58.4771 169.829,14.1532 115.153,14.1532 Z " />
+          <TextBlock TextAlignment="Left" FontFamily="Tahoma" FontWeight="Bold" Width="Auto" FontSize="128" Canvas.Left="25" Canvas.Top="37">
+            <Run Text="🤖" Foreground="#FF000000" />
+          </TextBlock>
+          <Viewbox Width="220" Height="220" Canvas.Top="4" Canvas.Left="4">
+            <Canvas Width="228" Height="228">
+              <Path x:Name="Path" Width="200" Height="152.42" Canvas.Left="13.9118" Canvas.Top="0.0533447" Stretch="Fill" Data="F1 M 118.814,0.0533447L 108.825,0.0533447C 66.7354,0.0533447 13.9118,34.1737 13.9118,76.2633L 13.9118,76.2633C 13.9118,118.353 48.0322,152.473 90.1218,152.473L 137.702,152.473C 179.791,152.473 213.912,118.353 213.912,76.2633L 213.912,76.2633C 213.912,34.1737 160.904,0.0533447 118.814,0.0533447 Z ">
+                <Path.Fill>
+                  <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368245">
+                    <LinearGradientBrush.GradientStops>
+                      <GradientStop Color="#0DFFFFFF" Offset="0.00847458" />
+                      <GradientStop Color="#CCFFFFFF" Offset="1" />
+                    </LinearGradientBrush.GradientStops>
+                  </LinearGradientBrush>
+                </Path.Fill>
+              </Path>
+              <Path Width="228" Height="228" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 114.307,0L 114,0C 51.0396,0 1.52588e-005,51.0395 1.52588e-005,114L 1.52588e-005,114.305C 1.52588e-005,177.266 51.0396,228.305 114,228.305L 114.307,228.305C 177.268,228.305 228.307,177.266 228.307,114.305L 228.307,114C 228.307,51.0395 177.268,0 114.307,0 Z ">
+                <Path.Fill>
+                  <RadialGradientBrush RadiusX="0.499998" RadiusY="0.500003" Center="0.499997,0.500003" GradientOrigin="0.499997,0.500003">
+                    <RadialGradientBrush.GradientStops>
+                      <GradientStop Color="#00000000" Offset="0.741525" />
+                      <GradientStop Color="#B3000000" Offset="1" />
+                    </RadialGradientBrush.GradientStops>
+                    <RadialGradientBrush.RelativeTransform>
+                      <TransformGroup />
+                    </RadialGradientBrush.RelativeTransform>
+                  </RadialGradientBrush>
+                </Path.Fill>
+              </Path>
+            </Canvas>
+          </Viewbox>
+        </Canvas>
+      </Viewbox>
+    </DataTemplate>
+
+    <!-- Success Template (Green) -->
+    <DataTemplate x:Key="RemoteCommandPopupSuccessTemplate">
+        <Border Background="#E0006400"
+                BorderBrush="#FF00AA00"
+                BorderThickness="2"
+                CornerRadius="4"
+                MinWidth="120"
+                MinHeight="30"
+                Margin="5">
+            <Border.Effect>
+                <DropShadowEffect Color="Green" 
+                                  Direction="315" 
+                                  ShadowDepth="4" 
+                                  Opacity="0.5"
+                                  BlurRadius="8"/>
+            </Border.Effect>
+
+            <Grid Margin="12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Success Icon -->
+                <TextBlock Grid.Column="0"
+                           Text="✓"
+                           Foreground="LightGreen"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+
+                <!-- Text Content -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding}"
+                           Foreground="White"
+                           FontSize="12"
+                           FontWeight="Normal"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           MaxWidth="200"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- Error Template (Red) -->
+    <DataTemplate x:Key="RemoteCommandPopupErrorTemplate">
+        <Border Background="#E0800000"
+                BorderBrush="#FFFF4444"
+                BorderThickness="2"
+                CornerRadius="4"
+                MinWidth="120"
+                MinHeight="30"
+                Margin="5">
+            <Border.Effect>
+                <DropShadowEffect Color="Red" 
+                                  Direction="315" 
+                                  ShadowDepth="4" 
+                                  Opacity="0.5"
+                                  BlurRadius="8"/>
+            </Border.Effect>
+
+            <Grid Margin="12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Error Icon -->
+                <TextBlock Grid.Column="0"
+                           Text="⚠"
+                           Foreground="Yellow"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+
+                <!-- Text Content -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding}"
+                           Foreground="White"
+                           FontSize="12"
+                           FontWeight="Normal"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           MaxWidth="200"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- Warning Template (Orange/Yellow) -->
+    <DataTemplate x:Key="RemoteCommandPopupWarningTemplate">
+        <Border Background="#E0B8860B"
+                BorderBrush="#FFFFAA00"
+                BorderThickness="2"
+                CornerRadius="4"
+                MinWidth="120"
+                MinHeight="30"
+                Margin="5">
+            <Border.Effect>
+                <DropShadowEffect Color="Orange" 
+                                  Direction="315" 
+                                  ShadowDepth="4" 
+                                  Opacity="0.5"
+                                  BlurRadius="8"/>
+            </Border.Effect>
+
+            <Grid Margin="12,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Warning Icon -->
+                <TextBlock Grid.Column="0"
+                           Text="⚠"
+                           Foreground="Yellow"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+
+                <!-- Text Content -->
+                <TextBlock Grid.Column="1"
+                           Text="{Binding}"
+                           Foreground="White"
+                           FontSize="12"
+                           FontWeight="Normal"
+                           TextWrapping="Wrap"
+                           VerticalAlignment="Center"
+                           MaxWidth="200"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

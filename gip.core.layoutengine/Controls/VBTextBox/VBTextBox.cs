@@ -983,6 +983,7 @@ namespace gip.core.layoutengine
                 }
             }
 
+            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
             IsValueNull = controlModeInfo.IsNull;
         }
 

@@ -43,10 +43,10 @@ namespace gip.core.layoutengine
             + "," + Const.CmdLoad
             + "," + Const.CmdSave
             + "," + Const.CmdUndoSave
-            + "," + Const.CmdNavigateFirstPrimary
-            + "," + Const.CmdNavigatePrevPrimary
-            + "," + Const.CmdNavigateNextPrimary
-            + "," + Const.CmdNavigateLastPrimary
+            + "," + Const.CmdNavigateFirst
+            + "," + Const.CmdNavigatePrev
+            + "," + Const.CmdNavigateNext
+            + "," + Const.CmdNavigateLast
             + "," + Const.CmdSearch;
         string[] _EditString = { Const.CmdCut, Const.CmdCopy, Const.CmdPaste, Const.CmdUndo, Const.CmdRedo };
         string[] _EditImageSourceStyleGip = { "Editcut", "Editcopy", "EditPaste", Const.CmdNameUndo, Const.CmdNameRedo };
@@ -57,7 +57,7 @@ namespace gip.core.layoutengine
         string[] _FileImageSourceAero = { "AddNew", "LoadRefresh", "Filesave", "FilesaveUndo", Const.CmdNameDelete, Const.CmdNameRestore, "Print", "Preview", "Design" };
         //string[] _FileImageSource = { "Folder_newStyle", "FileopenStyle", "FilesaveStyle", "FilesaveundoStyle", "Mail_deleteStyle", "PrintStyle", "PreviewStyle", "DesignStyle" };
 
-        string[] _NavString = { Const.CmdNavigateFirstPrimary, Const.CmdNavigatePrevPrimary, Const.CmdNavigateNextPrimary, Const.CmdNavigateLastPrimary };
+        string[] _NavString = { Const.CmdNavigateFirst, Const.CmdNavigatePrev, Const.CmdNavigateNext, Const.CmdNavigateLast };
         string[] _NavImageSourceGip = { "NavFirst", "NavPrev", "NavNext", "NavLast" };
         string[] _NavImageSourceAero = { "NavFirst", "NavPrev", "NavNext", "NavLast" };
 
@@ -548,19 +548,19 @@ namespace gip.core.layoutengine
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Search <Ctrl>-F");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Search");
                         break;
-                    case Const.CmdNavigateFirstPrimary:
+                    case Const.CmdNavigateFirst:
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "First record <Ctrl>-Pos1");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "First record");
                         break;
-                    case Const.CmdNavigatePrevPrimary:
+                    case Const.CmdNavigatePrev:
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Previous record <Ctrl>-Up");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Previous record");
                         break;
-                    case Const.CmdNavigateNextPrimary:
+                    case Const.CmdNavigateNext:
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Next record <Ctrl>-Dn");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Next record");
                         break;
-                    case Const.CmdNavigateLastPrimary:
+                    case Const.CmdNavigateLast:
                         button.ToolTip = Database.Root.Environment.TranslateText(BSOACComponent, "Last record <Ctrl>-End");
                         acCaption = Database.Root.Environment.TranslateText(BSOACComponent, "Last record");
                         break;
@@ -726,6 +726,8 @@ namespace gip.core.layoutengine
                 {
                     e.CanExecute = ContextACObject.IsEnabledACUrlCommand(acCommand.GetACUrl(), acCommand.ParameterList);
                 }
+                //if (e.CanExecute)
+                    RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(acCommand.GetACUrl(), e.OriginalSource as FrameworkElement, ContextACObject as IACComponent, true);
             }
         }
 
