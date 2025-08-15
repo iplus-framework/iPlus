@@ -1076,8 +1076,12 @@ namespace gip.ext.widgets.SideBar
 			}
 		}
 	}
-	
-	public class SpecialDataObject : System.Windows.Forms.IDataObject //, ITypedDataObject
+
+#if NET10
+	public class SpecialDataObject : System.Windows.Forms.IDataObject, ITypedDataObject
+#else
+    public class SpecialDataObject : System.Windows.Forms.IDataObject
+#endif
     {
 		List<object> dataObjects = new List<object>();
 		public object GetData(string format)
@@ -1163,6 +1167,7 @@ namespace gip.ext.widgets.SideBar
 			
 		}
 
+#if NET10
         public bool TryGetData<[DynamicallyAccessedMembers((DynamicallyAccessedMemberTypes)(-1))] T>([MaybeNullWhen(false), NotNullWhen(true)] out T data)
         {
             throw new NotImplementedException();
@@ -1182,5 +1187,6 @@ namespace gip.ext.widgets.SideBar
         {
             throw new NotImplementedException();
         }
+#endif
     }
 }

@@ -1,18 +1,42 @@
 <Project>
   <PropertyGroup>
-	  <!-- Set this property to true to work with the performance improved EF-Version at https://github.com/iplus-framework/efcore/tree/release/9.0 
+	  <!-- Set this property to true to work with the performance improved EF-Version at https://github.com/iplus-framework/efcore/tree/ef_90_iPlus
     until this changes are not merged into the official repository. 
-    This fork also enables automatic refreshing of entity objects from database -->
+    This fork also enables automatic refreshing of entity objects from database     
+    For NET 9.0 clone the branch "ef_90_iPlus" into a directory on the same level as the iPlus directory.
+    https://github.com/iplus-framework/efcore/tree/ef_90_iPlus
+    For the newest version NET 10.0 and higher clone the branch "ef_main_iPlus" into a directory on the same level as the iPlus directory.
+    https://github.com/iplus-framework/efcore/tree/ef_main_iPlus
+    Don't compile the test projects of entity framework. Only the projects in the src-driectory are needed.
+    -->
     <UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
-    <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
+    
+	
+	<!-- Settings for entity framework main and DOT-NET 9.0 -->
+	<DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
     <UITargetFramework>net9.0-windows7.0</UITargetFramework>
     <NetCorePackageVersion>9.0.7</NetCorePackageVersion>
     <EFCoreBuildFramework>net8.0</EFCoreBuildFramework>
-    <EFCoreRootDir>..\..\efcore9</EFCoreRootDir>
+    <EFCoreRootDir>..\..\ef_90_iPlus</EFCoreRootDir>
     <EFCoreIncludeDir>$(EFCoreRootDir)\artifacts\bin</EFCoreIncludeDir>
     <EFCoreToolsDir>$(EFCoreRootDir)\src\EFCore.Tools</EFCoreToolsDir>
     <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR</CompilerDefFCoreForkIPlus>
+    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'"></CompilerDefFCoreForkIPlus>
     <CodeAnalysisVersion>4.12.0</CodeAnalysisVersion>
     <CoreWCFVersion>1.8.0</CoreWCFVersion>
+
+
+    <!-- Settings for entity framework main and DOT-NET 10.0 and higher -->
+    <!--<DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
+    <UITargetFramework>net10.0-windows7.0</UITargetFramework>
+    <NetCorePackageVersion>10.0.0-preview.6.25358.103</NetCorePackageVersion>
+    <EFCoreBuildFramework>net10.0</EFCoreBuildFramework>
+    <EFCoreRootDir>..\..\ef_main_iPlus</EFCoreRootDir>
+    <EFCoreIncludeDir>$(EFCoreRootDir)\artifacts\bin</EFCoreIncludeDir>
+    <EFCoreToolsDir>$(EFCoreRootDir)\src\EFCore.Tools</EFCoreToolsDir>
+    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR;NET10</CompilerDefFCoreForkIPlus>
+    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'">NET10</CompilerDefFCoreForkIPlus>
+    <CodeAnalysisVersion>4.14.0</CodeAnalysisVersion>
+    <CoreWCFVersion>1.8.0</CoreWCFVersion>-->
   </PropertyGroup>
 </Project>

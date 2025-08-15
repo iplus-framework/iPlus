@@ -19,9 +19,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+    <DefineConstants>$(CompilerDefFCoreForkIPlus)</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <DebugSymbols>False</DebugSymbols>
+    <DefineConstants>$(CompilerDefFCoreForkIPlus)</DefineConstants>
     <DebugType>None</DebugType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
