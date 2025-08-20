@@ -648,7 +648,7 @@ namespace gip.bso.iplus
         [ACMethodCommand("VBUser", "en{'Search'}de{'Suchen'}", (short)MISort.Search, true)]
         public void Search()
         {
-            AccessPrimary.NavSearch(Db, MergeOption.OverwriteChanges);
+            AccessPrimary.NavSearch(Db, Db.RecommendedMergeOption);
             OnPropertyChanged("UserList");
         }
 
