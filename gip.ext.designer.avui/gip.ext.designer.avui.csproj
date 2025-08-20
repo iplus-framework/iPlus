@@ -1,0 +1,117 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(UITargetFramework)</TargetFramework>
+    <OutputType>Library</OutputType>
+    <NoStdLib>False</NoStdLib>
+    <OutputPath>...\..\..\..\AddIns\DisplayBindings\WpfDesign\</OutputPath>
+    <DocumentationFile>..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\ICSharpCode.WpfDesign.Designer.xml</DocumentationFile>
+    <NoWarn>1591</NoWarn>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+    <DelaySign>False</DelaySign>
+    <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>
+    <RunCodeAnalysis>False</RunCodeAnalysis>
+    <CodeAnalysisRules>-Microsoft.Performance#CA1800;-Microsoft.Performance#CA1810;-Microsoft.Performance#CA1822</CodeAnalysisRules>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <CheckForOverflowUnderflow>True</CheckForOverflowUnderflow>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>False</DebugSymbols>
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
+    <RegisterForComInterop>False</RegisterForComInterop>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <BaseAddress>4194304</BaseAddress>
+    <FileAlignment>4096</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <DebugSymbols>true</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Update="System.Core">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Update="UIAutomationProvider">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Tag.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.ext.design.avui\gip.ext.design.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.graphics.avui\gip.ext.graphics.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.widgets.avui\gip.ext.widgets.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\Class.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\PanToolCursor.cur" />
+    <Resource Include="Images\PanToolCursorMouseDown.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\ZoomIn.png" />
+    <Resource Include="Images\ZoomOut.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <CodeAnalysisDictionary Include="Configuration\CodeAnalysisDictionary.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\GIP-SNKey.snk">
+      <Link>GIP-SNKey.snk</Link>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CursorEditNode.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\CursorInsertPoint.cur" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>iplus-framework designer</Title>
+    <Description>Designer for WPF/XAML</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
+</Project>

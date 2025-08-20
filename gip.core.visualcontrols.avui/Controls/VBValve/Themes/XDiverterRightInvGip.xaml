@@ -1,0 +1,430 @@
+﻿<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+
+    <ControlTemplate x:Key="DiverterRightInvGip" TargetType="{x:Type local:VBValve}">
+        <Viewbox Stretch="Fill" RenderTransformOrigin="0.5,0.5">
+            <Canvas Width="59.0003" Height="74.0002">
+                <Path x:Name="OpModeBack" Width="59.0003" Height="74.0002" Canvas.Left="-3.33786e-006" Canvas.Top="0" Stretch="Fill" 
+                      Stroke="{TemplateBinding BorderBrushAuto}" 
+                      Fill="{TemplateBinding BorderBrushAuto}" 
+                      Data="F1 M 59.0002,0L 27.0001,0L 27.0001,31.0001L -3.33786e-006,46.0001L 16,74.0002L 27.0003,68.0003L 27.0003,72.0003L 59.0003,72.0003L 59.0002,31.0001L 59.0002,0 Z "/>
+                <Path x:Name="RunModeBody" Width="48.641" Height="63.9919" Canvas.Left="6.35898" Canvas.Top="4.00838" Stretch="Fill" 
+                      StrokeThickness="4" StrokeLineJoin="Round" 
+                        Stroke="#FF000000" 
+                        Fill="{TemplateBinding FillBrushIdle}" 
+                      Data="F1 M 32.9795,6.00838L 52.9795,6.00838L 52.9795,45.9331L 53,45.9686L 52.9795,45.9805L 52.9795,66.0003L 32.9795,66.0003L 32.9795,57.5275L 18.359,65.9686L 8.35898,48.6481L 32.9795,34.4335L 32.9795,6.00838 Z "/>
+                <Viewbox x:Name="PartR" Width="24" Height="63.9919" Canvas.Left="31" Canvas.Top="4.00838">
+                    <Canvas Width="24" Height="63.9919">
+                        <Rectangle x:Name="RunModeRight" Width="24" Height="63.9919" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                                   StrokeThickness="4" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" 
+                                  Fill="{TemplateBinding FillBrushIdle}" 
+                                   />
+                        <Viewbox x:Name="GlassR" Width="20" Height="60" Canvas.Left="2" Canvas.Top="1.99191" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                            <Canvas Width="20" Height="60">
+                                <Rectangle x:Name="Rectangle_370" Width="20" Height="60" Canvas.Left="2.28882e-005" Canvas.Top="-7.62939e-006" Stretch="Fill" StrokeThickness="1" StrokeLineJoin="Bevel">
+                                    <Rectangle.Stroke>
+                                        <RadialGradientBrush RadiusX="1" RadiusY="0.644927" Center="1,0.5" GradientOrigin="1,0.5">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform CenterX="1" CenterY="0.5" Angle="180"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Rectangle.Stroke>
+                                    <Rectangle.Fill>
+                                        <LinearGradientBrush StartPoint="1,0.5" EndPoint="3.8147e-007,0.5">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Rectangle.Fill>
+                                </Rectangle>
+                                <Path x:Name="Path_371" Width="20" Height="4.8" Canvas.Left="0" Canvas.Top="55.2" Stretch="Fill" Data="F1 M 9.50954,55.2L 10.5088,55.2C 14.6561,55.2 19.8452,57.338 20,60L 0,60C 0.15535,57.338 5.36227,55.2 9.50954,55.2 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="1,0.500001" EndPoint="0,0.500001">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_372" Width="20" Height="4.8" Canvas.Left="0" Canvas.Top="1.52588e-005" Stretch="Fill" Data="F1 M 9.50954,4.80002L 10.5088,4.80002C 14.6561,4.80002 19.8452,2.66199 20,1.52588e-005L 0,1.52588e-005C 0.15535,2.66199 5.36227,4.80002 9.50954,4.80002 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="1,0.499998" EndPoint="0,0.499998">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                    </Canvas>
+                </Viewbox>
+                <Viewbox x:Name="PartL" Width="48.641" Height="63.9603" Canvas.Left="6.35899" Canvas.Top="4.0003">
+                    <Canvas Width="48.641" Height="63.9603">
+                        <Path x:Name="RunModeLeft" Width="48.641" Height="63.9603" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                              StrokeThickness="4" StrokeLineJoin="Round" 
+                              Stroke="#FF000000" 
+                              Fill="{TemplateBinding FillBrushIdle}" 
+                              Data="F1 M 26.6205,2L 46.6205,2L 46.6205,41.9248L 46.641,41.9603L 46.6205,41.9721L 46.6205,42L 46.5722,42L 12,61.9603L 2,44.6398L 26.6205,30.4251L 26.6205,2 Z "/>
+                        <Viewbox x:Name="GlassL" Width="45" Height="60" Canvas.Left="1.64101" Canvas.Top="2.00002" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                            <Canvas Width="45" Height="60">
+                                <Path x:Name="Path_374" Width="20" Height="39.9602" Canvas.Left="25" Canvas.Top="0" Stretch="Fill" Data="F1 M 45,0L 25,0L 25,28L 45,39.9602L 45,0 Z " StrokeThickness="1" StrokeLineJoin="Bevel">
+                                    <Path.Stroke>
+                                        <RadialGradientBrush RadiusX="0.999999" RadiusY="0.451898" Center="0.999999,0.350348" GradientOrigin="0.999999,0.350348">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <RotateTransform CenterX="0.999999" CenterY="0.350348" Angle="180"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Stroke>
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="0.999999,0.350348" EndPoint="3.8147e-007,0.350348">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_375" Width="20" Height="4.8" Canvas.Left="25" Canvas.Top="0" Stretch="Fill" Data="F1 M 34.5095,4.8L 35.5088,4.8C 39.6561,4.8 44.8452,2.66197 45,0L 25,0C 25.1553,2.66197 30.3623,4.8 34.5095,4.8 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="1,0.499999" EndPoint="0,0.499999">
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_376" Width="45" Height="32" Canvas.Left="1.90735e-005" Canvas.Top="28" Stretch="Fill" Data="F1 M 45,39.9602L 25,28L 1.90735e-005,42.6795L 10,60L 45,39.9602 Z " StrokeThickness="1" StrokeLineJoin="Bevel">
+                                    <Path.Stroke>
+                                        <RadialGradientBrush RadiusX="0.585108" RadiusY="0.446812" Center="0.503069,0.771981" GradientOrigin="0.503069,0.771981">
+                                            <RadialGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </RadialGradientBrush.GradientStops>
+                                            <RadialGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <SkewTransform CenterX="0.503069" CenterY="0.771981" AngleX="16.752" AngleY="0"/>
+                                                    <RotateTransform CenterX="0.503069" CenterY="0.771981" Angle="247.679"/>
+                                                </TransformGroup>
+                                            </RadialGradientBrush.RelativeTransform>
+                                        </RadialGradientBrush>
+                                    </Path.Stroke>
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="0.503069,0.771981" EndPoint="1.08818,0.771981">
+                                            <LinearGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <SkewTransform CenterX="0.503069" CenterY="0.771981" AngleX="16.752" AngleY="0"/>
+                                                    <RotateTransform CenterX="0.503069" CenterY="0.771981" Angle="247.679"/>
+                                                </TransformGroup>
+                                            </LinearGradientBrush.RelativeTransform>
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                                <GradientStop Color="#B3000000" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                                <Path x:Name="Path_377" Width="11.3567" Height="17.5627" Canvas.Left="0" Canvas.Top="42.4373" Stretch="Fill" Data="F1 M 8.91169,48.515L 9.41134,49.3804C 11.485,52.972 12.2279,58.5349 10,60L 0,42.6795C 2.38301,41.483 6.83805,44.9233 8.91169,48.515 Z ">
+                                    <Path.Fill>
+                                        <LinearGradientBrush StartPoint="1.06356,0.931674" EndPoint="2.38566,0.931674">
+                                            <LinearGradientBrush.RelativeTransform>
+                                                <TransformGroup>
+                                                    <SkewTransform CenterX="1.06356" CenterY="0.931674" AngleX="-21.2878" AngleY="0"/>
+                                                    <RotateTransform CenterX="1.06356" CenterY="0.931674" Angle="228.24"/>
+                                                </TransformGroup>
+                                            </LinearGradientBrush.RelativeTransform>
+                                            <LinearGradientBrush.GradientStops>
+                                                <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                                <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush.GradientStops>
+                                        </LinearGradientBrush>
+                                    </Path.Fill>
+                                </Path>
+                            </Canvas>
+                        </Viewbox>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+            <Viewbox.RenderTransform>
+                <ScaleTransform ScaleX="-1"/>
+            </Viewbox.RenderTransform>
+        </Viewbox>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="True"/>
+                    <Condition Property="ReqPos2" Value="False"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeLeft" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeLeft" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartLeft">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeLeft"
+                                        Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartLeft" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeLeft" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeLeft" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartLeft2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeLeft"
+                                        Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartLeft2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="True"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeLeft" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeLeft" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartLeft3">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeLeft"
+                                        Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartLeft3" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos2" Value="True"/>
+                    <Condition Property="ReqPos1" Value="False"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeRight" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartRight">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartRight" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeRight" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartRight2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartRight2" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos2" Value="True"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeRight" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartRight3">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeRight"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartRight3" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="False"/>
+                    <Condition Property="ReqPos2" Value="False"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="IsTriggered" Value="True"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeLeft" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeLeft" Property="StrokeDashArray" Value="4 4" />
+                <Setter TargetName="RunModeRight" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunModeRight" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStartAll">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeLeft"
+                                        Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunModeRight"
+                                        Storyboard.TargetProperty="(Path.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStartAll" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <Trigger Property="OperatingMode" Value="Manual">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushManual}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Maintenance">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PartR" Property="Visibility" Value="Hidden" />
+                <Setter TargetName="RunModeLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="PartL" Property="Visibility" Value="Hidden" />
+                <Setter TargetName="RunModeRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="RunModeRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInterlocked" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunModeLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+                <Setter TargetName="RunModeRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+            </MultiTrigger>
+            <Trigger Property="FaultState" Value="AlarmOrFault">
+                <Setter TargetName="RunModeLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+                <Setter TargetName="RunModeRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="InActive">
+                <Setter TargetName="RunModeLeft" Property="Fill" Value="Black" />
+                <Setter TargetName="RunModeRight" Property="Fill" Value="Black" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+</ResourceDictionary>

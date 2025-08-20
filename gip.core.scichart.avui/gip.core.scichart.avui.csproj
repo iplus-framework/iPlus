@@ -1,0 +1,70 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(UITargetFramework)</TargetFramework>
+    <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <NoWarn>CA1416;VSTHRD110</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <NoWarn>1591</NoWarn>
+    <NoWarn>CA1416;VSTHRD110</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>iplus-framework scichart</Title>
+    <Description>Wrapper for commercial chart control from SciChart Ltd.</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>  
+  <ItemGroup>
+    <AppDesigner Include="Properties\" />
+    <EmbeddedResource Include="VBXMLEditorSchemas\VBCSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\SciChartSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SciChart" Version="8.9.0.28760" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <PropertyGroup>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <BaseIntermediateOutputPath>obj\</BaseIntermediateOutputPath>
+  </PropertyGroup>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(OutDir)\gip.core.scichart.avui.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="$(OutDir)\gip.core.scichart.avui.pdb" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+  </Target>
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <!--<Exec Command="copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Charting.dll  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Core.dll  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Data.dll  $(TargetDir)&#xD;&#xA;copy /Y $(ProjectDir)..\..\..\packages\SciChart\7.0.2.27161\lib\net6.0-windows7.0\SciChart.Drawing.dll  $(TargetDir)" />-->
+  </Target>
+</Project>

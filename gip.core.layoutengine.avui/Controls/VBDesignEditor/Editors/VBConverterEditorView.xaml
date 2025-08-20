@@ -1,0 +1,28 @@
+﻿<UserControl
+    x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBConverterEditorView"
+    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    >
+    <Border BorderThickness="2" BorderBrush="#80FF0000" CornerRadius="6" Background="{StaticResource {ComponentResourceKey ResourceId=AppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}">
+        <StackPanel Width="250" Margin="6">
+            <local:VBGrid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="50" />
+                    <ColumnDefinition Width="200" />
+                </Grid.ColumnDefinitions>
+                <local:VBButton Grid.Column="0" Content="Reset" x:Name="ButtonReset" Click="ButtonReset_Click" />
+                <local:VBComboBox Grid.Column="1" Height="24" Margin="2,0,0,0" ShowCaption="False" x:Name="ComboConverter" IsEnabled="False" />
+            </local:VBGrid>
+            <local:VBComboBox x:Name="ComboConversionBy" ACCaptionTrans="Mode:" SelectedItem="{Binding ConversionBy}"  Margin="0,2,0,0" />
+            <local:VBTextBox x:Name="tbACUrlCmd" ACCaptionTrans="Url:" Text="{Binding ACUrlCommand}" Margin="0,2,0,0" Height="24"/>
+            <local:VBCheckBox x:Name="cbGlobal" ACCaption="Is global function" IsChecked="{Binding GlobalFunction}" Margin="0,2,0,0" />
+            <local:VBScriptEditor Height="100" x:Name="ucAvalonTextEditor"  Margin="0,2,0,0"
+                                Grid.Column="1" 
+                                TextChanged="ucAvalonTextEditor_TextChanged"
+                                SyntaxHighlighting="C#"
+                                WordWrap="True"
+                                Text="(int a, double b) => return int i = 0;"/>
+        </StackPanel>
+    </Border>
+</UserControl>

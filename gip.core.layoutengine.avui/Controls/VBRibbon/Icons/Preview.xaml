@@ -1,0 +1,96 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <Style x:Key="IconPreviewStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_102" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="Path_103" Width="16" Height="21" Canvas.Left="0.999999" Canvas.Top="0.5" Stretch="Fill" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 5.59091,1L 16.5,1L 16.5,21L 1.5,21L 1.5,5.61539L 5.59091,1 Z ">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0.5,0.0467033" EndPoint="0.5,0.953297">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Color="#FFFFFDFD" Offset="0"/>
+                                            <GradientStop Color="#FFCECDCD" Offset="0.110698"/>
+                                            <GradientStop Color="#FF9E9E9E" Offset="0.260465"/>
+                                            <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+                            <Path x:Name="Path_104" Width="4.99999" Height="5" Canvas.Left="1.50001" Canvas.Top="0.5" Stretch="Fill" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Fill="#FF565656" 
+                                  Data="F1 M 5.99999,1L 6,5L 2.00001,5L 5.99999,1 Z "/>
+                            <Path x:Name="Line_105" Width="6" Height="1" Canvas.Left="7" Canvas.Top="6.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 7.5,7L 12.5,7"/>
+                            <Path x:Name="Line_106" Width="11" Height="1" Canvas.Left="2.5" Canvas.Top="8.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 3,9L 13,9"/>
+                            <Path x:Name="Line_107" Width="11" Height="1" Canvas.Left="2.5" Canvas.Top="10.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 3,11L 13,11"/>
+                            <Path x:Name="Line_108" Width="11" Height="1" Canvas.Left="2.44185" Canvas.Top="14.404" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 2.94185,14.904L 12.9419,14.904"/>
+                            <Path x:Name="Line_109" Width="11" Height="1" Canvas.Left="2.44185" Canvas.Top="16.404" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 2.94185,16.904L 12.9419,16.904"/>
+                            <Path x:Name="Line_110" Width="11" Height="1" Canvas.Left="2.44185" Canvas.Top="12.404" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF565656" 
+                                  Data="F1 M 2.94185,12.904L 12.9419,12.904"/>
+                            <Ellipse x:Name="Ellipse_111" Width="13" Height="13" Canvas.Left="2.5" Canvas.Top="2.50001" Stretch="Fill" StrokeLineJoin="Round" 
+                                     Stroke="#FF000000">
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush RadiusX="0.545454" RadiusY="0.545454" Center="0.772727,0.772727" GradientOrigin="0.772727,0.772727">
+                                        <RadialGradientBrush.GradientStops>
+                                            <GradientStop Color="#99FF0000" Offset="0"/>
+                                            <GradientStop Color="#60FE0101" Offset="0.44186"/>
+                                            <GradientStop Color="#26FE0303" Offset="1"/>
+                                        </RadialGradientBrush.GradientStops>
+                                        <RadialGradientBrush.RelativeTransform>
+                                            <TransformGroup/>
+                                        </RadialGradientBrush.RelativeTransform>
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <Path x:Name="Path_112" Width="10.9853" Height="10.9853" Canvas.Left="12.5074" Canvas.Top="12.5074" Stretch="Fill" StrokeThickness="0.5" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" 
+                                  Data="F1 M 14.4645,13.0503L 22.9498,21.5355C 23.3403,21.9261 23.3403,22.5592 22.9498,22.9497L 22.9498,22.9497C 22.5592,23.3403 21.9261,23.3403 21.5355,22.9497L 13.0503,14.4645C 12.6597,14.0739 12.6597,13.4408 13.0503,13.0503L 13.0503,13.0503C 13.4408,12.6597 14.0739,12.6597 14.4645,13.0503 Z ">
+                                <Path.Fill>
+                                    <LinearGradientBrush StartPoint="0.428731,0.571269" EndPoint="0.571269,0.428731">
+                                        <LinearGradientBrush.GradientStops>
+                                            <GradientStop Color="#FF616161" Offset="0.246512"/>
+                                            <GradientStop Color="#FFB0ABAB" Offset="0.579448"/>
+                                            <GradientStop Color="#FFFFF5F5" Offset="1"/>
+                                        </LinearGradientBrush.GradientStops>
+                                    </LinearGradientBrush>
+                                </Path.Fill>
+                            </Path>
+                        </Canvas>
+                    </Viewbox>
+                    <!--<ControlTemplate.Triggers>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
+                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
+                        </DataTrigger>
+                    </ControlTemplate.Triggers>-->
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconPreviewStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconPreviewStyleGip}">
+    </Style>
+</ResourceDictionary>
+
+

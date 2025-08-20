@@ -1,0 +1,203 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(UITargetFramework)</TargetFramework>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Fluent</RootNamespace>
+    <AssemblyName>Fluent</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>Properties\FluentStrongName.snk</AssemblyOriginatorKeyFile>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <ExpressionBlendVersion>4.0.20621.0</ExpressionBlendVersion>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE;DEBUG;CODE_ANALYSIS</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DefineConstants>TRACE;CODE_ANALYSIS</DefineConstants>
+    <DocumentationFile>
+    </DocumentationFile>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <CodeAnalysisRules>
+    </CodeAnalysisRules>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System.Windows.Interactivity, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>.\System.Windows.Interactivity.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Effects\Grayscale.ps" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\HelpSmall.png" />
+    <Resource Include="Themes\Office2010\Images\WarningSmall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\DialogLauncher.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\DefaultSmallIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\BackstageCorner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\QuickAccessToolbarExtender.png" />
+    <Resource Include="Themes\Office2010\Images\RibbonPin.png" />
+    <Resource Include="Themes\Office2010\Images\QuickAccessToolbarDropDown.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\RibbonCollapse.png" />
+    <Resource Include="Themes\Office2010\Images\RibbonExpand.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\CaptionButtonClose.png" />
+    <Resource Include="Themes\Office2010\Images\CaptionButtonMaximize.png" />
+    <Resource Include="Themes\Office2010\Images\CaptionButtonMinimize.png" />
+    <Resource Include="Themes\Office2010\Images\CaptionButtonNormalize.png" />
+    <Resource Include="Themes\Office2010\Images\ResizeGrip.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\Checked.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\Copy.png" />
+    <Resource Include="Themes\Office2010\Images\Cut.png" />
+    <Resource Include="Themes\Office2010\Images\Paste.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\ApplicationMenu.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Themes\Office2010\Images\MoreColors.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="BackstageButton.cs" />
+    <Compile Remove="RibbonGroupBoxPanel.cs" />
+    <Compile Remove="RibbonPopup.cs" />
+    <Compile Remove="RibbonTabPanel.cs" />
+    <Compile Remove="RibbonToolBarTray.cs" />
+    <Page Remove="Themes\Metro\Controls\RibbonScrollViewer.xaml" />
+    <Page Remove="Themes\Office2010\Colors\Colors.xaml" />
+    <Page Remove="Themes\Office2010\Common.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ApplicationMenu.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ApplicationMenuItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\BackstageControls.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Backstagee.xaml" />
+    <Page Remove="Themes\Office2010\Controls\BackstageTabControl.xaml" />
+    <Page Remove="Themes\Office2010\Controls\BackstageTabItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Button.xaml" />
+    <Page Remove="Themes\Office2010\Controls\CheckBox.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ColorGallery.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ComboBox.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ComboBoxItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\DropDownButton.xaml" />
+    <Page Remove="Themes\Office2010\Controls\EmptyFocusStyle.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Gallery.xaml" />
+    <Page Remove="Themes\Office2010\Controls\GalleryGroupContainer.xaml" />
+    <Page Remove="Themes\Office2010\Controls\GalleryItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\InRibbonGallery.xaml" />
+    <Page Remove="Themes\Office2010\Controls\KeyTip.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Menu.xaml" />
+    <Page Remove="Themes\Office2010\Controls\MenuItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\MenuSeparator.xaml" />
+    <Page Remove="Themes\Office2010\Controls\QuickAccessToolbar.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RadioButton.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Ribbon.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonContextualTabGroup.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonGroupBox.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonMenu.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonScrollViewer.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonSeparator.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonStatusBar.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonTabControl.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonTabItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonTextBox.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonTitleBar.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonToolBar.xaml" />
+    <Page Remove="Themes\Office2010\Controls\RibbonToolBarControlGroup.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ScreenTip.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ScrollBar.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ScrollBarWhite.xaml" />
+    <Page Remove="Themes\Office2010\Controls\SeparatorTabItem.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Slider.xaml" />
+    <Page Remove="Themes\Office2010\Controls\Spinner.xaml" />
+    <Page Remove="Themes\Office2010\Controls\SplitButton.xaml" />
+    <Page Remove="Themes\Office2010\Controls\StatusBar.xaml" />
+    <Page Remove="Themes\Office2010\Controls\TextBox.xaml" />
+    <Page Remove="Themes\Office2010\Controls\ToggleButton.xaml" />
+    <Page Remove="Themes\Office2010\Controls\TwoLineLabel.xaml" />
+    <Page Remove="Themes\Office2010\Fonts.xaml" />
+    <Page Remove="Themes\Office2010\RibbonWindow.xaml" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PreBuildEvent>goto :exit
+attrib -r $(ProjectDir)Themes\Generic.xaml
+"$(ProjectDir)Themes\XamlCombine.exe" Generic.txt Generic.xaml
+attrib -r $(ProjectDir)Themes\Office2010\Black.xaml
+"$(ProjectDir)Themes\XamlCombine.exe" Office2010\Black.txt Office2010\Black.xaml
+attrib -r $(ProjectDir)Themes\Office2010\Blue.xaml
+"$(ProjectDir)Themes\XamlCombine.exe" Office2010\Blue.txt Office2010\Blue.xaml
+attrib -r $(ProjectDir)Themes\Office2010\Silver.xaml
+"$(ProjectDir)Themes\XamlCombine.exe" Office2010\Silver.txt Office2010\Silver.xaml
+attrib -r $(ProjectDir)Themes\Metro\White.xaml
+"$(ProjectDir)Themes\XamlCombine.exe" Metro\White.txt Metro\White.xaml
+:exit</PreBuildEvent>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+  <PropertyGroup>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>iplus-framework ribbon</Title>
+    <Description>Ribbon controls for report designer</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>  
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Windows.Compatibility" Version="$(NetCorePackageVersion)" />
+  </ItemGroup>
+</Project>

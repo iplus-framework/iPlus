@@ -1,0 +1,19 @@
+﻿<local:VBWindowDialog x:Class="Document.Editor.FindDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+          xmlns:local="http://www.iplus-framework.com/xaml"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+    Title="Find" Icon="find16.ico" Height="104" Width="240" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Background="#7BFFFFFF">
+        <Fluent:Button SizeDefinition="Middle" Header="Cancel" Icon="../../Images/Common/cancel16.png" HorizontalAlignment="Right" Margin="0,0,10,10" Name="CancelButton" VerticalAlignment="Bottom" IsCancel="True">
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="Cancel" Text="Cancel and Close the Dialog" Image="../../Images/Common/cancel48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:Button SizeDefinition="Middle" Header="OK" HorizontalAlignment="Right" Icon="../../Images/Common/ok16.png" Margin="0,0,77,10" Name="OKButton" VerticalAlignment="Bottom" IsEnabled="False" Click="OKButton_Click">
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="OK" Text="Close the Dialog and Find" Image="../../Images/Common/ok48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:TextBox Header="Find:" Margin="10,10,10,0" Name="TextBox1" VerticalAlignment="Top" KeyDown="TextBox1_KeyDown" TextChanged="TextBox1_TextChanged"/>
+    </Grid></local:VBWindowDialog>

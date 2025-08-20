@@ -1,0 +1,74 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/Shared.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XOneWayValveGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XTwoWayValveGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XTwoWayValveDivertRGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XTwoWayValveDivertLGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XThreeWayValve3FlangeGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XThreeWayValveGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XOneWaySlideGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XOneWayFlapGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XTwoWayFlapGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XDiverterLeftGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XDiverterRightGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XMixingValveGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XAnalogValveGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XDiverterLeftInvGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.visualcontrols.avui;Component/Controls/VBValve/Themes/XDiverterRightInvGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="ValveStyleGip" TargetType="{x:Type local:VBValve}">
+        <Setter Property="Template" Value="{StaticResource OneWayValveGip}"/>
+        <Style.Triggers>
+            <Trigger Property="ValveType" Value="TwoWayValve">
+                <Setter Property="Template" Value="{StaticResource TwoWayValveGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="TwoWayValveDivertR">
+                <Setter Property="Template" Value="{StaticResource TwoWayValveDivertRGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="TwoWayValveDivertL">
+                <Setter Property="Template" Value="{StaticResource TwoWayValveDivertLGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="ThreeWayValve3Flange">
+                <Setter Property="Template" Value="{StaticResource ThreeWayValve3FlangeGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="ThreeWayValve">
+                <Setter Property="Template" Value="{StaticResource ThreeWayValveGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="OneWaySlide">
+                <Setter Property="Template" Value="{StaticResource OneWaySlideGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="OneWayFlap">
+                <Setter Property="Template" Value="{StaticResource OneWayFlapGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="TwoWayFlap">
+                <Setter Property="Template" Value="{StaticResource TwoWayFlapGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="DiverterLeft">
+                <Setter Property="Template" Value="{StaticResource DiverterLeftGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="DiverterRight">
+                <Setter Property="Template" Value="{StaticResource DiverterRightGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="MixingValve">
+                <Setter Property="Template" Value="{StaticResource MixingValveGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="AnalogValve">
+                <Setter Property="Template" Value="{StaticResource AnalogValveGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="SimpleRect">
+                <Setter Property="Template" Value="{StaticResource SimpleRectGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="DiverterLeftInv">
+                <Setter Property="Template" Value="{StaticResource DiverterLeftInvGip}"/>
+            </Trigger>
+            <Trigger Property="ValveType" Value="DiverterRightInv">
+                <Setter Property="Template" Value="{StaticResource DiverterRightInvGip}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

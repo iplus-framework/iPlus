@@ -1,0 +1,9 @@
+﻿<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBVisualGroup/Themes/VBVisualGroupStyleGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <Style x:Key="VBVisualGroupStyleAero" BasedOn="{StaticResource VBVisualGroupStyleGip}" TargetType="{x:Type local:VBVisualGroup}" />
+</ResourceDictionary>

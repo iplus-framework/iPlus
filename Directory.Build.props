@@ -9,7 +9,7 @@
     https://github.com/iplus-framework/efcore/tree/ef_main_iPlus
     Don't compile the test projects of entity framework. Only the projects in the src-driectory are needed.
     -->
-    <UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
+    <UseEFCoreForkIPlus>True</UseEFCoreForkIPlus>
     
 	
 	<!-- Settings for entity framework main and DOT-NET 9.0 -->
@@ -38,5 +38,8 @@
     <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'">NET10</CompilerDefFCoreForkIPlus>
     <CodeAnalysisVersion>4.14.0</CodeAnalysisVersion>
     <CoreWCFVersion>1.8.0</CoreWCFVersion>-->
+
+    <AvaloniaVersion>11.3.0</AvaloniaVersion>
+    
   </PropertyGroup>
 </Project>

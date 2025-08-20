@@ -1,0 +1,41 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ControlTemplate x:Key="CircularPointsGip" TargetType="{x:Type local:VBProgressBar}">
+        <Grid x:Name="LayoutRoot">
+            <!-- attach the view model -->
+            <local:VBProgressBarCircularViewModel.Attach>
+                <local:VBProgressBarSegmentedViewModel HoleSizeFactor="0.8"
+                                                             SegmentCount="14"/>
+            </local:VBProgressBarCircularViewModel.Attach>
+
+            <Canvas>
+                <ItemsControl ItemsSource="{Binding Segments}"
+                              Canvas.Top="{Binding CentreY}"
+                              Canvas.Left="{Binding CentreX}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Ellipse Width="9" Height="9" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieFill}">
+                                <Ellipse.RenderTransform>
+                                    <TransformGroup>
+                                        <TranslateTransform X="-4" Y="-4"/>
+                                        <ScaleTransform ScaleX="{Binding Opacity}" ScaleY="{Binding Opacity}"/>
+                                        <TranslateTransform Y="{Binding Parent.InnerRadius}"/>
+                                        <RotateTransform Angle="180"/>
+                                        <RotateTransform Angle="{Binding StartAngle}"/>
+                                    </TransformGroup>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </Canvas>
+        </Grid>
+    </ControlTemplate>
+</ResourceDictionary>

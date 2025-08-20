@@ -1,0 +1,42 @@
+﻿<UserControl
+    x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBTransformEditorGroupView"
+    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    xmlns:editor="clr-namespace:gip.core.layoutengine.avui.PropertyGrid.Editors"
+    >
+    <local:VBGrid Margin="6">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="30" />
+            <RowDefinition Height="*" MinHeight="100" />
+            <RowDefinition Height="30" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="140" />
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <local:VBListBox Grid.Row="0" Grid.RowSpan="2" x:Name="PART_TransformGroupList" ItemsSource="{Binding TransformCollection}" 
+                         IsSynchronizedWithCurrentItem="True" 
+                         DisplayMemberPath="Name" 
+                         ShowCaption="False"
+                         SelectionChanged="ComboTransform_SelectionChanged"/>
+        <UniformGrid Grid.Row="2" Columns="2" Rows="1">
+            <local:VBButton x:Name="PART_AddItem" Content="Add" Margin="2,0,0,0" MaxHeight="30" Click="PART_AddItem_Click">
+                <!--<Button.ContextMenu>
+                    <local:VBContextMenu>
+                        <local:VBMenuItem Header="RotateTransform" Click="VBMenuItem_Click" />
+                        <local:VBMenuItem Header="ScaleTransform" Click="VBMenuItem_Click" />
+                        <local:VBMenuItem Header="SkewTransform" Click="VBMenuItem_Click" />
+                        <local:VBMenuItem Header="TranslateTransform" Click="VBMenuItem_Click" />
+                        <local:VBMenuItem Header="MatrixTransform" Click="VBMenuItem_Click" />
+                    </local:VBContextMenu>
+                </Button.ContextMenu>-->
+            </local:VBButton>
+            <local:VBButton x:Name="PART_RemoveItem" Content="Remove" Margin="2,0,0,0" MaxHeight="30" Click="PART_RemoveItem_Click" />
+        </UniformGrid>
+        <DockPanel Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Margin="5,0,0,0">
+            <local:VBTextBlock DockPanel.Dock="Top" Text="Tansform-Object:" Width="100" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" />
+            <editor:VBTransformEditorSingleView DockPanel.Dock="Bottom" MinHeight="100" x:Name="PART_TransformEditor" />
+        </DockPanel>
+    </local:VBGrid>
+</UserControl>

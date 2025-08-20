@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:vbr="http://www.iplus-framework.com/report/xaml" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" targetNamespace="http://www.iplus-framework.com/report/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="pack://application:,,,/gip.core.layoutengine.avui;component/VBXMLEditorSchemas/XamlPresentation2006.xsd" namespace="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+  <xs:group name="VBReportItems">
+    <xs:choice />
+  </xs:group>
+</xs:schema>

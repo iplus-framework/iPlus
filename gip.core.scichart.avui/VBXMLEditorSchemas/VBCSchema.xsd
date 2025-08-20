@@ -1,0 +1,250 @@
+<?xml version="1.0"?>
+<xs:schema xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:vbc="http://www.iplus-framework.com/scichart/xaml" xmlns:s="http://schemas.abtsoftware.co.uk/scichart" targetNamespace="http://www.iplus-framework.com/scichart/xaml" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import schemaLocation="pack://application:,,,/gip.core.layoutengine.avui;component/VBXMLEditorSchemas/XamlPresentation2006.xsd" namespace="http://schemas.microsoft.com/winfx/2006/xaml/presentation" />
+  <xs:import schemaLocation="pack://application:,,,/gip.core.scichart.avui;component/VBXMLEditorSchemas/SciChartSchema.xsd" namespace="http://schemas.abtsoftware.co.uk/scichart" />
+  <xs:complexType name="EnumLabelProvider">
+    <xs:sequence>
+      <xs:group ref="vbc:VBSciChartItems" />
+      <xs:element name="EnumLabelProvider.EnumType" />
+      <xs:element name="EnumLabelProvider.ParentAxis" />
+    </xs:sequence>
+    <xs:attribute name="EnumType" />
+    <xs:attribute name="ParentAxis" />
+  </xs:complexType>
+  <xs:element name="EnumLabelProvider" type="vbc:EnumLabelProvider" />
+  <xs:simpleType name="enumRenderPriority">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Immediate" />
+      <xs:enumeration value="Normal" />
+      <xs:enumeration value="Low" />
+      <xs:enumeration value="Manual" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumHorizontalAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Left" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Right" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumVerticalAlignment">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Top" />
+      <xs:enumeration value="Center" />
+      <xs:enumeration value="Bottom" />
+      <xs:enumeration value="Stretch" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumFlowDirection">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="LeftToRight" />
+      <xs:enumeration value="RightToLeft" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="enumVisibility">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Visible" />
+      <xs:enumeration value="Hidden" />
+      <xs:enumeration value="Collapsed" />
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType name="VBSciChartSurface">
+    <xs:sequence>
+      <xs:group ref="vbc:VBSciChartItems" />
+      <xs:element name="VBSciChartSurface.DisplayAsArchive" />
+      <xs:element name="VBSciChartSurface.BSOACComponent" />
+      <xs:element name="VBSciChartSurface.PropertyLogItems" />
+      <xs:element name="VBSciChartSurface.LicenseDaysRemaining" type="dInt32Container" />
+      <xs:element name="VBSciChartSurface.LeftAxesPanelTemplate" type="dItemsPanelTemplateContainer" />
+      <xs:element name="VBSciChartSurface.RightAxesPanelTemplate" type="dItemsPanelTemplateContainer" />
+      <xs:element name="VBSciChartSurface.BottomAxesPanelTemplate" type="dItemsPanelTemplateContainer" />
+      <xs:element name="VBSciChartSurface.TopAxesPanelTemplate" type="dItemsPanelTemplateContainer" />
+      <xs:element name="VBSciChartSurface.CenterXAxesPanelTemplate" type="dItemsPanelTemplateContainer" />
+      <xs:element name="VBSciChartSurface.CenterYAxesPanelTemplate" type="dItemsPanelTemplateContainer" />
+      <xs:element name="VBSciChartSurface.ClipOverlayAnnotations" />
+      <xs:element name="VBSciChartSurface.ClipUnderlayAnnotations" />
+      <xs:element name="VBSciChartSurface.RenderableSeries" />
+      <xs:element name="VBSciChartSurface.AutoRangeOnStartup" />
+      <xs:element name="VBSciChartSurface.ZoomExtentsCommand" type="dICommandContainer" />
+      <xs:element name="VBSciChartSurface.AnimateZoomExtentsCommand" type="dICommandContainer" />
+      <xs:element name="VBSciChartSurface.XAxis" />
+      <xs:element name="VBSciChartSurface.YAxis" />
+      <xs:element name="VBSciChartSurface.YAxes" />
+      <xs:element name="VBSciChartSurface.XAxes" />
+      <xs:element name="VBSciChartSurface.Annotations" />
+      <xs:element name="VBSciChartSurface.ViewportManager" />
+      <xs:element name="VBSciChartSurface.ChartModifier" />
+      <xs:element name="VBSciChartSurface.GridLinesPanelStyle" type="dStyleContainer" />
+      <xs:element name="VBSciChartSurface.RenderSurfaceStyle" type="dStyleContainer" />
+      <xs:element name="VBSciChartSurface.SeriesSource" />
+      <xs:element name="VBSciChartSurface.DebugWhyDoesntSciChartRender" />
+      <xs:element name="VBSciChartSurface.MaxFrameRate" type="dNullableOfDoubleContainer" />
+      <xs:element name="VBSciChartSurface.Services" />
+      <xs:element name="VBSciChartSurface.ChartTitle" />
+      <xs:element name="VBSciChartSurface.ClipModifierSurface" />
+      <xs:element name="VBSciChartSurface.RenderPriority" />
+      <xs:element name="VBSciChartSurface.RenderSurface" />
+      <xs:element name="VBSciChartSurface.BorderBrush" type="dBrushContainer" />
+      <xs:element name="VBSciChartSurface.BorderThickness" type="dThicknessContainer" />
+      <xs:element name="VBSciChartSurface.Background" type="dBrushContainer" />
+      <xs:element name="VBSciChartSurface.Foreground" type="dBrushContainer" />
+      <xs:element name="VBSciChartSurface.FontFamily" type="dFontFamilyContainer" />
+      <xs:element name="VBSciChartSurface.FontSize" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.FontStretch" type="dFontStretchContainer" />
+      <xs:element name="VBSciChartSurface.FontStyle" type="dFontStyleContainer" />
+      <xs:element name="VBSciChartSurface.FontWeight" type="dFontWeightContainer" />
+      <xs:element name="VBSciChartSurface.HorizontalContentAlignment" />
+      <xs:element name="VBSciChartSurface.VerticalContentAlignment" />
+      <xs:element name="VBSciChartSurface.TabIndex" type="dInt32Container" />
+      <xs:element name="VBSciChartSurface.IsTabStop" />
+      <xs:element name="VBSciChartSurface.Padding" type="dThicknessContainer" />
+      <xs:element name="VBSciChartSurface.Template" type="dControlTemplateContainer" />
+      <xs:element name="VBSciChartSurface.Style" type="dStyleContainer" />
+      <xs:element name="VBSciChartSurface.OverridesDefaultStyle" />
+      <xs:element name="VBSciChartSurface.UseLayoutRounding" />
+      <xs:element name="VBSciChartSurface.Resources" />
+      <xs:element name="VBSciChartSurface.DataContext" type="dObjectContainer" />
+      <xs:element name="VBSciChartSurface.BindingGroup" />
+      <xs:element name="VBSciChartSurface.Language" type="dXmlLanguageContainer" />
+      <xs:element name="VBSciChartSurface.Name" />
+      <xs:element name="VBSciChartSurface.Tag" type="dObjectContainer" />
+      <xs:element name="VBSciChartSurface.InputScope" type="dInputScopeContainer" />
+      <xs:element name="VBSciChartSurface.LayoutTransform" type="dTransformContainer" />
+      <xs:element name="VBSciChartSurface.Width" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.MinWidth" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.MaxWidth" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.Height" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.MinHeight" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.MaxHeight" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.FlowDirection" />
+      <xs:element name="VBSciChartSurface.Margin" type="dThicknessContainer" />
+      <xs:element name="VBSciChartSurface.HorizontalAlignment" />
+      <xs:element name="VBSciChartSurface.VerticalAlignment" />
+      <xs:element name="VBSciChartSurface.FocusVisualStyle" type="dStyleContainer" />
+      <xs:element name="VBSciChartSurface.Cursor" type="dCursorContainer" />
+      <xs:element name="VBSciChartSurface.ForceCursor" />
+      <xs:element name="VBSciChartSurface.ToolTip" type="dObjectContainer" />
+      <xs:element name="VBSciChartSurface.ContextMenu" type="dContextMenuContainer" />
+      <xs:element name="VBSciChartSurface.AllowDrop" />
+      <xs:element name="VBSciChartSurface.RenderSize" type="dSizeContainer" />
+      <xs:element name="VBSciChartSurface.RenderTransform" type="dTransformContainer" />
+      <xs:element name="VBSciChartSurface.RenderTransformOrigin" type="dPointContainer" />
+      <xs:element name="VBSciChartSurface.Opacity" type="dDoubleContainer" />
+      <xs:element name="VBSciChartSurface.OpacityMask" type="dBrushContainer" />
+      <xs:element name="VBSciChartSurface.BitmapEffect" type="dBitmapEffectContainer" />
+      <xs:element name="VBSciChartSurface.Effect" />
+      <xs:element name="VBSciChartSurface.BitmapEffectInput" type="dBitmapEffectInputContainer" />
+      <xs:element name="VBSciChartSurface.CacheMode" />
+      <xs:element name="VBSciChartSurface.Uid" />
+      <xs:element name="VBSciChartSurface.Visibility" />
+      <xs:element name="VBSciChartSurface.ClipToBounds" />
+      <xs:element name="VBSciChartSurface.Clip" type="dGeometryContainer" />
+      <xs:element name="VBSciChartSurface.SnapsToDevicePixels" />
+      <xs:element name="VBSciChartSurface.IsEnabled" />
+      <xs:element name="VBSciChartSurface.IsHitTestVisible" />
+      <xs:element name="VBSciChartSurface.Focusable" />
+      <xs:element name="VBSciChartSurface.IsManipulationEnabled" />
+    </xs:sequence>
+    <xs:attribute name="DisplayAsArchive" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="BSOACComponent" />
+    <xs:attribute name="PropertyLogItems" />
+    <xs:attribute name="LicenseDaysRemaining" />
+    <xs:attribute name="LeftAxesPanelTemplate" />
+    <xs:attribute name="RightAxesPanelTemplate" />
+    <xs:attribute name="BottomAxesPanelTemplate" />
+    <xs:attribute name="TopAxesPanelTemplate" />
+    <xs:attribute name="CenterXAxesPanelTemplate" />
+    <xs:attribute name="CenterYAxesPanelTemplate" />
+    <xs:attribute name="ClipOverlayAnnotations" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="ClipUnderlayAnnotations" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="RenderableSeries" />
+    <xs:attribute name="AutoRangeOnStartup" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="ZoomExtentsCommand" />
+    <xs:attribute name="AnimateZoomExtentsCommand" />
+    <xs:attribute name="XAxis" />
+    <xs:attribute name="YAxis" />
+    <xs:attribute name="YAxes" />
+    <xs:attribute name="XAxes" />
+    <xs:attribute name="Annotations" />
+    <xs:attribute name="ViewportManager" />
+    <xs:attribute name="ChartModifier" />
+    <xs:attribute name="GridLinesPanelStyle" />
+    <xs:attribute name="RenderSurfaceStyle" />
+    <xs:attribute name="SeriesSource" />
+    <xs:attribute name="DebugWhyDoesntSciChartRender" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="MaxFrameRate" />
+    <xs:attribute name="Services" />
+    <xs:attribute name="ChartTitle" />
+    <xs:attribute name="ClipModifierSurface" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="RenderPriority" type="vbc:enumRenderPriority" />
+    <xs:attribute name="RenderSurface" />
+    <xs:attribute name="BorderBrush" />
+    <xs:attribute name="BorderThickness" />
+    <xs:attribute name="Background" />
+    <xs:attribute name="Foreground" />
+    <xs:attribute name="FontFamily" />
+    <xs:attribute name="FontSize" />
+    <xs:attribute name="FontStretch" />
+    <xs:attribute name="FontStyle" />
+    <xs:attribute name="FontWeight" />
+    <xs:attribute name="HorizontalContentAlignment" type="vbc:enumHorizontalAlignment" />
+    <xs:attribute name="VerticalContentAlignment" type="vbc:enumVerticalAlignment" />
+    <xs:attribute name="TabIndex" />
+    <xs:attribute name="IsTabStop" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Padding" />
+    <xs:attribute name="Template" />
+    <xs:attribute name="Style" />
+    <xs:attribute name="OverridesDefaultStyle" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="UseLayoutRounding" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Resources" />
+    <xs:attribute name="DataContext" />
+    <xs:attribute name="BindingGroup" />
+    <xs:attribute name="Language" />
+    <xs:attribute name="Name" />
+    <xs:attribute name="Tag" />
+    <xs:attribute name="InputScope" />
+    <xs:attribute name="LayoutTransform" />
+    <xs:attribute name="Width" />
+    <xs:attribute name="MinWidth" />
+    <xs:attribute name="MaxWidth" />
+    <xs:attribute name="Height" />
+    <xs:attribute name="MinHeight" />
+    <xs:attribute name="MaxHeight" />
+    <xs:attribute name="FlowDirection" type="vbc:enumFlowDirection" />
+    <xs:attribute name="Margin" />
+    <xs:attribute name="HorizontalAlignment" type="vbc:enumHorizontalAlignment" />
+    <xs:attribute name="VerticalAlignment" type="vbc:enumVerticalAlignment" />
+    <xs:attribute name="FocusVisualStyle" />
+    <xs:attribute name="Cursor" />
+    <xs:attribute name="ForceCursor" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="ToolTip" />
+    <xs:attribute name="ContextMenu" />
+    <xs:attribute name="AllowDrop" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="RenderSize" />
+    <xs:attribute name="RenderTransform" />
+    <xs:attribute name="RenderTransformOrigin" />
+    <xs:attribute name="Opacity" />
+    <xs:attribute name="OpacityMask" />
+    <xs:attribute name="BitmapEffect" />
+    <xs:attribute name="Effect" />
+    <xs:attribute name="BitmapEffectInput" />
+    <xs:attribute name="CacheMode" />
+    <xs:attribute name="Uid" />
+    <xs:attribute name="Visibility" type="vbc:enumVisibility" />
+    <xs:attribute name="ClipToBounds" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Clip" />
+    <xs:attribute name="SnapsToDevicePixels" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="IsEnabled" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="IsHitTestVisible" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="Focusable" type="frlrfSystemBooleanClassTopic" />
+    <xs:attribute name="IsManipulationEnabled" type="frlrfSystemBooleanClassTopic" />
+  </xs:complexType>
+  <xs:element name="VBSciChartSurface" type="vbc:VBSciChartSurface" />
+  <xs:group name="VBSciChartItems">
+    <xs:choice>
+      <xs:element ref="vbc:EnumLabelProvider" />
+      <xs:element ref="vbc:VBSciChartSurface" />
+    </xs:choice>
+  </xs:group>
+</xs:schema>

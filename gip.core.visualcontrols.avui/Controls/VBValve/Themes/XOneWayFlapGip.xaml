@@ -1,0 +1,173 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+
+    <ControlTemplate x:Key="OneWayFlapGip" TargetType="{x:Type local:VBValve}">
+        <Viewbox Stretch="Fill">
+            <Canvas Width="180" Height="90">
+                <Rectangle x:Name="OpModeBack" Width="180" Height="90" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" 
+                          Stroke="{TemplateBinding BorderBrushAuto}" 
+                          Fill="{TemplateBinding BorderBrushAuto}" 
+                           />
+                <Rectangle x:Name="RunStateFront" Width="154" Height="64" Canvas.Left="13" Canvas.Top="13" Stretch="Fill" 
+                           StrokeThickness="4" StrokeLineJoin="Round" 
+                          Stroke="#FF000000" 
+                          Fill="{TemplateBinding FillBrushIdle}" 
+                           />
+                <Path x:Name="FlapLine" Width="154" Height="64" Canvas.Left="13" Canvas.Top="13" Stretch="Fill" StrokeThickness="10" 
+                      StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF000000" 
+                      Data="F1 M 18,18L 162,72">
+                    <Path.RenderTransform>
+                        <RotateTransform Angle="0"
+                                        CenterX="77"
+                                        CenterY="32" />
+                    </Path.RenderTransform>
+                </Path>
+                <Ellipse x:Name="Ellipse" Width="35" Height="35" Canvas.Left="72.5" Canvas.Top="27.5" Stretch="Fill" StrokeThickness="5" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF000000"/>
+                <Viewbox x:Name="Glass" Width="150" Height="60" Canvas.Left="15" Canvas.Top="15" Visibility="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                    <Canvas Width="150" Height="60">
+                        <Rectangle x:Name="Rectangle_363" Width="150" Height="60" Canvas.Left="-1.14441e-005" Canvas.Top="3.05176e-005" Stretch="Fill" StrokeThickness="1" StrokeLineJoin="Bevel">
+                            <Rectangle.Stroke>
+                                <RadialGradientBrush RadiusX="1" RadiusY="0.644927" Center="1,0.5" GradientOrigin="1,0.5">
+                                    <RadialGradientBrush.GradientStops>
+                                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </RadialGradientBrush.GradientStops>
+                                    <RadialGradientBrush.RelativeTransform>
+                                        <TransformGroup>
+                                            <RotateTransform CenterX="1" CenterY="0.5" Angle="180"/>
+                                        </TransformGroup>
+                                    </RadialGradientBrush.RelativeTransform>
+                                </RadialGradientBrush>
+                            </Rectangle.Stroke>
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="1,0.5" EndPoint="4.83195e-007,0.5">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                                        <GradientStop Color="#B3000000" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                        <Path x:Name="Path_364" Width="150" Height="14.4" Canvas.Left="0" Canvas.Top="45.6" Stretch="Fill" Data="F1 M 71.3216,45.6L 78.8163,45.6C 109.921,45.6 148.839,52.0141 150,60L 0,60C 1.16512,52.0141 40.217,45.6 71.3216,45.6 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="1,0.500001" EndPoint="5.08626e-008,0.500001">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                        <Path x:Name="Path_365" Width="150" Height="14.4" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 71.3216,14.4L 78.8163,14.4C 109.921,14.4 148.839,7.98593 150,0L 0,0C 1.16512,7.98593 40.217,14.4 71.3216,14.4 Z ">
+                            <Path.Fill>
+                                <LinearGradientBrush StartPoint="1,0.499999" EndPoint="5.08626e-008,0.499999">
+                                    <LinearGradientBrush.GradientStops>
+                                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                                    </LinearGradientBrush.GradientStops>
+                                </LinearGradientBrush>
+                            </Path.Fill>
+                        </Path>
+                    </Canvas>
+                </Viewbox>
+            </Canvas>
+        </Viewbox>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ReqPos1" Value="True"/>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="IsTriggered" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunStateFront" Property="StrokeDashArray" Value="4 4" />
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunStateFront"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="FlapLine"
+                                        Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="-40"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <Trigger Property="IsTriggered" Value="True">
+                <Setter TargetName="RunStateFront" Property="StrokeThickness" Value="8" />
+                <Setter TargetName="RunStateFront" Property="StrokeDashArray" Value="4 4" />
+                <Trigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart2">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="RunStateFront"
+                                        Storyboard.TargetProperty="(Rectangle.StrokeDashOffset)"
+                                        From="0"
+                                        To="8"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="FlapLine"
+                                        Storyboard.TargetProperty="(Path.RenderTransform).(RotateTransform.Angle)"
+                                        From="0"
+                                        To="-40"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart2" />
+                </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Manual">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushManual}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="Maintenance">
+                <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsInterlocked" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushInterlocked}" />
+            </MultiTrigger>
+            <Trigger Property="FaultState" Value="AlarmOrFault">
+                <Setter TargetName="RunStateFront" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushFault}" />
+            </Trigger>
+            <Trigger Property="OperatingMode" Value="InActive">
+                <Setter TargetName="RunStateFront" Property="Fill" Value="Black"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+</ResourceDictionary>

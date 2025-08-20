@@ -1,0 +1,224 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>$(UITargetFramework)</TargetFramework>
+    <OutputType>Library</OutputType>
+    <WarningLevel>4</WarningLevel>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <WarningLevel>3</WarningLevel>
+    <DocumentationFile>$(SolutionDir)bin\Debug\gip.core.layoutengine.avui.xml</DocumentationFile>
+    <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
+    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
+    <DocumentationFile>
+    </DocumentationFile>
+    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SignAssembly>true</SignAssembly>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Update="System.Xml.Linq">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+    <Reference Update="UIAutomationProvider">
+      <RequiredTargetFramework>4.0</RequiredTargetFramework>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="VBXMLEditorSchemas\VBSchema.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\wpfe.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\xaml2006.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="VBXMLEditorSchemas\XamlPresentation2006.xsd">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\VBXMLEditor\Highlighting\XML-ModeStyleGip.xshd" />
+    <EmbeddedResource Include="Controls\VBXMLEditor\Highlighting\XML-ModeStyleAero.xshd" />
+    <None Include="..\GIP-SNKey.snk">
+      <Link>GIP-SNKey.snk</Link>
+    </None>
+    <EmbeddedResource Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleAero.xshd" />
+    <EmbeddedResource Include="Controls\VBDesignEditor\Editors\Highlighting\CSharp-ModeStyleGip.xshd" />
+    <AppDesigner Include="Properties\" />
+    <None Update="VBXMLEditorSchemas\XamlPresentation2006.xsx">
+      <DependentUpon>XamlPresentation2006.xsd</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
+    <ProjectReference Include="..\gip.ext.chart.avui\gip.ext.chart.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.designer.avui\gip.ext.designer.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.design.avui\gip.ext.design.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.graphics.avui\gip.ext.graphics.avui.csproj" />
+    <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\unpinned.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pinned.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockPane.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockRight.PNG" />
+    <Resource Include="Controls\VBDocking\Icons\DockTop.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\QuestionMark.JPG" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\questionMark2.jpg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\icon_alarm.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\noduration.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\questionMarkHelp.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\alarmChild.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\false.png" />
+    <Resource Include="Images\true.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\gipTick.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\pointer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="VBControlScripts\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Images\iPlusIconDesktop.ico" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
+    <Reference Include="Microsoft.EntityFrameworkCore">
+      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="MdXaml" Version="1.27.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="QuickGraphCore" Version="1.0.0" />
+    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.12.1" />
+    <PackageReference Include="RoslynPad.Roslyn" Version="4.12.1" />
+    <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.12.1" />
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
+    <PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="CodeCompletionXsdGenerator.cs" />
+    <Compile Remove="Controls\VBButton.xaml.cs" />
+    <Compile Remove="Controls\VBDatagrid\VBDataGridColumnHeadersPresenter2.cs" />
+    <Compile Remove="Controls\VBDocking\VBDockableContent.cs" />
+    <Compile Remove="Controls\VBTabitemRoot.cs" />
+    <Page Remove="Controls\VBButton.xaml" />
+    <Page Remove="Controls\VBButton\Themes\buttontestxaml.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="readme.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <Content Include="appsettings.json" />
+  </ItemGroup>
+  <PropertyGroup />
+  <PropertyGroup>
+    <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
+    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
+    <Title>iplus-framework presentation</Title>
+    <Description>Presentation layer and controls</Description>
+    <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageTags>iplus-framework</PackageTags>
+    <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+  </PropertyGroup>
+</Project>

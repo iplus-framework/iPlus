@@ -1,0 +1,14 @@
+﻿<Popup x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBBindingEditorPopup"
+       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+       Placement="Bottom"
+       AllowsTransparency="True"
+       SnapsToDevicePixels="True"
+       StaysOpen="False">
+    <Border BorderThickness="2" BorderBrush="#80FF0000" CornerRadius="6" Background="{StaticResource {ComponentResourceKey ResourceId=AppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}">
+        <ContentControl x:Name="PopupContent" Margin="6" />
+    </Border>
+    <!--<local:VBConverterEditorView x:Name="VBConverterEditorView"
+                                 x:FieldModifier="public" />-->
+</Popup>

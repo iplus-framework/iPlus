@@ -1,0 +1,239 @@
+<ResourceDictionary
+   xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate TargetType="{x:Type local:VBTranslationText}" x:Key="{ComponentResourceKey ResourceId=TranslationTextHiddenAeroTemplate, TypeInTargetAssembly={x:Type local:VBTranslationText}}">
+        <Border x:Name="Border" 
+                            CornerRadius="{TemplateBinding CornerRadius}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}">
+            <TextBlock x:Name="TextBlock" 
+                                   Text="{TemplateBinding Text}"
+                                   BaselineOffset="{TemplateBinding BaselineOffset}"
+                                   TextDecorations="{TemplateBinding TextDecorations}"
+                                   TextEffects="{TemplateBinding TextEffects}"
+                                   LineHeight="{TemplateBinding LineHeight}"
+                                   LineStackingStrategy="{TemplateBinding LineStackingStrategy}"
+                                   TextAlignment="{TemplateBinding TextAlignment}"
+                                   TextTrimming="{TemplateBinding TextTrimming}"
+                                   TextWrapping="{TemplateBinding TextWrapping}"
+                                   IsHyphenationEnabled="{TemplateBinding IsHyphenationEnabled}"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   FontWeight="{TemplateBinding FontWeight}"
+                                   FontStyle="{TemplateBinding FontStyle}"
+                                   FontStretch="{TemplateBinding FontStretch}">
+            </TextBlock>
+        </Border>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Hidden"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Hidden"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Hidden"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Hidden"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Hidden"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Visible"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Hidden"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Visible"/>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Border"
+                                        Storyboard.TargetProperty="Opacity"
+                                        From="0.5"
+                                        To="1"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate TargetType="{x:Type local:VBTranslationText}" x:Key="{ComponentResourceKey ResourceId=TranslationTextCollapsedAeroTemplate, TypeInTargetAssembly={x:Type local:VBTranslationText}}">
+        <Border x:Name="Border" 
+                            CornerRadius="{TemplateBinding CornerRadius}" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}">
+            <TextBlock x:Name="TextBlock" 
+                                   Text="{TemplateBinding Text}"
+                                   BaselineOffset="{TemplateBinding BaselineOffset}"
+                                   TextDecorations="{TemplateBinding TextDecorations}"
+                                   TextEffects="{TemplateBinding TextEffects}"
+                                   LineHeight="{TemplateBinding LineHeight}"
+                                   LineStackingStrategy="{TemplateBinding LineStackingStrategy}"
+                                   TextAlignment="{TemplateBinding TextAlignment}"
+                                   TextTrimming="{TemplateBinding TextTrimming}"
+                                   TextWrapping="{TemplateBinding TextWrapping}"
+                                   IsHyphenationEnabled="{TemplateBinding IsHyphenationEnabled}"
+                                   FontFamily="{TemplateBinding FontFamily}"
+                                   FontSize="{TemplateBinding FontSize}"
+                                   FontWeight="{TemplateBinding FontWeight}"
+                                   FontStyle="{TemplateBinding FontStyle}"
+                                   FontStretch="{TemplateBinding FontStretch}">
+            </TextBlock>
+        </Border>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="False"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Visible"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="False"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Collapsed"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ShowText" Value="True"/>
+                    <Condition Property="Blink" Value="True"/>
+                    <Condition Property="RightControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Visibility" Value="Visible"/>
+                <MultiTrigger.EnterActions>
+                    <BeginStoryboard Name="StoryStart">
+                        <Storyboard>
+                            <DoubleAnimation
+                                        Storyboard.TargetName="Border"
+                                        Storyboard.TargetProperty="Opacity"
+                                        From="0.5"
+                                        To="1"
+                                        Duration="0:0:1"
+                                        RepeatBehavior="Forever"
+                                        AutoReverse="True"/>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </MultiTrigger.EnterActions>
+                <MultiTrigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="StoryStart" />
+                </MultiTrigger.ExitActions>
+            </MultiTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="TranslationTextStyleAero" TargetType="{x:Type local:VBTranslationText}">
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="TextTrimming" Value="None"/>
+        <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TranslationTextHiddenAeroTemplate, TypeInTargetAssembly={x:Type local:VBTranslationText}}}" />
+        <Style.Triggers>
+            <Trigger Property="CollapsedMode" Value="True">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TranslationTextCollapsedAeroTemplate, TypeInTargetAssembly={x:Type local:VBTranslationText}}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

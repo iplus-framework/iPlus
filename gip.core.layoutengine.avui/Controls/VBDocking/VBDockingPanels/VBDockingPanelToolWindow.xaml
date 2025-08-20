@@ -1,0 +1,14 @@
+<local:VBDockingPanelBase x:Class="gip.core.layoutengine.avui.VBDockingPanelToolWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    Loaded="UserControl_Loaded">
+    <!--<local:VBDockingPanelBase.Resources>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleGip.xaml"/>
+    </local:VBDockingPanelBase.Resources>
+    <DockPanel>
+    <local:VBTextBlock>test</local:VBTextBlock>
+    <ContentControl Name="contentControl" Template="{StaticResource DockingWindowStyleGip}">
+    </ContentControl>
+    </DockPanel>-->
+</local:VBDockingPanelBase>
