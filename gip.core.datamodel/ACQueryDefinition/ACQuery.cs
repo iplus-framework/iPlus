@@ -133,9 +133,11 @@ namespace gip.core.datamodel
                     PropertyInfo pi = typeParent.GetProperty(childACUrl);
                     if (pi != null && (!UseDynLINQ || !string.IsNullOrEmpty(queryDefinition.EntitySQL_FromEdit)))
                     {
-                        var childProp = acObject.ACUrlCommand(childACUrl);
-                        if (childProp == null)
-                            return null;
+                        //var childProp = acObject.ACUrlCommand(childACUrl);
+                        //if (childProp == null)
+                        //{
+                        //    return null;
+                        //}
                         return SearchWithEntitySQL<T>(acObject, queryDefinition, childACUrl, mergeOption);
                     }
                     else

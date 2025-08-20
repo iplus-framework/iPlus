@@ -35,7 +35,7 @@ namespace gip.core.autocomponent
     /// Derived classes must implement the abstract AccessNav property which returns an IAccessNav instance.
     /// This property provides access to the underlying navigation functionality and dataset management.
     /// The AccessNav instance should be created as an ACAccessNav typed to the specific entity class being managed.
-    /// Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSONav&type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
+    /// Visit the https://github.com/search?q=org%3Aiplus-framework+ACBSONav&amp;type=code on github to read the source code and get a full understanding, or use the github MCP API and search for the class name.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, @"en{'Baseclass for navigatable Businessobjects'}de{'Basisklasse für navigierbare Geschäftsobjekte'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true, 
         Description = @"The ACBSONav class is an abstract base class for business objects with navigation functionality in the iPlus Framework. 
