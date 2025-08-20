@@ -1802,6 +1802,7 @@ In business objects, ACQueryDefinitions are stateful because each business objec
         /// Creates a logical connective for a expression
         /// </summary>
         /// <param name="filterItem">The filter item.</param>
+        /// <param name="forEntitySQL">for entity sql</param>
         /// <returns>System.String.</returns>
         static string CreateFilterConnector(ACFilterItem filterItem, bool forEntitySQL = false)
         {
