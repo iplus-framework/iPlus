@@ -101,6 +101,27 @@ namespace gip.core.reporthandler.Flowdoc
         public static readonly DependencyProperty DrawQuietZonesProperty =
             DependencyProperty.Register("DrawQuietZones", typeof(bool), typeof(InlineBarcode), new PropertyMetadata(true));
 
+        public string VBShowColumns
+        {
+            get { return (string)GetValue(VBShowColumnsProperty); }
+            set { SetValue(VBShowColumnsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for VBShowColumns.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty VBShowColumnsProperty =
+            DependencyProperty.Register("VBShowColumns", typeof(string), typeof(InlineBarcode), new PropertyMetadata(null));
+
+
+        public string VBShowColumnsKeys
+        {
+            get { return (string)GetValue(VBShowColumnsKeysProperty); }
+            set { SetValue(VBShowColumnsKeysProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for VBShowColumnsKeys.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty VBShowColumnsKeysProperty =
+            DependencyProperty.Register("VBShowColumnsKeys", typeof(string), typeof(InlineBarcode), new PropertyMetadata(null));
+
 
 
 
@@ -115,12 +136,16 @@ namespace gip.core.reporthandler.Flowdoc
             set
             {
                 SetValue(ValueProperty, value);
-                RenderBarcode(value);
+                object newValue = OnResolveVBShowColumns(value);
+                RenderBarcode(newValue);
             }
         }
 
         private void RenderBarcode(object value)
         {
+
+
+
             if (value == null)
                 return;
             if (!(value is System.IConvertible) && !(value is System.IFormattable))
@@ -186,6 +211,16 @@ namespace gip.core.reporthandler.Flowdoc
                     }
                 }
             }
+        }
+
+        public virtual object OnResolveVBShowColumns(object value)
+        {
+            if (!string.IsNullOrEmpty(VBShowColumns))
+            {
+
+            }
+
+            return value;
         }
     }
 }
