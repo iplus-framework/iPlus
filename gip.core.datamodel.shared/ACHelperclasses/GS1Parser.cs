@@ -331,6 +331,50 @@ namespace gip.core.datamodel
             return Generate(tmpImput, useEanStartCode);
         }
 
+        public static string GenerateRawString(Dictionary<AII, ParseResult> input, bool useEanStartCode)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (useEanStartCode)
+            {
+                sb.Append(EAN128StartCode);
+            }
+            bool notLast = true;
+            foreach (KeyValuePair<AII, ParseResult> item in input)
+            {
+                notLast = item.Key.FNC1 && (item.Key != input.Keys.Last());
+
+                AII aII = item.Key;
+                string value = item.Value.StringResult;
+
+                sb.Append(aII.AI);
+
+                sb.Append(value);
+
+                if (aII.FNC1 && notLast)
+                {
+                    sb.Append(GroupSeparator);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public static string GenerateRawString(Dictionary<string, string> input, bool useEanStartCode)
+        {
+            Dictionary<AII, ParseResult> tmpImput = new Dictionary<AII, ParseResult>();
+            foreach (KeyValuePair<string, string> item in input)
+            {
+                if (GS1.aiiDict.ContainsKey(item.Key))
+                {
+                    AII aII = GS1.aiiDict[item.Key];
+                    ParseResult parseResult = new ParseResult() { StringResult = item.Value };
+                    tmpImput.Add(aII, parseResult);
+                }
+            }
+            return GenerateRawString(tmpImput, useEanStartCode);
+        }
+
         /// <summary>
         /// Try to get the AI at the current position
         /// </summary>

@@ -1,11 +1,16 @@
-﻿using System.Drawing.Imaging;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BarcodeLib;
+using gip.core.datamodel;
 using QRCoder.Xaml;
+using static gip.core.datamodel.GS1;
+using System.Linq;
 
 namespace gip.core.reporthandler.Flowdoc
 {
@@ -51,7 +56,8 @@ namespace gip.core.reporthandler.Flowdoc
         TELEPEN = 37,
         FIM = 38,
         PHARMACODE = 39,
-        QRCODE = 99
+        QRCODE = 99,
+        GS1 = 100
     }
 
     [ContentProperty(nameof(BarcodeValues))]
@@ -125,7 +131,7 @@ namespace gip.core.reporthandler.Flowdoc
 
 
 
-        public BarcodeValueCollection BarcodeValues { get;set;} = new BarcodeValueCollection();
+        public BarcodeValueCollection BarcodeValues { get; set; } = new BarcodeValueCollection();
 
         public override object Value
         {
@@ -136,28 +142,41 @@ namespace gip.core.reporthandler.Flowdoc
             set
             {
                 SetValue(ValueProperty, value);
-                object newValue = OnResolveVBShowColumns(value);
-                RenderBarcode(newValue);
+                RenderBarcode(value);
             }
         }
 
         private void RenderBarcode(object value)
         {
 
-
-
             if (value == null)
                 return;
-            if (!(value is System.IConvertible) && !(value is System.IFormattable))
-                return;
-            string strValue = value as string;
-            if (strValue == null)
+            string strValue = null;
+            if (!string.IsNullOrEmpty(VBShowColumns) && !string.IsNullOrEmpty(VBShowColumnsKeys))
             {
-                if (value is System.IConvertible)
-                    strValue = System.Convert.ChangeType(value, typeof(string)) as string;
-                else
-                    strValue = (value as System.IFormattable).ToString();
+                string[] strColumnKeys = VBShowColumnsKeys.Split(new char[] { ',', ';' }, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] strValueIdentifiers = VBShowColumns.Split(new char[] { ',', ';' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+                if (strColumnKeys.Length == strValueIdentifiers.Length)
+                {
+                    Dictionary<string, string> input = GetGS1Data(value, strColumnKeys, strValueIdentifiers);
+                    strValue = GS1.GenerateRawString(input, false);
+                }
             }
+            else
+            {
+                if (!(value is System.IConvertible) && !(value is System.IFormattable))
+                    return;
+                strValue = value as string;
+                if (strValue == null)
+                {
+                    if (value is System.IConvertible)
+                        strValue = System.Convert.ChangeType(value, typeof(string)) as string;
+                    else
+                        strValue = (value as System.IFormattable).ToString();
+                }
+            }
+
             if (string.IsNullOrEmpty(strValue))
                 return;
 
@@ -213,14 +232,62 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
-        public virtual object OnResolveVBShowColumns(object value)
-        {
-            if (!string.IsNullOrEmpty(VBShowColumns))
-            {
 
+        #region GS1
+
+        private Dictionary<string, string> GetGS1Data(object value, string[] strColumnKeys, string[] strValueIdentifiers)
+        {
+            Dictionary<string, string> input = new Dictionary<string, string>();
+            for (int i = 0; i < strColumnKeys.Count(); i++)
+            {
+                string columnKey = strColumnKeys[i];
+                AII ai = GS1.GetAII(columnKey);
+                // provide value
+                string valueIdentifier = strValueIdentifiers[i];
+                string strValue = GetObjectValue(value, valueIdentifier);
+
+                if(!string.IsNullOrEmpty(strValue))
+                {
+                    input.Add(ai.AI, strValue);
+                }
+            }
+            return input;
+        }
+
+
+        private static string GetObjectValue(object value, string valueIdentifier)
+        {
+            string returnValue = null;
+            if (value == null)
+            {
+                returnValue = string.Empty;
+            }
+            else
+            {
+                if (value is IACObject)
+                {
+                    object tempObject = (value as IACObject).ACUrlCommand(valueIdentifier);
+                    if (tempObject != null)
+                    {
+                        if (tempObject is DateTime)
+                        {
+                            returnValue = ((DateTime)tempObject).ToString("yyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            returnValue = tempObject.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
+                }
             }
 
-            return value;
+            return returnValue;
         }
+
+        #endregion
     }
 }
