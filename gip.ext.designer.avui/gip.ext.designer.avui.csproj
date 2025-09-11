@@ -3,8 +3,6 @@
     <TargetFramework>$(UITargetFramework)</TargetFramework>
     <OutputType>Library</OutputType>
     <NoStdLib>False</NoStdLib>
-    <OutputPath>...\..\..\..\AddIns\DisplayBindings\WpfDesign\</OutputPath>
-    <DocumentationFile>..\..\..\..\..\AddIns\DisplayBindings\WpfDesign\ICSharpCode.WpfDesign.Designer.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>

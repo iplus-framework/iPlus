@@ -3,9 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
-using System.Windows.Markup;
+using Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.Metadata;
+
 
 namespace gip.ext.xamldom.avui
 {
@@ -14,6 +19,11 @@ namespace gip.ext.xamldom.avui
     /// </summary>
     public class XamlTypeFinder : ICloneable
     {
+        public XamlTypeFinder()
+        {
+            _registeredAssemblies = new List<Assembly>();
+        }
+
         sealed class AssemblyNamespaceMapping : IEquatable<AssemblyNamespaceMapping>
         {
             internal readonly Assembly Assembly;
@@ -43,7 +53,14 @@ namespace gip.ext.xamldom.avui
 
         sealed class XamlNamespace
         {
+            internal readonly string XmlNamespacePrefix;
             internal readonly string XmlNamespace;
+
+            internal XamlNamespace(string xmlNamespacePrefix, string xmlNamespace)
+            {
+                this.XmlNamespacePrefix = xmlNamespacePrefix;
+                this.XmlNamespace = xmlNamespace;
+            }
 
             internal XamlNamespace(string xmlNamespace)
             {
@@ -54,7 +71,7 @@ namespace gip.ext.xamldom.avui
 
             internal XamlNamespace Clone()
             {
-                XamlNamespace copy = new XamlNamespace(this.XmlNamespace);
+                XamlNamespace copy = new XamlNamespace(this.XmlNamespacePrefix, this.XmlNamespace);
                 // AssemblyNamespaceMapping is immutable
                 copy.ClrNamespaces.AddRange(this.ClrNamespaces);
                 return copy;
@@ -64,6 +81,7 @@ namespace gip.ext.xamldom.avui
         Dictionary<string, XamlNamespace> namespaces = new Dictionary<string, XamlNamespace>();
         Dictionary<AssemblyNamespaceMapping, string> reverseDict = new Dictionary<AssemblyNamespaceMapping, string>();
         Dictionary<AssemblyNamespaceMapping, string> reverseDictPrefix = new Dictionary<AssemblyNamespaceMapping, string>();
+        Dictionary<AssemblyNamespaceMapping, List<string>> reverseDictList = new Dictionary<AssemblyNamespaceMapping, List<string>>();
 
         /// <summary>
         /// Gets a type referenced in XAML.
@@ -114,7 +132,8 @@ namespace gip.ext.xamldom.avui
                     // WindowsBase, PresentationCore, PresentationFramework
                     if ((typeof(MarkupExtension).Assembly != mapping.Assembly)
                         && (typeof(IAddChild).Assembly != mapping.Assembly)
-                        && (typeof(XamlReader).Assembly != mapping.Assembly))
+                        && (typeof(AvaloniaXamlLoader).Assembly != mapping.Assembly)
+                        && (typeof(AvaloniaRuntimeXamlLoader).Assembly != mapping.Assembly))
                         continue;
                 }
 
@@ -216,6 +235,58 @@ namespace gip.ext.xamldom.avui
             }
         }
 
+        /// <summary>
+        /// Gets the XML namespace that can be used for the specified assembly/namespace combination.
+        /// </summary>
+        public string GetXmlNamespaceFor(Assembly assembly, string @namespace, bool getClrNamespace = false)
+        {
+            AssemblyNamespaceMapping mapping = new AssemblyNamespaceMapping(assembly, @namespace);
+            string xmlNamespace;
+            if (!getClrNamespace && reverseDict.TryGetValue(mapping, out xmlNamespace))
+            {
+                return xmlNamespace;
+            }
+            else
+            {
+                return "clr-namespace:" + mapping.Namespace + ";assembly=" + mapping.Assembly.GetName().Name;
+            }
+        }
+
+        /// <summary>
+        /// Gets the XML namespaces that can be used for the specified assembly/namespace combination.
+        /// </summary>
+        public List<string> GetXmlNamespacesFor(Assembly assembly, string @namespace, bool getClrNamespace = false)
+        {
+            AssemblyNamespaceMapping mapping = new AssemblyNamespaceMapping(assembly, @namespace);
+            List<string> xmlNamespaces;
+            if (!getClrNamespace && reverseDictList.TryGetValue(mapping, out xmlNamespaces))
+            {
+                return xmlNamespaces;
+            }
+            else
+            {
+                return new List<string>() { "clr-namespace:" + mapping.Namespace + ";assembly=" + mapping.Assembly.GetName().Name };
+            }
+        }
+
+        /// <summary>
+        /// Gets the prefix to use for the specified XML namespace,
+        /// or null if no suitable prefix could be found.
+        /// </summary>
+        public string GetPrefixForXmlNamespace(string xmlNamespace)
+        {
+            XamlNamespace ns;
+
+            if (namespaces.TryGetValue(xmlNamespace, out ns))
+            {
+                return ns.XmlNamespacePrefix;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
         XamlNamespace ParseNamespace(string xmlNamespace)
         {
             string name = xmlNamespace;
@@ -251,6 +322,15 @@ namespace gip.ext.xamldom.avui
         {
             ns.ClrNamespaces.Add(mapping);
 
+            List<string> xmlNamespaceList;
+            if (reverseDictList.TryGetValue(mapping, out xmlNamespaceList))
+            {
+                if (!xmlNamespaceList.Contains(ns.XmlNamespace))
+                    xmlNamespaceList.Add(ns.XmlNamespace);
+            }
+            else
+                reverseDictList.Add(mapping, new List<string>() { ns.XmlNamespace });
+
             string xmlNamespace;
             if (reverseDict.TryGetValue(mapping, out xmlNamespace))
             {
@@ -262,6 +342,17 @@ namespace gip.ext.xamldom.avui
             reverseDict[mapping] = ns.XmlNamespace;
         }
 
+        private List<Assembly> _registeredAssemblies;
+
+        public ReadOnlyCollection<Assembly> RegisteredAssemblies
+        {
+            get
+            {
+                return new ReadOnlyCollection<Assembly>(_registeredAssemblies);
+            }
+        }
+
+
         /// <summary>
         /// Registers XAML namespaces defined in the <paramref name="assembly"/> for lookup.
         /// </summary>
@@ -269,56 +360,40 @@ namespace gip.ext.xamldom.avui
         {
             if (assembly == null)
                 throw new ArgumentNullException("assembly");
+            
+            _registeredAssemblies.Add(assembly);
+
+            Dictionary<string, string> namespacePrefixes = new Dictionary<string, string>();
+            foreach (XmlnsPrefixAttribute xmlnsPrefix in assembly.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true))
+            {
+                namespacePrefixes.Add(xmlnsPrefix.XmlNamespace, xmlnsPrefix.Prefix);
+            }
+
             foreach (XmlnsDefinitionAttribute xmlnsDef in assembly.GetCustomAttributes(typeof(XmlnsDefinitionAttribute), true))
             {
                 XamlNamespace ns;
                 if (!namespaces.TryGetValue(xmlnsDef.XmlNamespace, out ns))
                 {
-                    ns = namespaces[xmlnsDef.XmlNamespace] = new XamlNamespace(xmlnsDef.XmlNamespace);
+                    string prefix;
+                    if (namespacePrefixes.TryGetValue(xmlnsDef.XmlNamespace, out prefix))
+                        ns = namespaces[xmlnsDef.XmlNamespace] = new XamlNamespace(prefix, xmlnsDef.XmlNamespace);
+                    else
+                        ns = namespaces[xmlnsDef.XmlNamespace] = new XamlNamespace(xmlnsDef.XmlNamespace);
                 }
-                if (string.IsNullOrEmpty(xmlnsDef.AssemblyName))
+                AssemblyNamespaceMapping mapping = new AssemblyNamespaceMapping(assembly, xmlnsDef.ClrNamespace);
+                AddMappingToNamespace(ns, mapping);
+                if (withPrefixes)
                 {
-                    AssemblyNamespaceMapping mapping = new AssemblyNamespaceMapping(assembly, xmlnsDef.ClrNamespace);
-                    AddMappingToNamespace(ns, mapping);
-                    if (withPrefixes)
+                    foreach (XmlnsPrefixAttribute xmlnsPrefix in assembly.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true))
                     {
-                        foreach (XmlnsPrefixAttribute xmlnsPrefix in assembly.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true))
+                        if (xmlnsPrefix.XmlNamespace == xmlnsDef.XmlNamespace)
                         {
-                            if (xmlnsPrefix.XmlNamespace == xmlnsDef.XmlNamespace)
+                            if (!String.IsNullOrEmpty(xmlnsPrefix.Prefix))
                             {
-                                if (!String.IsNullOrEmpty(xmlnsPrefix.Prefix))
+                                string hasPrefix;
+                                if (!reverseDictPrefix.TryGetValue(mapping, out hasPrefix))
                                 {
-                                    string hasPrefix;
-                                    if (!reverseDictPrefix.TryGetValue(mapping, out hasPrefix))
-                                    {
-                                        reverseDictPrefix.Add(mapping, xmlnsPrefix.Prefix);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    Assembly asm = LoadAssembly(xmlnsDef.AssemblyName);
-                    if (asm != null)
-                    {
-                        AssemblyNamespaceMapping mapping = new AssemblyNamespaceMapping(asm, xmlnsDef.ClrNamespace);
-                        AddMappingToNamespace(ns, mapping);
-                        if (withPrefixes)
-                        {
-                            foreach (XmlnsPrefixAttribute xmlnsPrefix in asm.GetCustomAttributes(typeof(XmlnsPrefixAttribute), true))
-                            {
-                                if (xmlnsPrefix.XmlNamespace == xmlnsDef.XmlNamespace)
-                                {
-                                    if (!String.IsNullOrEmpty(xmlnsPrefix.Prefix))
-                                    {
-                                        string hasPrefix;
-                                        if (!reverseDictPrefix.TryGetValue(mapping, out hasPrefix))
-                                        {
-                                            reverseDictPrefix.Add(mapping, xmlnsPrefix.Prefix);
-                                        }
-                                    }
+                                    reverseDictPrefix.Add(mapping, xmlnsPrefix.Prefix);
                                 }
                             }
                         }
@@ -343,6 +418,17 @@ namespace gip.ext.xamldom.avui
                     reverseDictPrefix.Add(mapping, prefix);
                 }
             }
+        }
+
+        /// <summary>
+        /// Register the Namspaces not found in any Assembly, but used by VS and Expression Blend
+        /// </summary>
+        public void RegisterDesignerNamespaces()
+        {
+            //var ns = namespaces[XamlConstants.DesignTimeNamespace] = new XamlNamespace("d", XamlConstants.DesignTimeNamespace);
+            //AddMappingToNamespace(ns, new AssemblyNamespaceMapping(typeof(DesignTimeProperties).Assembly, typeof(DesignTimeProperties).Namespace));
+            var ns = namespaces[XamlConstants.MarkupCompatibilityNamespace] = new XamlNamespace("mc", XamlConstants.MarkupCompatibilityNamespace);
+            AddMappingToNamespace(ns, new AssemblyNamespaceMapping(typeof(MarkupCompatibilityProperties).Assembly, typeof(MarkupCompatibilityProperties).Namespace));
         }
 
         /// <summary>
@@ -394,6 +480,10 @@ namespace gip.ext.xamldom.avui
             {
                 this.reverseDict.Add(pair.Key, pair.Value);
             }
+            foreach (KeyValuePair<AssemblyNamespaceMapping, List<string>> pair in source.reverseDictList)
+            {
+                this.reverseDictList.Add(pair.Key, pair.Value.ToList());
+            }
         }
 
         object ICloneable.Clone()
@@ -410,6 +500,14 @@ namespace gip.ext.xamldom.avui
             return WpfTypeFinder.Instance;
         }
 
+        /// <summary>
+        /// Converts the specified <see cref="Uri"/> to local.
+        /// </summary>
+        public virtual Uri ConvertUriToLocalUri(Uri uri)
+        {
+            return uri;
+        }
+
         static class WpfTypeFinder
         {
             internal static readonly XamlTypeFinder Instance;
@@ -419,9 +517,12 @@ namespace gip.ext.xamldom.avui
             static WpfTypeFinder()
             {
                 Instance = new XamlTypeFinder();
-                Instance.RegisterAssembly(typeof(MarkupExtension).Assembly); // WindowsBase
-                Instance.RegisterAssembly(typeof(IAddChild).Assembly); // PresentationCore
-                Instance.RegisterAssembly(typeof(XamlReader).Assembly); // PresentationFramework
+                //Instance.RegisterAssembly(typeof(Point).Assembly); // Avalonia.Base
+                Instance.RegisterAssembly(typeof(MarkupExtension).Assembly); // Avalonia.Markup.Xaml
+                Instance.RegisterAssembly(typeof(IAddChild).Assembly); // Avalonia.Base
+                Instance.RegisterAssembly(typeof(AvaloniaXamlLoader).Assembly); // Avalonia.Markup.Xaml.dll
+                Instance.RegisterAssembly(typeof(AvaloniaRuntimeXamlLoader).Assembly); // Avalonia.Markup.Xaml.Loader.dll
+                Instance.RegisterAssembly(typeof(Type).Assembly); // mscorelib
             }
         }
     }

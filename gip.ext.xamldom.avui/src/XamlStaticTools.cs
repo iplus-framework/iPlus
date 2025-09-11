@@ -2,6 +2,9 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Xml;
 
 namespace gip.ext.xamldom.avui
 {
@@ -17,7 +20,36 @@ namespace gip.ext.xamldom.avui
         public static string GetXaml(XamlObject xamlObject)
         {
             if (xamlObject != null)
-                return xamlObject.XmlElement.OuterXml;
+            {
+                var nd = xamlObject.XmlElement.CloneNode(true);
+                var attLst = nd.Attributes.Cast<XmlAttribute>().ToDictionary(x => x.Name);
+
+                var ns = new List<XmlAttribute>();
+
+                var parentObject = xamlObject.ParentObject;
+                while (parentObject != null)
+                {
+                    foreach (XmlAttribute attribute in parentObject.XmlElement.Attributes)
+                    {
+                        if (attribute.Name.StartsWith("xmlns:"))
+                        {
+                            var existingNs = nd.GetNamespaceOfPrefix(attribute.Name.Substring(6));
+                            if (string.IsNullOrEmpty(existingNs))
+                            {
+                                if (!attLst.ContainsKey(attribute.Name))
+                                {
+                                    nd.Attributes.Append((XmlAttribute)attribute.CloneNode(false));
+                                    attLst.Add(attribute.Name, attribute);
+                                }
+                            }
+                        }
+                    }
+                    parentObject = parentObject.ParentObject;
+                }
+
+
+                return nd.OuterXml;
+            }
             return null;
         }
     }

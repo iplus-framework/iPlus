@@ -9,9 +9,9 @@ using System.Globalization;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Windows.Markup;
 using System.Xml;
 using System.Reflection;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.xamldom.avui
 {
@@ -74,62 +74,79 @@ namespace gip.ext.xamldom.avui
 				ConsumeWhitespace();
 			}
 		}
-		
-		void MembernameOrString()
-		{
-			StringBuilder b = new StringBuilder();
-			if (text[pos] == '"' || text[pos] == '\'') {
-				char quote = text[pos++];
-				CheckNotEOF();
-				while (!(text[pos] == quote && text[pos-1] != '\\')) {
-					char c = text[pos++];
-					if (c != '\\')
-						b.Append(c);
-					CheckNotEOF();
-				}
-				pos++; // consume closing quote
-				ConsumeWhitespace();
-			} else {
-				int braceTotal = 0;
-				while (true) {
-					CheckNotEOF();
-					switch (text[pos]) {
-						case '\\':
-							pos++;
-							CheckNotEOF();
-							b.Append(text[pos++]);
-							break;
-						case '{':
-							b.Append(text[pos++]);
-							braceTotal++;
-							break;
-						case '}':
-							if (braceTotal == 0) goto stop;
-							b.Append(text[pos++]);
-							braceTotal--;
-							break;
-						case ',':
-						case '=':
-							if (braceTotal == 0) goto stop;
-							b.Append(text[pos++]);
-							break;
-						default:
-							b.Append(text[pos++]);
-							break;
-					}
-				}
-				stop:;
-			}
-			CheckNotEOF();
-			string valueText = b.ToString();
-			if (text[pos] == '=') {
-				AddToken(MarkupExtensionTokenKind.Membername, valueText.Trim());
-			} else {
-				AddToken(MarkupExtensionTokenKind.String, valueText);
-			}
-		}
-		
-		void Expect(char c)
+
+        void MembernameOrString()
+        {
+            StringBuilder b = new StringBuilder();
+            if (text[pos] == '"' || text[pos] == '\'')
+            {
+                char quote = text[pos++];
+                CheckNotEOF();
+                int lastBackslashPos = -1;
+                while (!(text[pos] == quote && text[pos - 1] != '\\'))
+                {
+                    int current = pos;
+                    char c = text[pos++];
+                    //check if string is \\ and that the last backslash is not the previously saved char, ie that \\\\ does not become \\\ but just \\
+                    bool isEscapedBackslash = string.Concat(text[current - 1], c) == "\\\\" && current - 1 != lastBackslashPos;
+                    if (c != '\\' || isEscapedBackslash)
+                    {
+                        b.Append(c);
+                        if (isEscapedBackslash)
+                            lastBackslashPos = current;
+                    }
+                    CheckNotEOF();
+                }
+                pos++; // consume closing quote
+                ConsumeWhitespace();
+            }
+            else
+            {
+                int braceTotal = 0;
+                while (true)
+                {
+                    CheckNotEOF();
+                    switch (text[pos])
+                    {
+                        case '\\':
+                            pos++;
+                            CheckNotEOF();
+                            b.Append(text[pos++]);
+                            break;
+                        case '{':
+                            b.Append(text[pos++]);
+                            braceTotal++;
+                            break;
+                        case '}':
+                            if (braceTotal == 0) goto stop;
+                            b.Append(text[pos++]);
+                            braceTotal--;
+                            break;
+                        case ',':
+                        case '=':
+                            if (braceTotal == 0) goto stop;
+                            b.Append(text[pos++]);
+                            break;
+                        default:
+                            b.Append(text[pos++]);
+                            break;
+                    }
+                }
+            stop:;
+            }
+            CheckNotEOF();
+            string valueText = b.ToString();
+            if (text[pos] == '=')
+            {
+                AddToken(MarkupExtensionTokenKind.Membername, valueText.Trim());
+            }
+            else
+            {
+                AddToken(MarkupExtensionTokenKind.String, valueText);
+            }
+        }
+
+        void Expect(char c)
 		{
 			CheckNotEOF();
 			if (text[pos] != c)
@@ -248,7 +265,7 @@ namespace gip.ext.xamldom.avui
                 extensionType = typeResolver.Resolve(typeName);
             if (extensionType == null 
                 || !( typeof(MarkupExtension).IsAssignableFrom(extensionType) || 
-                      typeof(System.Windows.Data.IValueConverter).IsAssignableFrom(extensionType)))
+                      typeof(Avalonia.Data.Converters.IValueConverter).IsAssignableFrom(extensionType)))
             {
 				throw new XamlMarkupExtensionParseException("Unknown markup extension " + typeName + "Extension");
 			}

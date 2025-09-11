@@ -7,9 +7,10 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;
-using System.Windows;
-using System.Windows.Markup;
 using System.Xml;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 
 namespace gip.ext.xamldom.avui
 {
@@ -31,6 +32,22 @@ namespace gip.ext.xamldom.avui
             get { return containingObject.XmlElement; }
         }
 
+        private string GetNamespaceOfPrefix(string prefix)
+        {
+            var ns = ContainingElement.GetNamespaceOfPrefix(prefix);
+            if (!string.IsNullOrEmpty(ns))
+                return ns;
+            var obj = containingObject;
+            while (obj != null)
+            {
+                ns = obj.XmlElement.GetNamespaceOfPrefix(prefix);
+                if (!string.IsNullOrEmpty(ns))
+                    return ns;
+                obj = obj.ParentObject;
+            }
+            return null;
+        }
+
         public Type Resolve(string typeName)
         {
             Type result = null;
@@ -39,7 +56,7 @@ namespace gip.ext.xamldom.avui
             if (typeName.Contains(":"))
             {
                 string prefix = typeName.Substring(0, typeName.IndexOf(':'));
-                typeNamespaceUri = ContainingElement.GetNamespaceOfPrefix(prefix);
+                typeNamespaceUri = GetNamespaceOfPrefix(typeName.Substring(0, typeName.IndexOf(':')));
                 typeLocalName = typeName.Substring(typeName.IndexOf(':') + 1);
                 if (String.IsNullOrEmpty(typeNamespaceUri))
                 {
@@ -57,12 +74,19 @@ namespace gip.ext.xamldom.avui
                 }
                 else
                 {
-                    typeNamespaceUri = ContainingElement.GetNamespaceOfPrefix("");
+                    typeNamespaceUri = GetNamespaceOfPrefix("");
                     typeLocalName = typeName;
                 }
             }
             if (string.IsNullOrEmpty(typeNamespaceUri))
+            {
+                var documentResolver = this.document.RootElement.ServiceProvider.Resolver;
+                if (documentResolver != null && documentResolver != this)
+                {
+                    return documentResolver.Resolve(typeName);
+                }
                 throw new XamlMarkupExtensionParseException("Unrecognized namespace prefix in type " + typeName);
+            }
             result = document.TypeFinder.GetType(typeNamespaceUri, typeLocalName);
             return result;
         }
@@ -91,7 +115,7 @@ namespace gip.ext.xamldom.avui
             XamlObject obj = containingObject;
             while (obj != null)
             {
-                Style style = obj.Instance as Style;
+                ControlTheme style = obj.Instance as ControlTheme;
                 if (style != null && style.TargetType != null)
                 {
                     elementType = style.TargetType;
@@ -126,7 +150,7 @@ namespace gip.ext.xamldom.avui
             XamlObject obj = containingObject;
             while (obj != null)
             {
-                FrameworkElement el = obj.Instance as FrameworkElement;
+                Control el = obj.Instance as Control;
                 if (el != null)
                 {
                     object val = el.Resources[key];
@@ -134,6 +158,16 @@ namespace gip.ext.xamldom.avui
                         return val;
                 }
                 obj = obj.ParentObject;
+            }
+            return null;
+        }
+
+        public object FindLocalResource(object key)
+        {
+            Control el = containingObject.Instance as Control;
+            if (el != null)
+            {
+                return el.Resources[key];
             }
             return null;
         }

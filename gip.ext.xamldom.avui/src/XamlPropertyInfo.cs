@@ -7,8 +7,8 @@ using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
-using System.Windows;
-using System.Windows.Markup;
+using Avalonia;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.xamldom.avui
 {
@@ -30,26 +30,32 @@ namespace gip.ext.xamldom.avui
         public abstract bool IsCollection { get; }
         public virtual bool IsEvent { get { return false; } }
         public virtual bool IsAdvanced { get { return false; } }
-        public virtual DependencyProperty DependencyProperty { get { return null; } }
+        public virtual AvaloniaProperty DependencyProperty { get { return null; } }
         public abstract string Category { get; }
     }
 
     #region XamlDependencyPropertyInfo
     internal class XamlDependencyPropertyInfo : XamlPropertyInfo
     {
-        readonly DependencyProperty property;
+        readonly AvaloniaProperty property;
         readonly bool isAttached;
+        readonly bool isCollection;
+        readonly string dependencyPropertyGetterName;
+        Func<object, object> attachedGetter;
 
-        public override DependencyProperty DependencyProperty
+        public override AvaloniaProperty DependencyProperty
         {
             get { return property; }
         }
 
-        public XamlDependencyPropertyInfo(DependencyProperty property, bool isAttached)
+        public XamlDependencyPropertyInfo(AvaloniaProperty property, bool isAttached, string dependencyPropertyGetterName, Func<object, object> attachedGetter = null)
         {
             Debug.Assert(property != null);
             this.property = property;
             this.isAttached = isAttached;
+            this.isCollection = CollectionSupport.IsCollectionType(property.PropertyType);
+            this.attachedGetter = attachedGetter;
+            this.dependencyPropertyGetterName = dependencyPropertyGetterName;
         }
 
         public override TypeConverter TypeConverter
@@ -100,17 +106,35 @@ namespace gip.ext.xamldom.avui
 
         public override object GetValue(object instance)
         {
-            return ((DependencyObject)instance).GetValue(property);
+            try
+            {
+                if (attachedGetter != null)
+                {
+                    return attachedGetter(instance);
+                }
+            }
+            catch (Exception)
+            {
+
+            }
+
+            var dependencyObject = instance as AvaloniaObject;
+            if (dependencyObject != null)
+            {
+                return dependencyObject.GetValue(property);
+            }
+
+            return null;
         }
 
         public override void SetValue(object instance, object value)
         {
-            ((DependencyObject)instance).SetValue(property, value);
+            ((AvaloniaObject)instance).SetValue(property, value);
         }
 
         public override void ResetValue(object instance)
         {
-            ((DependencyObject)instance).ClearValue(property);
+            ((AvaloniaObject)instance).ClearValue(property);
         }
     }
     #endregion
@@ -119,19 +143,20 @@ namespace gip.ext.xamldom.avui
     internal sealed class XamlNormalPropertyInfo : XamlPropertyInfo
     {
         PropertyDescriptor _propertyDescriptor;
-        DependencyProperty dependencyProperty;
+        AvaloniaProperty dependencyProperty;
 
         public XamlNormalPropertyInfo(PropertyDescriptor propertyDescriptor)
         {
             this._propertyDescriptor = propertyDescriptor;
-            var dpd = DependencyPropertyDescriptor.FromProperty(propertyDescriptor);
-            if (dpd != null)
-            {
-                dependencyProperty = dpd.DependencyProperty;
-            }
+            dependencyProperty = AvaloniaPropertyRegistry.Instance.FindRegistered(_propertyDescriptor.ComponentType, _propertyDescriptor.Name);
+            //var dpd = AvaloniaPropertyDescriptor.FromProperty(propertyDescriptor);
+            //if (dpd != null)
+            //{
+            //    dependencyProperty = dpd.DependencyProperty;
+            //}
         }
 
-        public override DependencyProperty DependencyProperty
+        public override AvaloniaProperty DependencyProperty
         {
             get
             {
@@ -146,17 +171,24 @@ namespace gip.ext.xamldom.avui
 
         public override void SetValue(object instance, object value)
         {
-            if (instance is DependencyObject)
-            {
-                if ((instance as DependencyObject).IsSealed)
-                    return;
-            }
+            //if (instance is AvaloniaObject)
+            //{
+            //    if ((instance as AvaloniaObject).IsSealed)
+            //        return;
+            //}
             _propertyDescriptor.SetValue(instance, value);
         }
 
         public override void ResetValue(object instance)
         {
-            _propertyDescriptor.ResetValue(instance);
+            try
+            {
+                _propertyDescriptor.ResetValue(instance);
+            }
+            catch (Exception)
+            {
+                //For Example "UndoRedoSimpleBinding" will raise a exception here => look if it has Side Effects if we generally catch here?
+            }
         }
 
         public override Type ReturnType
@@ -229,7 +261,7 @@ namespace gip.ext.xamldom.avui
                 return StringTypeConverter;
             else if (propertyType == typeof(Type))
                 return TypeTypeConverter.Instance;
-            else if (propertyType == typeof(DependencyProperty))
+            else if (propertyType == typeof(AvaloniaProperty))
                 return DependencyPropertyConverter.Instance;
             else
                 return null;
@@ -295,9 +327,9 @@ namespace gip.ext.xamldom.avui
                     if (depProp != null)
                         return depProp.DependencyProperty;
                     FieldInfo field = prop.TargetType.GetField(prop.Name + "Property", BindingFlags.Public | BindingFlags.Static);
-                    if (field != null && field.FieldType == typeof(DependencyProperty))
+                    if (field != null && field.FieldType == typeof(AvaloniaProperty))
                     {
-                        return (DependencyProperty)field.GetValue(null);
+                        return (AvaloniaProperty)field.GetValue(null);
                     }
                     throw new XamlLoadException("Property " + value + " is not a dependency property.");
                 }

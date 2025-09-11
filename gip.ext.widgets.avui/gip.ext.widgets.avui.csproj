@@ -2,7 +2,6 @@
   <PropertyGroup>
     <TargetFramework>$(UITargetFramework)</TargetFramework>
     <OutputType>Library</OutputType>
-    <OutputPath>..\..\..\bin\</OutputPath>
     <NoStdLib>False</NoStdLib>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>

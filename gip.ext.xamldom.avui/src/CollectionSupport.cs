@@ -7,8 +7,13 @@ using System.Collections;
 using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
-using System.Windows;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia.Metadata;
+using Avalonia.Styling;
+using Avalonia.Controls.Documents;
+using System.Collections.Generic;
+using Avalonia.Collections;
+using System.Linq;
 
 namespace gip.ext.xamldom.avui
 {
@@ -22,10 +27,11 @@ namespace gip.ext.xamldom.avui
         /// </summary>
         public static bool IsCollectionType(Type type)
         {
-            return typeof(IList).IsAssignableFrom(type)
+            return type != typeof(LineBreak) && (
+                typeof(IList).IsAssignableFrom(type)
                 || type.IsArray
                 || typeof(IAddChild).IsAssignableFrom(type)
-                || typeof(ResourceDictionary).IsAssignableFrom(type);
+                || typeof(IResourceDictionary).IsAssignableFrom(type));
         }
 
         /// <summary>
@@ -50,7 +56,8 @@ namespace gip.ext.xamldom.avui
         {
             foreach (var item in items)
             {
-                if (!CanCollectionAdd(col, item.GetType())) return false;
+                if (!CanCollectionAdd(col, item.GetType())) 
+                    return false;
             }
             return true;
         }
@@ -67,23 +74,28 @@ namespace gip.ext.xamldom.avui
             {
                 if (newElement is XamlTextValue)
                 {
-                    addChild.AddText((string)newElement.GetValueFor(null));
+                    throw new NotSupportedException(
+                        "Adding text values to a collection is not supported in Avalonia.");
+                    // Avalonia Deprecated:
+                    // addChild.AddText((string)newElement.GetValueFor(null));
                 }
                 else
                 {
                     addChild.AddChild(newElement.GetValueFor(null));
                 }
             }
-            else if (collectionInstance is ResourceDictionary)
+            else if (collectionInstance is IResourceDictionary)
             {
                 object val = newElement.GetValueFor(null);
                 object key = newElement is XamlObject ? ((XamlObject)newElement).GetXamlAttribute("Key") : null;
-                if (key == null)
+                if (key == null || (key as string) == "")
                 {
-                    if (val is Style)
-                        key = ((Style)val).TargetType;
+                    if (val is ControlTheme)
+                        key = ((ControlTheme)val).TargetType;
                 }
-                ((ResourceDictionary)collectionInstance).Add(key, val);
+                if (key == null || (key as string) == "")
+                    key = val;
+                ((IDictionary)collectionInstance).Add(key, val);
             }
             else
             {
@@ -98,28 +110,76 @@ namespace gip.ext.xamldom.avui
         /// <summary>
         /// Adds a value at the specified index in the collection.
         /// </summary>
-        public static void Insert(Type collectionType, object collectionInstance, XamlPropertyValue newElement, int index)
+        public static bool Insert(Type collectionType, object collectionInstance, XamlPropertyValue newElement, int index)
         {
-            if (collectionInstance is SetterBaseCollection) // Bescause Collection is sealed
+            object value = newElement.GetValueFor(null);
+
+            // Using IList, with possible Add instead of Insert, was primarily added as a workaround
+            // for a peculiarity (or bug) with collections inside System.Windows.Input namespace.
+            // See CollectionTests.InputCollectionsPeculiarityOrBug test method for details.
+            var list = collectionInstance as IList;
+            if (list != null)
             {
-                if ((collectionInstance as SetterBaseCollection).IsSealed)
-                    return;
+                if (list.Count == index)
+                {
+                    list.Add(value);
+                }
+                else
+                {
+                    list.Insert(index, value);
+                }
+                return true;
             }
-            else if (collectionInstance is TriggerCollection) // Bescause Collection is sealed
+            else
             {
-                if ((collectionInstance as TriggerCollection).IsSealed)
-                    return;
+                var hasInsert = collectionType.GetMethods().Any(x => x.Name == "Insert");
+
+                if (hasInsert)
+                {
+                    collectionType.InvokeMember(
+                        "Insert", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
+                        null, collectionInstance,
+                        new object[] { index, value },
+                        CultureInfo.InvariantCulture);
+
+                    return true;
+                }
             }
-            else if (collectionInstance is ConditionCollection) // Bescause Collection is sealed
+
+            return false;
+
+            //if (collectionInstance is List<SetterBase>)
+            //{
+            //    //if ((collectionInstance as List<SetterBase>).IsSealed)
+            //    //    return;
+            //}
+            //else if (collectionInstance is AvaloniaList<AvaloniaObject>)
+            //{
+            //    //if ((collectionInstance as AvaloniaList<AvaloniaObject>).IsSealed)
+            //    //    return;
+            //}
+
+            //collectionType.InvokeMember(
+            //    "Insert", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
+            //    null, collectionInstance,
+            //    new object[] { index, newElement.GetValueFor(null) },
+            //    CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Adds a value at the specified index in the collection. A return value indicates whether the Insert succeeded.
+        /// </summary>
+        /// <returns>True if the Insert succeeded, false if the collection type does not support Insert.</returns>
+        internal static bool TryInsert(Type collectionType, object collectionInstance, XamlPropertyValue newElement, int index)
+        {
+            try
             {
-                if ((collectionInstance as ConditionCollection).IsSealed)
-                    return;
+                return Insert(collectionType, collectionInstance, newElement, index);
             }
-            collectionType.InvokeMember(
-                "Insert", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
-                null, collectionInstance,
-                new object[] { index, newElement.GetValueFor(null) },
-                CultureInfo.InvariantCulture);
+            catch (MissingMethodException)
+            {
+                return false;
+            }
         }
 
         static readonly Type[] RemoveAtParameters = { typeof(int) };
@@ -130,21 +190,17 @@ namespace gip.ext.xamldom.avui
         /// <returns>True if the removal succeeded, false if the collection type does not support RemoveAt.</returns>
         public static bool RemoveItemAt(Type collectionType, object collectionInstance, int index)
         {
-            if (collectionInstance is SetterBaseCollection) // Bescause Collection is sealed
-            {
-                if ((collectionInstance as SetterBaseCollection).IsSealed)
-                    return true;
-            }
-            else if (collectionInstance is TriggerCollection) // Bescause Collection is sealed
-            {
-                if ((collectionInstance as TriggerCollection).IsSealed)
-                    return true;
-            }
-            else if (collectionInstance is ConditionCollection) // Bescause Collection is sealed
-            {
-                if ((collectionInstance as ConditionCollection).IsSealed)
-                    return true;
-            }
+            //if (collectionInstance is List<SetterBase>)
+            //{
+            //    //if ((collectionInstance as SetterBaseCollection).IsSealed)
+            //    //    return true;
+            //}
+            //else if (collectionInstance is AvaloniaList<AvaloniaObject> Collection)
+            //{
+            //    //if ((collectionInstance as TriggerCollection).IsSealed)
+            //    //    return true;
+            //}
+
             MethodInfo m = collectionType.GetMethod("RemoveAt", RemoveAtParameters);
             if (m != null)
             {
@@ -162,26 +218,37 @@ namespace gip.ext.xamldom.avui
         /// </summary>
         public static void RemoveItem(Type collectionType, object collectionInstance, object item)
         {
-            if (collectionInstance is SetterBaseCollection) // Bescause Collection is sealed
-            {
-                if ((collectionInstance as SetterBaseCollection).IsSealed)
-                    return;
-            }
-            else if (collectionInstance is TriggerCollection) // Bescause Collection is sealed
-            {
-                if ((collectionInstance as TriggerCollection).IsSealed)
-                    return;
-            }
-            else if (collectionInstance is ConditionCollection) // Bescause Collection is sealed
-            {
-                if ((collectionInstance as ConditionCollection).IsSealed)
-                    return;
-            }
+            //if (collectionInstance is List<SetterBase>)
+            //{
+            //    //if ((collectionInstance as SetterBaseCollection).IsSealed)
+            //    //    return true;
+            //}
+            //else if (collectionInstance is AvaloniaList<AvaloniaObject> Collection)
+            //{
+            //    //if ((collectionInstance as TriggerCollection).IsSealed)
+            //    //    return true;
+            //}
             collectionType.InvokeMember(
                 "Remove", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
                 null, collectionInstance,
                 new object[] { item },
                 CultureInfo.InvariantCulture);
+        }
+
+
+        internal static void RemoveItem(Type collectionType, object collectionInstance, object item, XamlPropertyValue element)
+        {
+            var dictionary = collectionInstance as IDictionary;
+            var xamlObject = element as XamlObject;
+
+            if (dictionary != null && xamlObject != null)
+            {
+                dictionary.Remove(xamlObject.GetXamlAttribute("Key"));
+            }
+            else
+            {
+                RemoveItem(collectionType, collectionInstance, item);
+            }
         }
     }
 }

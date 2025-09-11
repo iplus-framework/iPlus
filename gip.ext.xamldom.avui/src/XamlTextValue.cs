@@ -33,6 +33,8 @@ namespace gip.ext.xamldom.avui
 		internal XamlTextValue(XamlDocument document, string textValue)
 		{
 			this.document = document;
+            if (textValue.StartsWith("{"))
+                textValue = "{}" + textValue; 
 			this.textValue = textValue;
 		}
 		

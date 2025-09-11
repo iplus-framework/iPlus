@@ -18,11 +18,12 @@ namespace gip.ext.xamldom.avui
 		CreateInstanceCallback _createInstanceCallback = Activator.CreateInstance;
 		XamlTypeFinder _typeFinder = XamlTypeFinder.CreateWpfTypeFinder();
 		IServiceProvider _serviceProvider = DummyServiceProvider.Instance;
-		
-		/// <summary>
-		/// Gets/Sets the method used to create object instances.
-		/// </summary>
-		public CreateInstanceCallback CreateInstanceCallback {
+        string _currentProjectAssemblyName;
+
+        /// <summary>
+        /// Gets/Sets the method used to create object instances.
+        /// </summary>
+        public CreateInstanceCallback CreateInstanceCallback {
 			get { return _createInstanceCallback; }
 			set {
 				if (value == null)
@@ -54,8 +55,20 @@ namespace gip.ext.xamldom.avui
 				_serviceProvider = value;
 			}
 		}
-		
-		sealed class DummyServiceProvider : IServiceProvider
+
+        /// <summary>
+        /// Gets/Sets the Current Projects Assembly Name.
+        /// </summary>
+        public string CurrentProjectAssemblyName
+        {
+            get { return _currentProjectAssemblyName; }
+            set
+            {
+                _currentProjectAssemblyName = value;
+            }
+        }
+
+        sealed class DummyServiceProvider : IServiceProvider
 		{
 			public static readonly DummyServiceProvider Instance = new DummyServiceProvider();
 			

@@ -5,11 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows.Markup;
 using System.Xml;
-using System.Windows.Data;
-using System.Windows;
 using System.Collections.ObjectModel;
+using System.Linq;
+using Avalonia.Styling;
+using Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia.Data;
+using Avalonia.Metadata;
+using Avalonia.Xaml.Interactivity;
 
 namespace gip.ext.xamldom.avui
 {
@@ -24,6 +29,9 @@ namespace gip.ext.xamldom.avui
         Type elementType;
         object instance;
         List<XamlProperty> properties = new List<XamlProperty>();
+        string contentPropertyName;
+        XamlProperty nameProperty;
+        string runtimeNameProperty;
 
         /// <summary>For use by XamlParser only.</summary>
         internal XamlObject(XamlDocument document, XmlElement element, Type elementType, object instance)
@@ -33,20 +41,21 @@ namespace gip.ext.xamldom.avui
             this.elementType = elementType;
             this.instance = instance;
 
-            if (element.Name == "Border")
-            {
-                int i = 0;
-                i++;
-            }
-
-            var contentAttrs = elementType.GetCustomAttributes(typeof(ContentPropertyAttribute), true) as ContentPropertyAttribute[];
-            if (contentAttrs != null && contentAttrs.Length > 0)
-            {
-                this.contentPropertyName = contentAttrs[0].Name;
-            }
+            this.contentPropertyName = GetContentPropertyName(elementType);
+            //XamlSetTypeConverter = GetTypeConverterDelegate(elementType); // Doesn't exiast in Avalonia
 
             ServiceProvider = new XamlObjectServiceProvider(this);
             CreateWrapper();
+
+            // Doesn't exist in Avalonia:
+            //var rnpAttrs = elementType.GetCustomAttributes(typeof(RuntimeNamePropertyAttribute), true) as RuntimeNamePropertyAttribute[];
+            //if (rnpAttrs != null && rnpAttrs.Length > 0 && !String.IsNullOrEmpty(rnpAttrs[0].Name))
+            //{
+            //    runtimeNameProperty = rnpAttrs[0].Name;
+            //}
+            // x:Name can be ujsed for all StyledElement
+            if (typeof(StyledElement).IsAssignableFrom(elementType))
+                runtimeNameProperty = nameof(StyledElement.Name);
         }
 
         /// <summary>For use by XamlParser only.</summary>
@@ -59,6 +68,7 @@ namespace gip.ext.xamldom.avui
                 {
                     if (p.IsAttached == false && p.PropertyName == property.PropertyName)
                     {
+                        //throw new XamlLoadException("duplicate property:" + property.PropertyName);
                         //Debug.Fail("duplicate property");
                         return;
                     }
@@ -72,9 +82,10 @@ namespace gip.ext.xamldom.avui
         internal override object GetValueFor(XamlPropertyInfo targetProperty)
         {
             if (IsMarkupExtension
-                && ((targetProperty == null)
-                    || ((targetProperty != null) && !typeof(TriggerBase).IsAssignableFrom(targetProperty.TargetType) && !typeof(Condition).IsAssignableFrom(targetProperty.TargetType))
-                   )
+                // TODO: Handle Xaml.Behaviors
+                //&& ((targetProperty == null)
+                //    || ((targetProperty != null) && !typeof(StyledElementTrigger).IsAssignableFrom(targetProperty.TargetType) && !typeof(Condition).IsAssignableFrom(targetProperty.TargetType))
+                //   )
                 )
             {
                 var value = ProvideValue();
@@ -125,6 +136,11 @@ namespace gip.ext.xamldom.avui
             get { return element; }
         }
 
+        public PositionXmlElement PositionXmlElement
+        {
+            get { return element as PositionXmlElement; }
+        }
+
         XmlAttribute xmlAttribute;
 
         internal XmlAttribute XmlAttribute
@@ -133,15 +149,33 @@ namespace gip.ext.xamldom.avui
             set
             {
                 xmlAttribute = value;
-                element = VirualAttachTo(XmlElement, value.OwnerElement);
+                element = VirtualAttachTo(XmlElement, value.OwnerElement);
             }
         }
 
-        static XmlElement VirualAttachTo(XmlElement e, XmlElement target)
+        string GetPrefixOfNamespace(string ns, XmlElement target)
         {
-            // Fehler in originalcode auskommentiert:
-            // var prefix = target.GetPrefixOfNamespace(e.NamespaceURI);
-            var prefix = e.GetPrefixOfNamespace(e.NamespaceURI);
+            if (target.NamespaceURI == ns)
+                return null;
+            var prefix = target.GetPrefixOfNamespace(ns);
+            if (!string.IsNullOrEmpty(prefix))
+                return prefix;
+            var obj = this;
+            while (obj != null)
+            {
+                prefix = obj.XmlElement.GetPrefixOfNamespace(ns);
+                if (!string.IsNullOrEmpty(prefix))
+                    return prefix;
+                obj = obj.ParentObject;
+            }
+            return null;
+        }
+
+        XmlElement VirtualAttachTo(XmlElement e, XmlElement target)
+        {
+            string prefix = GetPrefixOfNamespace(e.NamespaceURI, target);
+            if (string.IsNullOrEmpty(prefix))
+                prefix = e.GetPrefixOfNamespace(e.NamespaceURI);
             XmlElement newElement = e.OwnerDocument.CreateElement(prefix, e.LocalName, e.NamespaceURI);
 
             foreach (XmlAttribute a in target.Attributes)
@@ -166,9 +200,66 @@ namespace gip.ext.xamldom.avui
             return newElement;
         }
 
+        /// <summary>
+        /// Gets the name of the content property for the specified element type, or null if not available.
+        /// </summary>
+        /// <param name="elementType">The element type to get the content property name for.</param>
+        /// <returns>The name of the content property for the specified element type, or null if not available.</returns>
+        internal static string GetContentPropertyName(Type elementType)
+        {
+            // Search for properties with TemplateContentAttribute
+            var properties = elementType.GetProperties();
+            foreach (var property in properties)
+            {
+                var contentAttrs = property.GetCustomAttributes(typeof(TemplateContentAttribute), true) as TemplateContentAttribute[];
+                if (contentAttrs != null && contentAttrs.Length > 0)
+                {
+                    return property.Name;
+                }
+            }
+
+            return null;
+        }
+
+#if AVALONIA_SUPPORTS_FROM_WPF
+        //internal delegate void TypeConverterDelegate(Object targetObject, XamlSetTypeConverterEventArgs eventArgs);
+
+        //internal TypeConverterDelegate XamlSetTypeConverter { get; private set; }
+
+        //internal static TypeConverterDelegate GetTypeConverterDelegate(Type elementType)
+        //{
+        //    var attrs = elementType.GetCustomAttributes(typeof(XamlSetTypeConverterAttribute), true) as XamlSetTypeConverterAttribute[];
+        //    if (attrs != null && attrs.Length > 0)
+        //    {
+        //        var name = attrs[0].XamlSetTypeConverterHandler;
+        //        var method = elementType.GetMethod(name, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+
+        //        return (TypeConverterDelegate)TypeConverterDelegate.CreateDelegate(typeof(TypeConverterDelegate), method);
+        //    }
+
+        //    return null;
+        //}
+
+        //private XamlType _systemXamlTypeForProperty = null;
+
+        ///// <summary>
+        ///// Gets a <see cref="XamlType"/> representing the <see cref="XamlObject.ElementType"/>.
+        ///// </summary>
+        //public XamlType SystemXamlTypeForProperty
+        //{
+        //    get
+        //    {
+        //        if (_systemXamlTypeForProperty == null)
+        //            _systemXamlTypeForProperty = new XamlType(this.ElementType, this.ServiceProvider.SchemaContext);
+        //        return _systemXamlTypeForProperty;
+        //    }
+        //}
+#endif
+
         internal override void AddNodeTo(XamlProperty property)
         {
-            if (!UpdateXmlAttribute(true, property))
+            XamlObject holder;
+            if (!UpdateXmlAttribute(true, property, out holder))
             {
                 property.AddChildNodeToProperty(element);
             }
@@ -184,7 +275,8 @@ namespace gip.ext.xamldom.avui
             }
             else
             {
-                if (!UpdateXmlAttribute(false, null))
+                XamlObject holder;
+                if (!UpdateXmlAttribute(false, null, out holder))
                 {
                     element.ParentNode.RemoveChild(element);
                 }
@@ -197,8 +289,63 @@ namespace gip.ext.xamldom.avui
         //use CanResetValue()
         internal void OnPropertyChanged(XamlProperty property)
         {
-            UpdateXmlAttribute(false, property);
+            XamlObject holder;
+            if (!UpdateXmlAttribute(false, property, out holder))
+            {
+                if (holder != null &&
+                    holder.XmlAttribute != null)
+                {
+                    holder.XmlAttribute.OwnerElement.RemoveAttributeNode(holder.XmlAttribute);
+                    holder.xmlAttribute = null;
+                    holder.ParentProperty.AddChildNodeToProperty(holder.element);
+
+                    bool isThisUpdated = false;
+                    foreach (XamlProperty holderProp in holder.Properties.Where((prop) => prop.IsSet))
+                    //foreach (XamlObject propXamlObject in holder.Properties.Where((prop) => prop.IsSet).Select((prop) => prop.PropertyValue).OfType<XamlObject>())
+                    {
+                        XamlObject propXamlObject = holderProp.PropertyValue as XamlObject;
+                        if (propXamlObject != null)
+                        {
+                            XamlObject innerHolder;
+                            bool updateResult = propXamlObject.UpdateXmlAttribute(true, holderProp, out innerHolder);
+                            Debug.Assert(updateResult || innerHolder == null);
+                        }
+
+                        if (propXamlObject == this)
+                            isThisUpdated = true;
+                    }
+                    if (!isThisUpdated)
+                        this.UpdateXmlAttribute(true, property, out holder);
+                }
+            }
             UpdateMarkupExtensionChain();
+        }
+
+        void UpdateChildMarkupExtensions(XamlObject obj)
+        {
+            foreach (var prop in obj.Properties)
+            {
+                if (prop.IsSet)
+                {
+                    var propXamlObject = prop.PropertyValue as XamlObject;
+                    if (propXamlObject != null)
+                    {
+                        UpdateChildMarkupExtensions(propXamlObject);
+                    }
+                }
+                else if (prop.IsCollection)
+                {
+                    foreach (var propXamlObject in prop.CollectionElements.OfType<XamlObject>())
+                    {
+                        UpdateChildMarkupExtensions(propXamlObject);
+                    }
+                }
+            }
+
+            if (obj.IsMarkupExtension && obj.ParentProperty != null)
+            {
+                obj.ParentProperty.UpdateValueOnInstance();
+            }
         }
 
         void UpdateMarkupExtensionChain()
@@ -216,9 +363,9 @@ namespace gip.ext.xamldom.avui
             }
         }
 
-        bool UpdateXmlAttribute(bool force, XamlProperty changedProperty)
+        bool UpdateXmlAttribute(bool force, XamlProperty changedProperty, out XamlObject holder)
         {
-            var holder = FindXmlAttributeHolder();
+            holder = FindXmlAttributeHolder();
             if (holder == null && force && IsMarkupExtension)
             {
                 holder = this;
@@ -299,8 +446,10 @@ namespace gip.ext.xamldom.avui
         {
             get
             {
-                return ((instance is SetterBase)
-                        || (instance is Condition)
+                // TODO:
+                return (   (instance is SetterBase)
+                        || (instance is StyledElementTrigger)
+                        //|| (instance is Condition)
                         || ((wrapper != null)
                              && ((wrapper is BindingWrapper) || (wrapper is MultiBindingWrapper))
                            )
@@ -333,8 +482,6 @@ namespace gip.ext.xamldom.avui
             }
         }
 
-        string contentPropertyName;
-
         /// <summary>
         /// Gets the name of the content property.
         /// </summary>
@@ -343,6 +490,61 @@ namespace gip.ext.xamldom.avui
             get
             {
                 return contentPropertyName;
+            }
+        }
+
+
+        /// <summary>
+        /// Gets which property name of the type maps to the XAML x:Name attribute.
+        /// </summary>
+        public string RuntimeNameProperty
+        {
+            get
+            {
+                return runtimeNameProperty;
+            }
+        }
+
+        /// <summary>
+        /// Gets which property of the type maps to the XAML x:Name attribute.
+        /// </summary>
+        public XamlProperty NameProperty
+        {
+            get
+            {
+                if (nameProperty == null && runtimeNameProperty != null)
+                    nameProperty = FindOrCreateProperty(runtimeNameProperty);
+
+                return nameProperty;
+            }
+        }
+
+        /// <summary>
+        /// Gets/Sets the name of this XamlObject.
+        /// </summary>
+        public string Name
+        {
+            get
+            {
+                string name = GetXamlAttribute("Name");
+
+                if (String.IsNullOrEmpty(name))
+                {
+                    if (NameProperty != null && NameProperty.IsSet)
+                        name = (string)NameProperty.ValueOnInstance;
+                }
+
+                if (name == String.Empty)
+                    name = null;
+
+                return name;
+            }
+            set
+            {
+                if (String.IsNullOrEmpty(value))
+                    this.SetXamlAttribute("Name", null);
+                else
+                    this.SetXamlAttribute("Name", value);
             }
         }
 
@@ -379,6 +581,12 @@ namespace gip.ext.xamldom.avui
             PropertyDescriptorCollection propertyDescriptors = TypeDescriptor.GetProperties(instance);
             PropertyDescriptor propertyInfo = propertyDescriptors[propertyName];
             XamlProperty newProperty;
+
+            if (propertyInfo == null)
+            {
+                propertyDescriptors = TypeDescriptor.GetProperties(this.elementType);
+                propertyInfo = propertyDescriptors[propertyName];
+            }
             if (propertyInfo != null)
             {
                 newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo));
@@ -387,6 +595,13 @@ namespace gip.ext.xamldom.avui
             {
                 EventDescriptorCollection events = TypeDescriptor.GetEvents(instance);
                 EventDescriptor eventInfo = events[propertyName];
+
+                if (eventInfo == null)
+                {
+                    events = TypeDescriptor.GetEvents(this.elementType);
+                    eventInfo = events[propertyName];
+                }
+
                 if (eventInfo != null)
                 {
                     newProperty = new XamlProperty(this, new XamlEventPropertyInfo(eventInfo));
@@ -431,7 +646,14 @@ namespace gip.ext.xamldom.avui
         /// </summary>
         public string GetXamlAttribute(string name)
         {
-            return element.GetAttribute(name, XamlConstants.XamlNamespace);
+            var value = element.GetAttribute(name, XamlConstants.XamlNamespace);
+
+            if (string.IsNullOrEmpty(value))
+            {
+                value = element.GetAttribute(name, XamlConstants.Xaml2009Namespace);
+            }
+
+            return value;
         }
 
         /// <summary>
@@ -439,10 +661,77 @@ namespace gip.ext.xamldom.avui
         /// </summary>
         public void SetXamlAttribute(string name, string value)
         {
+            XamlProperty runtimeNameProperty = null;
+            bool isNameChange = false;
+
+            if (name == "Name")
+            {
+                isNameChange = true;
+                string oldName = GetXamlAttribute("Name");
+
+                if (String.IsNullOrEmpty(oldName))
+                {
+                    runtimeNameProperty = this.NameProperty;
+                    if (runtimeNameProperty != null)
+                    {
+                        if (runtimeNameProperty.IsSet)
+                            oldName = (string)runtimeNameProperty.ValueOnInstance;
+                        else
+                            runtimeNameProperty = null;
+                    }
+                }
+
+                if (String.IsNullOrEmpty(oldName))
+                    oldName = null;
+
+                NameScopeHelper.NameChanged(this, oldName, value);
+            }
+
             if (value == null)
                 element.RemoveAttribute(name, XamlConstants.XamlNamespace);
             else
-                element.SetAttribute(name, XamlConstants.XamlNamespace, value);
+            {
+                var prefix = element.GetPrefixOfNamespace(XamlConstants.XamlNamespace);
+                var prefix2009 = element.GetPrefixOfNamespace(XamlConstants.Xaml2009Namespace);
+
+                if (!string.IsNullOrEmpty(prefix))
+                {
+                    var attribute = element.OwnerDocument.CreateAttribute(prefix, name, XamlConstants.XamlNamespace);
+                    attribute.InnerText = value;
+                    element.SetAttributeNode(attribute);
+                }
+                else if (!string.IsNullOrEmpty(prefix2009))
+                {
+                    var attribute = element.OwnerDocument.CreateAttribute(prefix, name, XamlConstants.Xaml2009Namespace);
+                    attribute.InnerText = value;
+                    element.SetAttributeNode(attribute);
+                }
+                else
+                    element.SetAttribute(name, XamlConstants.XamlNamespace, value);
+            }
+
+            if (isNameChange)
+            {
+                bool nameChangedAlreadyRaised = false;
+                if (runtimeNameProperty != null)
+                {
+                    var handler = new EventHandler((sender, e) => nameChangedAlreadyRaised = true);
+                    this.NameChanged += handler;
+
+                    try
+                    {
+                        runtimeNameProperty.Reset();
+                    }
+                    finally
+                    {
+                        this.NameChanged -= handler;
+                    }
+                }
+
+                if (NameChanged != null && !nameChangedAlreadyRaised)
+                    NameChanged(this, EventArgs.Empty);
+            }
+
         }
 
         /// <summary>
@@ -451,37 +740,56 @@ namespace gip.ext.xamldom.avui
         public XamlObjectServiceProvider ServiceProvider { get; set; }
 
         MarkupExtensionWrapper wrapper;
-        SealedObjectsWrapper sealedObjectWrapper;
+        MarkupExtensionWrapper sealedObjectWrapper;
 
         void CreateWrapper()
         {
-            if (Instance is Binding)
+            if (Instance is BindingBase)
             {
-                wrapper = new BindingWrapper();
+                wrapper = new BindingWrapper(this);
             }
             else if (Instance is MultiBinding)
             {
-                wrapper = new MultiBindingWrapper();
+                wrapper = new MultiBindingWrapper(this);
             }
             else if (Instance is StaticResourceExtension)
             {
-                wrapper = new StaticResourceWrapper();
+                wrapper = new StaticResourceWrapper(this);
             }
-            if (wrapper != null)
-            {
-                wrapper.XamlObject = this;
-            }
+            //if (wrapper != null)
+            //{
+            //    wrapper.XamlObject = this;
+            //}
 
             if (instance is SetterBase)
             {
-                sealedObjectWrapper = new SetterBaseWrapper();
+                sealedObjectWrapper = new SetterBaseWrapper(this);
             }
-            else if (instance is Condition)
-            {
-                sealedObjectWrapper = new ConditionWrapper();
-            }
+            // TODO: Xaml.Behaviors support
+            //else if (instance is StyledElementTrigger)
+            //{
+            //    sealedObjectWrapper = new ConditionWrapper();
+            //}
+            // TODO: Avalonia doesn't have Condition class
+            //else if (instance is Condition)
+            //{
+            //    sealedObjectWrapper = new ConditionWrapper();
+            //}
             if (sealedObjectWrapper != null)
                 sealedObjectWrapper.XamlObject = this;
+
+            if (wrapper == null && IsMarkupExtension)
+            {
+                var markupExtensionWrapperAttribute = Instance.GetType().GetCustomAttributes(typeof(MarkupExtensionWrapperAttribute), false).FirstOrDefault() as MarkupExtensionWrapperAttribute;
+                if (markupExtensionWrapperAttribute != null)
+                {
+                    wrapper = MarkupExtensionWrapper.CreateWrapper(markupExtensionWrapperAttribute.MarkupExtensionWrapperType, this);
+                }
+                else
+                {
+                    wrapper = MarkupExtensionWrapper.TryCreateWrapper(Instance.GetType(), this);
+                }
+            }
         }
 
         object ProvideValue()
@@ -490,6 +798,8 @@ namespace gip.ext.xamldom.avui
             {
                 return wrapper.ProvideValue();
             }
+            if (this.ParentObject != null && this.ParentObject.ElementType == typeof(Setter) && this.ElementType == typeof(DynamicResourceExtension))
+                return Instance;
             return (Instance as MarkupExtension).ProvideValue(ServiceProvider);
         }
 
@@ -504,32 +814,49 @@ namespace gip.ext.xamldom.avui
 
         internal string GetNameForMarkupExtension()
         {
-            return XmlElement.Name;
+            string markupExtensionName = XmlElement.Name;
+
+            // By convention a markup extension class name typically includes an "Extension" suffix.
+            // When you reference the markup extension in XAML the "Extension" suffix is optional.
+            // If present remove it to avoid bloating the XAML.
+            if (markupExtensionName.EndsWith("Extension", StringComparison.Ordinal))
+            {
+                markupExtensionName = markupExtensionName.Substring(0, markupExtensionName.Length - 9);
+            }
+
+            return markupExtensionName;
         }
+
+        /// <summary>
+        /// Is raised when the name of this XamlObject changes.
+        /// </summary>
+        public event EventHandler NameChanged;
     }
 
-    abstract class SealedObjectsWrapper
-    {
-        public XamlObject XamlObject { get; set; }
-        public abstract object GetClonedInstance();
-    }
-
-    abstract class MarkupExtensionWrapper : SealedObjectsWrapper
-    {
-        public abstract object ProvideValue();
-    }
 
     class BindingWrapper : MarkupExtensionWrapper
     {
+        public BindingWrapper(XamlObject xamlObject) : base(xamlObject)
+        {
+        }
+
         public override object ProvideValue()
         {
             var target = XamlObject.Instance as Binding;
             //TODO: XamlObject.Clone()
             var b = GetClonedInstance() as Binding;
+            if (b == null)
+                return null;
             object providedValue = null;
             try
             {
-                providedValue = b.ProvideValue(XamlObject.ServiceProvider);
+                IProvideValueTarget service = (IProvideValueTarget)XamlObject.ServiceProvider.GetService(typeof(IProvideValueTarget));
+                if (service == null)
+                    return null;
+                providedValue = (b as IBinding).Initiate(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty);
+                // Future Avalonia Version 12:
+                //providedValue = (b as IBinding2).Instance(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty, null);
+                //providedValue = b.ProvideValue(XamlObject.ServiceProvider);
             }
             catch (Exception /*e*/)
             {
@@ -560,10 +887,30 @@ namespace gip.ext.xamldom.avui
 
     class MultiBindingWrapper : MarkupExtensionWrapper
     {
+        public MultiBindingWrapper(XamlObject xamlObject) : base(xamlObject)
+        {
+        }
+
         public override object ProvideValue()
         {
             var b = GetClonedInstance() as MultiBinding;
-            return b.ProvideValue(XamlObject.ServiceProvider);
+            if (b == null)
+                return null;
+            object providedValue = null;
+            try
+            {
+                IProvideValueTarget service = (IProvideValueTarget)XamlObject.ServiceProvider.GetService(typeof(IProvideValueTarget));
+                if (service == null)
+                    return null;
+                providedValue = (b as IBinding).Initiate(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty);
+                // Future Avalonia Version 12:
+                //providedValue = (b as IBinding2).Instance(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty, null);
+                //providedValue = b.ProvideValue(XamlObject.ServiceProvider);
+            }
+            catch (Exception /*e*/)
+            {
+            }
+            return providedValue;
         }
 
         public override object GetClonedInstance()
@@ -601,6 +948,10 @@ namespace gip.ext.xamldom.avui
 
     class StaticResourceWrapper : MarkupExtensionWrapper
     {
+        public StaticResourceWrapper(XamlObject xamlObject) : base(xamlObject)
+        {
+        }
+
         public override object ProvideValue()
         {
             var target = XamlObject.Instance as StaticResourceExtension;
@@ -635,8 +986,17 @@ namespace gip.ext.xamldom.avui
         }
     }
 
-    class SetterBaseWrapper : SealedObjectsWrapper
+    class SetterBaseWrapper : MarkupExtensionWrapper
     {
+        public SetterBaseWrapper(XamlObject xamlObject) : base(xamlObject)
+        {
+        }
+
+        public override object ProvideValue()
+        {
+            throw new NotImplementedException();
+        }
+
         public override object GetClonedInstance()
         {
             var target = XamlObject.Instance as SetterBase;
@@ -657,26 +1017,35 @@ namespace gip.ext.xamldom.avui
         }
     }
 
-    class ConditionWrapper : SealedObjectsWrapper
-    {
-        public override object GetClonedInstance()
-        {
-            var target = XamlObject.Instance as Condition;
-            var b = Activator.CreateInstance(XamlObject.Instance.GetType()) as Condition;
-            foreach (PropertyDescriptor pd in TypeDescriptor.GetProperties(target))
-            {
-                if (pd.IsReadOnly) continue;
-                try
-                {
-                    var val1 = pd.GetValue(b);
-                    var val2 = pd.GetValue(target);
-                    if (object.Equals(val1, val2)) continue;
-                    pd.SetValue(b, val2);
-                }
-                catch { }
-            }
-            return b;
-        }
-    }
+    //class ConditionWrapper : MarkupExtensionWrapper
+    //{
+    //    public ConditionWrapper(XamlObject xamlObject) : base(xamlObject)
+    //    {
+    //    }
+
+    //    public override object ProvideValue()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public override object GetClonedInstance()
+    //    {
+    //        var target = XamlObject.Instance as Condition;
+    //        var b = Activator.CreateInstance(XamlObject.Instance.GetType()) as Condition;
+    //        foreach (PropertyDescriptor pd in TypeDescriptor.GetProperties(target))
+    //        {
+    //            if (pd.IsReadOnly) continue;
+    //            try
+    //            {
+    //                var val1 = pd.GetValue(b);
+    //                var val2 = pd.GetValue(target);
+    //                if (object.Equals(val1, val2)) continue;
+    //                pd.SetValue(b, val2);
+    //            }
+    //            catch { }
+    //        }
+    //        return b;
+    //    }
+    //}
 
 }

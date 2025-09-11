@@ -10,10 +10,10 @@ using System.Text;
 using System.Windows;
 using System.Windows.Markup;
 using System.Xml;
-using System.Xaml;
 
 namespace gip.ext.xamldom.avui
 {
+	#if AVALONIA_SUPPORTS_FROM_WPF
     sealed class XamlSchemaContextProvider : IXamlSchemaContextProvider, IServiceProvider
 	{
 		XamlDocument document;
@@ -51,4 +51,5 @@ namespace gip.ext.xamldom.avui
             }
         }
     }
+	#endif
 }

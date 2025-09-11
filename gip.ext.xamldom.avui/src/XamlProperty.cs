@@ -5,10 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Xml;
-using System.Windows;
-using System.Windows.Markup;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.xamldom.avui
 {
@@ -24,6 +26,7 @@ namespace gip.ext.xamldom.avui
 
         CollectionElementsCollection collectionElements;
         bool isCollection;
+        bool isResources;
 
         static readonly IList<XamlPropertyValue> emptyCollectionElementsArray = new XamlPropertyValue[0];
 
@@ -58,6 +61,34 @@ namespace gip.ext.xamldom.avui
             {
                 isCollection = true;
                 collectionElements = new CollectionElementsCollection(this);
+                collectionElements.CollectionChanged += OnCollectionChanged;
+
+                if (propertyInfo.Name.Equals(XamlConstants.ResourcesPropertyName, StringComparison.Ordinal) &&
+                    propertyInfo.ReturnType == typeof(ResourceDictionary))
+                {
+                    isResources = true;
+                }
+            }
+        }
+
+        void OnCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // If implicit collection that is now empty we remove markup for the property if still there.
+            if (collectionElements.Count == 0 && propertyValue == null && _propertyElement != null)
+            {
+                _propertyElement.ParentNode.RemoveChild(_propertyElement);
+                _propertyElement = null;
+
+                ParentObject.OnPropertyChanged(this);
+
+                if (IsSetChanged != null)
+                {
+                    IsSetChanged(this, EventArgs.Empty);
+                }
+                if (ValueChanged != null)
+                {
+                    ValueChanged(this, EventArgs.Empty);
+                }
             }
         }
 
@@ -132,6 +163,14 @@ namespace gip.ext.xamldom.avui
         {
             get { return propertyValue; }
             set { SetPropertyValue(value); }
+        }
+
+        /// <summary>
+        /// Gets if the property represents the FrameworkElement.Resources property that holds a locally-defined resource dictionary.
+        /// </summary>
+        public bool IsResources
+        {
+            get { return isResources; }
         }
 
         /// <summary>
@@ -223,13 +262,79 @@ namespace gip.ext.xamldom.avui
                 try
                 {
                     ValueOnInstance = PropertyValue.GetValueFor(propertyInfo);
+                    #if AVALONIA_SUPPORTS_FROM_WPF
+                    //if (this.parentObject.XamlSetTypeConverter != null && propertyValue is XamlTextValue)
+                    //{
+                    //    this.ParentObject.XamlSetTypeConverter(this.parentObject.Instance, new XamlSetTypeConverterEventArgs(this.SystemXamlMemberForProperty, null, ((XamlTextValue)propertyValue).Text, this.parentObject.OwnerDocument.GetTypeDescriptorContext(this.parentObject), null));
+                    //}
+
+                    //if (propertyInfo.DependencyProperty == DesignTimeProperties.DesignWidthProperty)
+                    //{
+                    //    var widthProperty = this.ParentObject.Properties.FirstOrDefault(x => x.DependencyProperty == FrameworkElement.WidthProperty);
+                    //    if (widthProperty == null || !widthProperty.IsSet)
+                    //        ((FrameworkElement)this.ParentObject.Instance).Width = (double)ValueOnInstance;
+                    //}
+
+                    //if (propertyInfo.DependencyProperty == DesignTimeProperties.DesignHeightProperty)
+                    //{
+                    //    var heightProperty = this.ParentObject.Properties.FirstOrDefault(x => x.DependencyProperty == FrameworkElement.HeightProperty);
+                    //    if (heightProperty == null || !heightProperty.IsSet)
+                    //        ((FrameworkElement)this.ParentObject.Instance).Height = (double)ValueOnInstance;
+                    //}
+                    #endif
                 }
-                catch
+                catch (Exception ex)
                 {
-                    Debug.WriteLine("UpdateValueOnInstance() failed");
+                    Debug.WriteLine("UpdateValueOnInstance() failed - Exception:" + ex.Message);
+                }
+            }
+            else if (IsCollection)
+            {
+                var list = ValueOnInstance as System.Collections.IList;
+                if (list != null)
+                {
+                    list.Clear();
+                    foreach (var item in CollectionElements)
+                    {
+                        var newValue = item.GetValueFor(propertyInfo);
+                        list.Add(newValue);
+                    }
                 }
             }
         }
+
+        #if AVALONIA_SUPPORTS_FROM_WPF
+        //private XamlMember _systemXamlMemberForProperty = null;
+
+        ///// <summary>
+        ///// Gets a <see cref="XamlMember"/> representing the property. 
+        ///// </summary>
+        //public XamlMember SystemXamlMemberForProperty
+        //{
+        //    get
+        //    {
+        //        if (_systemXamlMemberForProperty == null)
+        //            _systemXamlMemberForProperty = new XamlMember(this.PropertyName, SystemXamlTypeForProperty, false);
+        //        return _systemXamlMemberForProperty;
+        //    }
+        //}
+
+        //private XamlType _systemXamlTypeForProperty = null;
+
+        ///// <summary>
+        ///// Gets a <see cref="XamlType"/> representing the type the property is declared on. 
+        ///// </summary>
+        //public XamlType SystemXamlTypeForProperty
+        //{
+        //    get
+        //    {
+        //        if (_systemXamlTypeForProperty == null)
+        //            _systemXamlTypeForProperty = new XamlType(this.PropertyTargetType,
+        //                                                      this.ParentObject.ServiceProvider.SchemaContext);
+        //        return _systemXamlTypeForProperty;
+        //    }
+        //}
+        #endif
 
         /// <summary>
         /// Resets the properties value.
@@ -257,15 +362,22 @@ namespace gip.ext.xamldom.avui
 
         void ResetInternal()
         {
+            bool isExplicitCollection = false;
             if (propertyValue != null)
             {
+                isExplicitCollection = IsCollection;
                 propertyValue.RemoveNodeFromParent();
                 propertyValue.ParentProperty = null;
                 propertyValue = null;
             }
             if (_propertyElement != null)
             {
-                _propertyElement.ParentNode.RemoveChild(_propertyElement);
+                Debug.Assert(!isExplicitCollection || _propertyElement.ParentNode == null);
+
+                if (!isExplicitCollection)
+                {
+                    _propertyElement.ParentNode.RemoveChild(_propertyElement);
+                }
                 _propertyElement = null;
             }
         }
@@ -291,26 +403,124 @@ namespace gip.ext.xamldom.avui
             }
         }
 
+        bool IsFirstChildResources(XamlObject obj)
+        {
+            return obj.XmlElement.FirstChild != null &&
+                obj.XmlElement.FirstChild.Name.EndsWith("." + XamlConstants.ResourcesPropertyName) &&
+                obj.Properties.Where((prop) => prop.IsResources).FirstOrDefault() != null;
+        }
+
+        XmlElement CreatePropertyElement()
+        {
+            Type propertyElementType = GetPropertyElementType();
+            string ns = parentObject.OwnerDocument.GetNamespaceFor(propertyElementType);
+            return parentObject.OwnerDocument.XmlDocument.CreateElement(
+                parentObject.OwnerDocument.GetPrefixForNamespace(ns),
+                propertyElementType.Name + "." + this.PropertyName,
+                ns
+            );
+        }
+
+        Type GetPropertyElementType()
+        {
+            return this.IsAttached ? this.PropertyTargetType : parentObject.ElementType;
+        }
+
+        static XmlNode FindChildNode(XmlNode node, Type elementType, string propertyName, XamlDocument xamlDocument)
+        {
+            var localName = elementType.Name + "." + propertyName;
+            var namespacesURI = xamlDocument.GetNamespacesFor(elementType);
+            var clrNamespaceURI = xamlDocument.GetNamespaceFor(elementType, true);
+
+            foreach (XmlNode childNode in node.ChildNodes)
+            {
+                if (childNode.LocalName == localName && (namespacesURI.Contains(childNode.NamespaceURI) || childNode.NamespaceURI == clrNamespaceURI))
+                {
+                    return childNode;
+                }
+            }
+
+            var type = elementType.BaseType;
+            namespacesURI = xamlDocument.GetNamespacesFor(type);
+
+            while (type != typeof(object))
+            {
+                if (type.GetProperty(propertyName) == null)
+                    break;
+
+                localName = type.Name + "." + propertyName;
+
+                foreach (XmlNode childNode in node.ChildNodes)
+                {
+                    if (childNode.LocalName == localName && namespacesURI.Contains(childNode.NamespaceURI))
+                    {
+                        return childNode;
+                    }
+                }
+
+                type = type.BaseType;
+            }
+
+            return null;
+        }
+
+        bool IsNodeCollectionForThisProperty(XmlNode node)
+        {
+            //Remove the commented check! This is Possible: BeginStoryboard=>The COntent Property is Storyboard, and the Content Element is also Storyboard!
+            return _propertyElement == null /* && this.PropertyName != this.ParentObject.ContentPropertyName */ && this.ReturnType.IsAssignableFrom(this.ParentObject.OwnerDocument.TypeFinder.GetType(node.NamespaceURI, node.LocalName));
+        }
+
         internal void AddChildNodeToProperty(XmlNode newChildNode)
         {
             if (this.IsCollection)
             {
-                // this is the default collection
-                InsertNodeInCollection(newChildNode, collectionElements.Count);
+                if (IsNodeCollectionForThisProperty(newChildNode))
+                {
+                    Type propertyElementType = GetPropertyElementType();
+                    XmlNode parentNode = FindChildNode(parentObject.XmlElement, propertyElementType, this.PropertyName, parentObject.OwnerDocument);
+
+                    if (parentNode == null)
+                    {
+                        parentNode = CreatePropertyElement();
+
+                        parentObject.XmlElement.AppendChild(parentNode);
+                    }
+                    else if (parentNode.ChildNodes.Cast<XmlNode>().Where(x => !(x is XmlWhitespace)).Count() > 0)
+                        throw new XamlLoadException("Collection property node must have no children when adding collection element.");
+
+                    parentNode.AppendChild(newChildNode);
+                    _propertyElement = (XmlElement)newChildNode;
+                }
+                else
+                {
+                    // this is the default collection
+                    InsertNodeInCollection(newChildNode, collectionElements.Count);
+                }
+
                 return;
             }
             if (_propertyElement == null)
             {
                 if (PropertyName == parentObject.ContentPropertyName)
                 {
-                    parentObject.XmlElement.InsertBefore(newChildNode, parentObject.XmlElement.FirstChild);
+                    if (IsFirstChildResources(parentObject))
+                    {
+                        // Resources element should always be first
+                        parentObject.XmlElement.InsertAfter(newChildNode, parentObject.XmlElement.FirstChild);
+                    }
+                    else
+                        parentObject.XmlElement.InsertBefore(newChildNode, parentObject.XmlElement.FirstChild);
                     return;
                 }
-                _propertyElement = parentObject.OwnerDocument.XmlDocument.CreateElement(
-                    this.PropertyTargetType.Name + "." + this.PropertyName,
-                    parentObject.OwnerDocument.GetNamespaceFor(this.PropertyTargetType)
-                );
-                parentObject.XmlElement.InsertBefore(_propertyElement, parentObject.XmlElement.FirstChild);
+                _propertyElement = CreatePropertyElement();
+
+                if (IsFirstChildResources(parentObject))
+                {
+                    // Resources element should always be first
+                    parentObject.XmlElement.InsertAfter(_propertyElement, parentObject.XmlElement.FirstChild);
+                }
+                else
+                    parentObject.XmlElement.InsertBefore(_propertyElement, parentObject.XmlElement.FirstChild);
             }
             _propertyElement.AppendChild(newChildNode);
         }
@@ -324,11 +534,17 @@ namespace gip.ext.xamldom.avui
                 if (collectionElements.Count == 0 && this.PropertyName != this.ParentObject.ContentPropertyName)
                 {
                     // we have to create the collection element
-                    _propertyElement = parentObject.OwnerDocument.XmlDocument.CreateElement(
-                        this.PropertyTargetType.Name + "." + this.PropertyName,
-                        parentObject.OwnerDocument.GetNamespaceFor(this.PropertyTargetType)
-                    );
-                    parentObject.XmlElement.AppendChild(_propertyElement);
+                    _propertyElement = CreatePropertyElement();
+
+                    if (this.IsResources)
+                    {
+                        parentObject.XmlElement.PrependChild(_propertyElement);
+                    }
+                    else
+                    {
+                        parentObject.XmlElement.AppendChild(_propertyElement);
+                    }
+
                     collection = _propertyElement;
                 }
                 else
@@ -356,27 +572,28 @@ namespace gip.ext.xamldom.avui
 
         internal XmlAttribute SetAttribute(string value)
         {
-            string ns = ParentObject.OwnerDocument.GetNamespaceFor(PropertyTargetType);
-            string nsProperty = "";
-            if (this.IsDependencyProperty && (this.DependencyProperty.OwnerType != null))
-            {
-                nsProperty = ParentObject.OwnerDocument.GetNamespaceFor(this.DependencyProperty.OwnerType);
-            }
             string name;
-            if (IsAttached)
-                name = PropertyTargetType.Name + "." + PropertyName;
-            else
-                name = PropertyName;
-
             var element = ParentObject.XmlElement;
-            if (String.IsNullOrEmpty(nsProperty))
+
+            if (IsAttached)
             {
-                if (string.IsNullOrEmpty(element.GetPrefixOfNamespace(ns)))
-                {
-                    element.SetAttribute(name, value);
-                    return element.GetAttributeNode(name);
-                }
+                if (//PropertyTargetType == typeof(DesignTimeProperties) || 
+                   PropertyTargetType == typeof(MarkupCompatibilityProperties) ||
+                   PropertyTargetType == typeof(XamlNamespaceProperties))
+                    name = PropertyName;
                 else
+                    name = PropertyTargetType.Name + "." + PropertyName;
+
+                string ns = ParentObject.OwnerDocument.GetNamespaceFor(PropertyTargetType);
+                string prefix = element.GetPrefixOfNamespace(ns);
+
+                if (String.IsNullOrEmpty(prefix))
+                {
+                    prefix = ParentObject.OwnerDocument.GetPrefixForNamespace(ns);
+                }
+                var existingNameSpace = element.GetNamespaceOfPrefix(prefix);
+
+                if (!string.IsNullOrEmpty(prefix) || existingNameSpace != ns)
                 {
                     element.SetAttribute(name, ns, value);
                     return element.GetAttributeNode(name, ns);
@@ -384,17 +601,52 @@ namespace gip.ext.xamldom.avui
             }
             else
             {
-                if (string.IsNullOrEmpty(element.GetPrefixOfNamespace(nsProperty)))
-                {
-                    element.SetAttribute(name, value);
-                    return element.GetAttributeNode(name);
-                }
-                else
-                {
-                    element.SetAttribute(name, nsProperty, value);
-                    return element.GetAttributeNode(name, nsProperty);
-                }
+                name = PropertyName;
             }
+
+            element.SetAttribute(name, string.Empty, value);
+            return element.GetAttributeNode(name);
+
+            // Old code:
+            //string ns = ParentObject.OwnerDocument.GetNamespaceFor(PropertyTargetType);
+            //string nsProperty = "";
+            //if (this.IsDependencyProperty && (this.DependencyProperty.OwnerType != null))
+            //{
+            //    nsProperty = ParentObject.OwnerDocument.GetNamespaceFor(this.DependencyProperty.OwnerType);
+            //}
+            //string name;
+            //if (IsAttached)
+            //    name = PropertyTargetType.Name + "." + PropertyName;
+            //else
+            //    name = PropertyName;
+
+            //var element = ParentObject.XmlElement;
+            //if (String.IsNullOrEmpty(nsProperty))
+            //{
+            //    if (string.IsNullOrEmpty(element.GetPrefixOfNamespace(ns)))
+            //    {
+            //        element.SetAttribute(name, value);
+            //        return element.GetAttributeNode(name);
+            //    }
+            //    else
+            //    {
+            //        element.SetAttribute(name, ns, value);
+            //        return element.GetAttributeNode(name, ns);
+            //    }
+            //}
+            //else
+            //{
+            //    if (string.IsNullOrEmpty(element.GetPrefixOfNamespace(nsProperty)))
+            //    {
+            //        element.SetAttribute(name, value);
+            //        return element.GetAttributeNode(name);
+            //    }
+            //    else
+            //    {
+            //        element.SetAttribute(name, nsProperty, value);
+            //        return element.GetAttributeNode(name, nsProperty);
+            //    }
+            //}
         }
 
         internal string GetNameForMarkupExtension()
@@ -466,6 +718,52 @@ namespace gip.ext.xamldom.avui
         }
 
         /// <summary>
+        /// Gets/Sets the value of the property in the designer without updating the XAML document.
+        /// </summary>
+        public object DesignerValue
+        {
+            get
+            {
+                if (IsEvent)
+                {
+                    if (propertyValue != null)
+                        return propertyValue.GetValueFor(null);
+                    else
+                        return null;
+                }
+                else
+                {
+                    try
+                    {
+                        if (propertyValue != null)
+                        {
+                            var wr = propertyValue.GetValueFor(this.propertyInfo);
+                            return wr;
+                        }
+                    }
+                    catch (Exception)
+                    { }
+                    var value = propertyInfo.GetValue(parentObject.Instance);
+                    return value;
+                }
+            }
+            set { ValueOnInstance = value; }
+        }
+
+        /// <summary>
+        /// Gets the value of the text property on the instance without updating the XAML document.
+        /// </summary>
+        public string TextValueOnInstance
+        {
+            get
+            {
+                if (propertyValue is XamlTextValue)
+                    return propertyValue.GetValueFor(null) as string;
+                return null;
+            }
+        }
+
+        /// <summary>
         /// Gets if this property is considered "advanced" and should be hidden by default in a property grid.
         /// </summary>
         public bool IsAdvanced
@@ -476,7 +774,7 @@ namespace gip.ext.xamldom.avui
         /// <summary>
         /// Gets the dependency property.
         /// </summary>
-        public DependencyProperty DependencyProperty
+        public AvaloniaProperty DependencyProperty
         {
             get
             {
@@ -497,8 +795,13 @@ namespace gip.ext.xamldom.avui
 
         void PossiblyNameChanged(XamlPropertyValue oldValue, XamlPropertyValue newValue)
         {
-            if (PropertyName == "Name" && ReturnType == typeof(string))
+            if (ParentObject.RuntimeNameProperty != null && PropertyName == ParentObject.RuntimeNameProperty)
             {
+
+                if (!String.IsNullOrEmpty(ParentObject.GetXamlAttribute("Name")))
+                {
+                    throw new XamlLoadException("The property 'Name' is set more than once.");
+                }
 
                 string oldName = null;
                 string newName = null;
@@ -509,37 +812,53 @@ namespace gip.ext.xamldom.avui
                 var newTextValue = newValue as XamlTextValue;
                 if (newTextValue != null) newName = newTextValue.Text;
 
-                var obj = ParentObject;
-                while (obj != null)
-                {
-                    var nameScope = obj.Instance as INameScope;
-                    if (nameScope == null)
-                    {
-                        if (obj.Instance is DependencyObject)
-                            nameScope = NameScope.GetNameScope((DependencyObject)obj.Instance);
-                    }
-                    if (nameScope != null)
-                    {
-                        if (oldName != null)
-                        {
-                            try
-                            {
-                                nameScope.UnregisterName(oldName);
-                            }
-                            catch (Exception x)
-                            {
-                                Debug.WriteLine(x.Message);
-                            }
-                        }
-                        if (newName != null)
-                        {
-                            nameScope.RegisterName(newName, ParentObject.Instance);
-                        }
-                        break;
-                    }
-                    obj = obj.ParentObject;
-                }
+                NameScopeHelper.NameChanged(ParentObject, oldName, newName);
             }
+
+            // Old code:
+            //if (PropertyName == "Name" && ReturnType == typeof(string))
+            //{
+
+            //    string oldName = null;
+            //    string newName = null;
+
+            //    var oldTextValue = oldValue as XamlTextValue;
+            //    if (oldTextValue != null) oldName = oldTextValue.Text;
+
+            //    var newTextValue = newValue as XamlTextValue;
+            //    if (newTextValue != null) newName = newTextValue.Text;
+
+            //    var obj = ParentObject;
+            //    while (obj != null)
+            //    {
+            //        var nameScope = obj.Instance as INameScope;
+            //        if (nameScope == null)
+            //        {
+            //            if (obj.Instance is AvaloniaObject)
+            //                nameScope = NameScope.GetNameScope((AvaloniaObject)obj.Instance);
+            //        }
+            //        if (nameScope != null)
+            //        {
+            //            if (oldName != null)
+            //            {
+            //                try
+            //                {
+            //                    nameScope.UnregisterName(oldName);
+            //                }
+            //                catch (Exception x)
+            //                {
+            //                    Debug.WriteLine(x.Message);
+            //                }
+            //            }
+            //            if (newName != null)
+            //            {
+            //                nameScope.RegisterName(newName, ParentObject.Instance);
+            //            }
+            //            break;
+            //        }
+            //        obj = obj.ParentObject;
+            //    }
+            //}
         }
 
         /*public bool IsAttributeSyntax {
@@ -559,5 +878,27 @@ namespace gip.ext.xamldom.avui
                 return attribute == null && element == null;
             }
         }*/
+
+        public T GetValueOnInstance<T>()
+        {
+            var obj = ValueOnInstance;
+
+            if (obj == null)
+            {
+                return default;
+            }
+
+            if (obj is T typed)
+            {
+                return typed;
+            }
+
+            if (TypeConverter.CanConvertTo(typeof(T)))
+            {
+                return (T)TypeConverter.ConvertTo(obj, typeof(T));
+            }
+
+            return (T)obj;
+        }
     }
 }
