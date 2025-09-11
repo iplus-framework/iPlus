@@ -41,9 +41,9 @@ The iPlus Framework is designed to meet the complex requirements of modern softw
 - ...
 
 ## Technology
-- Build on .NET Platform: .NET Core, Entity Framework, WCF, WPF
+- Build on .NET Platform: .NET Core, Entity Framework, WCF, WPF & Avalonia UI - currently in development.
 - Serverside without UI: Windows, Linux
-- Clientside with UI: Windows. On Linux/Android currently with WINE, but in the future with Avalonia XPF (see library exception in our GPL-v3 license) also on Linux, Android, macOS, iOS and Web-Browser.
+- Clientside with UI: Windows. On Linux/Android currently with WINE, but in the future with Avalonia UI also on Linux, Android, macOS, iOS and Web-Browser.
 
 ## Getting Started
 To get started with the iPlus Framework, follow these steps:
