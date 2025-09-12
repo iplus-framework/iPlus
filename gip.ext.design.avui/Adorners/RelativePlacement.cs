@@ -3,8 +3,10 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Media;
 
 namespace gip.ext.design.avui.Adorners
 {
@@ -121,7 +123,7 @@ namespace gip.ext.design.avui.Adorners
 			set { heightOffset = value; }
 		}
 		
-		Size CalculateSize(UIElement adorner, Size adornedElementSize)
+		Size CalculateSize(Control adorner, Size adornedElementSize)
 		{
 			return new Size(Math.Max(widthOffset
 			                         + widthRelativeToDesiredWidth * adorner.DesiredSize.Width
@@ -198,7 +200,7 @@ namespace gip.ext.design.avui.Adorners
 		/// <summary>
 		/// Arranges the adorner element on the specified adorner panel.
 		/// </summary>
-		public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+		public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
 		{
 			Size adornerSize = CalculateSize(adorner, adornedElementSize);
 			adorner.Arrange(new Rect(CalculatePosition(adornedElementSize, adornerSize), adornerSize));

@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using gip.ext.design.avui.Extensions;
 
 namespace gip.ext.design.avui.Adorners
@@ -120,7 +121,7 @@ namespace gip.ext.design.avui.Adorners
 		/// <summary>
 		/// Adds an UIElement as adorner with the specified placement.
 		/// </summary>
-		protected void AddAdorner(AdornerPlacement placement, AdornerOrder order, UIElement adorner)
+		protected void AddAdorner(AdornerPlacement placement, AdornerOrder order, Control adorner)
 		{
 			AdornerPanel p = new AdornerPanel();
 			p.Order = order;
@@ -132,10 +133,10 @@ namespace gip.ext.design.avui.Adorners
 		/// <summary>
 		/// Adds several UIElements as adorners with the specified placement.
 		/// </summary>
-		protected void AddAdorners(AdornerPlacement placement, params UIElement[] adorners)
+		protected void AddAdorners(AdornerPlacement placement, params Control[] adorners)
 		{
 			AdornerPanel p = new AdornerPanel();
-			foreach (UIElement adorner in adorners) {
+			foreach (Control adorner in adorners) {
 				AdornerPanel.SetPlacement(adorner, placement);
 				p.Children.Add(adorner);
 			}

@@ -2,8 +2,8 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
-using System.Windows.Input;
+using Avalonia;
+using Avalonia.Input;
 
 using gip.ext.design.avui.Adorners;
 
@@ -20,7 +20,7 @@ namespace gip.ext.design.avui
         /// <summary>
         /// Called to handle the mouse down event.
         /// </summary>
-        void HandleSelectionMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result);
+        void HandleSelectionMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result);
     }
 
     /// <summary>
@@ -33,6 +33,6 @@ namespace gip.ext.design.avui
         /// <summary>
         /// Called to handle the mouse down event.
         /// </summary>
-        void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool);
+        void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool);
     }
 }

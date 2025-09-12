@@ -3,8 +3,8 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Media;
 
 namespace gip.ext.design.avui.Adorners
 {

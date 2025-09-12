@@ -6,11 +6,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows;
-using System.Windows.Input;
-
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 using gip.ext.design.avui.Adorners;
-using System.Windows.Media;
 
 namespace gip.ext.design.avui
 {
@@ -19,6 +18,20 @@ namespace gip.ext.design.avui
     /// </summary>
     public sealed class PlacementOperation
     {
+        /// <summary>
+        /// A exception wich can Happen during Placement
+        /// </summary>
+        public class PlacementOperationException : InvalidOperationException
+        {
+            /// <summary>
+            /// Constructor for Placement Exception
+            /// </summary>
+            /// <param name="message"></param>
+            public PlacementOperationException(string message)
+                : base(message)
+            { }
+        }
+
         readonly ChangeGroup changeGroup;
         readonly ReadOnlyCollection<PlacementInformation> placedItems;
         readonly PlacementType type;
@@ -26,6 +39,11 @@ namespace gip.ext.design.avui
         IPlacementBehavior currentContainerBehavior;
         IDependentDrawingsBehavior currentDependentDrawingsBehavior;
         bool isAborted, isCommitted;
+
+        /// <summary>
+        /// Offset for inserted Components
+        /// </summary>
+        public const double PasteOffset = 10;
 
         #region Properties
         /// <summary>
@@ -108,7 +126,7 @@ namespace gip.ext.design.avui
             {
                 currentContainerBehavior.LeaveContainer(this);
 
-                GeneralTransform transform = currentContainer.View.TransformToVisual(newContainer.View);
+                Matrix? transform = currentContainer.View.TransformToVisual(newContainer.View);
 
                 foreach (PlacementInformation info in placedItems)
                 {
@@ -138,12 +156,12 @@ namespace gip.ext.design.avui
 #endif
         }
 
-        static Rect TransformRectByMiddlePoint(GeneralTransform transform, Rect r)
+        static Rect TransformRectByMiddlePoint(Matrix? transform, Rect r)
         {
             // we don't want to adjust the size of the control when moving it out of a scaled
             // container, we just want to move it correcly
             Point p = new Point(r.Left + r.Width / 2, r.Top + r.Height / 2);
-            Vector movement = transform.Transform(p) - p;
+            Vector movement = transform.Value.Transform(p) - p;
             return new Rect(r.TopLeft + movement, r.Size);
         }
         #endregion
@@ -190,7 +208,6 @@ namespace gip.ext.design.avui
             {
                 if (op.currentContainerBehavior != null)
                 {
-
                     op.currentContainerBehavior.BeginPlacement(op);
                     foreach (PlacementInformation info in op.placedItems)
                     {
@@ -220,19 +237,59 @@ namespace gip.ext.design.avui
         }
         private PlacementOperation(DesignItem[] items, PlacementType type)
         {
-            PlacementInformation[] information = new PlacementInformation[items.Length];
+            List<DesignItem> moveableItems;
+            this.currentContainerBehavior = GetPlacementBehavior(items, out moveableItems, type);
+
+            PlacementInformation[] information = new PlacementInformation[moveableItems.Count];
             for (int i = 0; i < information.Length; i++)
             {
-                information[i] = new PlacementInformation(items[i], this);
+                information[i] = new PlacementInformation(moveableItems[i], this);
             }
             this.placedItems = new ReadOnlyCollection<PlacementInformation>(information);
             this.type = type;
 
-            this.currentContainer = items[0].Parent;
-            this.currentContainerBehavior = GetPlacementBehavior(items);
+            this.currentContainer = moveableItems[0].Parent;
             this.currentDependentDrawingsBehavior = GetDependentDrawingsBehavior(items);
 
-            this.changeGroup = items[0].Context.OpenGroup(type.ToString(), items);
+            this.changeGroup = moveableItems[0].Context.OpenGroup(type.ToString(), moveableItems);
+
+            // Old code:
+            //PlacementInformation[] information = new PlacementInformation[items.Length];
+            //for (int i = 0; i < information.Length; i++)
+            //{
+            //    information[i] = new PlacementInformation(items[i], this);
+            //}
+            //this.placedItems = new ReadOnlyCollection<PlacementInformation>(information);
+            //this.type = type;
+
+            //this.currentContainer = items[0].Parent;
+            //this.currentContainerBehavior = GetPlacementBehavior(items);
+            //this.currentDependentDrawingsBehavior = GetDependentDrawingsBehavior(items);
+
+            //this.changeGroup = items[0].Context.OpenGroup(type.ToString(), items);
+        }
+
+        /// <summary>
+        /// The Size wich the Element really should have (even if its smaller Rendered (like emtpy Image!))
+        /// </summary>
+        /// <param name="element"></param>
+        /// <returns></returns>
+        public static Size GetRealElementSize(Control element)
+        {
+            Size size = element.Bounds.Size;
+            double width = 0;
+            double height = 0;
+            if (element is Control && !double.IsNaN(((Control)element).Width))
+                width = ((Control)element).Width;
+            if (element is Control && !double.IsNaN(((Control)element).Height))
+                height = ((Control)element).Height;
+
+            if (element is Control && size.Width < ((Control)element).MinWidth)
+                width = ((Control)element).MinWidth;
+            if (element is Control && size.Height < ((Control)element).MinHeight)
+                height = ((Control)element).MinHeight;
+
+            return new Size(width, height);
         }
 
         /// <summary>
@@ -240,20 +297,66 @@ namespace gip.ext.design.avui
         /// </summary>
         public static IPlacementBehavior GetPlacementBehavior(ICollection<DesignItem> items)
         {
+            List<DesignItem> moveableItems;
+            return GetPlacementBehavior(items, out moveableItems, PlacementType.Move);
+            // Old code:
+            //if (items == null)
+            //    throw new ArgumentNullException("items");
+            //if (items.Count == 0)
+            //    return null;
+            //DesignItem parent = items.First().Parent;
+            //foreach (DesignItem item in items.Skip(1))
+            //{
+            //    if (item.Parent != parent)
+            //        return null;
+            //}
+            //if (parent != null)
+            //    return parent.GetBehavior<IPlacementBehavior>();
+            //else if (items.Count == 1)
+            //    return items.First().GetBehavior<IRootPlacementBehavior>();
+            //else
+            //    return null;
+        }
+
+        /// <summary>
+        /// Gets the placement behavior associated with the specified items.
+        /// </summary>
+        public static IPlacementBehavior GetPlacementBehavior(ICollection<DesignItem> items, out List<DesignItem> moveableItems, PlacementType placementType)
+        {
+            moveableItems = new List<DesignItem>();
+
             if (items == null)
                 throw new ArgumentNullException("items");
             if (items.Count == 0)
                 return null;
-            DesignItem parent = items.First().Parent;
-            foreach (DesignItem item in items.Skip(1))
+
+            var possibleItems = items;
+            if (!items.Any(x => x.Parent == null))
+            {
+                var itemsPartentGroup = items.GroupBy(x => x.Parent);
+                var parents = itemsPartentGroup.Select(x => x.Key).OrderBy(x => x.DepthLevel).First();
+                possibleItems = itemsPartentGroup.Where(x => x.Key.DepthLevel == parents.DepthLevel).SelectMany(x => x).ToList();
+            }
+
+            var first = possibleItems.First();
+            DesignItem parent = first.Parent;
+            moveableItems.Add(first);
+            foreach (DesignItem item in possibleItems.Skip(1))
             {
                 if (item.Parent != parent)
-                    return null;
+                {
+                    if (placementType != PlacementType.MoveAndIgnoreOtherContainers)
+                    {
+                        return null;
+                    }
+                }
+                else
+                    moveableItems.Add(item);
             }
             if (parent != null)
                 return parent.GetBehavior<IPlacementBehavior>();
-            else if (items.Count == 1)
-                return items.First().GetBehavior<IRootPlacementBehavior>();
+            else if (possibleItems.Count == 1)
+                return first.GetBehavior<IRootPlacementBehavior>();
             else
                 return null;
         }

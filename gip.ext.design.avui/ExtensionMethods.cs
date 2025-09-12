@@ -2,7 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
+using Avalonia;
 
 namespace gip.ext.design.avui
 {

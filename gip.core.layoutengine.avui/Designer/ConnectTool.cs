@@ -7,8 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using System.Collections;
-using System.Windows;
-using System.Windows.Input;
+using Avalonia;
+using Avalonia.Input;
 //using gip.core.datamodel;
 //using gip.core.autocomponent;
 //using gip.core.layoutengine.avui;
@@ -32,7 +32,7 @@ namespace gip.core.layoutengine.avui
             DesignManager = designManager;
         }
 
-        public override void OnMouseDown(object sender, MouseButtonEventArgs e)
+        public override void OnMouseDown(object sender, PointerEventArgs e)
         {
             DrawVBEdgeAdorner._DesignManager = DesignManager;
             IDesignPanel designPanel = (IDesignPanel)sender;

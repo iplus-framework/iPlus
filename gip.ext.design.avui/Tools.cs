@@ -3,10 +3,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-
+using Avalonia;
+using Avalonia.Input;
 using gip.ext.design.avui.Adorners;
 
 namespace gip.ext.design.avui
@@ -184,37 +182,39 @@ namespace gip.ext.design.avui
         /// </summary>
         void HitTest(Point mousePosition, bool testAdorners, bool testDesignSurface, Predicate<DesignPanelHitTestResult> callback);
 
+#nullable enable
         // The following members were missing in <see cref="IInputElement"/>, but
         // are supported on the DesignPanel:
         /// <summary>
         /// Occurs when a mouse button is pressed.
         /// </summary>
-        event MouseButtonEventHandler MouseDown;
+        //event EventHandler<PointerEventArgs>? PointerEntered;
 
         /// <summary>
         /// Occurs when a mouse button is released.
         /// </summary>
-        event MouseButtonEventHandler MouseUp;
+        //event EventHandler<PointerReleasedEventArgs>? PointerReleased;
+#nullable disable
 
         /// <summary>
         /// Occurs when a drag operation enters the design panel.
         /// </summary>
-        event DragEventHandler DragEnter;
+        event EventHandler<DragEventArgs> DragEnter;
 
         /// <summary>
         /// Occurs when a drag operation is over the design panel.
         /// </summary>
-        event DragEventHandler DragOver;
+        event EventHandler<DragEventArgs> DragOver;
 
         /// <summary>
         /// Occurs when a drag operation leaves the design panel.
         /// </summary>
-        event DragEventHandler DragLeave;
+        event EventHandler<DragEventArgs> DragLeave;
 
         /// <summary>
         /// Occurs when an element is dropped on the design panel.
         /// </summary>
-        event DragEventHandler Drop;
+        event EventHandler<DragEventArgs> Drop;
 
         Double RasterSize { get; }
 

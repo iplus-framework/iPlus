@@ -58,12 +58,20 @@ namespace gip.ext.design.avui.Extensions
 		/// Is called by the ExtensionManager.
 		/// </summary>
 		public abstract bool ShouldApplyExtensions(DesignItem extendedItem);
-		
-		/// <summary>
-		/// Create an extension of the specified type.
-		/// Is called by the ExtensionManager.
-		/// </summary>
-		public abstract Extension CreateExtension(Type extensionType, DesignItem extendedItem);
+
+        /// <summary>
+        /// Returns if the Extension Server should be reapplied (for multiple selection extension server for example).
+        /// </summary>
+        public virtual bool ShouldBeReApplied()
+        {
+            return false;
+        }
+
+        /// <summary>
+        /// Create an extension of the specified type.
+        /// Is called by the ExtensionManager.
+        /// </summary>
+        public abstract Extension CreateExtension(Type extensionType, DesignItem extendedItem);
 		
 		/// <summary>
 		/// This method is called before an extension is removed from its DesignItem because it should not be applied anymore.

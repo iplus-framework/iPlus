@@ -152,22 +152,27 @@ namespace gip.ext.design.avui.Extensions
 			}
 			return servers.ToArray();
 		}
-		
-		internal IEnumerable<Extension> CreateExtensions(ExtensionServer server, DesignItem item)
-		{
-			Debug.Assert(server != null);
-			Debug.Assert(item != null);
-			
-			foreach (ExtensionEntry entry in GetExtensionEntries(item)) {
-				if (entry.Server == server) {
-					yield return server.CreateExtension(entry.ExtensionType, item);
-				}
-			}
-		}
-		#endregion
-		
-		#region RegisterAssembly
-		HashSet<Assembly> _registeredAssemblies = new HashSet<Assembly>();
+
+        internal IEnumerable<Extension> CreateExtensions(ExtensionServer server, DesignItem item, Type extensionType = null)
+        {
+            Debug.Assert(server != null);
+            Debug.Assert(item != null);
+
+            foreach (ExtensionEntry entry in GetExtensionEntries(item))
+            {
+                if (entry.Server == server && (extensionType == null || entry.ExtensionType == extensionType))
+                {
+
+                    var disabledExtensions = Extension.GetDisabledExtensions(item.View);
+                    if (string.IsNullOrEmpty(disabledExtensions) || !disabledExtensions.Split(';').Contains(entry.ExtensionType.Name))
+                        yield return server.CreateExtension(entry.ExtensionType, item);
+                }
+            }
+        }
+        #endregion
+
+        #region RegisterAssembly
+        HashSet<Assembly> _registeredAssemblies = new HashSet<Assembly>();
 		
 		/// <summary>
 		/// Registers extensions from the specified assembly.

@@ -4,11 +4,13 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Windows;
-using System.Windows.Input;
-using gip.ext.design.avui.PropertyGrid.Editors;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.design.avui.PropertyGrid
 {
@@ -27,10 +29,14 @@ namespace gip.ext.design.avui.PropertyGrid
         /// </summary>
         public static Dictionary<string, Type> propertyEditors = new Dictionary<string, Type>();
 
+        static Type defaultComboboxEditor = null; //typeof(ComboBoxEditor);
+
+        static Type defaultTextboxEditor = null; //typeof(TextBoxEditor);
+
         /// <summary>
         /// Creates a property editor for the specified <paramref name="property"/>
         /// </summary>
-        public static FrameworkElement CreateEditor(DesignItemProperty property)
+        public static Control CreateEditor(DesignItemProperty property)
         {
             Type editorType;
             if (!propertyEditors.TryGetValue(property.FullName, out editorType))
@@ -44,29 +50,69 @@ namespace gip.ext.design.avui.PropertyGrid
                     }
                     type = type.BaseType;
                 }
+
+                foreach (var t in typeEditors)
+                {
+                    if (t.Key.IsAssignableFrom(property.ReturnType))
+                    {
+                        return (Control)Activator.CreateInstance(t.Value);
+                    }
+                }
+
                 if (editorType == null)
                 {
-                    var standardValues = Metadata.GetStandardValues(property.ReturnType);
+                    IEnumerable standardValues = null;
+                    if (property.DependencyProperty != null)
+                    {
+                        standardValues = Metadata.GetStandardValues(property.DependencyProperty);
+                    }
+                    if (standardValues == null)
+                    {
+                        standardValues = Metadata.GetStandardValues(property.ReturnType);
+                    }
+
                     if (standardValues != null)
                     {
-                        return new ComboBoxEditor() { ItemsSource = standardValues };
+                        var itemsControl = (ItemsControl)Activator.CreateInstance(defaultComboboxEditor);
+                        itemsControl.ItemsSource = standardValues;
+                        if (Nullable.GetUnderlyingType(property.ReturnType) != null)
+                        {
+                            itemsControl.GetType().GetProperty("IsNullable").SetValue(itemsControl, true, null); //In this Class we don't know the Nullable Combo Box
+                        }
+                        return itemsControl;
+                        //return new ComboBoxEditor() { ItemsSource = standardValues };
                     }
-                    return new TextBoxEditor();
+                    var namedStandardValues = Metadata.GetNamedStandardValues(property.ReturnType);
+                    if (namedStandardValues != null)
+                    {
+                        SelectingItemsControl itemsControl = (SelectingItemsControl)Activator.CreateInstance(defaultComboboxEditor);
+                        itemsControl.ItemsSource = namedStandardValues;
+                        itemsControl.SelectedValueBinding = new Avalonia.Data.Binding("Value");
+                        itemsControl.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
+                        //itemsControl.DisplayMemberPath = "Name";
+                        //itemsControl.SelectedValuePath = "Value";
+                        if (Nullable.GetUnderlyingType(property.ReturnType) != null)
+                        {
+                            itemsControl.GetType().GetProperty("IsNullable").SetValue(itemsControl, true, null); //In this Class we don't know the Nullable Combo Box
+                        }
+                        return itemsControl;
+                    }
+                    return (Control)Activator.CreateInstance(defaultTextboxEditor);
                 }
             }
-            FrameworkElement instance = (FrameworkElement)Activator.CreateInstance(editorType);
-            if (instance is System.Windows.Controls.ComboBox)
+            Control instance = (Control)Activator.CreateInstance(editorType);
+            if (instance is SelectingItemsControl)
             {
                 var standardValues = Metadata.GetStandardValues(property.ReturnType);
                 if (standardValues != null)
                 {
-                    (instance as System.Windows.Controls.ComboBox).ItemsSource = standardValues;
+                    (instance as SelectingItemsControl).ItemsSource = standardValues;
                 }
             }
             return instance;
         }
 
-        public static FrameworkElement CreateEditor(Type propertyType)
+        public static Control CreateEditor(Type propertyType)
         {
             Type editorType = null;
             var type = propertyType;
@@ -85,20 +131,57 @@ namespace gip.ext.design.avui.PropertyGrid
                 var standardValues = Metadata.GetStandardValues(propertyType);
                 if (standardValues != null)
                 {
-                    return new ComboBoxEditor() { ItemsSource = standardValues };
+                    var itemsControl = (ItemsControl)Activator.CreateInstance(defaultComboboxEditor);
+                    itemsControl.ItemsSource = standardValues;
+                    if (Nullable.GetUnderlyingType(propertyType) != null)
+                    {
+                        itemsControl.GetType().GetProperty("IsNullable").SetValue(itemsControl, true, null); //In this Class we don't know the Nullable Combo Box
+                    }
+                    return itemsControl;
                 }
-                return new TextBoxEditor();
+                var namedStandardValues = Metadata.GetNamedStandardValues(propertyType);
+                if (namedStandardValues != null)
+                {
+                    SelectingItemsControl itemsControl = (SelectingItemsControl)Activator.CreateInstance(defaultComboboxEditor);
+                    itemsControl.ItemsSource = namedStandardValues;
+                    itemsControl.SelectedValueBinding = new Avalonia.Data.Binding("Value");
+                    itemsControl.DisplayMemberBinding = new Avalonia.Data.Binding("Name");
+                    //itemsControl.DisplayMemberPath = "Name";
+                    //itemsControl.SelectedValuePath = "Value";
+                    if (Nullable.GetUnderlyingType(propertyType) != null)
+                    {
+                        itemsControl.GetType().GetProperty("IsNullable").SetValue(itemsControl, true, null); //In this Class we don't know the Nullable Combo Box
+                    }
+                    return itemsControl;
+                }
+                return (Control)Activator.CreateInstance(defaultTextboxEditor);
             }
-            FrameworkElement instance = (FrameworkElement)Activator.CreateInstance(editorType);
-            if (instance is System.Windows.Controls.ComboBox)
+            Control instance = (Control)Activator.CreateInstance(editorType);
+            if (instance is SelectingItemsControl)
             {
                 var standardValues = Metadata.GetStandardValues(propertyType);
                 if (standardValues != null)
                 {
-                    (instance as System.Windows.Controls.ComboBox).ItemsSource = standardValues;
+                    (instance as SelectingItemsControl).ItemsSource = standardValues;
                 }
             }
             return instance;
+        }
+
+        /// <summary>
+        /// Registers the Textbox Editor.
+        /// </summary>
+        public static void SetDefaultTextBoxEditorType(Type type)
+        {
+            defaultTextboxEditor = type;
+        }
+
+        /// <summary>
+        /// Registers the Combobox Editor.
+        /// </summary>
+        public static void SetDefaultComboBoxEditorType(Type type)
+        {
+            defaultComboboxEditor = type;
         }
 
 
@@ -128,7 +211,7 @@ namespace gip.ext.design.avui.PropertyGrid
 
         static void CheckValidEditor(Type type)
         {
-            if (!typeof(FrameworkElement).IsAssignableFrom(type))
+            if (!typeof(Control).IsAssignableFrom(type))
             {
                 throw new DesignerException("Editor types must derive from FrameworkElement!");
             }

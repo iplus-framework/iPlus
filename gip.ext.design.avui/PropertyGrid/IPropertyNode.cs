@@ -6,12 +6,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia;
+using Avalonia.Controls;
 using System.Collections.ObjectModel;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Markup;
 
 namespace gip.ext.design.avui.PropertyGrid
 {
@@ -46,11 +46,11 @@ namespace gip.ext.design.avui.PropertyGrid
 		/// Gets the service container associated with this set of properties.
 		/// </summary>
 		ServiceContainer Services { get; }
-		
-		/// <summary>
-		/// Gets the editor control that edits this property.
-		/// </summary>
-		FrameworkElement Editor { get; }
+
+        /// <summary>
+        /// Gets the editor control that edits this property.
+        /// </summary>
+        Control Editor { get; }
 		
 		/// <summary>
 		/// Gets the first property (equivalent to Properties[0])
@@ -118,12 +118,12 @@ namespace gip.ext.design.avui.PropertyGrid
 		/// Gets whether this property was set locally.
 		/// </summary>
 		bool IsSet { get; }
-		
-		/// <summary>
-		/// Gets the color of the name.
-		/// Depends on the type of the value (binding/resource/etc.)
-		/// </summary>
-		Brush NameForeground { get; }
+
+        /// <summary>
+        /// Gets the color of the name.
+        /// Depends on the type of the value (binding/resource/etc.)
+        /// </summary>
+        IImmutableSolidColorBrush NameForeground { get; }
 		
 		/// <summary>
 		/// Returns the DesignItem that owns the property (= the DesignItem that is currently selected).

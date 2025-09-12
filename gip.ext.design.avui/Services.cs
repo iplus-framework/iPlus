@@ -2,10 +2,11 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows.Input;
 using System.Collections.Generic;
-using System.Windows;
 using System.Collections;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 
 namespace gip.ext.design.avui
 {
@@ -149,14 +150,14 @@ namespace gip.ext.design.avui
 		/// <summary>
 		/// Gets the model represented by the specified view element.
 		/// </summary>
-		public abstract DesignItem GetModel(DependencyObject view);
+		public abstract DesignItem GetModel(AvaloniaObject view);
 		
 		/// <summary>
 		/// Gets the view for the specified model item.
 		/// This is equivalent to using <c>model.View</c>.
 		/// </summary>
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1822:MarkMembersAsStatic")]
-		public DependencyObject GetView(DesignItem model)
+		public AvaloniaObject GetView(DesignItem model)
 		{
 			if (model == null)
 				throw new ArgumentNullException("model");
@@ -176,18 +177,44 @@ namespace gip.ext.design.avui
 		/// </summary>
 		object GetDescription(DesignItemProperty designProperty);
 	}
-	#endregion
-	
-	#region IErrorService
-	/// <summary>
-	/// Service for showing error UI.
-	/// </summary>
-	public interface IErrorService
+    #endregion
+
+    #region IOutlineNodeService
+    /// <summary>
+    /// Used to create Outline Nodes.
+    /// </summary>
+    public interface IOutlineNodeService
+    {
+        /// <summary>
+        /// Create Ouline Node for the DesignItem, returns cached item if available.
+        /// </summary>
+        IOutlineNode Create(DesignItem designItem);
+    }
+    #endregion
+
+    #region IOutlineNodeNameService
+    /// <summary>
+    /// Used to get a description for the Outline Node.
+    /// </summary>
+    public interface IOutlineNodeNameService
+    {
+        /// <summary>
+        /// Gets a the Name for display in the Ouline Node.
+        /// </summary>
+        string GetOutlineNodeName(DesignItem designItem);
+    }
+    #endregion
+
+    #region IErrorService
+    /// <summary>
+    /// Service for showing error UI.
+    /// </summary>
+    public interface IErrorService
 	{
 		/// <summary>
 		/// Shows an error tool tip.
 		/// </summary>
-		void ShowErrorTooltip(FrameworkElement attachTo, UIElement errorElement);
+		void ShowErrorTooltip(Control attachTo, Control errorElement);
 	}
 	#endregion
 	
@@ -237,7 +264,7 @@ namespace gip.ext.design.avui
 		/// <summary>
 		/// Gets the top level window that contains the specified element.
 		/// </summary>
-		ITopLevelWindow GetTopLevelWindow(UIElement element);
+		ITopLevelWindow GetTopLevelWindow(Control element);
 	}
 	#endregion
 	
@@ -276,7 +303,7 @@ namespace gip.ext.design.avui
         /// </summary>
         /// <param name="e"></param>
         /// <returns></returns>
-        KeyBinding GetBinding(InputEventArgs e);
+        KeyBinding GetBinding(KeyEventArgs e);
     }
     
 	#endregion

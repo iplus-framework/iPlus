@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
-
+using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Rendering.Composition;
 using gip.ext.design.avui.Extensions;
 
 namespace gip.ext.design.avui
@@ -17,6 +20,11 @@ namespace gip.ext.design.avui
     /// </summary>
     public abstract class DesignItem : INotifyPropertyChanged
     {
+        /// <summary>
+        /// The initial Position after a Drag/Drop
+        /// </summary>
+        public Point Position { get; set; }
+
         /// <summary>
         /// Gets the component this DesignSite was created for.
         /// </summary>
@@ -32,7 +40,13 @@ namespace gip.ext.design.avui
         /// <summary>
         /// Gets the view used for the component.
         /// </summary>
-        public abstract UIElement View { get; }
+        public abstract Control View { get; }
+
+        /// <summary>
+        /// Set the View for a Component
+        /// </summary>
+        /// <param name="newView"></param>
+        public abstract void SetView(Control newView);
 
         /// <summary>
         /// Gets the design context.
@@ -59,7 +73,22 @@ namespace gip.ext.design.avui
         /// </summary>
         public abstract DesignItemPropertyCollection Properties { get; }
 
+        /// <summary>
+        /// Gets properties set on the design item.
+        /// </summary>
+        public abstract IEnumerable<DesignItemProperty> AllSetProperties { get; }
+
+        /// <summary>
+        /// Checks if the design item has a property with the specified name.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
         public abstract DesignItemProperty HasProperty(string name);
+
+        /// <summary>
+        /// Gets/Sets the name of the design item.
+        /// </summary>
+        public abstract string Name { get; set; }
 
         /// <summary>
         /// iPlus-Extension, Gets Style. If Style is  null, Style will be generated
@@ -72,9 +101,9 @@ namespace gip.ext.design.avui
         public abstract IList<DesignItemProperty> SettedProperties { get; }
 
         /// <summary>
-        /// Gets/Sets the name of the design item.
+        /// Gets/Sets the value of the "x:Key" attribute on the design item.
         /// </summary>
-        public abstract string Name { get; set; }
+        public abstract string Key { get; set; }
 
         /// <summary>
         /// Is raised when the name of the design item changes.
@@ -126,10 +155,8 @@ namespace gip.ext.design.avui
         {
             get
             {
-                foreach (ExtensionEntry entry in _extensions)
-                {
-                    yield return entry.Extension;
-                }
+                return _extensions.Select(x => x.Extension).ToList();
+
             }
         }
 
@@ -161,6 +188,13 @@ namespace gip.ext.design.avui
                 if (_extensionServers[i] == server)
                 {
                     bool shouldApply = server.ShouldApplyExtensions(this);
+
+                    if (server.ShouldBeReApplied() && shouldApply && shouldApply == _extensionServerIsApplied[i])
+                    {
+                        _extensionServerIsApplied[i] = false;
+                        ApplyUnapplyExtensionServer(extensionManager, false, server);
+                    }
+
                     if (shouldApply != _extensionServerIsApplied[i])
                     {
                         _extensionServerIsApplied[i] = shouldApply;
@@ -198,6 +232,68 @@ namespace gip.ext.design.avui
                     });
             }
         }
+
+
+        /// <summary>
+        /// Removes one specific Extension
+        /// </summary>
+        public void RemoveExtension(Extension extension)
+        {
+            var hasExtension = this._extensions.Any(x => x.Extension.GetType() == extension.GetType());
+
+            if (hasExtension)
+            {
+                var extensionEntry = this._extensions.FirstOrDefault(x => x.Extension.GetType() == extension.GetType());
+                //_extensions.Remove(extensionEntry);
+                extensionEntry.Server.RemoveExtension(extensionEntry.Extension);
+            }
+        }
+
+        /// <summary>
+        /// Reapplies all extensions.
+        /// </summary>
+        public void ReapplyAllExtensions()
+        {
+            var manager = this.Services.GetService<Extensions.ExtensionManager>();
+            List<ExtensionServer> servers = _extensions.GroupBy(entry => entry.Server).Select(grp => grp.First().Server).ToList();
+
+            foreach (var server in servers)
+            {
+                ApplyUnapplyExtensionServer(manager, false, server);
+                ApplyUnapplyExtensionServer(manager, true, server);
+            }
+        }
+
+        /// <summary>
+        /// Reapplies a specific extension.
+        /// </summary>
+        public void ReapplyExtension(Type extensionType)
+        {
+            var manager = this.Services.GetService<Extensions.ExtensionManager>();
+            List<ExtensionServer> servers =
+                _extensions.GroupBy(entry => entry.Server).Select(grp => grp.First().Server).ToList();
+
+            foreach (var server in servers)
+            {
+                _extensions.RemoveAll(
+                    entry =>
+                    {
+                        if (entry.Server == server && entry.Extension.GetType() == extensionType)
+                        {
+                            server.RemoveExtension(entry.Extension);
+                            return true;
+                        }
+
+                        return false;
+                    });
+
+                foreach (Extension ext in manager.CreateExtensions(server, this, extensionType))
+                {
+                    _extensions.Add(new ExtensionEntry(ext, server));
+                }
+            }
+        }
+
         #endregion
 
         #region Manage behavior
@@ -287,5 +383,53 @@ namespace gip.ext.design.avui
         /// Creates a copy of this design item.
         /// </summary>
         public abstract DesignItem Clone();
+
+        /// <summary>
+        /// Gets a <see cref="IOutlineNode"/> for this this design item.
+        /// </summary>
+        public IOutlineNode CreateOutlineNode() => Services.GetRequiredService<IOutlineNodeService>().Create(this);
+
+        /// <summary>
+        /// Gets a <see cref="Transform"/> that represents all transforms applied to the item's view.
+        /// </summary>
+        public Transform GetCompleteAppliedTransformationToView()
+        {
+            var retVal = new TransformGroup();
+            var v = this.View as Visual;
+            while (v != null)
+            {
+                var ltctl = v as LayoutTransformControl;
+                if (ltctl != null && ltctl.LayoutTransform != null && ltctl.LayoutTransform is Transform layoutTransform)
+                    retVal.Children.Add(layoutTransform);
+                var fe = v as Control;
+                if (fe != null && fe.RenderTransform != null && fe.RenderTransform is Transform renderTransform)
+                    retVal.Children.Add(renderTransform);
+                //if (v is CompositionVisual && ((CompositionVisual)v).Transform != null)
+                //{
+                //    retVal.Children.Add(((CompositionVisual)v).Transform);
+                //}
+                v = v.TryFindParent<Control>(true);
+            }
+
+            return retVal;
+        }
+
+        /// <summary>
+        /// Gets the component this DesignSite was created for.
+        /// </summary>
+        public int DepthLevel
+        {
+            get
+            {
+                int j = 0;
+                var x = this.Parent;
+                while (x != null)
+                {
+                    j++;
+                    x = x.Parent;
+                }
+                return j;
+            }
+        }
     }
 }

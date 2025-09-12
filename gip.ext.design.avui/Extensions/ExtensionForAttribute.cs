@@ -2,6 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
+using System.Collections.Generic;
 
 namespace gip.ext.design.avui.Extensions
 {
@@ -13,18 +14,32 @@ namespace gip.ext.design.avui.Extensions
 	{
 		Type _designedItemType;
 		Type _overrideExtension;
-		
-		/// <summary>
-		/// Gets the type of the item that is designed using this extension.
-		/// </summary>
-		public Type DesignedItemType {
+        List<Type> _overrideExtensions = new List<Type>();
+
+        /// <summary>
+        /// Gets the type of the item that is designed using this extension.
+        /// </summary>
+        public Type DesignedItemType {
 			get { return _designedItemType; }
 		}
-		
-		/// <summary>
-		/// Gets/Sets the type of another extension that this extension is overriding.
-		/// </summary>
-		public Type OverrideExtension {
+
+        /// <summary>
+        /// Gets/Sets the types of another extension that this extension is overriding.
+        /// </summary>
+        public Type[] OverrideExtensions
+        {
+            get { return _overrideExtensions.ToArray(); }
+            set
+            {
+                _overrideExtensions.AddRange(value);
+            }
+        }
+
+
+        /// <summary>
+        /// Gets/Sets the type of another extension that this extension is overriding.
+        /// </summary>
+        public Type OverrideExtension {
 			get { return _overrideExtension; }
 			set {
 				_overrideExtension = value;

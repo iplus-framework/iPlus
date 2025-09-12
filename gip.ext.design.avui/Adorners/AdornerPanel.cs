@@ -3,9 +3,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace gip.ext.design.avui.Adorners
 {
@@ -14,31 +14,50 @@ namespace gip.ext.design.avui.Adorners
 	/// </summary>
 	public sealed class AdornerPanel : Panel
 	{
-		#region Attached Property Placement
-		/// <summary>
-		/// The dependency property used to store the placement of adorner visuals.
-		/// </summary>
-		public static readonly DependencyProperty PlacementProperty = DependencyProperty.RegisterAttached(
-			"Placement", typeof(AdornerPlacement), typeof(AdornerPanel),
-			new FrameworkPropertyMetadata(AdornerPlacement.FillContent, FrameworkPropertyMetadataOptions.AffectsParentMeasure)
-		);
-		
-		/// <summary>
-		/// Gets the placement of the specified adorner.
-		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-		public static AdornerPlacement GetPlacement(UIElement adorner)
+		static AdornerPanel()
+		{
+            AffectsMeasure<AdornerPanel>(PlacementProperty);
+        }
+
+        #region Attached Property Placement
+        /// <summary>
+        /// The dependency property used to store the placement of adorner visuals.
+        /// </summary>
+        public static readonly AvaloniaProperty PlacementProperty =
+            AvaloniaProperty.RegisterAttached<Control, AdornerPlacement>("Placement", typeof(AdornerPanel), AdornerPlacement.FillContent);
+
+        /// <summary>
+        /// Gets the placement of the specified adorner.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+		public static AdornerPlacement GetPlacement(Control adorner)
 		{
 			if (adorner == null)
 				throw new ArgumentNullException("adorner");
 			return (AdornerPlacement)adorner.GetValue(PlacementProperty);
 		}
-		
-		/// <summary>
-		/// Sets the placement of the specified adorner.
-		/// </summary>
-		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
-		public static void SetPlacement(UIElement adorner, AdornerPlacement placement)
+
+        /// <summary>
+        /// Converts an absolute vector to a vector relative to the element adorned by this <see cref="AdornerPanel" />.
+        /// </summary>
+        public Vector AbsoluteToRelative(Vector absolute)
+        {
+            return new Vector(absolute.X / ((Control)this._adornedElement).Bounds.Size.Width, absolute.Y / ((Control)this._adornedElement).Bounds.Size.Height);
+        }
+
+        /// <summary>
+        /// Converts a vector relative to the element adorned by this <see cref="AdornerPanel" /> to an absolute vector.
+        /// </summary>
+        public Vector RelativeToAbsolute(Vector relative)
+        {
+            return new Vector(relative.X * ((Control)this._adornedElement).Bounds.Size.Width, relative.Y * ((Control)this._adornedElement).Bounds.Size.Height);
+        }
+
+        /// <summary>
+        /// Sets the placement of the specified adorner.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1011:ConsiderPassingBaseTypesAsParameters")]
+		public static void SetPlacement(Control adorner, AdornerPlacement placement)
 		{
 			if (adorner == null)
 				throw new ArgumentNullException("adorner");
@@ -48,7 +67,7 @@ namespace gip.ext.design.avui.Adorners
 		}
 		#endregion
 		
-		UIElement _adornedElement;
+		Control _adornedElement;
 		DesignItem _adornedDesignItem;
 		AdornerOrder _Order = AdornerOrder.Content;
 		
@@ -56,7 +75,7 @@ namespace gip.ext.design.avui.Adorners
 		/// <summary>
 		/// Gets the element adorned by this AdornerPanel.
 		/// </summary>
-		public UIElement AdornedElement {
+		public Control AdornedElement {
 			get { return _adornedElement; }
 		}
 		
@@ -71,7 +90,7 @@ namespace gip.ext.design.avui.Adorners
 		/// Sets the AdornedElement and AdornedDesignItem properties.
 		/// This method can be called only once.
 		/// </summary>
-		public void SetAdornedElement(UIElement adornedElement, DesignItem adornedDesignItem)
+		public void SetAdornedElement(Control adornedElement, DesignItem adornedDesignItem)
 		{
 			if (adornedElement == null)
 				throw new ArgumentNullException("adornedElement");
@@ -100,13 +119,12 @@ namespace gip.ext.design.avui.Adorners
 		protected override Size MeasureOverride(Size availableSize)
 		{
 			if (this.AdornedElement != null) {
-				foreach (DependencyObject v in base.InternalChildren) {
-					UIElement e = v as UIElement;
+				foreach (Control e in base.Children) {
 					if (e != null) {
 						e.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
 					}
 				}
-				return this.AdornedElement.RenderSize;
+				return this.AdornedElement.Bounds.Size;
 			} else {
 				return base.MeasureOverride(availableSize);
 			}
@@ -115,7 +133,8 @@ namespace gip.ext.design.avui.Adorners
 		/// <summary/>
 		protected override Size ArrangeOverride(Size finalSize)
 		{
-			foreach (UIElement element in base.InternalChildren) {
+			foreach (Control element in base.Children) 
+			{
 				GetPlacement(element).Arrange(this, element, finalSize);
 			}
 			return finalSize;

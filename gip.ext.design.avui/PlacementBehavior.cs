@@ -3,7 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
+using Avalonia;
 
 namespace gip.ext.design.avui
 {
@@ -81,6 +81,11 @@ namespace gip.ext.design.avui
 		/// Let the placed children enter this container.
 		/// </summary>
 		void EnterContainer(PlacementOperation operation);
+
+        /// <summary>
+        /// Place Point.
+        /// </summary>
+        Point PlacePoint(Point point);
 
         /// <summary>
         /// Können die selektierten Steuerelemente um den Vektor verschoben werden

@@ -2,6 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -65,17 +66,33 @@ namespace gip.ext.design.avui.PropertyGrid
 				yield return e;
 			}
 		}
-		
-		/// <summary>
-		/// Gets available properties for an object, includes attached properties also.
-		/// </summary>		
-		public static IEnumerable<PropertyDescriptor> GetAvailableProperties(object element, bool withReadonly=false)
+
+        private static string[] hiddenPropertiesOnWindow = new[] { "ClipToBounds" };
+        /// <summary>
+        /// Gets available properties for an object, includes attached properties also.
+        /// </summary>		
+        public static IEnumerable<PropertyDescriptor> GetAvailableProperties(object element, bool withReadonly=false)
 		{
-			foreach(PropertyDescriptor p in TypeDescriptor.GetProperties(element)){
-				if (!p.IsBrowsable) continue;
-                if (p.IsReadOnly && !withReadonly) continue;
-				if (p.Attributes.OfType<ObsoleteAttribute>().Count()!=0) continue;
-				yield return p;
+			if (element.GetType().FullName == "gip.ext.designer.avui.Controls.WindowClone")
+			{
+				foreach (PropertyDescriptor p in TypeDescriptor.GetProperties(element))
+				{
+					if (!p.IsBrowsable) continue;
+					if (p.IsReadOnly && !typeof(ICollection).IsAssignableFrom(p.PropertyType)) continue;
+					if (hiddenPropertiesOnWindow.Contains(p.Name)) continue;
+					if (p.Attributes.OfType<ObsoleteAttribute>().Count() != 0) continue;
+					yield return p;
+				}
+			}
+			else
+			{
+				foreach (PropertyDescriptor p in TypeDescriptor.GetProperties(element))
+				{
+					if (!p.IsBrowsable) continue;
+					if (p.IsReadOnly && !withReadonly) continue;
+					if (p.Attributes.OfType<ObsoleteAttribute>().Count() != 0) continue;
+					yield return p;
+				}
 			}
 		}
 		
@@ -86,32 +103,41 @@ namespace gip.ext.design.avui.PropertyGrid
 		/// <returns></returns>
 		public static IEnumerable<PropertyDescriptor> GetCommonAvailableProperties(IEnumerable<object> elements)
 		{
-			foreach (var pd1 in GetAvailableProperties(elements.First())) {
-				bool propertyOk = true;
-				foreach (var element in elements.Skip(1)) {
-					bool typeOk = false;
-					foreach (var pd2 in GetAvailableProperties(element)) {
-						if (pd1 == pd2) {
-							typeOk = true;
-							break;
-						}
-						
-						/* Check if it is attached property.*/
-						if(pd1.Name.Contains(".") && pd2.Name.Contains(".")){
-						   	if(pd1.Name==pd2.Name){
-						   		typeOk=true;
-						   		break;
-						   	}		
-						   }
-					}
-					if (!typeOk) {
-						propertyOk = false;
-						break;
-					}
-				}
-				if (propertyOk) yield return pd1;
-			}
-		}
+            var properties = TypeDescriptor.GetProperties(elements.First()).Cast<PropertyDescriptor>();
+            foreach (var element in elements.Skip(1))
+            {
+                var currentProperties = TypeDescriptor.GetProperties(element).Cast<PropertyDescriptor>();
+                properties = Enumerable.Intersect(properties, currentProperties);
+            }
+
+            return properties;
+			// Old code:
+            //foreach (var pd1 in GetAvailableProperties(elements.First())) {
+            //	bool propertyOk = true;
+            //	foreach (var element in elements.Skip(1)) {
+            //		bool typeOk = false;
+            //		foreach (var pd2 in GetAvailableProperties(element)) {
+            //			if (pd1 == pd2) {
+            //				typeOk = true;
+            //				break;
+            //			}
+
+            //			/* Check if it is attached property.*/
+            //			if(pd1.Name.Contains(".") && pd2.Name.Contains(".")){
+            //			   	if(pd1.Name==pd2.Name){
+            //			   		typeOk=true;
+            //			   		break;
+            //			   	}		
+            //			   }
+            //		}
+            //		if (!typeOk) {
+            //			propertyOk = false;
+            //			break;
+            //		}
+            //	}
+            //	if (propertyOk) yield return pd1;
+            //}
+        }
 		
 	}
 }

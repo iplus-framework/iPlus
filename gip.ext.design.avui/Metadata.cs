@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 using System.Collections;
-using System.Windows;
+using Avalonia;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -18,10 +18,17 @@ namespace gip.ext.design.avui
 	/// </summary>
 	public static class Metadata
 	{
-		/// <summary>
-		/// Gets the full name of a dependency property (OwnerType.FullName + "." + Name).
-		/// </summary>
-		public static string GetFullName(this DependencyProperty p)
+        class NamedValue
+        {
+            public string Name { get; set; }
+
+            public object Value { get; set; }
+        }
+
+        /// <summary>
+        /// Gets the full name of a dependency property (OwnerType.FullName + "." + Name).
+        /// </summary>
+        public static string GetFullName(this AvaloniaProperty p)
 		{
 			return p.OwnerType.FullName + "." + p.Name;
 		}
@@ -29,24 +36,53 @@ namespace gip.ext.design.avui
 		// TODO: do we really want to store these values in a static dictionary?
 		// Why not per-design context (as a service?)
 		static Dictionary<Type, List<object>> standardValues = new Dictionary<Type, List<object>>();
+        static Dictionary<AvaloniaProperty, object[]> standardValuesForDependencyPropertys = new Dictionary<AvaloniaProperty, object[]>();
+        static Dictionary<Type, List<NamedValue>> standardNamedValues = new Dictionary<Type, List<NamedValue>>();
+        static Dictionary<Type, Dictionary<AvaloniaProperty, object>> standardPropertyValues = new Dictionary<Type, Dictionary<AvaloniaProperty, object>>();
 
-		/// <summary>
-		/// Registers a set of standard values for a <paramref name="type"/> by using the
-		/// public static properties of the type <paramref name="valuesContainer"/>.
-		/// </summary>
-		/// <example>Metadata.AddStandardValues(typeof(Brush), typeof(Brushes));</example>
-		public static void AddStandardValues(Type type, Type valuesContainer)
+        /// <summary>
+        /// Registers a set of standard values for a <paramref name="type"/> by using the
+        /// public static properties of the type <paramref name="valuesContainer"/>.
+        /// </summary>
+        /// <example>Metadata.AddStandardValues(typeof(Brush), typeof(Brushes));</example>
+        public static void AddStandardValues(Type type, Type valuesContainer)
 		{
 			AddStandardValues(type,
 			                  valuesContainer.GetProperties(BindingFlags.Public | BindingFlags.Static)
 			                  .Select(p => p.GetValue(null, null)));
 		}
 
-		/// <summary>
-		/// Registers a set of standard <paramref name="values"/> for a <paramref name="type"/>.
-		/// </summary>
-		/// <remarks>You can call this method multiple times to add additional standard values.</remarks>
-		public static void AddStandardValues<T>(Type type, IEnumerable<T> values)
+        /// <summary>
+        /// Registers a set of standard values for a <paramref name="type"/> by using the
+        /// public static properties of the type <paramref name="valuesContainer"/>.
+        /// </summary>
+        /// <example>Metadata.AddDoubleNamedStandardValues(typeof(Brush), typeof(Brushes));</example>
+        public static void AddDoubleNamedStandardValues(Type type, Type valuesContainer)
+        {
+            List<NamedValue> list;
+
+            var pList = valuesContainer.GetProperties(BindingFlags.Public | BindingFlags.Static)
+                .Select(p => new NamedValue { Name = p.Name, Value = p.GetValue(null, null) });
+
+            lock (standardNamedValues)
+            {
+                if (!standardNamedValues.TryGetValue(type, out list))
+                {
+                    list = new List<NamedValue>();
+                    standardNamedValues[type] = list;
+                }
+                foreach (var v in pList)
+                {
+                    list.Add(v);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Registers a set of standard <paramref name="values"/> for a <paramref name="type"/>.
+        /// </summary>
+        /// <remarks>You can call this method multiple times to add additional standard values.</remarks>
+        public static void AddStandardValues<T>(Type type, IEnumerable<T> values)
 		{
 			List<object> list;
 			lock (standardValues) {
@@ -60,82 +96,125 @@ namespace gip.ext.design.avui
 			}
 		}
 
-		/// <summary>
-		/// Retrieves the standard values for the specified <paramref name="type"/>.
-		/// </summary>
-		public static IEnumerable GetStandardValues(Type type)
-		{
-			if (type.IsEnum) {
-				return Enum.GetValues(type);
-			}
-			List<object> values;
-			lock (standardValues) {
-				if (standardValues.TryGetValue(type, out values)) {
-					return values;
-				}
-			}
-			return null;
-		}
+        /// <summary>
+        /// Retrieves the standard values for the specified <paramref name="type"/>.
+        /// </summary>
+        public static IEnumerable GetNamedStandardValues(Type type)
+        {
+            List<NamedValue> values;
+            lock (standardNamedValues)
+            {
+                if (standardNamedValues.TryGetValue(type, out values))
+                {
+                    return values;
+                }
+            }
+            return null;
+        }
 
-		//static Dictionary<string, string> categories = new Dictionary<string, string>();
+        /// <summary>
+        /// Retrieves the standard values for the specified <paramref name="type"/>.
+        /// </summary>
+        public static IEnumerable GetStandardValues(Type type)
+        {
+            var baseT = Nullable.GetUnderlyingType(type);
 
-		//public static void AddCategory(DependencyProperty p, string category)
-		//{
-		//    lock (categories) {
-		//        categories[p.GetFullName()] = category;
-		//    }
-		//}
+            if (type.IsEnum)
+            {
+                return Enum.GetValues(type);
+            }
 
-		//public static void AddCategory(Type type, string property, string category)
-		//{
-		//    lock (categories) {
-		//        categories[type + "." + property] = category;
-		//    }
-		//}
+            if (baseT != null && baseT.IsEnum)
+            {
+                return Enum.GetValues(baseT);
+            }
 
-		//public static string GetCategory(DesignItemProperty p)
-		//{
-		//    string result;
-		//    lock (categories) {
-		//        if (categories.TryGetValue(p.DependencyFullName, out result)) {
-		//            return result;
-		//        }
-		//    }
-		//    return p.Category;
-		//}
+            List<object> values;
+            lock (standardValues)
+            {
+                if (standardValues.TryGetValue(type, out values))
+                {
+                    return values;
+                }
+            }
+            return null;
+        }
 
-		//static HashSet<string> advancedProperties = new HashSet<string>();
+        /// <summary>
+        /// Retrieves the standard values for the specified <paramref name="dependencyProperty"/>.
+        /// </summary>
+        public static IEnumerable GetStandardValues(AvaloniaProperty dependencyProperty)
+        {
+            object[] values;
+            lock (standardValuesForDependencyPropertys)
+            {
+                if (standardValuesForDependencyPropertys.TryGetValue(dependencyProperty, out values))
+                {
+                    return values;
+                }
+            }
+            return null;
+        }
 
-		//public static void AddAdvancedProperty(DependencyProperty p)
-		//{
-		//    lock (advancedProperties) {
-		//        advancedProperties.Add(p.GetFullName());
-		//    }
-		//}
+        //static Dictionary<string, string> categories = new Dictionary<string, string>();
 
-		//public static void AddAdvancedProperty(Type type, string member)
-		//{
-		//    lock (advancedProperties) {
-		//        advancedProperties.Add(type.FullName + "." + member);
-		//    }
-		//}
+        //public static void AddCategory(DependencyProperty p, string category)
+        //{
+        //    lock (categories) {
+        //        categories[p.GetFullName()] = category;
+        //    }
+        //}
 
-		//public static bool IsAdvanced(DesignItemProperty p)
-		//{
-		//    lock (advancedProperties) {
-		//        if (advancedProperties.Contains(p.DependencyFullName)) {
-		//            return true;
-		//        }
-		//    }
-		//    return p.IsAdvanced;
-		//}
+        //public static void AddCategory(Type type, string property, string category)
+        //{
+        //    lock (categories) {
+        //        categories[type + "." + property] = category;
+        //    }
+        //}
 
-		static HashSet<string> hiddenProperties = new HashSet<string>();
+        //public static string GetCategory(DesignItemProperty p)
+        //{
+        //    string result;
+        //    lock (categories) {
+        //        if (categories.TryGetValue(p.DependencyFullName, out result)) {
+        //            return result;
+        //        }
+        //    }
+        //    return p.Category;
+        //}
+
+        //static HashSet<string> advancedProperties = new HashSet<string>();
+
+        //public static void AddAdvancedProperty(DependencyProperty p)
+        //{
+        //    lock (advancedProperties) {
+        //        advancedProperties.Add(p.GetFullName());
+        //    }
+        //}
+
+        //public static void AddAdvancedProperty(Type type, string member)
+        //{
+        //    lock (advancedProperties) {
+        //        advancedProperties.Add(type.FullName + "." + member);
+        //    }
+        //}
+
+        //public static bool IsAdvanced(DesignItemProperty p)
+        //{
+        //    lock (advancedProperties) {
+        //        if (advancedProperties.Contains(p.DependencyFullName)) {
+        //            return true;
+        //        }
+        //    }
+        //    return p.IsAdvanced;
+        //}
+
+        static HashSet<string> hiddenProperties = new HashSet<string>();
 
 		/// <summary>
 		/// Hides the specified property (marks it as not browsable).
 		/// </summary>
-		public static void HideProperty(DependencyProperty p)
+		public static void HideProperty(AvaloniaProperty p)
 		{
 			lock (hiddenProperties) {
 				hiddenProperties.Add(p.GetFullName());
@@ -172,7 +251,7 @@ namespace gip.ext.design.avui
 		/// <summary>
 		/// Registers a popular property (shown first in the property grid).
 		/// </summary>
-		public static void AddPopularProperty(DependencyProperty p)
+		public static void AddPopularProperty(AvaloniaProperty p)
 		{
 			lock (popularProperties) {
 				popularProperties.Add(p.GetFullName());
@@ -239,7 +318,7 @@ namespace gip.ext.design.avui
 		/// <summary>
 		/// Registers the value range for the property.
 		/// </summary>
-		public static void AddValueRange(DependencyProperty p, double min, double max)
+		public static void AddValueRange(AvaloniaProperty p, double min, double max)
 		{
 			lock (ranges) {
 				ranges[p.GetFullName()] = new NumberRange() { Min = min, Max = max };
@@ -311,12 +390,41 @@ namespace gip.ext.design.avui
 			}
 			return new Size(double.NaN, double.NaN);
 		}
-	}
 
-	/// <summary>
-	/// Represets the minimum and maximum valid value for a double property.
-	/// </summary>
-	public class NumberRange
+        /// <summary>
+        /// Registers a default Property Value wich should be used
+        /// </summary>
+        public static void AddDefaultPropertyValue(Type t, AvaloniaProperty p, object value)
+        {
+            lock (standardPropertyValues)
+            {
+                if (!standardPropertyValues.ContainsKey(t))
+                    standardPropertyValues.Add(t, new Dictionary<AvaloniaProperty, object>());
+
+                standardPropertyValues[t][p] = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets Default Propertie Values for a type
+        /// </summary>
+        public static Dictionary<AvaloniaProperty, object> GetDefaultPropertyValues(Type t)
+        {
+            lock (standardPropertyValues)
+            {
+                if (standardPropertyValues.ContainsKey(t))
+                    return standardPropertyValues[t];
+
+                return null;
+            }
+        }
+
+    }
+
+    /// <summary>
+    /// Represets the minimum and maximum valid value for a double property.
+    /// </summary>
+    public class NumberRange
 	{
 		/// <summary>
 		/// Gets/Sets the minimum value.

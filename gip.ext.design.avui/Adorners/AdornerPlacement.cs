@@ -3,8 +3,9 @@
 
 using System;
 using System.Collections.ObjectModel;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace gip.ext.design.avui.Adorners
 {
@@ -22,11 +23,11 @@ namespace gip.ext.design.avui.Adorners
 		/// <summary>
 		/// Arranges the adorner element on the specified adorner panel.
 		/// </summary>
-		public abstract void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize);
+		public abstract void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize);
 		
 		sealed class FillContentPlacement : AdornerPlacement
 		{
-			public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+			public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
 			{
 				adorner.Arrange(new Rect(adornedElementSize));
 			}

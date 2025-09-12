@@ -6,12 +6,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia;
+using Avalonia.Controls;
 using System.Collections.ObjectModel;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Markup;
+using Avalonia.Markup.Xaml;
+using Avalonia.Data.Converters;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 
 namespace gip.ext.design.avui.PropertyGrid
 {
@@ -34,7 +37,24 @@ namespace gip.ext.design.avui.PropertyGrid
         /// <summary>
         /// Gets the name of the property.
         /// </summary>
-        public string Name { get { return FirstProperty.Name; } }
+		public string Name
+        {
+            get
+            {
+                //var dp = FirstProperty.DependencyProperty;
+                //if (dp != null)
+                //{
+                //    var dpd = DependencyPropertyDescriptor.FromProperty(dp, FirstProperty.DesignItem.ComponentType);
+                //    if (dpd.IsAttached)
+                //    {
+                //        // Will return the attached property name in the form of <DeclaringType>.<PropertyName>
+                //        return dpd.Name;
+                //    }
+                //}
+
+                return FirstProperty.Name;
+            }
+        }
 
         /// <summary>
         /// Gets if this property node represents an event.
@@ -59,7 +79,7 @@ namespace gip.ext.design.avui.PropertyGrid
         /// <summary>
         /// Gets the editor control that edits this property.
         /// </summary>
-        public FrameworkElement Editor { get; protected set; }
+        public Control Editor { get; protected set; }
 
         /// <summary>
         /// Gets the first property (equivalent to Properties[0])
@@ -140,13 +160,33 @@ namespace gip.ext.design.avui.PropertyGrid
         /// <summary>
         /// Gets/Sets the value of this property.
         /// </summary>
+        public object DesignerValue
+        {
+            get
+            {
+                if (IsAmbiguous)
+                    return null;
+                var result = FirstProperty.DesignerValue;
+                if (result == AvaloniaProperty.UnsetValue)
+                    return null;
+                return result;
+            }
+            set
+            {
+                SetValueCore(value);
+            }
+        }
+
+        /// <summary>
+        /// Gets/Sets the value of this property.
+        /// </summary>
         public virtual object Value
         {
             get
             {
                 if (IsAmbiguous) return null;
                 var result = FirstProperty.ValueOnInstance;
-                if (result == DependencyProperty.UnsetValue) return null;
+                if (result == AvaloniaProperty.UnsetValue) return null;
                 return result;
             }
             set
@@ -164,7 +204,7 @@ namespace gip.ext.design.avui.PropertyGrid
             {
                 if (ValueItem == null || ValueItem.Component is MarkupExtension)
                 {
-                    if (Value == null) return null;
+                    if (DesignerValue == null) return null;
                     if (hasStringConverter)
                     {
                         try
@@ -173,10 +213,10 @@ namespace gip.ext.design.avui.PropertyGrid
                         }
                         catch (Exception /*e*/)
                         {
-                            return "(" + Value.GetType().Name + ")";
+                            return "(" + DesignerValue.GetType().Name + ")";
                         }
                     }
-                    return "(" + Value.GetType().Name + ")";
+                    return "(" + DesignerValue.GetType().Name + ")";
                 }
                 return "(" + ValueItem.ComponentType.Name + ")";
             }
@@ -222,7 +262,7 @@ namespace gip.ext.design.avui.PropertyGrid
         /// Gets the color of the name.
         /// Depends on the type of the value (binding/resource/etc.)
         /// </summary>
-        public Brush NameForeground
+        public IImmutableSolidColorBrush NameForeground
         {
             get
             {
@@ -234,7 +274,7 @@ namespace gip.ext.design.avui.PropertyGrid
                     if (component is StaticResourceExtension || component is DynamicResourceExtension)
                         return Brushes.DarkGreen;
                 }
-                return SystemColors.WindowTextBrush;
+                return Brushes.Blue;
             }
         }
 
@@ -276,7 +316,7 @@ namespace gip.ext.design.avui.PropertyGrid
             {
                 foreach (var p in Properties)
                 {
-                    if (!object.Equals(p.ValueOnInstance, FirstProperty.ValueOnInstance))
+                    if (p != FirstProperty && !object.Equals(p.ValueOnInstance, FirstProperty.ValueOnInstance))
                     {
                         return true;
                     }
@@ -487,7 +527,7 @@ namespace gip.ext.design.avui.PropertyGrid
         /// </summary>
         /// <param name="property"></param>
         /// <returns></returns>
-        protected virtual FrameworkElement OnCreateEditor(DesignItemProperty property)
+        protected virtual Control OnCreateEditor(DesignItemProperty property)
         {
             if (Editor == null)
             {

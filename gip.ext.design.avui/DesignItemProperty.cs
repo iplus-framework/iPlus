@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
+using Avalonia;
 
 namespace gip.ext.design.avui
 {
@@ -48,7 +48,7 @@ namespace gip.ext.design.avui
     /// enabling Undo/Redo support.
     /// Warning: Changes directly done to control instances might not be reflected in the model.
     /// </summary>
-    public abstract class DesignItemProperty
+    public abstract class DesignItemProperty : INotifyPropertyChanged
     {
         /// <summary>
         /// Gets the property name.
@@ -110,6 +110,12 @@ namespace gip.ext.design.avui
         public abstract DesignItem Value { get; }
 
         /// <summary>
+        /// Gets the string value of the property. This property returns null if the value is not set,
+        /// or if the value is set to a non-primitive value (i.e. represented by a <see cref="DesignItem"/>, accessible through <see cref="Value"/> property).
+        /// </summary>
+        public abstract string TextValue { get; }
+
+        /// <summary>
         /// Is raised when the value of the property changes (by calling <see cref="SetValue"/> or <see cref="Reset"/>).
         /// </summary>
         public abstract event EventHandler ValueChanged;
@@ -127,6 +133,12 @@ namespace gip.ext.design.avui
         public abstract object ValueOnInstance { get; }
 
         public abstract object NewClonedValueOnInstance { get; }
+
+        /// <summary>
+        /// Gets the value of the property on the designed instance.
+        /// If the property is not set, this returns the default value.
+        /// </summary>
+        public abstract object DesignerValue { get; }
 
         /// <summary>
         /// Sets the value of the property, directly on the instance
@@ -162,6 +174,12 @@ namespace gip.ext.design.avui
         public abstract void Reset();
 
         /// <summary>
+        /// Gets the value of <see cref="ValueOnInstance"/> as an instance of T (converted using <see cref="TypeConverter"/> if required and the converter is capable).
+        /// If the property is not set, or does not match type T, this returns the default value.
+        /// </summary>
+        public abstract T GetConvertedValueOnInstance<T>();
+
+        /// <summary>
         /// Gets the parent design item.
         /// </summary>
         public abstract DesignItem DesignItem { get; }
@@ -169,7 +187,7 @@ namespace gip.ext.design.avui
         /// <summary>
         /// Gets the dependency property, or null if this property does not represent a dependency property.
         /// </summary>
-        public abstract DependencyProperty DependencyProperty { get; }
+        public abstract AvaloniaProperty DependencyProperty { get; }
 
         /// <summary>
         /// Gets if this property is considered "advanced" and should be hidden by default in a property grid.
@@ -188,6 +206,15 @@ namespace gip.ext.design.avui
         }
 
         /// <summary>
+        /// Gets the View of the Value or the ValueOnInstance 
+        /// (e.g. a Content Property has a DesignItem if it's a Complex Object, if it's only a Text it only has ValueOnInstance)
+        /// </summary>		
+        public object ValueOnInstanceOrView
+        {
+            get { return Value == null ? ValueOnInstance : Value.View; }
+        }
+
+        /// <summary>
         /// Gets the full name of the dependency property. Returns the normal FullName if the property
         /// isn't a dependency property.
         /// </summary>
@@ -201,6 +228,21 @@ namespace gip.ext.design.avui
                 }
                 return FullName;
             }
+        }
+
+        /// <summary>
+        /// It's raised when a property value changes.
+        /// </summary>
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// Raises the Property changed Event for the speciefied Property
+        /// </summary>
+        /// <param name="propertyName"></param>
+        protected virtual void OnPropertyChanged(string propertyName)
+        {
+            var handler = PropertyChanged;
+            if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 
@@ -222,7 +264,7 @@ namespace gip.ext.design.avui
         /// The property must not be an attached property.
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Design", "CA1043")]
-        public DesignItemProperty this[DependencyProperty dependencyProperty]
+        public DesignItemProperty this[AvaloniaProperty dependencyProperty]
         {
             get
             {
@@ -246,7 +288,7 @@ namespace gip.ext.design.avui
         /// Gets the design item property representing the specified dependency property.
         /// The property must not be an attached property.
         /// </summary>
-        public DesignItemProperty GetProperty(DependencyProperty dependencyProperty)
+        public DesignItemProperty GetProperty(AvaloniaProperty dependencyProperty)
         {
             if (dependencyProperty == null)
                 throw new ArgumentNullException("dependencyProperty");
@@ -256,7 +298,7 @@ namespace gip.ext.design.avui
         /// <summary>
         /// Gets the design item property representing the specified attached dependency property.
         /// </summary>
-        public DesignItemProperty GetAttachedProperty(DependencyProperty dependencyProperty)
+        public DesignItemProperty GetAttachedProperty(AvaloniaProperty dependencyProperty)
         {
             if (dependencyProperty == null)
                 throw new ArgumentNullException("dependencyProperty");

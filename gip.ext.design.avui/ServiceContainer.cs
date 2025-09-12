@@ -49,12 +49,41 @@ namespace gip.ext.design.avui
 				subscriber.DynamicInvoke(serviceInstance);
 			}
 		}
-		
-		/// <summary>
-		/// Gets the service object of the specified type.
-		/// Returns null when the service is not available.
-		/// </summary>
-		public object GetService(Type serviceType)
+
+        /// <summary>
+        /// Adds a new service to the container or Replaces a existing one.
+        /// </summary>
+        /// <param name="serviceInterface">
+        /// The type of the service interface to use as a key for the service.
+        /// </param>
+        /// <param name="serviceInstance">
+        /// The service instance implementing that interface.
+        /// </param>
+        public void AddOrReplaceService(Type serviceInterface, object serviceInstance)
+        {
+            if (serviceInterface == null)
+                throw new ArgumentNullException("serviceInterface");
+            if (serviceInstance == null)
+                throw new ArgumentNullException("serviceInstance");
+
+            if (_services.ContainsKey(serviceInterface))
+                _services.Remove(serviceInterface);
+
+            _services.Add(serviceInterface, serviceInstance);
+
+            Delegate subscriber;
+            if (_waitingSubscribers.TryGetValue(serviceInterface, out subscriber))
+            {
+                _waitingSubscribers.Remove(serviceInterface);
+                subscriber.DynamicInvoke(serviceInstance);
+            }
+        }
+
+        /// <summary>
+        /// Gets the service object of the specified type.
+        /// Returns null when the service is not available.
+        /// </summary>
+        public object GetService(Type serviceType)
 		{
 			object instance;
 			_services.TryGetValue(serviceType, out instance);
@@ -115,22 +144,34 @@ namespace gip.ext.design.avui
 				return GetRequiredService<ISelectionService>();
 			}
 		}
-		
-		/// <summary>
-		/// Gets the <see cref="IToolService"/>.
-		/// Throws an exception if the service is not found.
-		/// </summary>
-		public IToolService Tool {
+
+        /// <summary>
+        /// Gets the <see cref="IToolService"/>.
+        /// Throws an exception if the service is not found.
+        /// </summary>
+        public IToolService Tool {
 			get {
 				return GetRequiredService<IToolService>();
 			}
 		}
-		
-		/// <summary>
-		/// Gets the <see cref="IComponentService"/>.
-		/// Throws an exception if the service is not found.
-		/// </summary>
-		public IComponentService Component {
+
+        /// <summary>
+        /// Gets the <see cref="ICopyPasteService"/>.
+        /// Throws an exception if the service is not found.
+        /// </summary>
+        public ICopyPasteService CopyPasteService
+        {
+            get
+            {
+                return GetRequiredService<ICopyPasteService>();
+            }
+        }
+
+        /// <summary>
+        /// Gets the <see cref="IComponentService"/>.
+        /// Throws an exception if the service is not found.
+        /// </summary>
+        public IComponentService Component {
 			get {
 				return GetRequiredService<IComponentService>();
 			}
