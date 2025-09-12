@@ -146,9 +146,10 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
+        public GS1Model GS1Model { get; private set; }
+
         private void RenderBarcode(object value)
         {
-
             if (value == null)
                 return;
             string strValue = null;
@@ -159,8 +160,10 @@ namespace gip.core.reporthandler.Flowdoc
 
                 if (strColumnKeys.Length == strValueIdentifiers.Length)
                 {
-                    Dictionary<string, string> input = GetGS1Data(value, strColumnKeys, strValueIdentifiers);
+                    Dictionary<string, string> input = GS1.GetGS1Data(value, strColumnKeys, strValueIdentifiers);
                     strValue = GS1.GenerateRawString(input, false);
+                    GS1Model = GS1.GetGS1Model(strValue, strColumnKeys, input);
+                    SetValue(ValueProperty, strValue);
                 }
             }
             else
@@ -232,62 +235,5 @@ namespace gip.core.reporthandler.Flowdoc
             }
         }
 
-
-        #region GS1
-
-        private Dictionary<string, string> GetGS1Data(object value, string[] strColumnKeys, string[] strValueIdentifiers)
-        {
-            Dictionary<string, string> input = new Dictionary<string, string>();
-            for (int i = 0; i < strColumnKeys.Count(); i++)
-            {
-                string columnKey = strColumnKeys[i];
-                AII ai = GS1.GetAII(columnKey);
-                // provide value
-                string valueIdentifier = strValueIdentifiers[i];
-                string strValue = GetObjectValue(value, valueIdentifier);
-
-                if(!string.IsNullOrEmpty(strValue))
-                {
-                    input.Add(ai.AI, strValue);
-                }
-            }
-            return input;
-        }
-
-
-        private static string GetObjectValue(object value, string valueIdentifier)
-        {
-            string returnValue = null;
-            if (value == null)
-            {
-                returnValue = string.Empty;
-            }
-            else
-            {
-                if (value is IACObject)
-                {
-                    object tempObject = (value as IACObject).ACUrlCommand(valueIdentifier);
-                    if (tempObject != null)
-                    {
-                        if (tempObject is DateTime)
-                        {
-                            returnValue = ((DateTime)tempObject).ToString("yyMMdd", System.Globalization.CultureInfo.InvariantCulture);
-                        }
-                        else
-                        {
-                            returnValue = tempObject.ToString();
-                        }
-                    }
-                }
-                else
-                {
-                    returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
-                }
-            }
-
-            return returnValue;
-        }
-
-        #endregion
     }
 }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -85,14 +84,6 @@ namespace gip.core.datamodel
         private static int maxLengthOfAI = 4;
         private static char groupSeparator = (char)29;
         private static string ean128StartCode = "]C1";
-        //private static bool hasCheckSum = true;
-
-        //public static bool HasCheckSum
-        //{
-        //    get { return GS1.hasCheckSum; }
-        //    set { GS1.hasCheckSum = value; }
-        //}
-
         public static char GroupSeparator
         {
             get { return GS1.groupSeparator; }
@@ -373,6 +364,83 @@ namespace gip.core.datamodel
                 }
             }
             return GenerateRawString(tmpImput, useEanStartCode);
+        }
+
+        public static string BuildHriString(string[] aiOrder, Dictionary<string, string> input)
+        {
+            var parts = new List<string>(aiOrder.Length);
+            foreach (var ai in aiOrder)
+            {
+                if (string.IsNullOrWhiteSpace(ai)) continue;
+                if (input.TryGetValue(ai, out var val) && !string.IsNullOrWhiteSpace(val))
+                {
+                    parts.Add($"({ai}){val}");
+                }
+            }
+            return string.Join(" ", parts);
+        }
+
+        public static Dictionary<string, string> GetGS1Data(object value, string[] strColumnKeys, string[] strValueIdentifiers)
+        {
+            Dictionary<string, string> input = new Dictionary<string, string>();
+            for (int i = 0; i < strColumnKeys.Count(); i++)
+            {
+                string columnKey = strColumnKeys[i];
+                AII ai = GS1.GetAII(columnKey);
+                // provide value
+                string valueIdentifier = strValueIdentifiers[i];
+                string strValue = GetObjectValue(value, valueIdentifier);
+
+                if (!string.IsNullOrEmpty(strValue))
+                {
+                    input.Add(ai.AI, strValue);
+                }
+            }
+            return input;
+        }
+
+        public static GS1Model GetGS1Model(string strValue, string[] aiOrder, Dictionary<string, string> input)
+        {
+            GS1Model model = new GS1Model();
+            model.RawGs1Value = strValue;
+            model.EscPosPayload = "{B}{1}" + strValue.Replace(GS1Model.GS.ToString(), "{1}");
+            model.ZplPayload = ">8" + strValue.Replace(GS1Model.GS.ToString(), "_1D");
+            model.HriText = BuildHriString(aiOrder, input);
+            model.IsGs1 = true;
+            return model;
+        }
+
+        private static string GetObjectValue(object value, string valueIdentifier)
+        {
+            string returnValue = null;
+            if (value == null)
+            {
+                returnValue = string.Empty;
+            }
+            else
+            {
+                if (value is IACObject)
+                {
+                    object tempObject = (value as IACObject).ACUrlCommand(valueIdentifier);
+                    if (tempObject != null)
+                    {
+                        if (tempObject is DateTime)
+                        {
+                            returnValue = ((DateTime)tempObject).ToString("yyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            returnValue = tempObject.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
+                }
+            }
+
+            return returnValue;
         }
 
         /// <summary>
