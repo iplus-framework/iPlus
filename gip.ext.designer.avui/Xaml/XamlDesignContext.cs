@@ -76,9 +76,12 @@ namespace gip.ext.designer.avui.Xaml
 			if (this.Services.GetService(typeof(ITopLevelWindowService)) == null) {
 				this.Services.AddService(typeof(ITopLevelWindowService), new WpfTopLevelWindowService());
 			}
-			
-			// register extensions from the designer assemblies:
-			foreach (Assembly designerAssembly in loadSettings.DesignerAssemblies) 
+
+            EditorManager.SetDefaultTextBoxEditorType(typeof(TextBoxEditor));
+            EditorManager.SetDefaultComboBoxEditorType(typeof(ComboBoxEditor));
+
+            // register extensions from the designer assemblies:
+            foreach (Assembly designerAssembly in loadSettings.DesignerAssemblies) 
 			{
 				try
 				{

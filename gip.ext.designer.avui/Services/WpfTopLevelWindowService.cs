@@ -2,14 +2,15 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
+using Avalonia;
+using Avalonia.Controls;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Services
 {
 	sealed class WpfTopLevelWindowService : ITopLevelWindowService
 	{
-		public ITopLevelWindow GetTopLevelWindow(System.Windows.UIElement element)
+		public ITopLevelWindow GetTopLevelWindow(Control element)
 		{
 			Window window = Window.GetWindow(element);
 			if (window != null)

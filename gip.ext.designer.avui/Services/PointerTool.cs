@@ -2,7 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows.Input;
+using Avalonia.Input;
 using gip.ext.design.avui;
 using System.Linq;
 
@@ -26,7 +26,7 @@ namespace gip.ext.designer.avui.Services
 			designPanel.MouseDown -= OnMouseDown;
 		}
 		
-		void OnMouseDown(object sender, MouseButtonEventArgs e)
+		void OnMouseDown(object sender, PointerEventArgs e)
 		{
 			IDesignPanel designPanel = (IDesignPanel)sender;
 			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);

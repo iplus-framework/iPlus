@@ -2,6 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
+using Avalonia;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Services
@@ -15,7 +16,7 @@ namespace gip.ext.designer.avui.Services
 			this.context = context;
 		}
 		
-		public override DesignItem GetModel(System.Windows.DependencyObject view)
+		public override DesignItem GetModel(AvaloniaObject view)
 		{
 			// In the WPF designer, we do not support having a different view for a component
 			return context.Services.Component.GetDesignItem(view);

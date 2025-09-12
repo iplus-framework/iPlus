@@ -2,7 +2,8 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
+using Avalonia;
+using Avalonia.Controls;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
 
@@ -12,9 +13,9 @@ namespace gip.ext.designer.avui.Services
 	{
 		sealed class AttachedErrorBalloon : ErrorBalloon
 		{
-			FrameworkElement attachTo;
+			Control attachTo;
 			
-			public AttachedErrorBalloon(FrameworkElement attachTo, UIElement errorElement)
+			public AttachedErrorBalloon(Control attachTo, Control errorElement)
 			{
 				this.attachTo = attachTo;
 				this.Content = errorElement;
@@ -23,8 +24,8 @@ namespace gip.ext.designer.avui.Services
 			internal void AttachEvents()
 			{
 				attachTo.Unloaded += OnCloseEvent;
-				attachTo.PreviewKeyDown += OnCloseEvent;
-				attachTo.PreviewMouseDown += OnCloseEvent;
+				attachTo.KeyDown += OnCloseEvent;
+				attachTo.PointerPressed += OnCloseEvent;
 				attachTo.LostFocus += OnCloseEvent;
 			}
 			
@@ -36,8 +37,8 @@ namespace gip.ext.designer.avui.Services
 			protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
 			{
 				attachTo.Unloaded -= OnCloseEvent;
-				attachTo.PreviewKeyDown -= OnCloseEvent;
-				attachTo.PreviewMouseDown -= OnCloseEvent;
+				attachTo.KeyDown -= OnCloseEvent;
+				attachTo.PointerPressed -= OnCloseEvent;
 				attachTo.LostFocus -= OnCloseEvent;
 				base.OnClosing(e);
 			}
@@ -56,7 +57,7 @@ namespace gip.ext.designer.avui.Services
 			this.services = context.Services;
 		}
 		
-		public void ShowErrorTooltip(FrameworkElement attachTo, UIElement errorElement)
+		public void ShowErrorTooltip(Control attachTo, Control errorElement)
 		{
 			if (attachTo == null)
 				throw new ArgumentNullException("attachTo");
@@ -64,7 +65,7 @@ namespace gip.ext.designer.avui.Services
 				throw new ArgumentNullException("errorElement");
 			
 			AttachedErrorBalloon b = new AttachedErrorBalloon(attachTo, errorElement);
-			Point pos = attachTo.PointToScreen(new Point(0, attachTo.ActualHeight));
+            PixelPoint pos = attachTo.PointToScreen(new Point(0, attachTo.Bounds.Height));
 			b.Left = pos.X;
 			b.Top = pos.Y - 8;
 			b.Focusable = false;

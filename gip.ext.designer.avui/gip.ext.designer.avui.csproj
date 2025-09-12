@@ -43,6 +43,10 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Page Remove="PropertyGrid\Editors\ComboBoxEditor.xaml" />
+    <Page Remove="PropertyGrid\Editors\TextBoxEditor.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Update="System.Core">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -82,6 +86,12 @@
   <ItemGroup>
     <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
+    </None>
+    <None Include="PropertyGrid\Editors\ComboBoxEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+    <None Include="PropertyGrid\Editors\TextBoxEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
     </None>
   </ItemGroup>
   <ItemGroup>

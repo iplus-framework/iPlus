@@ -4,7 +4,7 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Windows.Input;
+using Avalonia.Input;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Services
@@ -42,7 +42,7 @@ namespace gip.ext.designer.avui.Services
             return _bindings.FirstOrDefault(binding => binding.Key == gesture.Key && binding.Modifiers == gesture.Modifiers);
         }
 
-        public KeyBinding GetBinding(InputEventArgs e)
+        public KeyBinding GetBinding(KeyEventArgs e)
         {
             return _bindings.FirstOrDefault(binding => binding.Gesture.Matches(null,e));
         }

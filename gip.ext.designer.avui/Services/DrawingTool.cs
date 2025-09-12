@@ -2,9 +2,9 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Controls.Shapes;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Extensions;
@@ -106,7 +106,7 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
-        public virtual void OnMouseDown(object sender, MouseButtonEventArgs e)
+        public virtual void OnMouseDown(object sender, PointerEventArgs e)
         {
             IDesignPanel designPanel = (IDesignPanel)sender;
             DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
@@ -244,7 +244,7 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
-        public override void OnMouseDown(object sender, MouseButtonEventArgs e)
+        public override void OnMouseDown(object sender, PointerEventArgs e)
         {
             IDesignPanel designPanel = (IDesignPanel)sender;
             if (Keyboard.IsKeyDown(Key.LeftCtrl))
