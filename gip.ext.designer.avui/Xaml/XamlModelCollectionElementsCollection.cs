@@ -8,16 +8,19 @@ using System.Collections.ObjectModel;
 using gip.ext.xamldom.avui;
 using gip.ext.designer.avui.Services;
 using gip.ext.design.avui;
+using System.Collections.Specialized;
 
 namespace gip.ext.designer.avui.Xaml
 {
-    sealed class XamlModelCollectionElementsCollection : IMoveableItemsList<DesignItem>
-	{
+    sealed class XamlModelCollectionElementsCollection : IMoveableItemsList<DesignItem>, INotifyCollectionChanged
+    {
 		readonly XamlModelProperty modelProperty;
 		readonly XamlProperty property;
 		readonly XamlDesignContext context;
-		
-		public XamlModelCollectionElementsCollection(XamlModelProperty modelProperty, XamlProperty property)
+
+        public event NotifyCollectionChangedEventHandler CollectionChanged;
+
+        public XamlModelCollectionElementsCollection(XamlModelProperty modelProperty, XamlProperty property)
 		{
 			this.modelProperty = modelProperty;
 			this.property = property;
@@ -46,9 +49,13 @@ namespace gip.ext.designer.avui.Xaml
 			while (this.Count > 0) {
 				RemoveAt(this.Count - 1);
 			}
-		}
-		
-		public bool Contains(DesignItem item)
+
+            if (CollectionChanged != null)
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+
+        }
+
+        public bool Contains(DesignItem item)
 		{
 			XamlDesignItem xitem = CheckItemNoException(item);
 			if (xitem != null)
@@ -139,8 +146,13 @@ namespace gip.ext.designer.avui.Xaml
 		{
 			Execute(new RemoveAtAction(this, index, (XamlDesignItem)this[index]));
 		}
-		
-		void Execute(ITransactionItem item)
+
+        internal ITransactionItem CreateResetTransaction()
+        {
+            return new ResetAction(this);
+        }
+
+        void Execute(ITransactionItem item)
 		{
 			UndoService undoService = context.Services.GetService<UndoService>();
 			if (undoService != null)
@@ -151,16 +163,73 @@ namespace gip.ext.designer.avui.Xaml
 		
 		void RemoveInternal(int index, XamlDesignItem item)
 		{
-			Debug.Assert(property.CollectionElements[index] == item.XamlObject);
+            if (item != null)
+                RemoveFromNamescopeRecursive(item);
+
+            if (item != null)
+            {
+                Debug.Assert(property.CollectionElements[index] == item.XamlObject);
+            }
+            Debug.Assert(property.CollectionElements[index] == item.XamlObject);
 			property.CollectionElements.RemoveAt(index);
-		}
-		
-		void InsertInternal(int index, XamlDesignItem item)
+
+            if (CollectionChanged != null)
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+
+        }
+
+        void InsertInternal(int index, XamlDesignItem item)
 		{
 			property.CollectionElements.Insert(index, item.XamlObject);
-		}
-		
-		sealed class InsertAction : ITransactionItem
+
+            if (CollectionChanged != null)
+                CollectionChanged(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+
+            if (item != null)
+                AddToNamescopeRecursive(item);
+        }
+
+        private static void RemoveFromNamescopeRecursive(XamlDesignItem designItem)
+        {
+            NameScopeHelper.NameChanged(designItem.XamlObject, designItem.Name, null);
+
+            foreach (var p in designItem.Properties)
+            {
+                if (p.Value != null)
+                {
+                    RemoveFromNamescopeRecursive((XamlDesignItem)p.Value);
+                }
+                else if (p.IsCollection && p.CollectionElements != null)
+                {
+                    foreach (var c in p.CollectionElements)
+                    {
+                        RemoveFromNamescopeRecursive((XamlDesignItem)c);
+                    }
+                }
+            }
+        }
+
+        private static void AddToNamescopeRecursive(XamlDesignItem designItem)
+        {
+            NameScopeHelper.NameChanged(designItem.XamlObject, null, designItem.Name);
+
+            foreach (var p in designItem.Properties)
+            {
+                if (p.Value != null)
+                {
+                    AddToNamescopeRecursive((XamlDesignItem)p.Value);
+                }
+                else if (p.IsCollection && p.CollectionElements != null)
+                {
+                    foreach (var c in p.CollectionElements)
+                    {
+                        AddToNamescopeRecursive((XamlDesignItem)c);
+                    }
+                }
+            }
+        }
+
+        sealed class InsertAction : ITransactionItem
 		{
 			readonly XamlModelCollectionElementsCollection collection;
 			readonly int index;
@@ -245,6 +314,68 @@ namespace gip.ext.designer.avui.Xaml
 				return false;
 			}
 		}
+
+        sealed class ResetAction : ITransactionItem
+        {
+            readonly XamlModelCollectionElementsCollection collection;
+            readonly XamlDesignItem[] items;
+
+            public ResetAction(XamlModelCollectionElementsCollection collection)
+            {
+                this.collection = collection;
+
+                items = new XamlDesignItem[collection.Count];
+                for (int i = 0; i < collection.Count; i++)
+                {
+                    items[i] = (XamlDesignItem)collection[i];
+                }
+            }
+
+            #region ITransactionItem implementation
+
+            public void Do()
+            {
+                for (int i = items.Length - 1; i >= 0; i--)
+                {
+                    collection.RemoveInternal(i, items[i]);
+                }
+                collection.modelProperty.XamlDesignItem.NotifyPropertyChanged(collection.modelProperty, items, null);
+            }
+            public void Undo()
+            {
+                for (int i = 0; i < items.Length; i++)
+                {
+                    collection.InsertInternal(i, items[i]);
+                }
+                collection.modelProperty.XamlDesignItem.NotifyPropertyChanged(collection.modelProperty, null, items);
+            }
+            public bool MergeWith(ITransactionItem other)
+            {
+                return false;
+            }
+
+            #endregion
+
+            #region IUndoAction implementation
+
+            public ICollection<DesignItem> AffectedElements
+            {
+                get
+                {
+                    return new DesignItem[] { collection.modelProperty.DesignItem };
+                }
+            }
+
+            public string Title
+            {
+                get
+                {
+                    return "Reset collection";
+                }
+            }
+
+            #endregion
+        }
 
         #region Gip-Extension
         public int MoveForward(DesignItem item)

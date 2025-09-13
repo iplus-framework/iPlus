@@ -19,9 +19,11 @@ namespace gip.ext.designer.avui.Controls
 		{
 			PanToolCursor = GetCursor("Images/PanToolCursor.cur");
 			PanToolCursorMouseDown = GetCursor("Images/PanToolCursorMouseDown.cur");
-		}
-		
-		public static Cursor GetCursor(string path)
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(ZoomControl), new FrameworkPropertyMetadata(typeof(ZoomControl)));
+
+        }
+
+        public static Cursor GetCursor(string path)
 		{
 			var a = Assembly.GetExecutingAssembly();
 			var m = new ResourceManager(a.GetName().Name + ".g", a);
@@ -30,7 +32,26 @@ namespace gip.ext.designer.avui.Controls
 			}
 		}
 
-		static Cursor PanToolCursor;
+        public object AdditionalControls
+        {
+            get { return (object)GetValue(AdditionalControlsProperty); }
+            set { SetValue(AdditionalControlsProperty, value); }
+        }
+
+        public static readonly DependencyProperty AdditionalControlsProperty =
+            DependencyProperty.Register("AdditionalControls", typeof(object), typeof(ZoomControl), new PropertyMetadata(null));
+
+        internal static Cursor GetCursor(string path)
+        {
+            var a = Assembly.GetExecutingAssembly();
+            var m = new ResourceManager(a.GetName().Name + ".g", a);
+            using (Stream s = m.GetStream(path.ToLowerInvariant()))
+            {
+                return new Cursor(s);
+            }
+        }
+
+        static Cursor PanToolCursor;
 		static Cursor PanToolCursorMouseDown;
 		
 		double startHorizontalOffset;
@@ -83,7 +104,13 @@ namespace gip.ext.designer.avui.Controls
 
 		protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
 		{
-			if (pan && !e.Handled) {
+            if (!pan && e.MiddleButton == MouseButtonState.Pressed)
+            {
+                pan = true;
+                Mouse.UpdateCursor();
+            }
+
+            if (pan && !e.Handled) {
 				if (Mouse.Capture(this)) {
 					isMouseDown = true;
 					e.Handled = true;
@@ -106,7 +133,13 @@ namespace gip.ext.designer.avui.Controls
 
 		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
 		{
-			if (isMouseDown) {
+            if (pan && e.MiddleButton != MouseButtonState.Pressed && !Keyboard.IsKeyDown(Key.Space))
+            {
+                pan = false;
+                Mouse.UpdateCursor();
+            }
+
+            if (isMouseDown) {
 				isMouseDown = false;
 				ReleaseMouseCapture();
 				Mouse.UpdateCursor();

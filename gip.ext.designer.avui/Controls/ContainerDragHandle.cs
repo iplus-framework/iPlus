@@ -24,5 +24,28 @@ namespace gip.ext.designer.avui.Controls
 			//This style is defined in themes\generic.xaml
 			DefaultStyleKeyProperty.OverrideMetadata(typeof(ContainerDragHandle), new FrameworkPropertyMetadata(typeof(ContainerDragHandle)));
 		}
-	}
+
+        private ScaleTransform scaleTransform;
+
+        public ContainerDragHandle()
+        {
+            scaleTransform = new ScaleTransform(1.0, 1.0);
+            this.LayoutTransform = scaleTransform;
+        }
+
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+
+            var surface = this.TryFindParent<DesignSurface>();
+            if (surface != null && surface.ZoomControl != null)
+            {
+                var bnd = new Binding("CurrentZoom") { Source = surface.ZoomControl };
+                bnd.Converter = InvertedZoomConverter.Instance;
+
+                BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleXProperty, bnd);
+                BindingOperations.SetBinding(scaleTransform, ScaleTransform.ScaleYProperty, bnd);
+            }
+        }
+    }
 }

@@ -20,19 +20,42 @@ using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Extensions
 {
-    [CLSCompliant(false)]
     public class SnaplinePlacementBehavior : DefaultPlacementBehavior
 	{
-		AdornerPanel adornerPanel;
+        public static bool GetDisableSnaplines(DependencyObject obj)
+        {
+            return (bool)obj.GetValue(DisableSnaplinesProperty);
+        }
+
+        public static void SetDisableSnaplines(DependencyObject obj, bool value)
+        {
+            obj.SetValue(DisableSnaplinesProperty, value);
+        }
+
+        public static readonly DependencyProperty DisableSnaplinesProperty =
+            DependencyProperty.RegisterAttached("DisableSnaplines", typeof(bool), typeof(SnaplinePlacementBehavior), new PropertyMetadata(false));
+
+        AdornerPanel adornerPanel;
 		Canvas surface;
 		List<Snapline> horizontalMap;
 		List<Snapline> verticalMap;
 		double? baseline;
 
-		public const double Accuracy = 5;
-		public const double Margin = 8;
+        private static double _snaplineMargin = 8;
+        public static double SnaplineMargin
+        {
+            get { return _snaplineMargin; }
+            set { _snaplineMargin = value; }
+        }
 
-		public override void BeginPlacement(PlacementOperation operation)
+        private static double _snaplineAccuracy = 5;
+        public static double SnaplineAccuracy
+        {
+            get { return _snaplineAccuracy; }
+            set { _snaplineAccuracy = value; }
+        }
+
+        public override void BeginPlacement(PlacementOperation operation)
 		{
 			base.BeginPlacement(operation);
 			CreateSurface(operation);
@@ -56,7 +79,64 @@ namespace gip.ext.designer.avui.Extensions
 			DeleteSurface();
 		}
 
-		public override void BeforeSetPosition(PlacementOperation operation)
+        public override Point PlacePoint(Point point)
+        {
+            if (surface == null)
+                return base.PlacePoint(point);
+
+            DesignPanel designPanel = ExtendedItem.Services.DesignPanel as DesignPanel;
+            if (designPanel == null || !designPanel.UseSnaplinePlacement)
+                return base.PlacePoint(point); ;
+
+            surface.Children.Clear();
+            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+                return base.PlacePoint(point); ;
+
+            Rect bounds = new Rect(point.X, point.Y, 0, 0);
+
+            var horizontalInput = new List<Snapline>();
+            var verticalInput = new List<Snapline>();
+
+            AddLines(bounds, 0, false, horizontalInput, verticalInput, null);
+            if (baseline.HasValue)
+            {
+                var textOffset = bounds.Top + baseline.Value;
+                horizontalInput.Add(new Snapline() { Group = 1, Offset = textOffset, Start = bounds.Left, End = bounds.Right });
+            }
+
+            List<Snapline> drawLines;
+            double delta;
+
+            var newPoint = base.PlacePoint(point);
+            if (Snap(horizontalInput, horizontalMap, SnaplineAccuracy, out drawLines, out delta))
+            {
+                foreach (var d in drawLines)
+                {
+                    DrawLine(d.Start, d.Offset + d.DrawOffset, d.End, d.Offset + d.DrawOffset);
+                }
+
+                point.Y += delta;
+            }
+            else
+                point.Y = newPoint.Y;
+
+            if (Snap(verticalInput, verticalMap, SnaplineAccuracy, out drawLines, out delta))
+            {
+                foreach (var d in drawLines)
+                {
+                    DrawLine(d.Offset + d.DrawOffset, d.Start, d.Offset + d.DrawOffset, d.End);
+                }
+
+                point.X += delta;
+            }
+            else
+                point.X = newPoint.X;
+
+
+            return point;
+        }
+
+        public override void BeforeSetPosition(PlacementOperation operation)
 		{
 			base.BeforeSetPosition(operation);
 			if (surface == null) return;
@@ -95,54 +175,100 @@ namespace gip.ext.designer.avui.Extensions
 			List<Snapline> drawLines;
 			double delta;
 
-			if (Snap(horizontalInput, horizontalMap, Accuracy, out drawLines, out delta)) {
+            if (Snap(horizontalInput, horizontalMap, SnaplineAccuracy, out drawLines, out delta))
+            {
 
-				if (operation.Type == PlacementType.Resize) {
-					if (info.ResizeThumbAlignment.Vertical == VerticalAlignment.Top) {
-						bounds.Y += delta;
-						bounds.Height = Math.Max(0, bounds.Height - delta);
-					} else {
-						bounds.Height = Math.Max(0, bounds.Height + delta);
-					}
-					info.Bounds = bounds;
-				} else {
-					foreach (var item in operation.PlacedItems) {
-						var r = item.Bounds;
-						r.Y += delta;
-						item.Bounds = r;
-					}
-				}
+                if (operation.Type == PlacementType.Resize)
+                {
+                    if (info.ResizeThumbAlignment != null && info.ResizeThumbAlignment.Value.Vertical == VerticalAlignment.Top)
+                    {
+                        bounds.Y += delta;
+                        bounds.Height = Math.Max(0, bounds.Height - delta);
+                        if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
+                        {
+                            bounds.Y = Math.Round(bounds.Y);
+                            bounds.Height = Math.Round(bounds.Height);
+                        }
+                    }
+                    else
+                    {
+                        bounds.Height = Math.Max(0, bounds.Height + delta);
 
-				foreach (var d in drawLines) {
-					DrawLine(d.Start, d.Offset, d.End, d.Offset);
-				}
-			}
+                        if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
+                        {
+                            bounds.Height = Math.Round(bounds.Height);
+                        }
+                    }
+                    info.Bounds = bounds;
+                }
+                else
+                {
+                    foreach (var item in operation.PlacedItems)
+                    {
+                        var r = item.Bounds;
+                        r.Y += delta;
+                        if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
+                        {
+                            r.Y = Math.Round(r.Y);
+                        }
+                        item.Bounds = r;
+                    }
+                }
 
-			if (Snap(verticalInput, verticalMap, Accuracy, out drawLines, out delta)) {
+                foreach (var d in drawLines)
+                {
+                    DrawLine(d.Start, d.Offset + d.DrawOffset, d.End, d.Offset + d.DrawOffset);
+                }
+            }
 
-				if (operation.Type == PlacementType.Resize) {
-					if (info.ResizeThumbAlignment.Horizontal == HorizontalAlignment.Left) {
-						bounds.X += delta;
-						bounds.Width = Math.Max(0, bounds.Width - delta);
-					} else {
-						bounds.Width = Math.Max(0, bounds.Width + delta);
-					}
-					info.Bounds = bounds;
-				} else {
-					foreach (var item in operation.PlacedItems) {
-						var r = item.Bounds;
-						r.X += delta;
-						item.Bounds = r;
-					}
-				}
-				
-				foreach (var d in drawLines) {
-					DrawLine(d.Offset, d.Start, d.Offset, d.End);
-				}
-			}
-		}
+            if (Snap(verticalInput, verticalMap, SnaplineAccuracy, out drawLines, out delta))
+            {
 
-		void CreateSurface(PlacementOperation operation)
+                if (operation.Type == PlacementType.Resize)
+                {
+                    if (info.ResizeThumbAlignment != null && info.ResizeThumbAlignment.Value.Horizontal == HorizontalAlignment.Left)
+                    {
+                        bounds.X += delta;
+                        bounds.Width = Math.Max(0, bounds.Width - delta);
+                        if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
+                        {
+                            bounds.X = Math.Round(bounds.X);
+                            bounds.Width = Math.Round(bounds.Width);
+                        }
+                    }
+                    else
+                    {
+                        bounds.Width = Math.Max(0, bounds.Width + delta);
+                        if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
+                        {
+                            bounds.Width = Math.Round(bounds.Width);
+                        }
+                    }
+                    info.Bounds = bounds;
+                }
+                else
+                {
+                    foreach (var item in operation.PlacedItems)
+                    {
+                        var r = item.Bounds;
+                        r.X += delta;
+                        if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
+                        {
+                            r.X = Math.Round(r.X);
+                        }
+                        item.Bounds = r;
+                    }
+                }
+
+                foreach (var d in drawLines)
+                {
+                    DrawLine(d.Offset + d.DrawOffset, d.Start, d.Offset + d.DrawOffset, d.End);
+                }
+            }
+
+        }
+
+        void CreateSurface(PlacementOperation operation)
 		{
 			if (ExtendedItem.Services.GetService<IDesignPanel>() != null) {
 
@@ -161,55 +287,130 @@ namespace gip.ext.designer.avui.Extensions
 			}
 		}
 
-		void BuildMaps(PlacementOperation operation)
+        private IEnumerable<DesignItem> AllDesignItems(DesignItem designItem = null)
+        {
+            if (designItem == null && this.ExtendedItem.Services.DesignPanel is DesignPanel)
+                designItem = this.ExtendedItem.Services.DesignPanel.Context.RootItem;
+
+            if (designItem?.ContentProperty != null)
+            {
+                if (designItem.ContentProperty.IsCollection)
+                {
+                    foreach (var collectionElement in designItem.ContentProperty.CollectionElements)
+                    {
+                        if (collectionElement != null)
+                            yield return collectionElement;
+
+                        foreach (var el in AllDesignItems(collectionElement))
+                        {
+                            if (el != null)
+                                yield return el;
+                        }
+                    }
+                }
+                else if (designItem.ContentProperty.Value != null)
+                {
+                    yield return designItem.ContentProperty.Value;
+
+                    foreach (var el in AllDesignItems(designItem.ContentProperty.Value))
+                    {
+                        if (el != null)
+                            yield return el;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Method Returns the DesignItems for wich Snaplines are created
+        /// </summary>
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        protected IEnumerable<DesignItem> GetSnapToDesignItems(PlacementOperation operation)
+        {
+            return AllDesignItems();
+        }
+
+        void BuildMaps(PlacementOperation operation)
 		{
-			horizontalMap = new List<Snapline>();
-			verticalMap = new List<Snapline>();
+            horizontalMap = new List<Snapline>();
+            verticalMap = new List<Snapline>();
 
-			var containerRect = new Rect(0, 0, ModelTools.GetWidth(ExtendedItem.View), ModelTools.GetHeight(ExtendedItem.View));
-			AddLines(containerRect, -Margin, false);
+            var containerRect = new Rect(0, 0, ModelTools.GetWidth(ExtendedItem.View), ModelTools.GetHeight(ExtendedItem.View));
+            if (SnaplineMargin > 0)
+            {
+                AddLines(containerRect, -SnaplineMargin, false);
+            }
 
-			foreach (var item in ExtendedItem.ContentProperty.CollectionElements
-			         .Except(operation.PlacedItems.Select(f => f.Item)))
-			{
-				var bounds = GetPosition(operation, item, false);
+            AddLines(containerRect, 0, false);
 
-				AddLines(bounds, 0, false);
-				AddLines(bounds, Margin, true);
-				AddBaseline(item, bounds, horizontalMap);
-			}
-		}
+            AddContainerSnaplines(containerRect, horizontalMap, verticalMap);
 
-		void AddLines(Rect r, double inflate, bool requireOverlap)
-		{
-			AddLines(r, inflate, requireOverlap, horizontalMap, verticalMap, null);
-		}
+            if (!CanPlace(operation.PlacedItems.Select(x => x.Item), operation.Type, PlacementAlignment.Center))
+                return;
 
-		void AddLines(Rect r, double inflate, bool requireOverlap, List<Snapline> h, List<Snapline> v, PlacementAlignment? filter)
-		{
-			Rect r2 = r;
-			r2.Inflate(inflate, inflate);
-			
-			if (filter == null || filter.Value.Vertical == VerticalAlignment.Top)
-				h.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Top - 1, Start = r.Left, End = r.Right });
-			if (filter == null || filter.Value.Vertical == VerticalAlignment.Bottom)
-				h.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Bottom, Start = r.Left, End = r.Right });
-			if (filter == null || filter.Value.Horizontal == HorizontalAlignment.Left)
-				v.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Left - 1, Start = r.Top, End = r.Bottom });
-			if (filter == null || filter.Value.Horizontal == HorizontalAlignment.Right)
-				v.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Right, Start = r.Top, End = r.Bottom });
-		}
+            foreach (var item in GetSnapToDesignItems(operation)
+                     .Except(operation.PlacedItems.Select(f => f.Item))
+                     .Where(x => x.View != null && !GetDisableSnaplines(x.View)))
+            {
+                if (item != null)
+                {
+                    var bounds = GetPositionRelativeToContainer(operation, item);
 
-		void AddBaseline(DesignItem item, Rect bounds, List<Snapline> list)
-		{
-			var baseline = GetBaseline(item.View);
-			if (baseline.HasValue) {
-				var textOffset = item.View.TranslatePoint(new Point(0, baseline.Value), ExtendedItem.View).Y;
-				list.Add(new Snapline() { Group = 1, Offset = textOffset, Start = bounds.Left, End = bounds.Right });
-			}
-		}
+                    AddLines(bounds, 0, false);
+                    if (SnaplineMargin > 0)
+                    {
+                        AddLines(bounds, SnaplineMargin, true);
+                    }
+                    AddBaseline(item, bounds, horizontalMap);
+                }
+            }
+        }
 
-		void DeleteSurface()
+        protected virtual void AddContainerSnaplines(Rect containerRect, List<SnaplinePlacementBehavior.Snapline> horizontalMap, List<SnaplinePlacementBehavior.Snapline> verticalMap)
+        {
+        }
+
+        void AddLines(Rect r, double inflate, bool requireOverlap)
+        {
+            AddLines(r, inflate, requireOverlap, horizontalMap, verticalMap, null);
+        }
+
+        void AddLines(Rect r, double inflate, bool requireOverlap, List<Snapline> h, List<Snapline> v, PlacementAlignment? filter)
+        {
+            if (r != Rect.Empty)
+            {
+                Rect r2 = r;
+                r2.Inflate(inflate, inflate);
+
+                if (filter == null || filter.Value.Vertical == VerticalAlignment.Top)
+                    h.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Top - 1, Start = r.Left, End = r.Right });
+                if (filter == null || filter.Value.Vertical == VerticalAlignment.Bottom)
+                    h.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Bottom - 1, Start = r.Left, End = r.Right });
+                if (filter == null || filter.Value.Horizontal == HorizontalAlignment.Left)
+                    v.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Left - 1, Start = r.Top, End = r.Bottom });
+                if (filter == null || filter.Value.Horizontal == HorizontalAlignment.Right)
+                    v.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Right - 1, Start = r.Top, End = r.Bottom });
+
+                if (filter == null)
+                {
+                    h.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Top + Math.Abs((r2.Top - r2.Bottom) / 2) - 1, DrawOffset = 1, Start = r.Left, End = r.Right });
+                    v.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Left + Math.Abs((r2.Left - r2.Right) / 2) - 1, DrawOffset = 1, Start = r.Top, End = r.Bottom });
+                }
+            }
+        }
+
+        void AddBaseline(DesignItem item, Rect bounds, List<Snapline> list)
+        {
+            var baseline = GetBaseline(item.View);
+            if (baseline.HasValue)
+            {
+                var textOffset = item.View.TranslatePoint(new Point(0, baseline.Value), ExtendedItem.View).Y;
+                list.Add(new Snapline() { Group = 1, Offset = textOffset, Start = bounds.Left, End = bounds.Right });
+            }
+        }
+
+        void DeleteSurface()
 		{
 			if (surface != null) {
 				ExtendedItem.Services.DesignPanel.Adorners.Remove(adornerPanel);
@@ -222,7 +423,11 @@ namespace gip.ext.designer.avui.Extensions
 
 		void DrawLine(double x1, double y1, double x2, double y2)
 		{
-			var line1 = new Line() {
+            if (double.IsInfinity(x1) || double.IsNaN(x1) || double.IsInfinity(y1) || double.IsNaN(y1) ||
+    double.IsInfinity(x2) || double.IsNaN(x2) || double.IsInfinity(y2) || double.IsNaN(y2))
+                return;
+
+            var line1 = new Line() {
 				X1 = x1,
 				Y1 = y1,
 				X2 = x2,
@@ -307,11 +512,13 @@ namespace gip.ext.designer.avui.Extensions
 		[DebuggerDisplay("Snapline: {Offset}")]
 		class Snapline
 		{
-			public double Offset;
-			public double Start;
-			public double End;
-			public bool RequireOverlap;
-			public int Group;
-		}
+            public double Offset;
+            public double Start;
+            public double End;
+            public bool RequireOverlap;
+            public int Group;
+
+            public double DrawOffset = 0;
+        }
 	}
 }

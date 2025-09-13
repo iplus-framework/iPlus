@@ -17,12 +17,23 @@ namespace gip.ext.designer.avui.Extensions
 		/// <summary/>
 		protected override void OnInitialized()
 		{
-			// When tab item becomes primary selection, make it the active tab page in its parent tab control.
-			TabItem tabItem = (TabItem)this.ExtendedItem.Component;
-			TabControl tabControl = tabItem.Parent as TabControl;
-			if (tabControl != null) {
-				tabControl.SelectedItem = tabItem;
-			}
+            // When tab item becomes primary selection, make it the active tab page in its parent tab control.
+            var t = this.ExtendedItem;
+            while (t != null)
+            {
+                if (t.Component is TabItem)
+                {
+                    var tabItem = (TabItem)t.Component;
+                    var tabControl = tabItem.Parent as TabControl;
+                    if (tabControl != null)
+                    {
+                        tabControl.SelectedItem = tabItem;
+                    }
+                }
+                t = t.Parent;
+            }
+        }
+    }
 		}
 	}
 }

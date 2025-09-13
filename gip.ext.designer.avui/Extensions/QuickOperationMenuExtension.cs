@@ -167,6 +167,12 @@ namespace gip.ext.designer.avui.Extensions
                     menuItemsAdded++;
                 }
 
+                if (view is Grid)
+                {
+                    _menu.AddSubMenuInTheHeader(new MenuItem() { Header = "Edit Rows" });
+                    _menu.AddSubMenuInTheHeader(new MenuItem() { Header = "Edit Columns" });
+                }
+
                 if (view is StackPanel)
                 {
                     var ch = menuBuilder.CreateMenuItem("Change Orientation");
@@ -288,6 +294,25 @@ namespace gip.ext.designer.avui.Extensions
                             ModelTools.DeleteComponents(new DesignItem[] {extendedItem});
                         }
                     }
+
+                    if ((string)clickedOn.Header == "Edit Rows")
+                    {
+                        var editor = new FlatCollectionEditor(Window.GetWindow(this.ExtendedItem.View));
+                        var gd = this.ExtendedItem.View as Grid;
+                        if (gd != null)
+                            editor.LoadItemsCollection(this.ExtendedItem.Properties["RowDefinitions"]);
+                        editor.Show();
+                    }
+
+                    if ((string)clickedOn.Header == "Edit Columns")
+                    {
+                        var editor = new FlatCollectionEditor(Window.GetWindow(this.ExtendedItem.View));
+                        var gd = this.ExtendedItem.View as Grid;
+                        if (gd != null)
+                            editor.LoadItemsCollection(this.ExtendedItem.Properties["ColumnDefinitions"]);
+                        editor.Show();
+                    }
+
                     if (parent.Header is string && (string)parent.Header == "Change Orientation")
                     {
                         var value = _menu.UncheckChildrenAndSelectClicked(parent, clickedOn);

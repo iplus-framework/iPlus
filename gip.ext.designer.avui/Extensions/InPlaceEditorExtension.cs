@@ -17,11 +17,11 @@ using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Extensions
 {
-	/// <summary>
-	/// Extends In-Place editor to edit any text in the designer which is wrapped in the Visual tree under TexBlock
-	/// </summary>
-	[ExtensionFor(typeof(FrameworkElement))]
-	public class InPlaceEditorExtension : PrimarySelectionAdornerProvider
+    /// <summary>
+    /// Extends In-Place editor to edit any text in the designer which is wrapped in the Visual tree under TexBlock
+    /// </summary>
+    [ExtensionFor(typeof(TextBlock))]
+    public class InPlaceEditorExtension : PrimarySelectionAdornerProvider
 	{
 		AdornerPanel adornerPanel;
 		RelativePlacement placement;
@@ -65,14 +65,16 @@ namespace gip.ext.designer.avui.Extensions
 			
 			/* To update the position of Editor in case of resize operation */
 			ExtendedItem.PropertyChanged += PropertyChanged;
-		}
-		
-		/// <summary>
-		/// Checks whether heigth/width have changed and updates the position of editor
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="e"></param>
-		void PropertyChanged(object sender,PropertyChangedEventArgs e)
+
+            eventsAdded = true;
+        }
+
+        /// <summary>
+        /// Checks whether heigth/width have changed and updates the position of editor
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        void PropertyChanged(object sender,PropertyChangedEventArgs e)
 		{
 			if (textBlock != null) {
 				if (e.PropertyName == "Width"){
@@ -174,22 +176,33 @@ namespace gip.ext.designer.avui.Extensions
 			}
 		}
 		
-		void MouseUp(object sender,MouseEventArgs e)
+		void MouseUp(object sender, MouseEventArgs e)
 		{
-			result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
-			if (result.ModelHit == ExtendedItem && result.VisualHit is TextBlock && numClicks>0){
-				if (!isGettingDragged) {
-					PlaceEditor(result.VisualHit, e);
-					editor.Visibility = Visibility.Visible;
-				}
-			}else{ // Clicked outside the Text - > hide the editor and make the actualt text visible again
-				editor.Visibility = Visibility.Hidden;
-				if (textBlock != null) textBlock.Visibility = Visibility.Visible;
-			}
+            result = designPanel.HitTest(e.GetPosition(designPanel), true, true, HitTestType.Default);
+            if (((result.ModelHit == ExtendedItem && result.VisualHit is TextBlock) || (result.VisualHit != null && result.VisualHit.TryFindParent<InPlaceEditor>() == editor)) && numClicks > 0)
+            {
+                if (!isGettingDragged)
+                {
+                    PlaceEditor(ExtendedItem.View, e);
+                    foreach (var extension in ExtendedItem.Extensions)
+                    {
+                        if (!(extension is InPlaceEditorExtension) && !(extension is SelectedElementRectangleExtension))
+                        {
+                            ExtendedItem.RemoveExtension(extension);
+                        }
+                    }
+                    editor.Visibility = Visibility.Visible;
+                }
+            }
+            else
+            { // Clicked outside the Text - > hide the editor and make the actual text visible again
+                RemoveEventsAndShowControl();
+                this.ExtendedItem.ReapplyAllExtensions();
+            }
 
-			isMouseDown = false;
-			isGettingDragged = false;
-		}
+            isMouseDown = false;
+            isGettingDragged = false;
+        }
 		
 		#endregion
 		
@@ -244,5 +257,26 @@ namespace gip.ext.designer.avui.Extensions
 			designPanel.PreviewMouseLeftButtonUp -= MouseUp;
 			base.OnRemove();
 		}
-	}
+
+        private bool eventsAdded;
+
+        private void RemoveEventsAndShowControl()
+        {
+            editor.Visibility = Visibility.Hidden;
+
+            if (textBlock != null)
+            {
+                textBlock.Visibility = Visibility.Visible;
+            }
+
+            if (eventsAdded)
+            {
+                eventsAdded = false;
+                ExtendedItem.PropertyChanged -= PropertyChanged;
+                designPanel.PreviewMouseLeftButtonDown -= MouseDown;
+                designPanel.PreviewMouseMove -= MouseMove;
+                designPanel.MouseLeftButtonUp -= MouseUp;
+            }
+        }
+    }
 }

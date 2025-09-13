@@ -54,12 +54,40 @@ namespace gip.ext.designer.avui.OutlineView
 			set { SetValue(RootProperty, value); }
 		}
 
-		//public object[] SelectedItems
-		//{
-		//    get { return Selection.Select(item => item.DataContext).ToArray(); }
-		//}
+        //public object[] SelectedItems
+        //{
+        //    get { return Selection.Select(item => item.DataContext).ToArray(); }
+        //}
 
-		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        #region Filtering
+
+        public static readonly DependencyProperty FilterProperty =
+            DependencyProperty.Register("Filter", typeof(string), typeof(DragTreeView), new PropertyMetadata(OnFilterPropertyChanged));
+
+        public string Filter
+        {
+            get { return (string)GetValue(FilterProperty); }
+            set { SetValue(FilterProperty, value); }
+        }
+
+        private static void OnFilterPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var ctl = d as DragTreeView;
+            var ev = ctl.FilterChanged;
+            if (ev != null)
+                ev(ctl.Filter);
+        }
+
+        public event Action<string> FilterChanged;
+
+        public virtual bool ShouldItemBeVisible(DragTreeViewItem dragTreeViewitem)
+        {
+            return true;
+        }
+
+        #endregion
+
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
 		{
 			base.OnPropertyChanged(e);
 			if (e.Property == RootProperty) {
@@ -261,7 +289,7 @@ namespace gip.ext.designer.avui.OutlineView
 			OnSelectionChanged();
 		}
 
-		void SelectOnly(DragTreeViewItem item)
+		protected virtual void SelectOnly(DragTreeViewItem item)
 		{
 			ClearSelection();
 			Select(item);

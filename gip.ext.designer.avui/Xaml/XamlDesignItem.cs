@@ -219,6 +219,14 @@ namespace gip.ext.designer.avui.Xaml
             OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(property.Name));
         }
 
+        internal void NotifyPropertyChanged(XamlModelProperty property, object oldValue, object newValue)
+        {
+            Debug.Assert(property != null);
+            OnPropertyChanged(new System.ComponentModel.PropertyChangedEventArgs(property.Name));
+
+            ((XamlComponentService)this.Services.Component).RaisePropertyChanged(property, oldValue, newValue);
+        }
+
         public override string ContentPropertyName
         {
             get

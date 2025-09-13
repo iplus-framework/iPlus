@@ -13,7 +13,7 @@ namespace gip.ext.design.avui
     /// Gip-Extension
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface IMoveableItemsList<T> : IList<T>
+    public interface IMoveableItemsList<T> : IObservableList<T>
     {
         /// <summary>
         /// 

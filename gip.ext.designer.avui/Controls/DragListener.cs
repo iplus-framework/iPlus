@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using System.Diagnostics;
+using System.Windows.Media;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -20,7 +21,9 @@ namespace gip.ext.designer.avui.Controls
 			InputManager.Current.PostProcessInput += new ProcessInputEventHandler(PostProcessInput);
 		}
 
-		public DragListener(IInputElement target)
+        public Transform Transform { get; set; }
+
+        public DragListener(IInputElement target)
 		{
 			Target = target;
 			
@@ -29,7 +32,22 @@ namespace gip.ext.designer.avui.Controls
 			Target.PreviewMouseLeftButtonUp += Target_MouseUp;
 		}
 
-		static DragListener CurrentListener;
+        public void ExternalStart()
+        {
+            Target_MouseDown(null, null);
+        }
+
+        public void ExternalMouseMove(MouseEventArgs e)
+        {
+            Target_MouseMove(null, e);
+        }
+
+        public void ExternalStop()
+        {
+            Target_MouseUp(null, null);
+        }
+
+        static DragListener CurrentListener;
 
 		static void PostProcessInput(object sender, ProcessInputEventArgs e)
 		{
@@ -51,7 +69,9 @@ namespace gip.ext.designer.avui.Controls
 			DeltaDelta = new Vector();
 			IsDown = true;
 			IsCanceled = false;
-		}
+            if (MouseDown != null)
+                MouseDown(this);
+        }
 
 		void Target_MouseMove(object sender, MouseEventArgs e)
 		{
@@ -95,7 +115,8 @@ namespace gip.ext.designer.avui.Controls
 			}
 		}
 
-		public event DragHandler Started;
+        public event DragHandler MouseDown;
+        public event DragHandler Started;
 		public event DragHandler Changed;
 		public event DragHandler Completed;
 
@@ -108,7 +129,16 @@ namespace gip.ext.designer.avui.Controls
 		public bool IsCanceled { get; private set; }
 		
 		public Vector Delta {
-			get { return CurrentPoint - StartPoint; }
-		}
+            get
+            {
+                if (Transform != null)
+                {
+                    var matrix = Transform.Value;
+                    matrix.Invert();
+                    return matrix.Transform(CurrentPoint - StartPoint);
+                }
+                return CurrentPoint - StartPoint;
+            }
+        }
 	}
 }

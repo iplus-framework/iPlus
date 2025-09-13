@@ -61,7 +61,6 @@
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.ext.design.avui\gip.ext.design.avui.csproj" />
     <ProjectReference Include="..\gip.ext.graphics.avui\gip.ext.graphics.avui.csproj" />
-    <ProjectReference Include="..\gip.ext.widgets.avui\gip.ext.widgets.avui.csproj" />
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">

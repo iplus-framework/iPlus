@@ -1,6 +1,7 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,5 +34,23 @@ namespace gip.ext.designer.avui.OutlineView
 			foreach (var item in items)
 				_customOutlineNodes.Add(item.DataContext as OutlineNode);
 		}
-	}
+
+        public override bool ShouldItemBeVisible(DragTreeViewItem dragTreeViewitem)
+        {
+            var node = dragTreeViewitem.DataContext as IOutlineNode;
+            return string.IsNullOrEmpty(Filter) || node.Services.GetService<IOutlineNodeNameService>().GetOutlineNodeName(node.DesignItem).ToLower().Contains(Filter.ToLower());
+        }
+
+        protected override void SelectOnly(DragTreeViewItem item)
+        {
+            base.SelectOnly(item);
+
+            if (item.DataContext is IOutlineNode node && node.DesignItem != null)
+            {
+                var surface = node.DesignItem.View.TryFindParent<DesignSurface>();
+                if (surface != null)
+                    surface.ScrollIntoView(node.DesignItem);
+            }
+        }
+    }
 }

@@ -101,8 +101,36 @@ namespace gip.ext.designer.avui.Extensions
 			}
 			return grid.RowDefinitions.Count - 1;
 		}
-		
-		static void SetColumn(DesignItem item, int column, int columnSpan)
+
+        protected override void AddContainerSnaplines(Rect containerRect, List<SnaplinePlacementBehavior.Snapline> horizontalMap, List<SnaplinePlacementBehavior.Snapline> verticalMap)
+        {
+            var grid = (Grid)ExtendedItem.View;
+            double offset = 0;
+            foreach (RowDefinition r in grid.RowDefinitions)
+            {
+                offset += r.ActualHeight;
+                horizontalMap.Add(new Snapline() { RequireOverlap = false, Offset = offset, Start = offset, End = containerRect.Right });
+                if (SnaplineMargin > 0)
+                {
+                    horizontalMap.Add(new Snapline() { RequireOverlap = false, Offset = offset - SnaplineMargin, Start = offset, End = containerRect.Right });
+                    horizontalMap.Add(new Snapline() { RequireOverlap = false, Offset = offset + SnaplineMargin, Start = offset, End = containerRect.Right });
+                }
+
+            }
+            offset = 0;
+            foreach (ColumnDefinition c in grid.ColumnDefinitions)
+            {
+                offset += c.ActualWidth;
+                verticalMap.Add(new Snapline() { RequireOverlap = false, Offset = offset, Start = containerRect.Top, End = containerRect.Bottom });
+                if (SnaplineMargin > 0)
+                {
+                    verticalMap.Add(new Snapline() { RequireOverlap = false, Offset = offset - SnaplineMargin, Start = containerRect.Top, End = containerRect.Bottom });
+                    verticalMap.Add(new Snapline() { RequireOverlap = false, Offset = offset + SnaplineMargin, Start = containerRect.Top, End = containerRect.Bottom });
+                }
+            }
+        }
+
+        static void SetColumn(DesignItem item, int column, int columnSpan)
 		{
 			Debug.Assert(item != null && column >= 0 && columnSpan > 0);
 			item.Properties.GetAttachedProperty(Grid.ColumnProperty).SetValue(column);
@@ -150,10 +178,32 @@ namespace gip.ext.designer.avui.Extensions
 		
 		public override void EnterContainer(PlacementOperation operation)
 		{
-			enteredIntoNewContainer=true;
-			grid.UpdateLayout();
-			base.EnterContainer(operation);
-		}
+            enteredIntoNewContainer = true;
+            grid.UpdateLayout();
+            base.EnterContainer(operation);
+
+            if (operation.Type == PlacementType.PasteItem)
+            {
+                foreach (PlacementInformation info in operation.PlacedItems)
+                {
+                    var margin = info.Item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                    var horizontalAlignment = info.Item.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>();
+                    var verticalAlignment = info.Item.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>();
+
+                    if (horizontalAlignment == HorizontalAlignment.Left)
+                        margin.Left += PlacementOperation.PasteOffset;
+                    else if (horizontalAlignment == HorizontalAlignment.Right)
+                        margin.Right -= PlacementOperation.PasteOffset;
+
+                    if (verticalAlignment == VerticalAlignment.Top)
+                        margin.Top += PlacementOperation.PasteOffset;
+                    else if (verticalAlignment == VerticalAlignment.Bottom)
+                        margin.Bottom -= PlacementOperation.PasteOffset;
+
+                    info.Item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                }
+            }
+        }
 		
 		GrayOutDesignerExceptActiveArea grayOut;
 		

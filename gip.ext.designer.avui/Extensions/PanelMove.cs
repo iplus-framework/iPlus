@@ -14,6 +14,9 @@ using gip.ext.designer.avui.Controls;
 namespace gip.ext.designer.avui.Extensions
 {
     [ExtensionFor(typeof(Panel))]
+    [ExtensionFor(typeof(Border))]
+    [ExtensionFor(typeof(ContentControl))]
+    [ExtensionFor(typeof(Viewbox))]
     public class PanelMove : PermanentAdornerProvider
     {
         protected override void OnInitialized()

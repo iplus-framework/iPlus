@@ -74,7 +74,7 @@ namespace gip.ext.designer.avui
 			throw new NotImplementedException();
 		}
 		
-		public bool CanEnterContainer(PlacementOperation operation)
+		public bool CanEnterContainer(PlacementOperation operation, bool shouldAlwaysEnter)
 		{
 			return false;
 		}

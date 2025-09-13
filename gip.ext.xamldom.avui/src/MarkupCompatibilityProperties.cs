@@ -1,9 +1,4 @@
-﻿// Copyright (c) 2019 AlphaSierraPapa for the SharpDevelop Team
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this
-// software and associated documentation files (the "Software"), to deal in the Software
-// without restriction, including without limitation the rights to use, copy, modify, merge,
-// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
+﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System.Security.Cryptography;

@@ -15,10 +15,11 @@ using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Extensions
 {
-	/// <summary>
-	/// The resize thumb around a component.
-	/// </summary>
-	[ExtensionFor(typeof(FrameworkElement))]
+    /// <summary>
+    /// The resize thumb around a component.
+    /// </summary>
+    [ExtensionServer(typeof(OnlyOneItemSelectedExtensionServer))]
+    [ExtensionFor(typeof(FrameworkElement))]
 	public sealed class ResizeThumbExtension : SelectionAdornerProvider
 	{
 		readonly AdornerPanel adornerPanel;
@@ -141,9 +142,26 @@ namespace gip.ext.designer.avui.Extensions
 			var newWidth = Math.Max(0, oldSize.Width + dx);
 			var newHeight = Math.Max(0, oldSize.Height + dy);
 
-			ModelTools.Resize(ExtendedItem, newWidth, newHeight);
+            if (operation.CurrentContainerBehavior is GridPlacementSupport)
+            {
+                var hor = this.ExtendedItem.Properties[FrameworkElement.HorizontalAlignmentProperty].GetConvertedValueOnInstance<HorizontalAlignment>();
+                var ver = this.ExtendedItem.Properties[FrameworkElement.VerticalAlignmentProperty].GetConvertedValueOnInstance<VerticalAlignment>();
+                if (hor == HorizontalAlignment.Stretch)
+                    this.ExtendedItem.Properties[FrameworkElement.WidthProperty].Reset();
+                else
+                    this.ExtendedItem.Properties.GetProperty(FrameworkElement.WidthProperty).SetValue(newWidth);
 
-			if (operation != null) {
+                if (ver == VerticalAlignment.Stretch)
+                    this.ExtendedItem.Properties[FrameworkElement.HeightProperty].Reset();
+                else
+                    this.ExtendedItem.Properties.GetProperty(FrameworkElement.HeightProperty).SetValue(newHeight);
+            }
+            else
+            {
+                ModelTools.Resize(ExtendedItem, newWidth, newHeight);
+            }
+
+            if (operation != null) {
 				var info = operation.PlacedItems[0];
 				var result = info.OriginalBounds;
 				

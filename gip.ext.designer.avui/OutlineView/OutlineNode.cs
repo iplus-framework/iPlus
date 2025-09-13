@@ -16,189 +16,10 @@ using System.Windows.Controls;
 using gip.ext.designer.avui.Controls;
 using System.Windows;
 using gip.core.datamodel;
+using System.Collections.Specialized;
 
 namespace gip.ext.designer.avui.OutlineView
 {
-    public abstract class OutlineNodeBase : INotifyPropertyChanged
-    {
-        //Used to check if element can enter other containers
-        public static PlacementType DummyPlacementType;
-
-        static OutlineNodeBase()
-        {
-            DummyPlacementType = PlacementType.Register("DummyPlacement");
-        }
-
-        public OutlineNodeBase(DesignItem designItem)
-        {
-            DesignItem = designItem;
-            UpdateChildren();
-            Initialize();
-        }
-
-        protected virtual void Initialize()
-        {
-            DesignItem.PropertyChanged += new PropertyChangedEventHandler(DesignItem_PropertyChanged);
-        }
-
-        public DesignItem DesignItem { get; protected set; }
-
-        public virtual string Name
-        {
-            get
-            {
-                if (DesignItem.HasProperty("Name") == null)
-                    return DesignItem.ComponentType.Name;
-                if (string.IsNullOrEmpty(DesignItem.Name))
-                {
-                    return DesignItem.ComponentType.Name;
-                }
-                return DesignItem.ComponentType.Name + " (" + DesignItem.Name + ")";
-            }
-        }
-
-        bool isExpanded = true;
-        public bool IsExpanded
-        {
-            get
-            {
-                return isExpanded;
-            }
-            set
-            {
-                isExpanded = value;
-                if (isExpanded && Parent != null)
-                   Parent.IsExpanded = true;
-                RaisePropertyChanged("IsExpanded");
-            }
-        }
-
-        ObservableCollection<OutlineNodeBase> children = new ObservableCollection<OutlineNodeBase>();
-
-        public ObservableCollection<OutlineNodeBase> Children
-        {
-            get { return children; }
-        }
-
-        public OutlineNodeBase Parent
-        {
-            get;
-            set;
-        }
-
-        public int LayerDepth
-        {
-            get
-            {
-                if (Parent == null)
-                    return 0;
-                return Parent.LayerDepth + 1;
-            }
-        }
-
-        protected void DesignItem_PropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == DesignItem.ContentPropertyName)
-            {
-                UpdateChildren();
-            }
-            else if (e.PropertyName == "Name")
-                RaisePropertyChanged(e.PropertyName);
-        }
-
-        void UpdateChildren()
-        {
-            Children.Clear();
-
-            if (DesignItem.ContentPropertyName != null)
-            {
-                var content = DesignItem.ContentProperty;
-                if (content.IsCollection)
-                {
-                    UpdateChildrenCore(content.CollectionElements);
-                }
-                else
-                {
-                    if (content.Value != null)
-                    {
-                        UpdateChildrenCore(new[] { content.Value });
-                    }
-                }
-            }
-        }
-
-        void UpdateChildrenCore(IEnumerable<DesignItem> items)
-        {
-            foreach (var item in items)
-            {
-                if (item == null)
-                    continue;
-                if (ModelTools.CanSelectComponent(item))
-                {
-                    var node = OnCreateChildrenNode(item);
-                    node.Parent = this;
-                    if (node != null)
-                        Children.Add(node);
-                }
-            }
-        }
-
-        protected abstract OutlineNodeBase OnCreateChildrenNode(DesignItem child);
-
-        public bool CanInsert(IEnumerable<OutlineNodeBase> nodes, OutlineNodeBase after, bool copy)
-        {
-            var operation = PlacementOperation.Start(nodes.Select(node => node.DesignItem).ToArray(), DummyPlacementType);
-            var placementBehavior = DesignItem.GetBehavior<IPlacementBehavior>();
-            if (operation != null)
-                return placementBehavior.CanEnterContainer(operation);
-            return false;
-        }
-
-        public void Insert(IEnumerable<OutlineNodeBase> nodes, OutlineNodeBase after, bool copy)
-        {
-            if (copy)
-            {
-                nodes = nodes.Select(n => OnCreateChildrenNode(n.DesignItem.Clone()));
-            }
-            else
-            {
-                foreach (var node in nodes)
-                {
-                    node.DesignItem.Remove();
-                }
-            }
-
-            var index = after == null ? 0 : Children.IndexOf(after) + 1;
-
-            var content = DesignItem.ContentProperty;
-            if (content.IsCollection)
-            {
-                foreach (var node in nodes)
-                {
-                    content.CollectionElements.Insert(index++, node.DesignItem);
-                }
-            }
-            else
-            {
-                content.SetValue(nodes.First().DesignItem);
-            }
-        }
-
-        #region INotifyPropertyChanged Members
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void RaisePropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
-        #endregion
-    }
-
     public class OutlineNode : OutlineNodeBase, IQuickOperationMenuItemBuilder
     {
         public static OutlineNode Create(DesignItem designItem)
@@ -232,13 +53,7 @@ namespace gip.ext.designer.avui.OutlineView
             SelectionService.SelectionChanged += new EventHandler<DesignItemCollectionEventArgs>(Selection_SelectionChanged);
         }
 
-        public ISelectionService SelectionService
-        {
-            get { return DesignItem.Services.Selection; }
-        }
-
-        bool isSelected;
-        public bool IsSelected
+        public override bool IsSelected
         {
             get
             {
@@ -254,15 +69,17 @@ namespace gip.ext.designer.avui.OutlineView
                         _menu.MainHeader.Unloaded -= OnMenuUnloaded;
                     }
                     _menu = null;
-                    isSelected = value;
-                    SelectionService.SetSelectedComponents(new[] { DesignItem },
-                                                           value ? SelectionTypes.Add : SelectionTypes.Remove);
+                    if (isSelected != value && SelectionService != null)
+                    {
+                        isSelected = value;
+                        SelectionService.SetSelectedComponents(new[] { DesignItem },
+                                                               value ? SelectionTypes.Add : SelectionTypes.Remove);
+                        RaisePropertyChanged("IsSelected");
+                    }
                     if (value)
                     {
                         SelectionService.TemporarySelectionFromTreeView = DesignItem;
                     }
-                    //SelectionService.SelectionFromTreeView(DesignItem);
-                    RaisePropertyChanged("IsSelected");
                 }
             }
         }
@@ -314,6 +131,111 @@ namespace gip.ext.designer.avui.OutlineView
             return OutlineNode.Create(child);
         }
 
+        protected override void UpdateChildren()
+        {
+            Children.Clear();
+
+            foreach (var prp in DesignItem.AllSetProperties)
+            {
+                if (prp.Name != DesignItem.ContentPropertyName)
+                {
+                    if (prp.Value != null)
+                    {
+                        var propertyNode = PropertyOutlineNode.Create(prp);
+                        var node = prp.Value.CreateOutlineNode();
+                        propertyNode.Children.Add(node);
+                        Children.Add(propertyNode);
+                    }
+                }
+            }
+            if (DesignItem.ContentPropertyName != null)
+            {
+                var content = DesignItem.ContentProperty;
+                if (content.IsCollection)
+                {
+                    UpdateChildrenCore(content.CollectionElements);
+                }
+                else
+                {
+                    if (content.Value != null)
+                    {
+                        if (!UpdateChildrenCore(new[] { content.Value }))
+                        {
+                            var propertyNode = PropertyOutlineNode.Create(content);
+                            var node = content.Value.CreateOutlineNode();
+                            propertyNode.Children.Add(node);
+                            Children.Add(propertyNode);
+                        }
+                    }
+                }
+            }
+        }
+
+        protected override void UpdateChildrenCollectionChanged(NotifyCollectionChangedEventArgs e)
+        {
+            if (e.Action == NotifyCollectionChangedAction.Remove)
+            {
+                foreach (var oldItem in e.OldItems)
+                {
+                    var item = Children.FirstOrDefault(x => x.DesignItem == oldItem);
+                    if (item != null)
+                    {
+                        Children.Remove(item);
+                    }
+                }
+            }
+            else if (e.Action == NotifyCollectionChangedAction.Add)
+            {
+                UpdateChildrenCore(e.NewItems.Cast<DesignItem>(), e.NewStartingIndex);
+            }
+        }
+
+        protected virtual bool UpdateChildrenCore(IEnumerable<DesignItem> items, int index = -1)
+        {
+            var retVal = false;
+            foreach (var item in items)
+            {
+                if (ModelTools.CanSelectComponent(item))
+                {
+                    if (Children.All(x => x.DesignItem != item))
+                    {
+                        var node = item.CreateOutlineNode();
+                        if (index > -1)
+                        {
+                            Children.Insert(index++, node);
+                            retVal = true;
+                        }
+                        else
+                        {
+                            Children.Add(node);
+                            retVal = true;
+                        }
+                    }
+                }
+                else
+                {
+                    var content = item.ContentProperty;
+                    if (content != null)
+                    {
+                        if (content.IsCollection)
+                        {
+                            UpdateChildrenCore(content.CollectionElements);
+                            retVal = true;
+                        }
+                        else
+                        {
+                            if (content.Value != null)
+                            {
+                                UpdateChildrenCore(new[] { content.Value });
+                                retVal = true;
+                            }
+                        }
+                    }
+                }
+            }
+
+            return retVal;
+        }
 
         protected QuickOperationMenu _menu;
         public QuickOperationMenu Menu
@@ -376,6 +298,28 @@ namespace gip.ext.designer.avui.OutlineView
         public virtual void MainHeaderClick(object sender, RoutedEventArgs e)
         {
             QuickOperationMenuExtension.MainHeaderClick(sender, e, this.DesignItem, _menu);
+        }
+
+        internal class OutlineNodeService : IOutlineNodeService, IDisposable
+        {
+            readonly Dictionary<DesignItem, IOutlineNode> outlineNodes = new Dictionary<DesignItem, IOutlineNode>();
+
+            public IOutlineNode Create(DesignItem designItem)
+            {
+                IOutlineNode node = null;
+                if (designItem != null && !outlineNodes.TryGetValue(designItem, out node))
+                {
+                    node = new OutlineNode(designItem);
+                    outlineNodes[designItem] = node;
+                }
+
+                return node;
+            }
+
+            public void Dispose()
+            {
+                outlineNodes.Clear();
+            }
         }
     }
 }

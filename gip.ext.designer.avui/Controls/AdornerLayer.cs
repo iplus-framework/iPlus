@@ -18,11 +18,11 @@ namespace gip.ext.designer.avui.Controls
 	/// <summary>
 	/// A control that displays adorner panels.
 	/// </summary>
-	sealed class AdornerLayer : Panel
-	{
+	sealed class AdornerLayer : Panel, IAdornerLayer
+    {
 		#region AdornerPanelCollection
-		internal sealed class AdornerPanelCollection : ICollection<AdornerPanel>
-		{
+		internal sealed class AdornerPanelCollection : ICollection<AdornerPanel>, IReadOnlyCollection<AdornerPanel>
+        {
 			readonly AdornerLayer _layer;
 			
 			public AdornerPanelCollection(AdornerLayer layer)
@@ -204,17 +204,53 @@ namespace gip.ext.designer.avui.Controls
 			}
 			return new Size(0, 0);
 		}
-		
-		protected override Size ArrangeOverride(Size finalSize)
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            Size infiniteSize = new Size(double.PositiveInfinity, double.PositiveInfinity);
+            foreach (AdornerPanel adorner in this.Children)
+            {
+                adorner.Measure(infiniteSize);
+            }
+            return new Size(0, 0);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
 		{
-			foreach (AdornerPanel adorner in this.Children) {
-				adorner.Arrange(new Rect(new Point(0, 0), adorner.DesiredSize));
-				if (adorner.AdornedElement.IsDescendantOf(_designPanel)) {
-					adorner.RenderTransform = (Transform)adorner.AdornedElement.TransformToAncestor(_designPanel);
-				}
-			}
-			return finalSize;
-		}
+            foreach (AdornerPanel adorner in this.Children)
+            {
+                if (adorner.AdornedElement.IsDescendantOf(_designPanel))
+                {
+                    var transform = adorner.AdornedElement.TransformToAncestor(_designPanel);
+                    var rt = transform as MatrixTransform;
+                    if (rt != null && adorner.AdornedDesignItem != null && adorner.AdornedDesignItem.Parent != null && adorner.AdornedDesignItem.Parent.View is Canvas && adorner.AdornedElement.RenderSize.Height == 0 && adorner.AdornedElement.RenderSize.Width == 0)
+                    {
+                        var width = ((FrameworkElement)adorner.AdornedElement).Width;
+                        width = width > 0 ? width : 2.0;
+                        var height = ((FrameworkElement)adorner.AdornedElement).Height;
+                        height = height > 0 ? height : 2.0;
+                        var xOffset = rt.Matrix.OffsetX - (width / 2);
+                        var yOffset = rt.Matrix.OffsetY - (height / 2);
+                        rt = new MatrixTransform(new Matrix(rt.Matrix.M11, rt.Matrix.M12, rt.Matrix.M21, rt.Matrix.M22, xOffset, yOffset));
+                    }
+                    else if (transform is GeneralTransformGroup)
+                    {
+                        //var intTrans = ((GeneralTransformGroup) transform).Children.FirstOrDefault(x => x.GetType().Name == "GeneralTransform2DTo3DTo2D");
+                        //var prp = intTrans.GetType().GetField("_worldTransformation", BindingFlags.Instance | BindingFlags.NonPublic);
+                        //var mtx = (Matrix3D) prp.GetValue(intTrans);
+                        //var mtx2D = new Matrix(mtx.M11, mtx.M12, mtx.M21, mtx.M22, mtx.OffsetX, mtx.OffsetY);
+                        //rt = new MatrixTransform(mtx2D);
+                        rt = ((GeneralTransformGroup)transform).Children.OfType<MatrixTransform>().LastOrDefault();
+                    }
+
+
+                    adorner.RenderTransform = rt;
+                }
+
+                adorner.Arrange(new Rect(new Point(0, 0), adorner.DesiredSize));
+            }
+            return finalSize;
+        }
 		
 		bool RemoveAdorner(AdornerPanel adornerPanel)
 		{
@@ -255,9 +291,10 @@ namespace gip.ext.designer.avui.Controls
 		
 		Rect GetPositionCache(UIElement element)
 		{
-			Transform t = (Transform)element.TransformToAncestor(_designPanel);
-			return new Rect(new Point(t.Value.OffsetX, t.Value.OffsetY), element.RenderSize);
-		}
+            var t = element.TransformToAncestor(_designPanel);
+            var p = t.Transform(new Point(0, 0));
+            return new Rect(p, element.RenderSize);
+        }
 		
 		void UpdateAdornersForElement(UIElement element, AdornerInfo info, bool forceInvalidate)
 		{
