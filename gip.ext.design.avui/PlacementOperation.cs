@@ -422,7 +422,7 @@ namespace gip.ext.design.avui
                 }
                 op.currentContainer = container;
                 op.currentContainerBehavior = container.GetBehavior<IPlacementBehavior>();
-                if (op.currentContainerBehavior == null || !op.currentContainerBehavior.CanEnterContainer(op))
+                if (op.currentContainerBehavior == null || !op.currentContainerBehavior.CanEnterContainer(op, true))
                 {
                     op.changeGroup.Abort();
                     return null;
