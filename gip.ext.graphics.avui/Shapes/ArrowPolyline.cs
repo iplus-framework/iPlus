@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Data;
+using Avalonia.Media;
 
 namespace gip.ext.graphics.avui.shapes
 {
@@ -17,20 +16,21 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the Points dependency property.
         /// </summary>
-        public static readonly DependencyProperty PointsProperty =
-            DependencyProperty.Register("Points",
-                typeof(PointCollection), typeof(ArrowPolyline),
-                new FrameworkPropertyMetadata(null,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<IList<Point>> PointsProperty = AvaloniaProperty.Register<ArrowPolyline, IList<Point>>(nameof(Points));
 
         /// <summary>
         ///     Gets or sets a collection that contains the 
         ///     vertex points of the ArrowPolyline.
         /// </summary>
-        public virtual PointCollection Points
+        public IList<Point> Points
         {
-            set { SetValue(PointsProperty, value); }
-            get { return (PointCollection)GetValue(PointsProperty); }
+            get => GetValue(PointsProperty);
+            set => SetValue(PointsProperty, value);
+        }
+
+        static ArrowPolyline()
+        {
+            AffectsGeometry<ArrowPolyline>(PointsProperty);
         }
 
         /// <summary>
@@ -38,16 +38,14 @@ namespace gip.ext.graphics.avui.shapes
         /// </summary>
         public ArrowPolyline()
         {
-            Points = new PointCollection();
+            SetValue(PointsProperty, new Points(), BindingPriority.Template);
         }
 
         /// <summary>
         ///     Gets a value that represents the Geometry of the ArrowPolyline.
         /// </summary>
-        protected override Geometry DefiningGeometry
-        {
-            get
-            {
+        protected override Geometry CreateDefiningGeometry()
+        { 
                 //// Clear out the PathGeometry.
                 //_PathGeo.Figures.Clear();
 
@@ -72,10 +70,9 @@ namespace gip.ext.graphics.avui.shapes
                                        _PathfigHead1, _PolysegHead1,
                                        _PathfigHead2, _PolysegHead2,
                                        ArrowEnds, ArrowLength, ArrowAngle, IsArrowClosed);
-            }
         }
 
-        public static Geometry GetPathGeometry(PointCollection points,
+        public static Geometry GetPathGeometry(IList<Point> points,
             ArrowEnds arrowEnds, double arrowLength, double arrowAngle, bool isArrowClosed)
         {
             PathGeometry pathgeo = new PathGeometry();
@@ -98,7 +95,7 @@ namespace gip.ext.graphics.avui.shapes
                 arrowEnds, arrowLength, arrowAngle, isArrowClosed);
         }
 
-        public static Geometry GetPathGeometry(PointCollection points,
+        public static Geometry GetPathGeometry(IList<Point> points,
             PathGeometry pathgeo, PathFigure pathfigLine, PolyLineSegment polysegLine,
             PathFigure pathfigHead1, PolyLineSegment polysegHead1,
             PathFigure pathfigHead2, PolyLineSegment polysegHead2,
@@ -136,7 +133,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <param name="p0">The start line point.</param>
         /// <param name="p1">The end line point.</param>
         /// <returns>Return all points from line.</returns>
-        public static PointCollection GetBresenhamLine(Point p0, Point p1)
+        public static IList<Point> GetBresenhamLine(Point p0, Point p1)
         {
             long x0 = Convert.ToInt64(p0.X);
             long x1 = Convert.ToInt64(p1.X);
@@ -150,7 +147,7 @@ namespace gip.ext.graphics.avui.shapes
 
             long err = dx - dy;
 
-            var points = new PointCollection();
+            var points = new List<Point>();
 
             while (true)
             {

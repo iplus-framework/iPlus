@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Windows.Markup;
+using Avalonia.Metadata;
 
 // Allgemeine Informationen über eine Assembly werden über die folgenden 
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
@@ -38,5 +38,5 @@ using System.Windows.Markup;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 
-[assembly: XmlnsDefinition("http://www.iplus-framework.com/shapes/xaml", "gip.ext.graphics.avui.shapes")]
-[assembly: XmlnsPrefix("http://www.iplus-framework.com/shapes/xaml", "vbs")]
+[assembly: XmlnsDefinition("http://www.iplus-framework.com/shapes/axaml", "gip.ext.graphics.avui.shapes")]
+[assembly: XmlnsPrefix("http://www.iplus-framework.com/shapes/axaml", "vbs")]

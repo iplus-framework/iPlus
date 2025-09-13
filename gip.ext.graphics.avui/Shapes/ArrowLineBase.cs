@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace gip.ext.graphics.avui.shapes
 {
@@ -27,11 +24,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the ArrowAngle dependency property.
         /// </summary>
-        public static readonly DependencyProperty ArrowAngleProperty =
-            DependencyProperty.Register("ArrowAngle",
-                typeof(double), typeof(ArrowLineBase),
-                new FrameworkPropertyMetadata(45.0,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<double> ArrowAngleProperty = AvaloniaProperty.Register<ArrowLineBase, double>(nameof(ArrowAngle), 45.0);
 
         /// <summary>
         ///     Gets or sets the angle between the two sides of the arrowhead.
@@ -45,11 +38,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the ArrowLength dependency property.
         /// </summary>
-        public static readonly DependencyProperty ArrowLengthProperty =
-            DependencyProperty.Register("ArrowLength",
-                typeof(double), typeof(ArrowLineBase),
-                new FrameworkPropertyMetadata(12.0,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<double> ArrowLengthProperty = AvaloniaProperty.Register<ArrowLineBase, double>(nameof(ArrowLength), 12.0);
 
         /// <summary>
         ///     Gets or sets the length of the two sides of the arrowhead.
@@ -63,11 +52,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the ArrowEnds dependency property.
         /// </summary>
-        public static readonly DependencyProperty ArrowEndsProperty =
-            DependencyProperty.Register("ArrowEnds",
-                typeof(ArrowEnds), typeof(ArrowLineBase),
-                new FrameworkPropertyMetadata(ArrowEnds.None,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<ArrowEnds> ArrowEndsProperty = AvaloniaProperty.Register<ArrowLineBase, ArrowEnds>(nameof(ArrowEnds), ArrowEnds.None);
 
         /// <summary>
         ///     Gets or sets the property that determines which ends of the
@@ -82,11 +67,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the IsArrowClosed dependency property.
         /// </summary>
-        public static readonly DependencyProperty IsArrowClosedProperty =
-            DependencyProperty.Register("IsArrowClosed",
-                typeof(bool), typeof(ArrowLineBase),
-                new FrameworkPropertyMetadata(false,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<bool> IsArrowClosedProperty = AvaloniaProperty.Register<ArrowLineBase, bool>(nameof(IsArrowClosed), false);
 
         /// <summary>
         ///     Gets or sets the property that determines if the arrow head
@@ -97,6 +78,11 @@ namespace gip.ext.graphics.avui.shapes
         {
             set { SetValue(IsArrowClosedProperty, value); }
             get { return (bool)GetValue(IsArrowClosedProperty); }
+        }
+
+        static ArrowLineBase()
+        {
+            AffectsGeometry<ArrowLineBase>(ArrowAngleProperty, ArrowLengthProperty, ArrowEndsProperty, IsArrowClosedProperty);
         }
 
         /// <summary>
@@ -122,15 +108,12 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Gets a value that represents the Geometry of the ArrowLine.
         /// </summary>
-        protected override Geometry DefiningGeometry
+        protected override Geometry CreateDefiningGeometry()
         {
-            get
-            {
-                return ArrowLineBase.GetPathGeometry(_PathGeo, _PathfigLine, _PolysegLine,
-                                      _PathfigHead1, _PolysegHead1,
-                                      _PathfigHead2, _PolysegHead2,
-                                      ArrowEnds, ArrowLength, ArrowAngle, IsArrowClosed);
-            }
+            return ArrowLineBase.GetPathGeometry(_PathGeo, _PathfigLine, _PolysegLine,
+                                    _PathfigHead1, _PolysegHead1,
+                                    _PathfigHead2, _PolysegHead2,
+                                    ArrowEnds, ArrowLength, ArrowAngle, IsArrowClosed);
         }
 
         private PathFigure CalculateArrow(PathFigure pathfig, Point pt1, Point pt2)
@@ -147,12 +130,15 @@ namespace gip.ext.graphics.avui.shapes
 
             PolyLineSegment polyseg = pathfig.Segments[0] as PolyLineSegment;
             polyseg.Points.Clear();
-            matx.Rotate(arrowAngle / 2);
-            pathfig.StartPoint = pt2 + vect * matx;
+            
+            var rotationMatrix = Matrix.CreateRotation(Math.PI * arrowAngle / 360.0); // Convert degrees to radians and half angle
+            var transformedVect = rotationMatrix.Transform(new Point(vect.X, vect.Y));
+            pathfig.StartPoint = pt2 + new Vector(transformedVect.X, transformedVect.Y);
             polyseg.Points.Add(pt2);
 
-            matx.Rotate(-arrowAngle);
-            polyseg.Points.Add(pt2 + vect * matx);
+            var reverseRotationMatrix = Matrix.CreateRotation(-Math.PI * arrowAngle / 360.0); // Negative rotation
+            var reverseTransformedVect = reverseRotationMatrix.Transform(new Point(vect.X, vect.Y));
+            polyseg.Points.Add(pt2 + new Vector(reverseTransformedVect.X, reverseTransformedVect.Y));
             pathfig.IsClosed = isArrowClosed;
             pathfig.IsFilled = isArrowClosed;
 

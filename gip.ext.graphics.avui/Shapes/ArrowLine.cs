@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace gip.ext.graphics.avui.shapes
 {
@@ -17,11 +14,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the X1 dependency property.
         /// </summary>
-        public static readonly DependencyProperty X1Property =
-            DependencyProperty.Register("X1",
-                typeof(double), typeof(ArrowLine),
-                new FrameworkPropertyMetadata(0.0,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<double> X1Property = AvaloniaProperty.Register<ArrowLine, double>(nameof(X1));
 
         /// <summary>
         ///     Gets or sets the x-coordinate of the ArrowLine start point.
@@ -35,11 +28,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the Y1 dependency property.
         /// </summary>
-        public static readonly DependencyProperty Y1Property =
-            DependencyProperty.Register("Y1",
-                typeof(double), typeof(ArrowLine),
-                new FrameworkPropertyMetadata(0.0,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<double> Y1Property = AvaloniaProperty.Register<ArrowLine, double>(nameof(Y1));
 
         /// <summary>
         ///     Gets or sets the y-coordinate of the ArrowLine start point.
@@ -53,11 +42,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the X2 dependency property.
         /// </summary>
-        public static readonly DependencyProperty X2Property =
-            DependencyProperty.Register("X2",
-                typeof(double), typeof(ArrowLine),
-                new FrameworkPropertyMetadata(0.0,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
+        public static readonly StyledProperty<double> X2Property = AvaloniaProperty.Register<ArrowLine, double>(nameof(X2));
 
         /// <summary>
         ///     Gets or sets the x-coordinate of the ArrowLine end point.
@@ -71,12 +56,7 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Identifies the Y2 dependency property.
         /// </summary>
-        public static readonly DependencyProperty Y2Property =
-            DependencyProperty.Register("Y2",
-                typeof(double), typeof(ArrowLine),
-                new FrameworkPropertyMetadata(0.0,
-                        FrameworkPropertyMetadataOptions.AffectsMeasure));
-
+        public static readonly StyledProperty<double> Y2Property = AvaloniaProperty.Register<ArrowLine, double>(nameof(Y2));
         /// <summary>
         ///     Gets or sets the y-coordinate of the ArrowLine end point.
         /// </summary>
@@ -89,16 +69,13 @@ namespace gip.ext.graphics.avui.shapes
         /// <summary>
         ///     Gets a value that represents the Geometry of the ArrowLine.
         /// </summary>
-        protected override Geometry DefiningGeometry
+        protected override Geometry CreateDefiningGeometry()
         {
-            get
-            {
-                return ArrowLine.GetPathGeometry(new Point(X1, Y1), new Point(X2, Y2),
-                       _PathGeo, _PathfigLine, _PolysegLine,
-                       _PathfigHead1, _PolysegHead1,
-                       _PathfigHead2, _PolysegHead2,
-                       ArrowEnds, ArrowLength, ArrowAngle, IsArrowClosed);
-            }
+            return ArrowLine.GetPathGeometry(new Point(X1, Y1), new Point(X2, Y2),
+                    _PathGeo, _PathfigLine, _PolysegLine,
+                    _PathfigHead1, _PolysegHead1,
+                    _PathfigHead2, _PolysegHead2,
+                    ArrowEnds, ArrowLength, ArrowAngle, IsArrowClosed);
         }
 
         public static Geometry GetPathGeometry(Point point1, Point point2, 
