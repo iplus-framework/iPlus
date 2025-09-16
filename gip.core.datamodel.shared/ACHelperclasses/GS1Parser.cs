@@ -322,7 +322,7 @@ namespace gip.core.datamodel
             return Generate(tmpImput, useEanStartCode);
         }
 
-        public static string GenerateRawString(Dictionary<AII, ParseResult> input, bool useEanStartCode)
+        public static string GenerateRawString(List<(string ai, string val, bool variable)> input, bool useEanStartCode)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -331,58 +331,38 @@ namespace gip.core.datamodel
                 sb.Append(EAN128StartCode);
             }
             bool notLast = true;
-            foreach (KeyValuePair<AII, ParseResult> item in input)
+            foreach (var item in input)
             {
-                notLast = item.Key.FNC1 && (item.Key != input.Keys.Last());
+                notLast = item.variable && (item.ai != input.Last().ai);
+                sb.Append(item.ai);
+                sb.Append(item.val);
 
-                AII aII = item.Key;
-                string value = item.Value.StringResult;
-
-                sb.Append(aII.AI);
-
-                sb.Append(value);
-
-                if (aII.FNC1 && notLast)
+                if (item.variable && notLast)
                 {
                     sb.Append(GroupSeparator);
                 }
             }
-
             return sb.ToString();
         }
 
-        public static string GenerateRawString(Dictionary<string, string> input, bool useEanStartCode)
-        {
-            Dictionary<AII, ParseResult> tmpImput = new Dictionary<AII, ParseResult>();
-            foreach (KeyValuePair<string, string> item in input)
-            {
-                if (GS1.aiiDict.ContainsKey(item.Key))
-                {
-                    AII aII = GS1.aiiDict[item.Key];
-                    ParseResult parseResult = new ParseResult() { StringResult = item.Value };
-                    tmpImput.Add(aII, parseResult);
-                }
-            }
-            return GenerateRawString(tmpImput, useEanStartCode);
-        }
-
-        public static string BuildHriString(string[] aiOrder, Dictionary<string, string> input)
+        public static string BuildHriString(string[] aiOrder, List<(string ai, string val, bool variable)> input)
         {
             var parts = new List<string>(aiOrder.Length);
             foreach (var ai in aiOrder)
             {
-                if (string.IsNullOrWhiteSpace(ai)) continue;
-                if (input.TryGetValue(ai, out var val) && !string.IsNullOrWhiteSpace(val))
+                (string ai, string val, bool variable) item = input.FirstOrDefault(el => el.ai == ai);
+       
+                if (!string.IsNullOrEmpty(item.val))
                 {
-                    parts.Add($"({ai}){val}");
+                    parts.Add($"({item.ai}){item.val}");
                 }
             }
             return string.Join(" ", parts);
         }
 
-        public static Dictionary<string, string> GetGS1Data(object value, string[] strColumnKeys, string[] strValueIdentifiers)
+        public static List<(string ai, string val, bool variable)> GetGS1Data(object value, string[] strColumnKeys, string[] strValueIdentifiers)
         {
-            Dictionary<string, string> input = new Dictionary<string, string>();
+            List<(string ai, string val, bool variable)> input = new List<(string ai, string val, bool variable)>();
             for (int i = 0; i < strColumnKeys.Count(); i++)
             {
                 string columnKey = strColumnKeys[i];
@@ -393,20 +373,21 @@ namespace gip.core.datamodel
 
                 if (!string.IsNullOrEmpty(strValue))
                 {
-                    input.Add(ai.AI, strValue);
+                    input.Add((ai.AI, strValue,ai.FNC1));
                 }
             }
             return input;
         }
 
-        public static GS1Model GetGS1Model(string strValue, string[] aiOrder, Dictionary<string, string> input)
+        public static GS1Model GetGS1Model(string[] aiOrder, List<(string ai, string val, bool variable)> input)
         {
             GS1Model model = new GS1Model();
-            model.RawGs1Value = strValue;
-            model.EscPosPayload = "{B}{1}" + strValue.Replace(GS1Model.GS.ToString(), "{1}");
-            model.ZplPayload = ">8" + strValue.Replace(GS1Model.GS.ToString(), "_1D");
+            model.RawGs1Value = GS1.GenerateRawString(input, false);
+            model.EscPosPayload = "{B}{1}" + model.RawGs1Value.Replace(GS1Model.GS.ToString(), "{1}");
+            model.ZplPayload = ">8" + model.RawGs1Value.Replace(GS1Model.GS.ToString(), "_1D");
             model.HriText = BuildHriString(aiOrder, input);
             model.IsGs1 = true;
+            model.Items = input;
             return model;
         }
 

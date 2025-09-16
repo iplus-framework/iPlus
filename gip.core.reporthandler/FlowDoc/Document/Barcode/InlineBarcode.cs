@@ -107,6 +107,47 @@ namespace gip.core.reporthandler.Flowdoc
         public static readonly DependencyProperty DrawQuietZonesProperty =
             DependencyProperty.Register("DrawQuietZones", typeof(bool), typeof(InlineBarcode), new PropertyMetadata(true));
 
+
+        #region ESC properties
+        //int desiredWidthDots, int heightPx, int minModule = 1, int maxModule = 6
+        //int ESCDesiredWidthDots, int ESCHeightPx, int ESCMinModule = 1, int ESCMaxModule = 6
+
+        public virtual int ESCDesiredWidthDots
+        {
+            get { return (int)GetValue(ESCDesiredWidthDotsProperty); }
+            set { SetValue(ESCDesiredWidthDotsProperty, value); }
+        }
+        public static readonly DependencyProperty ESCDesiredWidthDotsProperty =
+            DependencyProperty.Register(nameof(ESCDesiredWidthDots), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(3));
+
+        public virtual int ESCHeightPx
+        {
+            get { return (int)GetValue(ESCHeightPxProperty); }
+            set { SetValue(ESCHeightPxProperty, value); }
+        }
+        public static readonly DependencyProperty ESCHeightPxProperty =
+            DependencyProperty.Register(nameof(ESCHeightPx), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(250));
+
+        public virtual int ESCMinModule
+        {
+            get { return (int)GetValue(ESCMinModuleProperty); }
+            set { SetValue(ESCMinModuleProperty, value); }
+        }
+        public static readonly DependencyProperty ESCMinModuleProperty =
+            DependencyProperty.Register(nameof(ESCMinModule), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(1));
+
+        public virtual int ESCMaxModule
+        {
+            get { return (int)GetValue(ESCMaxModuleProperty); }
+            set { SetValue(ESCMaxModuleProperty, value); }
+        }
+        public static readonly DependencyProperty ESCMaxModuleProperty =
+            DependencyProperty.Register(nameof(ESCMaxModule), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(6));
+
+        #endregion
+
+        #region GS1 data input
+
         public string VBShowColumns
         {
             get { return (string)GetValue(VBShowColumnsProperty); }
@@ -127,7 +168,7 @@ namespace gip.core.reporthandler.Flowdoc
         // Using a DependencyProperty as the backing store for VBShowColumnsKeys.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty VBShowColumnsKeysProperty =
             DependencyProperty.Register("VBShowColumnsKeys", typeof(string), typeof(InlineBarcode), new PropertyMetadata(null));
-
+        #endregion
 
 
 
@@ -160,9 +201,9 @@ namespace gip.core.reporthandler.Flowdoc
 
                 if (strColumnKeys.Length == strValueIdentifiers.Length)
                 {
-                    Dictionary<string, string> input = GS1.GetGS1Data(value, strColumnKeys, strValueIdentifiers);
-                    strValue = GS1.GenerateRawString(input, false);
-                    GS1Model = GS1.GetGS1Model(strValue, strColumnKeys, input);
+                    List<(string ai, string val, bool variable)> input = GS1.GetGS1Data(value, strColumnKeys, strValueIdentifiers);
+                    GS1Model = GS1.GetGS1Model(strColumnKeys, input);
+                    strValue = GS1Model.RawGs1Value;
                     SetValue(ValueProperty, strValue);
                 }
             }
