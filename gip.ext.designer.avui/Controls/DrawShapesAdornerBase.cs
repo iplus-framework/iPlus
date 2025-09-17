@@ -5,19 +5,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
 using gip.ext.designer.avui.Xaml;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Controls.Shapes;
+using Avalonia.Collections;
+using Avalonia.Input;
+using gip.ext.design.avui.UIExtensions;
 
 namespace gip.ext.designer.avui.Controls
 {
-    public abstract class DrawShapesAdornerBase : FrameworkElement
+    public abstract class DrawShapesAdornerBase : Control
     {
+        static DrawShapesAdornerBase()
+        {
+            AffectsRender<DrawShapesAdornerBase>(GeometryProperty);
+        }
         #region c'tors
         public DrawShapesAdornerBase(Point startPointRelativeToShapeContainer, DesignItem containerOfStartPoint, DesignItem containerForShape)
             : base()
@@ -34,8 +40,7 @@ namespace gip.ext.designer.avui.Controls
 
         #region Properties
 
-        public static readonly DependencyProperty GeometryProperty
-            = DependencyProperty.Register("Geometry", typeof(Geometry), typeof(DrawShapesAdornerBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
+        public static readonly StyledProperty<Geometry> GeometryProperty = AvaloniaProperty.Register<DrawShapesAdornerBase, Geometry>(nameof(Geometry));
 
         public Geometry Geometry
         {
@@ -43,16 +48,16 @@ namespace gip.ext.designer.avui.Controls
             set { SetValue(GeometryProperty, value); }
         }
 
-        public static Brush s_ShapeStroke = Brushes.LightSlateGray;
+        public static IBrush s_ShapeStroke = Brushes.LightSlateGray;
         public static double s_ShapeStrokeThickness = 1;
-        public static Brush s_ShapeFill;
-        public static DoubleCollection s_ShapeStrokeDashArray;
-        public static Nullable<PenLineCap> s_ShapeStrokeDashCap; // = PenLineCap.Flat;
+        public static IBrush s_ShapeFill;
+        public static IList<double> s_ShapeStrokeDashArray;
         public static Nullable<double> s_ShapeStrokeDashOffset;// = 0;
-        public static Nullable<PenLineCap> s_ShapeStrokeEndLineCap;// = PenLineCap.Flat;
+        //public static Nullable<PenLineCap> s_ShapeStrokeEndLineCap;// = PenLineCap.Flat;
         public static Nullable<PenLineJoin> s_ShapeStrokeLineJoin;// = PenLineJoin.Miter;
         public static Nullable<double> s_ShapeStrokeMiterLimit;// = 10;
         public static Nullable<PenLineCap> s_ShapeStrokeStartLineCap;// = PenLineCap.Flat;
+        public static Nullable<Stretch> s_ShapeStretch = Stretch.None;
 
         protected static Pen DefaultDrawingPen
         {
@@ -61,16 +66,16 @@ namespace gip.ext.designer.avui.Controls
                 Pen pen = new Pen(s_ShapeStroke, s_ShapeStrokeThickness);
                 if (s_ShapeStrokeLineJoin.HasValue)
                     pen.LineJoin = s_ShapeStrokeLineJoin.Value;
-                if (s_ShapeStrokeDashCap.HasValue)
-                    pen.DashCap = s_ShapeStrokeDashCap.Value;
+                //if (s_ShapeStrokeDashCap.HasValue)
+                //    pen.DashCap = s_ShapeStrokeDashCap.Value;
                 if (s_ShapeStrokeDashArray != null && s_ShapeStrokeDashOffset.HasValue)
                     pen.DashStyle = new DashStyle(s_ShapeStrokeDashArray, s_ShapeStrokeDashOffset.Value);
-                if (s_ShapeStrokeEndLineCap.HasValue)
-                    pen.EndLineCap = s_ShapeStrokeEndLineCap.Value;
+                //if (s_ShapeStrokeEndLineCap.HasValue)
+                //    pen.EndLineCap = s_ShapeStrokeEndLineCap.Value;
                 if (s_ShapeStrokeMiterLimit.HasValue)
                     pen.MiterLimit = s_ShapeStrokeMiterLimit.Value;
                 if (s_ShapeStrokeStartLineCap.HasValue)
-                    pen.StartLineCap = s_ShapeStrokeStartLineCap.Value;
+                    pen.LineCap = s_ShapeStrokeStartLineCap.Value;
                 return pen;
             }
         }
@@ -87,7 +92,7 @@ namespace gip.ext.designer.avui.Controls
         {
             get
             {
-                return s_ShapeFill;
+                return s_ShapeFill as Brush;
             }
         }
 
@@ -132,7 +137,7 @@ namespace gip.ext.designer.avui.Controls
         #endregion
 
         #region Methods
-        public virtual void DrawPath(DependencyObject hitObject, MouseEventArgs e)
+        public virtual void DrawPath(AvaloniaObject hitObject, PointerEventArgs e)
         {
             if (ContainerForShape == null)
                 return;
@@ -146,7 +151,7 @@ namespace gip.ext.designer.avui.Controls
             //this.InvalidateVisual();
         }
 
-        public virtual void OnIntermediateClick(DependencyObject hitObject, MouseEventArgs e)
+        public virtual void OnIntermediateClick(AvaloniaObject hitObject, PointerEventArgs e)
         {
             if (ContainerForShape == null)
                 return;
@@ -159,13 +164,13 @@ namespace gip.ext.designer.avui.Controls
                 OnIntermediateClick(pointRelativeToPathContainer, hitObject, e);
         }
 
-        public virtual void OnIntermediateClick(Point pointRelativeToPathContainer, DependencyObject hitObject, MouseEventArgs e)
+        public virtual void OnIntermediateClick(Point pointRelativeToPathContainer, AvaloniaObject hitObject, PointerEventArgs e)
         {
         }
 
-        protected override void OnRender(DrawingContext dc)
+        public override void Render(DrawingContext dc)
         {
-            base.OnRender(dc);
+            base.Render(dc);
             dc.DrawGeometry(Fill, DrawingPen, this.Geometry);
 
             // without a background the OnMouseMove event would not be fired
@@ -176,7 +181,7 @@ namespace gip.ext.designer.avui.Controls
 
         public abstract Geometry GetGeometry(Point pointRelativeToPathContainer);
 
-        public abstract DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null);
+        public abstract DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null);
 
         public virtual bool MyGetRectForPlacementOperation(Point startPoint, Point endPoint, out Rect result, DesignItem myCreatedItem, DesignItem container)
         {
@@ -235,10 +240,10 @@ namespace gip.ext.designer.avui.Controls
         }
 
 
-        public static PointCollection TranslatePointsToBounds(PointCollection pointsToTranslate, out Point startPoint, out Point endPoint)
+        public static IList<Point> TranslatePointsToBounds(IList<Point> pointsToTranslate, out Point startPoint, out Point endPoint)
         {
             GetBounds(pointsToTranslate, out startPoint, out endPoint);
-            PointCollection pointCollection = new PointCollection();
+            IList<Point> pointCollection = new List<Point>();
             foreach (Point p in pointsToTranslate)
             {
                 pointCollection.Add(new Point(p.X - startPoint.X, p.Y - startPoint.Y));
@@ -246,7 +251,7 @@ namespace gip.ext.designer.avui.Controls
             return pointCollection;
         }
 
-        public static void GetBounds(PointCollection pCol, out Point startPoint, out Point endPoint)
+        public static void GetBounds(IList<Point> pCol, out Point startPoint, out Point endPoint)
         {
             double mostLeft = 99999;
             double mostRight = -99999;
@@ -289,39 +294,45 @@ namespace gip.ext.designer.avui.Controls
                     Shape shape = changeAction.Property.DesignItem.View as Shape;
                     switch (changeAction.Property.Name)
                     {
-                        case "Stroke":
+                        case nameof(Shape.Stroke):
                             if (shape.Stroke != null)
                                 s_ShapeStroke = shape.Stroke.Clone();
                             break;
-                        case "StrokeThickness":
+                        case nameof(Shape.StrokeThickness):
                             s_ShapeStrokeThickness = shape.StrokeThickness;
                             break;
-                        case "Fill":
+                        case nameof(Shape.Fill):
                             if (shape.Fill != null)
                                 s_ShapeFill = shape.Fill.Clone();
                             break;
-                        case "StrokeDashArray":
+                        case nameof(Shape.StrokeDashArray):
                             if (shape.StrokeDashArray != null)
-                                s_ShapeStrokeDashArray = shape.StrokeDashArray.Clone();
+                                s_ShapeStrokeDashArray = shape.StrokeDashArray.ToList();
                             break;
-                        case "StrokeDashCap":
-                            s_ShapeStrokeDashCap = shape.StrokeDashCap;
-                            break;
-                        case "StrokeDashOffset":
+                        case nameof(Shape.StrokeDashOffset):
                             s_ShapeStrokeDashOffset = shape.StrokeDashOffset;
                             break;
-                        case "StrokeEndLineCap":
-                            s_ShapeStrokeEndLineCap = shape.StrokeEndLineCap;
+                        //case nameof(Shape.StrokeLineCap):
+                        //    s_ShapeStrokeEndLineCap = shape.StrokeLineCap;
+                        //    break;
+                        case nameof(Shape.StrokeJoin):
+                            s_ShapeStrokeLineJoin = shape.StrokeJoin;
                             break;
-                        case "StrokeLineJoin":
-                            s_ShapeStrokeLineJoin = shape.StrokeLineJoin;
+                        //case "StrokeMiterLimit":
+                        //    s_ShapeStrokeMiterLimit = shape.StrokeMiterLimit;
+                        //    break;
+                        //case "StrokeStartLineCap":
+                        //    s_ShapeStrokeStartLineCap = shape.StrokeStartLineCap;
+                        //    break;
+                        case nameof(Shape.Stretch):
+                            s_ShapeStretch = shape.Stretch;
                             break;
-                        case "StrokeMiterLimit":
-                            s_ShapeStrokeMiterLimit = shape.StrokeMiterLimit;
-                            break;
-                        case "StrokeStartLineCap":
-                            s_ShapeStrokeStartLineCap = shape.StrokeStartLineCap;
-                            break;
+                    }
+                    IPen pen = shape.GetPen();
+                    if (pen != null)
+                    {
+                        s_ShapeStrokeMiterLimit = pen.MiterLimit;
+                        s_ShapeStrokeStartLineCap = pen.LineCap;
                     }
                 }
             }
@@ -340,44 +351,48 @@ namespace gip.ext.designer.avui.Controls
             if (s_ShapeFill != null)
                 item.Properties[Shape.FillProperty].SetValue(s_ShapeFill.Clone());
             if (s_ShapeStrokeDashArray != null)
-                item.Properties[Shape.StrokeDashArrayProperty].SetValue(s_ShapeStrokeDashArray.Clone());
-            if (s_ShapeStrokeDashCap.HasValue)
-                item.Properties[Shape.StrokeDashCapProperty].SetValue(s_ShapeStrokeDashCap.Value);
+                item.Properties[Shape.StrokeDashArrayProperty].SetValue(new AvaloniaList<double>(s_ShapeStrokeDashArray));
+            //if (s_ShapeStrokeDashCap.HasValue)
+            //    item.Properties[Shape.StrokeDashCapProperty].SetValue(s_ShapeStrokeDashCap.Value);
             if (s_ShapeStrokeDashOffset.HasValue)
                 item.Properties[Shape.StrokeDashOffsetProperty].SetValue(s_ShapeStrokeDashOffset.Value);
-            if (s_ShapeStrokeEndLineCap.HasValue)
-                item.Properties[Shape.StrokeEndLineCapProperty].SetValue(s_ShapeStrokeEndLineCap.Value);
+            //if (s_ShapeStrokeEndLineCap.HasValue)
+            //    item.Properties[Shape.StrokeEndLineCapProperty].SetValue(s_ShapeStrokeEndLineCap.Value);
             if (s_ShapeStrokeLineJoin.HasValue)
-                item.Properties[Shape.StrokeLineJoinProperty].SetValue(s_ShapeStrokeLineJoin.Value);
-            if (s_ShapeStrokeMiterLimit.HasValue)
-                item.Properties[Shape.StrokeMiterLimitProperty].SetValue(s_ShapeStrokeMiterLimit.Value);
+                item.Properties[Shape.StrokeJoinProperty].SetValue(s_ShapeStrokeLineJoin.Value);
+            // Pen-Property in Avalonia:
+            //if (s_ShapeStrokeMiterLimit.HasValue)
+            //    item.Properties[Shape.StrokeMiterLimitProperty].SetValue(s_ShapeStrokeMiterLimit.Value);
             if (s_ShapeStrokeStartLineCap.HasValue)
-                item.Properties[Shape.StrokeStartLineCapProperty].SetValue(s_ShapeStrokeStartLineCap.Value);
+                item.Properties[Shape.StrokeLineCapProperty].SetValue(s_ShapeStrokeStartLineCap.Value);
+            if (s_ShapeStretch.HasValue)
+                item.Properties[Shape.StretchProperty].SetValue(s_ShapeStretch.Value);
         }
 
         public static Point SnapPointToRaster(Point point, double rasterSize)
         {
-            Point pointRaster = new Point();
+            double pointRasterX;
+            double pointRasterY;
             double modX = point.X % rasterSize;
             double modY = point.Y % rasterSize;
             double halfRasterSize = rasterSize * 0.5;
             if (modX > halfRasterSize)
             {
-                pointRaster.X = point.X + rasterSize - modX;
+                pointRasterX = point.X + rasterSize - modX;
             }
             else
             {
-                pointRaster.X = point.X - modX;
+                pointRasterX = point.X - modX;
             }
             if (modY > halfRasterSize)
             {
-                pointRaster.Y = point.Y + rasterSize - modY;
+                pointRasterY = point.Y + rasterSize - modY;
             }
             else
             {
-                pointRaster.Y = point.Y - modY;
+                pointRasterY = point.Y - modY;
             }
-            return pointRaster;
+            return new Point(pointRasterX, pointRasterY);
         }
         #endregion
     }

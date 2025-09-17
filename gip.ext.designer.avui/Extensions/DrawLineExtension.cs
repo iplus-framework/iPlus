@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using Avalonia.Media;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Services;
@@ -36,7 +36,7 @@ namespace gip.ext.designer.avui.Extensions
 			return createItemType == typeof(Line);
 		}
 
-		public void StartDrawItem(DesignItem clickedOn, Type createItemType, IDesignPanel panel, MouseEventArgs e, Action<DesignItem> drawItemCallback)
+		public void StartDrawItem(DesignItem clickedOn, Type createItemType, IDesignPanel panel, PointerEventArgs e, Action<DesignItem> drawItemCallback)
 		{
 			var createdItem = CreateItem(panel.Context, createItemType);
 
@@ -59,7 +59,7 @@ namespace gip.ext.designer.avui.Extensions
 			var lineHandler = createdItem.Extensions.OfType<LineHandlerExtension>().First();
 			lineHandler.DragListener.ExternalStart();
 			
-			new DrawLineMouseGesture(lineHandler, clickedOn.View, changeGroup).Start(panel, (MouseButtonEventArgs) e);
+			new DrawLineMouseGesture(lineHandler, clickedOn.View, changeGroup).Start(panel, e);
 		}
 
 		#endregion
@@ -76,13 +76,13 @@ namespace gip.ext.designer.avui.Extensions
 				this.changeGroup = changeGroup;
 			}
 			
-			protected override void OnMouseMove(object sender, MouseEventArgs e)
+			protected override void OnMouseMove(object sender, PointerEventArgs e)
 			{
 				base.OnMouseMove(sender, e);
 				l.DragListener.ExternalMouseMove(e);
 			}
 			
-			protected override void OnMouseUp(object sender, MouseButtonEventArgs e)
+			protected override void OnMouseUp(object sender, PointerReleasedEventArgs e)
 			{
 				l.DragListener.ExternalStop();
 				if (changeGroup != null)

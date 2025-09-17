@@ -5,12 +5,15 @@ using System;
 using System.Windows;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui;
+using System.Collections.Generic;
 
 namespace gip.ext.designer.avui.Xaml
 {
     sealed class XamlModelPropertyCollection : DesignItemPropertyCollection
     {
         XamlDesignItem _item;
+        Dictionary<string, XamlModelProperty> propertiesDictionary = new Dictionary<string, XamlModelProperty>();
+
 
         public XamlModelPropertyCollection(XamlDesignItem item)
         {
@@ -19,10 +22,18 @@ namespace gip.ext.designer.avui.Xaml
 
         public override DesignItemProperty HasProperty(string name)
         {
-            XamlProperty property = _item.XamlObject.FindProperty(name);
-            if (property == null)
-                return null;
-            return new XamlModelProperty(_item, property);
+            XamlModelProperty property;
+            if (propertiesDictionary.TryGetValue(name, out property))
+                return property;
+            property = new XamlModelProperty(_item, _item.XamlObject.FindOrCreateProperty(name));
+            propertiesDictionary.Add(name, property);
+            return property;
+
+            // Old code:
+            //XamlProperty property = _item.XamlObject.FindProperty(name);
+            //if (property == null)
+            //    return null;
+            //return new XamlModelProperty(_item, property);
         }
 
         public override DesignItemProperty GetProperty(string name)
@@ -37,7 +48,12 @@ namespace gip.ext.designer.avui.Xaml
 
         public override System.Collections.Generic.IEnumerator<DesignItemProperty> GetEnumerator()
         {
-            yield break;
+            foreach (var value in propertiesDictionary.Values)
+            {
+                yield return value;
+            }
+            // Old code:
+            //yield break;
         }
     }
 }

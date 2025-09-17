@@ -88,5 +88,10 @@ namespace gip.ext.designer.avui
         {
             return true;
         }
-	}
+
+        public Point PlacePoint(Point point)
+        {
+            return point;
+        }
+    }
 }

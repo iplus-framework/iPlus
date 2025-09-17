@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using Avalonia.Media;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Services;
@@ -36,7 +36,7 @@ namespace gip.ext.designer.avui.Extensions
 			return createItemType == typeof(Path);
 		}
 
-		public void StartDrawItem(DesignItem clickedOn, Type createItemType, IDesignPanel panel, MouseEventArgs e, Action<DesignItem> drawItemCallback)
+		public void StartDrawItem(DesignItem clickedOn, Type createItemType, IDesignPanel panel, PointerEventArgs e, Action<DesignItem> drawItemCallback)
 		{
 			var createdItem = CreateItem(panel.Context, createItemType);
 
@@ -64,7 +64,7 @@ namespace gip.ext.designer.avui.Extensions
 			//geometryDesignItem.Properties[PathGeometry.FiguresProperty].CollectionElements.Add(figureDesignItem);
 			figureDesignItem.Properties[PathFigure.StartPointProperty].SetValue(new Point(0,0));
 			
-			new DrawPathMouseGesture(figure, createdItem, clickedOn.View, changeGroup, this.ExtendedItem.GetCompleteAppliedTransformationToView()).Start(panel, (MouseButtonEventArgs) e);
+			new DrawPathMouseGesture(e, figure, createdItem, clickedOn.View, changeGroup, this.ExtendedItem.GetCompleteAppliedTransformationToView()).Start(panel, e);
 		}
 
 		#endregion
@@ -78,7 +78,7 @@ namespace gip.ext.designer.avui.Extensions
 			private DesignItem geometry;
 			private Matrix matrix;
 
-			public DrawPathMouseGesture(PathFigure figure, DesignItem newLine, IInputElement relativeTo, ChangeGroup changeGroup, Transform transform)
+			public DrawPathMouseGesture(PointerEventArgs e, PathFigure figure, DesignItem newLine, IInputElement relativeTo, ChangeGroup changeGroup, Transform transform)
 			{
 				this.newLine = newLine;
 				this.positionRelativeTo = relativeTo;
@@ -86,29 +86,30 @@ namespace gip.ext.designer.avui.Extensions
 				this.figure = figure;
 				this.matrix = transform.Value;
 				matrix.Invert();
-				
-				sP = Mouse.GetPosition(null);
+
+				sP = e.GetCurrentPoint(null).Position; 
+				//Mouse.GetPosition(null);
 				
 				geometry = newLine.Properties[Path.DataProperty].Value;
 			}
 			
-			protected override void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+			protected override void OnPreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
 			{
 				e.Handled = true;
 				base.OnPreviewMouseLeftButtonDown(sender, e);
 			}
 			
-			protected override void OnMouseMove(object sender, MouseEventArgs e)
+			protected override void OnMouseMove(object sender, PointerEventArgs e)
 			{
 				var delta = matrix.Transform(e.GetPosition(null) - sP);
 				var point = new Point(Math.Round(delta.X, 0), Math.Round(delta.Y, 0));
 
 				var segment = figure.Segments.LastOrDefault() as LineSegment;
-				if (Mouse.LeftButton == MouseButtonState.Pressed)
+				if (e.Properties.IsLeftButtonPressed)
 				{
 					if (segment == null || segment.Point != point)
 					{
-						figure.Segments.Add(new LineSegment(point, false));
+						figure.Segments.Add(new LineSegment() { Point = point });
 						segment = figure.Segments.Last() as LineSegment;}
 				}
 					
@@ -117,18 +118,18 @@ namespace gip.ext.designer.avui.Extensions
 				prop.SetValue(prop.TypeConverter.ConvertToInvariantString(figure));
 			}
 			
-			protected override void OnMouseUp(object sender, MouseButtonEventArgs e)
+			protected override void OnMouseUp(object sender, PointerReleasedEventArgs e)
 			{
 				var delta = matrix.Transform(e.GetPosition(null) - sP);
 				var point = new Point(Math.Round(delta.X, 0), Math.Round(delta.Y,0));
 				
-				figure.Segments.Add(new LineSegment(point, false));
+				figure.Segments.Add(new LineSegment() { Point = point });
 				var prop = geometry.Properties[PathGeometry.FiguresProperty];
 				prop.SetValue(prop.TypeConverter.ConvertToInvariantString(figure));
 			}
 			
-			protected override void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-			{
+			protected override void OnMouseDoubleClick(object sender, PointerPressedEventArgs e)
+            {
 				base.OnMouseDoubleClick(sender, e);
 				
 				figure.Segments.RemoveAt(figure.Segments.Count - 1);
@@ -140,7 +141,7 @@ namespace gip.ext.designer.avui.Extensions
 					changeGroup = null;
 				}
 				
-				Stop();
+				Stop(e);
 			}
 
 			protected override void OnStopped()

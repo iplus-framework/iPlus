@@ -1,10 +1,13 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using System;
 using gip.ext.design.avui.Extensions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Metadata;
+using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -14,35 +17,34 @@ namespace gip.ext.designer.avui.Controls
 	public class DesignerThumb : Thumb
 	{
 		/// <summary>
-		/// Dependency property for <see cref="IsPrimarySelection"/>.
+		/// Styled property for <see cref="IsPrimarySelection"/>.
 		/// </summary>
-		public static readonly DependencyProperty IsPrimarySelectionProperty
-			= DependencyProperty.Register("IsPrimarySelection", typeof(bool), typeof(DesignerThumb));
+		public static readonly StyledProperty<bool> IsPrimarySelectionProperty =
+			AvaloniaProperty.Register<DesignerThumb, bool>(nameof(IsPrimarySelection));
 		
 		/// <summary>
-		/// Dependency property for <see cref="IsPrimarySelection"/>.
+		/// Styled property for <see cref="ThumbVisible"/>.
 		/// </summary>
-		public static readonly DependencyProperty ThumbVisibleProperty
-			= DependencyProperty.Register("ThumbVisible", typeof(bool), typeof(DesignerThumb), new FrameworkPropertyMetadata(SharedInstances.BoxedTrue));
+		public static readonly StyledProperty<bool> ThumbVisibleProperty =
+			AvaloniaProperty.Register<DesignerThumb, bool>(nameof(ThumbVisible), true);
 
 		/// <summary>
-		/// Dependency property for <see cref="OperationMenu"/>.
+		/// Styled property for <see cref="OperationMenu"/>.
 		/// </summary>
-		public static readonly DependencyProperty OperationMenuProperty =
-			DependencyProperty.Register("OperationMenu", typeof(Control[]), typeof(DesignerThumb), new PropertyMetadata(null));
+		public static readonly StyledProperty<Control[]?> OperationMenuProperty =
+			AvaloniaProperty.Register<DesignerThumb, Control[]?>(nameof(OperationMenu));
 
 		public PlacementAlignment Alignment;
 		
 		static DesignerThumb()
 		{
-			//This OverrideMetadata call tells the system that this element wants to provide a style that is different than its base class.
-			//This style is defined in themes\generic.xaml
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(DesignerThumb), new FrameworkPropertyMetadata(typeof(DesignerThumb)));
+			// In Avalonia, default styles are typically defined in Themes/Generic.axaml
+			// or handled through the styling system
 		}
 
 		public void ReDraw()
 		{
-			var parent = this.TryFindParent<FrameworkElement>();
+			var parent = this.TryFindParent<Control>();
 			if (parent != null)
 				parent.InvalidateArrange();
 		}
@@ -51,7 +53,7 @@ namespace gip.ext.designer.avui.Controls
 		/// Gets/Sets if the resize thumb is attached to the primary selection.
 		/// </summary>
 		public bool IsPrimarySelection {
-			get { return (bool)GetValue(IsPrimarySelectionProperty); }
+			get { return GetValue(IsPrimarySelectionProperty); }
 			set { SetValue(IsPrimarySelectionProperty, value); }
 		}
 		
@@ -59,7 +61,7 @@ namespace gip.ext.designer.avui.Controls
 		/// Gets/Sets if the resize thumb is visible.
 		/// </summary>
 		public bool ThumbVisible {
-			get { return (bool)GetValue(ThumbVisibleProperty); }
+			get { return GetValue(ThumbVisibleProperty); }
 			set { SetValue(ThumbVisibleProperty, value); }
 		}
 
@@ -68,7 +70,7 @@ namespace gip.ext.designer.avui.Controls
 		/// </summary>
 		public Control[] OperationMenu
 		{
-			get { return (Control[])GetValue(OperationMenuProperty); }
+			get { return GetValue(OperationMenuProperty); }
 			set { SetValue(OperationMenuProperty, value); }
 		}
 	}

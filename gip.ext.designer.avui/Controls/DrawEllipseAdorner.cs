@@ -5,13 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -29,7 +28,7 @@ namespace gip.ext.designer.avui.Controls
             return new EllipseGeometry(new Rect(StartPointRelativeToShapeContainer, pointRelativeToPathContainer));
         }
 
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
             Ellipse newInstance = (Ellipse)ContainerForShape.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(Ellipse), null);
             DesignItem item = ContainerForShape.Context.Services.Component.RegisterComponentForDesigner(newInstance);

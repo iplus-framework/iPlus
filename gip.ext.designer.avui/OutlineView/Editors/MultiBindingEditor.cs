@@ -136,11 +136,11 @@ namespace gip.ext.designer.avui.OutlineView
 
         public void InitEditor(DesignItem designObject, TriggerOutlineNodeBase parentTriggerNode)
         {
-            InitEditor(designObject);
+            LoadItemsCollection(designObject);
             _ParentTriggerNode = parentTriggerNode;
         }
 
-        public void InitEditor(DesignItem designObject)
+        public void LoadItemsCollection(DesignItem designObject)
         {
             Debug.Assert(designObject.Component is MultiBinding);
             if (_DesignObjectBinding == designObject)

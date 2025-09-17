@@ -4,6 +4,7 @@
 using System.Windows;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
+using gip.ext.designer.avui.Extensions;
 
 namespace gip.ext.designer.avui.Controls
 {

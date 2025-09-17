@@ -6,8 +6,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -18,7 +17,7 @@ namespace gip.ext.designer.avui.Controls
     {
         static HeightDisplay()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(HeightDisplay), new FrameworkPropertyMetadata(typeof(HeightDisplay)));
+            //DefaultStyleKeyProperty.OverrideMetadata(typeof(HeightDisplay), new FrameworkPropertyMetadata(typeof(HeightDisplay)));
         }
     }
 
@@ -29,7 +28,7 @@ namespace gip.ext.designer.avui.Controls
     {
         static WidthDisplay()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(WidthDisplay), new FrameworkPropertyMetadata(typeof(WidthDisplay)));
+            //DefaultStyleKeyProperty.OverrideMetadata(typeof(WidthDisplay), new FrameworkPropertyMetadata(typeof(WidthDisplay)));
         }
     }
 }

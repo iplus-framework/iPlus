@@ -4,6 +4,8 @@ using gip.ext.designer.avui.Xaml;
 using gip.ext.designer.avui.Services;
 using System;
 using System.Windows;
+using Avalonia.Controls;
+using System.Threading.Tasks;
 
 namespace WpfDesign.Designer.Services
 {
@@ -64,14 +66,15 @@ namespace WpfDesign.Designer.Services
 			}
 		}
 
-		public virtual bool CanPaste(DesignContext designContext)
+		public virtual async Task<bool> CanPasteAsync(DesignContext designContext)
 		{
 			ISelectionService selectionService = designContext.Services.GetService<ISelectionService>();
 			if (selectionService != null && selectionService.SelectedItems.Count != 0)
 			{
 				try
 				{
-					string xaml = Clipboard.GetText(TextDataFormat.Xaml);
+                    string xaml = await TopLevel.GetTopLevel(designContext.RootItem.View)?.Clipboard?.GetTextAsync();
+                    //string xaml = Clipboard.GetText(TextDataFormat.Xaml);
 					if (xaml != "" && xaml != " ")
 						return true;
 				}

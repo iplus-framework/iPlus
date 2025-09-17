@@ -101,6 +101,23 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
             }
         }
 
+        public Color Color
+        {
+            get { return Brush is SolidColorBrush ? ((SolidColorBrush)Brush).Color : Colors.Black; }
+
+            set
+            {
+                if (Brush is SolidColorBrush && !Brush.IsFrozen)
+                {
+                    ((SolidColorBrush)Brush).Color = value;
+                }
+                else
+                {
+                    Brush = new SolidColorBrush(value);
+                }
+            }
+        }
+
         void DetermineCurrentKind()
         {
             if (Brush == null)

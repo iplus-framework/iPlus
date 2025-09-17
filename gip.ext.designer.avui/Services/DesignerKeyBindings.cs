@@ -24,7 +24,7 @@ namespace gip.ext.designer.avui.Services
         public void RegisterBinding(KeyBinding binding)
         {
             if(binding!=null) {
-                _surface.InputBindings.Add(binding);
+                _surface.KeyBindings.Add(binding);
                 _bindings.Add(binding);
             }
         }
@@ -32,19 +32,19 @@ namespace gip.ext.designer.avui.Services
         public void DeregisterBinding(KeyBinding binding)
         {
             if(_bindings.Contains(binding)) {
-                _surface.InputBindings.Remove(binding);
+                _surface.KeyBindings.Remove(binding);
                 _bindings.Remove(binding);
             }
         }
 
         public KeyBinding GetBinding(KeyGesture gesture)
         {
-            return _bindings.FirstOrDefault(binding => binding.Key == gesture.Key && binding.Modifiers == gesture.Modifiers);
+            return _bindings.FirstOrDefault(binding => binding.Gesture.Key == gesture.Key && binding.Gesture.KeyModifiers == gesture.KeyModifiers);
         }
 
         public KeyBinding GetBinding(KeyEventArgs e)
         {
-            return _bindings.FirstOrDefault(binding => binding.Gesture.Matches(null,e));
+            return _bindings.FirstOrDefault(binding => binding.Gesture.Matches(e));
         }
 
 

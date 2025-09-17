@@ -23,7 +23,8 @@ namespace gip.ext.designer.avui.Xaml
 	{
 		readonly XamlDocument _doc;
 		readonly XamlDesignItem _rootItem;
-		internal readonly XamlComponentService _componentService;
+        readonly XamlParserSettings _parserSettings;
+        internal readonly XamlComponentService _componentService;
 		
 		readonly XamlEditOperations _xamlEditOperations;
 		
@@ -99,19 +100,29 @@ namespace gip.ext.designer.avui.Xaml
 			parserSettings.TypeFinder = loadSettings.TypeFinder;
 			parserSettings.CreateInstanceCallback = this.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory;
 			parserSettings.ServiceProvider = this.Services;
-			_doc = XamlParser.Parse(xamlReader, parserSettings);
-			if (_doc==null)
-				loadSettings.ReportErrors(xamlErrorService);
-			
-			_rootItem = _componentService.RegisterXamlComponentRecursive(_doc.RootElement);
+			_parserSettings = parserSettings;
+            _doc = XamlParser.Parse(xamlReader, parserSettings);
+
+            loadSettings.ReportErrors(xamlErrorService);
+
+            if (_doc == null)
+            {
+                string message;
+                if (xamlErrorService != null && xamlErrorService.Errors.Count > 0)
+                    message = xamlErrorService.Errors[0].Message;
+                else
+                    message = "Could not load document.";
+                throw new XamlLoadException(message);
+            }
+
+            _rootItem = _componentService.RegisterXamlComponentRecursive(_doc.RootElement);
 			
 			if (_rootItem!=null){
 				var rootBehavior=new RootItemBehavior();
 				rootBehavior.Intialize(this);
 			}
-				
-			
-			_xamlEditOperations=new XamlEditOperations(this,parserSettings);
+							
+			_xamlEditOperations = new XamlEditOperations(this,parserSettings);
 		}
 		
 		
@@ -129,12 +140,20 @@ namespace gip.ext.designer.avui.Xaml
 		public override DesignItem RootItem {
 			get { return _rootItem; }
 		}
-		
-		/// <summary>
-		/// Opens a new change group used to batch several changes.
-		/// ChangeGroups work as transactions and are used to support the Undo/Redo system.
-		/// </summary>
-		public override ChangeGroup OpenGroup(string changeGroupTitle, ICollection<DesignItem> affectedItems)
+
+        /// <summary>
+        /// Gets the parser Settings being used
+        /// </summary>
+        public XamlParserSettings ParserSettings
+        {
+            get { return _parserSettings; }
+        }
+
+        /// <summary>
+        /// Opens a new change group used to batch several changes.
+        /// ChangeGroups work as transactions and are used to support the Undo/Redo system.
+        /// </summary>
+        public override ChangeGroup OpenGroup(string changeGroupTitle, ICollection<DesignItem> affectedItems)
 		{
 			if (affectedItems == null)
 				throw new ArgumentNullException("affectedItems");

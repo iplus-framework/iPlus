@@ -6,23 +6,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.ext.design.avui.Extensions;
-using System.Windows.Controls;
 using System.Windows;
 using gip.ext.designer.avui.Controls;
 using System.Diagnostics;
 using gip.ext.xamldom.avui;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia;
 
 namespace gip.ext.designer.avui.Extensions
 {
     /// <summary>
     /// Handles selection multiple controls inside a Panel.
     /// </summary>
-    [ExtensionFor(typeof(FrameworkElement))]
+    [ExtensionFor(typeof(Control))]
     public class ShapeDrawingHandler : BehaviorExtension, IHandleDrawToolMouseDown
     {
         public ShapeDrawingHandler()
@@ -36,7 +35,7 @@ namespace gip.ext.designer.avui.Extensions
             this.ExtendedItem.AddBehavior(typeof(IHandleDrawToolMouseDown), this);
         }
 
-        public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
+        public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
         {
             if ((designPanel.Context.Services.Tool.CurrentTool != null) && (designPanel.Context.Services.Tool.CurrentTool is IDrawingTool))
             {
@@ -46,7 +45,7 @@ namespace gip.ext.designer.avui.Extensions
                     if (DrawShapesGesture.IsGestureActive)
                         return;
 
-                    var ancestors = (result.ModelHit.View as DependencyObject).GetVisualAncestors();
+                    var ancestors = (result.ModelHit.View as Visual).GetVisualAncestors();
                     var queryPanels = ancestors.OfType<Panel>();
                     if (!queryPanels.Any())
                         return;
@@ -86,7 +85,7 @@ namespace gip.ext.designer.avui.Extensions
             _ShapeType = shapeType;
         }
 
-        public override DrawShapesAdornerBase GenerateShapeDrawer(MouseEventArgs e)
+        public override DrawShapesAdornerBase GenerateShapeDrawer(PointerEventArgs e)
         {
             Point startPointRelativeToShapeContainer = e.GetPosition(ContainerForShape.View);
             if (_ShapeType == DrawShapeType.DrawLine)

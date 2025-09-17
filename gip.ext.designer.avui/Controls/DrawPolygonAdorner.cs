@@ -5,15 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Input;
+using Avalonia.Controls.Shapes;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -34,7 +33,7 @@ namespace gip.ext.designer.avui.Controls
             return GetGeometryForPoly(PointCollection);
         }
 
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
             Polygon newInstance = (Polygon)ContainerForShape.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(Polygon), null);
             DesignItem item = ContainerForShape.Context.Services.Component.RegisterComponentForDesigner(newInstance);

@@ -4,99 +4,133 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Data;
 using System.IO;
 using System.Reflection;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace gip.ext.designer.avui.Services
 {
-	public class ChooseClass : INotifyPropertyChanged
-	{
-		public ChooseClass(IEnumerable<Assembly> assemblies)
-		{
-			foreach (var a in assemblies) {
-				foreach (var t in a.GetExportedTypes()) {
-					if (t.IsClass) {
-						if (t.IsAbstract) continue;
-						if (t.IsNested) continue;
-						if (t.IsGenericTypeDefinition) continue;
-						if (t.GetConstructor(Type.EmptyTypes) == null) continue;
-						projectClasses.Add(t);
-					}
-				}
-			}
+    public class ChooseClass : INotifyPropertyChanged
+    {
+        public ChooseClass(IEnumerable<Assembly> assemblies)
+        {
+            foreach (var a in assemblies)
+            {
+                foreach (var t in a.GetExportedTypes())
+                {
+                    if (t.IsClass)
+                    {
+                        if (t.IsAbstract) continue;
+                        if (t.IsNested) continue;
+                        if (t.IsGenericTypeDefinition) continue;
+                        if (t.GetConstructor(Type.EmptyTypes) == null) continue;
+                        projectClasses.Add(t);
+                    }
+                }
+            }
 
-			projectClasses.Sort((c1, c2) => c1.Name.CompareTo(c2.Name));
-			classes = new ListCollectionView(projectClasses);
-			classes.Filter = FilterPredicate;
-		}
+            projectClasses.Sort((c1, c2) => c1.Name.CompareTo(c2.Name));
+            classes = new ObservableCollection<Type>(FilteredClasses);
+        }
 
-		List<Type> projectClasses = new List<Type>();		
+        List<Type> projectClasses = new List<Type>();
 
-		ListCollectionView classes;
+        ObservableCollection<Type> classes;
 
-		public ICollectionView Classes {
-			get { return classes; }
-		}
+        public ObservableCollection<Type> Classes
+        {
+            get { return classes; }
+        }
 
-		string filter;
+        private IEnumerable<Type> FilteredClasses
+        {
+            get
+            {
+                return projectClasses.Where(FilterPredicate);
+            }
+        }
 
-		public string Filter {
-			get {
-				return filter;
-			}
-			set {
-				filter = value;
-				Classes.Refresh();
-				RaisePropertyChanged("Filter");
-			}
-		}
+        string filter;
 
-		bool showSystemClasses;
+        public string Filter
+        {
+            get
+            {
+                return filter;
+            }
+            set
+            {
+                filter = value;
+                RefreshClasses();
+                RaisePropertyChanged("Filter");
+            }
+        }
 
-		public bool ShowSystemClasses {
-			get {
-				return showSystemClasses;
-			}
-			set {
-				showSystemClasses = value;
-				Classes.Refresh();
-				RaisePropertyChanged("ShowSystemClasses");
-			}
-		}
+        bool showSystemClasses;
 
-		public Type CurrentClass {
-			get { return Classes.CurrentItem as Type; }
-		}
+        public bool ShowSystemClasses
+        {
+            get
+            {
+                return showSystemClasses;
+            }
+            set
+            {
+                showSystemClasses = value;
+                RefreshClasses();
+                RaisePropertyChanged("ShowSystemClasses");
+            }
+        }
 
-		bool FilterPredicate(object item)
-		{
-			Type c = item as Type;
-			if (!ShowSystemClasses) {
-				if (c.Namespace.StartsWith("System") || c.Namespace.StartsWith("Microsoft")) {
-					return false;
-				}
-			}
-			return Match(c.Name, Filter);
-		}
+        public Type CurrentClass
+        {
+            get 
+            {
+                // TODO: Old Implememnation returned Classes.CurrentItem from CollectionView
+                return classes.FirstOrDefault(); 
+            }
+        }
 
-		static bool Match(string className, string filter)
-		{
-			if (string.IsNullOrEmpty(filter))
-				return true;
-			else
-				return className.StartsWith(filter, StringComparison.InvariantCultureIgnoreCase);
-		}
+        private void RefreshClasses()
+        {
+            classes.Clear();
+            foreach (var type in FilteredClasses)
+            {
+                classes.Add(type);
+            }
+        }
 
-		#region INotifyPropertyChanged Members
-		public event PropertyChangedEventHandler PropertyChanged;
+        bool FilterPredicate(Type c)
+        {
+            if (!ShowSystemClasses)
+            {
+                if (c.Namespace.StartsWith("System") || c.Namespace.StartsWith("Microsoft"))
+                {
+                    return false;
+                }
+            }
+            return Match(c.Name, Filter);
+        }
 
-		void RaisePropertyChanged(string name)
-		{
-			if (PropertyChanged != null) {
-				PropertyChanged(this, new PropertyChangedEventArgs(name));
-			}
-		}
-		#endregion
-	}
+        static bool Match(string className, string filter)
+        {
+            if (string.IsNullOrEmpty(filter))
+                return true;
+            else
+                return className.StartsWith(filter, StringComparison.InvariantCultureIgnoreCase);
+        }
+
+        #region INotifyPropertyChanged Members
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        void RaisePropertyChanged(string name)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(name));
+            }
+        }
+        #endregion
+    }
 }

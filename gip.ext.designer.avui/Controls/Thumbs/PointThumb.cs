@@ -1,10 +1,12 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Reactive;
 using gip.ext.design.avui.Adorners;
-using System.Windows.Data;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -19,9 +21,9 @@ namespace gip.ext.designer.avui.Controls
 			set { SetValue(InnerRenderTransformProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for InnerRenderTransform.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty InnerRenderTransformProperty =
-			DependencyProperty.Register("InnerRenderTransform", typeof(Transform), typeof(PointThumb), new PropertyMetadata(null));
+		// Using an AvaloniaProperty as the backing store for InnerRenderTransform.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<Transform> InnerRenderTransformProperty =
+			AvaloniaProperty.Register<PointThumb, Transform>("InnerRenderTransform", null);
 
 		public bool IsEllipse
 		{
@@ -29,9 +31,9 @@ namespace gip.ext.designer.avui.Controls
 			set { SetValue(IsEllipseProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for IsEllipse.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty IsEllipseProperty =
-			DependencyProperty.Register("IsEllipse", typeof(bool), typeof(PointThumb), new PropertyMetadata(false));
+		// Using an AvaloniaProperty as the backing store for IsEllipse.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<bool> IsEllipseProperty =
+			AvaloniaProperty.Register<PointThumb, bool>("IsEllipse", false);
 
 		public Point Point
 		{
@@ -39,17 +41,25 @@ namespace gip.ext.designer.avui.Controls
 			set { SetValue(PointProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for Point.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty PointProperty =
-			DependencyProperty.Register("Point", typeof(Point), typeof(PointThumb), new PropertyMetadata(OnPointChanged));
+		// Using an AvaloniaProperty as the backing store for Point.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<Point> PointProperty =
+			AvaloniaProperty.Register<PointThumb, Point>("Point", default(Point), false, Avalonia.Data.BindingMode.TwoWay);
 
-		private static void OnPointChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		
+		static PointThumb()
+		{
+			PointProperty.Changed.AddClassHandler<PointThumb>((x, e) => OnPointChanged(x, e));
+			//This OverrideDefaultValue call tells the system that this element wants to provide a style that is different than its base class.
+			//This style is defined in themes\generic.xaml
+			//DefaultStyleKeyProperty.OverrideDefaultValue<PointThumb>(typeof(PointThumb));
+		}
+
+		private static void OnPointChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var pt = (PointThumb)d;
 			((PointPlacementSupport)pt.AdornerPlacement).p = (Point)e.NewValue;
-			var bndExpr = pt.GetBindingExpression(PointThumb.RelativeToPointProperty);
-			if (bndExpr != null)
-				bndExpr.UpdateTarget();
+            pt.GetValue(PointThumb.RelativeToPointProperty);
+            BindingOperations.GetBindingExpressionBase(pt, PointThumb.RelativeToPointProperty)?.UpdateTarget();
 			((PointThumb)d).ReDraw();
 		}
 		
@@ -59,16 +69,9 @@ namespace gip.ext.designer.avui.Controls
 			set { SetValue(RelativeToPointProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for RelativeToPoint.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty RelativeToPointProperty =
-			DependencyProperty.Register("RelativeToPoint", typeof(Point?), typeof(PointThumb), new PropertyMetadata(null));
-		
-		static PointThumb()
-		{
-			//This OverrideMetadata call tells the system that this element wants to provide a style that is different than its base class.
-			//This style is defined in themes\generic.xaml
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(PointThumb), new FrameworkPropertyMetadata(typeof(PointThumb)));
-		}
+		// Using an AvaloniaProperty as the backing store for RelativeToPoint.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<Point?> RelativeToPointProperty =
+			AvaloniaProperty.Register<PointThumb, Point?>("RelativeToPoint", null);
 		
 		public PointThumb(Point point)
 		{
@@ -91,7 +94,7 @@ namespace gip.ext.designer.avui.Controls
 				this.p = point;
 			}
 
-			public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+			public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
 			{
 				adorner.Arrange(new Rect(p.X, p.Y, adornedElementSize.Width, adornedElementSize.Height));
 			}

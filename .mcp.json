@@ -9,26 +9,35 @@
     //  "type": "http",
     //  "url": "https://api.githubcopilot.com/mcp/"
     //},
-    "iPlus": {
-      "command": "npx",
+    //"iPlus": {
+    //  "command": "npx",
+    //  "args": [
+    //    "-y",
+    //    "mcp-remote",
+    //    "http://localhost:8750/sse",
+    //    "--allow-http",
+    //    "--header",
+    //    "Authorization:00#00"
+    //  ]
+    //},
+    //"github": {
+    //  "command": "npx",
+    //  "args": [
+    //    "-y",
+    //    "@modelcontextprotocol/server-github"
+    //  ],
+    //  "env": {
+    //    "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOURTOKEN>"
+    //  }
+    //},
+    "avalonia": {
+      "command": "dotnet",
       "args": [
-        "-y",
-        "mcp-remote",
-        "http://localhost:8750/sse",
-        "--allow-http",
-        "--header",
-        "Authorization:00#00"
-      ]
-    },
-    "github": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-github"
+        "run",
+        "--project",
+        "D:/Devel/iPlusGit/publicGitHub/AvaloniaUI.MCP/src/AvaloniaUI.MCP/AvaloniaUI.MCP.csproj"
       ],
-      "env": {
-        "GITHUB_PERSONAL_ACCESS_TOKEN": "<YOURTOKEN>"
-      }
+      "cwd": "D:/Devel/iPlusGit/publicGitHub/AvaloniaUI.MCP/src/AvaloniaUI.MCP"
     }
   }
 }

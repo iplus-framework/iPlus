@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
-using System.Windows.Controls;
-using System.Windows;
 using gip.ext.designer.avui.Controls;
-using System.Windows.Media;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -37,17 +37,19 @@ namespace gip.ext.designer.avui.Extensions
             {
                 UpdateAdorner();
 
-                var element = ExtendedItem.Component as UIElement;
+                var element = ExtendedItem.Component as Control;
                 if (element != null)
                 {
-                    element.IsVisibleChanged += (s, e) => UpdateAdorner();
+                    // For AvaloniaProperties, you can observe changes directly
+                    element.GetObservable(Control.IsVisibleProperty)
+                        .Subscribe(isVisible => UpdateAdorner());
                 }
             }
         }
 
         void UpdateAdorner()
         {
-            var element = ExtendedItem.Component as UIElement;
+            var element = ExtendedItem.Component as Control;
             if (element != null)
             {
                 var border = element as Border;

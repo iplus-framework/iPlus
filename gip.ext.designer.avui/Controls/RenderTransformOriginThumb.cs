@@ -4,10 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
+using Avalonia.Controls.Primitives;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 
@@ -22,7 +19,7 @@ namespace gip.ext.designer.avui.Controls
 		{
 			//This OverrideMetadata call tells the system that this element wants to provide a style that is different than its base class.
 			//This style is defined in themes\generic.xaml
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(RenderTransformOriginThumb), new FrameworkPropertyMetadata(typeof(RenderTransformOriginThumb)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof(RenderTransformOriginThumb), new FrameworkPropertyMetadata(typeof(RenderTransformOriginThumb)));
 		}
 	}
 }

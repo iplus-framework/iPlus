@@ -11,7 +11,7 @@ namespace gip.ext.designer.avui.Controls
 	{
 		static RotateThumb()
 		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(RotateThumb), new FrameworkPropertyMetadata(typeof(RotateThumb)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof(RotateThumb), new FrameworkPropertyMetadata(typeof(RotateThumb)));
 		}
 
 		public RotateThumb()

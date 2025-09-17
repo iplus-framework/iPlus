@@ -55,7 +55,7 @@ namespace gip.ext.designer.avui.Extensions
 		}
 		
 		#region Change margin through handle/stub
-		private void OnMouseDown(object sender, MouseButtonEventArgs e)
+		private void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{
 			e.Handled = true;
 			var row = (int) this.ExtendedItem.Properties.GetAttachedProperty(Grid.RowProperty).ValueOnInstance;

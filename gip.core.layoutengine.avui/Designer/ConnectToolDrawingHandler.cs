@@ -4,10 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Linq;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
@@ -19,6 +15,8 @@ using gip.ext.designer.avui.Extensions;
 using gip.core.layoutengine.avui;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
+using Avalonia.Input;
+using Avalonia;
 
 
 namespace gip.core.layoutengine.avui
@@ -43,7 +41,7 @@ namespace gip.core.layoutengine.avui
             this.ExtendedItem.AddBehavior(typeof(ConnectToolDrawingHandler), this);
         }
 
-        public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
+        public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
         {
             DependencyObject vbConnectorAdorner = VBVisualTreeHelper.FindParentObjectInVisualTree(result.VisualHit, typeof(VBConnectorAdorner));
             if (vbConnectorAdorner == null)
@@ -53,7 +51,7 @@ namespace gip.core.layoutengine.avui
                 return;
 
             if ((result.AdornerHit != null) && (result.AdornerHit.AdornedDesignItem != null)
-                && (placement.ConnectorPoint != null) && e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, MouseButton.Left))
+                && (placement.ConnectorPoint != null) && e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
             {
                 if (String.IsNullOrEmpty(placement.ConnectorPoint.Name))
                     return;
@@ -109,7 +107,7 @@ namespace gip.core.layoutengine.avui
             DesignManager = designManager;
         }
 
-        public override DrawShapesAdornerBase GenerateShapeDrawer(MouseEventArgs e)
+        public override DrawShapesAdornerBase GenerateShapeDrawer(PointerEventArgs e)
         {
             Point startPointRelativeToShapeContainer = e.GetPosition(ContainerForShape.View);
             return new DrawVBEdgeAdorner(startPointRelativeToShapeContainer, ContainerOfStartPoint, ContainerForShape, _sourceConnector, DesignManager);

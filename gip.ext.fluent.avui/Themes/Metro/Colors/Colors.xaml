@@ -352,6 +352,6 @@
     </LinearGradientBrush>
     <SolidColorBrush x:Key="ButtonNormalBorder" Color="#FF707070"/>
     <!-- WPF default colours -->
-    <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{DynamicResource WhiteColor}" />
-    <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{DynamicResource BlackColor}" />
+    <SolidColorBrush x:Key="{x:Static ThemeBackgroundBrush}" Color="{DynamicResource WhiteColor}" />
+    <SolidColorBrush x:Key="{x:Static ThemeForegroundBrush}" Color="{DynamicResource BlackColor}" />
 </ResourceDictionary>

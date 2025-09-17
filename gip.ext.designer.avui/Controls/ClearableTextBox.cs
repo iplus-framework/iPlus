@@ -1,9 +1,11 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using System.Windows;
-using System.Windows.Input;
-using System.Windows.Controls;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -13,14 +15,11 @@ namespace gip.ext.designer.avui.Controls
 
 		static ClearableTextBox()
 		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof (ClearableTextBox),
-			                                         new FrameworkPropertyMetadata(typeof (ClearableTextBox)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof (ClearableTextBox), new FrameworkPropertyMetadata(typeof (ClearableTextBox)));
 		}
 
 		public ClearableTextBox()
 		{
-			this.GotFocus += this.TextBoxGotFocus;
-			this.LostFocus += this.TextBoxLostFocus;
 			this.TextChanged += this.TextBoxTextChanged;
 			this.KeyUp += this.ClearableTextBox_KeyUp;
 		}
@@ -31,29 +30,21 @@ namespace gip.ext.designer.avui.Controls
 				this.TextRemoverClick(sender, null);
 		}
 
-		public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            this.textRemoverButton = e.NameScope.Find<Button>("TextRemover") as Button;
+            if (null != this.textRemoverButton)
+            {
+                this.textRemoverButton.Click += this.TextRemoverClick;
+            }
+
+            base.OnApplyTemplate(e);
+        }
+
+        protected void UpdateState()
 		{
-			base.OnApplyTemplate();
-
-			this.textRemoverButton = this.GetTemplateChild("TextRemover") as Button;
-			if (null != this.textRemoverButton)
-			{
-				this.textRemoverButton.Click += this.TextRemoverClick;
-			}
-
-			this.UpdateState();
-		}
-
-		protected void UpdateState()
-		{
-			if (string.IsNullOrEmpty(this.Text))
-			{
-				VisualStateManager.GoToState(this, "TextRemoverHidden", true);
-			}
-			else
-			{
-				VisualStateManager.GoToState(this, "TextRemoverVisible", true);
-			}
+            PseudoClasses.Set(":text-present", !string.IsNullOrEmpty(this.Text));
+            PseudoClasses.Set(":empty", string.IsNullOrEmpty(this.Text));
 		}
 
 		private void TextBoxTextChanged(object sender, TextChangedEventArgs e)
@@ -67,14 +58,16 @@ namespace gip.ext.designer.avui.Controls
 			this.Focus();
 		}
 
-		private void TextBoxGotFocus(object sender, RoutedEventArgs e)
-		{
-			this.UpdateState();
-		}
+        protected override void OnGotFocus(GotFocusEventArgs e)
+        {
+            this.UpdateState();
+            base.OnGotFocus(e);
+        }
 
-		private void TextBoxLostFocus(object sender, RoutedEventArgs e)
-		{
-			this.UpdateState();
-		}
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            this.UpdateState();
+            base.OnLostFocus(e);
+        }
 	}
 }

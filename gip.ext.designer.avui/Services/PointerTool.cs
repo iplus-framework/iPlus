@@ -26,10 +26,10 @@ namespace gip.ext.designer.avui.Services
 			designPanel.MouseDown -= OnMouseDown;
 		}
 		
-		void OnMouseDown(object sender, PointerEventArgs e)
+		void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{
 			IDesignPanel designPanel = (IDesignPanel)sender;
-			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true, HitTestType.ElementSelection);
 			if (result.ModelHit != null) {
 				IHandlePointerToolMouseDown b = result.ModelHit.GetBehavior<IHandlePointerToolMouseDown>();
 				if (b != null) {
@@ -37,7 +37,7 @@ namespace gip.ext.designer.avui.Services
 				}
                 if (!e.Handled)
                 {
-                    if (e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, MouseButton.Left))
+                    if (e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
                     {
                         e.Handled = true;
                         DesignItem itemToDrag = null;
@@ -51,17 +51,29 @@ namespace gip.ext.designer.avui.Services
                             //else
                                 selectionService.TemporarySelectionFromTreeView = null;
                         }
+                        bool setSelectionIfNotMoving = false;
                         if (itemToDrag == null)
                         {
-                            itemToDrag = result.ModelHit;
-                            selectionService.SetSelectedComponents(new DesignItem[] { itemToDrag }, SelectionTypes.Auto);
+                            if (selectionService.IsComponentSelected(result.ModelHit))
+                            {
+                                setSelectionIfNotMoving = true;
+                                // There might be multiple components selected. We might have
+                                // to set the selection to only the item clicked on
+                                // (or deselect the item clicked on if Ctrl is pressed),
+                                // but we should do so only if the user isn't performing a drag operation.
+                            }
+                            else
+                            {
+                                itemToDrag = result.ModelHit;
+                                selectionService.SetSelectedComponents(new DesignItem[] { itemToDrag }, SelectionTypes.Auto);
+                            }
                         }
 
                         //ISelectionService dependentDrawingService = designPanel.Context.Services.DependentDrawingsService;
                         //dependentDrawingService.SetSelectedComponents(new DesignItem[] { result.ModelHit }, SelectionTypes.Auto);
                         if (selectionService.IsComponentSelected(itemToDrag))
                         {
-                            new DragMoveMouseGesture(itemToDrag, e.ClickCount == 2).Start(designPanel, e);
+                            new DragMoveMouseGesture(itemToDrag, e.ClickCount == 2, setSelectionIfNotMoving).Start(designPanel, e);
                         }
                     }
                 }

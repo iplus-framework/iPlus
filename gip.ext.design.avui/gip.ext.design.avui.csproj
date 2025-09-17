@@ -74,14 +74,12 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="$(NetCorePackageVersion)" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Xaml.Behaviors" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Xaml.Behaviors" Version="11.3.2" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Interfaces\" />
-    <Folder Include="UIExtensions\" />
     <Folder Include="Services\" />
   </ItemGroup>
 </Project>

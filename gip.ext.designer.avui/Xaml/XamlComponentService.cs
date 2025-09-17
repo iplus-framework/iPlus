@@ -225,8 +225,7 @@ namespace gip.ext.designer.avui.Xaml
                 ev(this, new DesignItemEventArgs(item));
             }
         }
-	}
-
+	
 
         public IEnumerable<DesignItem> DesignItems
         {

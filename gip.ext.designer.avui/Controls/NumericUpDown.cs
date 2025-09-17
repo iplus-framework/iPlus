@@ -5,115 +5,108 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Primitives;
 using System.Globalization;
 using System.Diagnostics;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Metadata;
 
 namespace gip.ext.designer.avui.Controls
 {
-	public class NumericUpDown : Control
+	public class NumericUpDown : TemplatedControl
 	{
-		static NumericUpDown()
-		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(NumericUpDown),
-				new FrameworkPropertyMetadata(typeof(NumericUpDown)));
-		}
-		
 		TextBox textBox;
 		DragRepeatButton upButton;
 		DragRepeatButton downButton;
 
-		public static readonly DependencyProperty DecimalPlacesProperty =
-			DependencyProperty.Register("DecimalPlaces", typeof(int), typeof(NumericUpDown));
+		public static readonly StyledProperty<int> DecimalPlacesProperty =
+			AvaloniaProperty.Register<NumericUpDown, int>(nameof(DecimalPlaces));
 
 		public int DecimalPlaces {
-			get { return (int)GetValue(DecimalPlacesProperty); }
+			get { return GetValue(DecimalPlacesProperty); }
 			set { SetValue(DecimalPlacesProperty, value); }
 		}
 
-		public static readonly DependencyProperty MinimumProperty =
-			DependencyProperty.Register("Minimum", typeof(double), typeof(NumericUpDown));
+		public static readonly StyledProperty<double> MinimumProperty =
+			AvaloniaProperty.Register<NumericUpDown, double>(nameof(Minimum));
 
 		public double Minimum {
-			get { return (double)GetValue(MinimumProperty); }
+			get { return GetValue(MinimumProperty); }
 			set { SetValue(MinimumProperty, value); }
 		}
 
-		public static readonly DependencyProperty MaximumProperty =
-			DependencyProperty.Register("Maximum", typeof(double), typeof(NumericUpDown),
-			new FrameworkPropertyMetadata(100.0));
+		public static readonly StyledProperty<double> MaximumProperty =
+			AvaloniaProperty.Register<NumericUpDown, double>(nameof(Maximum), 100.0);
 
 		public double Maximum {
-			get { return (double)GetValue(MaximumProperty); }
+			get { return GetValue(MaximumProperty); }
 			set { SetValue(MaximumProperty, value); }
 		}
 
-		public static readonly DependencyProperty ValueProperty =
-			DependencyProperty.Register("Value", typeof(double?), typeof(NumericUpDown),
-			new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+		public static readonly StyledProperty<double?> ValueProperty =
+			AvaloniaProperty.Register<NumericUpDown, double?>(nameof(Value), 0.0, defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
 
 		public double? Value {
-			get { return (double)GetValue(ValueProperty); }
+			get { return GetValue(ValueProperty); }
 			set { SetValue(ValueProperty, value); }
 		}
 
-		public static readonly DependencyProperty SmallChangeProperty =
-			DependencyProperty.Register("SmallChange", typeof(double), typeof(NumericUpDown),
-			new FrameworkPropertyMetadata(1.0));
+		public static readonly StyledProperty<double> SmallChangeProperty =
+			AvaloniaProperty.Register<NumericUpDown, double>(nameof(SmallChange), 1.0);
 
 		public double SmallChange {
-			get { return (double)GetValue(SmallChangeProperty); }
+			get { return GetValue(SmallChangeProperty); }
 			set { SetValue(SmallChangeProperty, value); }
 		}
 
-		public static readonly DependencyProperty LargeChangeProperty =
-			DependencyProperty.Register("LargeChange", typeof(double), typeof(NumericUpDown),
-			new FrameworkPropertyMetadata(10.0));
+		public static readonly StyledProperty<double> LargeChangeProperty =
+			AvaloniaProperty.Register<NumericUpDown, double>(nameof(LargeChange), 10.0);
 
 		public double LargeChange {
-			get { return (double)GetValue(LargeChangeProperty); }
+			get { return GetValue(LargeChangeProperty); }
 			set { SetValue(LargeChangeProperty, value); }
 		}
 
 		bool IsDragging {
 			get {
-				return upButton.IsDragging;
+				return upButton?.IsDragging == true;
 			}
 			set {
-				upButton.IsDragging = value; downButton.IsDragging = value;
+				if (upButton != null) upButton.IsDragging = value;
+				if (downButton != null) downButton.IsDragging = value;
 			}
 		}
 
-		public override void OnApplyTemplate()
+		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
 		{
-			base.OnApplyTemplate();
+			base.OnApplyTemplate(e);
 
-			upButton = (DragRepeatButton)Template.FindName("PART_UpButton", this);
-			downButton = (DragRepeatButton)Template.FindName("PART_DownButton", this);
-			textBox = (TextBox)Template.FindName("PART_TextBox", this);
+			upButton = e.NameScope.Find<DragRepeatButton>("PART_UpButton");
+			downButton = e.NameScope.Find<DragRepeatButton>("PART_DownButton");
+			textBox = e.NameScope.Find<TextBox>("PART_TextBox");
 
-			upButton.Click += new RoutedEventHandler(upButton_Click);
-			downButton.Click += new RoutedEventHandler(downButton_Click);
+			if (upButton != null)
+			{
+				upButton.Click += upButton_Click;
 
-			var upDrag = new DragListener(upButton);
-			var downDrag = new DragListener(downButton);
+				var upDrag = new DragListener(upButton);
+				upDrag.Started += drag_Started;
+				upDrag.Changed += drag_Changed;
+				upDrag.Completed += drag_Completed;
+			}
 
-			upDrag.Started += drag_Started;
-			upDrag.Changed += drag_Changed;
-			upDrag.Completed += drag_Completed;
+			if (downButton != null)
+			{
+				downButton.Click += downButton_Click;
 
-			downDrag.Started += drag_Started;
-			downDrag.Changed += drag_Changed;			
-			downDrag.Completed += drag_Completed;
+				var downDrag = new DragListener(downButton);
+				downDrag.Started += drag_Started;
+				downDrag.Changed += drag_Changed;			
+				downDrag.Completed += drag_Completed;
+			}
 
 			Print();
 		}
@@ -181,15 +174,15 @@ namespace gip.ext.designer.avui.Controls
             double result;
             if (double.IsNaN((double)Value) || double.IsInfinity((double)Value))
             {
-                SetValue(delta);
+                SetValueInternal(delta);
             }
-            else if (double.TryParse(textBox.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
+            else if (textBox != null && double.TryParse(textBox.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
             {
-                SetValue(result + delta);
+                SetValueInternal(result + delta);
             }
             else
             {
-                SetValue((double)Value + delta);
+                SetValueInternal((double)Value + delta);
             }
         }
 
@@ -202,9 +195,7 @@ namespace gip.ext.designer.avui.Controls
             }
         }
 
-		//wpf bug?: Value = -1 updates bindings without coercing, workaround
-		//update: not derived from RangeBase - no problem
-		void SetValue(double? newValue)
+		void SetValueInternal(double? newValue)
 		{
             newValue = CoerceValue(newValue);
             if (Value != newValue && !(Value.HasValue && double.IsNaN(Value.Value) && newValue.HasValue && double.IsNaN(newValue.Value)))
@@ -219,18 +210,19 @@ namespace gip.ext.designer.avui.Controls
             return Math.Max(Minimum, Math.Min((double)newValue, Maximum));
         }
 
-		protected override void OnPreviewKeyDown(KeyEventArgs e)
+		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			base.OnPreviewKeyDown(e);
+			base.OnKeyDown(e);
 			if (e.Key == Key.Enter) {
 				double result;
-				if (double.TryParse(textBox.Text, out result)) {
-					SetValue(result);
+				if (textBox != null && double.TryParse(textBox.Text, out result)) {
+					SetValueInternal(result);
 				}
 				else {
 					Print();
 				}
-				textBox.SelectAll();
+				if (textBox != null)
+					textBox.SelectAll();
 				e.Handled = true;
 			}
 			else if (e.Key == Key.Up) {
@@ -249,22 +241,16 @@ namespace gip.ext.designer.avui.Controls
 				LargeDown();
 				e.Handled = true;
 			}
-			//else if (e.Key == Key.Home) {
-			//    Maximize();
-			//    e.Handled = true;
-			//}
-			//else if (e.Key == Key.End) {
-			//    Minimize();
-			//    e.Handled = true;
-			//}
 		}
 
         void SetInputValue()
         {
+            if (textBox == null) return;
+            
             double result;
             if (double.TryParse(textBox.Text, NumberStyles.Any, CultureInfo.InvariantCulture, out result))
             {
-                SetValue(result);
+                SetValueInternal(result);
             }
             else
             {
@@ -273,49 +259,55 @@ namespace gip.ext.designer.avui.Controls
         }
 
         protected override void OnLostFocus(RoutedEventArgs e)
-        {
-            base.OnLostFocus(e);
-            SetInputValue();
-        }
-
-        //protected override void OnMouseWheel(MouseWheelEventArgs e)
-        //{
-        //    if (e.Delta > 0)
-        //    {
-        //        if (Keyboard.IsKeyDown(Key.LeftShift))
-        //        {
-        //            LargeUp();
-        //        }
-        //        else
-        //        {
-        //            SmallUp();
-        //        }
-        //    }
-        //    else
-        //    {
-        //        if (Keyboard.IsKeyDown(Key.LeftShift))
-        //        {
-        //            LargeDown();
-        //        }
-        //        else
-        //        {
-        //            SmallDown();
-        //        }
-        //    }
-        //    e.Handled = true;
-        //}
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
 		{
-			base.OnPropertyChanged(e);
+			base.OnLostFocus(e);
+			SetInputValue();
+		}
 
-            if (e.Property == ValueProperty)
+		protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+		{
+			if (e.Delta.Y > 0)
+			{
+				if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+				{
+					LargeUp();
+				}
+				else
+				{
+					SmallUp();
+				}
+			}
+			else
+			{
+				if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+				{
+					LargeDown();
+				}
+				else
+				{
+					SmallDown();
+				}
+			}
+			e.Handled = true;
+		}
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+		{
+			base.OnPropertyChanged(change);
+
+            if (change.Property == ValueProperty)
             {
-                Value = CoerceValue((double?)e.NewValue);
+                var newValue = change.NewValue as double?;
+                var coercedValue = CoerceValue(newValue);
+                
+                if (coercedValue != newValue)
+                {
+                    SetCurrentValue(ValueProperty, coercedValue);
+                }
                 Print();
             }
-            else if (e.Property == SmallChangeProperty &&
-                     ReadLocalValue(LargeChangeProperty) == DependencyProperty.UnsetValue)
+            else if (change.Property == SmallChangeProperty && 
+                     !IsSet(LargeChangeProperty))
             {
                 LargeChange = SmallChange * 10;
             }
@@ -324,11 +316,11 @@ namespace gip.ext.designer.avui.Controls
 
 	public class DragRepeatButton : RepeatButton
 	{
-		public static readonly DependencyProperty IsDraggingProperty =
-			DependencyProperty.Register("IsDragging", typeof(bool), typeof(DragRepeatButton));
+		public static readonly StyledProperty<bool> IsDraggingProperty =
+			AvaloniaProperty.Register<DragRepeatButton, bool>(nameof(IsDragging));
 
 		public bool IsDragging {
-			get { return (bool)GetValue(IsDraggingProperty); }
+			get { return GetValue(IsDraggingProperty); }
 			set { SetValue(IsDraggingProperty, value); }
 		}
 	}

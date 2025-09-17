@@ -87,7 +87,7 @@ namespace gip.ext.designer.avui.Extensions
             _pointToEdit = pointToEdit;
         }
 
-        public override DrawShapesAdornerBase GenerateShapeDrawer(MouseEventArgs e)
+        public override DrawShapesAdornerBase GenerateShapeDrawer(PointerEventArgs e)
         {
             if ((ContainerOfStartPoint.View is ArrowLine) || (ContainerOfStartPoint.View is Line))
             {

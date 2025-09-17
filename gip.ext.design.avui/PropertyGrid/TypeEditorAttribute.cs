@@ -7,7 +7,7 @@ namespace gip.ext.design.avui.PropertyGrid
 {
     public interface ITypeEditorInitItem
     {
-        void InitEditor(DesignItem designObject);
+        void LoadItemsCollection(DesignItem designObject);
     }
 
     public interface ITypeEditorInitCollection

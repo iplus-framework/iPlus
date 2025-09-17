@@ -1,0 +1,35 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Controls="using:gip.ext.designer.avui.Controls">
+
+  <Style Selector="Controls|CollapsiblePanel">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="Controls:CollapsiblePanel">
+          <ControlTemplate.Resources>
+            <Controls:CollapsiblePanelProgressToVisibilityConverter x:Key="visibilityConverter"/>
+          </ControlTemplate.Resources>
+          <Border
+  BorderThickness="{TemplateBinding BorderThickness}"
+  BorderBrush="{TemplateBinding BorderBrush}"
+  Background="{TemplateBinding Background}"
+  Name="PART_Border"
+  IsVisible="{Binding $parent[Controls:CollapsiblePanel].AnimationProgress, Converter={StaticResource visibilityConverter}}"
+					>
+            <Border.RenderTransform>
+              <ScaleTransform ScaleX="{Binding $parent[Controls:CollapsiblePanel].AnimationProgressX}"
+                ScaleY="{Binding $parent[Controls:CollapsiblePanel].AnimationProgressY}"/>
+            </Border.RenderTransform>
+            <ContentPresenter
+  Margin="{TemplateBinding Padding}"
+  Content="{TemplateBinding Content}"
+  ContentTemplate="{TemplateBinding ContentTemplate}"
+  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+  VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

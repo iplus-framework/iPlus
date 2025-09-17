@@ -1,0 +1,32 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.ext.designer.avui.Controls">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/Controls/ControlStyles.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/Controls/CollapsiblePanel.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/OutlineView.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/PropertyGrid/Themes/PropertyGridViewStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/SettersCollectionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/TriggersCollectionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/PropertyTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/DataTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Editors/BindingEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Editors/MultiBindingEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/EventTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Editors/ConditionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/MultiTriggerEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/ActionCollectionEditorStyle.xaml" />
+        <ResourceDictionary Source="/gip.ext.designer.avui;component/PropertyGrid/Themes/DesignItemTreeViewStyle.xaml" />
+
+
+        <!--<v:VersionedAssemblyResourceDictionary RelativePath="Controls/CollapsiblePanel.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/ZoomScrollViewer.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/ControlStyles.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/NullableComboBox.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="OutlineView/OutlineView.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="DesignSurface.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="PropertyGrid/PropertyGridView.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="ThumbnailView/ThumbnailView.xaml" />
+        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/NumericUpDown.xaml" />-->
+    </ResourceDictionary.MergedDictionaries>
+</ResourceDictionary>

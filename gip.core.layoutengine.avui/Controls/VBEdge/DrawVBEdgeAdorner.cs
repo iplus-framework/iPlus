@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Controls;
 using gip.core.layoutengine.avui.VisualControlAnalyser;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Controls;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -50,7 +46,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public override void DrawPath(DependencyObject hitObject, MouseEventArgs e)
+        public override void DrawPath(DependencyObject hitObject, PointerEventArgs e)
         {
             if ((hitObject != null) && !(hitObject is VBConnector))
             {

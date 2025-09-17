@@ -90,38 +90,41 @@ namespace gip.ext.designer.avui.Xaml
         /// <summary>
         /// Paste items from clipboard into the designer.
         /// </summary>
-        public void Paste()
+		public void Paste()
         {
+            this.Paste(_context.Services.Selection.PrimarySelection);
+        }
+
+        /// <summary>
+        /// Paste items from clipboard into the container.
+        /// </summary>
+        public void Paste(DesignItem container)
+        {
+            var parent = container;
+            var child = container;
+
             bool pasted = false;
             string combinedXaml = Clipboard.GetText(TextDataFormat.Xaml);
             IEnumerable<string> xamls = combinedXaml.Split(_delimeter);
             xamls = xamls.Where(xaml => xaml != "");
 
-            DesignItem parent = _context.Services.Selection.PrimarySelection;
-            DesignItem child = _context.Services.Selection.PrimarySelection;
 
-            XamlDesignItem rootItem = _context.RootItem as XamlDesignItem;
+            XamlDesignItem rootItem = parent.Services.DesignPanel.Context.RootItem as XamlDesignItem;
             var pastedItems = new Collection<DesignItem>();
             foreach (var xaml in xamls)
             {
                 var obj = XamlParser.ParseSnippet(rootItem.XamlObject, xaml, _settings);
                 if (obj != null)
                 {
-                    DesignItem item = _context._componentService.RegisterXamlComponentRecursive(obj);
+                    DesignItem item = ((XamlComponentService)parent.Services.Component).RegisterXamlComponentRecursive(obj);
                     if (item != null)
-                    {
-                        if (!String.IsNullOrEmpty(item.Name))
-                        {
-                            item.Properties["Name"].Reset();
-                        }
                         pastedItems.Add(item);
-                    }
                 }
             }
 
             if (pastedItems.Count != 0)
             {
-                var changeGroup = _context.OpenGroup("Paste " + pastedItems.Count + " elements", pastedItems);
+                var changeGroup = parent.Services.DesignPanel.Context.OpenGroup("Paste " + pastedItems.Count + " elements", pastedItems);
                 while (parent != null && pasted == false)
                 {
                     if (parent.ContentProperty != null)
@@ -134,7 +137,7 @@ namespace gip.ext.designer.avui.Xaml
                                 pasted = true;
                             }
                         }
-                        else if (pastedItems.Count == 1 && parent.ContentProperty.Value == null && parent.ContentProperty.ValueOnInstance == null && DefaultPlacementBehavior.CanContentControlAdd((ContentControl)parent.View))
+                        else if (pastedItems.Count == 1 && parent.ContentProperty.Value == null && parent.ContentProperty.ValueOnInstance == null && parent.View is ContentControl)
                         {
                             AddInParent(parent, pastedItems);
                             pasted = true;
@@ -182,6 +185,13 @@ namespace gip.ext.designer.avui.Xaml
                     else
                         break;
                 }
+
+                foreach (var pastedItem in pastedItems)
+                {
+                    ((XamlComponentService)parent.Services.Component).RaiseComponentRegisteredAndAddedToContainer(pastedItem);
+                }
+
+
                 changeGroup.Commit();
             }
         }
@@ -199,6 +209,25 @@ namespace gip.ext.designer.avui.Xaml
             selection.SetSelectedComponents(pastedItems);
             if (operation != null)
                 operation.Commit();
+        }
+
+        List<DesignItem> RemoveChildItemsWhenContainerIsInList(ICollection<DesignItem> designItems)
+        {
+            var copyList = designItems.ToList();
+            foreach (var designItem in designItems)
+            {
+                var parent = designItem.Parent;
+                while (parent != null)
+                {
+                    if (copyList.Contains(parent))
+                    {
+                        copyList.Remove(designItem);
+                    }
+                    parent = parent.Parent;
+                }
+            }
+
+            return copyList;
         }
 
         IEnumerable<Rect> GetRects(IList<DesignItem> pastedItems)

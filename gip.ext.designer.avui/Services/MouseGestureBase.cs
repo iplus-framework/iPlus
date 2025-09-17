@@ -3,26 +3,30 @@
 
 using System;
 using System.Diagnostics;
-using System.Windows.Input;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Input.Raw;
+using Avalonia.Interactivity;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Services
 {
     /// <summary>
-    /// Base class for classes handling mouse gestures on the design surface.
+    /// Base class for classes handling pointer gestures on the design surface.
     /// </summary>
     public abstract class MouseGestureBase
     {
         /// <summary>
         /// Checks if <paramref name="button"/> is the only button that is currently pressed.
         /// </summary>
-        public static bool IsOnlyButtonPressed(MouseEventArgs e, MouseButton button)
+        public static bool IsOnlyButtonPressed(PointerEventArgs e, RawPointerEventType button)
         {
-            return e.LeftButton == (button == MouseButton.Left ? MouseButtonState.Pressed : MouseButtonState.Released)
-                && e.MiddleButton == (button == MouseButton.Middle ? MouseButtonState.Pressed : MouseButtonState.Released)
-                && e.RightButton == (button == MouseButton.Right ? MouseButtonState.Pressed : MouseButtonState.Released)
-                && e.XButton1 == (button == MouseButton.XButton1 ? MouseButtonState.Pressed : MouseButtonState.Released)
-                && e.XButton2 == (button == MouseButton.XButton2 ? MouseButtonState.Pressed : MouseButtonState.Released);
+            var properties = e.Properties;
+            return properties.IsLeftButtonPressed == (button == RawPointerEventType.LeftButtonDown)
+                && properties.IsMiddleButtonPressed == (button == RawPointerEventType.MiddleButtonDown)
+                && properties.IsRightButtonPressed == (button == RawPointerEventType.RightButtonDown)
+                && properties.IsXButton1Pressed == (button == RawPointerEventType.XButton1Down)
+                && properties.IsXButton2Pressed == (button == RawPointerEventType.XButton2Down);
         }
 
         protected IDesignPanel designPanel;
@@ -30,7 +34,7 @@ namespace gip.ext.designer.avui.Services
         protected bool canAbortWithEscape = true;
         bool isStarted;
 
-        public void Start(IDesignPanel designPanel, MouseButtonEventArgs e)
+        public void Start(IDesignPanel designPanel, PointerEventArgs e)
         {
             if (designPanel == null)
                 throw new ArgumentNullException("designPanel");
@@ -42,34 +46,38 @@ namespace gip.ext.designer.avui.Services
             isStarted = true;
             this.designPanel = designPanel;
             this.services = designPanel.Context.Services;
-            if (designPanel.CaptureMouse())
-            {
-                RegisterEvents();
-                OnStarted(e);
-            }
-            else
-            {
-                Stop();
-            }
+            e.Pointer.Capture(designPanel);
+            RegisterEvents();
+            OnStarted(e);
+
+            //if (designPanel.CapturePointer(e.Pointer))
+            //{
+            //    RegisterEvents();
+            //    OnStarted(e);
+            //}
+            //else
+            //{
+            //    Stop();
+            //}
         }
 
         void RegisterEvents()
         {
-            designPanel.LostMouseCapture += OnLostMouseCapture;
-            designPanel.MouseDown += OnMouseDown;
-            designPanel.MouseDown += OnMouseDown2;
-            designPanel.MouseMove += OnMouseMove;
-            designPanel.MouseUp += OnMouseUp;
+            if (designPanel is InputElement)
+                (designPanel as InputElement).PointerCaptureLost += OnPointerCaptureLost;
+            designPanel.PointerPressed += OnPointerPressed;
+            designPanel.PointerMoved += OnPointerMoved;
+            designPanel.PointerReleased += OnPointerReleased;
             designPanel.KeyDown += OnKeyDown;
         }
 
         void UnRegisterEvents()
         {
-            designPanel.LostMouseCapture -= OnLostMouseCapture;
-            designPanel.MouseDown -= OnMouseDown;
-            designPanel.MouseDown -= OnMouseDown2;
-            designPanel.MouseMove -= OnMouseMove;
-            designPanel.MouseUp -= OnMouseUp;
+            if (designPanel is InputElement)
+                (designPanel as InputElement).PointerCaptureLost -= OnPointerCaptureLost;
+            designPanel.PointerPressed -= OnPointerPressed;
+            designPanel.PointerMoved -= OnPointerMoved;
+            designPanel.PointerReleased -= OnPointerReleased;
             designPanel.KeyDown -= OnKeyDown;
         }
 
@@ -78,54 +86,161 @@ namespace gip.ext.designer.avui.Services
             if (canAbortWithEscape && e.Key == Key.Escape)
             {
                 e.Handled = true;
-                Stop();
+                Stop(e);
             }
         }
 
-        void OnLostMouseCapture(object sender, MouseEventArgs e)
+        void OnPointerCaptureLost(object sender, PointerCaptureLostEventArgs e)
         {
-            Stop();
+            Stop(e);
         }
 
-        protected virtual void OnMouseDown(object sender, MouseButtonEventArgs e)
-        {
-        }
+        //protected virtual void OnTapped(object sender, TappedEventArgs e)
+        //{ }
 
-        protected virtual void OnMouseMove(object sender, MouseEventArgs e)
-        {
-        }
+        //protected virtual void OnDoubleTapped(object sender, TappedEventArgs e)
+        //{ }
 
-        protected virtual void OnMouseUp(object sender, MouseButtonEventArgs e)
+        protected virtual void OnPointerPressed(object sender, PointerPressedEventArgs e)
         {
-            Stop();
-        }
-
-        private void OnMouseDown2(object sender, MouseButtonEventArgs e)
-        {
-            if (e.LeftButton == MouseButtonState.Pressed)
+            if (e.Properties.IsLeftButtonPressed)
             {
-                if (e.ClickCount == 2)
-                {
-                    OnMouseDoubleClick(sender, e);
-                }
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                    OnPreviewMouseLeftButtonDown(sender, e);
             }
+            else if (e.Properties.IsRightButtonPressed)
+            {
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                    OnPreviewMouseLeftButtonDown(sender, e);
+            }
+            OnMouseDown(sender, e);
         }
 
-        protected virtual void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        protected virtual void OnPointerReleased(object sender, PointerReleasedEventArgs e)
+        {
+            if (e.Properties.IsLeftButtonPressed)
+            {
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                    OnPreviewMouseLeftButtonUp(sender, e);
+            }
+            else if (e.Properties.IsRightButtonPressed)
+            {
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                    OnPreviewMouseLeftButtonUp(sender, e);
+            }
+            OnMouseUp(sender, e);
+        }
+
+        protected virtual void OnPointerMoved(object sender, PointerEventArgs e)
+        {
+            OnMouseMove(sender, e);
+        }
+
+
+        protected virtual void OnPreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
+        {
+            //if (PointerHelper.IsDoubleClick(sender, e))
+            if (e.ClickCount == 2)
+                OnMouseDoubleClick(sender, e);
+        }
+
+        protected virtual void OnPreviewMouseLeftButtonUp(object sender, PointerReleasedEventArgs e)
+        { 
+        }
+
+        protected virtual void OnPreviewMouseRightButtonDown(object sender, PointerPressedEventArgs e)
+        { 
+        }
+
+        protected virtual void OnPreviewMouseRightButtonUp(object sender, PointerReleasedEventArgs e)
         {
         }
 
+        protected virtual void OnMouseDoubleClick(object sender, PointerPressedEventArgs e)
+        { 
+        }
 
-        protected void Stop()
+        protected virtual void OnMouseDown(object sender, PointerPressedEventArgs e)
+        { 
+        }
+
+        protected virtual void OnMouseMove(object sender, PointerEventArgs e)
         {
-            if (!isStarted) return;
+        }
+
+        protected virtual void OnMouseUp(object sender, PointerReleasedEventArgs e)
+        {
+            Stop(e);
+        }
+
+        //private void OnPointerPressed2(object sender, PointerPressedEventArgs e)
+        //{
+        //    var point = e.GetCurrentPoint(null);
+        //    if (point.Properties.IsLeftButtonPressed)
+        //    {
+        //        if (e.ClickCount == 2)
+        //        {
+        //            OnDoubleTapped(sender, new TappedEventArgs(null, e));
+        //        }
+        //    }
+        //}
+
+        protected void Stop(RoutedEventArgs e)
+        {
+            if (!isStarted) 
+                return;
             isStarted = false;
-            designPanel.ReleaseMouseCapture();
+            //PointerEventArgs pe = e as PointerEventArgs;
+            //if (pe != null)
+            //    designPanel.ReleasePointerCapture();
             UnRegisterEvents();
             OnStopped();
         }
 
-        protected virtual void OnStarted(MouseButtonEventArgs e) { }
+        protected virtual void OnStarted(PointerEventArgs e) { }
         protected virtual void OnStopped() { }
+
+        static class PointerHelper
+        {
+            private const double k_MaxMoveDistance = 10;
+            private static long _LastClickTicks = 0;
+            private static Point _LastPosition;
+            private static WeakReference _LastSender;
+
+            internal static bool IsDoubleClick(object sender, PointerEventArgs e)
+            {
+                Point position = e.GetPosition(null);
+                long clickTicks = DateTime.Now.Ticks;
+                long elapsedTicks = clickTicks - _LastClickTicks;
+                long elapsedTime = elapsedTicks / TimeSpan.TicksPerMillisecond;
+                
+                // Use system double-click time (typically 500ms)
+                bool quickClick = (elapsedTime <= 500);
+                bool senderMatch = (_LastSender != null && sender.Equals(_LastSender.Target));
+
+                if (senderMatch && quickClick && Distance(position, _LastPosition) <= k_MaxMoveDistance)
+                {
+                    // Double click!
+                    _LastClickTicks = 0;
+                    _LastSender = null;
+                    return true;
+                }
+
+                // Not a double click
+                _LastClickTicks = clickTicks;
+                _LastPosition = position;
+                if (!quickClick)
+                    _LastSender = new WeakReference(sender);
+                return false;
+            }
+
+            private static double Distance(Point pointA, Point pointB)
+            {
+                double x = pointA.X - pointB.X;
+                double y = pointA.Y - pointB.Y;
+                return Math.Sqrt(x * x + y * y);
+            }
+        }
+
     }
 }

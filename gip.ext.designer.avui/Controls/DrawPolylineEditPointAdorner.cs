@@ -5,15 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -29,7 +27,7 @@ namespace gip.ext.designer.avui.Controls
         #endregion
 
         #region methods
-        protected override PointCollection GetPointCollection(Shape polyShape)
+        protected override IList<Point> GetPointCollection(Shape polyShape)
         {
             if (polyShape is Polyline)
             {
@@ -57,7 +55,7 @@ namespace gip.ext.designer.avui.Controls
             return new PathGeometry();
         }
 
-        protected override void UpdatePointsProperty(DesignItem myCreatedItem, PointCollection translatedPoints)
+        protected override void UpdatePointsProperty(DesignItem myCreatedItem, IList<Point> translatedPoints)
         {
             if (ContainerOfStartPoint.View is Polyline)
             {

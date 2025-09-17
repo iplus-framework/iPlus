@@ -5,19 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Controls
 {
-    [CLSCompliant(false)]
     public class DrawLineAdorner : DrawShapesAdornerBase
     {
         #region c'tors
@@ -46,18 +43,18 @@ namespace gip.ext.designer.avui.Controls
             if (arrowEnds != ArrowEnds.None)
             {
                 if (arrowAngle < 0.001)
-                    arrowAngle = (double) ArrowLineBase.ArrowAngleProperty.DefaultMetadata.DefaultValue;
+                    arrowAngle = (double) ArrowLineBase.ArrowAngleProperty.GetMetadata(typeof(ArrowLineBase)).DefaultValue;
                 if (arrowLength < 0.001)
-                    arrowLength = (double) ArrowLineBase.ArrowLengthProperty.DefaultMetadata.DefaultValue;
+                    arrowLength = (double) ArrowLineBase.ArrowLengthProperty.GetMetadata(typeof(ArrowLineBase)).DefaultValue;
                 if (!s_IsArrowClosed.HasValue)
-                    isArrowClosed = (bool) ArrowLineBase.IsArrowClosedProperty.DefaultMetadata.DefaultValue;
+                    isArrowClosed = (bool) ArrowLineBase.IsArrowClosedProperty.GetMetadata(typeof(ArrowLineBase)).DefaultValue;
             }
             _lastStartPoint = StartPointRelativeToShapeContainer;
             _lastEndPoint = pointRelativeToPathContainer;
             return ArrowLine.GetPathGeometry(StartPointRelativeToShapeContainer, pointRelativeToPathContainer, arrowEnds, arrowLength, arrowAngle, isArrowClosed);
         }
 
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
             ArrowLine newInstance = (ArrowLine)ContainerForShape.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(ArrowLine), null);
             DesignItem item = ContainerForShape.Context.Services.Component.RegisterComponentForDesigner(newInstance);
@@ -72,13 +69,13 @@ namespace gip.ext.designer.avui.Controls
                     width = _lastEndPoint.Value.X - _lastStartPoint.Value.X;
                     height = _lastEndPoint.Value.Y - _lastStartPoint.Value.Y;
 
-                    PointCollection _PointCollectionRelToShapeCont = new PointCollection();
+                    IList<Point> _PointCollectionRelToShapeCont = new List<Point>();
                     _PointCollectionRelToShapeCont.Add(_lastStartPoint.Value);
                     _PointCollectionRelToShapeCont.Add(_lastEndPoint.Value);
 
                     Point startPoint;
                     Point endPoint;
-                    PointCollection points = TranslatePointsToBounds(_PointCollectionRelToShapeCont, out startPoint, out endPoint);
+                    IList<Point> points = TranslatePointsToBounds(_PointCollectionRelToShapeCont, out startPoint, out endPoint);
 
                     item.Properties[ArrowLine.X1Property].SetValue(points[0].X);
                     item.Properties[ArrowLine.Y1Property].SetValue(points[0].Y);
@@ -123,16 +120,16 @@ namespace gip.ext.designer.avui.Controls
                     ArrowLine shape = changeAction.Property.DesignItem.View as ArrowLine;
                     switch (changeAction.Property.Name)
                     {
-                        case "ArrowAngle":
+                        case nameof(ArrowLine.ArrowAngle):
                             s_ArrowAngle = shape.ArrowAngle;
                             break;
-                        case "ArrowLength":
+                        case nameof(ArrowLine.ArrowLength):
                             s_ArrowLength = shape.ArrowLength;
                             break;
-                        case "ArrowEnds":
+                        case nameof(ArrowLine.ArrowEnds):
                             sArrowEnds = shape.ArrowEnds;
                             break;
-                        case "IsArrowClosed":
+                        case nameof(ArrowLine.IsArrowClosed):
                             s_IsArrowClosed = shape.IsArrowClosed;
                             break;
                     }

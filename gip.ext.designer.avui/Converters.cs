@@ -5,12 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Data;
 using System.Globalization;
-using System.Windows;
 using System.Collections;
-using System.Windows.Media;
 using gip.ext.design.avui;
+using Avalonia.Data.Converters;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Converters
 {
@@ -56,7 +57,7 @@ namespace gip.ext.designer.avui.Converters
 
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return (bool)value ? Visibility.Visible : Visibility.Hidden;
+			return (bool)value ? true : false;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -72,7 +73,7 @@ namespace gip.ext.designer.avui.Converters
 
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return (bool)value ? Visibility.Visible : Visibility.Collapsed;
+			return (bool)value ? true : false;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -105,9 +106,9 @@ namespace gip.ext.designer.avui.Converters
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			if (value == null || (int)value == 0) {
-				return Visibility.Collapsed;
+				return false;
 			}			
-			return Visibility.Visible;
+			return true;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -125,9 +126,9 @@ namespace gip.ext.designer.avui.Converters
         {
             if (value != null)
             {
-                return Visibility.Collapsed;
+                return false;
             }
-            return Visibility.Visible;
+            return true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -145,9 +146,9 @@ namespace gip.ext.designer.avui.Converters
         {
             if (value != null)
             {
-                return Visibility.Visible;
+                return true;
             }
-            return Visibility.Collapsed;
+            return false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -179,7 +180,7 @@ namespace gip.ext.designer.avui.Converters
 
 		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			return (bool)value ? FontWeights.Bold : FontWeights.Normal;
+			return (bool)value ? FontWeight.Bold : FontWeight.Normal;
 		}
 
 		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -209,9 +210,9 @@ namespace gip.ext.designer.avui.Converters
     {
         public static readonly ControlToRealWidthConverter Instance = new ControlToRealWidthConverter();
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
-            return PlacementOperation.GetRealElementSize((UIElement)values[0]).Width;
+            return PlacementOperation.GetRealElementSize((Control)values[0]).Width;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -224,9 +225,9 @@ namespace gip.ext.designer.avui.Converters
     {
         public static readonly ControlToRealHeightConverter Instance = new ControlToRealHeightConverter();
 
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
-            return PlacementOperation.GetRealElementSize((UIElement)values[0]).Height;
+            return PlacementOperation.GetRealElementSize((Control)values[0]).Height;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -274,7 +275,7 @@ namespace gip.ext.designer.avui.Converters
         public BlackWhenTrue()
         {
             black = new SolidColorBrush(Colors.Black);
-            black.Freeze();
+            //black.Freeze();
         }
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
@@ -297,10 +298,10 @@ namespace gip.ext.designer.avui.Converters
         {
             string parameterString = parameter as string;
             if (parameterString == null)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             if (Enum.IsDefined(value.GetType(), value) == false)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             object parameterValue = Enum.Parse(value.GetType(), parameterString);
 
@@ -311,7 +312,7 @@ namespace gip.ext.designer.avui.Converters
         {
             string parameterString = parameter as string;
             if (parameterString == null)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             return Enum.Parse(targetType, parameterString);
         }
@@ -326,21 +327,21 @@ namespace gip.ext.designer.avui.Converters
         {
             string parameterString = parameter as string;
             if (parameterString == null)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             if (Enum.IsDefined(value.GetType(), value) == false)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             object parameterValue = Enum.Parse(value.GetType(), parameterString);
 
-            return parameterValue.Equals(value) ? Visibility.Visible : Visibility.Collapsed;
+            return parameterValue.Equals(value) ? true : false;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             string parameterString = parameter as string;
             if (parameterString == null)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             return Enum.Parse(targetType, parameterString);
         }
@@ -355,21 +356,21 @@ namespace gip.ext.designer.avui.Converters
         {
             string parameterString = parameter as string;
             if (parameterString == null)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             if (Enum.IsDefined(value.GetType(), value) == false)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             object parameterValue = Enum.Parse(value.GetType(), parameterString);
 
-            return parameterValue.Equals(value) ? Visibility.Collapsed : Visibility.Visible;
+            return parameterValue.Equals(value) ? false : true;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             string parameterString = parameter as string;
             if (parameterString == null)
-                return DependencyProperty.UnsetValue;
+                return AvaloniaProperty.UnsetValue;
 
             return Enum.Parse(targetType, parameterString);
         }

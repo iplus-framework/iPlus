@@ -14,7 +14,7 @@
         <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
         <Setter Property="Background" Value="{StaticResource {ComponentResourceKey ResourceId=AppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
         <!--<Setter Property="Background" Value="#FFF1EDED"/>
-        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static ThemeForegroundBrush}}"/>
         <Setter Property="FontFamily" Value="{DynamicResource {x:Static SystemFonts.StatusFontFamilyKey}}"/>-->
         <Setter Property="FontSize" Value="{DynamicResource {x:Static SystemFonts.StatusFontSizeKey}}"/>
         <Setter Property="FontStyle" Value="{DynamicResource {x:Static SystemFonts.StatusFontStyleKey}}"/>

@@ -5,10 +5,10 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Resources;
-using System.Windows;
-using System.Windows.Input;
-
-using gip.ext.widgets.avui;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Styling;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Controls
@@ -19,16 +19,24 @@ namespace gip.ext.designer.avui.Controls
 		{
 			PanToolCursor = GetCursor("Images/PanToolCursor.cur");
 			PanToolCursorMouseDown = GetCursor("Images/PanToolCursorMouseDown.cur");
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ZoomControl), new FrameworkPropertyMetadata(typeof(ZoomControl)));
-
         }
 
         public static Cursor GetCursor(string path)
 		{
-			var a = Assembly.GetExecutingAssembly();
-			var m = new ResourceManager(a.GetName().Name + ".g", a);
-			using (Stream s = m.GetStream(path.ToLowerInvariant())) {
-				return new Cursor(s);
+			try 
+			{
+				var a = Assembly.GetExecutingAssembly();
+				var m = new ResourceManager(a.GetName().Name + ".g", a);
+				using (Stream s = m.GetStream(path.ToLowerInvariant())) {
+					// In AvaloniaUI, we need to create custom cursors differently
+					// For now, return a standard cursor as placeholder
+					return new Cursor(StandardCursorType.Hand);
+				}
+			}
+			catch
+			{
+				// Fallback to standard cursor if resource loading fails
+				return new Cursor(StandardCursorType.Hand);
 			}
 		}
 
@@ -38,18 +46,8 @@ namespace gip.ext.designer.avui.Controls
             set { SetValue(AdditionalControlsProperty, value); }
         }
 
-        public static readonly DependencyProperty AdditionalControlsProperty =
-            DependencyProperty.Register("AdditionalControls", typeof(object), typeof(ZoomControl), new PropertyMetadata(null));
-
-        internal static Cursor GetCursor(string path)
-        {
-            var a = Assembly.GetExecutingAssembly();
-            var m = new ResourceManager(a.GetName().Name + ".g", a);
-            using (Stream s = m.GetStream(path.ToLowerInvariant()))
-            {
-                return new Cursor(s);
-            }
-        }
+        public static readonly StyledProperty<object> AdditionalControlsProperty =
+            AvaloniaProperty.Register<ZoomControl, object>("AdditionalControls", null);
 
         static Cursor PanToolCursor;
 		static Cursor PanToolCursorMouseDown;
@@ -77,7 +75,7 @@ namespace gip.ext.designer.avui.Controls
 		{
 			if (!pan && e.Key == Key.Space) {
 				pan = true;
-				Mouse.UpdateCursor();
+				UpdateCursor();
 			}
             if (DesignContext != null)
             {
@@ -97,85 +95,103 @@ namespace gip.ext.designer.avui.Controls
 		{
 			if (e.Key == Key.Space) {
 				pan = false;
-				Mouse.UpdateCursor();
+				UpdateCursor();
 			}
 			base.OnKeyUp(e);
 		}
 
-		protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+		protected override void OnPointerPressed(PointerPressedEventArgs e)
 		{
-            if (!pan && e.MiddleButton == MouseButtonState.Pressed)
+            var pointer = e.GetCurrentPoint(this);
+            if (!pan && pointer.Properties.IsMiddleButtonPressed)
             {
                 pan = true;
-                Mouse.UpdateCursor();
+                UpdateCursor();
             }
 
             if (pan && !e.Handled) {
-				if (Mouse.Capture(this)) {
-					isMouseDown = true;
-					e.Handled = true;
-					startPoint = e.GetPosition(this);
-					PanStart();
-					Mouse.UpdateCursor();
-				}
+				e.Pointer.Capture(this);
+				isMouseDown = true;
+				e.Handled = true;
+				startPoint = pointer.Position;
+				PanStart();
+				UpdateCursor();
 			}
-			base.OnPreviewMouseDown(e);
+			base.OnPointerPressed(e);
 		}
 
-		protected override void OnPreviewMouseMove(MouseEventArgs e)
+		protected override void OnPointerMoved(PointerEventArgs e)
 		{
 			if (isMouseDown) {
 				var endPoint = e.GetPosition(this);
 				PanContinue(endPoint - startPoint);
 			}
-			base.OnPreviewMouseMove(e);
+			base.OnPointerMoved(e);
 		}
 
-		protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+		protected override void OnPointerReleased(PointerReleasedEventArgs e)
 		{
-            if (pan && e.MiddleButton != MouseButtonState.Pressed && !Keyboard.IsKeyDown(Key.Space))
+            var pointer = e.GetCurrentPoint(this);
+            if (pan && !pointer.Properties.IsMiddleButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {
                 pan = false;
-                Mouse.UpdateCursor();
+                UpdateCursor();
             }
 
             if (isMouseDown) {
 				isMouseDown = false;
-				ReleaseMouseCapture();
-				Mouse.UpdateCursor();
+				e.Pointer.Capture(null);
+				UpdateCursor();
 			}
-			base.OnPreviewMouseUp(e);
+			base.OnPointerReleased(e);
 		}
 		
-		protected override void OnLostMouseCapture(MouseEventArgs e)
+		protected override void OnPointerCaptureLost(PointerCaptureLostEventArgs e)
 		{
 			if (isMouseDown) {
 				isMouseDown = false;
-				ReleaseMouseCapture();
-				Mouse.UpdateCursor();
+				e.Pointer?.Capture(null);
+				UpdateCursor();
 			}
-			base.OnLostMouseCapture(e);
+			base.OnPointerCaptureLost(e);
 		}
 		
-		protected override void OnQueryCursor(QueryCursorEventArgs e)
+		// In AvaloniaUI, cursor management is handled differently
+		// The cursor property can be set directly on the control
+		protected override void OnPointerEntered(PointerEventArgs e)
 		{
-			base.OnQueryCursor(e);
-			if (!e.Handled && (pan || isMouseDown)) {
-				e.Handled = true;
-				e.Cursor = isMouseDown ? PanToolCursorMouseDown : PanToolCursor;
+			base.OnPointerEntered(e);
+			UpdateCursor();
+		}
+
+		protected override void OnPointerExited(PointerEventArgs e)
+		{
+			base.OnPointerExited(e);
+			Cursor = Cursor.Default;
+		}
+
+		private void UpdateCursor()
+		{
+			if (pan || isMouseDown) {
+				Cursor = isMouseDown ? PanToolCursorMouseDown : PanToolCursor;
+			} else {
+				Cursor = Cursor.Default;
 			}
 		}
 		
 		void PanStart()
 		{
-			startHorizontalOffset = this.HorizontalOffset;
-			startVericalOffset = this.VerticalOffset;
+			startHorizontalOffset = this.Offset.X;
+			startVericalOffset = this.Offset.Y;
 		}
 
 		void PanContinue(Vector delta)
 		{
-			this.ScrollToHorizontalOffset(startHorizontalOffset - delta.X / this.CurrentZoom);
-			this.ScrollToVerticalOffset(startVericalOffset - delta.Y / this.CurrentZoom);
+			var newOffset = new Vector(
+				startHorizontalOffset - delta.X / this.CurrentZoom,
+				startVericalOffset - delta.Y / this.CurrentZoom
+			);
+			this.Offset = newOffset;
 		}
 	}
 }

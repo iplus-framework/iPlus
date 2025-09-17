@@ -149,13 +149,13 @@ namespace gip.core.layoutengine.avui
                     if (Wrapper.Binding.Value is MultiBinding)
                     {
                         VBMultiBindingEditor editor = new VBMultiBindingEditor();
-                        editor.InitEditor(Wrapper.Binding.ValueItem);
+                        editor.LoadItemsCollection(Wrapper.Binding.ValueItem);
                         return editor;
                     }
                     else if ((Wrapper.Binding.Value is Binding) || (Wrapper.Binding.Value is VBBindingExt))
                     {
                         VBBindingEditor editor = new VBBindingEditor();
-                        editor.InitEditor(Wrapper.Binding.ValueItem);
+                        editor.LoadItemsCollection(Wrapper.Binding.ValueItem);
                         return editor;
                     }
                 }

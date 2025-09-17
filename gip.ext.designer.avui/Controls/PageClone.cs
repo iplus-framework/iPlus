@@ -4,121 +4,46 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Navigation;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Media;
+using Avalonia.Metadata;
+using Avalonia.LogicalTree;
 using gip.ext.design.avui.Extensions;
+using gip.ext.design.avui.UIExtensions;
 
 namespace gip.ext.designer.avui.Controls
 {
 	/// <summary>
 	/// Description of PageClone.
 	/// </summary>
-	[ContentProperty("Content")]
-	public class PageClone : FrameworkElement, IAddChild
+	public class PageClone : ContentControl, IAddChild
 	{
 		static PageClone()
 		{
-			Control.IsTabStopProperty.OverrideMetadata(typeof(PageClone), new FrameworkPropertyMetadata(SharedInstances.BoxedFalse));
-			KeyboardNavigation.DirectionalNavigationProperty.OverrideMetadata(typeof(PageClone), new FrameworkPropertyMetadata(SharedInstances<KeyboardNavigationMode>.Box(KeyboardNavigationMode.Cycle)));
-			KeyboardNavigation.TabNavigationProperty.OverrideMetadata(typeof(PageClone), new FrameworkPropertyMetadata(SharedInstances<KeyboardNavigationMode>.Box(KeyboardNavigationMode.Cycle)));
-			KeyboardNavigation.ControlTabNavigationProperty.OverrideMetadata(typeof(PageClone), new FrameworkPropertyMetadata(SharedInstances<KeyboardNavigationMode>.Box(KeyboardNavigationMode.Cycle)));
-			FocusManager.IsFocusScopeProperty.OverrideMetadata(typeof(PageClone), new FrameworkPropertyMetadata(SharedInstances.BoxedTrue));
+			// Set default properties for PageClone
+			FocusableProperty.OverrideDefaultValue<PageClone>(false);
 		}
-		
-		public static readonly DependencyProperty ContentProperty = Page.ContentProperty.AddOwner(typeof(PageClone));
-		
-		ContentPresenter content;
 		
 		public PageClone()
 		{
-			content = new ContentPresenter();
-			content.SetBinding(ContentPresenter.ContentProperty, new Binding("Content") { Source = this });
-			AddVisualChild(content);
-		}
-		
-		protected override int VisualChildrenCount {
-			get { return 1; }
+			// ContentControl already handles content presentation
 		}
 
-		protected override Visual GetVisualChild(int index)
-		{
-			if (index != 0)
-				throw new ArgumentOutOfRangeException();
-			return content;
-		}
-		
-		protected override Size ArrangeOverride(Size finalSize)
-		{
-			content.Arrange(new Rect(finalSize));
-			return finalSize;
-		}
-		
-		protected override Size MeasureOverride(Size availableSize)
-		{
-			content.Measure(availableSize);
-			return content.DesiredSize;
-		}
-		
-		[Category("Appearance")]
-		public Brush Background {
-			get { return (Brush)GetValue(Page.BackgroundProperty); }
-			set { SetValue(Page.BackgroundProperty, value); }
-		}
-		
-		public object Content {
-			get {
-				VerifyAccess();
-				return GetValue(ContentProperty);
-			}
-			set {
-				VerifyAccess();
-				SetValue(ContentProperty, value);
-			}
-		}
-		
-		[Bindable(true), Category("Appearance"), Localizability(LocalizationCategory.Font, Modifiability = Modifiability.Unmodifiable)]
-		public FontFamily FontFamily {
-			get { return (FontFamily)GetValue(Page.FontFamilyProperty); }
-			set { SetValue(Page.FontFamilyProperty, value); }
-		}
-		
-		[Bindable(true), Category("Appearance"), TypeConverter(typeof(FontSizeConverter)), Localizability(LocalizationCategory.None)]
-		public double FontSize {
-			get { return (double)GetValue(Page.FontSizeProperty); }
-			set { SetValue(Page.FontSizeProperty, value); }
-		}
+		// Navigation-related properties - these would need custom implementation in Avalonia
+		// as Avalonia doesn't have built-in navigation like WPF
+		public bool KeepAlive { get; set; }
 
-		[Bindable(true), Category("Appearance")]
-		public Brush Foreground {
-			get { return (Brush)GetValue(Page.ForegroundProperty); }
-			set { SetValue(Page.ForegroundProperty, value); }
-		}
-
-		public bool KeepAlive {
-			get { return JournalEntry.GetKeepAlive(this); }
-			set { JournalEntry.SetKeepAlive(this, value); }
-		}
-
-		public NavigationService NavigationService {
-			get { return NavigationService.GetNavigationService(this); }
-		}
-		
-		public ControlTemplate Template {
-			get { return (ControlTemplate)GetValue(Page.TemplateProperty); }
-			set { SetValue(Page.TemplateProperty, value); }
-		}
+		// NavigationService doesn't exist in Avalonia - would need custom implementation
+		public object NavigationService { get; set; }
 
 		public bool ShowsNavigationUI { get; set; }
 		
-		public string Title {
-			get { return (string)base.GetValue(Page.TitleProperty); }
-			set { base.SetValue(Page.TitleProperty, value); }
-		}
+		public string Title { get; set; }
 		
 		public string WindowTitle {
 			get { return Title; }
@@ -131,14 +56,15 @@ namespace gip.ext.designer.avui.Controls
 		
 		void IAddChild.AddChild(object value)
 		{
-			base.VerifyAccess();
 			if (this.Content == null || value == null)
 				this.Content = value;
 			else
 				throw new InvalidOperationException();
 		}
 		
-		void IAddChild.AddText(string text)
+		// IAddChild in Avalonia doesn't have AddText method, 
+		// but we keep this for compatibility with the original interface contract
+		public void AddText(string text)
 		{
 			if (text == null)
 				return;
@@ -151,10 +77,10 @@ namespace gip.ext.designer.avui.Controls
 	}
 	
 	/// <summary>
-	/// A <see cref="CustomInstanceFactory"/> for <see cref="Page"/>
+	/// A <see cref="CustomInstanceFactory"/> for PageClone
 	/// (and derived classes, unless they specify their own <see cref="CustomInstanceFactory"/>).
 	/// </summary>
-	[ExtensionFor(typeof(Page))]
+	[ExtensionFor(typeof(PageClone))]
 	public class PageCloneExtension : CustomInstanceFactory
 	{
 		/// <summary>

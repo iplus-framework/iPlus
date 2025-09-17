@@ -1,13 +1,16 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
+using Avalonia.Controls;
+using Avalonia.Data.Converters;
+using Avalonia.Input;
+using Avalonia.Layout;
+using Avalonia.Styling;
 using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media.Animation;
-using System.Windows.Threading;
+using System.Globalization;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -18,81 +21,79 @@ namespace gip.ext.designer.avui.Controls
 	{
 		static CollapsiblePanel()
 		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(CollapsiblePanel),
-			                                         new FrameworkPropertyMetadata(typeof(CollapsiblePanel)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof(CollapsiblePanel),
+			                                         //new StyledPropertyMetadata<Type>(typeof(CollapsiblePanel)));
 			FocusableProperty.OverrideMetadata(typeof(CollapsiblePanel),
-			                                   new FrameworkPropertyMetadata(false));
+			                                   new StyledPropertyMetadata<bool>(false));
 		}
 		
-		public static readonly DependencyProperty IsCollapsedProperty = DependencyProperty.Register(
-			"IsCollapsed", typeof(bool), typeof(CollapsiblePanel),
-			new UIPropertyMetadata(false, new PropertyChangedCallback(OnIsCollapsedChanged)));
+		public static readonly StyledProperty<bool> IsCollapsedProperty = AvaloniaProperty.Register<CollapsiblePanel, bool>(
+			nameof(IsCollapsed), false);
 		
 		public bool IsCollapsed {
-			get { return (bool)GetValue(IsCollapsedProperty); }
+			get { return GetValue(IsCollapsedProperty); }
 			set { SetValue(IsCollapsedProperty, value); }
 		}
 		
-		public static readonly DependencyProperty CollapseOrientationProperty =
-			DependencyProperty.Register("CollapseOrientation", typeof(Orientation), typeof(CollapsiblePanel),
-			                            new FrameworkPropertyMetadata(Orientation.Vertical));
+		public static readonly StyledProperty<Orientation> CollapseOrientationProperty =
+			AvaloniaProperty.Register<CollapsiblePanel, Orientation>(nameof(CollapseOrientation), Orientation.Vertical);
 		
 		public Orientation CollapseOrientation {
-			get { return (Orientation)GetValue(CollapseOrientationProperty); }
+			get { return GetValue(CollapseOrientationProperty); }
 			set { SetValue(CollapseOrientationProperty, value); }
 		}
 		
-		public static readonly DependencyProperty DurationProperty = DependencyProperty.Register(
-			"Duration", typeof(TimeSpan), typeof(CollapsiblePanel),
-			new UIPropertyMetadata(TimeSpan.FromMilliseconds(250)));
+		public static readonly StyledProperty<TimeSpan> DurationProperty = AvaloniaProperty.Register<CollapsiblePanel, TimeSpan>(
+			nameof(Duration), TimeSpan.FromMilliseconds(250));
 		
 		/// <summary>
 		/// The duration in milliseconds of the animation.
 		/// </summary>
 		public TimeSpan Duration {
-			get { return (TimeSpan)GetValue(DurationProperty); }
+			get { return GetValue(DurationProperty); }
 			set { SetValue(DurationProperty, value); }
 		}
 		
-		protected internal static readonly DependencyProperty AnimationProgressProperty = DependencyProperty.Register(
-			"AnimationProgress", typeof(double), typeof(CollapsiblePanel),
-			new FrameworkPropertyMetadata(1.0));
+		protected internal static readonly StyledProperty<double> AnimationProgressProperty = AvaloniaProperty.Register<CollapsiblePanel, double>(
+			nameof(AnimationProgress), 1.0);
 		
 		/// <summary>
 		/// Value between 0 and 1 specifying how far the animation currently is.
 		/// </summary>
 		protected internal double AnimationProgress {
-			get { return (double)GetValue(AnimationProgressProperty); }
+			get { return GetValue(AnimationProgressProperty); }
 			set { SetValue(AnimationProgressProperty, value); }
 		}
 		
-		protected internal static readonly DependencyProperty AnimationProgressXProperty = DependencyProperty.Register(
-			"AnimationProgressX", typeof(double), typeof(CollapsiblePanel),
-			new FrameworkPropertyMetadata(1.0));
+		protected internal static readonly StyledProperty<double> AnimationProgressXProperty = AvaloniaProperty.Register<CollapsiblePanel, double>(
+			nameof(AnimationProgressX), 1.0);
 		
 		/// <summary>
 		/// Value between 0 and 1 specifying how far the animation currently is.
 		/// </summary>
 		protected internal double AnimationProgressX {
-			get { return (double)GetValue(AnimationProgressXProperty); }
+			get { return GetValue(AnimationProgressXProperty); }
 			set { SetValue(AnimationProgressXProperty, value); }
 		}
 		
-		protected internal static readonly DependencyProperty AnimationProgressYProperty = DependencyProperty.Register(
-			"AnimationProgressY", typeof(double), typeof(CollapsiblePanel),
-			new FrameworkPropertyMetadata(1.0));
+		protected internal static readonly StyledProperty<double> AnimationProgressYProperty = AvaloniaProperty.Register<CollapsiblePanel, double>(
+			nameof(AnimationProgressY), 1.0);
 		
 		/// <summary>
 		/// Value between 0 and 1 specifying how far the animation currently is.
 		/// </summary>
 		protected internal double AnimationProgressY {
-			get { return (double)GetValue(AnimationProgressYProperty); }
+			get { return GetValue(AnimationProgressYProperty); }
 			set { SetValue(AnimationProgressYProperty, value); }
 		}
 		
-		static void OnIsCollapsedChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
 		{
-			((CollapsiblePanel)d).SetupAnimation((bool)e.NewValue);
+			base.OnPropertyChanged(change);
+			if (change.Property == IsCollapsedProperty)
+			{
+				SetupAnimation(change.GetNewValue<bool>());
+			}
 		}
 		
 		void SetupAnimation(bool isCollapsed)
@@ -104,19 +105,43 @@ namespace gip.ext.designer.avui.Controls
 					currentProgress = 1.0 - currentProgress;
 				}
 				
-				DoubleAnimation animation = new DoubleAnimation();
-				animation.To = isCollapsed ? 0.0 : 1.0;
-				animation.Duration = TimeSpan.FromSeconds(Duration.TotalSeconds * currentProgress);
-				animation.FillBehavior = FillBehavior.HoldEnd;
+				var duration = TimeSpan.FromSeconds(Duration.TotalSeconds * currentProgress);
+				var targetValue = isCollapsed ? 0.0 : 1.0;
 				
-				this.BeginAnimation(AnimationProgressProperty, animation);
+				var animation = new DoubleTransition
+				{
+					Property = AnimationProgressProperty,
+					Duration = duration,
+					Easing = Easing.Parse("Linear")
+				};
+				
+				Transitions ??= new Transitions();
+				Transitions.Clear();
+				Transitions.Add(animation);
+				
 				if (CollapseOrientation == Orientation.Horizontal) {
-					this.BeginAnimation(AnimationProgressXProperty, animation);
+					var animationX = new DoubleTransition
+					{
+						Property = AnimationProgressXProperty,
+						Duration = duration,
+						Easing = Easing.Parse("Linear")
+					};
+					Transitions.Add(animationX);
 					this.AnimationProgressY = 1.0;
+					this.AnimationProgressX = targetValue;
 				} else {
 					this.AnimationProgressX = 1.0;
-					this.BeginAnimation(AnimationProgressYProperty, animation);
+					var animationY = new DoubleTransition
+					{
+						Property = AnimationProgressYProperty,
+						Duration = duration,
+						Easing = Easing.Parse("Linear")
+					};
+					Transitions.Add(animationY);
+					this.AnimationProgressY = targetValue;
 				}
+				
+				this.AnimationProgress = targetValue;
 			} else {
 				this.AnimationProgress = isCollapsed ? 0.0 : 1.0;
 				this.AnimationProgressX = (CollapseOrientation == Orientation.Horizontal) ? this.AnimationProgress : 1.0;
@@ -127,15 +152,15 @@ namespace gip.ext.designer.avui.Controls
 	
 	public sealed class CollapsiblePanelProgressToVisibilityConverter : IValueConverter
 	{
-		public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
-			if (value is double)
-				return (double)value > 0 ? Visibility.Visible : Visibility.Collapsed;
+			if (value is double doubleValue)
+				return doubleValue > 0 ? true : false;
 			else
-				return Visibility.Visible;
+				return true;
 		}
 		
-		public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new NotImplementedException();
 		}
@@ -143,42 +168,45 @@ namespace gip.ext.designer.avui.Controls
 	
 	public class SelfCollapsingPanel : CollapsiblePanel
 	{
-		public static readonly DependencyProperty CanCollapseProperty =
-			DependencyProperty.Register("CanCollapse", typeof(bool), typeof(SelfCollapsingPanel),
-			                            new FrameworkPropertyMetadata(false, new PropertyChangedCallback(OnCanCollapseChanged)));
+		public static readonly StyledProperty<bool> CanCollapseProperty =
+			AvaloniaProperty.Register<SelfCollapsingPanel, bool>(nameof(CanCollapse), false);
 		
 		public bool CanCollapse {
-			get { return (bool)GetValue(CanCollapseProperty); }
+			get { return GetValue(CanCollapseProperty); }
 			set { SetValue(CanCollapseProperty, value); }
 		}
 		
-		static void OnCanCollapseChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
 		{
-			SelfCollapsingPanel panel = (SelfCollapsingPanel)d;
-			if ((bool)e.NewValue) {
-				if (!panel.HeldOpenByMouse)
-					panel.IsCollapsed = true;
-			} else {
-				panel.IsCollapsed = false;
+			base.OnPropertyChanged(change);
+			if (change.Property == CanCollapseProperty)
+			{
+				bool newValue = change.GetNewValue<bool>();
+				if (newValue) {
+					if (!HeldOpenByMouse)
+						IsCollapsed = true;
+				} else {
+					IsCollapsed = false;
+				}
 			}
 		}
 		
 		bool HeldOpenByMouse {
-			get { return IsMouseOver || IsMouseCaptureWithin; }
+			get { return IsPointerOver; }
 		}
 		
-		protected override void OnMouseLeave(MouseEventArgs e)
+		protected override void OnPointerExited(PointerEventArgs e)
 		{
-			base.OnMouseLeave(e);
+			base.OnPointerExited(e);
 			if (CanCollapse && !HeldOpenByMouse)
 				IsCollapsed = true;
 		}
-		
-		protected override void OnLostMouseCapture(MouseEventArgs e)
-		{
-			base.OnLostMouseCapture(e);
-			if (CanCollapse && !HeldOpenByMouse)
-				IsCollapsed = true;
-		}
-	}
+
+        //protected override void OnLostMouseCapture(MouseEventArgs e)
+        //{
+        //    base.OnLostMouseCapture(e);
+        //    if (CanCollapse && !HeldOpenByMouse)
+        //        IsCollapsed = true;
+        //}
+    }
 }

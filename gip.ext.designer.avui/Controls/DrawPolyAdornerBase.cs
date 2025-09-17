@@ -5,19 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Controls
 {
-    [CLSCompliant(false)]
     public abstract class DrawPolyAdornerBase : DrawShapesAdornerBase
     {
         #region c'tors
@@ -29,13 +26,13 @@ namespace gip.ext.designer.avui.Controls
 
         protected Nullable<Point> _lastStartPoint;
         protected Nullable<Point> _lastEndPoint;
-        protected PointCollection _PointCollection = new PointCollection();
+        protected IList<Point> _PointCollection = new List<Point>();
 
-        protected PointCollection PointCollection
+        protected IList<Point> PointCollection
         {
             get
             {
-                PointCollection pointCollection = new PointCollection();
+                IList<Point> pointCollection = new List<Point>();
                 if (_lastStartPoint.HasValue)
                 {
                     bool firstPointDifferent = true;
@@ -68,7 +65,7 @@ namespace gip.ext.designer.avui.Controls
             }
         }
 
-        protected PointCollection PointCollectionRelativeToBounds
+        protected IList<Point> PointCollectionRelativeToBounds
         {
             get
             {
@@ -78,13 +75,13 @@ namespace gip.ext.designer.avui.Controls
             }
         }
 
-        public override void OnIntermediateClick(Point pointRelativeToPathContainer, DependencyObject hitObject, MouseEventArgs e)
+        public override void OnIntermediateClick(Point pointRelativeToPathContainer, AvaloniaObject hitObject, PointerEventArgs e)
         {
             _PointCollection.Add(pointRelativeToPathContainer);
             //System.Diagnostics.Debug.WriteLine("OnIntermediateClick: " + pointRelativeToPathContainer.ToString());
         }
 
-        public static Geometry GetGeometryForPoly(PointCollection points)
+        public static Geometry GetGeometryForPoly(IList<Point> points)
         {
             PathGeometry pathgeo = new PathGeometry();
             PathFigure pathfigLine = new PathFigure();

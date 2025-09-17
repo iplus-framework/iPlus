@@ -4,11 +4,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
+using Avalonia.Input;
+using Avalonia;
+using Avalonia.Layout;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -64,9 +65,9 @@ namespace gip.ext.designer.avui.Services
         #endregion
 
         #region Methods
-        public abstract DrawShapesAdornerBase GenerateShapeDrawer(MouseEventArgs e);
+        public abstract DrawShapesAdornerBase GenerateShapeDrawer(PointerEventArgs e);
 
-        protected override void OnDragStarted(MouseEventArgs e)
+        protected override void OnDragStarted(PointerEventArgs e)
         {
             _ShapeDrawer = GenerateShapeDrawer(e);
             if (_ShapeDrawer == null)
@@ -80,21 +81,21 @@ namespace gip.ext.designer.avui.Services
             System.Diagnostics.Debug.WriteLine("OnDragStarted");
         }
 
-        protected override void OnMouseDown(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseDown(object sender, PointerPressedEventArgs e)
         {
         }
 
-        protected override void OnMouseMove(object sender, MouseEventArgs e)
+        protected override void OnMouseMove(object sender, PointerEventArgs e)
         {
             base.OnMouseMove(sender, e);
             if (_HasDragStarted)
             {
-                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
                 SetPlacement(result, e);
             }
         }
 
-        protected override void OnMouseUp(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseUp(object sender, PointerReleasedEventArgs e)
         {
             if (!_StopWithDblClick)
             {
@@ -105,7 +106,7 @@ namespace gip.ext.designer.avui.Services
                 //base.OnMouseUp(sender, e);
                 if (_HasDragStarted && _ShapeDrawer != null)
                 {
-                    DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+                    DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
                     _ShapeDrawer.OnIntermediateClick(result.VisualHit, e);
                     //RelativePlacement p = new RelativePlacement(HorizontalAlignment.Left, VerticalAlignment.Top);
                     //AdornerPanel.SetPlacement(_ShapeDrawer, p);
@@ -113,7 +114,7 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
-        protected override void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        protected override void OnMouseDoubleClick(object sender, PointerPressedEventArgs e)
         {
             if (_StopWithDblClick)
             {
@@ -121,7 +122,7 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
-        protected virtual void StopOnClickEvent(object sender, MouseButtonEventArgs e)
+        protected virtual void StopOnClickEvent(object sender, PointerEventArgs e)
         {
             if (_HasDragStarted == false)
             {
@@ -129,7 +130,7 @@ namespace gip.ext.designer.avui.Services
             }
             else
             {
-                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
                 if (result.VisualHit != null)
                 {
                     //DesignItem item = _ShapeDrawer.CreateShapeInstanceForDesigner(result);
@@ -142,10 +143,10 @@ namespace gip.ext.designer.avui.Services
                     }
                 }
             }
-            Stop();
+            Stop(e);
         }
 
-        protected virtual void SetPlacement(DesignPanelHitTestResult hitTest, MouseEventArgs e)
+        protected virtual void SetPlacement(DesignPanelHitTestResult hitTest, PointerEventArgs e)
         {
             RelativePlacement p = new RelativePlacement(HorizontalAlignment.Left, VerticalAlignment.Top);
             AdornerPanel.SetPlacement(_ShapeDrawer, p);

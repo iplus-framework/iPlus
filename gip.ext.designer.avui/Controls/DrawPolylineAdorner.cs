@@ -5,15 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -44,11 +42,11 @@ namespace gip.ext.designer.avui.Controls
             if (arrowEnds != ArrowEnds.None)
             {
                 if (arrowAngle < 0.001)
-                    arrowAngle = (double)ArrowLineBase.ArrowAngleProperty.DefaultMetadata.DefaultValue;
+                    arrowAngle = (double)ArrowLineBase.ArrowAngleProperty.GetMetadata(typeof(ArrowLineBase)).DefaultValue;
                 if (arrowLength < 0.001)
-                    arrowLength = (double)ArrowLineBase.ArrowLengthProperty.DefaultMetadata.DefaultValue;
+                    arrowLength = (double)ArrowLineBase.ArrowLengthProperty.GetMetadata(typeof(ArrowLineBase)).DefaultValue;
                 if (!s_IsArrowClosed.HasValue)
-                    isArrowClosed = (bool)ArrowLineBase.IsArrowClosedProperty.DefaultMetadata.DefaultValue;
+                    isArrowClosed = (bool)ArrowLineBase.IsArrowClosedProperty.GetMetadata(typeof(ArrowLineBase)).DefaultValue;
             }
             _lastStartPoint = StartPointRelativeToShapeContainer;
             _lastEndPoint = pointRelativeToPathContainer;
@@ -56,7 +54,7 @@ namespace gip.ext.designer.avui.Controls
             return ArrowPolyline.GetPathGeometry(PointCollection, arrowEnds, arrowLength, arrowAngle, isArrowClosed);
         }
 
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
             ArrowPolyline newInstance = (ArrowPolyline)ContainerForShape.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(ArrowPolyline), null);
             DesignItem item = ContainerForShape.Context.Services.Component.RegisterComponentForDesigner(newInstance);
@@ -100,16 +98,16 @@ namespace gip.ext.designer.avui.Controls
                     ArrowPolyline shape = changeAction.Property.DesignItem.View as ArrowPolyline;
                     switch (changeAction.Property.Name)
                     {
-                        case "ArrowAngle":
+                        case nameof(ArrowPolyline.ArrowAngle):
                             s_ArrowAngle = shape.ArrowAngle;
                             break;
-                        case "ArrowLength":
+                        case nameof(ArrowPolyline.ArrowLength):
                             s_ArrowLength = shape.ArrowLength;
                             break;
-                        case "ArrowEnds":
+                        case nameof(ArrowPolyline.ArrowEnds):
                             sArrowEnds = shape.ArrowEnds;
                             break;
-                        case "IsArrowClosed":
+                        case nameof(ArrowPolyline.IsArrowClosed):
                             s_IsArrowClosed = shape.IsArrowClosed;
                             break;
                     }

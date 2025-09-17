@@ -9,7 +9,7 @@ namespace gip.ext.design.avui
 
 		void Copy(DesignContext designContext);
 
-		bool CanPaste(DesignContext designContext);
+		bool CanPasteAsync(DesignContext designContext);
 
 		void Paste(DesignContext designContext);
 

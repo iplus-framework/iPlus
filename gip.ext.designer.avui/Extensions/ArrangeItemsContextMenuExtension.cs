@@ -2,8 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System.Reflection;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia.Controls;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 
@@ -13,7 +12,7 @@ namespace gip.ext.designer.avui.Extensions
 	/// 
 	/// </summary>
 	[ExtensionServer(typeof(PrimarySelectionButOnlyWhenMultipleSelectedExtensionServer))]
-	[ExtensionFor(typeof(UIElement))]
+	[ExtensionFor(typeof(Control))]
 	[Extension(Order = 30)]
 	public class ArrangeItemsContextMenuExtension : SelectionAdornerProvider
 	{

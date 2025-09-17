@@ -6,7 +6,9 @@ using System.Windows;
 using System;
 using System.Collections.Generic;
 using gip.ext.designer.avui.Xaml;
-using System.Windows.Controls;
+using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -28,7 +30,7 @@ namespace gip.ext.designer.avui.Services
 		{
 			var helper = new DragFileToDesignPanelHelper();
 			helper._createItems = createItems;
-			helper._designPanel = designSurface._designPanel as DesignPanel;
+			helper._designPanel = designSurface.DesignPanel as DesignPanel;
 
 			helper._designPanel.AllowDrop = true;
 			helper._designPanel.DragOver += helper.designPanel_DragOver;

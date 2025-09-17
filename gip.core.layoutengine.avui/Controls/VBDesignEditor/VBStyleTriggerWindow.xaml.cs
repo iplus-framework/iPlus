@@ -36,7 +36,7 @@ namespace gip.core.layoutengine.avui
 		}
 
         DesignItem _DesignObject;
-        public void InitEditor(DesignItem designObject)
+        public void LoadItemsCollection(DesignItem designObject)
 		{
             if (designObject == null)
                 return;

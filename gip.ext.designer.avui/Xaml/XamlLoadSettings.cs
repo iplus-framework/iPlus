@@ -28,8 +28,10 @@ namespace gip.ext.designer.avui.Xaml
 				typeFinder = value;
 			}
 		}
-		
-		public XamlLoadSettings()
+
+        public string CurrentProjectAssemblyName { get; set; }
+
+        public XamlLoadSettings()
 		{
 			DesignerAssemblies.Add(typeof(XamlDesignContext).Assembly);
         }

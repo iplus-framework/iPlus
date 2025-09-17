@@ -1,0 +1,112 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Controls="using:gip.ext.designer.avui.Controls">
+		
+	<SolidColorBrush x:Key="ButtonNormal">#DADFEA</SolidColorBrush>
+	<SolidColorBrush x:Key="ButtonHover">#E6EBEF</SolidColorBrush>
+	<SolidColorBrush x:Key="ButtonPressed">#B6BDD3</SolidColorBrush>
+	<SolidColorBrush x:Key="BorderBrush">#7F9DB9</SolidColorBrush>
+	<SolidColorBrush x:Key="ArrowBrush">Black</SolidColorBrush>
+	<SolidColorBrush x:Key="ArrowsBorderBrush">#B6BDD3</SolidColorBrush>
+	
+	<ControlTheme x:Key="UpButton" TargetType="RepeatButton">
+		<Setter Property="Focusable" Value="False" />
+		<Setter Property="Template">
+			<ControlTemplate TargetType="Controls:DragRepeatButton">
+				<Border x:Name="bg"
+				        Background="{StaticResource ButtonNormal}"
+				        CornerRadius="2 2 0 0">
+					<Path Fill="{StaticResource ArrowBrush}"
+					      Data="M 0 3 L 3.5 0 L 7 3"
+					      HorizontalAlignment="Center"
+					      VerticalAlignment="Center" />
+				</Border>
+			</ControlTemplate>
+		</Setter>
+		
+		<Style Selector="^ /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonNormal}" />
+		</Style>
+		<Style Selector="^:pointerover /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonHover}" />
+		</Style>
+		<Style Selector="^:pressed /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
+		</Style>
+		<Style Selector="^[IsDragging=True] /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
+		</Style>
+	</ControlTheme>
+	
+	<ControlTheme x:Key="DownButton" TargetType="RepeatButton">
+		<Setter Property="Focusable" Value="False" />
+		<Setter Property="Template">
+			<ControlTemplate TargetType="Controls:DragRepeatButton">
+				<Border x:Name="bg"
+				        Background="{StaticResource ButtonNormal}"
+				        CornerRadius="0 0 2 2">
+					<Path Fill="{StaticResource ArrowBrush}"
+					      Data="M 0 0 L 3.5 3 L 7 0"
+					      HorizontalAlignment="Center"
+					      VerticalAlignment="Center" />
+				</Border>
+			</ControlTemplate>
+		</Setter>
+		
+		<Style Selector="^ /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonNormal}" />
+		</Style>
+		<Style Selector="^:pointerover /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonHover}" />
+		</Style>
+		<Style Selector="^:pressed /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
+		</Style>
+		<Style Selector="^[IsDragging=True] /template/ Border#bg">
+			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
+		</Style>
+	</ControlTheme>
+	
+	<ControlTheme x:Key="{x:Type Controls:NumericUpDown}" TargetType="Controls:NumericUpDown">
+		<Setter Property="Background" Value="White" />
+		<Setter Property="BorderThickness" Value="1" />
+		<Setter Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+		<Setter Property="Focusable" Value="False" />
+		<Setter Property="Template">
+			<ControlTemplate TargetType="Controls:NumericUpDown">
+				<Border Background="{TemplateBinding Background}"
+				        BorderBrush="{TemplateBinding BorderBrush}"
+				        BorderThickness="{TemplateBinding BorderThickness}"
+				        Padding="1">
+					<Grid>
+						<Grid.RowDefinitions>
+							<RowDefinition />
+							<RowDefinition />
+						</Grid.RowDefinitions>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition Width="15" />
+						</Grid.ColumnDefinitions>
+						<TextBox x:Name="PART_TextBox"
+						         BorderThickness="0"
+						         Background="Transparent"
+						         Foreground="{TemplateBinding Foreground}"
+						         Grid.RowSpan="2" />
+						<Controls:DragRepeatButton x:Name="PART_UpButton"
+							Theme="{StaticResource UpButton}"
+							Grid.Column="1" />
+						<Controls:DragRepeatButton x:Name="PART_DownButton"
+							Theme="{StaticResource DownButton}"
+							Grid.Column="1"
+							Grid.Row="1" />
+						<Border Grid.Column="1"
+						        Grid.RowSpan="2"
+						        BorderBrush="{StaticResource ArrowsBorderBrush}"
+						        BorderThickness="1"
+						        CornerRadius="2" />
+					</Grid>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+</ResourceDictionary>

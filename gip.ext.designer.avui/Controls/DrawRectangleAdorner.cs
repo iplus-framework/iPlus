@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Input;
+using Avalonia.Controls.Shapes;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -35,7 +34,7 @@ namespace gip.ext.designer.avui.Controls
             return rect;
         }
 
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
             Rectangle newInstance = (Rectangle)ContainerForShape.Context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(Rectangle), null);
             DesignItem item = ContainerForShape.Context.Services.Component.RegisterComponentForDesigner(newInstance);
@@ -73,10 +72,10 @@ namespace gip.ext.designer.avui.Controls
                     Rectangle rect = changeAction.Property.DesignItem.View as Rectangle;
                     switch (changeAction.Property.Name)
                     {
-                        case "RadiusX":
+                        case nameof(Rectangle.RadiusX):
                             s_ShapeRadiusX = rect.RadiusX;
                             break;
-                        case "RadiusY":
+                        case nameof(Rectangle.RadiusY):
                             s_ShapeRadiusY = rect.RadiusY;
                             break;
                     }

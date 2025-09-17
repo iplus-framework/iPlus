@@ -4,16 +4,16 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.designer.avui.Services;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Input.Raw;
+using Avalonia;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -34,23 +34,22 @@ namespace gip.ext.designer.avui.Extensions
 			this.ExtendedItem.AddBehavior(typeof(IHandlePointerToolMouseDown), this);
 		}
 		
-		public void HandleSelectionMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result)
+		public void HandleSelectionMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result)
 		{
-			if (e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, MouseButton.Left)) {
+			if (e.Properties.IsLeftButtonPressed && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown)) {
 				e.Handled = true;
 				new RangeSelectionGesture(result.ModelHit).Start(designPanel, e);
 			}
 		}
 	}
 
-    [CLSCompliant(false)]
-    sealed public class RangeSelectionGesture : ClickOrDragMouseGesture
+    public class RangeSelectionGesture : ClickOrDragMouseGesture
 	{
-		DesignItem container;
-		AdornerPanel adornerPanel;
-		SelectionFrame selectionFrame;
-		
-		GrayOutDesignerExceptActiveArea grayOut;
+		protected DesignItem container;
+        protected AdornerPanel adornerPanel;
+        protected SelectionFrame selectionFrame;
+
+        protected GrayOutDesignerExceptActiveArea grayOut;
 		
 		public RangeSelectionGesture(DesignItem container)
 		{
@@ -58,7 +57,7 @@ namespace gip.ext.designer.avui.Extensions
 			this.positionRelativeTo = container.View;
 		}
 		
-		protected override void OnDragStarted(MouseEventArgs e)
+		protected override void OnDragStarted(PointerEventArgs e)
 		{
 			adornerPanel = new AdornerPanel();
 			adornerPanel.SetAdornedElement(container.View, container);
@@ -71,20 +70,20 @@ namespace gip.ext.designer.avui.Extensions
 			GrayOutDesignerExceptActiveArea.Start(ref grayOut, services, container.View);
 		}
 		
-		protected override void OnMouseMove(object sender, MouseEventArgs e)
+		protected override void OnMouseMove(object sender, PointerEventArgs e)
 		{
 			base.OnMouseMove(sender, e);
 			if (_HasDragStarted) {
-				SetPlacement(e.GetPosition(positionRelativeTo));
+				SetPlacement(e.GetPosition(positionRelativeTo as Visual));
 			}
 		}
 		
-		protected override void OnMouseUp(object sender, MouseButtonEventArgs e)
+		protected override void OnMouseUp(object sender, PointerReleasedEventArgs e)
 		{
 			if (_HasDragStarted == false) {
 				services.Selection.SetSelectedComponents(new DesignItem [] { container }, SelectionTypes.Auto);
 			} else {
-				Point endPoint = e.GetPosition(positionRelativeTo);
+				Point endPoint = e.GetPosition(positionRelativeTo as Visual);
 				Rect frameRect = new Rect(
 					Math.Min(startPoint.X, endPoint.X),
 					Math.Min(startPoint.Y, endPoint.Y),
@@ -92,61 +91,111 @@ namespace gip.ext.designer.avui.Extensions
 					Math.Abs(startPoint.Y - endPoint.Y)
 				);
 				
-				ICollection<DesignItem> items = GetChildDesignItemsInContainer(container, new RectangleGeometry(frameRect));
+				ICollection<DesignItem> items = GetChildDesignItemsInContainer(container, new RectangleGeometry(frameRect), e);
 				if (items.Count == 0) {
 					items.Add(container);
 				}
 				services.Selection.SetSelectedComponents(items, SelectionTypes.Auto);
 			}
-			Stop();
+			Stop(e);
 		}
 		
-		static ICollection<DesignItem> GetChildDesignItemsInContainer(
-			DesignItem container, Geometry geometry)
+		protected virtual ICollection<DesignItem> GetChildDesignItemsInContainer(DesignItem container, Geometry geometry, PointerEventArgs e)
 		{
-			HashSet<DesignItem> resultItems = new HashSet<DesignItem>();
-			ViewService viewService = container.Services.View;
+            HashSet<DesignItem> resultItems = new HashSet<DesignItem>();
+            ViewService viewService = container.Services.View;
+
+            HitTestFilterCallback filterCallback = delegate (Visual potentialHitTestTarget) {
+                Control element = potentialHitTestTarget as Control;
+                if (element != null)
+                {
+                    // ensure we are able to select elements with width/height=0
+                    if (element.Bounds.Width == 0 || element.Bounds.Height == 0)
+                    {
+                        Visual tmp = element;
+                        DesignItem model = null;
+                        while (tmp != null)
+                        {
+                            model = viewService.GetModel(tmp as AvaloniaObject);
+                            if (model != null) break;
+                            tmp = VisualTreeHelper.GetParent(tmp) as Visual;
+                        }
+                        if (model != container)
+                        {
+                            resultItems.Add(model);
+                            return HitTestFilterBehavior.ContinueSkipChildren;
+                        }
+                    }
+                }
+                return HitTestFilterBehavior.Continue;
+            };
+
+            HitTestResultCallback resultCallback = delegate (HitTestResult result) {
+                if (((GeometryHitTestResult)result).IntersectionDetail == IntersectionDetail.FullyInside)
+                {
+                    // find the model for the visual contained in the selection area
+                    Visual tmp = result.VisualHit;
+                    DesignItem model = null;
+                    while (tmp != null)
+                    {
+                        model = viewService.GetModel(tmp as AvaloniaObject);
+                        if (model != null) break;
+                        tmp = VisualTreeHelper.GetParent(tmp) as Visual;
+                    }
+                    if (model != container)
+                    {
+                        resultItems.Add(model);
+                    }
+                }
+                return HitTestResultBehavior.Continue;
+            };
+
+            VisualTreeHelper.HitTest(container.View as Visual, filterCallback, resultCallback, new GeometryHitTestParameters(geometry));
+            return resultItems;
+
+   //         HashSet<DesignItem> resultItems = new HashSet<DesignItem>();
+			//ViewService viewService = container.Services.View;
 			
-			HitTestFilterCallback filterCallback = delegate(DependencyObject potentialHitTestTarget) {
-				FrameworkElement element = potentialHitTestTarget as FrameworkElement;
-				if (element != null) {
-					// ensure we are able to select elements with width/height=0
-					if (element.ActualWidth == 0 || element.ActualHeight == 0) {
-						DependencyObject tmp = element;
-						DesignItem model = null;
-						while (tmp != null) {
-							model = viewService.GetModel(tmp);
-							if (model != null) break;
-							tmp = VisualTreeHelper.GetParent(tmp);
-						}
-						if (model != container) {
-							resultItems.Add(model);
-							return HitTestFilterBehavior.ContinueSkipChildren;
-						}
-					}
-				}
-				return HitTestFilterBehavior.Continue;
-			};
+			//HitTestFilterCallback filterCallback = delegate(DependencyObject potentialHitTestTarget) {
+			//	FrameworkElement element = potentialHitTestTarget as FrameworkElement;
+			//	if (element != null) {
+			//		// ensure we are able to select elements with width/height=0
+			//		if (element.ActualWidth == 0 || element.ActualHeight == 0) {
+			//			DependencyObject tmp = element;
+			//			DesignItem model = null;
+			//			while (tmp != null) {
+			//				model = viewService.GetModel(tmp);
+			//				if (model != null) break;
+			//				tmp = VisualTreeHelper.GetParent(tmp);
+			//			}
+			//			if (model != container) {
+			//				resultItems.Add(model);
+			//				return HitTestFilterBehavior.ContinueSkipChildren;
+			//			}
+			//		}
+			//	}
+			//	return HitTestFilterBehavior.Continue;
+			//};
 			
-			HitTestResultCallback resultCallback = delegate(HitTestResult result) {
-				if (((GeometryHitTestResult) result).IntersectionDetail == IntersectionDetail.FullyInside) {
-					// find the model for the visual contained in the selection area
-					DependencyObject tmp = result.VisualHit;
-					DesignItem model = null;
-					while (tmp != null) {
-						model = viewService.GetModel(tmp);
-						if (model != null) break;
-						tmp = VisualTreeHelper.GetParent(tmp);
-					}
-					if (model != container) {
-						resultItems.Add(model);
-					}
-				}
-				return HitTestResultBehavior.Continue;
-			};
+			//HitTestResultCallback resultCallback = delegate(HitTestResult result) {
+			//	if (((GeometryHitTestResult) result).IntersectionDetail == IntersectionDetail.FullyInside) {
+			//		// find the model for the visual contained in the selection area
+			//		DependencyObject tmp = result.VisualHit;
+			//		DesignItem model = null;
+			//		while (tmp != null) {
+			//			model = viewService.GetModel(tmp);
+			//			if (model != null) break;
+			//			tmp = VisualTreeHelper.GetParent(tmp);
+			//		}
+			//		if (model != container) {
+			//			resultItems.Add(model);
+			//		}
+			//	}
+			//	return HitTestResultBehavior.Continue;
+			//};
 			
-			VisualTreeHelper.HitTest(container.View, filterCallback, resultCallback, new GeometryHitTestParameters(geometry));
-			return resultItems;
+			//VisualTreeHelper.HitTest(container.View, filterCallback, resultCallback, new GeometryHitTestParameters(geometry));
+			//return resultItems;
 		}
 		
 		void SetPlacement(Point endPoint)

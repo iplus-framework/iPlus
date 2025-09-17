@@ -80,11 +80,11 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                 {
                     if (PopupContent.Content is VBBindingEditor)
                     {
-                        (PopupContent.Content as VBBindingEditor).InitEditor(Property.ValueItem);
+                        (PopupContent.Content as VBBindingEditor).LoadItemsCollection(Property.ValueItem);
                     }
                     else
                     {
-                        (PopupContent.Content as VBMultiBindingEditor).InitEditor(Property.ValueItem);
+                        (PopupContent.Content as VBMultiBindingEditor).LoadItemsCollection(Property.ValueItem);
                     }
                 }
             }

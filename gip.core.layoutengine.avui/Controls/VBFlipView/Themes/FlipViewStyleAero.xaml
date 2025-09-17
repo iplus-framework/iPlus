@@ -13,7 +13,7 @@
                 <ControlTemplate>
                     <Rectangle Margin="2"
                                SnapsToDevicePixels="true"
-                               Stroke="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"
+                               Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}"
                                StrokeThickness="1"
                                StrokeDashArray="1 2" />
                 </ControlTemplate>

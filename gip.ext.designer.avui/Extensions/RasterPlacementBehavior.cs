@@ -2,12 +2,10 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui.Adorners;
-using System.Windows;
+using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.ext.designer.avui.Extensions
 {

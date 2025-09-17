@@ -152,6 +152,11 @@ namespace gip.ext.design.avui
     public interface IDesignPanel : IInputElement
     {
         /// <summary>
+        /// Set a custom filter callback so that any element can be filtered out
+        /// </summary>
+        HitTestFilterCallback CustomHitTestFilterBehavior { get; set; }
+
+        /// <summary>
         /// Gets the design context used by the DesignPanel.
         /// </summary>
         DesignContext Context { get; }
@@ -174,7 +179,7 @@ namespace gip.ext.design.avui
         /// <summary>
         /// Performs a hit test on the design surface.
         /// </summary>
-        DesignPanelHitTestResult HitTest(Point mousePosition, bool testAdorners, bool testDesignSurface);
+        DesignPanelHitTestResult HitTest(Point mousePosition, bool testAdorners, bool testDesignSurface, HitTestType hitTestType = HitTestType.Default);
 
         /// <summary>
         /// Performs a hit test on the design surface, raising <paramref name="callback"/> for each match.

@@ -2,15 +2,15 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 
 namespace gip.ext.designer.avui.Extensions
 {
-	[ExtensionFor(typeof(FrameworkElement))]
+	[ExtensionFor(typeof(Control))]
 	[ExtensionServer(typeof(MouseOverExtensionServer))]
 
 	public class BorderForMouseOver : AdornerProvider
@@ -34,14 +34,10 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			base.OnInitialized();
 
-			if (ExtendedItem.Component is Line line)
+			if (ExtendedItem.Component is Avalonia.Controls.Shapes.Line line)
 			{
 				// To display border of Line in correct position.
-				border.Margin = new Thickness
-				{
-					Left = line.X2 < 0 ? line.X2 : 0,
-					Top = line.Y2 < 0 ? line.Y2 : 0
-				};
+				border.Margin = new Thickness(line.EndPoint.X < 0 ? line.EndPoint.X : 0, line.EndPoint.Y < 0 ? line.EndPoint.Y : 0);
 			}
 		}
 	}

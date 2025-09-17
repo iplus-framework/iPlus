@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<UserControl
+	x:Class="gip.ext.designer.avui.Controls.GridUnitSelector" 
+	xmlns="https://github.com/avaloniaui" 
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Name="control"
+	HorizontalContentAlignment="Left"
+	VerticalContentAlignment="Top">
+	<UserControl.Resources>
+		<Style
+			Selector="RadioButton">
+			<Setter
+				Property="Template">
+				<Setter.Value>
+					<ControlTemplate>
+						<ToggleButton
+							IsChecked="{Binding Path=IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+							Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"
+							Padding="{Binding Path=Padding, RelativeSource={RelativeSource TemplatedParent}}"
+							Name="toggleButton" />
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+	</UserControl.Resources>
+	<Border
+		CornerRadius="3"
+		BorderBrush="CornflowerBlue"
+		Background="LightBlue"
+		BorderThickness="1">
+		<StackPanel
+			Orientation="{Binding Orientation, ElementName=control}">
+			<RadioButton
+				x:Name="fixed"
+				Content="Fixed"
+				Margin="1"
+				FontSize="8"
+				ToolTip.Tip="Fixed - Column size is fixed width"
+				GroupName="group" />
+			<RadioButton
+				x:Name="star"
+				Margin="1"
+				FontSize="16"
+				ToolTip.Tip="Star - Column size is weighted proportion"
+				GroupName="group">
+				<TextBlock
+					Text="*"
+					Margin="3,-4,3,-8" />
+			</RadioButton>
+			<RadioButton
+				x:Name="auto"
+				Content="Auto"
+				Margin="1"
+				FontSize="8"
+				ToolTip.Tip="Auto - Column size is determined by the Content(s)"
+				GroupName="group" />
+		</StackPanel>
+	</Border>
+</UserControl>

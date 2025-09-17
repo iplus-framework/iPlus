@@ -4,10 +4,16 @@
 using System.Windows;
 using System;
 using System.Diagnostics;
-using System.Windows.Input;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
+using gip.ext.designer.avui.Xaml;
+using System.Linq;
+using Avalonia;
+using Avalonia.Input;
+using System.Collections.Generic;
+using Avalonia.Input.Raw;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -17,34 +23,46 @@ namespace gip.ext.designer.avui.Services
 	public class CreateComponentTool : ITool
 	{
 		readonly Type componentType;
-		MoveLogic moveLogic;
-		protected ChangeGroup changeGroup;
+        readonly object[] arguments = null;
+        MoveLogic moveLogic;
+		protected ChangeGroup ChangeGroup;
 		Point createPoint;
-		
-		/// <summary>
-		/// Creates a new CreateComponentTool instance.
-		/// </summary>
-		public CreateComponentTool(Type componentType)
-		{
-			if (componentType == null)
-				throw new ArgumentNullException("componentType");
-			this.componentType = componentType;
+
+        public event EventHandler<DesignItem> CreateComponentCompleted;
+
+        /// <summary>
+        /// Creates a new CreateComponentTool instance.
+        /// </summary>
+        public CreateComponentTool(Type componentType) : this(componentType, null)
+        {
 		}
-		
-		/// <summary>
-		/// Gets the type of the component to be created.
-		/// </summary>
-		public virtual Type ComponentType {
+
+        /// <summary>
+        /// Creates a new CreateComponentTool instance.
+        /// </summary>
+        public CreateComponentTool(Type componentType, object[] arguments)
+        {
+            if (componentType == null)
+                throw new ArgumentNullException(nameof(componentType));
+            this.componentType = componentType;
+            this.arguments = arguments;
+        }
+
+
+        /// <summary>
+        /// Gets the type of the component to be created.
+        /// </summary>
+        public virtual Type ComponentType {
 			get { return componentType; }
 		}
 		
 		public Cursor Cursor {
-			get { return Cursors.Cross; }
+			get { return new Cursor(StandardCursorType.Cross); }
 		}
 		
 		public void Activate(IDesignPanel designPanel)
 		{
-			designPanel.MouseDown += OnMouseDown;
+			designPanel.PointerPressed += OnMouseDown;
 			//designPanel.DragEnter += designPanel_DragOver;
 			designPanel.DragOver += designPanel_DragOver;
 			designPanel.Drop += designPanel_Drop;
@@ -53,7 +71,7 @@ namespace gip.ext.designer.avui.Services
 		
 		public void Deactivate(IDesignPanel designPanel)
 		{
-			designPanel.MouseDown -= OnMouseDown;
+			designPanel.PointerPressed -= OnMouseDown;
 			//designPanel.DragEnter -= designPanel_DragOver;
 			designPanel.DragOver -= designPanel_DragOver;
 			designPanel.Drop -= designPanel_Drop;
@@ -64,15 +82,16 @@ namespace gip.ext.designer.avui.Services
 		{
 			try {
 				IDesignPanel designPanel = (IDesignPanel)sender;
-				e.Effects = DragDropEffects.Copy;
+				e.DragEffects = DragDropEffects.Copy;
 				e.Handled = true;
-				Point p = e.GetPosition(designPanel);
+				Point p = e.GetPosition(designPanel as Visual);
 
 				if (moveLogic == null) {
-					//if (e.Data.GetData(typeof(CreateComponentTool)) != this) return;
-					// TODO: dropLayer in designPanel
-					designPanel.IsAdornerLayerHitTestVisible = false;
-					DesignPanelHitTestResult result = designPanel.HitTest(p, false, true);
+                    //if (e.Data.GetData(this.GetType()) != this) return;
+                    //if (e.Data.GetData(typeof(CreateComponentTool)) != this) return;
+                    // TODO: dropLayer in designPanel
+                    designPanel.IsAdornerLayerHitTestVisible = false;
+					DesignPanelHitTestResult result = designPanel.HitTest(p, false, true, HitTestType.Default);
 					
 					if (result.ModelHit != null) {
 						designPanel.Focus();
@@ -82,26 +101,29 @@ namespace gip.ext.designer.avui.Services
                         {
 							moveLogic = new MoveLogic(createdItem);
 							createPoint = p;
+							double x = createPoint.X;
+							double y = createPoint.Y;
                             // Offset Mouse-Pointer, damit DesignItem nicht flackert auf Oberfläche, wegen wechsel mit Resize-Adorner
                             if (!Double.IsNaN(defaultSize.Height) && !Double.IsNaN(defaultSize.Width)
                                 && (defaultSize.Height > 0) && (defaultSize.Width > 0))
                             {
-                                createPoint.X += (defaultSize.Width / 2);
-                                createPoint.Y += (defaultSize.Height / 2);
+                                x += (defaultSize.Width / 2);
+                                y += (defaultSize.Height / 2);
                             }
                             else
                             {
-                                createPoint.X += 10;
-                                createPoint.Y += 10;
+                                x += 10;
+                                y += 10;
                             }
+							createPoint = new Point(x, y);
                             // We'll keep the ChangeGroup open as long as the moveLogic is active.
-						} else {
+                        } else {
 							// Abort the ChangeGroup created by the CreateItem() call.
-							changeGroup.Abort();
-                            changeGroup = null;
+							ChangeGroup.Abort();
+                            ChangeGroup = null;
 						}
 					}
-				} else if ((moveLogic.ClickedOn.View as FrameworkElement).IsLoaded) {
+				} else if ((moveLogic.ClickedOn.View as Control).IsLoaded) {
 					if (moveLogic.Operation == null) {
 						moveLogic.Start(createPoint);
 					} else {
@@ -123,8 +145,8 @@ namespace gip.ext.designer.avui.Services
 					}
 					moveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
 					moveLogic = null;
-					changeGroup.Commit();
-                    changeGroup = null;
+                    ChangeGroup.Commit();
+                    ChangeGroup = null;
 				}
 			} catch (Exception x) {
 				DragDropExceptionHandler.RaiseUnhandledException(x);
@@ -139,24 +161,74 @@ namespace gip.ext.designer.avui.Services
 					moveLogic.ClickedOn.Services.Selection.SetSelectedComponents(null);
 					moveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
 					moveLogic = null;
-					changeGroup.Abort();
-                    changeGroup = null;
+					ChangeGroup.Abort();
+                    ChangeGroup = null;
 
 				}
 			} catch (Exception x) {
 				DragDropExceptionHandler.RaiseUnhandledException(x);
 			}
 		}
-		
-		/// <summary>
-		/// Is called to create the item used by the CreateComponentTool.
-		/// </summary>
-		protected virtual DesignItem CreateItem(DesignContext context)
+
+        /// <summary>
+        /// Is called to create the item used by the CreateComponentTool.
+        /// </summary>
+        protected virtual DesignItem CreateItemWithPosition(DesignContext context, Point position)
+        {
+            var item = CreateItem(context);
+            item.Position = position;
+            return item;
+        }
+
+        /// <summary>
+        /// Is called to create the item used by the CreateComponentTool.
+        /// </summary>
+        protected virtual DesignItem CreateItem(DesignContext context)
+        {
+            if (ChangeGroup == null)
+                ChangeGroup = context.RootItem.OpenGroup("Add Control");
+
+            var item = CreateItem(context, componentType, arguments);
+
+            return item;
+        }
+
+        protected virtual DesignItem[] CreateItemsWithPosition(DesignContext context, Point position)
+        {
+            var items = CreateItems(context);
+            if (items != null)
+            {
+                foreach (var designItem in items)
+                {
+                    designItem.Position = position;
+                }
+            }
+
+            return items;
+        }
+
+        protected virtual DesignItem[] CreateItems(DesignContext context)
+        {
+            return null;
+        }
+
+        /// <summary>
+        /// Is called to create the item used by the CreateComponentTool.
+        /// </summary>
+        public static DesignItem CreateItem(DesignContext context, Type type)
+        {
+            return CreateItem(context, type, null);
+        }
+
+        /// <summary>
+        /// Is called to create the item used by the CreateComponentTool.
+        /// </summary>
+        public static DesignItem CreateItem(DesignContext context, Type type, object[] arguments)
 		{
-			object newInstance = context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(componentType, null);
+			object newInstance = context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(type, null);
 			DesignItem item = context.Services.Component.RegisterComponentForDesigner(newInstance);
-			changeGroup = item.OpenGroup("Drop Control");
-			context.Services.ExtensionManager.ApplyDefaultInitializers(item);
+            context.Services.Component.SetDefaultPropertyValues(item);
+            context.Services.ExtensionManager.ApplyDefaultInitializers(item);
 			return item;
 		}
 		
@@ -180,34 +252,124 @@ namespace gip.ext.designer.avui.Services
 			}
 		}
 
+        /// <summary>
+        /// Is called to set Properties of the Drawn Item
+        /// </summary>
+        protected virtual void SetPropertiesForDrawnItem(DesignItem designItem)
+        { }
+
+        public static bool AddItemWithCustomSizePosition(DesignItem container, Type createdItem, Size size, Point position)
+        {
+            return AddItemWithCustomSizePosition(container, createdItem, null, size, position);
+        }
+
+        public static bool AddItemWithCustomSizePosition(DesignItem container, Type createdItem, object[] arguments, Size size, Point position)
+        {
+            CreateComponentTool cct = new CreateComponentTool(createdItem, arguments);
+            return AddItemsWithCustomSize(container, new[] { cct.CreateItem(container.Context) }, new List<Rect> { new Rect(position, size) });
+        }
+
+        public static bool AddItemWithDefaultSize(DesignItem container, Type createdItem, Size size)
+        {
+            return AddItemWithDefaultSize(container, createdItem, null, size);
+        }
+
+        public static bool AddItemWithDefaultSize(DesignItem container, Type createdItem, object[] arguments, Size size)
+        {
+            CreateComponentTool cct = new CreateComponentTool(createdItem, arguments);
+            return AddItemsWithCustomSize(container, new[] { cct.CreateItem(container.Context) }, new List<Rect> { new Rect(new Point(0, 0), size) });
+        }
+
+        internal static bool AddItemsWithDefaultSize(DesignItem container, DesignItem[] createdItems)
+        {
+            return AddItemsWithCustomSize(container, createdItems, createdItems.Select(x => new Rect(x.Position, ModelTools.GetDefaultSize(x))).ToList());
+        }
+
+        internal static bool AddItemsWithCustomSize(DesignItem container, DesignItem[] createdItems, IList<Rect> positions)
+        {
+            PlacementOperation operation = null;
+
+            while (operation == null && container != null)
+            {
+                operation = PlacementOperation.TryStartInsertNewComponents(
+                    container,
+                    createdItems,
+                    positions,
+                    PlacementType.AddItem
+                );
+
+                if (operation != null)
+                    break;
+
+                try
+                {
+                    if (container.Parent != null)
+                    {
+                        var rel = container.View.TranslatePoint(new Point(0, 0), container.Parent.View).Value;
+                        for (var index = 0; index < positions.Count; index++)
+                        {
+                            positions[index] = new Rect(new Point(positions[index].X + rel.X, positions[index].Y + rel.Y), positions[index].Size);
+                        }
+                    }
+                }
+                catch (Exception)
+                { }
+
+                container = container.Parent;
+            }
+
+            if (operation != null)
+            {
+                container.Services.Selection.SetSelectedComponents(createdItems);
+                operation.Commit();
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+
         public virtual Size OnGetDefaultSize()
         {
             return new Size(double.NaN, double.NaN);
         }
 		
-		void OnMouseDown(object sender, MouseButtonEventArgs e)
+		void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{
             MouseDown(sender, e);
 		}
 
-        protected virtual void MouseDown(object sender, MouseButtonEventArgs e)
+        protected virtual void MouseDown(object sender, PointerPressedEventArgs e)
         {
-            if (e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, MouseButton.Left))
+            if (e.Properties.IsLeftButtonPressed && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
             {
                 e.Handled = true;
                 IDesignPanel designPanel = (IDesignPanel)sender;
-                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
                 if (result.ModelHit != null)
                 {
-                    IPlacementBehavior behavior = result.ModelHit.GetBehavior<IPlacementBehavior>();
-                    if (behavior != null)
-                    {
-                        DesignItem createdItem = CreateItem(designPanel.Context);
+                    var darwItemBehaviors = result.ModelHit.Extensions.OfType<IDrawItemExtension>();
+                    var drawItembehavior = darwItemBehaviors.FirstOrDefault(x => x.CanItemBeDrawn(componentType));
+					if (drawItembehavior != null && drawItembehavior.CanItemBeDrawn(componentType))
+					{
+						drawItembehavior.StartDrawItem(result.ModelHit, componentType, designPanel, e, SetPropertiesForDrawnItem);
+					}
+					else
+					{
+						IPlacementBehavior behavior = result.ModelHit.GetBehavior<IPlacementBehavior>();
+						if (behavior != null)
+						{
+							DesignItem createdItem = CreateItem(designPanel.Context);
 
-                        new CreateComponentMouseGesture(result.ModelHit, createdItem, changeGroup).Start(designPanel, e);
-                        // CreateComponentMouseGesture now is responsible for the changeGroup created by CreateItem()
-                        changeGroup = null;
-                    }
+                            CreateComponentCompleted?.Invoke(this, createdItem);
+
+                            new CreateComponentMouseGesture(result.ModelHit, createdItem, ChangeGroup).Start(designPanel, e);
+							// CreateComponentMouseGesture now is responsible for the changeGroup created by CreateItem()
+							ChangeGroup = null;
+						}
+					}
                 }
             }
         }
@@ -233,9 +395,9 @@ namespace gip.ext.designer.avui.Services
 //		SelectionFrame frame;
 //		AdornerPanel adornerPanel;
 		
-		Rect GetStartToEndRect(MouseEventArgs e)
+		Rect GetStartToEndRect(PointerEventArgs e)
 		{
-			Point endPoint = e.GetPosition(positionRelativeTo);
+			Point endPoint = e.GetPosition(positionRelativeTo as Visual);
 			return new Rect(
 				Math.Min(startPoint.X, endPoint.X),
 				Math.Min(startPoint.Y, endPoint.Y),
@@ -244,7 +406,7 @@ namespace gip.ext.designer.avui.Services
 			);
 		}
 		
-		protected override void OnDragStarted(MouseEventArgs e)
+		protected override void OnDragStarted(PointerEventArgs e)
 		{
 			operation = PlacementOperation.TryStartInsertNewComponents(container,
 			                                                           new DesignItem[] { createdItem },
@@ -255,7 +417,7 @@ namespace gip.ext.designer.avui.Services
 			}
 		}
 		
-		protected override void OnMouseMove(object sender, MouseEventArgs e)
+		protected override void OnMouseMove(object sender, PointerEventArgs e)
 		{
 			base.OnMouseMove(sender, e);
 			if (operation != null) {
@@ -266,7 +428,7 @@ namespace gip.ext.designer.avui.Services
 			}
 		}
 		
-		protected override void OnMouseUp(object sender, MouseButtonEventArgs e)
+		protected override void OnMouseUp(object sender, PointerReleasedEventArgs e)
 		{
 			if (_HasDragStarted) 
             {
@@ -283,13 +445,19 @@ namespace gip.ext.designer.avui.Services
                     && (container.Services.Tool.CurrentTool != null)
                     && (container.Services.Tool.CurrentTool is CreateComponentTool))
                     suggestedSize = (container.Services.Tool.CurrentTool as CreateComponentTool).OnGetDefaultSize();
-                CreateComponentTool.AddItemWithDefaultSize(container, createdItem, e.GetPosition(positionRelativeTo), suggestedSize);
+                CreateComponentTool.AddItemWithDefaultSize(container, createdItem, e.GetPosition(positionRelativeTo as Visual), suggestedSize);
 			}
 			if (changeGroup != null) {
 				changeGroup.Commit();
 				changeGroup = null;
 			}
-			base.OnMouseUp(sender, e);
+
+            if (designPanel.Context.Services.Component is XamlComponentService)
+            {
+                ((XamlComponentService)designPanel.Context.Services.Component).RaiseComponentRegisteredAndAddedToContainer(createdItem);
+            }
+
+            base.OnMouseUp(sender, e);
 		}
 		
 		protected override void OnStopped()

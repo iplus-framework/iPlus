@@ -5,19 +5,16 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Controls
 {
-    [CLSCompliant(false)]
     public class DrawLineEditPointAdorner : DrawShapesEditPointAdornerBase
     {
         #region c'tors
@@ -31,30 +28,30 @@ namespace gip.ext.designer.avui.Controls
                 if (line.X1 == _PointToEdit.X && line.Y1 == _PointToEdit.Y)
                 {
                     _PointToEditIsX1Y1 = true;
-                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View);
-                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.X2, line.Y2), containerForShape.View);
+                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View as Visual).Value;
+                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.X2, line.Y2), containerForShape.View as Visual).Value;
                 }
                 else
                 {
                     _PointToEditIsX1Y1 = false;
-                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View);
-                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.X1, line.Y1), containerForShape.View);
+                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View as Visual).Value;
+                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.X1, line.Y1), containerForShape.View as Visual).Value;
                 }
             }
             else if (shapeToEdit.View is Line)
             {
                 Line line = shapeToEdit.View as Line;
-                if (line.X1 == _PointToEdit.X && line.Y1 == _PointToEdit.Y)
+                if (line.StartPoint.X == _PointToEdit.X && line.StartPoint.Y == _PointToEdit.Y)
                 {
                     _PointToEditIsX1Y1 = true;
-                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View);
-                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.X2, line.Y2), containerForShape.View);
+                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View as Visual).Value;
+                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.EndPoint.X, line.EndPoint.Y), containerForShape.View as Visual).Value;
                 }
                 else
                 {
                     _PointToEditIsX1Y1 = false;
-                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View);
-                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.X1, line.Y1), containerForShape.View);
+                    _EditingPointRelToShapeCont = line.TranslatePoint(_PointToEdit, containerForShape.View as Visual).Value;
+                    _FixPointRelToShapeCont = line.TranslatePoint(new Point(line.StartPoint.X, line.StartPoint.Y), containerForShape.View as Visual).Value;
                 }
             }
             if (DesignPanel != null && DesignPanel.IsRasterOn)
@@ -98,7 +95,7 @@ namespace gip.ext.designer.avui.Controls
             if (DesignPanel != null && DesignPanel.IsRasterOn)
                 endPoint = SnapPointToRaster(endPoint, DesignPanel.RasterSize);
 
-            PointCollection _PointCollectionRelToShapeCont = new PointCollection();
+            IList<Point> _PointCollectionRelToShapeCont = new List<Point>();
             if (_PointToEditIsX1Y1)
             {
                 _PointCollectionRelToShapeCont.Add(endPoint);
@@ -111,7 +108,7 @@ namespace gip.ext.designer.avui.Controls
             }
 
             Point startPoint;
-            PointCollection points = TranslatePointsToBounds(_PointCollectionRelToShapeCont, out startPoint, out endPoint);
+            IList<Point> points = TranslatePointsToBounds(_PointCollectionRelToShapeCont, out startPoint, out endPoint);
 
             if (myCreatedItem.ComponentType.IsAssignableFrom(typeof(ArrowLine)))
             {
@@ -122,10 +119,10 @@ namespace gip.ext.designer.avui.Controls
             }
             else if (myCreatedItem.ComponentType.IsAssignableFrom(typeof(Line)))
             {
-                myCreatedItem.Properties[Line.X1Property].SetValue(points[0].X);
-                myCreatedItem.Properties[Line.Y1Property].SetValue(points[0].Y);
-                myCreatedItem.Properties[Line.X1Property].SetValue(points[1].X);
-                myCreatedItem.Properties[Line.Y1Property].SetValue(points[1].Y);
+                Point lineStartPoint = new Point(points[0].X, points[0].Y);
+                Point lineEndPoint = new Point(points[1].X, points[1].Y);
+                myCreatedItem.Properties[Line.StartPointProperty].SetValue(lineStartPoint);
+                myCreatedItem.Properties[Line.EndPointProperty].SetValue(lineEndPoint);
             }
             DrawPolylineAdorner.GetRectForPlacementOperation(startPoint, endPoint, out result);
             return true;

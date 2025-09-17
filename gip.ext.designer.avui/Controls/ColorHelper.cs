@@ -1,11 +1,11 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia.Media;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Media;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -17,8 +17,9 @@ namespace gip.ext.designer.avui.Controls
 				return Colors.White;
 			}
 			if (s[0] != '#') s = "#" + s;
-			try {
-				return (Color)ColorConverter.ConvertFromString(s);
+			try 
+			{
+                return (Color) Color.Parse(s);
 			}
 			catch (Exception)
             {

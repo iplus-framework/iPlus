@@ -2,7 +2,8 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System.Diagnostics;
-using System.Windows;
+using Avalonia;
+using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
 
 namespace gip.ext.designer.avui.Controls
@@ -42,11 +43,8 @@ namespace gip.ext.designer.avui.Controls
     {
         bool checkWidth, checkHeight;
 
-        internal ResizeThumbImpl(bool checkWidth, bool checkHeight)
+        internal ResizeThumbImpl(bool checkWidth, bool checkHeight) : base(checkWidth, checkHeight)
         {
-            Debug.Assert((checkWidth && checkHeight) == false);
-            this.checkWidth = checkWidth;
-            this.checkHeight = checkHeight;
         }
 
         protected override Size ArrangeOverride(Size arrangeBounds)
@@ -55,9 +53,9 @@ namespace gip.ext.designer.avui.Controls
             if (parent != null && parent.AdornedElement != null)
             {
                 if (checkWidth)
-                    this.ResizeThumbVisible = parent.AdornedElement.RenderSize.Width > 14;
+                    this.ThumbVisible = parent.AdornedElement.Bounds.Width > 14;
                 else if (checkHeight)
-                    this.ResizeThumbVisible = parent.AdornedElement.RenderSize.Height > 14;
+                    this.ThumbVisible = parent.AdornedElement.Bounds.Height > 14;
             }
             return base.ArrangeOverride(arrangeBounds);
         }

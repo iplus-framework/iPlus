@@ -131,8 +131,10 @@ namespace gip.ext.designer.avui
 			Metadata.AddPopularProperty(TreeViewItem.IsSelectedProperty);
 			Metadata.AddPopularProperty(Border.PaddingProperty);
 			Metadata.AddPopularProperty(Shape.StretchProperty);
-			
-			Metadata.AddPopularProperty(Grid.RowProperty);
+            Metadata.AddPopularProperty(Control.VerticalContentAlignmentProperty);
+            Metadata.AddPopularProperty(Control.HorizontalContentAlignmentProperty);
+
+            Metadata.AddPopularProperty(Grid.RowProperty);
 			Metadata.AddPopularProperty(Grid.RowSpanProperty);
 			Metadata.AddPopularProperty(Grid.ColumnProperty);
 			Metadata.AddPopularProperty(Grid.ColumnSpanProperty);
@@ -150,7 +152,10 @@ namespace gip.ext.designer.avui
 			Metadata.AddPopularProperty(typeof(Binding), "Converter");
 			Metadata.AddPopularProperty(typeof(Binding), "XPath");
 
-			Metadata.AddValueRange(Block.LineHeightProperty, double.Epsilon, double.MaxValue);
+            Metadata.AddPopularProperty(typeof(ItemsControl), "Items");
+
+
+            Metadata.AddValueRange(Block.LineHeightProperty, double.Epsilon, double.MaxValue);
 			Metadata.AddValueRange(Canvas.BottomProperty, double.MinValue, double.MaxValue);
 			Metadata.AddValueRange(Canvas.LeftProperty, double.MinValue, double.MaxValue);
 			Metadata.AddValueRange(Canvas.TopProperty, double.MinValue, double.MaxValue);
@@ -242,10 +247,21 @@ namespace gip.ext.designer.avui
 			Metadata.AddPopularControl(typeof(Viewbox));
 			Metadata.AddPopularControl(typeof(Viewport3D));
 			Metadata.AddPopularControl(typeof(WrapPanel));
+            Metadata.AddPopularControl(typeof(Line));
+            Metadata.AddPopularControl(typeof(Polyline));
+            Metadata.AddPopularControl(typeof(Ellipse));
+            Metadata.AddPopularControl(typeof(Rectangle));
+            Metadata.AddPopularControl(typeof(Path));
+
+            //Basic Metadata Size of double.NaN, means no Size should be set.
+            Metadata.AddDefaultSize(typeof(TextBlock), new Size(double.NaN, double.NaN));
+            Metadata.AddDefaultSize(typeof(CheckBox), new Size(double.NaN, double.NaN));
+            Metadata.AddDefaultSize(typeof(Image), new Size(double.NaN, double.NaN));
 
             Metadata.AddDefaultSize(typeof(UIElement), new Size(120, 100));
             Metadata.AddDefaultSize(typeof(ContentControl), new Size(120, 20));
             Metadata.AddDefaultSize(typeof(Button), new Size(75, 23));
+            Metadata.AddDefaultSize(typeof(ToggleButton), new Size(75, 23));
 
             var s1 = new Size(120, 20);
             Metadata.AddDefaultSize(typeof(Slider), s1);
@@ -265,6 +281,36 @@ namespace gip.ext.designer.avui
             var s3=new Size(130,120);
             Metadata.AddDefaultSize(typeof(Label),s3);
             Metadata.AddDefaultSize(typeof(Expander),s3);
-		}
+
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.X1Property, 0.0);
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.Y1Property, 0.0);
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.X2Property, 20.0);
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.Y2Property, 20.0);
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.StrokeProperty, Brushes.Black);
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.StrokeThicknessProperty, 2d);
+            Metadata.AddDefaultPropertyValue(typeof(Line), Line.StretchProperty, Stretch.None);
+
+            Metadata.AddDefaultPropertyValue(typeof(Polyline), Polyline.PointsProperty, new PointCollection() { new Point(0, 0), new Point(20, 0), new Point(20, 20) });
+            Metadata.AddDefaultPropertyValue(typeof(Polyline), Polyline.StrokeProperty, Brushes.Black);
+            Metadata.AddDefaultPropertyValue(typeof(Polyline), Polyline.StrokeThicknessProperty, 2d);
+            Metadata.AddDefaultPropertyValue(typeof(Polyline), Polyline.StretchProperty, Stretch.None);
+
+            Metadata.AddDefaultPropertyValue(typeof(Polygon), Polygon.PointsProperty, new PointCollection() { new Point(0, 20), new Point(20, 20), new Point(10, 0) });
+            Metadata.AddDefaultPropertyValue(typeof(Polygon), Polygon.StrokeProperty, Brushes.Black);
+            Metadata.AddDefaultPropertyValue(typeof(Polygon), Polygon.StrokeThicknessProperty, 2d);
+            Metadata.AddDefaultPropertyValue(typeof(Polygon), Polygon.StretchProperty, Stretch.None);
+
+            Metadata.AddDefaultPropertyValue(typeof(Path), Path.StrokeProperty, Brushes.Black);
+            Metadata.AddDefaultPropertyValue(typeof(Path), Path.StrokeThicknessProperty, 2d);
+            Metadata.AddDefaultPropertyValue(typeof(Path), Path.StretchProperty, Stretch.None);
+
+            Metadata.AddDefaultPropertyValue(typeof(Rectangle), Rectangle.FillProperty, Brushes.Transparent);
+            Metadata.AddDefaultPropertyValue(typeof(Rectangle), Rectangle.StrokeProperty, Brushes.Black);
+            Metadata.AddDefaultPropertyValue(typeof(Rectangle), Rectangle.StrokeThicknessProperty, 2d);
+
+            Metadata.AddDefaultPropertyValue(typeof(Ellipse), Ellipse.FillProperty, Brushes.Transparent);
+            Metadata.AddDefaultPropertyValue(typeof(Ellipse), Ellipse.StrokeProperty, Brushes.Black);
+            Metadata.AddDefaultPropertyValue(typeof(Ellipse), Ellipse.StrokeThicknessProperty, 2d);
+        }
 	}
 }

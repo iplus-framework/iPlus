@@ -4,16 +4,14 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -21,7 +19,7 @@ namespace gip.ext.designer.avui.Controls
     {
         static ShapePointAdorner()
 		{
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ShapePointAdorner), new FrameworkPropertyMetadata(typeof(ShapePointAdorner)));
+            //DefaultStyleKeyProperty.OverrideMetadata(typeof(ShapePointAdorner), new FrameworkPropertyMetadata(typeof(ShapePointAdorner)));
 		}
 
         public readonly DesignItem _shapeDesignItem;

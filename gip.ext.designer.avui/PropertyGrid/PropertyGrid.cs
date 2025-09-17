@@ -18,16 +18,30 @@ using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.PropertyGrid
 {
-    public class PropertyGrid : INotifyPropertyChanged
+    public interface IPropertyGrid
+    {
+        IEnumerable<DesignItem> SelectedItems { get; set; }
+        Dictionary<MemberDescriptor, PropertyNode> NodeFromDescriptor { get; }
+        DesignItem SingleItem { get; }
+        string Name { get; set; }
+        string OldName { get; }
+        bool IsNameCorrect { get; set; }
+        bool ReloadActive { get; }
+        event EventHandler AggregatePropertiesUpdated;
+        event PropertyChangedEventHandler PropertyChanged;
+    }
+
+    public class PropertyGrid : INotifyPropertyChanged, IPropertyGrid
     {
         public PropertyGrid()
         {
-            Categories = new ObservableCollection<Category>(new[] {
-				specialCategory, 
-				popularCategory, 				
-				otherCategory,
-				attachedCategory
-			});
+            Categories = new CategoriesCollection();
+            Categories.Add(specialCategory);
+            Categories.Add(popularCategory);
+            Categories.Add(otherCategory);
+            Categories.Add(attachedCategory);
+
+            BasicMetadata.Register();
 
             Events = new PropertyNodeCollection();
         }
@@ -38,9 +52,28 @@ namespace gip.ext.designer.avui.PropertyGrid
         protected Category attachedCategory = new Category("Attached");
 
         Dictionary<MemberDescriptor, PropertyNode> nodeFromDescriptor = new Dictionary<MemberDescriptor, PropertyNode>();
-
-        public ObservableCollection<Category> Categories { get; protected set; }
+        public Dictionary<MemberDescriptor, PropertyNode> NodeFromDescriptor { get { return nodeFromDescriptor; } }
+        public event EventHandler AggregatePropertiesUpdated;
+        public CategoriesCollection Categories { get; protected set; }
         public PropertyNodeCollection Events { get; private set; }
+
+        private PropertyGridGroupMode _groupMode;
+
+        public PropertyGridGroupMode GroupMode
+        {
+            get { return _groupMode; }
+            set
+            {
+                if (_groupMode != value)
+                {
+                    _groupMode = value;
+
+                    RaisePropertyChanged("GroupMode");
+
+                    Reload();
+                }
+            }
+        }
 
         PropertyGridTab currentTab;
 
@@ -144,6 +177,11 @@ namespace gip.ext.designer.avui.PropertyGrid
             RaisePropertyChanged("Name");
         }
 
+        public string OldName
+        {
+            get; private set;
+        }
+
         public string Name
         {
             get
@@ -162,10 +200,12 @@ namespace gip.ext.designer.avui.PropertyGrid
                     {
                         if (string.IsNullOrEmpty(value))
                         {
-                            SingleItem.Properties["Name"].Reset();
+                            OldName = null;
+                            SingleItem.Name = null;
                         }
                         else
                         {
+                            OldName = SingleItem.Name;
                             SingleItem.Name = value;
                         }
                         IsNameCorrect = true;
@@ -202,7 +242,7 @@ namespace gip.ext.designer.avui.PropertyGrid
             }
         }
 
-        IEnumerable<DesignItem> selectedItems;
+        IList<DesignItem> selectedItems;
 
         public IEnumerable<DesignItem> SelectedItems
         {
@@ -212,7 +252,10 @@ namespace gip.ext.designer.avui.PropertyGrid
             }
             set
             {
-                selectedItems = value;
+                if (value == null)
+                    selectedItems = null;
+                else
+                    selectedItems = value.ToList();
                 RaisePropertyChanged("SelectedItems");
                 Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(
                     delegate
@@ -227,20 +270,36 @@ namespace gip.ext.designer.avui.PropertyGrid
             Filter = null;
         }
 
+        volatile bool reloadActive;
+        public bool ReloadActive
+        {
+            get { return reloadActive; }
+        }
+
         bool _CategoriesInitialized = false;
         void Reload()
         {
-            Clear();
-
-            if (SelectedItems == null || !SelectedItems.Any()) 
-                return;
-            if (SelectedItems.Any()) 
-                SingleItem = SelectedItems.First();
-
-            foreach (var md in GetDescriptors())
+            reloadActive = true;
+            try
             {
-                if (PassesFilter(md.Name))
-                    AddNode(md);
+                Clear();
+
+                if (selectedItems == null || selectedItems.Count == 0) 
+                    return;
+                if (SelectedItems.Any())
+                    SingleItem = SelectedItems.First();
+
+                foreach (var md in GetDescriptors())
+                {
+                    if (PassesFilter(md.Name))
+                        AddNode(md);
+                }
+            }
+            finally
+            {
+                reloadActive = false;
+                if (AggregatePropertiesUpdated != null)
+                    AggregatePropertiesUpdated(this, EventArgs.Empty);
             }
         }
 
@@ -293,27 +352,44 @@ namespace gip.ext.designer.avui.PropertyGrid
         List<MemberDescriptor> GetDescriptors()
         {
             List<MemberDescriptor> list = new List<MemberDescriptor>();
+            var service = (SingleItem ?? SelectedItems.First()).Services.GetService<IComponentPropertyService>();
 
             if (SelectedItems.Count() == 1)
             {
-                foreach (MemberDescriptor d in TypeHelper.GetAvailableProperties(SingleItem.Component))
-                {
-                    list.Add(d);
-                }
-                foreach (MemberDescriptor d in TypeHelper.GetAvailableEvents(SingleItem.ComponentType))
-                {
-                    list.Add(d);
-                }
+                list.AddRange(service.GetAvailableProperties(SingleItem));
+                list.AddRange(service.GetAvailableEvents(SingleItem));
+
             }
             else
             {
-                foreach (MemberDescriptor d in TypeHelper.GetCommonAvailableProperties(SelectedItems.Select(t => t.Component)))
-                {
-                    list.Add(d);
-                }
+                list.AddRange(service.GetCommonAvailableProperties(SelectedItems));
             }
 
             return list;
+
+            // Old code:
+            //List<MemberDescriptor> list = new List<MemberDescriptor>();
+
+            //if (SelectedItems.Count() == 1)
+            //{
+            //    foreach (MemberDescriptor d in TypeHelper.GetAvailableProperties(SingleItem.Component))
+            //    {
+            //        list.Add(d);
+            //    }
+            //    foreach (MemberDescriptor d in TypeHelper.GetAvailableEvents(SingleItem.ComponentType))
+            //    {
+            //        list.Add(d);
+            //    }
+            //}
+            //else
+            //{
+            //    foreach (MemberDescriptor d in TypeHelper.GetCommonAvailableProperties(SelectedItems.Select(t => t.Component)))
+            //    {
+            //        list.Add(d);
+            //    }
+            //}
+
+            //return list;
         }
 
         bool PassesFilter(string name)
@@ -324,7 +400,7 @@ namespace gip.ext.designer.avui.PropertyGrid
             {
                 if (i == 0 || char.IsUpper(name[i]))
                 {
-                    if (string.Compare(name, i, Filter, 0, Filter.Length, true) == 0)
+                    if (string.Compare(name, i, Filter, 0, Filter.Length, StringComparison.OrdinalIgnoreCase) == 0)
                     {
                         return true;
                     }
@@ -380,7 +456,7 @@ namespace gip.ext.designer.avui.PropertyGrid
             if (node.FirstProperty.Name.Contains("."))
                 return attachedCategory;
             var typeName = node.FirstProperty.DeclaringType.FullName;
-            if (typeName.StartsWith("System.Windows.") || typeName.StartsWith("gip.ext.designer.avui.Controls."))
+            if (typeName.StartsWith("Avalonia.", StringComparison.Ordinal) || typeName.StartsWith("gip.ext.designer.avui.Controls.", StringComparison.Ordinal))
                 return otherCategory;
             return specialCategory;
         }
@@ -413,6 +489,21 @@ namespace gip.ext.designer.avui.PropertyGrid
         //        return i1.CompareTo(i2);
         //    }
         //}
+    }
+
+    public class CategoriesCollection : SortedObservableCollection<Category, string>
+    {
+        public CategoriesCollection()
+            : base(n => n.Name)
+        {
+        }
+    }
+
+    public enum PropertyGridGroupMode
+    {
+        GroupByPopularCategorys,
+        GroupByCategorys,
+        Ungrouped,
     }
 
     public enum PropertyGridTab

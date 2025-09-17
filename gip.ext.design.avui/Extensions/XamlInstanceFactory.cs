@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.IO;
 using Avalonia;
 using Avalonia.Controls;
-using System.Xaml;
 using System.Xml;
 using Avalonia.Markup.Xaml;
 

@@ -4,11 +4,10 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Media;
+using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.ext.designer.avui.Services
@@ -17,19 +16,19 @@ namespace gip.ext.designer.avui.Services
 	{
 		protected HashSet<string> IgnoreTypes = new HashSet<string>(new[]
 		{
-			typeof(XmlAttributeProperties).Name,
-			typeof(Typography).Name,
-			typeof(ContextMenuService).Name,
-			typeof(DesignerProperties).Name,
-			typeof(InputLanguageManager).Name,
+			//typeof(XmlAttributeProperties).Name,
+			//typeof(Typography).Name,
+			//typeof(ContextMenuService).Name,
+			//typeof(DesignerProperties).Name,
+			//typeof(InputLanguageManager).Name,
 			typeof(InputMethod).Name,
 			typeof(KeyboardNavigation).Name,
-			typeof(NumberSubstitution).Name,
+			//typeof(NumberSubstitution).Name,
 			typeof(RenderOptions).Name,
 			typeof(TextSearch).Name,
-			typeof(ToolTipService).Name,
-			typeof(Validation).Name,
-			typeof(Stylus).Name
+			//typeof(ToolTipService).Name,
+			//typeof(Validation).Name,
+			//typeof(Stylus).Name
 		});
 
 		public virtual IEnumerable<MemberDescriptor> GetAvailableProperties(DesignItem designItem)

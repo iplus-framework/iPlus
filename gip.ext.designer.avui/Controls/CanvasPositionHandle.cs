@@ -4,11 +4,14 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Shapes;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui;
+using Avalonia.Controls.Shapes;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia;
+using Avalonia.Reactive;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -19,93 +22,54 @@ namespace gip.ext.designer.avui.Controls
 	{
 		static CanvasPositionHandle()
 		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(CanvasPositionHandle), new FrameworkPropertyMetadata(typeof(CanvasPositionHandle)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof(CanvasPositionHandle), new FrameworkPropertyMetadata(typeof(CanvasPositionHandle)));
 			HandleLengthOffset=2;
 		}
 
 		private Path line1;
 		private Path line2;
-		public override void OnApplyTemplate()
-		{
-			line1 = GetTemplateChild("line1") as Path;
-			line2 = GetTemplateChild("line2") as Path;
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+			line1 = e.NameScope.Find<Path>("line1") as Path;
+			line2 = e.NameScope.Find<Path>("line2") as Path;
 
-			base.OnApplyTemplate();
-		}
+            base.OnApplyTemplate(e);
+        }
 
 		readonly Canvas canvas;
 		readonly DesignItem adornedControlItem;
 		readonly AdornerPanel adornerPanel;
 		readonly HandleOrientation orientation;
-		readonly FrameworkElement adornedControl;
+		readonly Control adornedControl;
 
 		/// <summary> This grid contains the handle line and the endarrow.</summary>
 //		Grid lineArrow;
 
-		private DependencyPropertyDescriptor leftDescriptor;
-		private DependencyPropertyDescriptor rightDescriptor;
-		private DependencyPropertyDescriptor topDescriptor;
-		private DependencyPropertyDescriptor bottomDescriptor;
-		private DependencyPropertyDescriptor widthDescriptor;
-		private DependencyPropertyDescriptor heightDescriptor;
-
 		public CanvasPositionHandle(DesignItem adornedControlItem, AdornerPanel adornerPanel, HandleOrientation orientation)
 		{
 			Debug.Assert(adornedControlItem != null);
-			this.adornedControlItem = adornedControlItem;
-			this.adornerPanel = adornerPanel;
-			this.orientation = orientation;
-
-			Angle = (double) orientation;
+			// base:
+			//this.adornedControlItem = adornedControlItem;
+			//this.adornerPanel = adornerPanel;
+			//this.orientation = orientation;
+			//Angle = (double) orientation;
 			
 			canvas = (Canvas) adornedControlItem.Parent.Component;
-			adornedControl = (FrameworkElement) adornedControlItem.Component;
-			Stub = new MarginStub(this);
-			ShouldBeVisible = true;
+			adornedControl = (Control) adornedControlItem.Component;
+			
+			//base:
+			//Stub = new MarginStub(this);
+			//ShouldBeVisible = true;
 
-			leftDescriptor = DependencyPropertyDescriptor.FromProperty(Canvas.LeftProperty,
-			                                                           adornedControlItem.Component.GetType());
-			leftDescriptor.AddValueChanged(adornedControl, OnPropertyChanged);
-			rightDescriptor = DependencyPropertyDescriptor.FromProperty(Canvas.RightProperty,
-			                                                            adornedControlItem.Component.GetType());
-			rightDescriptor.AddValueChanged(adornedControl, OnPropertyChanged);
-			topDescriptor = DependencyPropertyDescriptor.FromProperty(Canvas.TopProperty,
-			                                                          adornedControlItem.Component.GetType());
-			topDescriptor.AddValueChanged(adornedControl, OnPropertyChanged);
-			bottomDescriptor = DependencyPropertyDescriptor.FromProperty(Canvas.BottomProperty,
-			                                                             adornedControlItem.Component.GetType());
-			bottomDescriptor.AddValueChanged(adornedControl, OnPropertyChanged);
-			widthDescriptor = DependencyPropertyDescriptor.FromProperty(Control.WidthProperty,
-			                                                            adornedControlItem.Component.GetType());
-			widthDescriptor.AddValueChanged(adornedControl, OnPropertyChanged);
-			heightDescriptor = DependencyPropertyDescriptor.FromProperty(Control.WidthProperty,
-			                                                             adornedControlItem.Component.GetType());
-			heightDescriptor.AddValueChanged(adornedControl, OnPropertyChanged);
+			adornedControl.GetObservable(Canvas.LeftProperty).Subscribe(_ => BindAndPlaceHandle());
+            adornedControl.GetObservable(Canvas.RightProperty).Subscribe(_ => BindAndPlaceHandle());
+            adornedControl.GetObservable(Canvas.TopProperty).Subscribe(_ => BindAndPlaceHandle());
+            adornedControl.GetObservable(Canvas.BottomProperty).Subscribe(_ => BindAndPlaceHandle());
+            adornedControl.GetObservable(Layoutable.WidthProperty).Subscribe(_ => BindAndPlaceHandle());
+            adornedControl.GetObservable(Layoutable.HeightProperty).Subscribe(_ => BindAndPlaceHandle());
 			BindAndPlaceHandle();
 		}
-
-
-		void OnPropertyChanged(object sender, EventArgs e)
-		{
-			BindAndPlaceHandle();
-		}
-
-		/// <summary>
-		/// Gets/Sets the angle by which the Canvas display has to be rotated
-		/// </summary>
-		public override double TextTransform
-		{
-			get
-			{
-				if ((double)orientation == 90 || (double)orientation == 180)
-					return 180;
-				if ((double)orientation == 270)
-					return 0;
-				return (double)orientation;
-			}
-			set { }
-		}
-		
+	
 		/// <summary>
 		/// Binds the <see cref="MarginHandle.HandleLength"/> to the margin and place the handles.
 		/// </summary>
@@ -120,11 +84,12 @@ namespace gip.ext.designer.avui.Controls
 			{
 				case HandleOrientation.Left:
 					{
-						var wr = (double) leftDescriptor.GetValue(adornedControl);
-						if (double.IsNaN(wr))
+                        adornedControl.GetValue(Canvas.LeftProperty);
+                        var wr = (double) adornedControl.GetValue(Canvas.LeftProperty);
+                        if (double.IsNaN(wr))
 						{
-							wr = (double) rightDescriptor.GetValue(adornedControl);
-							wr = canvas.ActualWidth - (PlacementOperation.GetRealElementSize(adornedControl).Width + wr);
+							wr = (double) adornedControl.GetValue(Canvas.RightProperty);
+							wr = canvas.Width - (PlacementOperation.GetRealElementSize(adornedControl).Width + wr);
 						}
 						else
 						{
@@ -141,11 +106,11 @@ namespace gip.ext.designer.avui.Controls
 					}
 				case HandleOrientation.Top:
 					{
-						var wr = (double)topDescriptor.GetValue(adornedControl);
+						var wr = (double) adornedControl.GetValue(Canvas.TopProperty);
 						if (double.IsNaN(wr))
 						{
-							wr = (double)bottomDescriptor.GetValue(adornedControl);
-							wr = canvas.ActualHeight - (PlacementOperation.GetRealElementSize(adornedControl).Height + wr);
+							wr = (double)adornedControl.GetValue(Canvas.BottomProperty);
+                            wr = canvas.Height - (PlacementOperation.GetRealElementSize(adornedControl).Height + wr);
 						}
 						else
 						{
@@ -162,11 +127,11 @@ namespace gip.ext.designer.avui.Controls
 					}
 				case HandleOrientation.Right:
 					{
-						var wr = (double) rightDescriptor.GetValue(adornedControl);
+						var wr = (double)adornedControl.GetValue(Canvas.RightProperty);
 						if (double.IsNaN(wr))
 						{
-							wr = (double) leftDescriptor.GetValue(adornedControl);
-							wr = canvas.ActualWidth - (PlacementOperation.GetRealElementSize(adornedControl).Width + wr);
+							wr = (double) adornedControl.GetValue(Canvas.LeftProperty);
+                            wr = canvas.Width - (PlacementOperation.GetRealElementSize(adornedControl).Width + wr);
 						}
 						else
 						{
@@ -183,11 +148,11 @@ namespace gip.ext.designer.avui.Controls
 					}
 				case HandleOrientation.Bottom:
 					{
-						var wr = (double)bottomDescriptor.GetValue(adornedControl);
-						if (double.IsNaN(wr))
+						var wr = (double)adornedControl.GetValue(Canvas.BottomProperty);
+                        if (double.IsNaN(wr))
 						{
-							wr = (double)topDescriptor.GetValue(adornedControl);
-							wr = canvas.ActualHeight - (PlacementOperation.GetRealElementSize(adornedControl).Height + wr);
+							wr = (double)adornedControl.GetValue(Canvas.TopProperty);
+                            wr = canvas.Height - (PlacementOperation.GetRealElementSize(adornedControl).Height + wr);
 						}
 						else
 						{
@@ -205,7 +170,7 @@ namespace gip.ext.designer.avui.Controls
 			}
 
 			AdornerPanel.SetPlacement(this, placement);
-			this.Visibility = Visibility.Visible;
+			this.IsVisible = true;
 		}
 	}
 }

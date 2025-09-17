@@ -3,11 +3,11 @@
 
 using System;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using Avalonia.Media;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Services;
@@ -36,7 +36,7 @@ namespace gip.ext.designer.avui.Extensions
 			return createItemType == typeof(Polyline) || createItemType == typeof(Polygon);
 		}
 
-		public void StartDrawItem(DesignItem clickedOn, Type createItemType, IDesignPanel panel, MouseEventArgs e, Action<DesignItem> drawItemCallback)
+		public void StartDrawItem(DesignItem clickedOn, Type createItemType, IDesignPanel panel, PointerEventArgs e, Action<DesignItem> drawItemCallback)
 		{
 			var createdItem = CreateItem(panel.Context, createItemType);
 
@@ -61,7 +61,7 @@ namespace gip.ext.designer.avui.Extensions
 			else
 				createdItem.Properties[Polygon.PointsProperty].CollectionElements.Add(createdItem.Services.Component.RegisterComponentForDesigner(new Point(0,0)));
 			
-			new DrawPolylineMouseGesture(createdItem, clickedOn.View, changeGroup, this.ExtendedItem.GetCompleteAppliedTransformationToView()).Start(panel, (MouseButtonEventArgs) e);
+			new DrawPolylineMouseGesture(e, createdItem, clickedOn.View, changeGroup, this.ExtendedItem.GetCompleteAppliedTransformationToView()).Start(panel, e);
 		}
 
 		#endregion
@@ -74,7 +74,7 @@ namespace gip.ext.designer.avui.Extensions
 			private Point? lastAdded;
 			private Matrix matrix;
 
-			public DrawPolylineMouseGesture(DesignItem newLine, IInputElement relativeTo, ChangeGroup changeGroup, Transform transform)
+			public DrawPolylineMouseGesture(PointerEventArgs e, DesignItem newLine, IInputElement relativeTo, ChangeGroup changeGroup, Transform transform)
 			{
 				this.newLine = newLine;
 				this.positionRelativeTo = relativeTo;
@@ -82,87 +82,119 @@ namespace gip.ext.designer.avui.Extensions
 				this.matrix = transform.Value;
 				matrix.Invert();
 
-				startPoint = Mouse.GetPosition(null);
+                startPoint = e.GetCurrentPoint(null).Position;
+                //startPoint = Mouse.GetPosition(null);
 			}
 			
-			protected override void OnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+			protected override void OnPreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
 			{
 				e.Handled = true;
 				base.OnPreviewMouseLeftButtonDown(sender, e);
 			}
 			
-			protected override void OnMouseMove(object sender, MouseEventArgs e)
+			protected override void OnMouseMove(object sender, PointerEventArgs e)
 			{
 				if (changeGroup == null)
 					return;
 				var delta = matrix.Transform(e.GetPosition(null) - startPoint);
 				var diff = delta;
-				if (lastAdded.HasValue) {
-					diff = new Vector(lastAdded.Value.X - delta.X, lastAdded.Value.Y - delta.Y);
-				}
-				if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+                if (lastAdded.HasValue) 
 				{
-					if (Math.Abs(diff.X) > Math.Abs(diff.Y)) {
-						delta.Y = 0;
-						if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1) {
-							delta.Y = ((Polyline) newLine.View).Points.Reverse().Skip(1).First().Y;
-						} else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1) {
-							delta.Y = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().Y;
-						}
-					} else {
-						delta.X = 0;
-						if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1) {
-							delta.X = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().X;
-						} else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1) {
-							delta.X = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().X;
-						}
-					}
+                    Vector displacement = new Vector(lastAdded.Value.X - delta.X, lastAdded.Value.Y - delta.Y);
+                    diff = new Point(displacement.X, displacement.Y);
+				}
+				if (e.KeyModifiers.HasFlag(KeyModifiers.Alt))
+				{
+                    if (Math.Abs(diff.X) > Math.Abs(diff.Y))
+                    {
+                        var newY = 0.0;
+                        if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1)
+                        {
+                            newY = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().Y;
+                        }
+                        else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1)
+                        {
+                            newY = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().Y;
+                        }
+                        delta = new Point(delta.X, newY);
+                    }
+                    else
+                    {
+                        var newX = 0.0;
+                        if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1)
+                        {
+                            newX = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().X;
+                        }
+                        else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1)
+                        {
+                            newX = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().X;
+                        }
+                        delta = new Point(newX, delta.Y);
+                    }
+
 				}
 				var point = new Point(delta.X, delta.Y);
 
-				if (newLine.View is Polyline) {
+				if (newLine.View is Polyline) 
+				{
 					if (((Polyline)newLine.View).Points.Count <= 1)
 						((Polyline)newLine.View).Points.Add(point);
-					if (Mouse.LeftButton != MouseButtonState.Pressed)
+					if (!e.Properties.IsLeftButtonPressed)
 						((Polyline)newLine.View).Points.RemoveAt(((Polyline)newLine.View).Points.Count - 1);
 					if (((Polyline)newLine.View).Points.Last() != point)
 						((Polyline)newLine.View).Points.Add(point);
-				} else {
+				} 
+				else 
+				{
 					if (((Polygon)newLine.View).Points.Count <= 1)
 						((Polygon)newLine.View).Points.Add(point);
-					if (Mouse.LeftButton != MouseButtonState.Pressed)
+					if (!e.Properties.IsLeftButtonPressed)
 						((Polygon)newLine.View).Points.RemoveAt(((Polygon)newLine.View).Points.Count - 1);
 					if (((Polygon)newLine.View).Points.Last() != point)
 						((Polygon)newLine.View).Points.Add(point);
 				}
 			}
 			
-			protected override void OnMouseUp(object sender, MouseButtonEventArgs e)
+			protected override void OnMouseUp(object sender, PointerReleasedEventArgs e)
 			{
 				if (changeGroup == null)
 					return;
 
 				var delta = matrix.Transform(e.GetPosition(null) - startPoint);
 				var diff = delta;
-				if (lastAdded.HasValue) {
-					diff = new Vector(lastAdded.Value.X - delta.X, lastAdded.Value.Y - delta.Y);
-				}
-				if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)) {
-					if (Math.Abs(diff.X) > Math.Abs(diff.Y)) {
-						delta.Y = 0;
-						if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1) {
-							delta.Y = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().Y;
-						} else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1) {
-							delta.Y = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().Y;
-						}
-					} else {
-						delta.X = 0;
-						if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1) {
-							delta.X = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().X;
-						} else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1) {
-							delta.X = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().X;
-						}
-					}
+				if (lastAdded.HasValue) 
+				{
+                    Vector displacement = new Vector(lastAdded.Value.X - delta.X, lastAdded.Value.Y - delta.Y);
+                    diff = new Point(displacement.X, displacement.Y);
+                }
+                if (e.KeyModifiers.HasFlag(KeyModifiers.Alt)) 
+				{
+                    if (Math.Abs(diff.X) > Math.Abs(diff.Y))
+                    {
+                        var newY = 0.0;
+                        if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1)
+                        {
+                            newY = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().Y;
+                        }
+                        else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1)
+                        {
+                            newY = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().Y;
+                        }
+                        delta = new Point(delta.X, newY);
+                    }
+                    else
+                    {
+                        var newX = 0.0;
+                        if (newLine.View is Polyline && ((Polyline)newLine.View).Points.Count > 1)
+                        {
+                            newX = ((Polyline)newLine.View).Points.Reverse().Skip(1).First().X;
+                        }
+                        else if (newLine.View is Polygon && ((Polygon)newLine.View).Points.Count > 1)
+                        {
+                            newX = ((Polygon)newLine.View).Points.Reverse().Skip(1).First().X;
+                        }
+                        delta = new Point(newX, delta.Y);
+                    }
 				}
 				var point = new Point(delta.X, delta.Y);
 				lastAdded = point;
@@ -173,18 +205,27 @@ namespace gip.ext.designer.avui.Extensions
 					((Polygon)newLine.View).Points.Add(point);
 			}
 			
-			protected override void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
-			{
+			protected override void OnMouseDoubleClick(object sender, PointerPressedEventArgs e)
+            {
 				base.OnMouseDoubleClick(sender, e);
-				
-				if (newLine.View is Polyline) {
+				((Polyline)newLine.View).ToString();
+
+
+                if (newLine.View is Polyline) 
+				{
 					((Polyline)newLine.View).Points.RemoveAt(((Polyline)newLine.View).Points.Count - 1);
-					newLine.Properties[Polyline.PointsProperty].SetValue(new PointCollectionConverter().ConvertToInvariantString(((Polyline)newLine.View).Points));
-				} else {
+                    var pointsString = string.Join(" ", ((Polyline)newLine.View).Points.Select(p => $"{p.X},{p.Y}"));
+					newLine.Properties[Polyline.PointsProperty].SetValue(pointsString);
+                    //newLine.Properties[Polyline.PointsProperty].SetValue(new PointCollectionConverter().ConvertToInvariantString(((Polyline)newLine.View).Points));
+                } 
+				else 
+				{
 					((Polygon)newLine.View).Points.RemoveAt(((Polygon)newLine.View).Points.Count - 1);
-					newLine.Properties[Polygon.PointsProperty].SetValue(new PointCollectionConverter().ConvertToInvariantString(((Polygon)newLine.View).Points));
-					
-				}
+                    var pointsString = string.Join(" ", ((Polygon)newLine.View).Points.Select(p => $"{p.X},{p.Y}"));
+                    newLine.Properties[Polygon.PointsProperty].SetValue(pointsString);
+                    //newLine.Properties[Polygon.PointsProperty].SetValue(new PointCollectionConverter().ConvertToInvariantString(((Polygon)newLine.View).Points));
+
+                }
 				
 				if (changeGroup != null)
 				{
@@ -192,7 +233,7 @@ namespace gip.ext.designer.avui.Extensions
 					changeGroup = null;
 				}
 				
-				Stop();
+				Stop(e);
 			}
 
 			protected override void OnStopped()

@@ -13,6 +13,7 @@ using System.Windows.Markup;
 using System.Collections.Generic;
 using gip.ext.design.avui;
 using System.Windows.Controls;
+using System.Linq;
 
 namespace gip.ext.designer.avui.Xaml
 {
@@ -57,24 +58,144 @@ namespace gip.ext.designer.avui.Xaml
             get { return _xamlObject.ElementType; }
         }
 
+        void SetNameInternal(string newName)
+        {
+            var oldName = Name;
+
+            _xamlObject.Name = newName;
+
+            FixDesignItemReferencesOnNameChange(oldName, Name);
+        }
+
         public override string Name
         {
-            get
-            {
-                DesignItemProperty property = HasProperty("Name");
-                if (property == null)
-                    return "";
-                return (string)this.Properties["Name"].ValueOnInstance;
-            }
+            get { return _xamlObject.Name; }
             set
             {
-                this.Properties["Name"].SetValue(value);
+                UndoService undoService = this.Services.GetService<UndoService>();
+                if (undoService != null)
+                    undoService.Execute(new SetNameAction(this, value));
+                else
+                {
+                    SetNameInternal(value);
+                }
+
             }
+            //get
+            //{
+            //    DesignItemProperty property = HasProperty("Name");
+            //    if (property == null)
+            //        return "";
+            //    return (string)this.Properties["Name"].ValueOnInstance;
+            //}
+            //set
+            //{
+            //    this.Properties["Name"].SetValue(value);
+            //}
+        }
+
+        /// <summary>
+        /// Fixes {x:Reference and {Binding ElementName to this Element in XamlDocument
+        /// </summary>
+        /// <param name="oldName"></param>
+        /// <param name="newName"></param>
+        public void FixDesignItemReferencesOnNameChange(string oldName, string newName)
+        {
+            if (!string.IsNullOrEmpty(oldName) && !string.IsNullOrEmpty(newName))
+            {
+                var root = GetRootXamlObject(this.XamlObject);
+                var references = GetAllChildXamlObjects(root).Where(x => x.ElementType == typeof(Reference) && Equals(x.FindOrCreateProperty("Name").GetValueOnInstance<string>(), oldName));
+                foreach (var designItem in references)
+                {
+                    var property = designItem.FindOrCreateProperty("Name");
+                    var propertyValue = designItem.OwnerDocument.CreatePropertyValue(newName, property);
+                    this.ComponentService.RegisterXamlComponentRecursive(propertyValue as XamlObject);
+                    property.PropertyValue = propertyValue;
+                }
+
+                root = GetRootXamlObject(this.XamlObject, true);
+                var bindings = GetAllChildXamlObjects(root, true).Where(x => x.ElementType == typeof(Binding) && Equals(x.FindOrCreateProperty("ElementName").GetValueOnInstance<string>(), oldName));
+                foreach (var designItem in bindings)
+                {
+                    var property = designItem.FindOrCreateProperty("ElementName");
+                    var propertyValue = designItem.OwnerDocument.CreatePropertyValue(newName, property);
+                    this.ComponentService.RegisterXamlComponentRecursive(propertyValue as XamlObject);
+                    property.PropertyValue = propertyValue;
+                }
+            }
+        }
+
+        /// <summary>
+        /// Find's the Root XamlObject (real Root, or Root Object in Namescope)
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="onlyFromSameNamescope"></param>
+        /// <returns></returns>
+        internal static XamlObject GetRootXamlObject(XamlObject item, bool onlyFromSameNamescope = false)
+        {
+            var root = item;
+            while (root.ParentObject != null)
+            {
+                if (onlyFromSameNamescope && NameScopeHelper.GetNameScopeFromObject(root) != NameScopeHelper.GetNameScopeFromObject(root.ParentObject))
+                    break;
+                root = root.ParentObject;
+            }
+
+            return root;
+        }
+
+        /// <summary>
+        /// Get's all Child XamlObject Instances
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="onlyFromSameNamescope"></param>
+        /// <returns></returns>
+        internal static IEnumerable<XamlObject> GetAllChildXamlObjects(XamlObject item, bool onlyFromSameNamescope = false)
+        {
+            foreach (var prop in item.Properties)
+            {
+                if (prop.PropertyValue as XamlObject != null)
+                {
+                    if (!onlyFromSameNamescope || NameScopeHelper.GetNameScopeFromObject(item) == NameScopeHelper.GetNameScopeFromObject(prop.PropertyValue as XamlObject))
+                        yield return prop.PropertyValue as XamlObject;
+
+                    foreach (var i in GetAllChildXamlObjects(prop.PropertyValue as XamlObject))
+                    {
+                        if (!onlyFromSameNamescope || NameScopeHelper.GetNameScopeFromObject(item) == NameScopeHelper.GetNameScopeFromObject(i))
+                            yield return i;
+                    }
+                }
+
+                if (prop.IsCollection)
+                {
+                    foreach (var collectionElement in prop.CollectionElements)
+                    {
+                        if (collectionElement as XamlObject != null)
+                        {
+                            if (!onlyFromSameNamescope || NameScopeHelper.GetNameScopeFromObject(item) == NameScopeHelper.GetNameScopeFromObject(collectionElement as XamlObject))
+                                yield return collectionElement as XamlObject;
+
+                            foreach (var i in GetAllChildXamlObjects(collectionElement as XamlObject))
+                            {
+                                if (!onlyFromSameNamescope || NameScopeHelper.GetNameScopeFromObject(item) == NameScopeHelper.GetNameScopeFromObject(i))
+                                    yield return i;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        public override string Key
+        {
+            get { return XamlObject.GetXamlAttribute("Key"); }
+            set { XamlObject.SetXamlAttribute("Key", value); }
         }
 
 #if EventHandlerDebugging
 		static int totalEventHandlerCount;
 #endif
+
 
         /// <summary>
         /// Is raised when the name of the design item changes.
@@ -86,19 +207,33 @@ namespace gip.ext.designer.avui.Xaml
 #if EventHandlerDebugging
 				Debug.WriteLine("Add event handler to " + this.ComponentType.Name + " (handler count=" + (++totalEventHandlerCount) + ")");
 #endif
-                var prop = this.Properties["Name"];
-                if (prop != null)
-                    prop.ValueChanged += value;
+                _xamlObject.NameChanged += value;
             }
             remove
             {
 #if EventHandlerDebugging
 				Debug.WriteLine("Remove event handler from " + this.ComponentType.Name + " (handler count=" + (--totalEventHandlerCount) + ")");
 #endif
-                var prop = this.Properties["Name"];
-                if (prop != null)
-                    prop.ValueChanged -= value;
+                _xamlObject.NameChanged -= value;
             }
+            //            add
+            //            {
+            //#if EventHandlerDebugging
+            //				Debug.WriteLine("Add event handler to " + this.ComponentType.Name + " (handler count=" + (++totalEventHandlerCount) + ")");
+            //#endif
+            //                var prop = this.Properties["Name"];
+            //                if (prop != null)
+            //                    prop.ValueChanged += value;
+            //            }
+            //            remove
+            //            {
+            //#if EventHandlerDebugging
+            //				Debug.WriteLine("Remove event handler from " + this.ComponentType.Name + " (handler count=" + (--totalEventHandlerCount) + ")");
+            //#endif
+            //                var prop = this.Properties["Name"];
+            //                if (prop != null)
+            //                    prop.ValueChanged -= value;
+            //            }
         }
 
         public override DesignItem Parent
@@ -191,6 +326,11 @@ namespace gip.ext.designer.avui.Xaml
             get { return _properties; }
         }
 
+        public override IEnumerable<DesignItemProperty> AllSetProperties
+        {
+            get { return _xamlObject.Properties.Select(x => new XamlModelProperty(this, x)); }
+        }
+
         public override DesignItemProperty HasProperty(string name)
         {
             return Properties.HasProperty(name);
@@ -235,9 +375,38 @@ namespace gip.ext.designer.avui.Xaml
             }
         }
 
+        /// <summary>
+        /// Item is Locked at Design Time
+        /// </summary>
+        public bool IsDesignTimeLocked
+        {
+            get
+            {
+                return false;
+                //var locked = Properties.GetAttachedProperty(DesignTimeProperties.IsLockedProperty).GetConvertedValueOnInstance<object>();
+                //return (locked != null && (bool)locked == true);
+            }
+            set
+            {
+                //if (value)
+                //    Properties.GetAttachedProperty(DesignTimeProperties.IsLockedProperty).SetValue(true);
+                //else
+                //    Properties.GetAttachedProperty(DesignTimeProperties.IsLockedProperty).Reset();
+            }
+
+        }
+
         public override DesignItem Clone()
         {
-            throw new NotImplementedException();
+            DesignItem item = null;
+            var xaml = XamlStaticTools.GetXaml(this.XamlObject);
+            XamlDesignItem rootItem = Context.RootItem as XamlDesignItem;
+            var obj = XamlParser.ParseSnippet(rootItem.XamlObject, xaml, ((XamlDesignContext)Context).ParserSettings);
+            if (obj != null)
+            {
+                item = ((XamlDesignContext)Context)._componentService.RegisterXamlComponentRecursive(obj);
+            }
+            return item;
         }
 
         public override string ToString()
@@ -258,6 +427,59 @@ namespace gip.ext.designer.avui.Xaml
                 return string.Format("XamlDesignItem: {0}", View.ToString());
 
             return base.ToString();
-        } 
+        }
+
+        sealed class SetNameAction : ITransactionItem
+        {
+            XamlDesignItem designItem;
+            string oldName;
+            string newName;
+
+            public SetNameAction(XamlDesignItem designItem, string newName)
+            {
+                this.designItem = designItem;
+                this.newName = newName;
+
+                oldName = designItem.Name;
+            }
+
+            public string Title
+            {
+                get
+                {
+                    return "Set name";
+                }
+            }
+
+            public void Do()
+            {
+                designItem.SetNameInternal(newName);
+            }
+
+            public void Undo()
+            {
+                designItem.SetNameInternal(oldName);
+            }
+
+            public System.Collections.Generic.ICollection<DesignItem> AffectedElements
+            {
+                get
+                {
+                    return new DesignItem[] { designItem };
+                }
+            }
+
+            public bool MergeWith(ITransactionItem other)
+            {
+                SetNameAction o = other as SetNameAction;
+                if (o != null && designItem == o.designItem)
+                {
+                    newName = o.newName;
+                    return true;
+                }
+                return false;
+            }
+        }
+
     }
 }

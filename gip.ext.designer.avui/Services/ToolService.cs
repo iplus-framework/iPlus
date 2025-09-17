@@ -2,7 +2,6 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows.Input;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Services
@@ -22,6 +21,11 @@ namespace gip.ext.designer.avui.Services
                     _designPanel = designPanel;
                     _currentTool.Activate(designPanel);
                 });
+        }
+
+        public HitTestFilterCallback DesignPanelHitTestFilterCallback
+        {
+            set { _designPanel.CustomHitTestFilterBehavior = value; }
         }
 
         public void Dispose()

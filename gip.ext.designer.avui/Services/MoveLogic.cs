@@ -5,7 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
+using Avalonia;
+using Avalonia.Controls;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Services
@@ -61,10 +62,10 @@ namespace gip.ext.designer.avui.Services
 				}
 				
 				Vector v;
-				UIElement designPanel = this.DesignPanel as UIElement;
+                Control designPanel = this.DesignPanel as Control;
 				if (operation.CurrentContainer.View != null && designPanel != null) {
-					v = designPanel.TranslatePoint(p, operation.CurrentContainer.View)
-						- designPanel.TranslatePoint(startPoint, operation.CurrentContainer.View);
+					v = designPanel.TranslatePoint(p, operation.CurrentContainer.View).Value
+						- designPanel.TranslatePoint(startPoint, operation.CurrentContainer.View).Value;
 				} else {
 					v = p - startPoint;
 				}
@@ -137,7 +138,7 @@ namespace gip.ext.designer.avui.Services
 			}
 			
 			IPlacementBehavior b = result.ModelHit.GetBehavior<IPlacementBehavior>();
-			if (b != null && b.CanEnterContainer(operation)) {
+			if (b != null && b.CanEnterContainer(operation, true)) {
 				operation.ChangeContainer(result.ModelHit);
 				return true;
 			}

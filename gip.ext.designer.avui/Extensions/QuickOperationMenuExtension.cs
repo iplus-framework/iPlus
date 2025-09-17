@@ -266,7 +266,7 @@ namespace gip.ext.designer.avui.Extensions
                         var editor = new CollectionEditor();
                         var itemsControl = extendedItem.View as ItemsControl;
                         if (itemsControl != null)
-                            editor.InitEditor(extendedItem);
+                            editor.LoadItemsCollection(extendedItem);
                         editor.Show();
                     }
                     else if ((string)clickedOn.Header == "Edit Style Setter")
@@ -274,7 +274,7 @@ namespace gip.ext.designer.avui.Extensions
                         if (!e.Handled)
                         {
                             var editor = new StyleSetterWindow();
-                            editor.InitEditor(extendedItem);
+                            editor.LoadItemsCollection(extendedItem);
                             editor.Show();
                         }
                     }
@@ -283,7 +283,7 @@ namespace gip.ext.designer.avui.Extensions
                         if (!e.Handled)
                         {
                             var editor = new StyleTriggerWindow();
-                            editor.InitEditor(extendedItem);
+                            editor.LoadItemsCollection(extendedItem);
                             editor.Show();
                         }
                     }

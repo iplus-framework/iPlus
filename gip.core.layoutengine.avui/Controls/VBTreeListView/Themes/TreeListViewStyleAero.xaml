@@ -235,7 +235,7 @@
     <Style x:Key="TreeListViewStyleAero" TargetType="{x:Type local:VBTreeListView}">
         <Setter Property="Panel.Background">
             <Setter.Value>
-                <DynamicResource ResourceKey="{x:Static SystemColors.WindowBrushKey}" />
+                <DynamicResource ResourceKey="{x:Static ThemeBackgroundBrush}" />
             </Setter.Value>
         </Setter>
         <Setter Property="Border.BorderBrush">

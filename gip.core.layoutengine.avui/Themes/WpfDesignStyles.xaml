@@ -35,7 +35,7 @@
                             <Setter TargetName="thumbRectangle" Property="Stroke" Value="LightGray" />
                             <Setter TargetName="thumbRectangle" Property="Fill" Value="Gray" />
                         </Trigger>
-                        <Trigger Property="ResizeThumbVisible" Value="False">
+                        <Trigger Property="ThumbVisible" Value="False">
                             <Setter TargetName="thumbRectangle" Property="Visibility" Value="Hidden" />
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -92,7 +92,7 @@
                                 </Button>
                                 <Label Margin="4,0,0,0" Content="{TemplateBinding Window.Title}" />
                             </DockPanel>
-                            <Border Background="{DynamicResource {x:Static SystemColors.WindowBrushKey}}">
+                            <Border Background="{DynamicResource {x:Static ThemeBackgroundBrush}}">
                                 <Border BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" Background="{TemplateBinding Panel.Background}">
                                     <AdornerDecorator>
                                         <ContentPresenter ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" Content="{TemplateBinding ContentControl.Content}" />

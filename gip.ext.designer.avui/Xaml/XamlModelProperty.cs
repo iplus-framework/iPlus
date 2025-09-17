@@ -53,6 +53,18 @@ namespace gip.ext.designer.avui.Xaml
             {
                 _collectionElements = new XamlModelCollectionElementsCollection(this, property);
             }
+
+            ValueChanged += (x, y) =>
+            {
+                OnPropertyChanged("Value");
+                OnPropertyChanged("DesignerValue");
+                OnPropertyChanged("ValueOnInstanceOrView");
+            };
+            ValueOnInstanceChanged += (x, y) =>
+            {
+                OnPropertyChanged("ValueOnInstance");
+                OnPropertyChanged("ValueOnInstanceOrView");
+            };
         }
 
         public override bool Equals(object obj)
@@ -206,6 +218,11 @@ namespace gip.ext.designer.avui.Xaml
             //set { _property.ValueOnInstance = value; }
         }
 
+        public override object DesignerValue
+        {
+            get { return _property.DesignerValue; }
+        }
+
         public override object NewClonedValueOnInstance
         {
             get
@@ -309,8 +326,9 @@ namespace gip.ext.designer.avui.Xaml
 
         void SetValueInternal(XamlPropertyValue newValue)
         {
+            var oldValue = _property.PropertyValue;
             _property.PropertyValue = newValue;
-            _designItem.NotifyPropertyChanged(this);
+            _designItem.NotifyPropertyChanged(this, oldValue, newValue);
         }
 
         public override object CurrentValue 
@@ -343,13 +361,17 @@ namespace gip.ext.designer.avui.Xaml
             }
         }
 
+        public override T GetConvertedValueOnInstance<T>() => _property.GetValueOnInstance<T>();
+
         public sealed class PropertyChangeAction : ITransactionItem
         {
             XamlModelProperty property;
             XamlPropertyValue oldValue;
+            readonly object oldValueOnInstance;
             XamlPropertyValue newValue;
             bool oldIsSet;
             bool newIsSet;
+            readonly ITransactionItem collectionTransactionItem;
 
             public XamlModelProperty Property
             {
@@ -384,6 +406,12 @@ namespace gip.ext.designer.avui.Xaml
 
                 oldIsSet = property._property.IsSet;
                 oldValue = property._property.PropertyValue;
+                oldValueOnInstance = property._property.ValueOnInstance;
+
+                if (oldIsSet && oldValue == null && property.IsCollection)
+                {
+                    collectionTransactionItem = property._collectionElements.CreateResetTransaction();
+                }
             }
 
             public string Title
@@ -399,6 +427,10 @@ namespace gip.ext.designer.avui.Xaml
 
             public void Do()
             {
+                if (collectionTransactionItem != null)
+                {
+                    collectionTransactionItem.Do();
+                }
                 if (newIsSet)
                     property.SetValueInternal(newValue);
                 else
@@ -408,9 +440,35 @@ namespace gip.ext.designer.avui.Xaml
             public void Undo()
             {
                 if (oldIsSet)
-                    property.SetValueInternal(oldValue);
+                {
+                    if (collectionTransactionItem != null)
+                    {
+                        collectionTransactionItem.Undo();
+                    }
+                    else
+                    {
+                        property.SetValueInternal(oldValue);
+                    }
+                }
                 else
+                {
+                    if (property.DependencyProperty == null)
+                    {
+                        try
+                        {
+                            property.SetValueOnInstance(oldValueOnInstance);
+                        }
+                        catch (Exception)
+                        { }
+                    }
+
                     property.ResetInternal();
+                }
+                // Old code:
+                //if (oldIsSet)
+                //    property.SetValueInternal(oldValue);
+                //else
+                //    property.ResetInternal();
             }
 
             public System.Collections.Generic.ICollection<DesignItem> AffectedElements

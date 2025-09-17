@@ -1181,8 +1181,8 @@
   <SolidColorBrush x:Key="ValidationBrush3" Color="{StaticResource ValidationColor3}" />
   <SolidColorBrush x:Key="ValidationBrush4" Color="{StaticResource ValidationColor4}" />
   <SolidColorBrush x:Key="ValidationBrush5" Color="{StaticResource ValidationColor5}" />
-  <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{StaticResource WhiteColor}" />
-  <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{StaticResource BlackColor}" />
+  <SolidColorBrush x:Key="{x:Static ThemeBackgroundBrush}" Color="{StaticResource WhiteColor}" />
+  <SolidColorBrush x:Key="{x:Static ThemeForegroundBrush}" Color="{StaticResource BlackColor}" />
   <Style x:Key="ControlStyleEmptyFocus" TargetType="{x:Type Control}">
     <Setter Property="Template" Value="{StaticResource ControlFocusEmptyTemplate}" />
   </Style>
@@ -1622,7 +1622,7 @@
   <Style TargetType="{x:Type Fluent:Button}" BasedOn="{StaticResource RibbonButtonStyle}" />
   <Style x:Key="IronicallyNamedChromelessButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Background" Value="{StaticResource TransparentWhiteBrush}" />
-    <Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.ControlTextBrushKey}}" />
+    <Setter Property="Foreground" Value="{StaticResource {x:Static ThemeForegroundBrush}}" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Padding" Value="1" />

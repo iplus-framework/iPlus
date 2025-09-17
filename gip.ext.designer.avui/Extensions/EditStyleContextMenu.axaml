@@ -1,0 +1,11 @@
+﻿<ContextMenu x:Class="gip.ext.designer.avui.Extensions.EditStyleContextMenu"
+             xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:Translation="clr-namespace:gip.ext.designer.avui"
+>
+	<MenuItem Header="{Binding EditStyle, Source={x:Static Translation:Translations.Instance}}" Click="Click_EditStyle">
+		<MenuItem.Icon>
+			<Image Source="/gip.ext.designer.avui;component/Images/edit.png" />
+		</MenuItem.Icon>
+	</MenuItem>
+</ContextMenu>

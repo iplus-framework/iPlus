@@ -100,11 +100,11 @@ namespace gip.ext.designer.avui.OutlineView
 
         public void InitEditor(DesignItem designObject, MultiTriggerNodeBase parentTriggerNode)
         {
-            InitEditor(designObject);
+            LoadItemsCollection(designObject);
             _ParentTriggerNode = parentTriggerNode;
         }
 
-        public void InitEditor(DesignItem designObject)
+        public void LoadItemsCollection(DesignItem designObject)
         {
             if (_DesignObjectCondition == designObject)
                 return;
@@ -290,13 +290,13 @@ namespace gip.ext.designer.avui.OutlineView
                     if (Wrapper.Binding.Value is MultiBinding)
                     {
                         MultiBindingEditor editor = new MultiBindingEditor();
-                        editor.InitEditor(Wrapper.Binding.ValueItem);
+                        editor.LoadItemsCollection(Wrapper.Binding.ValueItem);
                         return editor;
                     }
                     else if (Wrapper.Binding.Value is Binding)
                     {
                         BindingEditor editor = new BindingEditor();
-                        editor.InitEditor(Wrapper.Binding.ValueItem);
+                        editor.LoadItemsCollection(Wrapper.Binding.ValueItem);
                         return editor;
                     }
                 }

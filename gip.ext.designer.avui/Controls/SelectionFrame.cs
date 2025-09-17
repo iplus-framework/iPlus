@@ -4,11 +4,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-
+using Avalonia.Controls;
 using gip.ext.design.avui.Extensions;
 
 namespace gip.ext.designer.avui.Controls
@@ -22,7 +18,7 @@ namespace gip.ext.designer.avui.Controls
 		{
 			//This OverrideMetadata call tells the system that this element wants to provide a style that is different than its base class.
 			//This style is defined in themes\generic.xaml
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(SelectionFrame), new FrameworkPropertyMetadata(typeof(SelectionFrame)));
+			//DefaultStyleKeyProperty.OverrideMetadata(typeof(SelectionFrame), new FrameworkPropertyMetadata(typeof(SelectionFrame)));
 		}
 	}
 }

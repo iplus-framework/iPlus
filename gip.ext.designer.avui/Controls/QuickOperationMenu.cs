@@ -1,25 +1,22 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Styling;
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
+using System.Linq;
 
 namespace gip.ext.designer.avui.Controls
 {
     /// <summary>
     /// A Small icon which shows up a menu containing common properties
     /// </summary>
-    public class QuickOperationMenu : Control
+    public class QuickOperationMenu : TemplatedControl
     {
-        static QuickOperationMenu()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(QuickOperationMenu), new FrameworkPropertyMetadata(typeof(QuickOperationMenu)));
-        }
-
-        private MenuItem _mainHeader;
+        private MenuItem? _mainHeader;
 
         /// <summary>
         /// Contains Default values in the Sub menu for example "HorizontalAlignment" has "HorizontalAlignment.Stretch" as it's value.
@@ -40,7 +37,6 @@ namespace gip.ext.designer.avui.Controls
             return new MenuItem() { Header = header };
         }
 
-
         /// <summary>
         /// Add a submenu with checkable values.
         /// </summary>
@@ -52,8 +48,9 @@ namespace gip.ext.designer.avui.Controls
         {
             foreach (var enumValue in enumValues)
             {
-                var menuItem = CreateMenuItem(enumValue.ToString());
-                menuItem.IsCheckable = true;
+                var menuItem = CreateMenuItem(enumValue.ToString()!);
+                // In AvaloniaUI, we use ToggleType to make menu items checkable
+                menuItem.ToggleType = MenuItemToggleType.CheckBox;
                 parent.Items.Add(menuItem);
                 if (enumValue.ToString() == defaultValue)
                     _defaults.Add(parent, menuItem);
@@ -72,10 +69,10 @@ namespace gip.ext.designer.avui.Controls
                 _mainHeader.Items.Add(menuItem);
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            var mainHeader = Template.FindName("MainHeader", this) as MenuItem;
+            base.OnApplyTemplate(e);
+            var mainHeader = e.NameScope.Find("MainHeader") as MenuItem;
             if (mainHeader != null)
             {
                 _mainHeader = mainHeader;
@@ -90,43 +87,42 @@ namespace gip.ext.designer.avui.Controls
         /// <returns>Returns the Default value if the checkable menu item is toggled or otherwise the new checked menu item.</returns>
         public string UncheckChildrenAndSelectClicked(MenuItem parent, MenuItem clickedOn)
         {
-            MenuItem defaultMenuItem;
-            _defaults.TryGetValue(parent, out defaultMenuItem);
+            _defaults.TryGetValue(parent, out MenuItem defaultMenuItem);
             if (IsAnyItemChecked(parent))
             {
                 foreach (var item in parent.Items)
                 {
-                    var menuItem = item as MenuItem;
-                    if (menuItem != null) menuItem.IsChecked = false;
+                    if (item is MenuItem menuItem) 
+                        menuItem.IsChecked = false;
                 }
                 clickedOn.IsChecked = true;
-                return (string)clickedOn.Header;
+                return clickedOn.Header?.ToString();
             }
             else
             {
                 if (defaultMenuItem != null)
                 {
                     defaultMenuItem.IsChecked = true;
-                    return (string)defaultMenuItem.Header;
+                    return defaultMenuItem.Header?.ToString();
                 }
             }
             return null;
         }
 
         /// <summary>
-        /// Checks in the sub-menu whether aby items has been checked or not
+        /// Checks in the sub-menu whether any items has been checked or not
         /// </summary>
         /// <param name="parent"></param>
         /// <returns></returns>
         private bool IsAnyItemChecked(MenuItem parent)
         {
             bool check = false;
-            if (parent.HasItems)
+            // In AvaloniaUI, we check if Items collection has any items using LINQ
+            if (parent.Items.Any())
             {
                 foreach (var item in parent.Items)
                 {
-                    var menuItem = item as MenuItem;
-                    if (menuItem != null && menuItem.IsChecked)
+                    if (item is MenuItem menuItem && menuItem.IsChecked == true)
                         check = true;
                 }
             }

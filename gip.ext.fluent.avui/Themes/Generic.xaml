@@ -5439,8 +5439,8 @@
   <SolidColorBrush x:Key="ValidationBrush3" Color="{StaticResource ValidationColor3}" />
   <SolidColorBrush x:Key="ValidationBrush4" Color="{StaticResource ValidationColor4}" />
   <SolidColorBrush x:Key="ValidationBrush5" Color="{StaticResource ValidationColor5}" />
-  <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="{StaticResource WhiteColor}" />
-  <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="{StaticResource BlackColor}" />
+  <SolidColorBrush x:Key="{x:Static ThemeBackgroundBrush}" Color="{StaticResource WhiteColor}" />
+  <SolidColorBrush x:Key="{x:Static ThemeForegroundBrush}" Color="{StaticResource BlackColor}" />
   <ControlTemplate x:Key="ApplicationMenuSecondLevelItemTemplate" TargetType="{x:Type Fluent:MenuItem}">
     <ControlTemplate.Resources>
       <ResourceDictionary>

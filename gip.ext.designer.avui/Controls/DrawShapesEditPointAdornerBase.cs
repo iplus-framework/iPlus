@@ -5,14 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
 using gip.ext.designer.avui.Xaml;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
+using Avalonia.Controls.Shapes;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -25,15 +24,11 @@ namespace gip.ext.designer.avui.Controls
             Shape shape = shapeToEdit.View as Shape;
             if (shape != null)
             {
-                _PenOfShapeToEdit = new Pen(shape.Stroke.Clone(), shape.StrokeThickness);
-                if (shape.Fill != null)
-                    _ShapeFill = shape.Fill.Clone();
-                _PenOfShapeToEdit.LineJoin = shape.StrokeLineJoin;
-                _PenOfShapeToEdit.DashCap = shape.StrokeDashCap;
-                _PenOfShapeToEdit.DashStyle = new DashStyle(shape.StrokeDashArray, shape.StrokeDashOffset);
-                _PenOfShapeToEdit.EndLineCap = shape.StrokeEndLineCap;
-                _PenOfShapeToEdit.StartLineCap = shape.StrokeStartLineCap;
-                _PenOfShapeToEdit.MiterLimit = shape.StrokeMiterLimit;
+                (shape.Stroke as SolidColorBrush).ToImmutable();
+                _PenOfShapeToEdit = new Pen((shape.Stroke as SolidColorBrush).Color.ToUInt32(), shape.StrokeThickness, new DashStyle(shape.StrokeDashArray, shape.StrokeDashOffset), shape.StrokeLineCap);
+                _PenOfShapeToEdit.LineJoin = shape.StrokeJoin;
+                _PenOfShapeToEdit.LineCap = shape.StrokeLineCap;
+                //_PenOfShapeToEdit.MiterLimit = shape;
             }
         }
 
@@ -63,7 +58,7 @@ namespace gip.ext.designer.avui.Controls
         #endregion
 
         #region Methods
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
             return null;
         }

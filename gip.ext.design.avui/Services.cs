@@ -7,6 +7,7 @@ using System.Collections;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using System.ComponentModel;
 
 namespace gip.ext.design.avui
 {
@@ -132,13 +133,30 @@ namespace gip.ext.design.avui
 		
 		/// <summary>Registers a component for usage in the designer.</summary>
 		DesignItem RegisterComponentForDesigner(object component);
-		
-		/// <summary>Event raised whenever a component is registered</summary>
-		event EventHandler<DesignItemEventArgs> ComponentRegistered;
+
+        /// <summary>Registers a component for usage in the designer.</summary>
+        DesignItem RegisterComponentForDesigner(DesignItem parent, object component);
+
+        /// <summary>Registers a component for usage in the designer.</summary>
+        DesignItem RegisterComponentForDesignerRecursiveUsingXaml(object component);
+
+        /// <summary>Called when a component is registered and added to a container.</summary>
+        event EventHandler<DesignItemEventArgs> ComponentRegisteredAndAddedToContainer;
+
+        /// <summary>Event raised whenever a component is registered</summary>
+        event EventHandler<DesignItemEventArgs> ComponentRegistered;
+
+        /// <summary>Event raised whenever a component is removed</summary>
+        event EventHandler<DesignItemEventArgs> ComponentRemoved;
+
+        /// <summary>Property Changed</summary>
+        event EventHandler<DesignItemPropertyChangedEventArgs> PropertyChanged;
 
         /// iplus Extension
         IEnumerable<DesignItem> DesignItems { get; }
-	}
+
+        void SetDefaultPropertyValues(DesignItem designItem);
+    }
 	#endregion
 	
 	#region IViewService
@@ -164,13 +182,42 @@ namespace gip.ext.design.avui
 			return model.View;
 		}
 	}
-	#endregion
-	
-	#region IPropertyDescriptionService
-	/// <summary>
-	/// Used to get a description for properties.
-	/// </summary>
-	public interface IPropertyDescriptionService
+    #endregion
+
+    #region IComponentPropertyService
+    /// <summary>
+    /// Used to get properties for a Design Item.
+    /// </summary>
+    public interface IComponentPropertyService
+    {
+        /// <summary>
+        /// Get all Properties for a DesignItem
+        /// </summary>
+        /// <param name="designItem"></param>
+        /// <returns></returns>
+        IEnumerable<MemberDescriptor> GetAvailableProperties(DesignItem designItem);
+
+        /// <summary>
+        /// Get all possible Events for a DesignItem
+        /// </summary>
+        /// <param name="designItem"></param>
+        /// <returns></returns>
+        IEnumerable<MemberDescriptor> GetAvailableEvents(DesignItem designItem);
+
+        /// <summary>
+        /// Get all Properties for multiple Design Items 
+        /// </summary>
+        /// <param name="designItems"></param>
+        /// <returns></returns>
+        IEnumerable<MemberDescriptor> GetCommonAvailableProperties(IEnumerable<DesignItem> designItems);
+    }
+    #endregion
+
+    #region IPropertyDescriptionService
+    /// <summary>
+    /// Used to get a description for properties.
+    /// </summary>
+    public interface IPropertyDescriptionService
 	{
 		/// <summary>
 		/// Gets a WPF object representing a graphical description of the property.

@@ -2,6 +2,8 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 
+using Avalonia.Input;
+using Avalonia.Labs.Input;
 using System;
 using System.Windows.Input;
 
@@ -61,7 +63,7 @@ namespace gip.ext.designer.avui.Controls
 	/// if you need that, use the generic version of this class instead.
 	/// </summary>
 	public class RelayCommand : ICommand
-	{
+    {
 		readonly Func<bool> canExecute;
 		readonly Action execute;
 

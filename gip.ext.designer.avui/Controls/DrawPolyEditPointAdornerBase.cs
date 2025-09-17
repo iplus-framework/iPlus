@@ -5,15 +5,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
 using gip.ext.designer.avui.Xaml;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -26,14 +24,14 @@ namespace gip.ext.designer.avui.Controls
         {
             _PointToEdit = pointToEdit;
             Shape polyShape = shapeToEdit.View as Shape;
-            PointCollection points = GetPointCollection(polyShape);
+            IList<Point> points = GetPointCollection(polyShape);
 
             if (points != null)
             {
                 int i = 0;
                 foreach (Point point in points)
                 {
-                    Point pointRelToShapeCont = polyShape.TranslatePoint(point, containerForShape.View);
+                    Point pointRelToShapeCont = polyShape.TranslatePoint(point, containerForShape.View as Visual).Value;
                     _PointCollectionRelToShapeCont.Add(pointRelToShapeCont);
                     if (point.X == _PointToEdit.X && point.Y == _PointToEdit.Y)
                     {
@@ -56,7 +54,7 @@ namespace gip.ext.designer.avui.Controls
         protected Point _EditingPointRelToShapeCont; // Relative Coordinates to Shape
         protected int _PointToEditIndex = 0;
 
-        protected PointCollection _PointCollectionRelToShapeCont = new PointCollection();
+        protected IList<Point> _PointCollectionRelToShapeCont = new List<Point>();
 
         public override Pen DrawingPen
         {
@@ -73,7 +71,7 @@ namespace gip.ext.designer.avui.Controls
             _EditingPointRelToShapeCont = endPoint;
             _PointCollectionRelToShapeCont[_PointToEditIndex] = _EditingPointRelToShapeCont;
             Point startPoint;
-            PointCollection translatedPoints = TranslatePointsToBounds(_PointCollectionRelToShapeCont, out startPoint, out endPoint);
+            IList<Point> translatedPoints = TranslatePointsToBounds(_PointCollectionRelToShapeCont, out startPoint, out endPoint);
 
             UpdatePointsProperty(myCreatedItem, translatedPoints);
 
@@ -81,7 +79,7 @@ namespace gip.ext.designer.avui.Controls
             return true;
         }
 
-        protected abstract void UpdatePointsProperty(DesignItem myCreatedItem, PointCollection translatedPoints);
-        protected abstract PointCollection GetPointCollection(Shape polyShape);
+        protected abstract void UpdatePointsProperty(DesignItem myCreatedItem, IList<Point> translatedPoints);
+        protected abstract IList<Point> GetPointCollection(Shape polyShape);
     }
 }

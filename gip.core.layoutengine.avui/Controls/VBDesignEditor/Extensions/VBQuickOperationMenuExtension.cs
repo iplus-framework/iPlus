@@ -67,7 +67,7 @@ namespace gip.core.layoutengine.avui
                         if (DockingManager != null)
                         {
                             var editor = new VBStyleSetterWindow(DockingManager);
-                            editor.InitEditor(extendedItem);
+                            editor.LoadItemsCollection(extendedItem);
                             editor.Title = "Style Setter: " + WindowTitle;
                             editor.Show();
                             Rect wndRect = new Rect(DockingManager.PointToScreen(Mouse.GetPosition(DockingManager)), new Size(750, 400));
@@ -80,7 +80,7 @@ namespace gip.core.layoutengine.avui
                         if (DockingManager != null)
                         {
                             var editor = new VBStyleTriggerWindow(DockingManager);
-                            editor.InitEditor(extendedItem);
+                            editor.LoadItemsCollection(extendedItem);
                             editor.Title = "Style Trigger: " + WindowTitle;
                             editor.Show();
                             Rect wndRect = new Rect(DockingManager.PointToScreen(Mouse.GetPosition(DockingManager)), new Size(750, 500));

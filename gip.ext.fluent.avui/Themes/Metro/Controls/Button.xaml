@@ -96,7 +96,7 @@
   
   <Style x:Key="IronicallyNamedChromelessButtonStyle" TargetType="{x:Type Button}">
         <Setter Property="Background" Value="{DynamicResource TransparentWhiteBrush}" />
-        <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}" />
+        <Setter Property="Foreground" Value="{DynamicResource {x:Static ThemeForegroundBrush}}" />
         <Setter Property="HorizontalContentAlignment" Value="Center" />
         <Setter Property="VerticalContentAlignment" Value="Center" />
         <Setter Property="Padding" Value="1" />

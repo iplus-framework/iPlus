@@ -101,7 +101,7 @@
     </ControlTemplate>
     <Style x:Key="DatePickerTextBoxStyleGip" TargetType="{x:Type DatePickerTextBox}">
         <!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-        <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>-->
+        <Setter Property="Background" Value="{DynamicResource {x:Static ThemeBackgroundBrush}}"/>-->
         <Setter Property="Background" Value="Red"/>
         <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
