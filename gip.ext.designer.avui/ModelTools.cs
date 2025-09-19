@@ -7,9 +7,13 @@ using System.Windows;
 using System.Linq;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Controls;
-using System.Windows.Controls;
 using gip.ext.graphics.avui.shapes;
-using System.Windows.Shapes;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Layout;
+using Avalonia.Controls.Shapes;
+using gip.ext.designer.avui.Xaml;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui
 {
@@ -113,58 +117,61 @@ namespace gip.ext.designer.avui
 			}
 		}
 
-        public static void CreateVisualTree(this UIElement element)
+        public static void CreateVisualTree(this Control element)
         {
             try
             {
-                var fixedDoc = new FixedDocument();
-                var pageContent = new PageContent();
-                var fixedPage = new FixedPage();
-                fixedPage.Children.Add(element);
-                (pageContent as IAddChild).AddChild(fixedPage);
-                fixedDoc.Pages.Add(pageContent);
+                // TODO: Avalonia dosn't support Flowdocs
+                //var fixedDoc = new FixedDocument();
+                //var pageContent = new PageContent();
+                //var fixedPage = new FixedPage();
+                //fixedPage.Children.Add(element);
+                //(pageContent as IAddChild).AddChild(fixedPage);
+                //fixedDoc.Pages.Add(pageContent);
 
-                var f = new XpsSerializerFactory();
-                var w = f.CreateSerializerWriter(new MemoryStream());
-                w.Write(fixedDoc);
+                //var f = new XpsSerializerFactory();
+                //var w = f.CreateSerializerWriter(new MemoryStream());
+                //w.Write(fixedDoc);
 
-                fixedPage.Children.Remove(element);
+                //fixedPage.Children.Remove(element);
             }
             catch (Exception)
-            { }
+            { 
+            }
         }
 
         internal static Size GetDefaultSize(DesignItem createdItem)
 		{
-            if (!(createdItem.Component is UIElement))
+            if (!(createdItem.Component is Control))
                 return new Size(1, 1);
 
-            var defS = Metadata.GetDefaultSize(createdItem.ComponentType, false);
-            if (defS != null)
+            Size? defS = Metadata.GetDefaultSize(createdItem.ComponentType, false);
+            if (defS.HasValue && defS.Value.Width != double.NaN)
                 return defS.Value;
 
             CreateVisualTree(createdItem.View);
 
             var s = createdItem.View.DesiredSize;
+            double width = s.Width;
+            double height = s.Height;
 
-            var newS = Metadata.GetDefaultSize(createdItem.ComponentType, true);
-
-            if (newS.HasValue)
+            Size? newS = Metadata.GetDefaultSize(createdItem.ComponentType, true);
+            if (newS.HasValue && defS.Value.Width != double.NaN)
             {
-                if (!(s.Width > 5) && newS.Value.Width > 0)
-                    s.Width = newS.Value.Width;
+                if (!(width > 5) && newS.Value.Width > 0)
+                    width = newS.Value.Width;
 
-                if (!(s.Height > 5) && newS.Value.Height > 0)
-                    s.Height = newS.Value.Height;
+                if (!(height > 5) && newS.Value.Height > 0)
+                    height = newS.Value.Height;
             }
 
-            if (double.IsNaN(s.Width) && GetWidth(createdItem.View) > 0)
+            if (double.IsNaN(width) && GetWidth(createdItem.View) > 0)
             {
-                s.Width = GetWidth(createdItem.View);
+                width = GetWidth(createdItem.View);
             }
-            if (double.IsNaN(s.Height) && GetWidth(createdItem.View) > 0)
+            if (double.IsNaN(height) && GetWidth(createdItem.View) > 0)
             {
-                s.Height = GetHeight(createdItem.View);
+                height = GetHeight(createdItem.View);
             }
 
             return s;
@@ -185,25 +192,25 @@ namespace gip.ext.designer.avui
             //return s;
         }
 		
-		internal static double GetWidth(UIElement element)
+		internal static double GetWidth(Control element)
 		{
-			double v = (double)element.GetValue(FrameworkElement.WidthProperty);
+			double v = (double)element.GetValue(Layoutable.WidthProperty);
 			if (double.IsNaN(v))
-				return element.RenderSize.Width;
+				return element.Bounds.Width;
 			else
 				return v;
 		}
 		
-		internal static double GetHeight(UIElement element)
+		internal static double GetHeight(Control element)
 		{
-			double v = (double)element.GetValue(FrameworkElement.HeightProperty);
+			double v = (double)element.GetValue(Layoutable.HeightProperty);
 			if (double.IsNaN(v))
-				return element.RenderSize.Height;
+				return element.Bounds.Height;
 			else
 				return v;
 		}
 
-        internal static double GetCanvasLeft(UIElement element)
+        internal static double GetCanvasLeft(Control element)
         {
             double v = (double)element.GetValue(Canvas.LeftProperty);
             if (double.IsNaN(v))
@@ -212,7 +219,7 @@ namespace gip.ext.designer.avui
                 return v;
         }
 
-        internal static double GetCanvasTop(UIElement element)
+        internal static double GetCanvasTop(Control element)
         {
             double v = (double)element.GetValue(Canvas.TopProperty);
             if (double.IsNaN(v))
@@ -227,10 +234,10 @@ namespace gip.ext.designer.avui
                 && !typeof(Rectangle).IsAssignableFrom(item.ComponentType)
                 && !typeof(Ellipse).IsAssignableFrom(item.ComponentType))
             {
-                DesignItemProperty property = item.Properties.HasProperty(FrameworkElement.WidthProperty.Name);
+                DesignItemProperty property = item.Properties.HasProperty(Layoutable.WidthProperty.Name);
                 if (property != null)
                     property.Reset();
-                property = item.Properties.HasProperty(FrameworkElement.HeightProperty.Name);
+                property = item.Properties.HasProperty(Layoutable.HeightProperty.Name);
                 if (property != null)
                     property.Reset();
                 return;
@@ -238,16 +245,16 @@ namespace gip.ext.designer.avui
             if (newWidth != GetWidth(item.View))
             {
                 if (double.IsNaN(newWidth))
-                    item.Properties.GetProperty(FrameworkElement.WidthProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.WidthProperty).Reset();
                 else
-                    item.Properties.GetProperty(FrameworkElement.WidthProperty).SetValue(newWidth);
+                    item.Properties.GetProperty(Layoutable.WidthProperty).SetValue(newWidth);
             }
             if (newHeight != GetHeight(item.View))
             {
                 if (double.IsNaN(newHeight))
-                    item.Properties.GetProperty(FrameworkElement.HeightProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.HeightProperty).Reset();
                 else
-                    item.Properties.GetProperty(FrameworkElement.HeightProperty).SetValue(newHeight);
+                    item.Properties.GetProperty(Layoutable.HeightProperty).SetValue(newHeight);
             }
 		}
 
@@ -273,7 +280,7 @@ namespace gip.ext.designer.avui
         {
             var itemPos = new ItemPos() { DesignItem = designItem };
 
-            var pos = operation.CurrentContainerBehavior.GetPosition(operation, designItem);
+            var pos = operation.CurrentContainerBehavior.GetPosition(operation, designItem, false);
             itemPos.Xmin = pos.X;
             itemPos.Xmax = pos.X + pos.Width;
             itemPos.Ymin = pos.Y;
@@ -320,9 +327,9 @@ namespace gip.ext.designer.avui
                 }
                 else if (container.Component is Grid)
                 {
-                    item.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).Reset();
-                    item.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).Reset();
-                    item.Properties.GetProperty(FrameworkElement.MarginProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.MarginProperty).Reset();
                 }
 
                 if (item.ParentProperty.IsCollection)
@@ -370,30 +377,34 @@ namespace gip.ext.designer.avui
                 }
                 else if (newPanel.Component is Grid)
                 {
-                    Thickness thickness = new Thickness(0);
+                    double right = 0;
+                    double left = 0;
+                    double bottom = 0;
+                    double top = 0;
                     if (item.HorizontalAlignment == HorizontalAlignment.Right)
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Right);
-                        thickness.Right = xmax - item.Xmax;
+                        item.DesignItem.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Right);
+                        right = xmax - item.Xmax;
                     }
                     else
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Left);
-                        thickness.Left = item.Xmin - xmin;
+                        item.DesignItem.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Left);
+                        left = item.Xmin - xmin;
                     }
 
                     if (item.VerticalAlignment == VerticalAlignment.Bottom)
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).SetValue(VerticalAlignment.Bottom);
-                        thickness.Bottom = ymax - item.Ymax;
+                        item.DesignItem.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).SetValue(VerticalAlignment.Bottom);
+                        bottom = ymax - item.Ymax;
                     }
                     else
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).SetValue(VerticalAlignment.Top);
-                        thickness.Top = item.Ymin - ymin;
+                        item.DesignItem.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).SetValue(VerticalAlignment.Top);
+                        top = item.Ymin - ymin;
                     }
+                    Thickness thickness = new Thickness(left, top, right, bottom);
 
-                    item.DesignItem.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(thickness);
+                    item.DesignItem.Properties.GetProperty(Layoutable.MarginProperty).SetValue(thickness);
 
                     newPanel.ContentProperty.CollectionElements.Add(item.DesignItem);
 
@@ -467,9 +478,9 @@ namespace gip.ext.designer.avui
                 }
                 else if (container.Component is Grid)
                 {
-                    item.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).Reset();
-                    item.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).Reset();
-                    item.Properties.GetProperty(FrameworkElement.MarginProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).Reset();
+                    item.Properties.GetProperty(Layoutable.MarginProperty).Reset();
                 }
 
                 if (item.ParentProperty.IsCollection)
@@ -514,30 +525,34 @@ namespace gip.ext.designer.avui
                 }
                 else if (newPanel.Component is Grid)
                 {
-                    Thickness thickness = new Thickness(0);
+                    double right = 0;
+                    double left = 0;
+                    double bottom = 0;
+                    double top = 0;
                     if (item.HorizontalAlignment == HorizontalAlignment.Right)
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Right);
-                        thickness.Right = containerPos.Xmax - item.Xmax;
+                        item.DesignItem.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Right);
+                        right = containerPos.Xmax - item.Xmax;
                     }
                     else
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Left);
-                        thickness.Left = item.Xmin;
+                        item.DesignItem.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).SetValue(HorizontalAlignment.Left);
+                        left = item.Xmin;
                     }
 
                     if (item.VerticalAlignment == VerticalAlignment.Bottom)
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).SetValue(VerticalAlignment.Bottom);
-                        thickness.Bottom = containerPos.Ymax - item.Ymax;
+                        item.DesignItem.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).SetValue(VerticalAlignment.Bottom);
+                        bottom = containerPos.Ymax - item.Ymax;
                     }
                     else
                     {
-                        item.DesignItem.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).SetValue(VerticalAlignment.Top);
-                        thickness.Top = item.Ymin;
+                        item.DesignItem.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).SetValue(VerticalAlignment.Top);
+                        top = item.Ymin;
                     }
+                    Thickness thickness = new Thickness(left, top, right, bottom);
 
-                    item.DesignItem.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(thickness);
+                    item.DesignItem.Properties.GetProperty(Layoutable.MarginProperty).SetValue(thickness);
 
                     newPanel.ContentProperty.CollectionElements.Add(item.DesignItem);
 
@@ -555,11 +570,11 @@ namespace gip.ext.designer.avui
             operation.Commit();
         }
 
-        public static void ApplyTransform(DesignItem designItem, Transform transform, bool relative = true, DependencyProperty transformProperty = null)
+        public static void ApplyTransform(DesignItem designItem, Transform transform, bool relative = true, AvaloniaProperty transformProperty = null)
         {
             var changeGroup = designItem.OpenGroup("Apply Transform");
 
-            transformProperty = transformProperty ?? FrameworkElement.RenderTransformProperty;
+            transformProperty = transformProperty ?? Visual.RenderTransformProperty;
             Transform oldTransform = null;
             if (designItem.Properties.GetProperty(transformProperty).IsSet)
             {
@@ -570,8 +585,8 @@ namespace gip.ext.designer.avui
             {
                 var mt = oldTransform as MatrixTransform;
                 var tg = new TransformGroup();
-                if (mt.Matrix.OffsetX != 0 && mt.Matrix.OffsetY != 0)
-                    tg.Children.Add(new TranslateTransform() { X = mt.Matrix.OffsetX, Y = mt.Matrix.OffsetY });
+                if (mt.Matrix.M31 != 0 && mt.Matrix.M32 != 0)
+                    tg.Children.Add(new TranslateTransform() { X = mt.Matrix.M31, Y = mt.Matrix.M32 });
                 if (mt.Matrix.M11 != 0 && mt.Matrix.M22 != 0)
                     tg.Children.Add(new ScaleTransform() { ScaleX = mt.Matrix.M11, ScaleY = mt.Matrix.M22 });
 
@@ -586,7 +601,7 @@ namespace gip.ext.designer.avui
                 var tg = new TransformGroup();
                 var tgDes = designItem.Services.Component.RegisterComponentForDesigner(tg);
                 tgDes.ContentProperty.CollectionElements.Add(designItem.Services.Component.GetDesignItem(oldTransform));
-                designItem.Properties.GetProperty(FrameworkElement.RenderTransformProperty).SetValue(tg);
+                designItem.Properties.GetProperty(Visual.RenderTransformProperty).SetValue(tg);
                 oldTransform = tg;
             }
 
@@ -613,12 +628,12 @@ namespace gip.ext.designer.avui
                             designItem.Properties.GetProperty(transformProperty).Value.Properties.GetProperty(RotateTransform.CenterYProperty).SetValue(rotateTransform.CenterY);
 
                         if (oldTransform == null)
-                            designItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
                     }
                     else
                     {
                         designItem.Properties.GetProperty(transformProperty).Reset();
-                        designItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).Reset();
+                        designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).Reset();
                     }
                 }
                 else if (oldTransform is TransformGroup)
@@ -636,7 +651,7 @@ namespace gip.ext.designer.avui
                             des = designItem.Services.Component.RegisterComponentForDesigner(transform);
                         designItem.Services.Component.GetDesignItem(tg).ContentProperty.CollectionElements.Add(des);
                         if (oldTransform == null)
-                            designItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
                     }
                 }
                 else
@@ -645,7 +660,7 @@ namespace gip.ext.designer.avui
                     {
                         designItem.Properties.GetProperty(transformProperty).SetValue(transform);
                         if (oldTransform == null)
-                            designItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
                     }
                 }
             }
@@ -680,13 +695,13 @@ namespace gip.ext.designer.avui
                     case StretchDirection.Width:
                         {
                             if (!double.IsNaN(w))
-                                item.Properties.GetProperty(FrameworkElement.WidthProperty).SetValue(w);
+                                item.Properties.GetProperty(Layoutable.WidthProperty).SetValue(w);
                         }
                         break;
                     case StretchDirection.Height:
                         {
                             if (!double.IsNaN(h))
-                                item.Properties.GetProperty(FrameworkElement.HeightProperty).SetValue(h);
+                                item.Properties.GetProperty(Layoutable.HeightProperty).SetValue(h);
                         }
                         break;
                 }
@@ -739,24 +754,24 @@ namespace gip.ext.designer.avui
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualWidth - (xmin + (double)((FrameworkElement)item.Component).ActualWidth);
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Width - (xmin + (double)((Control)item.Component).Bounds.Width);
                                     item.Properties.GetAttachedProperty(Canvas.RightProperty).SetValue(pos);
                                 }
                             }
                             else if (container.Component is Grid)
                             {
-                                if (item.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>() != HorizontalAlignment.Right)
+                                if (item.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>() != HorizontalAlignment.Right)
                                 {
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Left = xmin;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var margin = item.Properties.GetProperty(Control.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(xmin, margin.Top, margin.Right, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualWidth - (xmin + (double)((FrameworkElement)item.Component).ActualWidth);
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Right = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Width - (xmin + (double)((Layoutable)item.Component).Bounds.Width);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, margin.Top, pos, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                             }
                         }
@@ -769,31 +784,32 @@ namespace gip.ext.designer.avui
                                 {
                                     if (!item.Properties.GetAttachedProperty(Canvas.RightProperty).IsSet)
                                     {
-                                        item.Properties.GetAttachedProperty(Canvas.LeftProperty).SetValue(mpos - (((FrameworkElement)item.Component).ActualWidth) / 2);
+                                        item.Properties.GetAttachedProperty(Canvas.LeftProperty).SetValue(mpos - (((Control)item.Component).Bounds.Width) / 2);
                                     }
                                     else
                                     {
-                                        var pp = mpos - (((FrameworkElement)item.Component).ActualWidth) / 2;
-                                        var pos = (double)((Panel)item.Parent.Component).ActualWidth - pp - (((FrameworkElement)item.Component).ActualWidth);
+                                        var pp = mpos - (((Control)item.Component).Bounds.Width) / 2;
+                                        var pos = (double)((Panel)item.Parent.Component).Bounds.Width - pp - (((Control)item.Component).Bounds.Width);
                                         item.Properties.GetAttachedProperty(Canvas.RightProperty).SetValue(pos);
                                     }
                                 }
                             }
                             else if (container.Component is Grid)
                             {
-                                if (item.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>() != HorizontalAlignment.Right)
+                                if (item.Properties.GetProperty(Control.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>() != HorizontalAlignment.Right)
                                 {
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Left = mpos - (((FrameworkElement)item.Component).ActualWidth) / 2;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    double left = mpos - (((Control)item.Component).Bounds.Width) / 2;
+                                    margin = new Thickness(left, margin.Top, margin.Right, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                                 else
                                 {
-                                    var pp = mpos - (((FrameworkElement)item.Component).ActualWidth) / 2;
-                                    var pos = (double)((Panel)item.Parent.Component).ActualWidth - pp - (((FrameworkElement)item.Component).ActualWidth);
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Right = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pp = mpos - (((Control)item.Component).Bounds.Width) / 2;
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Width - pp - (((Control)item.Component).Bounds.Width);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, margin.Top, pos, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                             }
                         }
@@ -804,30 +820,30 @@ namespace gip.ext.designer.avui
                             {
                                 if (!item.Properties.GetAttachedProperty(Canvas.RightProperty).IsSet)
                                 {
-                                    var pos = xmax - (double)((FrameworkElement)item.Component).ActualWidth;
+                                    var pos = xmax - (double)((Control)item.Component).Bounds.Width;
                                     item.Properties.GetAttachedProperty(Canvas.LeftProperty).SetValue(pos);
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualWidth - xmax;
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Width - xmax;
                                     item.Properties.GetAttachedProperty(Canvas.RightProperty).SetValue(pos);
                                 }
                             }
                             else if (container.Component is Grid)
                             {
-                                if (item.Properties.GetProperty(FrameworkElement.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>() != HorizontalAlignment.Right)
+                                if (item.Properties.GetProperty(Layoutable.HorizontalAlignmentProperty).GetConvertedValueOnInstance<HorizontalAlignment>() != HorizontalAlignment.Right)
                                 {
-                                    var pos = xmax - (double)((FrameworkElement)item.Component).ActualWidth;
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Left = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pos = xmax - (double)((Control)item.Component).Bounds.Width;
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(pos, margin.Top, margin.Right, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualWidth - xmax;
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Right = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Width - xmax;
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, margin.Top, pos, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                             }
                         }
@@ -842,25 +858,25 @@ namespace gip.ext.designer.avui
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualHeight - (ymin + (double)((FrameworkElement)item.Component).ActualHeight);
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Height - (ymin + (double)((Control)item.Component).Bounds.Height);
                                     item.Properties.GetAttachedProperty(Canvas.BottomProperty).SetValue(pos);
                                 }
                             }
                             else if (container.Component is Grid)
                             {
-                                if (item.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>() != VerticalAlignment.Bottom)
+                                if (item.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>() != VerticalAlignment.Bottom)
                                 {
                                     item.Properties.GetAttachedProperty(Canvas.TopProperty).SetValue(ymin);
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Top = ymin;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, ymin, margin.Right, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualHeight - (ymin + (double)((FrameworkElement)item.Component).ActualHeight);
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Bottom = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Height - (ymin + (double)((Control)item.Component).Bounds.Height);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, margin.Top, margin.Right, pos);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                             }
                         }
@@ -871,30 +887,31 @@ namespace gip.ext.designer.avui
                             {
                                 if (!item.Properties.GetAttachedProperty(Canvas.BottomProperty).IsSet)
                                 {
-                                    item.Properties.GetAttachedProperty(Canvas.TopProperty).SetValue(ympos - (((FrameworkElement)item.Component).ActualHeight) / 2);
+                                    item.Properties.GetAttachedProperty(Canvas.TopProperty).SetValue(ympos - (((Control)item.Component).Bounds.Height) / 2);
                                 }
                                 else
                                 {
-                                    var pp = mpos - (((FrameworkElement)item.Component).ActualHeight) / 2;
-                                    var pos = (double)((Panel)item.Parent.Component).ActualHeight - pp - (((FrameworkElement)item.Component).ActualHeight);
+                                    var pp = mpos - (((Control)item.Component).Bounds.Height) / 2;
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Height - pp - (((Control)item.Component).Bounds.Height);
                                     item.Properties.GetAttachedProperty(Canvas.BottomProperty).SetValue(pos);
                                 }
                             }
                             else if (container.Component is Grid)
                             {
-                                if (item.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>() != VerticalAlignment.Bottom)
+                                if (item.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>() != VerticalAlignment.Bottom)
                                 {
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Top = ympos - (((FrameworkElement)item.Component).ActualHeight) / 2;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    double top = ympos - (((Control)item.Component).Bounds.Height) / 2;
+                                    margin = new Thickness(margin.Left, top, margin.Right, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                                 else
                                 {
-                                    var pp = mpos - (((FrameworkElement)item.Component).ActualHeight) / 2;
-                                    var pos = (double)((Panel)item.Parent.Component).ActualHeight - pp - (((FrameworkElement)item.Component).ActualHeight);
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Bottom = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pp = mpos - (((Control)item.Component).Bounds.Height) / 2;
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Height - pp - (((Control)item.Component).Bounds.Height);
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, margin.Top, margin.Right, pos);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                             }
                         }
@@ -905,30 +922,30 @@ namespace gip.ext.designer.avui
                             {
                                 if (!item.Properties.GetAttachedProperty(Canvas.BottomProperty).IsSet)
                                 {
-                                    var pos = ymax - (double)((FrameworkElement)item.Component).ActualHeight;
+                                    var pos = ymax - (double)((Control)item.Component).Bounds.Height;
                                     item.Properties.GetAttachedProperty(Canvas.TopProperty).SetValue(pos);
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualHeight - ymax;
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Height - ymax;
                                     item.Properties.GetAttachedProperty(Canvas.BottomProperty).SetValue(pos);
                                 }
                             }
                             else if (container.Component is Grid)
                             {
-                                if (item.Properties.GetProperty(FrameworkElement.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>() != VerticalAlignment.Bottom)
+                                if (item.Properties.GetProperty(Layoutable.VerticalAlignmentProperty).GetConvertedValueOnInstance<VerticalAlignment>() != VerticalAlignment.Bottom)
                                 {
-                                    var pos = ymax - (double)((FrameworkElement)item.Component).ActualHeight;
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Top = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pos = ymax - (double)((Control)item.Component).Bounds.Height;
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, pos, margin.Right, margin.Bottom);
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                                 else
                                 {
-                                    var pos = (double)((Panel)item.Parent.Component).ActualHeight - ymax;
-                                    var margin = item.Properties.GetProperty(FrameworkElement.MarginProperty).GetConvertedValueOnInstance<Thickness>();
-                                    margin.Bottom = pos;
-                                    item.Properties.GetProperty(FrameworkElement.MarginProperty).SetValue(margin);
+                                    var pos = (double)((Panel)item.Parent.Component).Bounds.Height - ymax;
+                                    var margin = item.Properties.GetProperty(Layoutable.MarginProperty).GetConvertedValueOnInstance<Thickness>();
+                                    margin = new Thickness(margin.Left, margin.Top, margin.Right, pos); 
+                                    item.Properties.GetProperty(Layoutable.MarginProperty).SetValue(margin);
                                 }
                             }
                         }

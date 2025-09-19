@@ -9,6 +9,7 @@ using System.Collections;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui;
 using System.Linq;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.Xaml
 {
@@ -95,7 +96,9 @@ namespace gip.ext.designer.avui.Xaml
             }
             else if (component is Type)
             {
-                component = new TypeExtension((Type)component);
+                throw new NotImplementedException("TypeExtension mus be implemented");
+                // TODO: Type extension
+                //component = new TypeExtension((Type)component);
             }
 
             XamlObject parentXamlObject = null;
@@ -116,9 +119,10 @@ namespace gip.ext.designer.avui.Xaml
 
         public DesignItem RegisterComponentForDesignerRecursiveUsingXaml(object component)
         {
-            string componentXaml = XamlWriter.Save(component);
-            var xamlObject = XamlParser.ParseSnippet(((XamlDesignItem)_context.RootItem).XamlObject, componentXaml, ((XamlDesignContext)_context.RootItem.Context).ParserSettings);
-            return RegisterXamlComponentRecursive(xamlObject);
+            throw new NotImplementedException("This method is not implemented yet. XamlWriter from Presentationframework must be adapted");
+            //string componentXaml = XamlWriter.Save(component);
+            //var xamlObject = XamlParser.ParseSnippet(((XamlDesignItem)_context.RootItem).XamlObject, componentXaml, ((XamlDesignContext)_context.RootItem.Context).ParserSettings);
+            //return RegisterXamlComponentRecursive(xamlObject);
         }
 
         /// <summary>
@@ -160,7 +164,7 @@ namespace gip.ext.designer.avui.Xaml
 
             if (_context.RootItem != null && !string.IsNullOrEmpty(site.Name))
             {
-                var nameScope = NameScopeHelper.GetNameScopeFromObject(((XamlDesignItem)_context.RootItem).XamlObject);
+                INameScope nameScope = NameScopeHelper.GetNameScopeFromObject(((XamlDesignItem)_context.RootItem).XamlObject);
 
                 if (nameScope != null)
                 {
@@ -168,7 +172,7 @@ namespace gip.ext.designer.avui.Xaml
                     NameScopeHelper.ClearNameScopeProperty(obj.Instance);
 
                     string newName = site.Name;
-                    if (nameScope.FindName(newName) != null)
+                    if (nameScope.Find(newName) != null)
                     {
                         int copyIndex = newName.LastIndexOf("_Copy", StringComparison.Ordinal);
                         if (copyIndex < 0)
@@ -187,7 +191,7 @@ namespace gip.ext.designer.avui.Xaml
 
                         int i = 1;
                         string newNameTemplate = newName;
-                        while (nameScope.FindName(newName) != null)
+                        while (nameScope.Find(newName) != null)
                         {
                             newName = newNameTemplate + i++;
                         }
@@ -195,7 +199,7 @@ namespace gip.ext.designer.avui.Xaml
                         site.Name = newName;
                     }
 
-                    nameScope.RegisterName(newName, obj.Instance);
+                    nameScope.Register(newName, obj.Instance);
                 }
             }
             return site;

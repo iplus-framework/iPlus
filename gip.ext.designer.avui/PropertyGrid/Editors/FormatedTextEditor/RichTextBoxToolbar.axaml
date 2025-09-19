@@ -1,25 +1,23 @@
 ﻿<UserControl x:Class="gip.ext.designer.avui.PropertyGrid.Editors.FormatedTextEditor.RichTextBoxToolbar"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d" DataContext="{Binding RelativeSource={RelativeSource Self}}"
              d:DesignHeight="300" d:DesignWidth="300">
-	<StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top" >
+	<StackPanel Orientation="Vertical" HorizontalAlignment="Left" VerticalAlignment="Top">
 		<StackPanel Orientation="Horizontal">
-			<ComboBox x:Name="cmbFontFamily" Width="160" ItemsSource="{Binding Source={x:Static Member=Fonts.SystemFontFamilies}}">
+			<ComboBox x:Name="cmbFontFamily" Width="160" ItemsSource="{Binding FontFamilies}"
+					  SelectedItem="{Binding SelectedFontFamily}"
+					  SelectionChanged="OnFontFamilyChanged">
 				<ComboBox.ItemTemplate>
 					<DataTemplate>
-						<TextBlock Text="{Binding}" FontFamily="{Binding}"/>
+						<TextBlock Text="{Binding Name}" FontFamily="{Binding}"/>
 					</DataTemplate>
 				</ComboBox.ItemTemplate>
-				<ComboBox.ItemsPanel>
-					<ItemsPanelTemplate>
-						<VirtualizingStackPanel />
-					</ItemsPanelTemplate>
-				</ComboBox.ItemsPanel>
 			</ComboBox>
-			<ComboBox x:Name="cmbFontSize" IsEditable="True" ToolTip="Font Size" Margin="5,0,0,0" Width="50">
+			<ComboBox x:Name="cmbFontSize" ToolTip.Tip="Font Size" Margin="5,0,0,0" Width="50"
+					  SelectionChanged="OnFontSizeChanged">
 				<ComboBoxItem Content="6"/>
 				<ComboBoxItem Content="8"/>
 				<ComboBoxItem Content="10"/>
@@ -33,20 +31,34 @@
 				<ComboBoxItem Content="24"/>
 				<ComboBoxItem Content="26"/>
 				<ComboBoxItem Content="28"/>
+				<ComboBoxItem Content="36"/>
+				<ComboBoxItem Content="48"/>
 				<ComboBoxItem Content="56"/>
 			</ComboBox>
 		</StackPanel>
 		<StackPanel Orientation="Horizontal" Margin="0,3,0,0">
-			<ToggleButton Command="EditingCommands.ToggleBold" CommandTarget="{Binding RichTextBox}">
-				<Image Source="/gip.ext.designer.avui;component/Images/edit-bold.png"></Image>
+			<!-- TODO: Check if AvRichTextBox supports IsChecked binding for formatting state -->
+			<ToggleButton x:Name="btnBold" Command="{Binding ToggleBoldCommand}" 
+						  CommandParameter="{Binding RichTextBox}"
+						  ToolTip.Tip="Bold">
+				<TextBlock Text="B" FontWeight="Bold"/>
+				<!-- TODO: Add proper icon when available -->
+				<!--<Image Source="avares://gip.ext.designer.avui/Images/edit-bold.png"/>-->
 			</ToggleButton>
-			<ToggleButton Command="EditingCommands.ToggleItalic" CommandTarget="{Binding RichTextBox}" Margin="3,0,0,0">
-				<Image Source="/gip.ext.designer.avui;component/Images/edit-italic.png"></Image>
+			<ToggleButton x:Name="btnItalic" Command="{Binding ToggleItalicCommand}" 
+						  CommandParameter="{Binding RichTextBox}" Margin="3,0,0,0"
+						  ToolTip.Tip="Italic">
+				<TextBlock Text="I" FontStyle="Italic"/>
+				<!-- TODO: Add proper icon when available -->
+				<!--<Image Source="avares://gip.ext.designer.avui/Images/edit-italic.png"/>-->
 			</ToggleButton>
-			<ToggleButton Command="EditingCommands.ToggleUnderline" CommandTarget="{Binding RichTextBox}" Margin="3,0,0,0">
-				<Image Source="/gip.ext.designer.avui;component/Images/edit-underline.png"></Image>
+			<ToggleButton x:Name="btnUnderline" Command="{Binding ToggleUnderlineCommand}" 
+						  CommandParameter="{Binding RichTextBox}" Margin="3,0,0,0"
+						  ToolTip.Tip="Underline">
+				<TextBlock Text="U" TextDecorations="Underline"/>
+				<!-- TODO: Add proper icon when available -->
+				<!--<Image Source="avares://gip.ext.designer.avui/Images/edit-underline.png"/>-->
 			</ToggleButton>
 		</StackPanel>
 	</StackPanel>
-
 </UserControl>

@@ -187,19 +187,6 @@ namespace gip.ext.design.avui
         /// </summary>
         void HitTest(Point mousePosition, bool testAdorners, bool testDesignSurface, Predicate<DesignPanelHitTestResult> callback);
 
-#nullable enable
-        // The following members were missing in <see cref="IInputElement"/>, but
-        // are supported on the DesignPanel:
-        /// <summary>
-        /// Occurs when a mouse button is pressed.
-        /// </summary>
-        //event EventHandler<PointerEventArgs>? PointerEntered;
-
-        /// <summary>
-        /// Occurs when a mouse button is released.
-        /// </summary>
-        //event EventHandler<PointerReleasedEventArgs>? PointerReleased;
-#nullable disable
 
         /// <summary>
         /// Occurs when a drag operation enters the design panel.

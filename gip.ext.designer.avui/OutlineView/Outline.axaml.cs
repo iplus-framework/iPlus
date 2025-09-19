@@ -6,27 +6,23 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Labs.Input;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
 {
-	public partial class Outline
+	public partial class Outline : UserControl
 	{
-		public Outline()
+        public Outline()
 		{
 			InitializeComponent();
 
             this.AddCommandHandler(ApplicationCommands.Undo,
-    () => ((DesignPanel)Root.DesignItem.Services.DesignPanel).DesignSurface.Undo(),
-    () => Root == null ? false : ((DesignPanel)Root.DesignItem.Services.DesignPanel).DesignSurface.CanUndo());
+                () => ((DesignPanel)Root.DesignItem.Services.DesignPanel).DesignSurface.Undo(),
+                () => Root == null ? false : ((DesignPanel)Root.DesignItem.Services.DesignPanel).DesignSurface.CanUndo());
             this.AddCommandHandler(ApplicationCommands.Redo,
                 () => ((DesignPanel)Root.DesignItem.Services.DesignPanel).DesignSurface.Redo(),
                 () => Root == null ? false : ((DesignPanel)Root.DesignItem.Services.DesignPanel).DesignSurface.CanRedo());
@@ -48,11 +44,16 @@ namespace gip.ext.designer.avui.OutlineView
 
         }
 
-        public static readonly DependencyProperty RootProperty =
-			DependencyProperty.Register("Root", typeof(IOutlineNode), typeof(Outline));
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        public static readonly StyledProperty<IOutlineNode> RootProperty =
+			AvaloniaProperty.Register<Outline, IOutlineNode>(nameof(Root));
 
 		public IOutlineNode Root {
-			get { return (IOutlineNode)GetValue(RootProperty); }
+			get { return GetValue(RootProperty); }
 			set { SetValue(RootProperty, value); }
 		}
 		

@@ -166,8 +166,13 @@ namespace gip.ext.design.avui.Adorners
 		/// The adorner is in the foreground layer.
 		/// </summary>
 		public static readonly AdornerOrder Foreground = new AdornerOrder(300);
-		
-		int i;
+
+        /// <summary>
+        /// The adorner is in the before foreground layer.
+        /// </summary>
+        public static readonly AdornerOrder BeforeForeground = new AdornerOrder(400);
+
+        int i;
 		
 		internal AdornerOrder(int i)
 		{

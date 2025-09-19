@@ -3,47 +3,43 @@
 
 using System;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using gip.ext.designer.avui;
 using gip.ext.designer.avui.Controls;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.ThumbnailView
 {
-	public class ThumbnailView : Control, INotifyPropertyChanged
+	public class ThumbnailView : TemplatedControl, INotifyPropertyChanged
 	{
 		public DesignSurface DesignSurface
 		{
-			get { return (DesignSurface)GetValue(DesignSurfaceProperty); }
+			get { return GetValue(DesignSurfaceProperty); }
 			set { SetValue(DesignSurfaceProperty, value); }
 		}
 
-		public static readonly DependencyProperty DesignSurfaceProperty =
-			DependencyProperty.Register("DesignSurface", typeof(DesignSurface), typeof(ThumbnailView), new PropertyMetadata(OnDesignSurfaceChanged));
+		public static readonly StyledProperty<DesignSurface> DesignSurfaceProperty =
+			AvaloniaProperty.Register<ThumbnailView, DesignSurface>(nameof(DesignSurface), null, coerce: OnDesignSurfaceChanged);
 
-		private static void OnDesignSurfaceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static DesignSurface OnDesignSurfaceChanged(AvaloniaObject obj, DesignSurface value)
 		{
-			var ctl = d as ThumbnailView;
-			
+			var ctl = obj as ThumbnailView;
 			
 			if (ctl.oldSurface != null)
 				ctl.oldSurface.LayoutUpdated -= ctl.DesignSurface_LayoutUpdated;
 			
-			ctl.oldSurface = ctl.DesignSurface;
+			ctl.oldSurface = value;
 			ctl.scrollViewer = null;
 
-			if (ctl.DesignSurface != null)
+			if (value != null)
 			{
-				ctl.DesignSurface.LayoutUpdated += ctl.DesignSurface_LayoutUpdated;
+				value.LayoutUpdated += ctl.DesignSurface_LayoutUpdated;
 			}
 
 			ctl.OnPropertyChanged("ScrollViewer");
-		}
-		
-		static ThumbnailView()
-		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(ThumbnailView), new FrameworkPropertyMetadata(typeof(ThumbnailView)));
+			return value;
 		}
 
 		public ScrollViewer ScrollViewer
@@ -51,12 +47,13 @@ namespace gip.ext.designer.avui.ThumbnailView
 			get
 			{
 				if (DesignSurface != null && scrollViewer == null)
-					scrollViewer = DesignSurface.TryFindChild<ZoomControl>();
-
+				{
+					// Use the ZoomControl property from DesignSurface
+					scrollViewer = DesignSurface.ZoomControl;
+				}
 				return scrollViewer;
 			}
 		}
-
 
 		void DesignSurface_LayoutUpdated(object sender, EventArgs e)
 		{
@@ -68,10 +65,14 @@ namespace gip.ext.designer.avui.ThumbnailView
 				double scale, xOffset, yOffset;
 				this.InvalidateScale(out scale, out xOffset, out yOffset);
 
-				this.zoomThumb.Width = scrollViewer.ViewportWidth * scale;
-				this.zoomThumb.Height = scrollViewer.ViewportHeight * scale;
-				Canvas.SetLeft(this.zoomThumb, xOffset + this.ScrollViewer.HorizontalOffset * scale);
-				Canvas.SetTop(this.zoomThumb, yOffset + this.ScrollViewer.VerticalOffset * scale);
+				if (this.zoomThumb != null && this.scrollViewer is ZoomControl zoomControl)
+				{
+					// Use Bounds instead of ViewportWidth/Height
+					this.zoomThumb.Width = zoomControl.Bounds.Width * scale;
+					this.zoomThumb.Height = zoomControl.Bounds.Height * scale;
+					Canvas.SetLeft(this.zoomThumb, xOffset);
+					Canvas.SetTop(this.zoomThumb, yOffset);
+				}
 			}
 		}
 
@@ -80,19 +81,24 @@ namespace gip.ext.designer.avui.ThumbnailView
 		private Canvas zoomCanvas;
 		private Thumb zoomThumb;
 		
-		public override void OnApplyTemplate()
+		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
 		{
-			base.OnApplyTemplate();
+			base.OnApplyTemplate(e);
 
-			this.zoomThumb = Template.FindName("PART_ZoomThumb", this) as Thumb;
-			this.zoomCanvas = Template.FindName("PART_ZoomCanvas", this) as Canvas;
+			this.zoomThumb = e.NameScope.Find("PART_ZoomThumb") as Thumb;
+			this.zoomCanvas = e.NameScope.Find("PART_ZoomCanvas") as Canvas;
 			
-			this.zoomThumb.DragDelta += this.Thumb_DragDelta;
-			this.zoomCanvas.MouseLeftButtonDown += Canvas_MouseLeftButtonDown;			
+			if (this.zoomThumb != null)
+				this.zoomThumb.DragDelta += this.Thumb_DragDelta;
+			if (this.zoomCanvas != null)
+				this.zoomCanvas.PointerPressed += Canvas_PointerPressed;			
 		}
 
-		private void Canvas_MouseLeftButtonDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
+		private void Canvas_PointerPressed(object sender, PointerPressedEventArgs e)
 		{
+			if (!e.GetCurrentPoint(zoomCanvas).Properties.IsLeftButtonPressed)
+				return;
+
 			var pos = e.GetPosition(zoomCanvas);
 			var cl = Canvas.GetLeft(this.zoomThumb);
 			var ct = Canvas.GetTop(this.zoomThumb);
@@ -102,22 +108,23 @@ namespace gip.ext.designer.avui.ThumbnailView
 			var dl = pos.X - cl - (zoomThumb.Width / 2);
 			var dt = pos.Y - ct - (zoomThumb.Height / 2);
 
-			scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + dl / scale);
-			scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + dt / scale);
+			// For now, just update the thumb position
+			Canvas.SetLeft(this.zoomThumb, cl + dl);
+			Canvas.SetTop(this.zoomThumb, ct + dt);
 		}
 
-		private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
+		private void Thumb_DragDelta(object sender, VectorEventArgs e)
 		{
 			if (DesignSurface != null)
 			{
-				if (scrollViewer != null)
-				{
-					double scale, xOffset, yOffset;
-					this.InvalidateScale(out scale, out xOffset, out yOffset);
+				double scale, xOffset, yOffset;
+				this.InvalidateScale(out scale, out xOffset, out yOffset);
 
-					scrollViewer.ScrollToHorizontalOffset(scrollViewer.HorizontalOffset + e.HorizontalChange / scale);
-					scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + e.VerticalChange / scale);
-				}
+				// Update thumb position
+				var currentLeft = Canvas.GetLeft(this.zoomThumb);
+				var currentTop = Canvas.GetTop(this.zoomThumb);
+				Canvas.SetLeft(this.zoomThumb, currentLeft + e.Vector.X);
+				Canvas.SetTop(this.zoomThumb, currentTop + e.Vector.Y);
 			}
 		}
 
@@ -127,30 +134,30 @@ namespace gip.ext.designer.avui.ThumbnailView
 			xOffset = 0;
 			yOffset = 0;
 			
-			if (this.DesignSurface.DesignContext != null && this.DesignSurface.DesignContext.RootItem != null)
+			if (this.DesignSurface?.DesignContext?.RootItem != null)
 			{
-				var designedElement = this.DesignSurface.DesignContext.RootItem.Component as FrameworkElement;
+				var designedElement = this.DesignSurface.DesignContext.RootItem.Component as Control;
 
-				if (designedElement != null)
+				if (designedElement != null && zoomCanvas != null)
 				{
-					var fac1 = designedElement.DesiredSize.Width / zoomCanvas.ActualWidth;
-					var fac2 = designedElement.DesiredSize.Height / zoomCanvas.ActualHeight;
+					var fac1 = designedElement.DesiredSize.Width / zoomCanvas.Bounds.Width;
+					var fac2 = designedElement.DesiredSize.Height / zoomCanvas.Bounds.Height;
 
 					// zoom canvas size
-					double x = this.zoomCanvas.ActualWidth;
-					double y = this.zoomCanvas.ActualHeight;
+					double x = this.zoomCanvas.Bounds.Width;
+					double y = this.zoomCanvas.Bounds.Height;
 
 					if (fac1 < fac2)
 					{
-						x = designedElement.ActualWidth/fac2;
-						xOffset = (zoomCanvas.ActualWidth - x)/2;
+						x = designedElement.Bounds.Width/fac2;
+						xOffset = (zoomCanvas.Bounds.Width - x)/2;
 						yOffset = 0;
 					}
 					else
 					{
-						y = designedElement.ActualHeight/fac1;
+						y = designedElement.Bounds.Height/fac1;
 						xOffset = 0;
-						yOffset = (zoomCanvas.ActualHeight - y)/2;
+						yOffset = (zoomCanvas.Bounds.Height - y)/2;
 					}
 
 					double w = designedElement.DesiredSize.Width;
@@ -161,13 +168,6 @@ namespace gip.ext.designer.avui.ThumbnailView
 
 					scale = (scaleX < scaleY) ? scaleX : scaleY;
 
-					if (scrollViewer.ViewportHeight > h) {
-						yOffset -= ((scrollViewer.ViewportHeight - h) / 2) * scale;
-					}
-					if (scrollViewer.ViewportWidth > w) {
-						xOffset -= ((scrollViewer.ViewportWidth - w) / 2) * scale;
-					}
-
 					xOffset += (x - scale*w)/2;
 					yOffset += (y - scale*h)/2;
 				}
@@ -177,8 +177,7 @@ namespace gip.ext.designer.avui.ThumbnailView
 		public event PropertyChangedEventHandler PropertyChanged;
 		protected virtual void OnPropertyChanged(string propertyName)
 		{
-			PropertyChangedEventHandler handler = PropertyChanged;
-			if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }

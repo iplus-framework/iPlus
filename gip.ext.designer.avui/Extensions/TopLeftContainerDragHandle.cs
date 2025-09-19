@@ -2,17 +2,15 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
-
 using gip.ext.designer.avui.Services;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Layout;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -23,7 +21,7 @@ namespace gip.ext.designer.avui.Extensions
 	[ExtensionServer(typeof(PrimarySelectionExtensionServer))]
 	[ExtensionFor(typeof(Panel))]
 	[ExtensionFor(typeof(Image))]
-	[ExtensionFor(typeof(MediaElement))]
+	//[ExtensionFor(typeof(MediaElement))]
 	[ExtensionFor(typeof(ItemsControl))]
 	public class TopLeftContainerDragHandle : AdornerProvider
 	{
@@ -32,10 +30,14 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			ContainerDragHandle rect = new ContainerDragHandle();
 			
-			rect.PreviewMouseDown += delegate(object sender, MouseButtonEventArgs e) {
-				Services.Selection.SetSelectedComponents(new DesignItem[] { this.ExtendedItem }, SelectionTypes.Auto);
+			rect.PointerPressed += delegate(object sender, PointerPressedEventArgs e) 
+			{
+				// In WPF this was a preview click event
+				//if (e.Route != RoutingStrategies.Tunnel)
+					//return;
+                Services.Selection.SetSelectedComponents(new DesignItem[] { this.ExtendedItem }, SelectionTypes.Auto);
 				new DragMoveMouseGesture(this.ExtendedItem, false).Start(this.ExtendedItem.Services.DesignPanel,e);
-				e.Handled=true;                                                  
+				e.Handled = true;                                                  
 			};
 			
 			RelativePlacement p = new RelativePlacement(HorizontalAlignment.Left, VerticalAlignment.Top);

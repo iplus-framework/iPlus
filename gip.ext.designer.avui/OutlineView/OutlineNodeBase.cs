@@ -7,8 +7,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Xaml;
 using gip.ext.xamldom.avui;
@@ -74,9 +73,9 @@ namespace gip.ext.designer.avui.OutlineView
 
 		private string _name;
 
-		public Visibility IsVisualNode
+		public bool IsVisualNode
 		{
-			get { return this.DesignItem.Component is Visual ? Visibility.Visible : Visibility.Collapsed; }
+			get { return this.DesignItem.Component is Visual ? true : false; }
 		}
 
         static OutlineNodeBase()

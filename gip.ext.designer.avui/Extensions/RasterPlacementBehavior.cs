@@ -6,6 +6,11 @@ using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui;
 using Avalonia.Controls;
 using Avalonia;
+using Avalonia.Input;
+using Avalonia.Controls.Shapes;
+using System.Collections.Generic;
+using Avalonia.Media;
+using Avalonia.Collections;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -78,7 +83,7 @@ namespace gip.ext.designer.avui.Extensions
 			if (designPanel == null || !designPanel.UseRasterPlacement)
 				return;
 
-			if (Keyboard.IsKeyDown(Key.LeftCtrl))
+			if (IsKeyDown(Key.LeftCtrl))
 			{
 				surface.Children.Clear();
 				rasterDrawn = false;
@@ -88,11 +93,12 @@ namespace gip.ext.designer.avui.Extensions
 			drawRaster();
 
 			var bounds = operation.PlacedItems[0].Bounds;
-			bounds.Y = ((int)bounds.Y/raster)*raster;
-			bounds.X = ((int)bounds.X/raster)*raster;
-			bounds.Width = Convert.ToInt32((bounds.Width/raster))*raster;
-			bounds.Height = Convert.ToInt32((bounds.Height/raster))*raster;
-			operation.PlacedItems[0].Bounds = bounds;
+			double y = ((int)bounds.Y/raster)*raster;
+			double x = ((int)bounds.X/raster)*raster;
+            double width = Convert.ToInt32((bounds.Width/raster))*raster;
+            double height = Convert.ToInt32((bounds.Height/raster))*raster;
+			bounds = new Rect(x, y, width, height);
+            operation.PlacedItems[0].Bounds = bounds;
 		}
 
 		public override Point PlacePoint(Point point)
@@ -104,7 +110,7 @@ namespace gip.ext.designer.avui.Extensions
 			if (designPanel == null || !designPanel.UseRasterPlacement)
 				return base.PlacePoint(point);
 
-			if (Keyboard.IsKeyDown(Key.LeftCtrl))
+			if (IsKeyDown(Key.LeftCtrl))
 			{
 				surface.Children.Clear();
 				rasterDrawn = false;
@@ -113,10 +119,9 @@ namespace gip.ext.designer.avui.Extensions
 
 			drawRaster();
 
-			point.Y = ((int)point.Y / raster) * raster;
-			point.X = ((int)point.X / raster) * raster;
+			point = new Point(((int)point.X / raster) * raster, ((int)point.Y / raster) * raster);
 
-			return point;
+            return point;
 		}
 
 		private void drawRaster()
@@ -127,16 +132,14 @@ namespace gip.ext.designer.avui.Extensions
 
 				var w = ModelTools.GetWidth(ExtendedItem.View);
 				var h = ModelTools.GetHeight(ExtendedItem.View);
-				var dash = new DoubleCollection() {1, raster - 1};
+				var dash = new AvaloniaList<double> {1, raster - 1};
 				for (int i = 0; i <= h; i += raster)
 				{
 					var line = new Line()
 					{
-						X1 = 0,
-						Y1 = i,
-						X2 = w,
-						Y2 = i,
-						StrokeThickness = 1,
+						StartPoint = new Point(0, i),
+						EndPoint = new Point(w, i),
+                        StrokeThickness = 1,
 						Stroke = Brushes.Black,
 						StrokeDashArray = dash,
 					};

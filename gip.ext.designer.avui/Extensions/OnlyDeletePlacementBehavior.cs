@@ -3,10 +3,10 @@
 
 using System.Collections.Generic;
 using gip.ext.design.avui.Extensions;
-using System.Windows.Controls;
-using System.Windows;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -25,7 +25,7 @@ namespace gip.ext.designer.avui.Extensions
 			ExtendedItem.AddBehavior(typeof(IPlacementBehavior), this);
 		}
 
-		public virtual bool CanPlace(IEnumerable<DesignItem> childItems, PlacementType type, PlacementAlignment position)
+		public virtual bool CanPlace(ICollection<DesignItem> childItems, PlacementType type, PlacementAlignment position)
 		{
 			return type == PlacementType.Delete;
 		}
@@ -38,7 +38,7 @@ namespace gip.ext.designer.avui.Extensions
 		{
 		}
 
-		public virtual Rect GetPosition(PlacementOperation operation, DesignItem item)
+		public virtual Rect GetPosition(PlacementOperation operation, DesignItem item, bool verifyAndCorrectPosition)
 		{
 			return new Rect();
 		}
@@ -93,5 +93,10 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			return new Point();
 		}
-	}
+
+		public bool CanMoveVector(PlacementOperation operation, Vector vector)
+		{
+			return false;
+        }
+    }
 }

@@ -10,6 +10,7 @@ using Avalonia.Interactivity;
 using Avalonia.Input;
 using Avalonia.Layout;
 using gip.ext.design.avui;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -27,7 +28,12 @@ namespace gip.ext.designer.avui.Controls
 
         public GridUnitSelector()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
 
         public GridUnitSelector(GridRailAdorner rail) : this()

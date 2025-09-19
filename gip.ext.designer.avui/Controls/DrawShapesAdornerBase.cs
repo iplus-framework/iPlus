@@ -203,7 +203,7 @@ namespace gip.ext.designer.avui.Controls
             double height = endPoint.Y - startPoint.Y;
             if ((width == 0) && (height == 0))
             {
-                result = new Rect();
+                result = RectExtensions.Empty();
                 return false;
             }
             if (width == 0)

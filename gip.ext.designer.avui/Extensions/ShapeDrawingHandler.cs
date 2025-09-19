@@ -101,7 +101,7 @@ namespace gip.ext.designer.avui.Extensions
             return null;
         }
 
-        protected sealed override void OnStarted(MouseButtonEventArgs e)
+        protected sealed override void OnStarted(PointerEventArgs e)
         {
             base.OnDragStarted(e);
             IsGestureActive = true;

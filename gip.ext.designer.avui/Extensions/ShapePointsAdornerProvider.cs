@@ -3,16 +3,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
-using System.Windows.Shapes;
 using gip.ext.designer.avui.Services;
+using Avalonia.Controls.Shapes;
+using Avalonia;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -36,14 +35,13 @@ namespace gip.ext.designer.avui.Extensions
                 this._PointToAdorn = pointToAdorn;
             }
 
-            public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+            public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
             {
                 if (adorner is ShapePointAdorner)
                 {
                     ShapePointAdorner shapePointAdorner = adorner as ShapePointAdorner;
-                    Point relativePoint = _Shape.TranslatePoint(_PointToAdorn, shapePointAdorner._shapeDesignItem.View);
-                    relativePoint.X -= 3;
-                    relativePoint.Y -= 3;
+                    Point relativePoint = _Shape.TranslatePoint(_PointToAdorn, shapePointAdorner._shapeDesignItem.View as Visual).Value;
+                    relativePoint = new Point(relativePoint.X - 3, relativePoint.Y - 3);
                     adorner.Arrange(new Rect(relativePoint, new Size(6, 6)));
                 }
                 else
@@ -80,7 +78,7 @@ namespace gip.ext.designer.avui.Extensions
             base.OnRemove();
         }
 
-        private void DecorateShapes(DependencyObject obj)
+        private void DecorateShapes(AvaloniaObject obj)
         {
             if (!(Context.Services.Tool.CurrentTool is DrawingToolEditPoints))
                 return;
@@ -104,12 +102,12 @@ namespace gip.ext.designer.avui.Extensions
                 {
                     Line line = obj as Line;
 
-                    Point point = new Point(line.X1, line.Y1);
+                    Point point = new Point(line.StartPoint.X, line.StartPoint.Y);
                     ShapePointAdorner adorner = new ShapePointAdorner(this.ExtendedItem, point);
                     AdornerPanel.SetPlacement(adorner, new ShapePointsAdornerPlacement(obj as Shape, point));
                     adornerPanel.Children.Add(adorner);
 
-                    point = new Point(line.X2, line.Y2);
+                    point = new Point(line.EndPoint.X, line.EndPoint.Y);
                     adorner = new ShapePointAdorner(this.ExtendedItem, point);
                     AdornerPanel.SetPlacement(adorner, new ShapePointsAdornerPlacement(obj as Shape, point));
                     adornerPanel.Children.Add(adorner);

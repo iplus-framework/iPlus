@@ -3,9 +3,12 @@
 
 using System;
 using System.IO;
-using System.Windows;
-using System.Windows.Markup;
 using System.Xml;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 using gip.ext.designer.avui.Xaml;
 using gip.ext.xamldom.avui;
 using gip.ext.designer.avui.themes;
@@ -13,45 +16,59 @@ using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui.Extensions
 {
-	public partial class EditStyleContextMenu
+	public partial class EditStyleContextMenu : ContextMenu
 	{
 		private DesignItem designItem;
 
 		public EditStyleContextMenu(DesignItem designItem)
 		{
 			this.designItem = designItem;
-			
-			SpecialInitializeComponent();
-		}
-		
-		/// <summary>
-		/// Fixes InitializeComponent with multiple Versions of same Assembly loaded
-		/// </summary>
-		public void SpecialInitializeComponent()
-		{
-			if (!this._contentLoaded) {
-				this._contentLoaded = true;
-				Uri resourceLocator = new Uri(VersionedAssemblyResourceDictionary.GetXamlNameForType(this.GetType()), UriKind.Relative);
-				Application.LoadComponent(this, resourceLocator);
-			}
-			
-			this.InitializeComponent();
-		}
+            this.InitializeComponent();
+        }
 
-		void Click_EditStyle(object sender, RoutedEventArgs e)
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+
+        void Click_EditStyle(object sender, RoutedEventArgs e)
 		{
 			var cg = designItem.OpenGroup("Edit Style");
 
 			var element = designItem.View;
-			object defaultStyleKey = element.GetValue(FrameworkElement.DefaultStyleKeyProperty);
-			Style style = Application.Current.TryFindResource(defaultStyleKey) as Style;
+			
+			// In AvaloniaUI, we need to handle style keys differently
+			object defaultStyleKey = null;
+			if (element is StyledElement styledElement)
+			{
+				defaultStyleKey = styledElement.GetType(); // Use type as style key
+			}
+			
+			// Try to find style from application resources
+			IStyle style = null;
+			if (defaultStyleKey != null && Application.Current?.Resources != null)
+			{
+				if (Application.Current.Resources.TryGetResource(defaultStyleKey, null, out var resource))
+				{
+					style = resource as IStyle;
+				}
+			}
 
 			var service = ((XamlComponentService) designItem.Services.Component);
 
 			var ms = new MemoryStream();
 			XmlTextWriter writer = new XmlTextWriter(ms, System.Text.Encoding.UTF8);
 			writer.Formatting = Formatting.Indented;
-			XamlWriter.Save(style, writer);
+			
+			// Note: AvaloniaUI doesn't have a direct equivalent to XamlWriter.Save
+			// We'll need to serialize the style manually or use a different approach
+			if (style != null)
+			{
+				// For now, create a basic style XAML structure
+				writer.WriteStartElement("Style");
+				writer.WriteAttributeString("TargetType", defaultStyleKey.ToString());
+				writer.WriteEndElement();
+			}
 
 			var rootItem = this.designItem.Context.RootItem as XamlDesignItem;
 

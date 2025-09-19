@@ -13,6 +13,7 @@ using gip.ext.design.avui.PropertyGrid;
 using System.Threading;
 using System.Globalization;
 using gip.ext.design.avui;
+using gip.ext.designer.avui.PropertyGrid.Editors;
 
 namespace gip.ext.designer.avui.Xaml
 {

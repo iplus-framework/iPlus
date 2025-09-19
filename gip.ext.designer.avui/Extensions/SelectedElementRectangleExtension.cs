@@ -3,9 +3,10 @@
 
 using System;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Shapes;
-
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Layout;
+using Avalonia.Media;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 
@@ -14,7 +15,7 @@ namespace gip.ext.designer.avui.Extensions
 	/// <summary>
 	/// Draws a dotted line around selected UIElements.
 	/// </summary>
-	[ExtensionFor(typeof(UIElement))]
+	[ExtensionFor(typeof(Control))]
 	public sealed class SelectedElementRectangleExtension : SelectionAdornerProvider
 	{
 		/// <summary>
@@ -23,7 +24,7 @@ namespace gip.ext.designer.avui.Extensions
 		public SelectedElementRectangleExtension()
 		{
 			Rectangle selectionRect = new Rectangle();
-            selectionRect.SnapsToDevicePixels = true;
+            //selectionRect.SnapsToDevicePixels = true;
             selectionRect.Stroke = new SolidColorBrush(Color.FromRgb(0x47, 0x47, 0x47));
             selectionRect.StrokeThickness = 1.5;
             selectionRect.IsHitTestVisible = false;

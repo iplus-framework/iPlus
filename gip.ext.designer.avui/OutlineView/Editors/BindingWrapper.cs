@@ -4,23 +4,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
 using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
 {
-    [CLSCompliant(false)]
     public abstract class BindingEditorWrapperBase : INotifyPropertyChanged
     {
         protected DesignItem _DesignObjectBinding;
@@ -182,7 +177,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         //private Control _DummyEditor = new Control() { Height = 2 };
-        public FrameworkElement ConverterEditor
+        public Control ConverterEditor
         {
             get
             {
@@ -372,7 +367,7 @@ namespace gip.ext.designer.avui.OutlineView
 
         public virtual BindingEditorWrapperSingle AddNewBinding()
         {
-            MarkupExtension newBinding = CreateNewBinding();
+            Binding newBinding = CreateNewBinding();
             DesignItem newBindingItem = _DesignObjectBinding.Services.Component.RegisterComponentForDesigner(newBinding);
             BindingCollectionProp.CollectionElements.Add(newBindingItem);
             BindingEditorWrapperSingle wrapper = CreateBindingWrapper(newBindingItem);
@@ -384,7 +379,7 @@ namespace gip.ext.designer.avui.OutlineView
             return wrapper;
         }
 
-        public virtual MarkupExtension CreateNewBinding()
+        public virtual Binding CreateNewBinding()
         {
             return new Binding();
         }
@@ -422,7 +417,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         private Control _DummyEditor = new Control() { Height = 2 };
-        public FrameworkElement ConverterEditor
+        public Control ConverterEditor
         {
             get
             {

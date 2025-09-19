@@ -2,51 +2,53 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.PropertyGrid;
 using gip.ext.designer.avui.themes;
 
 namespace gip.ext.designer.avui.Extensions
 {
-	public partial class TextBlockRightClickContextMenu
+	public partial class TextBlockRightClickContextMenu : ContextMenu
 	{
 		private DesignItem designItem;
 
 		public TextBlockRightClickContextMenu(DesignItem designItem)
 		{
 			this.designItem = designItem;
+			InitializeComponent();
+        }
 
-			SpecialInitializeComponent();
-		}
-
-		/// <summary>
-		/// Fixes InitializeComponent with multiple Versions of same Assembly loaded
-		/// </summary>
-		public void SpecialInitializeComponent()
+		private void InitializeComponent()
 		{
-			if (!this._contentLoaded)
-			{
-				this._contentLoaded = true;
-				Uri resourceLocator = new Uri(VersionedAssemblyResourceDictionary.GetXamlNameForType(this.GetType()), UriKind.Relative);
-				Application.LoadComponent(this, resourceLocator);
-			}
-
-			this.InitializeComponent();
+			AvaloniaXamlLoader.Load(this);
 		}
 
 		void Click_EditFormatedText(object sender, RoutedEventArgs e)
 		{
 			var dlg = new Window()
 			{
-				Content = new FormatedTextEditor(designItem),
+				Content = new gip.ext.designer.avui.PropertyGrid.FormatedTextEditor(designItem),
 				Width = 440,
 				Height = 200,
-				WindowStyle = WindowStyle.ToolWindow,
-				Owner = ((DesignPanel)designItem.Context.Services.DesignPanel).TryFindParent<Window>(),
+				WindowStartupLocation = WindowStartupLocation.CenterOwner
 			};
 
-			dlg.ShowDialog();
+			// Find the parent window for the owner
+			var designPanel = (DesignPanel)designItem.Context.Services.DesignPanel;
+			var parentWindow = designPanel.TryFindParent<Window>();
+			if (parentWindow != null)
+			{
+				// Show as dialog with parent owner
+				dlg.ShowDialog(parentWindow);
+			}
+			else
+			{
+				// Fallback to showing without owner
+				dlg.Show();
+			}
 		}
 	}
 }

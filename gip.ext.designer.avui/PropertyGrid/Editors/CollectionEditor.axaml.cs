@@ -6,15 +6,10 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {

@@ -568,7 +568,7 @@ namespace gip.ext.designer.avui
 
         private void DesignPanel_KeyUp(object sender, KeyEventArgs e)
         {
-            // Only previe events
+            // Only preview events
             if (e.Route != Avalonia.Interactivity.RoutingStrategies.Tunnel)
                 return;
             if (e.Key == Key.Left || e.Key == Key.Right || e.Key == Key.Up || e.Key == Key.Down)

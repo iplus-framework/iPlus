@@ -5,20 +5,19 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
-using System.Windows.Markup;
-
+using Avalonia.Data;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Styling;
+using Avalonia;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -26,54 +25,57 @@ namespace gip.ext.designer.avui.OutlineView
     [TemplatePart(Name = "PART_SetMultiBinding", Type = typeof(Button))]
     [TemplatePart(Name = "PART_ResetBinding", Type = typeof(Button))]
     [TemplatePart(Name = "PART_BindingEditor", Type = typeof(ContentControl))]
-    [TemplatePart(Name = "PART_SelectorTriggerable", Type = typeof(Selector))]
+    [TemplatePart(Name = "PART_SelectorTriggerable", Type = typeof(ComboBox))]
     [TemplatePart(Name = "PART_TriggerValueEditor", Type = typeof(ContentControl))]
     [CLSCompliant(false)]
-    public class ConditionEditor : Control, INotifyPropertyChanged, ITypeEditorInitItem
+    public class ConditionEditor : TemplatedControl, INotifyPropertyChanged, ITypeEditorInitItem
     {
         static ConditionEditor()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ConditionEditor), new FrameworkPropertyMetadata(typeof(ConditionEditor)));
+            // In Avalonia UI, default styles are handled differently
+            // The style is applied through the ControlTheme in the XAML resources
         }
 
         public Button PART_SetBinding { get; set; }
         public Button PART_SetMultiBinding { get; set; }
         public Button PART_ResetBinding { get; set; }
         public ContentControl PART_BindingEditor { get; set; }
-        public Selector PART_SelectorTriggerable { get; set; }
+        public ComboBox PART_SelectorTriggerable { get; set; }
         public ContentControl PART_TriggerValueEditor { get; set; }
 
         public ConditionEditor()
         {
-            this.Loaded += new RoutedEventHandler(ConditionEditor_Loaded);
-            this.Unloaded += new RoutedEventHandler(ConditionEditor_Unloaded);
+            this.Loaded += ConditionEditor_Loaded;
+            this.Unloaded += ConditionEditor_Unloaded;
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            PART_BindingEditor = Template.FindName("PART_BindingEditor", this) as ContentControl;
+            base.OnApplyTemplate(e);
+            
+            // Avalonia UI uses NameScope for finding template parts
+            PART_BindingEditor = e.NameScope.Find<ContentControl>("PART_BindingEditor");
 
-            PART_SetBinding = Template.FindName("PART_SetBinding", this) as Button;
+            PART_SetBinding = e.NameScope.Find<Button>("PART_SetBinding");
             if (PART_SetBinding != null)
-                PART_SetBinding.Click += new RoutedEventHandler(OnSetBindingClicked);
+                PART_SetBinding.Click += OnSetBindingClicked;
 
-            PART_SetMultiBinding = Template.FindName("PART_SetMultiBinding", this) as Button;
+            PART_SetMultiBinding = e.NameScope.Find<Button>("PART_SetMultiBinding");
             if (PART_SetMultiBinding != null)
-                PART_SetMultiBinding.Click += new RoutedEventHandler(OnSetMultiBindingClicked);
+                PART_SetMultiBinding.Click += OnSetMultiBindingClicked;
 
-            PART_ResetBinding = Template.FindName("PART_ResetBinding", this) as Button;
+            PART_ResetBinding = e.NameScope.Find<Button>("PART_ResetBinding");
             if (PART_ResetBinding != null)
-                PART_ResetBinding.Click += new RoutedEventHandler(OnResetBindingClicked);
+                PART_ResetBinding.Click += OnResetBindingClicked;
         
-            PART_SelectorTriggerable = Template.FindName("PART_SelectorTriggerable", this) as Selector;
+            PART_SelectorTriggerable = e.NameScope.Find<ComboBox>("PART_SelectorTriggerable");
             if (PART_SelectorTriggerable != null)
             {
                 PART_SelectorTriggerable.DataContext = this;
-                PART_SelectorTriggerable.SelectionChanged += new SelectionChangedEventHandler(PART_SelectorTriggerable_SelectionChanged);
+                PART_SelectorTriggerable.SelectionChanged += PART_SelectorTriggerable_SelectionChanged;
             }
 
-            PART_TriggerValueEditor = Template.FindName("PART_TriggerValueEditor", this) as ContentControl;
+            PART_TriggerValueEditor = e.NameScope.Find<ContentControl>("PART_TriggerValueEditor");
         }
 
         private bool _Loaded = false;
@@ -94,8 +96,11 @@ namespace gip.ext.designer.avui.OutlineView
         {
             if (_DesignObjectCondition == null)
                 return;
-            if (_DesignObjectCondition.Component is Condition)
-                _Wrapper = new ConditionWrapper(_DesignObjectCondition, _ParentTriggerNode);
+            // Note: In Avalonia UI, we don't have WPF's Condition class from DataTrigger
+            // This will need to be adapted based on the actual trigger system used
+            // For now, we'll create the wrapper directly without the type check
+            // if (_DesignObjectCondition.Component is Condition)
+            _Wrapper = new ConditionWrapper(_DesignObjectCondition, _ParentTriggerNode);
         }
 
         public void InitEditor(DesignItem designObject, MultiTriggerNodeBase parentTriggerNode)
@@ -183,24 +188,23 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public static readonly DependencyProperty IsMultiDataTriggerProperty
-            = DependencyProperty.Register("IsMultiDataTrigger", typeof(bool), typeof(ConditionEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsMultiDataTriggerProperty
+            = AvaloniaProperty.Register<ConditionEditor, bool>(nameof(IsMultiDataTrigger), false);
         public bool IsMultiDataTrigger
         {
-            get { return (bool)GetValue(IsMultiDataTriggerProperty); }
+            get { return GetValue(IsMultiDataTriggerProperty); }
             set { SetValue(IsMultiDataTriggerProperty, value); }
         }
 
-        public static readonly DependencyProperty IsTemplateTriggerProperty
-            = DependencyProperty.Register("IsTemplateTrigger", typeof(bool), typeof(ConditionEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsTemplateTriggerProperty
+            = AvaloniaProperty.Register<ConditionEditor, bool>(nameof(IsTemplateTrigger), false);
         public bool IsTemplateTrigger
         {
-            get { return (bool)GetValue(IsTemplateTriggerProperty); }
+            get { return GetValue(IsTemplateTriggerProperty); }
             set { SetValue(IsTemplateTriggerProperty, value); }
         }
 
-
-        public virtual FrameworkElement BindingEditor
+        public virtual Control BindingEditor
         {
             get
             {
@@ -227,12 +231,12 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public virtual MarkupExtension CreateNewBinding()
+        public virtual Binding CreateNewBinding()
         {
             return new Binding();
         }
 
-        public virtual MarkupExtension CreateNewMultiBinding()
+        public virtual MultiBinding CreateNewMultiBinding()
         {
             return new MultiBinding();
         }
@@ -247,7 +251,8 @@ namespace gip.ext.designer.avui.OutlineView
                 Wrapper.Binding.Reset();
             }
 
-            MarkupExtension newBinding = CreateNewBinding();
+            // In Avalonia UI, we use object instead of MarkupExtension since it doesn't exist
+            object newBinding = CreateNewBinding();
             //DesignItem newBindingItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newBinding);
             Wrapper.Binding.Value = newBinding;
             UpdatePARTBindingEditor(TriggerBindingEditor);
@@ -262,7 +267,7 @@ namespace gip.ext.designer.avui.OutlineView
                 UpdatePARTBindingEditor(null);
                 Wrapper.Binding.Reset();
             }
-            MarkupExtension newBinding = CreateNewMultiBinding();
+            MultiBinding newBinding = CreateNewMultiBinding();
             //DesignItem newBindingItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newBinding);
             Wrapper.Binding.Value = newBinding;
             UpdatePARTBindingEditor(TriggerBindingEditor);
@@ -279,7 +284,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public virtual FrameworkElement TriggerBindingEditor
+        public virtual Control TriggerBindingEditor
         {
             get
             {
@@ -304,7 +309,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        private void UpdatePARTBindingEditor(FrameworkElement editor)
+        private void UpdatePARTBindingEditor(Control editor)
         {
             if (PART_BindingEditor == null)
                 return;
@@ -359,8 +364,6 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-
-
         protected virtual PropertyNode CreatePropertyNode()
         {
             return new PropertyNode();
@@ -373,14 +376,14 @@ namespace gip.ext.designer.avui.OutlineView
                 if (ParentTriggerNode == null)
                     return null;
                 DesignItem uiItem = ParentTriggerNode.DesignItem;
-                if (typeof(UIElement).IsAssignableFrom(uiItem.ComponentType))
+                if (typeof(Control).IsAssignableFrom(uiItem.ComponentType))
                     return uiItem;
                 while (uiItem != null)
                 {
                     uiItem = uiItem.Parent;
                     if (uiItem == null)
                         return null;
-                    else if (typeof(UIElement).IsAssignableFrom(uiItem.ComponentType))
+                    else if (typeof(Control).IsAssignableFrom(uiItem.ComponentType))
                         return uiItem;
                 }
                 return null;
@@ -419,7 +422,6 @@ namespace gip.ext.designer.avui.OutlineView
             _TriggerableProperties.Add(node);
         }
 
-
         ObservableCollection<PropertyNode> _TriggerableProperties = new ObservableCollection<PropertyNode>();
         public ObservableCollection<PropertyNode> TriggerableProperties
         {
@@ -453,7 +455,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         protected bool _LockValueEditorRefresh = false;
-        public virtual FrameworkElement TriggerValueEditor
+        public virtual Control TriggerValueEditor
         {
             get
             {
@@ -470,7 +472,7 @@ namespace gip.ext.designer.avui.OutlineView
                     if (PART_SelectorTriggerable != null && SelectedTriggerableProperty != null)
                     {
                         //PropertyNode selectedNode = PART_SelectorTriggerable.SelectedItem as PropertyNode;
-                        FrameworkElement editor = SelectedTriggerableProperty.Editor;
+                        Control editor = SelectedTriggerableProperty.Editor;
                         if (editor != null)
                             editor.DataContext = Wrapper.Value;
                         _LockValueEditorRefresh = false;
@@ -481,6 +483,5 @@ namespace gip.ext.designer.avui.OutlineView
                 return new ContentControl();
             }
         }
-
     }
 }

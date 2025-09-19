@@ -5,6 +5,8 @@ using System;
 using Avalonia.Input;
 using gip.ext.design.avui;
 using System.Linq;
+using Avalonia;
+using Avalonia.Input.Raw;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -18,18 +20,18 @@ namespace gip.ext.designer.avui.Services
 		
 		public void Activate(IDesignPanel designPanel)
 		{
-			designPanel.MouseDown += OnMouseDown;
+			designPanel.PointerPressed += OnMouseDown;
 		}
 		
 		public void Deactivate(IDesignPanel designPanel)
 		{
-			designPanel.MouseDown -= OnMouseDown;
+			designPanel.PointerPressed -= OnMouseDown;
 		}
 		
 		void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{
 			IDesignPanel designPanel = (IDesignPanel)sender;
-			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true, HitTestType.ElementSelection);
+			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true, HitTestType.ElementSelection);
 			if (result.ModelHit != null) {
 				IHandlePointerToolMouseDown b = result.ModelHit.GetBehavior<IHandlePointerToolMouseDown>();
 				if (b != null) {
@@ -37,7 +39,7 @@ namespace gip.ext.designer.avui.Services
 				}
                 if (!e.Handled)
                 {
-                    if (e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
+                    if (e.Properties.IsLeftButtonPressed && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
                     {
                         e.Handled = true;
                         DesignItem itemToDrag = null;

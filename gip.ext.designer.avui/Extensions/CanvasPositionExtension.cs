@@ -1,16 +1,15 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui.Extensions;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.ext.designer.avui.Extensions
 {
-	[ExtensionFor(typeof(FrameworkElement))]
+	[ExtensionFor(typeof(Control))]
 	[ExtensionServer(typeof(OnlyOneItemSelectedExtensionServer))]
 	public class CanvasPositionExtension : AdornerProvider
 	{
@@ -25,11 +24,13 @@ namespace gip.ext.designer.avui.Extensions
 			{
 				if (this.ExtendedItem.Parent.ComponentType == typeof(Canvas))
 				{
-					FrameworkElement extendedControl = (FrameworkElement)this.ExtendedItem.Component;
-					AdornerPanel adornerPanel = new AdornerPanel();
+					Control extendedControl = (Control)this.ExtendedItem.Component;
+                    LayoutTransformControl layoutTransformControl = extendedControl as LayoutTransformControl;
+                    AdornerPanel adornerPanel = new AdornerPanel();
 
 					// If the Element is rotated/skewed in the grid, then margin handles do not appear
-					if (extendedControl.LayoutTransform.Value == Matrix.Identity && extendedControl.RenderTransform.Value == Matrix.Identity)
+					if (   (layoutTransformControl != null && layoutTransformControl.LayoutTransform.Value == Matrix.Identity) 
+						|| extendedControl.RenderTransform.Value == Matrix.Identity)
 					{
 						_canvas = this.ExtendedItem.Parent.View as Canvas;
 						_handles = new[]
@@ -54,7 +55,7 @@ namespace gip.ext.designer.avui.Extensions
 				foreach (var handle in _handles)
 				{
 					handle.ShouldBeVisible = false;
-					handle.Visibility = Visibility.Hidden;
+					handle.IsVisible = false;
 				}
 			}
 		}
@@ -66,7 +67,7 @@ namespace gip.ext.designer.avui.Extensions
 				foreach (var handle in _handles)
 				{
 					handle.ShouldBeVisible = true;
-					handle.Visibility = Visibility.Visible;
+					handle.IsVisible = true;
 					handle.DecideVisiblity(handle.HandleLength);
 				}
 			}

@@ -2,12 +2,14 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows.Controls;
 using gip.ext.design.avui.Extensions;
-using System.Windows;
-using System.Windows.Shapes;
-using System.Windows.Media;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
+using Avalonia;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Extensions.Initializers
 {
@@ -49,8 +51,8 @@ namespace gip.ext.designer.avui.Extensions.Initializers
             if (textProperty.ValueOnInstance == null || textProperty.ValueOnInstance.ToString() == "")
             {
                 textProperty.SetValue(item.ComponentType.Name);
-                item.Properties[FrameworkElement.WidthProperty].Reset();
-                item.Properties[FrameworkElement.HeightProperty].Reset();
+                item.Properties[Layoutable.WidthProperty].Reset();
+                item.Properties[Layoutable.HeightProperty].Reset();
             }
 
             DesignItemProperty verticalAlignmentProperty = item.Properties["VerticalAlignment"];

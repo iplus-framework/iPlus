@@ -12,12 +12,7 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
 
 namespace gip.ext.designer.avui.OutlineView
 {

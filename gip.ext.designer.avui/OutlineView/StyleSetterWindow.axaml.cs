@@ -6,17 +6,13 @@ using System.ComponentModel;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
-using System.Windows.Markup;
 using gip.ext.design.avui.PropertyGrid;
+using Avalonia.Controls;
+using Avalonia.Styling;
+using Avalonia;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -24,8 +20,13 @@ namespace gip.ext.designer.avui.OutlineView
 	{
         public StyleSetterWindow()
 		{
-			InitializeComponent();
-		}
+            this.InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
 
         DesignItem _DesignObject;
         public void LoadItemsCollection(DesignItem designObject)
@@ -35,16 +36,19 @@ namespace gip.ext.designer.avui.OutlineView
             _DesignObject = designObject;
             if ((designObject.View == null) || (designObject.Style == null))
                 return;
-            DesignItemProperty styleProp = designObject.Properties.GetProperty(FrameworkElement.StyleProperty);
+            // In AvaloniaUI, we use the StyledProperty for Style
+            DesignItemProperty styleProp = designObject.Properties.GetProperty(Control.ThemeProperty);
             if (styleProp == null)
                 return;
             DesignItemProperty settersProp = styleProp.Value.Properties.GetProperty("Setters");
-            SetterEditor.InitEditor(designObject, settersProp);
+            var setterEditor = this.FindControl<SettersCollectionEditor>("SetterEditor");
+            setterEditor?.InitEditor(designObject, settersProp);
         }
 		
-		protected override void OnClosing(CancelEventArgs e)
+		protected override void OnClosing(WindowClosingEventArgs e)
 		{
             //_DesignObject.Services.Selection.SetSelectedComponents(new[] { _DesignObject });
+            base.OnClosing(e);
 		}
 	}
 }

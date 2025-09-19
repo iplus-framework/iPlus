@@ -1,36 +1,36 @@
 ﻿<ContextMenu x:Class="gip.ext.designer.avui.Extensions.DefaultCommandsContextMenu"
-             xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<MenuItem Command="ApplicationCommands.Cut">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/Icons.16x16.CutIcon.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.CutIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<MenuItem Command="ApplicationCommands.Copy">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/Icons.16x16.CopyIcon.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.CopyIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<MenuItem Command="ApplicationCommands.Paste">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/Icons.16x16.PasteIcon.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.PasteIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<Separator />
 	<MenuItem Command="ApplicationCommands.Delete">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/Icons.16x16.DeleteIcon.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.DeleteIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<Separator />
 	<MenuItem Command="ApplicationCommands.Undo">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/Icons.16x16.UndoIcon.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.UndoIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<MenuItem Command="ApplicationCommands.Redo">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/Icons.16x16.RedoIcon.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.RedoIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 </ContextMenu>

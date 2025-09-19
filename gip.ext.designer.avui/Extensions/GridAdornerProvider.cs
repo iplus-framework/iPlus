@@ -3,14 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Threading;
-
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Layout;
+using Avalonia.Threading;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -26,10 +26,10 @@ namespace gip.ext.designer.avui.Extensions
 			readonly RowDefinition row;
 			public RowSplitterPlacement(RowDefinition row) { this.row = row; }
 			
-			public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+			public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
 			{
 				adorner.Arrange(new Rect(-(GridRailAdorner.RailSize + GridRailAdorner.RailDistance),
-				                         row.Offset - GridRailAdorner.SplitterWidth / 2,
+				                         GridRailAdorner.SplitterWidth / 2,
 				                         GridRailAdorner.RailSize + GridRailAdorner.RailDistance + adornedElementSize.Width,
 				                         GridRailAdorner.SplitterWidth));
 			}
@@ -40,9 +40,9 @@ namespace gip.ext.designer.avui.Extensions
 			readonly ColumnDefinition column;
 			public ColumnSplitterPlacement(ColumnDefinition column) { this.column = column; }
 			
-			public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+			public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
 			{
-				adorner.Arrange(new Rect(column.Offset - GridRailAdorner.SplitterWidth / 2,
+				adorner.Arrange(new Rect(GridRailAdorner.SplitterWidth / 2,
 				                         -(GridRailAdorner.RailSize + GridRailAdorner.RailDistance),
 				                         GridRailAdorner.SplitterWidth,
 				                         GridRailAdorner.RailSize + GridRailAdorner.RailDistance + adornedElementSize.Height));
@@ -102,9 +102,8 @@ namespace gip.ext.designer.avui.Extensions
 			// changes to the collection are done.
 			// It also ensures that the Offset property of new rows/columns is initialized when the splitter
 			// is added.
-			Dispatcher.CurrentDispatcher.BeginInvoke(
-				DispatcherPriority.Loaded, // Loaded = after layout, but before input
-				(Action)delegate {
+			Dispatcher.UIThread.InvokeAsync(
+				async () => {
 					requireSplitterRecreation = false;
 					foreach (GridSplitterAdorner splitter in splitterList) {
 						adornerPanel.Children.Remove(splitter);
@@ -127,7 +126,7 @@ namespace gip.ext.designer.avui.Extensions
 						adornerPanel.Children.Add(splitter);
 						splitterList.Add(splitter);
 					}
-				});
+				}, DispatcherPriority.Loaded);
 		}
 	}
 }

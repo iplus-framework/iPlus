@@ -1,16 +1,17 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Labs.Input;
+using gip.ext.design.avui;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
-using System.Windows;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Media3D;
 
 namespace gip.ext.designer.avui
 {
@@ -28,16 +29,16 @@ namespace gip.ext.designer.avui
 			}
 		}
 
-		static bool IsVisual(DependencyObject d)
+		static bool IsVisual(AvaloniaObject d)
 		{
-			return d is Visual || d is Visual3D;
+			return d is Visual; //|| d is Visual3D;
 		}
 		
 		/// <summary>
 		/// Gets all ancestors in the visual tree (including <paramref name="visual"/> itself).
 		/// Returns an empty list if <paramref name="visual"/> is null or not a visual.
 		/// </summary>
-		public static IEnumerable<DependencyObject> GetVisualAncestors(this DependencyObject visual)
+		public static IEnumerable<AvaloniaObject> GetVisualAncestors(this AvaloniaObject visual)
 		{
 			if (IsVisual(visual)) {
 				while (visual != null) {
@@ -47,15 +48,16 @@ namespace gip.ext.designer.avui
 			}
 		}
 		
-		public static void AddCommandHandler(this UIElement element, ICommand command, Action execute)
+		public static void AddCommandHandler(this Control element, ICommand command, Action execute)
 		{
 			AddCommandHandler(element, command, execute, null);
 		}
 
-		public static void AddCommandHandler(this UIElement element, ICommand command, Action execute, Func<bool> canExecute)
+		public static void AddCommandHandler(this Control element, ICommand command, Action execute, Func<bool> canExecute)
 		{
-			var cb = new CommandBinding(command);
-			if (canExecute != null) {
+			var cb = new CommandBinding();
+            cb.Command = command;
+            if (canExecute != null) {
 				cb.CanExecute += delegate(object sender, CanExecuteRoutedEventArgs e) {
 					e.CanExecute = canExecute();
 					e.Handled = true;
@@ -65,7 +67,18 @@ namespace gip.ext.designer.avui
 				execute();
 				e.Handled = true;
 			};
-			element.CommandBindings.Add(cb);
+			CommandManager.SetCommandBindings(element, new List<CommandBinding> { cb });
 		}
 	}
+
+    public static class ApplicationCommands
+    {
+        public readonly static RoutedCommand Undo = new RoutedCommand(nameof(Undo));
+        public readonly static RoutedCommand Redo = new RoutedCommand(nameof(Redo));
+        public readonly static RoutedCommand Copy = new RoutedCommand(nameof(Copy));
+        public readonly static RoutedCommand Cut = new RoutedCommand(nameof(Cut));
+        public readonly static RoutedCommand Delete = new RoutedCommand(nameof(Delete));
+        public readonly static RoutedCommand Paste = new RoutedCommand(nameof(Paste));
+        public readonly static RoutedCommand SelectAll = new RoutedCommand(nameof(SelectAll));
+    }
 }

@@ -4,27 +4,26 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
+using Avalonia.Styling;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
 {
     [CLSCompliant(false)]
-    public class BindingEditor : Control, INotifyPropertyChanged, ITypeEditorInitItem
+    public class BindingEditor : TemplatedControl, INotifyPropertyChanged, ITypeEditorInitItem
     {
         static BindingEditor()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(BindingEditor), new FrameworkPropertyMetadata(typeof(BindingEditor)));
+            // In AvaloniaUI, DefaultStyleKey is handled differently
         }
 
         protected DesignItem _DesignObjectBinding;
@@ -32,22 +31,28 @@ namespace gip.ext.designer.avui.OutlineView
 
         public BindingEditor()
         {
-            this.Loaded += new RoutedEventHandler(BindingEditor_Loaded);
-            this.Unloaded += new RoutedEventHandler(BindingEditor_Unloaded);
+            this.Loaded += BindingEditor_Loaded;
+            this.Unloaded += BindingEditor_Unloaded;
+            this.InitializeComponent();
         }
 
-        public override void OnApplyTemplate()
+        private void InitializeComponent()
         {
-            base.OnApplyTemplate();
+            AvaloniaXamlLoader.Load(this);
         }
 
-        void BindingEditor_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+        }
+
+        void BindingEditor_Loaded(object? sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents += OnToolEvents;
         }
 
-        void BindingEditor_Unloaded(object sender, RoutedEventArgs e)
+        void BindingEditor_Unloaded(object? sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents -= OnToolEvents;
@@ -55,7 +60,7 @@ namespace gip.ext.designer.avui.OutlineView
 
         protected virtual void CreateWrapper()
         {
-            if (_DesignObjectBinding.Component is Binding)
+            if (_DesignObjectBinding.Component is Avalonia.Data.Binding)
                 _Wrapper = new BindingEditorWrapperSingle(_DesignObjectBinding, null);
         }
 
@@ -87,8 +92,8 @@ namespace gip.ext.designer.avui.OutlineView
         {
         }
 
-        protected BindingEditorWrapperSingle _Wrapper;
-        public BindingEditorWrapperSingle Wrapper
+        protected BindingEditorWrapperSingle? _Wrapper;
+        public BindingEditorWrapperSingle? Wrapper
         {
             get
             {
@@ -108,8 +113,8 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        protected TriggerOutlineNodeBase _ParentTriggerNode = null;
-        public TriggerOutlineNodeBase ParentTriggerNode
+        protected TriggerOutlineNodeBase? _ParentTriggerNode = null;
+        public TriggerOutlineNodeBase? ParentTriggerNode
         {
             get
             {
@@ -119,7 +124,7 @@ namespace gip.ext.designer.avui.OutlineView
 
 
         //private bool _LockValueEditorRefresh = false;
-        public virtual FrameworkElement ConverterEditor
+        public virtual Control ConverterEditor
         {
             get
             {
@@ -129,7 +134,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        void _Wrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void _Wrapper_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Description")
             {
@@ -147,13 +152,10 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
         protected void RaisePropertyChanged(string name)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
         }
     }
 }

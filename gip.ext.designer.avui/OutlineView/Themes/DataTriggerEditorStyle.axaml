@@ -1,14 +1,14 @@
 ﻿<ResourceDictionary 
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns="https://github.com/avaloniaui" 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
     xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
     xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-    <Style TargetType="{x:Type OutlineView:DataTriggerEditor}">
+    <Style Selector="OutlineView|DataTriggerEditor">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type OutlineView:DataTriggerEditor}">
+                <ControlTemplate TargetType="OutlineView:DataTriggerEditor">
                     <TabControl>
                         <TabItem Header="Triggerdata">
                             <Grid>
@@ -20,10 +20,22 @@
                                     <ColumnDefinition />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <Button x:Name="PART_SetBinding" Grid.Row="0" Grid.Column="0" Content="One data item" />
-                                <Button x:Name="PART_SetMultiBinding" Grid.Row="0" Grid.Column="1" Content="More data items" />
-                                <DockPanel Grid.Row="1" Grid.ColumnSpan="2">
-                                    <Grid DockPanel.Dock="Bottom">
+                                <Button x:Name="PART_SetBinding" 
+                                        Grid.Row="0" Grid.Column="0" 
+                                        Content="One data item"
+                                        IsEnabled="{TemplateBinding IsTriggerEditable}" />
+                                <Button x:Name="PART_SetMultiBinding" 
+                                        Grid.Row="0" Grid.Column="1" 
+                                        Content="More data items"
+                                        IsEnabled="{TemplateBinding IsTriggerEditable}" />
+                                
+                                <!-- Using StackPanel instead of DockPanel since DockPanel isn't available in Avalonia -->
+                                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical">
+                                    <ContentControl x:Name="PART_BindingEditor"
+                                                    VerticalAlignment="Center"
+                                                    Margin="3 0" />
+                                    
+                                    <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition Height="30" />
                                         </Grid.RowDefinitions>
@@ -32,39 +44,29 @@
                                             <ColumnDefinition Width="*" />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="Value" Grid.Column="0" />
-                                        <ContentControl Grid.Row="1" Grid.Column="1" x:Name="PART_TriggerValueEditor"
-								                VerticalAlignment="Center"
-								                Margin="3 0"
-                                                IsHitTestVisible="{TemplateBinding IsTriggerEditable}"/>
-                                        <!--Content="{Binding TriggerValueEditor}"-->
+                                        <ContentControl Grid.Row="0" Grid.Column="1" x:Name="PART_TriggerValueEditor"
+								                        VerticalAlignment="Center"
+								                        Margin="3 0"
+                                                        IsHitTestVisible="{TemplateBinding IsTriggerEditable}"/>
                                     </Grid>
-                                    <ContentControl DockPanel.Dock="Top" Grid.Row="1" Grid.Column="1" x:Name="PART_BindingEditor"
-								                VerticalAlignment="Center"
-								                Margin="3 0" />
-                                </DockPanel>
+                                </StackPanel>
                             </Grid>
                         </TabItem>
                         <TabItem Header="Setter">
-                            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor" DockPanel.Dock="Bottom"/>
+                            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor"
+                                                                 IsVisible="{TemplateBinding AreTriggerValuesValid}"/>
                         </TabItem>
                         <TabItem Header="Enter Actions">
-                            <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor" 
+                                                               IsVisible="{TemplateBinding AreTriggerValuesValid}" 
+                                                               Margin="0,5,0,0"/>
                         </TabItem>
                         <TabItem Header="Exit Actions">
-                            <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor" Visibility="Hidden" Margin="0,5,0,0"/>
+                            <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor" 
+                                                               IsVisible="{TemplateBinding AreTriggerValuesValid}" 
+                                                               Margin="0,5,0,0"/>
                         </TabItem>
                     </TabControl>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="AreTriggerValuesValid" Value="True">
-                            <Setter TargetName="PART_SetterEditor" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="PART_EnterActionsEditor" Property="Visibility" Value="Visible" />
-                            <Setter TargetName="PART_ExitActionsEditor" Property="Visibility" Value="Visible" />
-                        </Trigger>
-                        <Trigger Property="IsTriggerEditable" Value="True">
-                            <Setter TargetName="PART_SetBinding" Property="IsEnabled" Value="True" />
-                            <Setter TargetName="PART_SetMultiBinding" Property="IsEnabled" Value="True" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

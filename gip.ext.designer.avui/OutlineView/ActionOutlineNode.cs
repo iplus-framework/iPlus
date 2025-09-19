@@ -12,12 +12,12 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -120,7 +120,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
 
-        public FrameworkElement Editor { get; private set; }
+        public Control Editor { get; private set; }
 
         private ReadOnlyCollection<DesignItemProperty> _Properties;
         public ReadOnlyCollection<DesignItemProperty> Properties
@@ -302,7 +302,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public Brush NameForeground
+        public IImmutableSolidColorBrush NameForeground
         {
 			get {
 				if (ValueItem != null) {
@@ -312,7 +312,7 @@ namespace gip.ext.designer.avui.OutlineView
 					if (component is StaticResourceExtension || component is DynamicResourceExtension)
 						return Brushes.DarkGreen;
 				}
-				return SystemColors.WindowTextBrush;
+				return Brushes.Black;
 			}
         }
 

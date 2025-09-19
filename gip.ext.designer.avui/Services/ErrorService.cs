@@ -6,6 +6,7 @@ using Avalonia;
 using Avalonia.Controls;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -33,19 +34,18 @@ namespace gip.ext.designer.avui.Services
 			{
 				this.Close();
 			}
-			
-			protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
-			{
+
+            protected override void OnClosing(WindowClosingEventArgs e)
+            {
 				attachTo.Unloaded -= OnCloseEvent;
 				attachTo.KeyDown -= OnCloseEvent;
 				attachTo.PointerPressed -= OnCloseEvent;
 				attachTo.LostFocus -= OnCloseEvent;
 				base.OnClosing(e);
 			}
-			
-			protected override void OnMouseDown(System.Windows.Input.MouseButtonEventArgs e)
-			{
-				base.OnMouseDown(e);
+
+            protected override void OnPointerPressed(PointerPressedEventArgs e)
+            {
 				Close();
 			}
 		}
@@ -66,8 +66,8 @@ namespace gip.ext.designer.avui.Services
 			
 			AttachedErrorBalloon b = new AttachedErrorBalloon(attachTo, errorElement);
             PixelPoint pos = attachTo.PointToScreen(new Point(0, attachTo.Bounds.Height));
-			b.Left = pos.X;
-			b.Top = pos.Y - 8;
+			pos = new PixelPoint(pos.X, pos.Y - 8);
+			b.Position = pos;
 			b.Focusable = false;
 			ITopLevelWindowService windowService = services.GetService<ITopLevelWindowService>();
 			ITopLevelWindow ownerWindow = (windowService != null) ? windowService.GetTopLevelWindow(attachTo) : null;

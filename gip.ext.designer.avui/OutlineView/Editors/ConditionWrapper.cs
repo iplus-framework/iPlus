@@ -4,19 +4,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
 using System.Windows.Markup;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -173,7 +167,7 @@ namespace gip.ext.designer.avui.OutlineView
 
 
         private Control _DummyEditor = new Control() { Height = 2 };
-        public FrameworkElement BindingEditor
+        public Control BindingEditor
         {
             get
             {

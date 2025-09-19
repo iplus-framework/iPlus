@@ -4,18 +4,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia;
+using Avalonia.Interactivity;
+using Avalonia.Styling;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -23,45 +22,43 @@ namespace gip.ext.designer.avui.OutlineView
     [TemplatePart(Name = "PART_AddItem", Type = typeof(Button))]
     [TemplatePart(Name = "PART_RemoveItem", Type = typeof(Button))]
     [TemplatePart(Name = "PART_PropertyGridView", Type = typeof(PropertyGridView))]
-    [TemplatePart(Name = "PART_OutlineList", Type = typeof(Selector))]
-    public class SettersCollectionEditor : Control, ITypeEditorInitCollection
+    [TemplatePart(Name = "PART_OutlineList", Type = typeof(SelectingItemsControl))]
+    public class SettersCollectionEditor : TemplatedControl, ITypeEditorInitCollection
     {
-        static SettersCollectionEditor()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(SettersCollectionEditor), new FrameworkPropertyMetadata(typeof(SettersCollectionEditor)));
-        }
-
         private static readonly Dictionary<Type, Type> TypeMappings = new Dictionary<Type, Type>();
 
         private DesignItem _DesignObject;
         private DesignItemProperty _SettersCollectionProp;
         private IComponentService _componentService;
-        public  FrameworkElement PART_OutlineNodesContext { get; set; }
+        public Control PART_OutlineNodesContext { get; set; }
         public Button PART_ButtonAddItem { get; set; }
         public Button PART_ButtonRemoveItem { get; set; }
-        public PropertyGridView PART_PropertyGridView { get; set;}
-        public Selector PART_OutlineList { get; set; }
+        public PropertyGridView PART_PropertyGridView { get; set; }
+        public SelectingItemsControl PART_OutlineList { get; set; }
 
         public SettersCollectionEditor()
         {
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            PART_ButtonAddItem = Template.FindName("PART_AddItem", this) as Button;
+            PART_ButtonAddItem = e.NameScope.Find<Button>("PART_AddItem");
             if (PART_ButtonAddItem != null)
-                PART_ButtonAddItem.Click += new RoutedEventHandler(OnAddItemClicked);
+                PART_ButtonAddItem.Click += OnAddItemClicked;
 
-            PART_ButtonRemoveItem = Template.FindName("PART_RemoveItem", this) as Button;
+            PART_ButtonRemoveItem = e.NameScope.Find<Button>("PART_RemoveItem");
             if (PART_ButtonRemoveItem != null)
-                PART_ButtonRemoveItem.Click += new RoutedEventHandler(OnRemoveItemClicked);
+                PART_ButtonRemoveItem.Click += OnRemoveItemClicked;
 
-            PART_PropertyGridView = Template.FindName("PART_PropertyGridView", this) as PropertyGridView;
-            PART_OutlineList = Template.FindName("PART_OutlineList", this) as Selector;
-            PART_OutlineNodesContext = Template.FindName("PART_OutlineNodesContext", this) as FrameworkElement;
-            PART_OutlineNodesContext.DataContext = OutlineNodeCollection;
+            PART_PropertyGridView = e.NameScope.Find<PropertyGridView>("PART_PropertyGridView");
+            PART_OutlineList = e.NameScope.Find<SelectingItemsControl>("PART_OutlineList");
+            PART_OutlineNodesContext = e.NameScope.Find<Control>("PART_OutlineNodesContext");
+            
+            if (PART_OutlineNodesContext != null)
+                PART_OutlineNodesContext.DataContext = OutlineNodeCollection;
+                
             if (PART_PropertyGridView != null && _DesignObject != null)
             {
                 //PART_PropertyGridView.DataContext = null;
@@ -71,20 +68,18 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public static readonly DependencyProperty FirstColumnWidthProperty =
-            DependencyProperty.Register("FirstColumnWidth", typeof(double), typeof(SettersCollectionEditor),
-            new PropertyMetadata(120.0));
+        public static readonly StyledProperty<double> FirstColumnWidthProperty =
+            AvaloniaProperty.Register<SettersCollectionEditor, double>(nameof(FirstColumnWidth), 120.0);
 
         public double FirstColumnWidth
         {
-            get { return (double)GetValue(FirstColumnWidthProperty); }
+            get { return GetValue(FirstColumnWidthProperty); }
             set { SetValue(FirstColumnWidthProperty, value); }
         }
 
-
         public void InitEditor(DesignItem designObject, DesignItemProperty collectionProperty)
         {
-            Debug.Assert(designObject.View is FrameworkElement);
+            Debug.Assert(designObject.View is Control);
             // TODO: Style erzeugen, falls nicht angelegt
             //DesignItemProperty styleProp = designObject.Properties.GetProperty(FrameworkElement.StyleProperty);
             //if ((styleProp.Value == null) || !(styleProp.Value is DesignItem))
@@ -132,7 +127,7 @@ namespace gip.ext.designer.avui.OutlineView
 
         private void OnRemoveItemClicked(object sender, RoutedEventArgs e)
         {
-            SetterOutlineNode selectedNode = PART_OutlineList.SelectedItem as SetterOutlineNode;
+            SetterOutlineNode selectedNode = PART_OutlineList?.SelectedItem as SetterOutlineNode;
             if (selectedNode == null)
                 return;
             OutlineNodeCollection.Remove(selectedNode);

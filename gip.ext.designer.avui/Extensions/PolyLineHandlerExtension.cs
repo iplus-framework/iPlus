@@ -5,13 +5,15 @@ using System;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Avalonia.Controls.Shapes;
+using Avalonia;
+using gip.ext.design.avui;
+using Avalonia.Input;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -38,9 +40,9 @@ namespace gip.ext.designer.avui.Extensions
 
 			DragListener drag = new DragListener(designerThumb);
 
-			WeakEventManager<DesignerThumb, MouseButtonEventArgs>.AddHandler(designerThumb, "PreviewMouseLeftButtonDown", ResizeThumbOnMouseLeftButtonUp);
+            designerThumb.PointerReleased += ResizeThumbOnMouseLeftButtonUp;
 
-			drag.Started += drag_Started;
+            drag.Started += drag_Started;
 			drag.Changed += drag_Changed;
 			drag.Completed += drag_Completed;
 			return designerThumb;
@@ -48,7 +50,7 @@ namespace gip.ext.designer.avui.Extensions
 
 		private void ResetThumbs()
 		{
-			foreach (FrameworkElement rt in adornerPanel.Children)
+			foreach (TemplatedControl rt in adornerPanel.Children)
 			{
 				if (rt is DesignerThumb)
 					(rt as DesignerThumb).IsPrimarySelection = true;
@@ -58,30 +60,30 @@ namespace gip.ext.designer.avui.Extensions
 
 		private void SelectThumb(MultiPointThumb mprt)
 		{
-			PointCollection points = GetPointCollection();
+            IList<Point> points = GetPointCollection();
 			Point p = points[mprt.Index];
 			_selectedPoints.Add(mprt.Index, p);
 
 			mprt.IsPrimarySelection = false;
 		}
 
-		#endregion
+        #endregion
 
-		#region eventhandlers
+        #region eventhandlers
 
-		private void ResizeThumbOnMouseLeftButtonUp(object sender, MouseButtonEventArgs mouseButtonEventArgs)
-		{
+        private void ResizeThumbOnMouseLeftButtonUp(object sender, PointerReleasedEventArgs e)
+        {
 			//get current thumb
 			MultiPointThumb mprt = sender as MultiPointThumb;
 			if (mprt != null)
 			{
 				//shift+ctrl will remove selected point
-				if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) &&
-				    (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl)))
+				if ((IsKeyDown(Key.LeftShift) || IsKeyDown(Key.RightShift)) &&
+				    (IsKeyDown(Key.LeftCtrl) || IsKeyDown(Key.RightCtrl)))
 				{
 					//unselect all points
 					ResetThumbs();
-					PointCollection points = GetPointCollection();
+					IList<Point> points = GetPointCollection();
 
 					//iterate thumbs to lower index of remaining thumbs
 					foreach (MultiPointThumb m in adornerPanel.Children)
@@ -99,8 +101,8 @@ namespace gip.ext.designer.avui.Extensions
 				else
 				{
 					//if not keyboard ctrl is pressed and selected point is not previously selected, clear selection
-					if (!_selectedPoints.ContainsKey(mprt.Index) & !Keyboard.IsKeyDown(Key.LeftCtrl) &
-					    !Keyboard.IsKeyDown(Key.RightCtrl))
+					if (!_selectedPoints.ContainsKey(mprt.Index) & !IsKeyDown(Key.LeftCtrl) &
+					    !IsKeyDown(Key.RightCtrl))
 					{
 						ResetThumbs();
 					}
@@ -141,7 +143,7 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			if (operation != null)
 			{
-				PointCollection points;
+				IList<Point> points;
 				Polygon pg = ExtendedItem.View as Polygon;
 				Polyline pl = ExtendedItem.View as Polyline;
 				if (pl == null)
@@ -176,7 +178,7 @@ namespace gip.ext.designer.avui.Extensions
 
 		protected void drag_Changed(DragListener drag)
 		{
-			PointCollection points = GetPointCollection();
+            IList<Point> points = GetPointCollection();
 
 			MultiPointThumb mprt = drag.Target as MultiPointThumb;
 			if (mprt != null)
@@ -202,7 +204,7 @@ namespace gip.ext.designer.avui.Extensions
 				int? snapAngle = null;
 
 				//shift+alt gives a new point
-				if ((Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)) && (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt)))
+				if ((IsKeyDown(Key.LeftShift) || IsKeyDown(Key.RightShift)) && (IsKeyDown(Key.LeftAlt) || IsKeyDown(Key.RightAlt)))
 				{
 					//if dragging occurs on a point and that point is the only selected, a new node will be added.
 					//_isCtrlDragging is needed since this method is called for every x pixel that the mouse moves
@@ -217,10 +219,10 @@ namespace gip.ext.designer.avui.Extensions
 						points.Insert(mprt.Index, p);
 
 						//create adorner marker
-						CreateThumb(PlacementAlignment.BottomRight, Cursors.Cross, mprt.Index);
+						CreateThumb(PlacementAlignment.BottomRight, new Cursor(StandardCursorType.Cross), mprt.Index);
 
 						//set index of all points that had a higher index than selected to +1
-						foreach (FrameworkElement rt in adornerPanel.Children)
+						foreach (Control rt in adornerPanel.Children)
 						{
 							if (rt is MultiPointThumb)
 							{
@@ -240,12 +242,12 @@ namespace gip.ext.designer.avui.Extensions
 				}
 
 				//snapping occurs when mouse is within 10 degrees from horizontal or vertical plane if shift is pressed
-				else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+				else if (IsKeyDown(Key.LeftShift) || IsKeyDown(Key.RightShift))
 				{
 					snapAngle = 10;
 				}
 				//snapping occurs within 45 degree intervals that is line will always be horizontal or vertical if alt is pressed
-				else if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+				else if (IsKeyDown(Key.LeftAlt) || IsKeyDown(Key.RightAlt))
 				{
 					snapAngle = 45;
 				}
@@ -280,12 +282,12 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			base.OnInitialized();
 
-			PointCollection points = GetPointCollection();
+            IList<Point> points = GetPointCollection();
 
 			resizeThumbs = new List<DesignerThumb>();
 			for (int i = 0; i < points.Count; i++)
 			{
-				CreateThumb(PlacementAlignment.BottomRight, Cursors.Cross, i);
+				CreateThumb(PlacementAlignment.BottomRight, new Cursor(StandardCursorType.Cross), i);
 			}
 
 			Invalidate();
@@ -301,7 +303,7 @@ namespace gip.ext.designer.avui.Extensions
 
 		#endregion
 
-		PointCollection GetPointCollection()
+		IList<Point> GetPointCollection()
 		{
 			Polygon pg = ExtendedItem.View as Polygon;
 			Polyline pl = ExtendedItem.View as Polyline;
@@ -309,7 +311,7 @@ namespace gip.ext.designer.avui.Extensions
 			return pl == null ? pg.Points : pl.Points;
 		}
 
-		PointCollection MovePoints(PointCollection pc, double displacementX, double displacementY, double theta, int? snapangle)
+        IList<Point> MovePoints(IList<Point> pc, double displacementX, double displacementY, double theta, int? snapangle)
 		{
 			//iterate all selected points
 			foreach (int i in _selectedPoints.Keys)
@@ -338,9 +340,7 @@ namespace gip.ext.designer.avui.Extensions
 						}
 					}
 				}
-
-				p.X = x;
-				p.Y = y;
+				p = new Point(x, y);
 				pc[i] = p;
 			}
 			return pc;
@@ -365,10 +365,10 @@ namespace gip.ext.designer.avui.Extensions
 			}
 
 
-			var dx1 = (e.Key == Key.Left) ? Keyboard.IsKeyDown(Key.LeftShift) ? _movingDistance - 10 : _movingDistance - 1 : 0;
-			var dy1 = (e.Key == Key.Up) ? Keyboard.IsKeyDown(Key.LeftShift) ? _movingDistance - 10 : _movingDistance - 1 : 0;
-			var dx2 = (e.Key == Key.Right) ? Keyboard.IsKeyDown(Key.LeftShift) ? _movingDistance + 10 : _movingDistance + 1 : 0;
-			var dy2 = (e.Key == Key.Down) ? Keyboard.IsKeyDown(Key.LeftShift) ? _movingDistance + 10 : _movingDistance + 1 : 0;
+			var dx1 = (e.Key == Key.Left) ? IsKeyDown(Key.LeftShift) ? _movingDistance - 10 : _movingDistance - 1 : 0;
+			var dy1 = (e.Key == Key.Up) ? IsKeyDown(Key.LeftShift) ? _movingDistance - 10 : _movingDistance - 1 : 0;
+			var dx2 = (e.Key == Key.Right) ? IsKeyDown(Key.LeftShift) ? _movingDistance + 10 : _movingDistance + 1 : 0;
+			var dy2 = (e.Key == Key.Down) ? IsKeyDown(Key.LeftShift) ? _movingDistance + 10 : _movingDistance + 1 : 0;
 
 			_movingDistance = (dx1 + dx2 + dy1 + dy2);
 		}

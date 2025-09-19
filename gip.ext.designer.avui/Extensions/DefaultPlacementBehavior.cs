@@ -6,15 +6,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.ext.design.avui.Extensions;
-using System.Windows.Controls;
-using System.Windows;
 using gip.ext.designer.avui.Controls;
 using System.Diagnostics;
 using gip.ext.xamldom.avui;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
 using gip.ext.design.avui;
-using System.Windows.Input;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia;
+using Avalonia.Input;
+using gip.ext.design.avui.Designer;
+using gip.ext.design.avui.UIExtensions;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -30,13 +31,13 @@ namespace gip.ext.designer.avui.Extensions
 		static DefaultPlacementBehavior()
 		{
 			_contentControlsNotAllowedToAdd = new List<Type>();
-			_contentControlsNotAllowedToAdd.Add(typeof (Frame));
-			_contentControlsNotAllowedToAdd.Add(typeof (GroupItem));
+			//_contentControlsNotAllowedToAdd.Add(typeof (Frame));
+			//_contentControlsNotAllowedToAdd.Add(typeof (GroupItem));
 			_contentControlsNotAllowedToAdd.Add(typeof (HeaderedContentControl));
 			_contentControlsNotAllowedToAdd.Add(typeof (Label));
 			_contentControlsNotAllowedToAdd.Add(typeof (ListBoxItem));
-			_contentControlsNotAllowedToAdd.Add(typeof (ButtonBase));
-			_contentControlsNotAllowedToAdd.Add(typeof (StatusBarItem));
+			_contentControlsNotAllowedToAdd.Add(typeof (Button));
+			//_contentControlsNotAllowedToAdd.Add(typeof (StatusBarItem));
             _contentControlsNotAllowedToAdd.Add(typeof (ToolTip));
 		}
 
@@ -46,7 +47,9 @@ namespace gip.ext.designer.avui.Extensions
             if (ExtendedItem.ContentProperty == null ||
                 Metadata.IsPlacementDisabled(ExtendedItem.ComponentType))
                 return;
-            ExtendedItem.AddBehavior(typeof(IPlacementBehavior), this);
+            IPlacementBehavior behavior = ExtendedItem.GetBehavior<IPlacementBehavior>();
+            if (behavior == null)
+                ExtendedItem.AddBehavior(typeof(IPlacementBehavior), this);
         }
 
         public static bool CanContentControlAdd(ContentControl control)
@@ -55,18 +58,7 @@ namespace gip.ext.designer.avui.Extensions
 			return !_contentControlsNotAllowedToAdd.Any(type => type.IsAssignableFrom(control.GetType()));
 		}
 		
-		protected override void OnInitialized()
-		{
-			base.OnInitialized();
-			if (ExtendedItem.ContentProperty == null ||
-			    Metadata.IsPlacementDisabled(ExtendedItem.ComponentType))
-				return;
-            IPlacementBehavior behavior = ExtendedItem.GetBehavior<IPlacementBehavior>();
-            if (behavior == null)
-			    ExtendedItem.AddBehavior(typeof(IPlacementBehavior), this);
-		}
-
-		public virtual bool CanPlace(ICollection<DesignItem> childItems, PlacementType type, PlacementAlignment position)
+        public virtual bool CanPlace(ICollection<DesignItem> childItems, PlacementType type, PlacementAlignment position)
 		{
             foreach (var di in childItems)
             {
@@ -88,23 +80,23 @@ namespace gip.ext.designer.avui.Extensions
         public virtual Rect GetPosition(PlacementOperation operation, DesignItem item, bool verifyAndCorrectPosition)
 		{
 			if (item.View == null)
-				return Rect.Empty;
-			var p = item.View.TranslatePoint(new Point(), operation.CurrentContainer.View);
+				return RectExtensions.Empty();
+            var p = item.View.TranslatePoint(new Point(), operation.CurrentContainer.View);
 
 			if (verifyAndCorrectPosition)
 			{
-				var left = item.SettedProperties.FirstOrDefault(c => c.IsSet && c.FullName == "System.Windows.Controls.Canvas.Left");
-				var top = item.SettedProperties.FirstOrDefault(c => c.IsSet && c.FullName == "System.Windows.Controls.Canvas.Top");
+				var left = item.SettedProperties.FirstOrDefault(c => c.IsSet && c.FullName == "Avalonia.Controls.Canvas.Left");
+				var top = item.SettedProperties.FirstOrDefault(c => c.IsSet && c.FullName == "Avalonia.Controls.Canvas.Top");
 
 				if (left != null && top != null)
 				{
 					double? canvasLeft = left.CurrentValue as double?;
 					double? canvasTop = top.CurrentValue as double?;
 
-					if (canvasLeft.HasValue && canvasTop.HasValue && (p.X != canvasLeft || p.Y != canvasTop))
+					if (canvasLeft.HasValue && canvasTop.HasValue && (p?.X != canvasLeft || p?.Y != canvasTop))
 						p = new Point(canvasLeft.Value, canvasTop.Value);
 				}
-                return new Rect(p, item.View.RenderSize);
+                return new Rect(p.Value, item.View.Bounds.Size);
             }
             else
 			{
@@ -115,10 +107,10 @@ namespace gip.ext.designer.avui.Extensions
         public Rect GetPositionRelativeToContainer(PlacementOperation operation, DesignItem item)
         {
             if (item.View == null)
-                return Rect.Empty;
+                return RectExtensions.Empty();
             var p = item.View.TranslatePoint(new Point(), operation.CurrentContainer.View);
 
-            return new Rect(p, PlacementOperation.GetRealElementSize(item.View));
+            return new Rect(p.Value, PlacementOperation.GetRealElementSize(item.View));
         }
 
         public virtual void BeforeSetPosition(PlacementOperation operation)
@@ -168,9 +160,9 @@ namespace gip.ext.designer.avui.Extensions
 		{
             var canEnter = internalCanEnterContainer(operation);
 
-            if (canEnter && !shouldAlwaysEnter && !Keyboard.IsKeyDown(Key.LeftAlt) && !Keyboard.IsKeyDown(Key.RightAlt))
+            if (canEnter && !shouldAlwaysEnter && !IsKeyDown(Key.LeftAlt) && !IsKeyDown(Key.RightAlt))
             {
-                var b = new Rect(0, 0, ((FrameworkElement)this.ExtendedItem.View).ActualWidth, ((FrameworkElement)this.ExtendedItem.View).ActualHeight);
+                var b = new Rect(0, 0, ((Control)this.ExtendedItem.View).Bounds.Width, ((Control)this.ExtendedItem.View).Bounds.Height);
                 InfoTextEnterArea.Start(ref infoTextEnterArea, this.Services, this.ExtendedItem.View, b, Translations.Instance.PressAltText);
 
                 return false;
@@ -254,11 +246,11 @@ namespace gip.ext.designer.avui.Extensions
 
         public virtual bool CanMoveVector(PlacementOperation operation, Vector vector)
         {
-            if (!(operation.CurrentContainer.View is System.Windows.Controls.Canvas))
+            if (!(operation.CurrentContainer.View is Canvas))
                 return true;
             Canvas c = operation.CurrentContainer.View as Canvas;
-            double height = c.ActualHeight;
-            double width = c.ActualWidth;
+            double height = c.Bounds.Height;
+            double width = c.Bounds.Width;
 
             foreach (PlacementInformation info in operation.PlacedItems)
             {

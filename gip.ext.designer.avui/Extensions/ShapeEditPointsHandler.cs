@@ -6,18 +6,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.ext.design.avui.Extensions;
-using System.Windows.Controls;
-using System.Windows;
 using gip.ext.designer.avui.Controls;
 using System.Diagnostics;
 using gip.ext.xamldom.avui;
-using System.Windows.Media;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
 using gip.ext.designer.avui.Services;
 using gip.ext.design.avui;
 using gip.ext.graphics.avui.shapes;
-using System.Windows.Shapes;
+using Avalonia.Controls.Shapes;
+using Avalonia.Input;
+using Avalonia;
+using Avalonia.Controls;
+
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -38,7 +37,7 @@ namespace gip.ext.designer.avui.Extensions
             this.ExtendedItem.AddBehavior(typeof(ShapeEditPointsHandler), this);
         }
 
-        public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
+        public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
         {
             DrawingToolEditPoints DrawingTool = designPanel.Context.Services.Tool.CurrentTool as DrawingToolEditPoints;
             if (DrawShapesGesture.IsGestureActive)
@@ -46,7 +45,7 @@ namespace gip.ext.designer.avui.Extensions
             if (result.AdornerHit == null || result.AdornerHit.AdornedDesignItem == null)
                 return;
 
-            var ancestors = (result.AdornerHit.AdornedDesignItem.View as DependencyObject).GetVisualAncestors();
+            var ancestors = (result.AdornerHit.AdornedDesignItem.View as AvaloniaObject).GetVisualAncestors();
             var queryPanels = ancestors.OfType<Panel>();
             if (!queryPanels.Any())
                 return;
@@ -55,11 +54,11 @@ namespace gip.ext.designer.avui.Extensions
                 DesignItem containerForShape = designPanel.Context.Services.Component.GetDesignItem(panel);
                 if (containerForShape != null)
                 {
-                    foreach (UIElement adorner in result.AdornerHit.Children)
+                    foreach (Control adorner in result.AdornerHit.Children)
                     {
                         if (adorner is ShapePointAdorner)
                         {
-                            FrameworkElement source = e.OriginalSource as FrameworkElement;
+                            Control source = e.Source as Control;
                             if ((source != null) && (source.TemplatedParent != null) && (source.TemplatedParent == adorner))
                             {
                                 new EditPointsGesture(result.AdornerHit.AdornedDesignItem, containerForShape, (adorner as ShapePointAdorner)._pointToAdorn).Start(designPanel, e);
@@ -104,7 +103,7 @@ namespace gip.ext.designer.avui.Extensions
             return null;
         }
 
-        protected sealed override void OnStarted(MouseButtonEventArgs e)
+        protected sealed override void OnStarted(PointerEventArgs e)
         {
             base.OnDragStarted(e);
             IsGestureActive = true;
@@ -116,7 +115,7 @@ namespace gip.ext.designer.avui.Extensions
             IsGestureActive = false;
         }
 
-        protected override void StopOnClickEvent(object sender, MouseButtonEventArgs e)
+        protected override void StopOnClickEvent(object sender, PointerEventArgs e)
         {
             if (_HasDragStarted == false)
             {
@@ -124,7 +123,7 @@ namespace gip.ext.designer.avui.Extensions
             }
             else
             {
-                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
                 if (result.VisualHit != null)
                 {
                     if (ShapeDrawer is DrawShapesEditPointAdornerBase)
@@ -156,7 +155,7 @@ namespace gip.ext.designer.avui.Extensions
                     }
                 }
             }
-            Stop();
+            Stop(null);
         }
 
     }

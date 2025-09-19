@@ -4,40 +4,38 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.OutlineView
 {
-    [TemplatePart(Name = "PART_SelectorTriggerable", Type = typeof(Selector))]
+    [TemplatePart(Name = "PART_SelectorTriggerable", Type = typeof(ComboBox))]
     [TemplatePart(Name = "PART_TriggerValueEditor", Type = typeof(ContentControl))]
     [TemplatePart(Name = "PART_SetterEditor", Type = typeof(SettersCollectionEditor))]
     [TemplatePart(Name = "PART_EnterActionsEditor", Type = typeof(ActionCollectionEditor))]
     [TemplatePart(Name = "PART_ExitActionsEditor", Type = typeof(ActionCollectionEditor))]
     [CLSCompliant(false)]
-    public class PropertyTriggerEditor : Control
+    public class PropertyTriggerEditor : TemplatedControl
     {
         static PropertyTriggerEditor()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyTriggerEditor), new FrameworkPropertyMetadata(typeof(PropertyTriggerEditor)));
+            // In AvaloniaUI, we don't need DefaultStyleKeyProperty.OverrideMetadata
+            // Avalonia automatically resolves styles by type
         }
-
 
         private DesignItem _DesignObject;
         private PropertyTriggerOutlineNode _NodePropertyTrigger;
         private IComponentService _componentService;
 
-        public Selector PART_SelectorTriggerable { get; set; }
+        public ComboBox PART_SelectorTriggerable { get; set; }
         public ContentControl PART_TriggerValueEditor { get; set; }
         public SettersCollectionEditor PART_SetterEditor { get; set; }
         public ActionCollectionEditor PART_EnterActionsEditor { get; set; }
@@ -45,32 +43,32 @@ namespace gip.ext.designer.avui.OutlineView
 
         public PropertyTriggerEditor()
         {
-            this.Loaded += new RoutedEventHandler(PropertyTriggerEditor_Loaded);
+            this.AttachedToVisualTree += PropertyTriggerEditor_Loaded;
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            PART_SelectorTriggerable = Template.FindName("PART_SelectorTriggerable", this) as Selector;
+            PART_SelectorTriggerable = e.NameScope.Find<ComboBox>("PART_SelectorTriggerable");
             if (PART_SelectorTriggerable != null)
             {
-                PART_SelectorTriggerable.SelectionChanged += new SelectionChangedEventHandler(PART_SelectorTriggerable_SelectionChanged);
+                PART_SelectorTriggerable.SelectionChanged += PART_SelectorTriggerable_SelectionChanged;
             }
-            PART_TriggerValueEditor = Template.FindName("PART_TriggerValueEditor", this) as ContentControl;
-            PART_SetterEditor = Template.FindName("PART_SetterEditor", this) as SettersCollectionEditor;
+            PART_TriggerValueEditor = e.NameScope.Find<ContentControl>("PART_TriggerValueEditor");
+            PART_SetterEditor = e.NameScope.Find<SettersCollectionEditor>("PART_SetterEditor");
             if (PART_SetterEditor != null)
             {
                 PART_SetterEditor.InitEditor(_DesignObject, _NodePropertyTrigger.TriggerItem.Properties["Setters"]);
             }
 
-            PART_EnterActionsEditor = Template.FindName("PART_EnterActionsEditor", this) as ActionCollectionEditor;
+            PART_EnterActionsEditor = e.NameScope.Find<ActionCollectionEditor>("PART_EnterActionsEditor");
             if (PART_EnterActionsEditor != null)
             {
                 PART_EnterActionsEditor.InitEditor(_DesignObject, _NodePropertyTrigger.TriggerItem.Properties["EnterActions"]);
             }
 
-            PART_ExitActionsEditor = Template.FindName("PART_ExitActionsEditor", this) as ActionCollectionEditor;
+            PART_ExitActionsEditor = e.NameScope.Find<ActionCollectionEditor>("PART_ExitActionsEditor");
             if (PART_ExitActionsEditor != null)
             {
                 PART_ExitActionsEditor.InitEditor(_DesignObject, _NodePropertyTrigger.TriggerItem.Properties["ExitActions"]);
@@ -78,18 +76,19 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         private bool _Loaded = false;
-        void PropertyTriggerEditor_Loaded(object sender, RoutedEventArgs e)
+        void PropertyTriggerEditor_Loaded(object sender, VisualTreeAttachmentEventArgs e)
         {
             if (_Loaded)
                 return;
             //if (!IsTriggerEditable && PART_TriggerValueEditor != null)
-            PART_TriggerValueEditor.Content = TriggerValueEditor;
+            if (PART_TriggerValueEditor != null)
+                PART_TriggerValueEditor.Content = TriggerValueEditor;
             _Loaded = true;
         }
 
         public void InitEditor(DesignItem designObject, PropertyTriggerOutlineNode propertyTrigger)
         {
-            Debug.Assert(designObject.View is FrameworkElement);
+            Debug.Assert(designObject.View is Control);
 
             _DesignObject = designObject;
             _NodePropertyTrigger = propertyTrigger;
@@ -104,7 +103,7 @@ namespace gip.ext.designer.avui.OutlineView
                 AreTriggerValuesValid = true;
             else
                 AreTriggerValuesValid = false;
-            _NodePropertyTrigger.PropertyChanged += new PropertyChangedEventHandler(_NodePropertyTrigger_PropertyChanged);
+            _NodePropertyTrigger.PropertyChanged += _NodePropertyTrigger_PropertyChanged;
 
             LoadTriggerableProperties();
         }
@@ -146,7 +145,6 @@ namespace gip.ext.designer.avui.OutlineView
             return list.Values;
         }
 
-
         protected void LoadTriggerableProperties()
         {
             foreach (var md in GetDescriptors())
@@ -164,7 +162,6 @@ namespace gip.ext.designer.avui.OutlineView
                 return;
             TriggerableProperties.Add(node);
         }
-
 
         ObservableCollection<PropertyNode> _TriggerableProperties = new ObservableCollection<PropertyNode>();
         public ObservableCollection<PropertyNode> TriggerableProperties
@@ -184,7 +181,9 @@ namespace gip.ext.designer.avui.OutlineView
                     if (query.Any())
                         return query.First();
                 }
-                return TriggerableProperties.First();
+                if (TriggerableProperties.Count > 0)
+                    return TriggerableProperties.First();
+                return null;
             }
             set
             {
@@ -195,20 +194,19 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public static readonly DependencyProperty IsTriggerEditableProperty
-            = DependencyProperty.Register("IsTriggerEditable", typeof(bool), typeof(PropertyTriggerEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsTriggerEditableProperty
+            = AvaloniaProperty.Register<PropertyTriggerEditor, bool>(nameof(IsTriggerEditable), false);
         public bool IsTriggerEditable
         {
-            get { return (bool)GetValue(IsTriggerEditableProperty); }
+            get { return GetValue(IsTriggerEditableProperty); }
             set { SetValue(IsTriggerEditableProperty, value); }
         }
 
-
-        public static readonly DependencyProperty AreTriggerValuesValidProperty
-            = DependencyProperty.Register("AreTriggerValuesValid", typeof(bool), typeof(PropertyTriggerEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> AreTriggerValuesValidProperty
+            = AvaloniaProperty.Register<PropertyTriggerEditor, bool>(nameof(AreTriggerValuesValid), false);
         public bool AreTriggerValuesValid
         {
-            get { return (bool)GetValue(AreTriggerValuesValidProperty); }
+            get { return GetValue(AreTriggerValuesValidProperty); }
             set { SetValue(AreTriggerValuesValidProperty, value); }
         }
 
@@ -221,7 +219,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         private bool _LockValueEditorRefresh = false;
-        public FrameworkElement TriggerValueEditor
+        public Control TriggerValueEditor
         {
             get
             {
@@ -229,7 +227,7 @@ namespace gip.ext.designer.avui.OutlineView
                 if (PART_SelectorTriggerable != null && SelectedTriggerableProperty != null)
                 {
                     //PropertyNode selectedNode = PART_SelectorTriggerable.SelectedItem as PropertyNode;
-                    FrameworkElement editor = SelectedTriggerableProperty.Editor;
+                    Control editor = SelectedTriggerableProperty.Editor;
                     if (editor != null)
                         editor.DataContext = _NodePropertyTrigger;
                     _LockValueEditorRefresh = false;

@@ -12,63 +12,63 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia;
+using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Controls;
+using Avalonia.Controls.Templates;
+
 
 namespace gip.ext.designer.avui.OutlineView
 {
-    public class TriggerItemTemplateSelector : DataTemplateSelector
+    public class TriggerItemTemplateSelector : IDataTemplate
     {
         DataTemplate dtmpltPropertyTrigger;
         DataTemplate dtmpltDataTrigger;
         DataTemplate dtmpltEventTrigger;
         DataTemplate dtmpltMultiTrigger;
         DataTemplate dtmpltMultiDataTrigger;
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+
+        public Control Build(object? item)
         {
+            if (item == null)
+                return null;
+
+            DataTemplate template = SelectTemplate(item);
+            return template.Build(item);
+        }
+
+        public bool Match(object data)
+        {
+            return data is PropertyTriggerOutlineNode ||
+                   data is DataTriggerOutlineNode ||
+                   data is EventTriggerOutlineNode ||
+                   data is MultiTriggerOutlineNode ||
+                   data is MultiDataTriggerOutlineNode;
+        }
+
+        private DataTemplate? SelectTemplate(object item)
+        {
+            // Try to get resource from Application if not already loaded
             if (dtmpltPropertyTrigger == null)
             {
-                FrameworkElement element = container as FrameworkElement;
-                if (element != null)
-                {
-                    dtmpltPropertyTrigger = element.FindResource("dtmpltPropertyTrigger") as DataTemplate;
-                }
+                dtmpltPropertyTrigger = TryFindResource("dtmpltPropertyTrigger");
             }
             if (dtmpltDataTrigger == null)
             {
-                FrameworkElement element = container as FrameworkElement;
-                if (element != null)
-                {
-                    dtmpltDataTrigger = element.FindResource("dtmpltDataTrigger") as DataTemplate;
-                }
+                dtmpltDataTrigger = TryFindResource("dtmpltDataTrigger");
             }
             if (dtmpltEventTrigger == null)
             {
-                FrameworkElement element = container as FrameworkElement;
-                if (element != null)
-                {
-                    dtmpltEventTrigger = element.FindResource("dtmpltEventTrigger") as DataTemplate;
-                }
+                dtmpltEventTrigger = TryFindResource("dtmpltEventTrigger");
             }
             if (dtmpltMultiTrigger == null)
             {
-                FrameworkElement element = container as FrameworkElement;
-                if (element != null)
-                {
-                    dtmpltMultiTrigger = element.FindResource("dtmpltMultiTrigger") as DataTemplate;
-                }
+                dtmpltMultiTrigger = TryFindResource("dtmpltMultiTrigger");
             }
             if (dtmpltMultiDataTrigger == null)
             {
-                FrameworkElement element = container as FrameworkElement;
-                if (element != null)
-                {
-                    dtmpltMultiDataTrigger = element.FindResource("dtmpltMultiDataTrigger") as DataTemplate;
-                }
+                dtmpltMultiDataTrigger = TryFindResource("dtmpltMultiDataTrigger");
             }
 
             if (item != null)
@@ -85,7 +85,16 @@ namespace gip.ext.designer.avui.OutlineView
                     return dtmpltMultiDataTrigger;
             }
 
-            return base.SelectTemplate(item, container);
+            return null;
+        }
+
+        private DataTemplate TryFindResource(string resourceKey)
+        {
+            if (Application.Current.TryFindResource(resourceKey, out var resource) == true)
+            {
+                return resource as DataTemplate;
+            }
+            return null;
         }
     }
 }

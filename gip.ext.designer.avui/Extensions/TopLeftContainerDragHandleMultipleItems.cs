@@ -1,15 +1,18 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
-
 using gip.ext.designer.avui.Services;
 using gip.ext.designer.avui.Controls;
+using Avalonia.Controls;
+using Avalonia.Input;
+using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Controls.Shapes;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Collections;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -18,7 +21,7 @@ namespace gip.ext.designer.avui.Extensions
 	/// The drag handle displayed for Framework Elements
 	/// </summary>
 	[ExtensionServer(typeof(PrimarySelectionButOnlyWhenMultipleSelectedExtensionServer))]
-	[ExtensionFor(typeof(FrameworkElement))]
+	[ExtensionFor(typeof(Control))]
 	public class TopLeftContainerDragHandleMultipleItems : AdornerProvider
 	{
 		/// <summary/>
@@ -30,10 +33,14 @@ namespace gip.ext.designer.avui.Extensions
 			base.OnInitialized();
 			
 			ContainerDragHandle rect = new ContainerDragHandle();
-			
-			rect.PreviewMouseDown += delegate(object sender, MouseButtonEventArgs e) {
-				//Services.Selection.SetSelectedComponents(new DesignItem[] { this.ExtendedItem }, SelectionTypes.Auto);
-				new DragMoveMouseGesture(this.ExtendedItem, false).Start(this.ExtendedItem.Services.DesignPanel,e);
+
+            rect.PointerPressed += delegate (object sender, PointerPressedEventArgs e)
+			{
+                // In WPF this was a preview click event
+                //if (e.Route != RoutingStrategies.Tunnel)
+					//return;
+                //Services.Selection.SetSelectedComponents(new DesignItem[] { this.ExtendedItem }, SelectionTypes.Auto);
+                new DragMoveMouseGesture(this.ExtendedItem, false).Start(this.ExtendedItem.Services.DesignPanel,e);
 				e.Handled=true;
 			};
 			
@@ -45,12 +52,12 @@ namespace gip.ext.designer.avui.Extensions
 			double maxY = 0;
 			
 			foreach (DesignItem di in items) {
-				Point relativeLocation = di.View.TranslatePoint(new Point(0, 0), this.ExtendedItem.View);
+				Point relativeLocation = di.View.TranslatePoint(new Point(0, 0), this.ExtendedItem.View as Visual).Value;
 				
 				minX = minX < relativeLocation.X ? minX : relativeLocation.X;
 				minY = minY < relativeLocation.Y ? minY : relativeLocation.Y;
-				maxX = maxX > relativeLocation.X + ((FrameworkElement)di.View).ActualWidth ? maxX : relativeLocation.X + ((FrameworkElement)di.View).ActualWidth;
-				maxY = maxY > relativeLocation.Y + ((FrameworkElement)di.View).ActualHeight ? maxY : relativeLocation.Y + ((FrameworkElement)di.View).ActualHeight;
+				maxX = maxX > relativeLocation.X + ((Control)di.View).Bounds.Width ? maxX : relativeLocation.X + ((Control)di.View).Bounds.Width;
+				maxY = maxY > relativeLocation.Y + ((Control)di.View).Bounds.Height ? maxY : relativeLocation.Y + ((Control)di.View).Bounds.Height;
 			}
 			
 			Rectangle rect2 = new Rectangle() {
@@ -58,7 +65,7 @@ namespace gip.ext.designer.avui.Extensions
 				Height = (maxY - minY) + 4,
 				Stroke = Brushes.Black,
 				StrokeThickness = 2,
-				StrokeDashArray = new DoubleCollection(){ 2, 2 },
+				StrokeDashArray = new AvaloniaList<double>(){ 2, 2 },
 			};
 			
 			RelativePlacement p = new RelativePlacement(HorizontalAlignment.Left, VerticalAlignment.Top);

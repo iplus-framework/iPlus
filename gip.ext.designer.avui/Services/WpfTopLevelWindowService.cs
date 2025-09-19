@@ -12,7 +12,8 @@ namespace gip.ext.designer.avui.Services
 	{
 		public ITopLevelWindow GetTopLevelWindow(Control element)
 		{
-			Window window = Window.GetWindow(element);
+			Window window = element.TryFindParent<Window>();
+            //Window window = Window.GetWindow(element);
 			if (window != null)
 				return new WpfTopLevelWindow(window);
 			else
@@ -30,12 +31,14 @@ namespace gip.ext.designer.avui.Services
 			
 			public void SetOwner(Window child)
 			{
-				child.Owner = window;
-			}
-			
-			public bool Activate()
+                // TODO: Not accessible in Avalonia. Workaround?
+                //child.Owner = window;
+            }
+
+            public bool Activate()
 			{
-				return window.Activate();
+				window.Activate();
+				return true;
 			}
 		}
 	}

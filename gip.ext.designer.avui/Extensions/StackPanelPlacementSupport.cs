@@ -4,14 +4,14 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
-
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia;
+using Avalonia.Layout;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -26,11 +26,8 @@ namespace gip.ext.designer.avui.Extensions
         private AdornerPanel _adornerPanel;
         private Rectangle _rectangle = new Rectangle();        // Draws a rectangle to indicate the position of insertion. 
         private readonly List<Rect> _rects = new List<Rect>(); // Contains the Rect of all the children of StackPanel.
-        
-        
         private bool _isItemGettingResized;                    // Indicates whether any children is getting resized.
         private int _indexToInsert;                            // Postion where to insert the element.
-
 
         protected override void OnInitialized()
         {
@@ -38,8 +35,8 @@ namespace gip.ext.designer.avui.Extensions
             _stackPanel = this.ExtendedItem.View as StackPanel;
             var children = this.ExtendedItem.ContentProperty.CollectionElements;
             foreach (var child in children) {
-                Point p = child.View.TranslatePoint(new Point(0, 0), this.ExtendedItem.View);
-                _rects.Add(new Rect(p, child.View.RenderSize));
+                Point p = child.View.TranslatePoint(new Point(0, 0), this.ExtendedItem.View as Visual).Value;
+                _rects.Add(new Rect(p, child.View.Bounds.Size));
             }
         }
 
@@ -52,8 +49,8 @@ namespace gip.ext.designer.avui.Extensions
             /* Add Rect of all children to _rects */
             var children = this.ExtendedItem.ContentProperty.CollectionElements;
             foreach (var child in children) {
-                Point p = child.View.TranslatePoint(new Point(0, 0), this.ExtendedItem.View);
-                _rects.Add(new Rect(p, child.View.RenderSize));
+                Point p = child.View.TranslatePoint(new Point(0, 0), this.ExtendedItem.View as Visual).Value;
+                _rects.Add(new Rect(p, child.View.Bounds.Size));
             }
             if (_adornerPanel != null && this.ExtendedItem.Services.DesignPanel.Adorners.Contains(_adornerPanel))
                 this.ExtendedItem.Services.DesignPanel.Adorners.Remove(_adornerPanel);
@@ -77,11 +74,11 @@ namespace gip.ext.designer.avui.Extensions
         {
             base.EnterContainer(operation);
             foreach (var info in operation.PlacedItems) {
-                info.Item.Properties[FrameworkElement.MarginProperty].Reset();
-                info.Item.Properties[FrameworkElement.HorizontalAlignmentProperty].Reset();
-                info.Item.Properties[FrameworkElement.VerticalAlignmentProperty].Reset();
+                info.Item.Properties[Layoutable.MarginProperty].Reset();
+                info.Item.Properties[Layoutable.HorizontalAlignmentProperty].Reset();
+                info.Item.Properties[Layoutable.VerticalAlignmentProperty].Reset();
             }
-            _rectangle.Visibility = Visibility.Visible;
+            _rectangle.IsVisible = true;
         }
 
         public override void LeaveContainer(PlacementOperation operation)
@@ -89,7 +86,7 @@ namespace gip.ext.designer.avui.Extensions
             base.LeaveContainer(operation);
             /* Hide the rectangle in case switching to the other container
  			   *  otherwise it will show up intersecting with the container */
-            _rectangle.Visibility = Visibility.Hidden; 
+            _rectangle.IsVisible = false; 
         }
 
         public override void SetPosition(PlacementInformation info)
@@ -115,7 +112,7 @@ namespace gip.ext.designer.avui.Extensions
             }
         }
 
-        private void ChangePostionTo(UIElement element, int index)
+        private void ChangePostionTo(Control element, int index)
         {
             int elementIndex = 0;
             if (_stackPanel.Children.Contains(element))

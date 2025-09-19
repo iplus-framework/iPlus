@@ -2,11 +2,10 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System.Reflection;
-using System.Windows;
-using System.Windows.Controls;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui.Extensions;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -14,7 +13,7 @@ namespace gip.ext.designer.avui.Extensions
 	/// 
 	/// </summary>
 	[ExtensionServer(typeof(OnlyOneItemSelectedExtensionServer))]
-	[ExtensionFor(typeof(UIElement))]
+	[ExtensionFor(typeof(Control))]
 	[Extension(Order = 50)]
 	public class WrapItemContextMenuExtension : SelectionAdornerProvider
 	{

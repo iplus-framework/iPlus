@@ -12,6 +12,9 @@ using System.Windows;
 using System.Windows.Markup;
 using gip.ext.design.avui;
 using System.ComponentModel;
+using Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.Styling;
 
 
 namespace gip.ext.designer.avui.Xaml
@@ -305,7 +308,7 @@ namespace gip.ext.designer.avui.Xaml
                 if (designItem == null) designItem = (XamlDesignItem)componentService.GetDesignItem(value);
                 if (designItem != null)
                 {
-                    if (designItem.Parent != null && (!typeof(TypeExtension).IsAssignableFrom(this.DeclaringType)))
+                    if (designItem.Parent != null) // && (!typeof(TypeExtension).IsAssignableFrom(this.DeclaringType))) // Avalonia x:Type is part of XamlX https://github.com/kekekeks/XamlX/blob/83567b8a50bbf612a0b1420a3dc6d8e8ebee2399/src/XamlX/Extensions/TypeExtensions.cs#L6
                         throw new DesignerException("Cannot set value to design item that already has a parent");
                     newValue = designItem.XamlObject;
                 }
@@ -497,7 +500,7 @@ namespace gip.ext.designer.avui.Xaml
             get { return _designItem; }
         }
 
-        public override DependencyProperty DependencyProperty
+        public override AvaloniaProperty DependencyProperty
         {
             get { return _property.DependencyProperty; }
         }
@@ -505,6 +508,20 @@ namespace gip.ext.designer.avui.Xaml
         public override bool IsAdvanced
         {
             get { return _property.IsAdvanced; }
+        }
+
+        public override string TextValue
+        {
+            get
+            {
+                var xamlTextValue = _property.PropertyValue as XamlTextValue;
+                if (xamlTextValue != null)
+                {
+                    return xamlTextValue.Text;
+                }
+
+                return null;
+            }
         }
     }
 }

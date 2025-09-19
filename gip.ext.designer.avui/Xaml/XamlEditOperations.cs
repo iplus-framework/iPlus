@@ -5,11 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.Xaml
 {
@@ -41,9 +41,13 @@ namespace gip.ext.designer.avui.Xaml
         /// <summary>
         /// Copy <paramref name="designItems"/> from the designer to clipboard.
         /// </summary>
-        public void Cut(ICollection<DesignItem> designItems)
+        public async void Cut(ICollection<DesignItem> designItems)
         {
-            Clipboard.Clear();
+            var clipboard = TopLevel.GetTopLevel(_context.RootItem.View as Visual)?.Clipboard;
+            if (clipboard == null)
+                return;
+
+            await clipboard.ClearAsync();
             string cutXaml = "";
             var changeGroup = _context.OpenGroup("Cut " + designItems.Count + " elements", designItems);
             foreach (var item in designItems)
@@ -59,16 +63,20 @@ namespace gip.ext.designer.avui.Xaml
                 }
             }
             ModelTools.DeleteComponents(designItems);
-            Clipboard.SetText(cutXaml, TextDataFormat.Xaml);
+            await clipboard.SetTextAsync(cutXaml); //, TextDataFormat.Xaml);
             changeGroup.Commit();
         }
 
         /// <summary>
         /// Copy <paramref name="designItems"/> from the designer to clipboard.
         /// </summary>
-        public void Copy(ICollection<DesignItem> designItems)
+        public async void Copy(ICollection<DesignItem> designItems)
         {
-            Clipboard.Clear();
+            var clipboard = TopLevel.GetTopLevel(_context.RootItem.View as Visual)?.Clipboard;
+            if (clipboard == null)
+                return;
+
+            await clipboard.ClearAsync();
             string copiedXaml = "";
             var changeGroup = _context.OpenGroup("Copy " + designItems.Count + " elements", designItems);
             foreach (var item in designItems)
@@ -83,7 +91,7 @@ namespace gip.ext.designer.avui.Xaml
                     }
                 }
             }
-            Clipboard.SetText(copiedXaml, TextDataFormat.Xaml);
+            await clipboard.SetTextAsync(copiedXaml); //, TextDataFormat.Xaml);
             changeGroup.Commit();
         }
 
@@ -98,13 +106,17 @@ namespace gip.ext.designer.avui.Xaml
         /// <summary>
         /// Paste items from clipboard into the container.
         /// </summary>
-        public void Paste(DesignItem container)
+        public async void Paste(DesignItem container)
         {
+            var clipboard = TopLevel.GetTopLevel(_context.RootItem.View as Visual)?.Clipboard;
+            if (clipboard == null)
+                return;
+
             var parent = container;
             var child = container;
 
             bool pasted = false;
-            string combinedXaml = Clipboard.GetText(TextDataFormat.Xaml);
+            string combinedXaml = await clipboard.GetTextAsync(); //(TextDataFormat.Xaml);
             IEnumerable<string> xamls = combinedXaml.Split(_delimeter);
             xamls = xamls.Where(xaml => xaml != "");
 

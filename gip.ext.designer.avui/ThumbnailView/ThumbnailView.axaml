@@ -1,37 +1,27 @@
-﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:thumbnailView="clr-namespace:gip.ext.designer.avui.ThumbnailView">
 	
-	<Style TargetType="{x:Type thumbnailView:ThumbnailView}">
-		<Setter Property="SnapsToDevicePixels" Value="true" />
+	<Style Selector="thumbnailView|ThumbnailView">
 		<Setter Property="HorizontalAlignment" Value="Stretch" />
 		<Setter Property="VerticalAlignment" Value="Stretch" />
 		<Setter Property="Padding" Value="5" />
 		<Setter Property="Template">
 			<Setter.Value>
-				<ControlTemplate TargetType="{x:Type thumbnailView:ThumbnailView}">
+				<ControlTemplate TargetType="thumbnailView:ThumbnailView">
 					<Border CornerRadius="1"
 					        ClipToBounds="True"
 					        BorderThickness="1"
-					        Background="#EEE"
+					        Background="#EEEEEE"
 					        BorderBrush="DimGray">
 						<Grid>
-							<Canvas Margin="{TemplateBinding Padding}" Name="PART_ZoomCanvas">
-								<Canvas.Background>
-									<VisualBrush Stretch="Uniform" Visual="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ScrollViewer.Content}" />
-								</Canvas.Background>
+							<Canvas Margin="{TemplateBinding Padding}" Name="PART_ZoomCanvas" Background="White">
 								<Thumb Name="PART_ZoomThumb" Cursor="SizeAll">
-									<Thumb.Style>
-										<Style TargetType="Thumb">
-											<Setter Property="Template">
-												<Setter.Value>
-													<ControlTemplate TargetType="Thumb">
-														<Rectangle StrokeThickness="1" Stroke="Black" Fill="Transparent" />
-													</ControlTemplate>
-												</Setter.Value>
-											</Setter>
-										</Style>
-									</Thumb.Style>
+									<Thumb.Template>
+										<ControlTemplate TargetType="Thumb">
+											<Rectangle StrokeThickness="1" Stroke="Black" Fill="Transparent" />
+										</ControlTemplate>
+									</Thumb.Template>
 								</Thumb>
 							</Canvas>
 						</Grid>

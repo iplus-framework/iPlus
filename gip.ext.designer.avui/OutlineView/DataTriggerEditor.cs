@@ -4,20 +4,18 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.PropertyGrid;
 using System.Linq;
-using System.Windows.Markup;
-
+using Avalonia.Data;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
+using Avalonia;
+using Avalonia.Markup.Xaml.MarkupExtensions;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -29,13 +27,12 @@ namespace gip.ext.designer.avui.OutlineView
     [TemplatePart(Name = "PART_EnterActionsEditor", Type = typeof(ActionCollectionEditor))]
     [TemplatePart(Name = "PART_ExitActionsEditor", Type = typeof(ActionCollectionEditor))]
     [CLSCompliant(false)]
-    public class DataTriggerEditor : Control
+    public class DataTriggerEditor : TemplatedControl
     {
         static DataTriggerEditor()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(DataTriggerEditor), new FrameworkPropertyMetadata(typeof(DataTriggerEditor)));
+            // In Avalonia, we set the default style key like this
         }
-
 
         protected DesignItem _DesignObject;
         protected DataTriggerOutlineNode _NodeDataTrigger;
@@ -51,57 +48,57 @@ namespace gip.ext.designer.avui.OutlineView
 
         public DataTriggerEditor()
         {
-            this.Loaded += new RoutedEventHandler(DataTriggerEditor_Loaded);
+            this.AttachedToVisualTree += DataTriggerEditor_AttachedToVisualTree;
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            PART_TriggerValueEditor = Template.FindName("PART_TriggerValueEditor", this) as ContentControl;
-            PART_BindingEditor = Template.FindName("PART_BindingEditor", this) as ContentControl;
+            PART_TriggerValueEditor = e.NameScope.Find("PART_TriggerValueEditor") as ContentControl;
+            PART_BindingEditor = e.NameScope.Find("PART_BindingEditor") as ContentControl;
 
-            PART_SetBinding = Template.FindName("PART_SetBinding", this) as Button;
+            PART_SetBinding = e.NameScope.Find("PART_SetBinding") as Button;
             if (PART_SetBinding != null)
-                PART_SetBinding.Click += new RoutedEventHandler(OnSetBindingClicked);
+                PART_SetBinding.Click += OnSetBindingClicked;
 
-            PART_SetMultiBinding = Template.FindName("PART_SetMultiBinding", this) as Button;
+            PART_SetMultiBinding = e.NameScope.Find("PART_SetMultiBinding") as Button;
             if (PART_SetMultiBinding != null)
-                PART_SetMultiBinding.Click += new RoutedEventHandler(OnSetMultiBindingClicked);
+                PART_SetMultiBinding.Click += OnSetMultiBindingClicked;
 
-            PART_SetterEditor = Template.FindName("PART_SetterEditor", this) as SettersCollectionEditor;
-            if (PART_SetterEditor != null)
+            PART_SetterEditor = e.NameScope.Find("PART_SetterEditor") as SettersCollectionEditor;
+            if (PART_SetterEditor != null && _DesignObject != null && _NodeDataTrigger != null)
             {
                 PART_SetterEditor.InitEditor(_DesignObject, _NodeDataTrigger.TriggerItem.Properties["Setters"]);
             }
 
-            PART_EnterActionsEditor = Template.FindName("PART_EnterActionsEditor", this) as ActionCollectionEditor;
-            if (PART_EnterActionsEditor != null)
+            PART_EnterActionsEditor = e.NameScope.Find("PART_EnterActionsEditor") as ActionCollectionEditor;
+            if (PART_EnterActionsEditor != null && _DesignObject != null && _NodeDataTrigger != null)
             {
                 PART_EnterActionsEditor.InitEditor(_DesignObject, _NodeDataTrigger.TriggerItem.Properties["EnterActions"]);
             }
 
-            PART_ExitActionsEditor = Template.FindName("PART_ExitActionsEditor", this) as ActionCollectionEditor;
-            if (PART_ExitActionsEditor != null)
+            PART_ExitActionsEditor = e.NameScope.Find("PART_ExitActionsEditor") as ActionCollectionEditor;
+            if (PART_ExitActionsEditor != null && _DesignObject != null && _NodeDataTrigger != null)
             {
                 PART_ExitActionsEditor.InitEditor(_DesignObject, _NodeDataTrigger.TriggerItem.Properties["ExitActions"]);
             }
         }
 
         private bool _Loaded = false;
-        void DataTriggerEditor_Loaded(object sender, RoutedEventArgs e)
+        void DataTriggerEditor_AttachedToVisualTree(object sender, VisualTreeAttachmentEventArgs e)
         {
-            //if (!IsTriggerEditable && PART_TriggerValueEditor != null)
             if (_Loaded)
                 return;
-            PART_TriggerValueEditor.Content = TriggerValueEditor;
+            if (PART_TriggerValueEditor != null)
+                PART_TriggerValueEditor.Content = TriggerValueEditor;
             UpdatePARTBindingEditor(TriggerBindingEditor);
             _Loaded = true;
         }
 
         public void InitEditor(DesignItem designObject, DataTriggerOutlineNode propertyTrigger)
         {
-            Debug.Assert(designObject.View is FrameworkElement);
+            Debug.Assert(designObject.View is Control);
 
             _DesignObject = designObject;
             _NodeDataTrigger = propertyTrigger;
@@ -117,7 +114,7 @@ namespace gip.ext.designer.avui.OutlineView
                 AreTriggerValuesValid = true;
             else
                 AreTriggerValuesValid = false;
-            _NodeDataTrigger.PropertyChanged += new PropertyChangedEventHandler(_NodeDataTrigger_PropertyChanged);
+            _NodeDataTrigger.PropertyChanged += _NodeDataTrigger_PropertyChanged;
         }
 
         void _NodeDataTrigger_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -143,26 +140,25 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-
-        public static readonly DependencyProperty IsTriggerEditableProperty
-            = DependencyProperty.Register("IsTriggerEditable", typeof(bool), typeof(DataTriggerEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsTriggerEditableProperty =
+            AvaloniaProperty.Register<DataTriggerEditor, bool>(nameof(IsTriggerEditable), false);
+        
         public bool IsTriggerEditable
         {
-            get { return (bool)GetValue(IsTriggerEditableProperty); }
+            get { return GetValue(IsTriggerEditableProperty); }
             set { SetValue(IsTriggerEditableProperty, value); }
         }
 
-        public static readonly DependencyProperty AreTriggerValuesValidProperty
-            = DependencyProperty.Register("AreTriggerValuesValid", typeof(bool), typeof(DataTriggerEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> AreTriggerValuesValidProperty =
+            AvaloniaProperty.Register<DataTriggerEditor, bool>(nameof(AreTriggerValuesValid), false);
+        
         public bool AreTriggerValuesValid
         {
-            get { return (bool)GetValue(AreTriggerValuesValidProperty); }
+            get { return GetValue(AreTriggerValuesValidProperty); }
             set { SetValue(AreTriggerValuesValidProperty, value); }
         }
 
-
-
-        public virtual FrameworkElement TriggerBindingEditor
+        public virtual Control TriggerBindingEditor
         {
             get
             {
@@ -188,7 +184,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         protected bool _LockValueEditorRefresh = false;
-        public virtual FrameworkElement TriggerValueEditor
+        public virtual Control TriggerValueEditor
         {
             get
             {
@@ -202,22 +198,21 @@ namespace gip.ext.designer.avui.OutlineView
                 //{
                 //}
 
-                FrameworkElement editor = EditorManager.CreateEditor(typeof(string));
+                Control editor = EditorManager.CreateEditor(typeof(string));
                 editor.DataContext = _NodeDataTrigger;
                 return editor;
             }
         }
 
-        public virtual MarkupExtension CreateNewBinding()
+        public virtual Binding CreateNewBinding()
         {
             return new Binding();
         }
 
-        public virtual MarkupExtension CreateNewMultiBinding()
+        public virtual MultiBinding CreateNewMultiBinding()
         {
             return new MultiBinding();
         }
-
 
         protected virtual void OnSetBindingClicked(object sender, RoutedEventArgs e)
         {
@@ -231,7 +226,7 @@ namespace gip.ext.designer.avui.OutlineView
                 _NodeDataTrigger.BindingProperty.Reset();
             }
 
-            MarkupExtension newBinding = CreateNewBinding();
+            Binding newBinding = CreateNewBinding();
             //DesignItem newBindingItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newBinding);
             _NodeDataTrigger.BindingProperty.SetValue(newBinding);
             UpdatePARTBindingEditor(TriggerBindingEditor);
@@ -248,7 +243,7 @@ namespace gip.ext.designer.avui.OutlineView
                 UpdatePARTBindingEditor(null);
                 _NodeDataTrigger.BindingProperty.Reset();
             }
-            MarkupExtension newBinding = CreateNewMultiBinding();
+            MultiBinding newBinding = CreateNewMultiBinding();
             //DesignItem newBindingItem = _DesignObject.Services.Component.RegisterComponentForDesigner(newBinding);
             _NodeDataTrigger.BindingProperty.SetValue(newBinding);
             UpdatePARTBindingEditor(TriggerBindingEditor);
@@ -278,7 +273,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        private void UpdatePARTBindingEditor(FrameworkElement editor)
+        private void UpdatePARTBindingEditor(Control editor)
         {
             if (PART_BindingEditor == null)
                 return;

@@ -3,14 +3,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Windows;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows.Controls;
+using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Controls.Shapes;
+using Avalonia.Controls;
 namespace gip.ext.designer.avui.Extensions
 {
 	/// <summary>
@@ -25,14 +25,14 @@ namespace gip.ext.designer.avui.Extensions
 		private double CurrentLeft;
 		private double CurrentTop;
 
-		private IEnumerable<DependencyProperty> _thumbProperties;
+		private IEnumerable<AvaloniaProperty> _thumbProperties;
 
 		//Size oldSize;
 		ZoomControl zoom;
 
 		public DragListener DragListener { get; private set; }
 
-		protected UserControlPointsObjectThumb CreateThumb(PlacementAlignment alignment, Cursor cursor, DependencyProperty property)
+		protected UserControlPointsObjectThumb CreateThumb(PlacementAlignment alignment, Cursor cursor, AvaloniaProperty property)
 		{
 			var designerThumb = new UserControlPointsObjectThumb { Alignment = alignment, Cursor = cursor, IsPrimarySelection = true, DependencyProperty = property };
 			AdornerPanel.SetPlacement(designerThumb, Place(designerThumb, alignment));
@@ -52,8 +52,8 @@ namespace gip.ext.designer.avui.Extensions
 		protected virtual void drag_Started(DragListener drag)
 		{
 			Line al = ExtendedItem.View as Line;
-			CurrentX2 = al.X2;
-			CurrentY2 = al.Y2;
+			CurrentX2 = al.EndPoint.X;
+			CurrentY2 = al.EndPoint.Y;
 			CurrentLeft = (double)al.GetValue(Canvas.LeftProperty);
 			CurrentTop = (double)al.GetValue(Canvas.TopProperty);
 
@@ -169,7 +169,7 @@ namespace gip.ext.designer.avui.Extensions
 			var thumbs = new List<UserControlPointsObjectThumb>();
 			foreach (var prp in _thumbProperties)
 			{
-				thumbs.Add(CreateThumb(PlacementAlignment.Center, Cursors.Cross, prp));
+				thumbs.Add(CreateThumb(PlacementAlignment.Center, new Cursor(StandardCursorType.Cross), prp));
 			}
 
 			resizeThumbs = thumbs;
@@ -183,14 +183,14 @@ namespace gip.ext.designer.avui.Extensions
 			UpdateAdornerVisibility();
 		}
 
-		protected abstract IEnumerable<DependencyProperty> FillThumbProperties();
+		protected abstract IEnumerable<AvaloniaProperty> FillThumbProperties();
 
 		protected virtual Bounds CalculateDrawing(double x, double y, double left, double top, double xleft, double xtop)
 		{
 
 			Double theta = (180 / Math.PI) * Math.Atan2(y, x);
 			double verticaloffset = Math.Abs(90 - Math.Abs(theta));
-			if (Keyboard.IsKeyDown(Key.LeftAlt) || Keyboard.IsKeyDown(Key.RightAlt))
+			if (IsKeyDown(Key.LeftAlt) || IsKeyDown(Key.RightAlt))
 			{
 				if (Math.Abs(theta) < 45 || Math.Abs(theta) > 135)
 				{
@@ -203,7 +203,7 @@ namespace gip.ext.designer.avui.Extensions
 					left = xleft;
 				}
 			}
-			else if (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))
+			else if (IsKeyDown(Key.LeftShift) || IsKeyDown(Key.RightShift))
 			{
 				if (verticaloffset < 10)
 				{

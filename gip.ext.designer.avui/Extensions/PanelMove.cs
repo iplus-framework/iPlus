@@ -5,10 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Avalonia.Controls;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
-using System.Windows.Controls;
-using System.Windows;
 using gip.ext.designer.avui.Controls;
 
 namespace gip.ext.designer.avui.Extensions

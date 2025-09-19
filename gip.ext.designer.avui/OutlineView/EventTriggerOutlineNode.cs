@@ -12,12 +12,10 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -152,7 +150,7 @@ namespace gip.ext.designer.avui.OutlineView
                 //if (IsAmbiguous) 
                     //return null;
                 var result = RoutedEventProperty.ValueOnInstance;
-                if (result == DependencyProperty.UnsetValue) 
+                if (result == AvaloniaProperty.UnsetValue) 
                     return null;
                 return result;
             }
@@ -232,7 +230,7 @@ namespace gip.ext.designer.avui.OutlineView
             OnValueChanged();
         }
 
-        public override FrameworkElement Editor
+        public override Control Editor
         {
             get
             {

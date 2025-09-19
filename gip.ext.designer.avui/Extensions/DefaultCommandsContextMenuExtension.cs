@@ -3,8 +3,7 @@
 
 
 using System.Reflection;
-using System.Windows;
-using System.Windows.Controls;
+using Avalonia.Controls;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 

@@ -12,11 +12,13 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.designer.avui.Extensions;
-using System.Windows.Controls;
 using gip.ext.designer.avui.Controls;
 using System.Windows;
 using gip.core.datamodel;
 using System.Collections.Specialized;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -42,6 +44,10 @@ namespace gip.ext.designer.avui.OutlineView
 
         public OutlineNode(DesignItem designItem)
             : base(designItem)
+        {
+        }
+
+        protected OutlineNode(string name) : base(name)
         {
         }
 
@@ -297,7 +303,12 @@ namespace gip.ext.designer.avui.OutlineView
 
         public virtual void MainHeaderClick(object sender, RoutedEventArgs e)
         {
-            QuickOperationMenuExtension.MainHeaderClick(sender, e, this.DesignItem, _menu);
+            QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, this.DesignItem, _menu);
+        }
+
+        public void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, this.DesignItem, _menu);
         }
 
         internal class OutlineNodeService : IOutlineNodeService, IDisposable

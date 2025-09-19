@@ -4,8 +4,9 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows.Media;
-using System.Windows.Controls;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using gip.ext.design.avui.Extensions;
 
 namespace gip.ext.designer.avui.Extensions
@@ -28,8 +29,10 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			object instance = base.CreateInstance(type, arguments);
 			Panel panel = instance as Panel;
-			if (panel != null) {
-				if (panel.Background == null) {
+			if (panel != null) 
+			{
+                if (panel.Background == null) 
+				{
 					panel.Background = _transparentBrush;
 				}
 				TypeDescriptionProvider provider = new DummyValueInsteadOfNullTypeDescriptionProvider(
@@ -51,8 +54,9 @@ namespace gip.ext.designer.avui.Extensions
 		public override object CreateInstance(Type type, params object[] arguments)
 		{
 			object instance = base.CreateInstance(type, arguments);
-			Control control = instance as Control;
-			if (control != null) {
+            TemplatedControl control = instance as TemplatedControl;
+			if (control != null) 
+			{
 				if (control.Background == null) {
 					control.Background = _transparentBrush;
 				}
@@ -75,7 +79,7 @@ namespace gip.ext.designer.avui.Extensions
         public override object CreateInstance(Type type, params object[] arguments)
         {
             object instance = base.CreateInstance(type, arguments);
-            Control control = instance as Control;
+            TemplatedControl control = instance as TemplatedControl;
             if (control != null && (
                 type == typeof(ItemsControl)))
             {

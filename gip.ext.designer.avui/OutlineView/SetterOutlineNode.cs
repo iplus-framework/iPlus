@@ -12,12 +12,13 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia.Media;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia;
+using Avalonia.Markup.Xaml;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -206,7 +207,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
 
-        public FrameworkElement Editor { get; private set; }
+        public Control Editor { get; private set; }
 
         private ReadOnlyCollection<DesignItemProperty> _Properties;
         public ReadOnlyCollection<DesignItemProperty> Properties
@@ -243,7 +244,7 @@ namespace gip.ext.designer.avui.OutlineView
                 if (getMethod != null && setMethod != null)
                 {
                     FieldInfo field = SetterTargetPropertyInfo.PropertyType.GetField(SetterTargetPropertyName + "Property", BindingFlags.Public | BindingFlags.Static);
-                    if (field != null && field.FieldType == typeof(DependencyProperty))
+                    if (field != null && field.FieldType == typeof(AvaloniaProperty))
                     {
                         return true;
                     }
@@ -335,7 +336,7 @@ namespace gip.ext.designer.avui.OutlineView
                 //if (IsAmbiguous) 
                     //return null;
                 var result = SetterValue.ValueOnInstance;
-                if (result == DependencyProperty.UnsetValue) 
+                if (result == AvaloniaProperty.UnsetValue) 
                     return null;
                 return result;
             }
@@ -402,18 +403,20 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public Brush NameForeground
+        public IImmutableSolidColorBrush NameForeground
         {
-			get {
-				if (ValueItem != null) {
-					object component = ValueItem.Component;
-					if (component is BindingBase)
-						return Brushes.DarkGoldenrod;
-					if (component is StaticResourceExtension || component is DynamicResourceExtension)
-						return Brushes.DarkGreen;
-				}
-				return SystemColors.WindowTextBrush;
-			}
+            get
+            {
+                if (ValueItem != null)
+                {
+                    object component = ValueItem.Component;
+                    if (component is BindingBase)
+                        return Brushes.DarkGoldenrod;
+                    if (component is StaticResourceExtension || component is DynamicResourceExtension)
+                        return Brushes.DarkGreen;
+                }
+                return Brushes.Black;
+            }
         }
 
         public DesignItem ValueItem

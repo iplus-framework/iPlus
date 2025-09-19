@@ -2,12 +2,13 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using gip.ext.designer.avui.Controls;
-using System.Windows.Shapes;
 using gip.ext.design.avui.Adorners;
-using System.Windows;
-using System.Windows.Controls;
 using System.Collections;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
+using Avalonia.Layout;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -77,12 +78,12 @@ namespace gip.ext.designer.avui.Extensions
 
 		protected void UpdateAdornerVisibility()
 		{
-			FrameworkElement fe = this.ExtendedItem.View as FrameworkElement;
+            Control fe = this.ExtendedItem.View as Control;
 			foreach (DesignerThumb r in resizeThumbs)
 			{
 				bool isVisible = resizeBehavior != null &&
 					resizeBehavior.CanPlace(extendedItemArray, PlacementType.Resize, r.Alignment);
-				r.Visibility = isVisible ? Visibility.Visible : Visibility.Hidden;
+				r.IsVisible = isVisible;
 			}
 		}
 
@@ -116,7 +117,7 @@ namespace gip.ext.designer.avui.Extensions
 		protected void SetSurfaceInfo(int x, int y, string s)
 		{
 			if (_text == null) {
-				_text = new TextBlock(){ FontSize = 8, FontStyle = FontStyles.Italic };
+				_text = new TextBlock(){ FontSize = 8, FontStyle = FontStyle.Italic };
 				_surface.Children.Add(_text);
 			}
 			
@@ -144,9 +145,9 @@ namespace gip.ext.designer.avui.Extensions
 
 			if (sizeDisplay != null)
 			{
-				sizeDisplay.HeightDisplay.Visibility = Visibility.Hidden;
-				sizeDisplay.WidthDisplay.Visibility = Visibility.Hidden;
-			}
+				sizeDisplay.HeightDisplay.IsVisible = false;
+				sizeDisplay.WidthDisplay.IsVisible = false;
+            }
 			if (marginDisplay != null)
 			{
 				marginDisplay.ShowHandles();
@@ -155,8 +156,8 @@ namespace gip.ext.designer.avui.Extensions
 
 		protected void ResetWidthHeightProperties()
 		{
-			ExtendedItem.Properties.GetProperty(FrameworkElement.HeightProperty).Reset();
-			ExtendedItem.Properties.GetProperty(FrameworkElement.WidthProperty).Reset();
+			ExtendedItem.Properties.GetProperty(Layoutable.HeightProperty).Reset();
+			ExtendedItem.Properties.GetProperty(Layoutable.WidthProperty).Reset();
 		}
 	}
 }

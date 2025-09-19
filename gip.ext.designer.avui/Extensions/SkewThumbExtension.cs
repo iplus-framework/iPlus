@@ -1,19 +1,22 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System.Windows;
-using System.Windows.Controls.Primitives;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Controls.Primitives;
+using Avalonia.Layout;
+using AdornerLayer = gip.ext.designer.avui.Controls.AdornerLayer;
+using Avalonia.Input;
 
 namespace gip.ext.designer.avui.Extensions
 {
 	[ExtensionServer(typeof(OnlyOneItemSelectedExtensionServer))]
-	[ExtensionFor(typeof(FrameworkElement))]
+	[ExtensionFor(typeof(Control))]
 	public sealed class SkewThumbExtension : SelectionAdornerProvider
 	{
 		readonly AdornerPanel adornerPanel;
@@ -31,7 +34,7 @@ namespace gip.ext.designer.avui.Extensions
 		#region Skew
 		
 		private Point startPoint;
-		private UIElement parent;
+		private Control parent;
 		private SkewTransform skewTransform;
 		private double skewX;
 		private double skewY;
@@ -42,12 +45,14 @@ namespace gip.ext.designer.avui.Extensions
 		
 		private void dragX_Started(DragListener drag)
 		{
-			_adornerLayer = this.adornerPanel.TryFindParent<AdornerLayer>();
+			if (drag == null || drag.LastEventArgs == null)
+				return;
+            _adornerLayer = this.adornerPanel.TryFindParent<AdornerLayer>();
 			
-			var designerItem = this.ExtendedItem.Component as FrameworkElement;
-			this.parent = VisualTreeHelper.GetParent(designerItem) as UIElement;
+			var designerItem = this.ExtendedItem.Component as Control;
+			this.parent = VisualTreeHelper.GetParent(designerItem) as Control;
 			
-			startPoint = Mouse.GetPosition(this.parent);
+			startPoint = drag.LastEventArgs.GetPosition(this.parent);
 			
 			if (this.skewTransform == null)
 			{
@@ -60,21 +65,24 @@ namespace gip.ext.designer.avui.Extensions
 				this.skewY = this.skewTransform.AngleY;
 			}
 			
-			rtTransform = this.ExtendedItem.Properties[FrameworkElement.RenderTransformProperty].Value;
+			rtTransform = this.ExtendedItem.Properties[Visual.RenderTransformProperty].Value;
 			
 			operation = PlacementOperation.Start(extendedItemArray, PlacementType.Resize);
 		}
 		
 		private void dragX_Changed(DragListener drag)
 		{
-			Point currentPoint = Mouse.GetPosition(this.parent);
-			Vector deltaVector = Point.Subtract(currentPoint, this.startPoint);
+            if (drag == null || drag.LastEventArgs == null)
+                return;
+
+            Point currentPoint = drag.LastEventArgs.GetPosition(this.parent);
+			Vector deltaVector = currentPoint - this.startPoint;
 			
 			var destAngle = (-0.5*deltaVector.X) + skewX;
 			
 			if (destAngle == 0 && skewY == 0)
 			{
-				this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformProperty).Reset();
+				this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformProperty).Reset();
 				rtTransform = null;
 				skewTransform = null;
 			}
@@ -82,14 +90,14 @@ namespace gip.ext.designer.avui.Extensions
 			{
 				if ((rtTransform == null) || !(rtTransform.Component is SkewTransform))
 				{
-					if (!this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).IsSet) {
-						this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).SetValue(new Point(0.5,0.5));
+					if (!this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).IsSet) {
+						this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5,0.5));
 					}
 					
 					if (this.skewTransform == null)
 						this.skewTransform = new SkewTransform(0, 0);
-					this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformProperty).SetValue(skewTransform);
-					rtTransform = this.ExtendedItem.Properties[FrameworkElement.RenderTransformProperty].Value;
+					this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformProperty).SetValue(skewTransform);
+					rtTransform = this.ExtendedItem.Properties[Visual.RenderTransformProperty].Value;
 				}
 				rtTransform.Properties["AngleX"].SetValue(destAngle);
 			}
@@ -104,12 +112,14 @@ namespace gip.ext.designer.avui.Extensions
 		
 		private void dragY_Started(DragListener drag)
 		{
-			_adornerLayer = this.adornerPanel.TryFindParent<AdornerLayer>();
+            if (drag == null || drag.LastEventArgs == null)
+                return;
+            _adornerLayer = this.adornerPanel.TryFindParent<AdornerLayer>();
 			
-			var designerItem = this.ExtendedItem.Component as FrameworkElement;
-			this.parent = VisualTreeHelper.GetParent(designerItem) as UIElement;
+			var designerItem = this.ExtendedItem.Component as Control;
+			this.parent = VisualTreeHelper.GetParent(designerItem) as Control;
 			
-			startPoint = Mouse.GetPosition(this.parent);
+			startPoint = drag.LastEventArgs.GetPosition(this.parent);
 			
 			if (this.skewTransform == null)
 			{
@@ -122,21 +132,23 @@ namespace gip.ext.designer.avui.Extensions
 				this.skewY = this.skewTransform.AngleY;
 			}
 			
-			rtTransform = this.ExtendedItem.Properties[FrameworkElement.RenderTransformProperty].Value;
+			rtTransform = this.ExtendedItem.Properties[Visual.RenderTransformProperty].Value;
 			
 			operation = PlacementOperation.Start(extendedItemArray, PlacementType.Resize);
 		}
 		
 		private void dragY_Changed(DragListener drag)
 		{
-			Point currentPoint = Mouse.GetPosition(this.parent);
-			Vector deltaVector = Point.Subtract(currentPoint, this.startPoint);
+            if (drag == null || drag.LastEventArgs == null)
+                return;
+            Point currentPoint = drag.LastEventArgs.GetPosition(this.parent);
+			Vector deltaVector = currentPoint - this.startPoint;
 			
 			var destAngle = (-0.5*deltaVector.Y) + skewY;
 			
 			if (destAngle == 0 && skewX == 0)
 			{
-				this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformProperty).Reset();
+				this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformProperty).Reset();
 				rtTransform = null;
 				skewTransform = null;
 			}
@@ -144,15 +156,15 @@ namespace gip.ext.designer.avui.Extensions
 			{
 				if (rtTransform == null)
 				{
-					if (!this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).IsSet)
+					if (!this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).IsSet)
 					{
-						this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+						this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
 					}
 					
 					if (this.skewTransform == null)
 						this.skewTransform = new SkewTransform(0, 0);
-					this.ExtendedItem.Properties.GetProperty(FrameworkElement.RenderTransformProperty).SetValue(skewTransform);
-					rtTransform = this.ExtendedItem.Properties[FrameworkElement.RenderTransformProperty].Value;
+					this.ExtendedItem.Properties.GetProperty(Visual.RenderTransformProperty).SetValue(skewTransform);
+					rtTransform = this.ExtendedItem.Properties[Visual.RenderTransformProperty].Value;
 				}
 				rtTransform.Properties["AngleY"].SetValue(destAngle);
 			}
@@ -177,7 +189,7 @@ namespace gip.ext.designer.avui.Extensions
 			extendedItemArray[0] = this.ExtendedItem;
 			this.ExtendedItem.PropertyChanged += OnPropertyChanged;
 			
-			var designerItem = this.ExtendedItem.Component as FrameworkElement;
+			var designerItem = this.ExtendedItem.Component as Control;
 			this.skewTransform = designerItem.RenderTransform as SkewTransform;
 			
 			if (skewTransform != null)
@@ -185,11 +197,15 @@ namespace gip.ext.designer.avui.Extensions
 				skewX = skewTransform.AngleX;
 				skewY = skewTransform.AngleY;
 			}
-			
-			thumb1 = new Thumb() { Cursor = Cursors.ScrollWE, Height = 14, Width = 4, Opacity = 1 };
-			thumb2 = new Thumb() { Cursor = Cursors.ScrollNS, Width = 14, Height = 4, Opacity = 1 };
-			
-			OnPropertyChanged(null, null);
+
+            //thumb1 = new Thumb() { Cursor = Cursors.ScrollWE, Height = 14, Width = 4, Opacity = 1 };
+            //thumb2 = new Thumb() { Cursor = Cursors.ScrollNS, Width = 14, Height = 4, Opacity = 1 };
+            // Scroll cursors are not available in Avalonia, using Size cursors instead
+            thumb1 = new Thumb() { Cursor = new Cursor(StandardCursorType.SizeWestEast), Height = 14, Width = 4, Opacity = 1 };
+            thumb2 = new Thumb() { Cursor = new Cursor(StandardCursorType.SizeNorthSouth), Width = 14, Height = 4, Opacity = 1 };
+
+
+            OnPropertyChanged(null, null);
 			
 			adornerPanel.Children.Add(thumb1);
 			adornerPanel.Children.Add(thumb2);

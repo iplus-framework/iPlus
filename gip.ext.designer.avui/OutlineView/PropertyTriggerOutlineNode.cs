@@ -12,12 +12,10 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.OutlineView
 {
@@ -147,7 +145,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public override FrameworkElement Editor 
+        public override Control Editor 
         {
             get
             {
@@ -206,7 +204,7 @@ namespace gip.ext.designer.avui.OutlineView
                 if (getMethod != null && setMethod != null)
                 {
                     FieldInfo field = TriggerTargetPropertyInfo.PropertyType.GetField(TriggerTargetPropertyName + "Property", BindingFlags.Public | BindingFlags.Static);
-                    if (field != null && field.FieldType == typeof(DependencyProperty))
+                    if (field != null && field.FieldType == typeof(AvaloniaProperty))
                     {
                         return true;
                     }
@@ -234,7 +232,7 @@ namespace gip.ext.designer.avui.OutlineView
                 //if (IsAmbiguous) 
                     //return null;
                 var result = TriggerValue.ValueOnInstance;
-                if (result == DependencyProperty.UnsetValue) 
+                if (result == AvaloniaProperty.UnsetValue) 
                     return null;
                 return result;
             }

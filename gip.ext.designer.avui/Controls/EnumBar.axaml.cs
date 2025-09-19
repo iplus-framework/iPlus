@@ -11,6 +11,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -18,7 +19,12 @@ namespace gip.ext.designer.avui.Controls
     {
         public EnumBar()
         {
-            InitializeComponent();
+            this.InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
 
         Type currentEnumType;

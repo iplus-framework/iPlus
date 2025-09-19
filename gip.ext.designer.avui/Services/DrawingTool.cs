@@ -8,6 +8,7 @@ using Avalonia.Controls.Shapes;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Extensions;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -19,13 +20,14 @@ namespace gip.ext.designer.avui.Services
 
         public virtual Cursor Cursor
         {
-            get { return Cursors.Pen; }
+            // Avalonia doen't support pen cursors - using arrow cursor as fallback
+            get { return new Cursor(StandardCursorType.Arrow); }
         }
 
         public void Activate(IDesignPanel designPanel)
         {
-            designPanel.MouseDown += OnMouseDown;
-            designPanel.PreviewMouseMove += OnPreviewMouseMove;
+            designPanel.PointerPressed += OnMouseDown;
+            designPanel.PointerMoved += OnPreviewMouseMove;
             designPanel.DragOver += OnMouseDragOver;
             designPanel.Drop += OnMouseDrop;
             designPanel.DragLeave += OnMouseDragLeave;
@@ -48,6 +50,11 @@ namespace gip.ext.designer.avui.Services
                 OnActivated(designPanel);
         }
 
+        private void DesignPanel_PointerMoved(object sender, PointerEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         protected virtual void parentControl_KeyUp(object sender, KeyEventArgs e)
         {
             
@@ -64,8 +71,8 @@ namespace gip.ext.designer.avui.Services
 
         public void Deactivate(IDesignPanel designPanel)
         {
-            designPanel.MouseDown -= OnMouseDown;
-            designPanel.PreviewMouseMove -= OnPreviewMouseMove;
+            designPanel.PointerPressed -= OnMouseDown;
+            designPanel.PointerMoved -= OnPreviewMouseMove;
             designPanel.DragOver -= OnMouseDragOver;
             designPanel.Drop -= OnMouseDrop;
             designPanel.DragLeave -= OnMouseDragLeave;
@@ -87,10 +94,13 @@ namespace gip.ext.designer.avui.Services
         {
         }
 
-        void OnPreviewMouseMove(object sender, MouseEventArgs e)
+        void OnPreviewMouseMove(object sender, PointerEventArgs e)
         {
+            // Onnly preview events:
+            if (e.Route != RoutingStrategies.Tunnel)
+                return; 
             IDesignPanel designPanel = (IDesignPanel)sender;
-            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
             if (result.ModelHit != null)
             {
                 ISelectionService selectionService = designPanel.Context.Services.DrawingService;
@@ -106,10 +116,10 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
-        public virtual void OnMouseDown(object sender, PointerEventArgs e)
+        public virtual void OnMouseDown(object sender, PointerPressedEventArgs e)
         {
             IDesignPanel designPanel = (IDesignPanel)sender;
-            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
             if (result.ModelHit != null)
             {
                 IHandleDrawToolMouseDown b = result.ModelHit.GetBehavior<IHandleDrawToolMouseDown>();
@@ -244,12 +254,12 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
-        public override void OnMouseDown(object sender, PointerEventArgs e)
+        public override void OnMouseDown(object sender, PointerPressedEventArgs e)
         {
             IDesignPanel designPanel = (IDesignPanel)sender;
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {
-                DesignPanelHitTestResult result1 = designPanel.HitTest(e.GetPosition(designPanel), false, true);
+                DesignPanelHitTestResult result1 = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
                 if (result1.ModelHit != null && result1.VisualHit != null && result1.VisualHit is gip.ext.graphics.avui.shapes.ArrowPolyline)
                 {
                     var polyline = result1.VisualHit as gip.ext.graphics.avui.shapes.ArrowPolyline;
@@ -275,7 +285,7 @@ namespace gip.ext.designer.avui.Services
             }
             else
             {
-                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), true, true);
+                DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), true, true);
                 if ((result.AdornerHit != null) && (result.AdornerHit.AdornedDesignItem != null) && (result.AdornerHit.AdornedElement != null))
                 {
                     IHandleDrawToolMouseDown b = result.AdornerHit.AdornedDesignItem.GetBehavior<ShapeEditPointsHandler>();
@@ -292,7 +302,8 @@ namespace gip.ext.designer.avui.Services
             if (e.Key == Key.LeftCtrl)
             {
                 _Cursor = ZoomControl.GetCursor("Images/CursorInsertPoint.cur");
-                Mouse.UpdateCursor();
+                //Mouse.UpdateCursor();
+                // TODO: Change Cursor on DesignPanel by setting directly without OnQueryCursor
             }
         }
 
@@ -301,7 +312,8 @@ namespace gip.ext.designer.avui.Services
             if (e.Key == Key.LeftCtrl)
             {
                 _Cursor = ZoomControl.GetCursor("Images/CursorEditNode.cur");
-                Mouse.UpdateCursor();
+                //Mouse.UpdateCursor();
+                // TODO: Change Cursor on DesignPanel by setting directly without OnQueryCursor
             }
         }
 

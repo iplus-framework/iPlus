@@ -4,13 +4,13 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
+using Avalonia.Data;
+using Avalonia.Styling;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
@@ -21,52 +21,53 @@ namespace gip.ext.designer.avui.OutlineView
 {
     [TemplatePart(Name = "PART_AddItem", Type = typeof(Button))]
     [TemplatePart(Name = "PART_RemoveItem", Type = typeof(Button))]
-    [TemplatePart(Name = "PART_BindingList", Type = typeof(Selector))]
+    [TemplatePart(Name = "PART_BindingList", Type = typeof(ItemsControl))]
     [TemplatePart(Name = "PART_BindingEditor", Type = typeof(ContentControl))]
     [CLSCompliant(false)]
-    public class MultiBindingEditor : Control, INotifyPropertyChanged, ITypeEditorInitItem
+    public class MultiBindingEditor : TemplatedControl, ITypeEditorInitItem // INotifyPropertyChanged
     {
         static MultiBindingEditor()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(MultiBindingEditor), new FrameworkPropertyMetadata(typeof(MultiBindingEditor)));
+            // In AvaloniaUI, we don't need to override DefaultStyleKeyProperty explicitly
+            // The styling system will automatically look for styles targeting this type
         }
 
         protected DesignItem _DesignObjectBinding;
         protected IComponentService _componentService;
         public Button PART_ButtonAddItem { get; set; }
         public Button PART_ButtonRemoveItem { get; set; }
-        public Selector PART_BindingList { get; set; }
+        public ItemsControl PART_BindingList { get; set; }
         public ContentControl PART_BindingEditor { get; set; }
 
         public MultiBindingEditor()
         {
-            this.Loaded += new RoutedEventHandler(MultiBindingEditor_Loaded);
-            this.Unloaded += new RoutedEventHandler(MultiBindingEditor_Unloaded);
+            this.Loaded += MultiBindingEditor_Loaded;
+            this.Unloaded += MultiBindingEditor_Unloaded;
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            PART_ButtonAddItem = Template.FindName("PART_AddItem", this) as Button;
+            PART_ButtonAddItem = e.NameScope.Find("PART_AddItem") as Button;
             if (PART_ButtonAddItem != null)
-                PART_ButtonAddItem.Click += new RoutedEventHandler(OnAddItemClicked);
+                PART_ButtonAddItem.Click += OnAddItemClicked;
 
-            PART_ButtonRemoveItem = Template.FindName("PART_RemoveItem", this) as Button;
+            PART_ButtonRemoveItem = e.NameScope.Find("PART_RemoveItem") as Button;
             if (PART_ButtonRemoveItem != null)
-                PART_ButtonRemoveItem.Click += new RoutedEventHandler(OnRemoveItemClicked);
+                PART_ButtonRemoveItem.Click += OnRemoveItemClicked;
 
-            PART_BindingEditor = Template.FindName("PART_BindingEditor", this) as ContentControl;
+            PART_BindingEditor = e.NameScope.Find("PART_BindingEditor") as ContentControl;
 
-            PART_BindingList = Template.FindName("PART_BindingList", this) as Selector;
-            if (PART_BindingList != null)
+            PART_BindingList = e.NameScope.Find("PART_BindingList") as ListBox;
+            if (PART_BindingList is ListBox listBox)
             {
-                PART_BindingList.SelectionChanged += new SelectionChangedEventHandler(PART_BindingList_SelectionChanged);
+                listBox.SelectionChanged += PART_BindingList_SelectionChanged;
             }
 
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
         }
 
         bool _Loaded = false;
-        void MultiBindingEditor_Loaded(object sender, RoutedEventArgs e)
+        void MultiBindingEditor_Loaded(object? sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents += OnToolEvents;
@@ -77,22 +78,25 @@ namespace gip.ext.designer.avui.OutlineView
             {
                 if (Wrapper.BindingsCollection.Count > 0)
                 {
-                    if (PART_BindingList.SelectedIndex < 0)
-                        PART_BindingList.SelectedIndex = 0;
-                    else
-                        RefreshBindingEditor();
+                    if (PART_BindingList is ListBox listBox)
+                    {
+                        if (listBox.SelectedIndex < 0)
+                            listBox.SelectedIndex = 0;
+                        else
+                            RefreshBindingEditor();
+                    }
                 }
             }
             _Loaded = true;
         }
 
-        void MultiBindingEditor_Unloaded(object sender, RoutedEventArgs e)
+        void MultiBindingEditor_Unloaded(object? sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents -= OnToolEvents;
         }
 
-        void PART_BindingList_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        void PART_BindingList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             RefreshBindingEditor();
         }
@@ -101,7 +105,12 @@ namespace gip.ext.designer.avui.OutlineView
         {
             if (PART_BindingEditor != null)
             {
-                BindingEditorWrapperSingle selectedWrapper = PART_BindingList.SelectedItem as BindingEditorWrapperSingle;
+                BindingEditorWrapperSingle selectedWrapper = null;
+                if (PART_BindingList is ListBox listBox)
+                {
+                    selectedWrapper = listBox.SelectedItem as BindingEditorWrapperSingle;
+                }
+
                 if (selectedWrapper != null)
                 {
                     BindingEditor editor = PART_BindingEditor.Content as BindingEditor;
@@ -181,9 +190,8 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-
         //private bool _LockValueEditorRefresh = false;
-        public virtual FrameworkElement ConverterEditor
+        public virtual Control ConverterEditor
         {
             get
             {
@@ -193,32 +201,39 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        private void OnAddItemClicked(object sender, RoutedEventArgs e)
+        private void OnAddItemClicked(object? sender, RoutedEventArgs e)
         {
             if ((PART_BindingList == null) || (Wrapper == null))
                 return;
             BindingEditorWrapperSingle newWrapper = Wrapper.AddNewBinding();
             if (newWrapper != null)
             {
-                PART_BindingList.SelectedItem = newWrapper;
+                if (PART_BindingList is ListBox listBox)
+                {
+                    listBox.SelectedItem = newWrapper;
+                }
             }
         }
 
-        private void OnRemoveItemClicked(object sender, RoutedEventArgs e)
+        private void OnRemoveItemClicked(object? sender, RoutedEventArgs e)
         {
             if ((PART_BindingList == null) || (Wrapper == null))
                 return;
-            BindingEditorWrapperSingle selectedWrapper = PART_BindingList.SelectedItem as BindingEditorWrapperSingle;
+            BindingEditorWrapperSingle selectedWrapper = null;
+            if (PART_BindingList is ListBox listBox)
+            {
+                selectedWrapper = listBox.SelectedItem as BindingEditorWrapperSingle;
+            }
             if (selectedWrapper == null)
                 return;
             Wrapper.RemoveBinding(selectedWrapper);
         }
 
-        void _Wrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void _Wrapper_PropertyChanged(object? sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Description")
-            {
-                RaisePropertyChanged("TriggerInfoText");
+            {               
+                //RaisePropertyChanged("TriggerInfoText");
             }
         }
 
@@ -232,14 +247,15 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
-        }
+        //public event PropertyChangedEventHandler PropertyChanged;
+        //protected void RaisePropertyChanged(string name)
+        //{
+        //    base.RaisePropertyChanged(name);
+        //    if (PropertyChanged != null)
+        //    {
+        //        PropertyChanged(this, new PropertyChangedEventArgs(name));
+        //    }
+        //}
 
     }
 }

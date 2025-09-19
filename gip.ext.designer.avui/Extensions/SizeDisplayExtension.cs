@@ -5,19 +5,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.ComponentModel;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Controls;
+using Avalonia.Controls;
+using Avalonia.Layout;
 namespace gip.ext.designer.avui.Extensions
 {
 	/// <summary>
 	/// Display Height/Width on the primary selection
 	/// </summary>
-    [ExtensionFor(typeof(UIElement))]
+    [ExtensionFor(typeof(Control))]
     public class SizeDisplayExtension : PrimarySelectionAdornerProvider
     {
         HeightDisplay _heightDisplay;
@@ -48,8 +47,8 @@ namespace gip.ext.designer.avui.Extensions
 
                 this.AddAdorners(placementHeight, _heightDisplay);
                 this.AddAdorners(placementWidth, _widthDisplay); 
-                _heightDisplay.Visibility=Visibility.Hidden;
-                _widthDisplay.Visibility=Visibility.Hidden;
+                _heightDisplay.IsVisible = false;
+                _widthDisplay.IsVisible = false;
             }
         }   
     }

@@ -1,16 +1,15 @@
 ﻿<ContextMenu x:Class="gip.ext.designer.avui.Extensions.WrapItemsContextMenu"
-             xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Translation="clr-namespace:gip.ext.designer.avui"
->
+             xmlns:Translation="clr-namespace:gip.ext.designer.avui">
 	<MenuItem Header="{Binding WrapInCanvas, Source={x:Static Translation:Translations.Instance}}" Click="Click_WrapInCanvas">
         <MenuItem.Icon>
-            <Image Width="16" Source="/gip.ext.designer.avui;component/Images/canvas.png" />
+            <Image Width="16" Source="avares://gip.ext.designer.avui/Images/canvas.png" />
         </MenuItem.Icon>
     </MenuItem>
         <MenuItem Header="{Binding WrapInGrid, Source={x:Static Translation:Translations.Instance}}" Click="Click_WrapInGrid">
 		<MenuItem.Icon>
-			<Image Source="/gip.ext.designer.avui;component/Images/grid.png" />
+			<Image Source="avares://gip.ext.designer.avui/Images/grid.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 </ContextMenu>

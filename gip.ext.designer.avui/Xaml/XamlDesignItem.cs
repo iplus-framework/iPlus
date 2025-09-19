@@ -9,11 +9,13 @@ using System.Diagnostics;
 using System.Windows;
 using gip.ext.xamldom.avui;
 using gip.ext.designer.avui.Services;
-using System.Windows.Markup;
 using System.Collections.Generic;
 using gip.ext.design.avui;
-using System.Windows.Controls;
 using System.Linq;
+using Avalonia.Controls;
+using Avalonia.Styling;
+using Avalonia.Layout;
+using Avalonia.Data;
 
 namespace gip.ext.designer.avui.Xaml
 {
@@ -23,7 +25,7 @@ namespace gip.ext.designer.avui.Xaml
         readonly XamlObject _xamlObject;
         readonly XamlDesignContext _designContext;
         readonly XamlModelPropertyCollection _properties;
-        UIElement _view;
+        Control _view;
 
         public XamlDesignItem(XamlObject xamlObject, XamlDesignContext designContext)
         {
@@ -104,14 +106,15 @@ namespace gip.ext.designer.avui.Xaml
             if (!string.IsNullOrEmpty(oldName) && !string.IsNullOrEmpty(newName))
             {
                 var root = GetRootXamlObject(this.XamlObject);
-                var references = GetAllChildXamlObjects(root).Where(x => x.ElementType == typeof(Reference) && Equals(x.FindOrCreateProperty("Name").GetValueOnInstance<string>(), oldName));
-                foreach (var designItem in references)
-                {
-                    var property = designItem.FindOrCreateProperty("Name");
-                    var propertyValue = designItem.OwnerDocument.CreatePropertyValue(newName, property);
-                    this.ComponentService.RegisterXamlComponentRecursive(propertyValue as XamlObject);
-                    property.PropertyValue = propertyValue;
-                }
+                // TODO: throw new NotImplementedException("Reference must be implemented");
+                //var references = GetAllChildXamlObjects(root).Where(x => x.ElementType == typeof(Reference) && Equals(x.FindOrCreateProperty("Name").GetValueOnInstance<string>(), oldName));
+                //foreach (var designItem in references)
+                //{
+                //    var property = designItem.FindOrCreateProperty("Name");
+                //    var propertyValue = designItem.OwnerDocument.CreatePropertyValue(newName, property);
+                //    this.ComponentService.RegisterXamlComponentRecursive(propertyValue as XamlObject);
+                //    property.PropertyValue = propertyValue;
+                //}
 
                 root = GetRootXamlObject(this.XamlObject, true);
                 var bindings = GetAllChildXamlObjects(root, true).Where(x => x.ElementType == typeof(Binding) && Equals(x.FindOrCreateProperty("ElementName").GetValueOnInstance<string>(), oldName));
@@ -270,22 +273,23 @@ namespace gip.ext.designer.avui.Xaml
         {
             get
             {
-                if (!(this.View is FrameworkElement))
+                if (!(this.View is Control))
                     return null;
 
-                DesignItemProperty styleProp = Properties.GetProperty(FrameworkElement.StyleProperty);
+                DesignItemProperty styleProp = Properties.GetProperty(Control.ThemeProperty);
                 if ((styleProp.Value == null) || !(styleProp.Value is DesignItem))
                 {
-                    TypeExtension typeExtension = new TypeExtension(ComponentType);
-                    DesignItem typeExtensionItem = Services.Component.RegisterComponentForDesigner(typeExtension);
+                    throw new NotImplementedException("Type Extension must be implemented");
+                    //TypeExtension typeExtension = new TypeExtension(ComponentType);
+                    //DesignItem typeExtensionItem = Services.Component.RegisterComponentForDesigner(typeExtension);
 
-                    Style style = new Style(ComponentType);
-                    DesignItem styleItem = Services.Component.RegisterComponentForDesigner(style);
-                    styleItem.Properties["TargetType"].SetValue(typeExtensionItem);
+                    //ControlTheme style = new ControlTheme(ComponentType);
+                    //DesignItem styleItem = Services.Component.RegisterComponentForDesigner(style);
+                    //styleItem.Properties["TargetType"].SetValue(typeExtensionItem);
 
-                    typeExtensionItem.Properties["Type"].SetValue(ComponentType);
+                    //typeExtensionItem.Properties["Type"].SetValue(ComponentType);
 
-                    styleProp.SetValue(styleItem);
+                    //styleProp.SetValue(styleItem);
                 }
                 return styleProp.Value;
             }
@@ -300,18 +304,18 @@ namespace gip.ext.designer.avui.Xaml
             remove { _xamlObject.ParentPropertyChanged += value; }
         }
 
-        public override UIElement View
+        public override Control View
         {
             get
             {
                 if (_view != null)
                     return _view;
                 else
-                    return this.Component as UIElement;
+                    return this.Component as Control;
             }
         }
 
-        internal void SetView(UIElement newView)
+        public override void SetView(Control newView)
         {
             _view = newView;
         }
@@ -415,8 +419,8 @@ namespace gip.ext.designer.avui.Xaml
             {
                 DesignItemProperty top = Properties.GetAttachedProperty(Canvas.TopProperty);
                 DesignItemProperty left = Properties.GetAttachedProperty(Canvas.LeftProperty);
-                DesignItemProperty height = Properties[FrameworkElement.HeightProperty];
-                DesignItemProperty width = Properties[FrameworkElement.WidthProperty];
+                DesignItemProperty height = Properties[Layoutable.HeightProperty];
+                DesignItemProperty width = Properties[Layoutable.WidthProperty];
 
                 if (top != null && left != null && height != null && width != null)
                 {

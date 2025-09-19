@@ -2,17 +2,18 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
 using gip.ext.designer.avui.Controls;
 using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui.Adorners;
 using gip.ext.designer.avui.PropertyGrid.Editors;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.OutlineView;
-using System.Windows.Media;
 using gip.core.datamodel;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -22,14 +23,14 @@ namespace gip.ext.designer.avui.Extensions
         MenuItem CreateMenuItem(string header);
         Separator CreateSeparator();
         int BuildMenu();
-        void MainHeaderClick(object sender, RoutedEventArgs e);
+        void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e);
     }
 
 
     /// <summary>
     /// Extends the Quick operation menu for the designer.
     /// </summary>
-    [ExtensionFor(typeof(FrameworkElement))]
+    [ExtensionFor(typeof(Control))]
     public class QuickOperationMenuExtension : PrimarySelectionAdornerProvider, IQuickOperationMenuItemBuilder
     {
         protected QuickOperationMenu _menu;
@@ -93,13 +94,16 @@ namespace gip.ext.designer.avui.Extensions
             var kbs = this.ExtendedItem.Services.GetService(typeof(IKeyBindingService)) as IKeyBindingService;
             var command = new DesignCommand(delegate
             {
-                _menu.MainHeader.IsSubmenuOpen = true;
-                _menu.MainHeader.Focus();
+                // Avalonia: Focus on the main header and open menu programmatically
+                _menu.MainHeader?.Focus();
+                // Note: In Avalonia, there's no direct equivalent to IsSubmenuOpen
+                // The submenu opening is typically handled through user interaction
             }, delegate
             {
                 return true;
             });
-            _keyBinding = new KeyBinding(command, Key.Enter, ModifierKeys.Alt);
+            // Avalonia: Use KeyModifiers instead of ModifierKeys and different constructor
+            _keyBinding = new KeyBinding { Command = command, Gesture = new KeyGesture(Key.Enter, KeyModifiers.Alt) };
             if (kbs != null)
                 kbs.RegisterBinding(_keyBinding);
         }
@@ -159,7 +163,7 @@ namespace gip.ext.designer.avui.Extensions
                     _menu.AddSubMenuInTheHeader(menuBuilder.CreateMenuItem("Edit Items"));
                     menuItemsAdded++;
                 }
-                if (view is FrameworkElement)
+                if (view is Control)
                 {
                     _menu.AddSubMenuInTheHeader(menuBuilder.CreateMenuItem("Edit Style Setter"));
                     menuItemsAdded++;
@@ -198,17 +202,17 @@ namespace gip.ext.designer.avui.Extensions
                     var ch = menuBuilder.CreateMenuItem("Rendering Order");
                     _menu.AddSubMenuInTheHeader(ch);
                     var menuItem = menuBuilder.CreateMenuItem("Bring to front");
-                    menuItem.IsCheckable = false;
+                    //menuItem.IsCheckable = false;
                     ch.Items.Add(menuItem);
                     //menuItem.Click += new RoutedEventHandler(ZOrderClick);
                     menuItem = menuBuilder.CreateMenuItem("Foreward");
-                    menuItem.IsCheckable = false;
+                    //menuItem.IsCheckable = false;
                     ch.Items.Add(menuItem);
                     menuItem = menuBuilder.CreateMenuItem("Backward");
-                    menuItem.IsCheckable = false;
+                    //menuItem.IsCheckable = false;
                     ch.Items.Add(menuItem);
                     menuItem = menuBuilder.CreateMenuItem("Send to back");
-                    menuItem.IsCheckable = false;
+                    //menuItem.IsCheckable = false;
                     ch.Items.Add(menuItem);
 
                     //setValue = extendedItem.Properties[StackPanel.OrientationProperty].ValueOnInstance.ToString();
@@ -220,13 +224,13 @@ namespace gip.ext.designer.avui.Extensions
 
                 var ha = menuBuilder.CreateMenuItem("Horizontal Alignment");
                 _menu.AddSubMenuInTheHeader(ha);
-                setValue = extendedItem.Properties[FrameworkElement.HorizontalAlignmentProperty].ValueOnInstance.ToString();
+                setValue = extendedItem.Properties[Layoutable.HorizontalAlignmentProperty].ValueOnInstance.ToString();
                 _menu.AddSubMenuCheckable(ha, Enum.GetValues(typeof(HorizontalAlignment)), HorizontalAlignment.Stretch.ToString(), setValue);
                 menuItemsAdded++;
 
                 var va = menuBuilder.CreateMenuItem("Vertical Alignment");
                 _menu.AddSubMenuInTheHeader(va);
-                setValue = extendedItem.Properties[FrameworkElement.VerticalAlignmentProperty].ValueOnInstance.ToString();
+                setValue = extendedItem.Properties[Layoutable.VerticalAlignmentProperty].ValueOnInstance.ToString();
                 _menu.AddSubMenuCheckable(va, Enum.GetValues(typeof(VerticalAlignment)), VerticalAlignment.Stretch.ToString(), setValue);
                 menuItemsAdded++;
             }
@@ -239,7 +243,7 @@ namespace gip.ext.designer.avui.Extensions
             if (_menu == null || _menu.MainHeader == null || _menu.MainHeader.Items.Count > 0)
                 return;
             if (_menu.MainHeader != null)
-                _menu.MainHeader.Click += MainHeaderClick;
+                _menu.MainHeader.PointerPressed += MainHeader_PointerPressed;
 
             int menuItemsAdded = BuildMenu();
             if (menuItemsAdded == 0)
@@ -248,11 +252,7 @@ namespace gip.ext.designer.avui.Extensions
             }
         }
 
-        //void ZOrderClick(object sender, RoutedEventArgs e)
-        //{
-        //}
-
-        public static void MainHeaderClick(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu)
+        public static void MainHeader_PointerPressed(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu)
         {
             var clickedOn = e.Source as MenuItem;
             if (clickedOn != null)
@@ -291,25 +291,29 @@ namespace gip.ext.designer.avui.Extensions
                     {
                         if (!e.Handled)
                         {
-                            ModelTools.DeleteComponents(new DesignItem[] {extendedItem});
+                            ModelTools.DeleteComponents(new DesignItem[] { extendedItem });
                         }
                     }
 
                     if ((string)clickedOn.Header == "Edit Rows")
                     {
-                        var editor = new FlatCollectionEditor(Window.GetWindow(this.ExtendedItem.View));
-                        var gd = this.ExtendedItem.View as Grid;
+                        // Avalonia: Use GetParentWindow helper instead of Window.GetWindow
+                        var editor = new FlatCollectionEditor(GetParentWindow(extendedItem.View));
+                        var gd = extendedItem.View as Grid;
                         if (gd != null)
-                            editor.LoadItemsCollection(this.ExtendedItem.Properties["RowDefinitions"]);
+                            editor.LoadItemsCollection(extendedItem.Properties["RowDefinitions"]);
+                        // FlatCollectionEditor is Avalonia, use Show without parameters
                         editor.Show();
                     }
 
                     if ((string)clickedOn.Header == "Edit Columns")
                     {
-                        var editor = new FlatCollectionEditor(Window.GetWindow(this.ExtendedItem.View));
-                        var gd = this.ExtendedItem.View as Grid;
+                        // Avalonia: Use GetParentWindow helper instead of Window.GetWindow
+                        var editor = new FlatCollectionEditor(GetParentWindow(extendedItem.View));
+                        var gd = extendedItem.View as Grid;
                         if (gd != null)
-                            editor.LoadItemsCollection(this.ExtendedItem.Properties["ColumnDefinitions"]);
+                            editor.LoadItemsCollection(extendedItem.Properties["ColumnDefinitions"]);
+                        // FlatCollectionEditor is Avalonia, use Show without parameters
                         editor.Show();
                     }
 
@@ -342,7 +346,7 @@ namespace gip.ext.designer.avui.Extensions
                         {
                             var ha = Enum.Parse(typeof(HorizontalAlignment), value);
                             if (ha != null)
-                                extendedItem.Properties[FrameworkElement.HorizontalAlignmentProperty].SetValue(ha);
+                                extendedItem.Properties[Layoutable.HorizontalAlignmentProperty].SetValue(ha);
                         }
                     }
 
@@ -353,7 +357,7 @@ namespace gip.ext.designer.avui.Extensions
                         {
                             var va = Enum.Parse(typeof(VerticalAlignment), value);
                             if (va != null)
-                                extendedItem.Properties[FrameworkElement.VerticalAlignmentProperty].SetValue(va);
+                                extendedItem.Properties[Layoutable.VerticalAlignmentProperty].SetValue(va);
                         }
                     }
 
@@ -362,7 +366,7 @@ namespace gip.ext.designer.avui.Extensions
                         if ((clickedOn.Header as string) == "Bring to front")
                         {
                             extendedItem.Parent.ContentProperty.CollectionElements.MoveToLast(extendedItem);
-                            //this.ExtendedItem.ContentProperty.CollectionElements.MoveToFirst(extendedItem);
+                            //extendedItem.ContentProperty.CollectionElements.MoveToFirst(extendedItem);
                         }
                         else if ((clickedOn.Header as string) == "Foreward")
                         {
@@ -381,9 +385,22 @@ namespace gip.ext.designer.avui.Extensions
             }
         }
 
-        public virtual void MainHeaderClick(object sender, RoutedEventArgs e)
+        // Helper method to get parent window in Avalonia (replacement for WPF's Window.GetWindow)
+        private static Window GetParentWindow(Control control)
         {
-            MainHeaderClick(sender, e, this.ExtendedItem, _menu);
+            var current = control;
+            while (current != null)
+            {
+                if (current is Window window)
+                    return window;
+                current = current.Parent as Control;
+            }
+            return null;
+        }
+
+        public virtual void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            MainHeader_PointerPressed(sender, e, this.ExtendedItem, _menu);
         }
 
         protected override void OnRemove()

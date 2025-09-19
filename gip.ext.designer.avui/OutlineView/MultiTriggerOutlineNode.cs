@@ -12,16 +12,11 @@ using System.Collections;
 using gip.ext.designer.avui;
 using gip.ext.xamldom.avui;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
+using Avalonia.Controls;
 
 namespace gip.ext.designer.avui.OutlineView
 {
-    [CLSCompliant(false)]
     public abstract class MultiTriggerNodeBase : TriggerOutlineNodeBase
     {
         public MultiTriggerNodeBase(DesignItem trigger, DesignItem designItem)
@@ -29,7 +24,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
         }
 
-        public override FrameworkElement Editor
+        public override Control Editor
         {
             get
             {

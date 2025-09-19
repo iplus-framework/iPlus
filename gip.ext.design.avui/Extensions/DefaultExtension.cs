@@ -4,6 +4,7 @@
 using System;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Avalonia.Input;
 
 namespace gip.ext.design.avui.Extensions
 {
@@ -52,16 +53,44 @@ namespace gip.ext.design.avui.Extensions
 		/// </summary>
 		protected virtual void OnInitialized()
 		{
-		}
-		
-		/// <summary>
-		/// Is called when the extension is removed.
-		/// </summary>
-		protected virtual void OnRemove()
+            // Subscribe to key events on the ExtendedItem.View or design panel
+            if (ExtendedItem != null && ExtendedItem.View != null && ExtendedItem.View is InputElement inputElement)
+            {
+                inputElement.KeyDown += OnKeyDown;
+                inputElement.KeyUp += OnKeyUp;
+            }
+        }
+
+        private readonly Dictionary<Key, bool> _pressedKeys = new Dictionary<Key, bool>();
+
+        private void OnKeyDown(object sender, KeyEventArgs e)
+        {
+            _pressedKeys[e.Key] = true;
+        }
+
+        private void OnKeyUp(object sender, KeyEventArgs e)
+        {
+            _pressedKeys[e.Key] = false;
+        }
+
+		public bool IsKeyDown(Key key)
 		{
+            return _pressedKeys.TryGetValue(key, out bool isPressed) && isPressed;
 		}
-		
-		internal void CallOnRemove() { OnRemove(); }
+
+        /// <summary>
+        /// Is called when the extension is removed.
+        /// </summary>
+        protected virtual void OnRemove()
+		{
+            if (ExtendedItem != null && ExtendedItem.View != null && ExtendedItem.View is InputElement inputElement)
+            {
+                inputElement.KeyDown -= OnKeyDown;
+                inputElement.KeyUp -= OnKeyUp;
+            }
+        }
+
+        internal void CallOnRemove() { OnRemove(); }
 		
 		internal void InitializeDefaultExtension(DesignItem extendedItem)
 		{

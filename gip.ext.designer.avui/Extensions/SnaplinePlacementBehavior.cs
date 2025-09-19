@@ -5,29 +5,31 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
 using gip.ext.design.avui.Extensions;
 using System.ComponentModel;
 using gip.ext.design.avui.Adorners;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
-using System.Windows.Automation.Peers;
-using System.Windows.Controls.Primitives;
 using System.Diagnostics;
-using System.Windows.Input;
 using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using gip.ext.designer.avui.Services;
+using Avalonia.Media;
+using Avalonia.Controls.Shapes;
+using Avalonia.Collections;
+using Avalonia.Layout;
+using gip.ext.design.avui.UIExtensions;
 
 namespace gip.ext.designer.avui.Extensions
 {
     public class SnaplinePlacementBehavior : DefaultPlacementBehavior
-	{
-        public static bool GetDisableSnaplines(DependencyObject obj)
+    {
+        public static bool GetDisableSnaplines(AvaloniaObject obj)
         {
             return (bool)obj.GetValue(DisableSnaplinesProperty);
         }
 
-        public static void SetDisableSnaplines(DependencyObject obj, bool value)
+        public static void SetDisableSnaplines(AvaloniaObject obj, bool value)
         {
             obj.SetValue(DisableSnaplinesProperty, value);
         }
@@ -36,10 +38,10 @@ namespace gip.ext.designer.avui.Extensions
             DependencyProperty.RegisterAttached("DisableSnaplines", typeof(bool), typeof(SnaplinePlacementBehavior), new PropertyMetadata(false));
 
         AdornerPanel adornerPanel;
-		Canvas surface;
-		List<Snapline> horizontalMap;
-		List<Snapline> verticalMap;
-		double? baseline;
+        Canvas surface;
+        List<Snapline> horizontalMap;
+        List<Snapline> verticalMap;
+        double? baseline;
 
         private static double _snaplineMargin = 8;
         public static double SnaplineMargin
@@ -56,28 +58,28 @@ namespace gip.ext.designer.avui.Extensions
         }
 
         public override void BeginPlacement(PlacementOperation operation)
-		{
-			base.BeginPlacement(operation);
-			CreateSurface(operation);
-		}
+        {
+            base.BeginPlacement(operation);
+            CreateSurface(operation);
+        }
 
-		public override void EndPlacement(PlacementOperation operation)
-		{
-			base.EndPlacement(operation);
-			DeleteSurface();
-		}
+        public override void EndPlacement(PlacementOperation operation)
+        {
+            base.EndPlacement(operation);
+            DeleteSurface();
+        }
 
-		public override void EnterContainer(PlacementOperation operation)
-		{
-			base.EnterContainer(operation);
-			CreateSurface(operation);
-		}
+        public override void EnterContainer(PlacementOperation operation)
+        {
+            base.EnterContainer(operation);
+            CreateSurface(operation);
+        }
 
-		public override void LeaveContainer(PlacementOperation operation)
-		{
-			base.LeaveContainer(operation);
-			DeleteSurface();
-		}
+        public override void LeaveContainer(PlacementOperation operation)
+        {
+            base.LeaveContainer(operation);
+            DeleteSurface();
+        }
 
         public override Point PlacePoint(Point point)
         {
@@ -89,7 +91,7 @@ namespace gip.ext.designer.avui.Extensions
                 return base.PlacePoint(point); ;
 
             surface.Children.Clear();
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (IsKeyDown(Key.LeftCtrl))
                 return base.PlacePoint(point); ;
 
             Rect bounds = new Rect(point.X, point.Y, 0, 0);
@@ -108,6 +110,7 @@ namespace gip.ext.designer.avui.Extensions
             double delta;
 
             var newPoint = base.PlacePoint(point);
+            double x = newPoint.X, y = newPoint.Y;
             if (Snap(horizontalInput, horizontalMap, SnaplineAccuracy, out drawLines, out delta))
             {
                 foreach (var d in drawLines)
@@ -115,10 +118,10 @@ namespace gip.ext.designer.avui.Extensions
                     DrawLine(d.Start, d.Offset + d.DrawOffset, d.End, d.Offset + d.DrawOffset);
                 }
 
-                point.Y += delta;
+                y += delta;
             }
             else
-                point.Y = newPoint.Y;
+                y = newPoint.Y;
 
             if (Snap(verticalInput, verticalMap, SnaplineAccuracy, out drawLines, out delta))
             {
@@ -127,91 +130,101 @@ namespace gip.ext.designer.avui.Extensions
                     DrawLine(d.Offset + d.DrawOffset, d.Start, d.Offset + d.DrawOffset, d.End);
                 }
 
-                point.X += delta;
+                x += delta;
             }
             else
-                point.X = newPoint.X;
+                x = newPoint.X;
 
-
+            point = new Point(x, y);
             return point;
         }
 
         public override void BeforeSetPosition(PlacementOperation operation)
-		{
-			base.BeforeSetPosition(operation);
-			if (surface == null) return;
+        {
+            base.BeforeSetPosition(operation);
+            if (surface == null) return;
 
-			surface.Children.Clear();
-			if (Keyboard.IsKeyDown(Key.LeftCtrl)) return;
+            surface.Children.Clear();
+            if (IsKeyDown(Key.LeftCtrl)) return;
 
-			Rect bounds = Rect.Empty;
-			foreach (var item in operation.PlacedItems) {
-				bounds.Union(item.Bounds);
-			}
+            Rect bounds = RectExtensions.Empty();
+            foreach (var item in operation.PlacedItems)
+            {
+                bounds.Union(item.Bounds);
+            }
 
-			var horizontalInput = new List<Snapline>();
-			var verticalInput = new List<Snapline>();
-			var info = operation.PlacedItems[0];
-			
-			if (operation.Type == PlacementType.Resize) {
-				AddLines(bounds, 0, false, horizontalInput, verticalInput, info.ResizeThumbAlignment);
-			} else {
-				AddLines(bounds, 0, false, horizontalInput, verticalInput, null);
-				if (baseline.HasValue) {
-					var textOffset = bounds.Top + baseline.Value;
-					horizontalInput.Add(new Snapline() { Group = 1, Offset = textOffset, Start = bounds.Left, End = bounds.Right });
-				}
-			}
+            var horizontalInput = new List<Snapline>();
+            var verticalInput = new List<Snapline>();
+            var info = operation.PlacedItems[0];
 
-			// debug
-			//foreach (var t in horizontalMap.Concat(horizontalInput)) {
-			//    surface.Children.Add(new Line() { X1 = t.Start, X2 = t.End, Y1 = t.Offset, Y2 = t.Offset, Stroke = Brushes.Black });
-			//}
-			//foreach (var t in verticalMap.Concat(verticalInput)) {
-			//    surface.Children.Add(new Line() { X1 = t.Offset, X2 = t.Offset, Y1 = t.Start , Y2 = t.End, Stroke = Brushes.Black });
-			//}
-			//return;
+            if (operation.Type == PlacementType.Resize)
+            {
+                AddLines(bounds, 0, false, horizontalInput, verticalInput, info.ResizeThumbAlignment);
+            }
+            else
+            {
+                AddLines(bounds, 0, false, horizontalInput, verticalInput, null);
+                if (baseline.HasValue)
+                {
+                    var textOffset = bounds.Top + baseline.Value;
+                    horizontalInput.Add(new Snapline() { Group = 1, Offset = textOffset, Start = bounds.Left, End = bounds.Right });
+                }
+            }
 
-			List<Snapline> drawLines;
-			double delta;
+            // debug
+            //foreach (var t in horizontalMap.Concat(horizontalInput)) {
+            //    surface.Children.Add(new Line() { X1 = t.Start, X2 = t.End, Y1 = t.Offset, Y2 = t.Offset, Stroke = Brushes.Black });
+            //}
+            //foreach (var t in verticalMap.Concat(verticalInput)) {
+            //    surface.Children.Add(new Line() { X1 = t.Offset, X2 = t.Offset, Y1 = t.Start , Y2 = t.End, Stroke = Brushes.Black });
+            //}
+            //return;
+
+            List<Snapline> drawLines;
+            double delta;
+            double y = bounds.Y;
+            double x = bounds.X;
+            double width = bounds.Width;
+            double height = bounds.Height;
 
             if (Snap(horizontalInput, horizontalMap, SnaplineAccuracy, out drawLines, out delta))
             {
 
                 if (operation.Type == PlacementType.Resize)
                 {
-                    if (info.ResizeThumbAlignment != null && info.ResizeThumbAlignment.Value.Vertical == VerticalAlignment.Top)
+                    if (info.ResizeThumbAlignment.Vertical == VerticalAlignment.Top)
                     {
-                        bounds.Y += delta;
-                        bounds.Height = Math.Max(0, bounds.Height - delta);
+                        y += delta;
+                        height = Math.Max(0, height - delta);
                         if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
                         {
-                            bounds.Y = Math.Round(bounds.Y);
-                            bounds.Height = Math.Round(bounds.Height);
+                            y = Math.Round(y);
+                            height = Math.Round(height);
                         }
                     }
                     else
                     {
-                        bounds.Height = Math.Max(0, bounds.Height + delta);
+                        height = Math.Max(0, height + delta);
 
                         if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
                         {
-                            bounds.Height = Math.Round(bounds.Height);
+                            height = Math.Round(height);
                         }
                     }
-                    info.Bounds = bounds;
+                    info.Bounds = new Rect(x, y, width, height);
                 }
                 else
                 {
                     foreach (var item in operation.PlacedItems)
                     {
                         var r = item.Bounds;
-                        r.Y += delta;
+                        double rY = r.Y;
+                        rY += delta;
                         if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
                         {
-                            r.Y = Math.Round(r.Y);
+                            rY = Math.Round(rY);
                         }
-                        item.Bounds = r;
+                        item.Bounds = new Rect(item.Bounds.X, rY, item.Bounds.Width, item.Bounds.Height);
                     }
                 }
 
@@ -226,36 +239,38 @@ namespace gip.ext.designer.avui.Extensions
 
                 if (operation.Type == PlacementType.Resize)
                 {
-                    if (info.ResizeThumbAlignment != null && info.ResizeThumbAlignment.Value.Horizontal == HorizontalAlignment.Left)
+                    if (info.ResizeThumbAlignment.Horizontal == HorizontalAlignment.Left)
                     {
-                        bounds.X += delta;
-                        bounds.Width = Math.Max(0, bounds.Width - delta);
+                        x += delta;
+                        width = Math.Max(0, width - delta);
                         if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
                         {
-                            bounds.X = Math.Round(bounds.X);
-                            bounds.Width = Math.Round(bounds.Width);
+                            x = Math.Round(x);
+                            width = Math.Round(width);
                         }
                     }
                     else
                     {
-                        bounds.Width = Math.Max(0, bounds.Width + delta);
+                        width = Math.Max(0, width + delta);
                         if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
                         {
-                            bounds.Width = Math.Round(bounds.Width);
+                            width = Math.Round(width);
                         }
                     }
-                    info.Bounds = bounds;
+                    info.Bounds = new Rect(x, y, width, height);
                 }
                 else
                 {
                     foreach (var item in operation.PlacedItems)
                     {
                         var r = item.Bounds;
-                        r.X += delta;
+                        double rX = r.X;
+                        rX += delta;
                         if (operation.CurrentContainer.Services.GetService<OptionService>().SnaplinePlacementRoundValues)
                         {
-                            r.X = Math.Round(r.X);
+                            rX = Math.Round(rX);
                         }
+                        item.Bounds = new Rect(rX, item.Bounds.Y, item.Bounds.Width, item.Bounds.Height);
                         item.Bounds = r;
                     }
                 }
@@ -269,23 +284,25 @@ namespace gip.ext.designer.avui.Extensions
         }
 
         void CreateSurface(PlacementOperation operation)
-		{
-			if (ExtendedItem.Services.GetService<IDesignPanel>() != null) {
+        {
+            if (ExtendedItem.Services.GetService<IDesignPanel>() != null)
+            {
 
-				surface = new Canvas();
-				adornerPanel = new AdornerPanel();
-				adornerPanel.SetAdornedElement(ExtendedItem.View, ExtendedItem);
-				AdornerPanel.SetPlacement(surface, AdornerPlacement.FillContent);
-				adornerPanel.Children.Add(surface);
-				ExtendedItem.Services.DesignPanel.Adorners.Add(adornerPanel);
+                surface = new Canvas();
+                adornerPanel = new AdornerPanel();
+                adornerPanel.SetAdornedElement(ExtendedItem.View, ExtendedItem);
+                AdornerPanel.SetPlacement(surface, AdornerPlacement.FillContent);
+                adornerPanel.Children.Add(surface);
+                ExtendedItem.Services.DesignPanel.Adorners.Add(adornerPanel);
 
-				BuildMaps(operation);
+                BuildMaps(operation);
 
-				if (operation.Type != PlacementType.Resize && operation.PlacedItems.Count == 1) {
-					baseline = GetBaseline(operation.PlacedItems[0].Item.View);
-				}
-			}
-		}
+                if (operation.Type != PlacementType.Resize && operation.PlacedItems.Count == 1)
+                {
+                    baseline = GetBaseline(operation.PlacedItems[0].Item.View);
+                }
+            }
+        }
 
         private IEnumerable<DesignItem> AllDesignItems(DesignItem designItem = null)
         {
@@ -332,7 +349,7 @@ namespace gip.ext.designer.avui.Extensions
         }
 
         void BuildMaps(PlacementOperation operation)
-		{
+        {
             horizontalMap = new List<Snapline>();
             verticalMap = new List<Snapline>();
 
@@ -346,7 +363,7 @@ namespace gip.ext.designer.avui.Extensions
 
             AddContainerSnaplines(containerRect, horizontalMap, verticalMap);
 
-            if (!CanPlace(operation.PlacedItems.Select(x => x.Item), operation.Type, PlacementAlignment.Center))
+            if (!CanPlace(operation.PlacedItems.Select(x => x.Item).ToList(), operation.Type, PlacementAlignment.Center))
                 return;
 
             foreach (var item in GetSnapToDesignItems(operation)
@@ -378,10 +395,10 @@ namespace gip.ext.designer.avui.Extensions
 
         void AddLines(Rect r, double inflate, bool requireOverlap, List<Snapline> h, List<Snapline> v, PlacementAlignment? filter)
         {
-            if (r != Rect.Empty)
+            if (!r.IsEmpty())
             {
                 Rect r2 = r;
-                r2.Inflate(inflate, inflate);
+                r2 = r2.Inflate(inflate, inflate);
 
                 if (filter == null || filter.Value.Vertical == VerticalAlignment.Top)
                     h.Add(new Snapline() { RequireOverlap = requireOverlap, Offset = r2.Top - 1, Start = r.Left, End = r.Right });
@@ -405,113 +422,121 @@ namespace gip.ext.designer.avui.Extensions
             var baseline = GetBaseline(item.View);
             if (baseline.HasValue)
             {
-                var textOffset = item.View.TranslatePoint(new Point(0, baseline.Value), ExtendedItem.View).Y;
+                var textOffset = item.View.TranslatePoint(new Point(0, baseline.Value), ExtendedItem.View).Value.Y;
                 list.Add(new Snapline() { Group = 1, Offset = textOffset, Start = bounds.Left, End = bounds.Right });
             }
         }
 
         void DeleteSurface()
-		{
-			if (surface != null) {
-				ExtendedItem.Services.DesignPanel.Adorners.Remove(adornerPanel);
-				adornerPanel = null;
-				surface = null;
-				horizontalMap = null;
-				verticalMap = null;
-			}
-		}
+        {
+            if (surface != null)
+            {
+                ExtendedItem.Services.DesignPanel.Adorners.Remove(adornerPanel);
+                adornerPanel = null;
+                surface = null;
+                horizontalMap = null;
+                verticalMap = null;
+            }
+        }
 
-		void DrawLine(double x1, double y1, double x2, double y2)
-		{
+        void DrawLine(double x1, double y1, double x2, double y2)
+        {
             if (double.IsInfinity(x1) || double.IsNaN(x1) || double.IsInfinity(y1) || double.IsNaN(y1) ||
     double.IsInfinity(x2) || double.IsNaN(x2) || double.IsInfinity(y2) || double.IsNaN(y2))
                 return;
 
-            var line1 = new Line() {
-				X1 = x1,
-				Y1 = y1,
-				X2 = x2,
-				Y2 = y2,
-				StrokeThickness = 1,
-				Stroke = Brushes.White
-			};
-			surface.Children.Add(line1);
+            var line1 = new Line()
+            {
+                StartPoint = new Point(x1, y1),
+                EndPoint = new Point(x2, y2),
+                StrokeThickness = 1,
+                Stroke = Brushes.White
+            };
+            surface.Children.Add(line1);
 
-			var line2 = new Line() {
-				X1 = x1,
-				Y1 = y1,
-				X2 = x2,
-				Y2 = y2,
-				StrokeThickness = 1,
-				Stroke = Brushes.Orange,
-				StrokeDashArray = new DoubleCollection(new double[] { 5, 2 }),
-				StrokeDashOffset = x1 + y1  // fix dashes
-			};
-			surface.Children.Add(line2);
-		}
+            var line2 = new Line()
+            {
+                StartPoint = new Point(x1, y1),
+                EndPoint = new Point(x2, y2),
+                StrokeThickness = 1,
+                Stroke = Brushes.Orange,
+                StrokeDashArray = new AvaloniaList<double>(new double[] { 5, 2 }),
+                StrokeDashOffset = x1 + y1  // fix dashes
+            };
+            surface.Children.Add(line2);
+        }
 
-		//TODO: GlyphRun must be used
-		static double? GetBaseline(UIElement element) {
-			var textBox = element as TextBox;
-			if (textBox != null) {
-				var r = textBox.GetRectFromCharacterIndex(0).Bottom;
-				return textBox.TranslatePoint(new Point(0, r), element).Y;
-			}
-			var textBlock = element as TextBlock;
-			if (textBlock != null)
-				return textBlock.TranslatePoint(new Point(0, textBlock.ActualHeight), element).Y;
+        //TODO: GlyphRun must be used
+        static double? GetBaseline(Control element)
+        {
+            var textBox = element as TextBox;
+            if (textBox != null)
+            {
+                var r = textBox.GetRectFromCharacterIndex(0).Bottom;
+                return textBox.TranslatePoint(new Point(0, r), element).Value.Y;
+            }
+            var textBlock = element as TextBlock;
+            if (textBlock != null)
+                return textBlock.TranslatePoint(new Point(0, textBlock.Bounds.Height), element).Value.Y;
 
-			return null;
-		}
+            return null;
+        }
 
-		static bool Snap(List<Snapline> input, List<Snapline> map, double accuracy,
-		                 out List<Snapline> drawLines, out double delta)
-		{
-			delta = double.MaxValue;
-			drawLines = null;
+        static bool Snap(List<Snapline> input, List<Snapline> map, double accuracy,
+                         out List<Snapline> drawLines, out double delta)
+        {
+            delta = double.MaxValue;
+            drawLines = null;
 
-			foreach (var inputLine in input) {
-				foreach (var mapLine in map) {
-					if (Math.Abs(mapLine.Offset - inputLine.Offset) <= accuracy) {
-						if (!inputLine.RequireOverlap && !mapLine.RequireOverlap ||
-						    Math.Max(inputLine.Start, mapLine.Start) < Math.Min(inputLine.End, mapLine.End))
-						{
-							if (mapLine.Group == inputLine.Group)
-								delta = mapLine.Offset - inputLine.Offset;
-						}
-					}
-				}
-			}
+            foreach (var inputLine in input)
+            {
+                foreach (var mapLine in map)
+                {
+                    if (Math.Abs(mapLine.Offset - inputLine.Offset) <= accuracy)
+                    {
+                        if (!inputLine.RequireOverlap && !mapLine.RequireOverlap ||
+                            Math.Max(inputLine.Start, mapLine.Start) < Math.Min(inputLine.End, mapLine.End))
+                        {
+                            if (mapLine.Group == inputLine.Group)
+                                delta = mapLine.Offset - inputLine.Offset;
+                        }
+                    }
+                }
+            }
 
-			if (delta == double.MaxValue) return false;
-			var offsetDict = new Dictionary<double, Snapline>();
+            if (delta == double.MaxValue) return false;
+            var offsetDict = new Dictionary<double, Snapline>();
 
-			foreach (var inputLine in input) {
-				inputLine.Offset += delta;
-				foreach (var mapLine in map) {
-					if (inputLine.Offset == mapLine.Offset) {
-						var offset = mapLine.Offset;
-						Snapline drawLine;
-						if (!offsetDict.TryGetValue(offset, out drawLine)) {
-							drawLine = new Snapline();
-							drawLine.Start = double.MaxValue;
-							drawLine.End = double.MinValue;
-							offsetDict[offset] = drawLine;
-						}
-						drawLine.Offset = offset;
-						drawLine.Start = Math.Min(drawLine.Start, Math.Min(inputLine.Start, mapLine.Start));
-						drawLine.End = Math.Max(drawLine.End, Math.Max(inputLine.End, mapLine.End));
-					}
-				}
-			}
+            foreach (var inputLine in input)
+            {
+                inputLine.Offset += delta;
+                foreach (var mapLine in map)
+                {
+                    if (inputLine.Offset == mapLine.Offset)
+                    {
+                        var offset = mapLine.Offset;
+                        Snapline drawLine;
+                        if (!offsetDict.TryGetValue(offset, out drawLine))
+                        {
+                            drawLine = new Snapline();
+                            drawLine.Start = double.MaxValue;
+                            drawLine.End = double.MinValue;
+                            offsetDict[offset] = drawLine;
+                        }
+                        drawLine.Offset = offset;
+                        drawLine.Start = Math.Min(drawLine.Start, Math.Min(inputLine.Start, mapLine.Start));
+                        drawLine.End = Math.Max(drawLine.End, Math.Max(inputLine.End, mapLine.End));
+                    }
+                }
+            }
 
-			drawLines = offsetDict.Values.ToList();
-			return true;
-		}
+            drawLines = offsetDict.Values.ToList();
+            return true;
+        }
 
-		[DebuggerDisplay("Snapline: {Offset}")]
-		class Snapline
-		{
+        [DebuggerDisplay("Snapline: {Offset}")]
+        public class Snapline
+        {
             public double Offset;
             public double Start;
             public double End;
@@ -520,5 +545,5 @@ namespace gip.ext.designer.avui.Extensions
 
             public double DrawOffset = 0;
         }
-	}
+    }
 }

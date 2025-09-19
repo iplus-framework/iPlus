@@ -50,6 +50,7 @@ namespace gip.ext.designer.avui.Controls
 
         private void Target_PointerPressed(object sender, PointerPressedEventArgs e)
         {
+            LastEventArgs = e;
             // In Avalonia, get position relative to the visual root or a specific visual
             var topLevel = TopLevel.GetTopLevel(Target as Visual);
             StartPoint = e.GetPosition(topLevel);
@@ -63,6 +64,7 @@ namespace gip.ext.designer.avui.Controls
 
         private void Target_PointerReleased(object sender, PointerReleasedEventArgs e)
         {
+            LastEventArgs = e;
             IsDown = false;
             if (IsActive)
             {
@@ -72,6 +74,7 @@ namespace gip.ext.designer.avui.Controls
 
         private void Target_PointerMoved(object sender, PointerEventArgs e)
         {
+            LastEventArgs = e;
             if (IsDown)
             {
                 var topLevel = TopLevel.GetTopLevel(Target as Visual);
@@ -190,8 +193,9 @@ namespace gip.ext.designer.avui.Controls
 		public bool IsActive { get; private set; }
 		public bool IsDown { get; private set; }
 		public bool IsCanceled { get; private set; }
-		
-		public Vector Delta {
+        public PointerEventArgs LastEventArgs { get; private set; }
+
+        public Vector Delta {
             get
             {
                 if (Transform != null)

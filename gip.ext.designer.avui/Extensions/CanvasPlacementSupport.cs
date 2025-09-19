@@ -2,11 +2,12 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
-using System.Windows.Controls;
 using gip.ext.design.avui.Extensions;
+using gip.ext.design.avui.UIExtensions;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Controls;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.ext.designer.avui.Extensions
 {
@@ -17,10 +18,10 @@ namespace gip.ext.designer.avui.Extensions
     public class CanvasPlacementSupport : SnaplinePlacementBehavior
     {
         GrayOutDesignerExceptActiveArea grayOut;
-        FrameworkElement extendedComponent;
-        FrameworkElement extendedView;
+        Control extendedComponent;
+        Control extendedView;
 
-        static double GetCanvasProperty(UIElement element, DependencyProperty d)
+        static double GetCanvasProperty(Control element, AvaloniaProperty d)
         {
             double v = (double)element.GetValue(d);
             if (double.IsNaN(v))
@@ -29,20 +30,20 @@ namespace gip.ext.designer.avui.Extensions
                 return v;
         }
 
-        static bool IsPropertySet(UIElement element, DependencyProperty d)
+        static bool IsPropertySet(Control element, AvaloniaProperty d)
         {
-            return element.ReadLocalValue(d) != DependencyProperty.UnsetValue;
+            return element.IsSet(d);
         }
 
         protected override void OnInitialized()
         {
             base.OnInitialized();
 
-            extendedComponent = (FrameworkElement)ExtendedItem.Component;
-            extendedView = (FrameworkElement)this.ExtendedItem.View;
+            extendedComponent = (Control)ExtendedItem.Component;
+            extendedView = (Control)this.ExtendedItem.View;
         }
 
-        static protected double GetLeft(UIElement element)
+        static protected double GetLeft(Control element)
         {
             double v = (double)element.GetValue(Canvas.LeftProperty);
             if (double.IsNaN(v))
@@ -51,7 +52,7 @@ namespace gip.ext.designer.avui.Extensions
                 return v;
         }
 
-        static protected double GetTop(UIElement element)
+        static protected double GetTop(Control element)
         {
             double v = (double)element.GetValue(Canvas.TopProperty);
             if (double.IsNaN(v))
@@ -60,12 +61,12 @@ namespace gip.ext.designer.avui.Extensions
                 return v;
         }
 
-        public override Rect GetPosition(PlacementOperation operation, DesignItem item)
+        public override Rect GetPosition(PlacementOperation operation, DesignItem item, bool verifyAndCorrectPosition)
         {
-            UIElement child = item.View;
+            Control child = item.View;
 
             if (child == null)
-                return Rect.Empty;
+                return RectExtensions.Empty();
 
             double x, y;
 
@@ -75,7 +76,7 @@ namespace gip.ext.designer.avui.Extensions
             }
             else
             {
-                x = extendedComponent.ActualWidth - GetCanvasProperty(child, Canvas.RightProperty) - PlacementOperation.GetRealElementSize(child).Width;
+                x = extendedComponent.Bounds.Width - GetCanvasProperty(child, Canvas.RightProperty) - PlacementOperation.GetRealElementSize(child).Width;
             }
 
 
@@ -85,7 +86,7 @@ namespace gip.ext.designer.avui.Extensions
             }
             else
             {
-                y = extendedComponent.ActualHeight - GetCanvasProperty(child, Canvas.BottomProperty) - PlacementOperation.GetRealElementSize(child).Height;
+                y = extendedComponent.Bounds.Height - GetCanvasProperty(child, Canvas.BottomProperty) - PlacementOperation.GetRealElementSize(child).Height;
             }
 
             var p = new Point(x, y);
@@ -97,9 +98,9 @@ namespace gip.ext.designer.avui.Extensions
         public override void SetPosition(PlacementInformation info)
         {
             base.SetPosition(info);
-            info.Item.Properties[FrameworkElement.MarginProperty].Reset();
+            info.Item.Properties[Control.MarginProperty].Reset();
 
-            UIElement child = info.Item.View;
+            Control child = info.Item.View;
             Rect newPosition = info.Bounds;
 
             if (IsPropertySet(child, Canvas.LeftProperty) || !IsPropertySet(child, Canvas.RightProperty))
@@ -111,7 +112,7 @@ namespace gip.ext.designer.avui.Extensions
             }
             else
             {
-                var newR = extendedComponent.ActualWidth - newPosition.Right;
+                var newR = extendedComponent.Bounds.Width - newPosition.Right;
                 if (newR != GetCanvasProperty(child, Canvas.RightProperty))
                     info.Item.Properties.GetAttachedProperty(Canvas.RightProperty).SetValue(newR);
             }
@@ -126,14 +127,14 @@ namespace gip.ext.designer.avui.Extensions
             }
             else
             {
-                var newB = extendedComponent.ActualHeight - newPosition.Bottom;
+                var newB = extendedComponent.Bounds.Height - newPosition.Bottom;
                 if (newB != GetCanvasProperty(child, Canvas.BottomProperty))
                     info.Item.Properties.GetAttachedProperty(Canvas.BottomProperty).SetValue(newB);
             }
 
             if (info.Item == Services.Selection.PrimarySelection)
             {
-                var b = new Rect(0, 0, extendedView.ActualWidth, extendedView.ActualHeight);
+                var b = new Rect(0, 0, extendedView.Bounds.Width, extendedView.Bounds.Height);
                 // only for primary selection:
                 if (grayOut != null)
                 {
@@ -164,9 +165,9 @@ namespace gip.ext.designer.avui.Extensions
             base.EnterContainer(operation);
             foreach (PlacementInformation info in operation.PlacedItems)
             {
-                info.Item.Properties[FrameworkElement.HorizontalAlignmentProperty].Reset();
-                info.Item.Properties[FrameworkElement.VerticalAlignmentProperty].Reset();
-                info.Item.Properties[FrameworkElement.MarginProperty].Reset();
+                info.Item.Properties[Control.HorizontalAlignmentProperty].Reset();
+                info.Item.Properties[Control.VerticalAlignmentProperty].Reset();
+                info.Item.Properties[Control.MarginProperty].Reset();
 
                 if (operation.Type == PlacementType.PasteItem)
                 {
