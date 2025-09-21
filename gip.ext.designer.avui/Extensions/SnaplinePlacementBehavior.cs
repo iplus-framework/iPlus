@@ -26,7 +26,7 @@ namespace gip.ext.designer.avui.Extensions
     {
         public static bool GetDisableSnaplines(AvaloniaObject obj)
         {
-            return (bool)obj.GetValue(DisableSnaplinesProperty);
+            return obj.GetValue(DisableSnaplinesProperty);
         }
 
         public static void SetDisableSnaplines(AvaloniaObject obj, bool value)
@@ -34,8 +34,8 @@ namespace gip.ext.designer.avui.Extensions
             obj.SetValue(DisableSnaplinesProperty, value);
         }
 
-        public static readonly DependencyProperty DisableSnaplinesProperty =
-            DependencyProperty.RegisterAttached("DisableSnaplines", typeof(bool), typeof(SnaplinePlacementBehavior), new PropertyMetadata(false));
+        public static readonly AttachedProperty<bool> DisableSnaplinesProperty =
+            AvaloniaProperty.RegisterAttached<SnaplinePlacementBehavior, AvaloniaObject, bool>("DisableSnaplines", false);
 
         AdornerPanel adornerPanel;
         Canvas surface;

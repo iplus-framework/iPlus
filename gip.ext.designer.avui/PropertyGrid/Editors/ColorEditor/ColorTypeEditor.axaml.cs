@@ -2,61 +2,82 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
-using System.Windows.Media;
+using System.Reactive.Linq;
 using gip.ext.designer.avui.PropertyGrid;
 using gip.ext.designer.avui.themes;
-using System.Windows.Input;
 using System.ComponentModel;
 using gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor;
 using System.Linq;
 using gip.ext.design.avui.PropertyGrid;
+using gip.ext.design.avui;
+using Avalonia.Media;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml;
+using Avalonia.VisualTree;
+using System.Threading.Tasks;
+using Avalonia;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor
 {
 	[TypeEditor(typeof(Color))]
-	public partial class ColorTypeEditor
+	public partial class ColorTypeEditor : UserControl
 	{
-		public ColorTypeEditor()
-		{
-			SpecialInitializeComponent();
-		}
-
-		/// <summary>
-		/// Fixes InitializeComponent with multiple Versions of same Assembly loaded
-		/// </summary>
-		public void SpecialInitializeComponent()
-		{
-			if (!this._contentLoaded)
-			{
-				this._contentLoaded = true;
-				Uri resourceLocator = new Uri(VersionedAssemblyResourceDictionary.GetXamlNameForType(this.GetType()), UriKind.Relative);
-				Application.LoadComponent(this, resourceLocator);
-			}
-
-			this.InitializeComponent();
-		}
-
+		private bool _contentLoaded;
 		private ChangeGroup _changeGroup = null;
 
-		protected override void OnMouseUp(MouseButtonEventArgs e)
+		public ColorTypeEditor()
+		{
+            this.InitializeComponent();
+        }
+
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
+		}
+
+		protected override void OnPointerReleased(PointerReleasedEventArgs e)
+		{
+			ShowColorEditor();
+			base.OnPointerReleased(e);
+		}
+
+		private async void ShowColorEditor()
 		{
 			var pnode = this.DataContext as PropertyNode;
+			if (pnode == null) return;
+			
 			var colorEditorPopup = new ColorEditorPopup();
-			colorEditorPopup.PlacementTarget = this;
-			colorEditorPopup.IsOpen = true;
+			
+			// Set initial color value
 			colorEditorPopup.solidBrushEditor.Color = (Color)pnode.DesignerValue;
-			colorEditorPopup.Closed += ColorEditorPopup_Closed;
-			DependencyPropertyDescriptor.FromProperty(SolidBrushEditor.ColorProperty, typeof(SolidBrushEditor))
-				.AddValueChanged(colorEditorPopup.solidBrushEditor, 
-				(s, ee) => {
-					if (_changeGroup == null) {
-						_changeGroup = pnode.Context.OpenGroup("change color",
-											   pnode.Properties.Select(p => p.DesignItem).ToArray());
-
-					}
-					pnode.DesignerValue = colorEditorPopup.solidBrushEditor.Color;
-				});
+			
+			// Subscribe to color changes using Avalonia property change subscription
+			var colorObservable = colorEditorPopup.solidBrushEditor.GetObservable(SolidBrushEditor.ColorProperty);
+			var subscription = colorObservable.Subscribe(newColor => {
+				if (_changeGroup == null) {
+					_changeGroup = pnode.Context.OpenGroup("change color",
+										   pnode.Properties.Select(p => p.DesignItem).ToArray());
+				}
+				pnode.DesignerValue = newColor;
+			});
+			
+			// Subscribe to closed event
+			colorEditorPopup.Closed += (s, e) => {
+				ColorEditorPopup_Closed(s, e);
+				subscription?.Dispose();
+			};
+			
+			// Find parent window and show dialog
+			var parentWindow = this.FindAncestorOfType<Window>();
+			if (parentWindow != null)
+			{
+				await colorEditorPopup.ShowDialog(parentWindow);
+			}
+			else
+			{
+				colorEditorPopup.Show();
+			}
 		}
 
 		private void ColorEditorPopup_Closed(object sender, EventArgs e)

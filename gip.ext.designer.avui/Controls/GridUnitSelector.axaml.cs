@@ -47,9 +47,9 @@ namespace gip.ext.designer.avui.Controls
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
             // Cache control references and wire up event handlers
-            _fixedButton = this.FindControl<RadioButton>("fixed");
-            _starButton = this.FindControl<RadioButton>("star");
-            _autoButton = this.FindControl<RadioButton>("auto");
+            _fixedButton = this.FindControl<RadioButton>("fixedButton");
+            _starButton = this.FindControl<RadioButton>("starButton");
+            _autoButton = this.FindControl<RadioButton>("autoButton");
             
             if (_fixedButton != null)
                 _fixedButton.Click += FixedChecked;
@@ -90,8 +90,8 @@ namespace gip.ext.designer.avui.Controls
             get
             {
                 // Use cached references if available, otherwise find controls
-                var autoButton = _autoButton ?? this.FindControl<RadioButton>("auto");
-                var starButton = _starButton ?? this.FindControl<RadioButton>("star");
+                var autoButton = _autoButton ?? this.FindControl<RadioButton>("autoButton");
+                var starButton = _starButton ?? this.FindControl<RadioButton>("starButton");
                 
                 if (autoButton?.IsChecked == true)
                     return GridUnitType.Auto;
@@ -103,9 +103,9 @@ namespace gip.ext.designer.avui.Controls
             set
             {
                 // Use cached references if available, otherwise find controls
-                var autoButton = _autoButton ?? this.FindControl<RadioButton>("auto");
-                var starButton = _starButton ?? this.FindControl<RadioButton>("star");
-                var fixedButton = _fixedButton ?? this.FindControl<RadioButton>("fixed");
+                var autoButton = _autoButton ?? this.FindControl<RadioButton>("autoButton");
+                var starButton = _starButton ?? this.FindControl<RadioButton>("starButton");
+                var fixedButton = _fixedButton ?? this.FindControl<RadioButton>("fixedButton");
                 
                 switch (value)
                 {

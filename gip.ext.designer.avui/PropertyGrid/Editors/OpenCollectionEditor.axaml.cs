@@ -3,10 +3,12 @@
 
 using System;
 using System.Collections;
-using System.Windows;
-using System.Windows.Controls;
 using gip.ext.designer.avui.themes;
 using gip.ext.design.avui.PropertyGrid;
+using gip.ext.designer.avui.PropertyGrid.Editors;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.Editors
 {
@@ -23,22 +25,22 @@ namespace gip.ext.designer.avui.Editors
 		/// </summary>
 		public void SpecialInitializeComponent()
 		{
-			if (!this._contentLoaded) {
-				this._contentLoaded = true;
-				Uri resourceLocator = new Uri(VersionedAssemblyResourceDictionary.GetXamlNameForType(this.GetType()), UriKind.Relative);
-				Application.LoadComponent(this, resourceLocator);
-			}
-			
+			// For specialized resource loading, we'll use the standard pattern and let VersionedAssemblyResourceDictionary handle it
 			this.InitializeComponent();
+		}
+
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
 		}
 		
 		void open_Click(object sender, RoutedEventArgs e)
 		{
 			var node = this.DataContext as PropertyNode;
 			
-			var editor = new FlatCollectionEditor(Window.GetWindow(this));
+			var editor = new FlatCollectionEditor(TopLevel.GetTopLevel(this) as Window);
 			editor.LoadItemsCollection(node.FirstProperty);
-			editor.ShowDialog();
+			editor.ShowDialog(TopLevel.GetTopLevel(this) as Window);
 		}
 	}
 }

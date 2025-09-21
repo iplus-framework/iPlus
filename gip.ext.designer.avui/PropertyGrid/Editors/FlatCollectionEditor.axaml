@@ -29,14 +29,15 @@
 			<Border.Resources>
 				<ResourceDictionary>
 					<ResourceDictionary.MergedDictionaries>
-						<ResourceDictionary Source="CollectionTemplateDictionary.xaml"/>
+						<ResourceDictionary Source="CollectionTemplateDictionary.axaml"/>
 					</ResourceDictionary.MergedDictionaries>
 					<editors:CollectionTemplateSelector x:Key="CollectionTemplateSelector" />
 				</ResourceDictionary>
 			</Border.Resources>
 			<ListBox
 				x:Name="ListBox"
-				SelectionChanged="ListBox_SelectionChanged" ItemTemplateSelector="{StaticResource CollectionTemplateSelector}">
+				SelectionChanged="ListBox_SelectionChanged" 
+				ItemTemplate="{StaticResource CollectionTemplateSelector}">
 			</ListBox>
 		</Border>
 		<ComboBox Name="ItemDataType"

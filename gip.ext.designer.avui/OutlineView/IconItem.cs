@@ -1,35 +1,27 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia;
 using Avalonia.Controls;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.OutlineView
 {
 	public class IconItem : Control
 	{
-		static IconItem()
-		{
-			DefaultStyleKeyProperty.OverrideMetadata(typeof(IconItem),
-			                                         new FrameworkPropertyMetadata(typeof(IconItem)));
-		}
+		public static readonly StyledProperty<IImage> IconProperty =
+			AvaloniaProperty.Register<IconItem, IImage>("Icon");
 
-		public static readonly DependencyProperty IconProperty =
-			DependencyProperty.Register("Icon", typeof(ImageSource), typeof(IconItem));
-
-		public ImageSource Icon {
-			get { return (ImageSource)GetValue(IconProperty); }
+		public IImage Icon {
+			get { return GetValue(IconProperty); }
 			set { SetValue(IconProperty, value); }
 		}
 
-		public static readonly DependencyProperty TextProperty =
-			DependencyProperty.Register("Text", typeof(string), typeof(IconItem));
+		public static readonly StyledProperty<string> TextProperty =
+			AvaloniaProperty.Register<IconItem, string>("Text");
 
 		public string Text {
-			get { return (string)GetValue(TextProperty); }
+			get { return GetValue(TextProperty); }
 			set { SetValue(TextProperty, value); }
 		}
 	}

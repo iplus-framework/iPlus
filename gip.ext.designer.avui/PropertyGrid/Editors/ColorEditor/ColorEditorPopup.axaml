@@ -1,10 +1,12 @@
-﻿<Popup x:Class="gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor.ColorEditorPopup"
-       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<Window x:Class="gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor.ColorEditorPopup"
+       xmlns="https://github.com/avaloniaui"
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:BrushEditor="clr-namespace:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
-       Placement="Bottom"
-       AllowsTransparency="True"
-       SnapsToDevicePixels="True"
-       StaysOpen="False">
-	<BrushEditor:SolidBrushEditor x:Name="solidBrushEditor" x:FieldModifier="public" />
-</Popup>
+       Title="Color Editor"
+       Width="300"
+       Height="400"
+       WindowStartupLocation="CenterOwner"
+       CanResize="False"
+       ShowInTaskbar="False">
+	<BrushEditor:SolidBrushEditor x:Name="solidBrushEditor" />
+</Window>

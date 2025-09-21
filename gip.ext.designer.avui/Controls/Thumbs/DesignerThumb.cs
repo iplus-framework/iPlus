@@ -31,8 +31,8 @@ namespace gip.ext.designer.avui.Controls
 		/// <summary>
 		/// Styled property for <see cref="OperationMenu"/>.
 		/// </summary>
-		public static readonly StyledProperty<Control[]?> OperationMenuProperty =
-			AvaloniaProperty.Register<DesignerThumb, Control[]?>(nameof(OperationMenu));
+		public static readonly StyledProperty<Control[]> OperationMenuProperty =
+			AvaloniaProperty.Register<DesignerThumb, Control[]>(nameof(OperationMenu));
 
 		public PlacementAlignment Alignment;
 		

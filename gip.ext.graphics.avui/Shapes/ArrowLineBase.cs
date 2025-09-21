@@ -123,7 +123,7 @@ namespace gip.ext.graphics.avui.shapes
 
         public static PathFigure CalculateArrow(PathFigure pathfig, Point pt1, Point pt2, double arrowLength, double arrowAngle, bool isArrowClosed)
         {
-            Matrix matx = new Matrix();
+            //Matrix matx = new Matrix();
             Vector vect = pt1 - pt2;
             vect.Normalize();
             vect *= arrowLength;

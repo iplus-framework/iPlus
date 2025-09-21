@@ -2,7 +2,6 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.ComponentModel;
 using gip.ext.designer.avui;
 using gip.ext.designer.avui.Controls;
 using Avalonia;
@@ -12,7 +11,7 @@ using Avalonia.Input;
 
 namespace gip.ext.designer.avui.ThumbnailView
 {
-	public class ThumbnailView : TemplatedControl, INotifyPropertyChanged
+	public class ThumbnailView : TemplatedControl
 	{
 		public DesignSurface DesignSurface
 		{
@@ -31,41 +30,49 @@ namespace gip.ext.designer.avui.ThumbnailView
 				ctl.oldSurface.LayoutUpdated -= ctl.DesignSurface_LayoutUpdated;
 			
 			ctl.oldSurface = value;
-			ctl.scrollViewer = null;
+			ctl.SetValue(ScrollViewerProperty, null);
 
 			if (value != null)
 			{
 				value.LayoutUpdated += ctl.DesignSurface_LayoutUpdated;
 			}
 
-			ctl.OnPropertyChanged("ScrollViewer");
+			// Trigger update of ScrollViewer property
+			ctl.UpdateScrollViewer();
 			return value;
 		}
 
 		public ScrollViewer ScrollViewer
 		{
-			get
+			get { return GetValue(ScrollViewerProperty); }
+			private set { SetValue(ScrollViewerProperty, value); }
+		}
+
+		public static readonly StyledProperty<ScrollViewer> ScrollViewerProperty =
+			AvaloniaProperty.Register<ThumbnailView, ScrollViewer>(nameof(ScrollViewer));
+
+		private void UpdateScrollViewer()
+		{
+			ScrollViewer newScrollViewer = null;
+			if (DesignSurface != null)
 			{
-				if (DesignSurface != null && scrollViewer == null)
-				{
-					// Use the ZoomControl property from DesignSurface
-					scrollViewer = DesignSurface.ZoomControl;
-				}
-				return scrollViewer;
+				// Use the ZoomControl property from DesignSurface
+				newScrollViewer = DesignSurface.ZoomControl;
 			}
+			ScrollViewer = newScrollViewer;
 		}
 
 		void DesignSurface_LayoutUpdated(object sender, EventArgs e)
 		{
-			if (this.scrollViewer == null)
-				OnPropertyChanged("ScrollViewer");
+			if (ScrollViewer == null)
+				UpdateScrollViewer();
 
-			if (this.scrollViewer != null)
+			if (ScrollViewer != null)
 			{
 				double scale, xOffset, yOffset;
 				this.InvalidateScale(out scale, out xOffset, out yOffset);
 
-				if (this.zoomThumb != null && this.scrollViewer is ZoomControl zoomControl)
+				if (this.zoomThumb != null && this.ScrollViewer is ZoomControl zoomControl)
 				{
 					// Use Bounds instead of ViewportWidth/Height
 					this.zoomThumb.Width = zoomControl.Bounds.Width * scale;
@@ -77,7 +84,6 @@ namespace gip.ext.designer.avui.ThumbnailView
 		}
 
 		private DesignSurface oldSurface;
-		private ZoomControl scrollViewer;
 		private Canvas zoomCanvas;
 		private Thumb zoomThumb;
 		
@@ -172,12 +178,6 @@ namespace gip.ext.designer.avui.ThumbnailView
 					yOffset += (y - scale*h)/2;
 				}
 			}
-		}
-
-		public event PropertyChangedEventHandler PropertyChanged;
-		protected virtual void OnPropertyChanged(string propertyName)
-		{
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }

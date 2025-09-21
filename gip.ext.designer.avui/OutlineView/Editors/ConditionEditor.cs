@@ -28,7 +28,7 @@ namespace gip.ext.designer.avui.OutlineView
     [TemplatePart(Name = "PART_SelectorTriggerable", Type = typeof(ComboBox))]
     [TemplatePart(Name = "PART_TriggerValueEditor", Type = typeof(ContentControl))]
     [CLSCompliant(false)]
-    public class ConditionEditor : TemplatedControl, INotifyPropertyChanged, ITypeEditorInitItem
+    public class ConditionEditor : TemplatedControl, ITypeEditorInitItem
     {
         static ConditionEditor()
         {
@@ -163,7 +163,7 @@ namespace gip.ext.designer.avui.OutlineView
             UpdatePARTBindingEditor(TriggerBindingEditor);
             if (PART_TriggerValueEditor != null)
                 PART_TriggerValueEditor.Content = TriggerValueEditor;
-            RaisePropertyChanged("SelectedTriggerableProperty");
+            UpdateSelectedTriggerableProperty();
         }
 
         protected DesignItem _DesignObjectCondition;
@@ -218,17 +218,32 @@ namespace gip.ext.designer.avui.OutlineView
         {
             if (e.PropertyName == "Description")
             {
-                RaisePropertyChanged("TriggerInfoText");
+                UpdateTriggerInfoText();
             }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string name)
+        public string TriggerInfoText
         {
-            if (PropertyChanged != null)
+            get { return GetValue(TriggerInfoTextProperty); }
+            private set { SetValue(TriggerInfoTextProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> TriggerInfoTextProperty =
+            AvaloniaProperty.Register<ConditionEditor, string>(nameof(TriggerInfoText), string.Empty);
+
+        private void UpdateTriggerInfoText()
+        {
+            string newValue = string.Empty;
+            if (Wrapper != null)
+                newValue = Wrapper.Description ?? string.Empty;
+            else if ((PART_BindingEditor != null) && (PART_BindingEditor.Content != null))
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
+                if (PART_BindingEditor.Content is BindingEditor bindingEditor)
+                    newValue = bindingEditor.TriggerInfoText ?? string.Empty;
+                else if (PART_BindingEditor.Content is MultiBindingEditor multiBindingEditor)
+                    newValue = multiBindingEditor.TriggerInfoText ?? string.Empty;
             }
+            TriggerInfoText = newValue;
         }
 
         public virtual Binding CreateNewBinding()
@@ -315,14 +330,14 @@ namespace gip.ext.designer.avui.OutlineView
                 return;
             if (PART_BindingEditor.Content != null)
             {
-                if (PART_BindingEditor.Content is INotifyPropertyChanged)
-                    (PART_BindingEditor.Content as INotifyPropertyChanged).PropertyChanged -= _Editor_PropertyChanged;
+                if (PART_BindingEditor.Content is INotifyPropertyChanged oldEditor)
+                    oldEditor.PropertyChanged -= _Editor_PropertyChanged;
             }
             PART_BindingEditor.Content = editor;
             if (PART_BindingEditor.Content != null)
             {
-                if (PART_BindingEditor.Content is INotifyPropertyChanged)
-                    (PART_BindingEditor.Content as INotifyPropertyChanged).PropertyChanged += _Editor_PropertyChanged;
+                if (PART_BindingEditor.Content is INotifyPropertyChanged newEditor)
+                    newEditor.PropertyChanged += _Editor_PropertyChanged;
             }
             if (_ParentTriggerNode != null)
                 _ParentTriggerNode.RaisePropertyChanged("TriggerInfoText");
@@ -336,23 +351,6 @@ namespace gip.ext.designer.avui.OutlineView
                     _ParentTriggerNode.RaisePropertyChanged("TriggerInfoText");
                 if (PART_TriggerValueEditor != null)
                     PART_TriggerValueEditor.Content = TriggerValueEditor;
-            }
-        }
-
-        public string TriggerInfoText
-        {
-            get
-            {
-                if (Wrapper != null)
-                    return Wrapper.Description;
-                else if ((PART_BindingEditor != null) && (PART_BindingEditor.Content != null))
-                {
-                    if (PART_BindingEditor.Content is BindingEditor)
-                        return (PART_BindingEditor.Content as BindingEditor).TriggerInfoText;
-                    else if (PART_BindingEditor.Content is MultiBindingEditor)
-                        return (PART_BindingEditor.Content as MultiBindingEditor).TriggerInfoText;
-                }
-                return "";
             }
         }
 
@@ -430,10 +428,18 @@ namespace gip.ext.designer.avui.OutlineView
 
         public PropertyNode SelectedTriggerableProperty
         {
-            get
+            get { return GetValue(SelectedTriggerablePropertyProperty); }
+            set { SetValue(SelectedTriggerablePropertyProperty, value); }
+        }
+
+        public static readonly StyledProperty<PropertyNode> SelectedTriggerablePropertyProperty =
+            AvaloniaProperty.Register<ConditionEditor, PropertyNode>(nameof(SelectedTriggerableProperty));
+
+        private void UpdateSelectedTriggerableProperty()
+        {
+            PropertyNode selectedProperty = null;
+            if (TriggerableProperties.Count > 0)
             {
-                if (TriggerableProperties.Count <= 0)
-                    return null;
                 //if (!_LockValueEditorRefresh && !IsTriggerEditable && PART_TriggerValueEditor != null)
                 if (!_LockValueEditorRefresh && PART_TriggerValueEditor != null)
                     PART_TriggerValueEditor.Content = TriggerValueEditor;
@@ -441,17 +447,12 @@ namespace gip.ext.designer.avui.OutlineView
                 {
                     var query = TriggerableProperties.Where(c => c.Name == Wrapper.PropertyName);
                     if (query.Any())
-                        return query.First();
+                        selectedProperty = query.First();
                 }
-                return TriggerableProperties.First();
+                if (selectedProperty == null)
+                    selectedProperty = TriggerableProperties.First();
             }
-            set
-            {
-                if ((value != null) && (Wrapper != null))
-                {
-                    Wrapper.PropertyName = value.Name;
-                }
-            }
+            SelectedTriggerableProperty = selectedProperty;
         }
 
         protected bool _LockValueEditorRefresh = false;

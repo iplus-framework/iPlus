@@ -5,70 +5,79 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Primitives;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Markup.Xaml;
 using System.ComponentModel;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-	public partial class GradientSlider
+	public partial class GradientSlider : UserControl
 	{
+		//private Dragger strip;
+		//private GradientItemsControl itemsControl;
+
 		public GradientSlider()
 		{
 			InitializeComponent();
+		}
 
-			BindingOperations.SetBinding(this, SelectedStopProperty, new Binding("SelectedItem") {
-			                             	Source = itemsControl,
-			                             	Mode = BindingMode.TwoWay
-			                             });
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
+			
+			//strip = this.FindControl<Dragger>("strip");
+			//itemsControl = this.FindControl<GradientItemsControl>("itemsControl");
 
-			strip.DragStarted += new DragStartedEventHandler(strip_DragStarted);
-			strip.DragDelta += new DragDeltaEventHandler(strip_DragDelta);
+			this.Bind(SelectedStopProperty, new Binding("SelectedItem") {
+				Source = itemsControl,
+				Mode = BindingMode.TwoWay
+			});
+
+			if (strip != null)
+			{
+				strip.AddHandler(Thumb.DragStartedEvent, strip_DragStarted);
+				strip.AddHandler(Thumb.DragDeltaEvent, strip_DragDelta);
+			}
 		}
 
 		static GradientSlider()
 		{
-			EventManager.RegisterClassHandler(typeof(GradientSlider),
-			                                  Thumb.DragDeltaEvent, new DragDeltaEventHandler(ThumbDragDelta));
-            EventManager.RegisterClassHandler(typeof(GradientSlider),
-                                              Thumb.DragStartedEvent, new DragStartedEventHandler(ThumbDragStarted));
-            EventManager.RegisterClassHandler(typeof(GradientSlider),
-                                              Thumb.DragCompletedEvent, new DragCompletedEventHandler(ThumbDragCompleted));
-        }
+			Thumb.DragDeltaEvent.AddClassHandler<GradientSlider>((x, e) => x.OnThumbDragDelta(e));
+			Thumb.DragStartedEvent.AddClassHandler<GradientSlider>((x, e) => x.OnThumbDragStarted(e));
+			Thumb.DragCompletedEvent.AddClassHandler<GradientSlider>((x, e) => x.OnThumbDragCompleted(e));
+		}
 
-        GradientStop newStop;
+		GradientStop newStop;
 		double startOffset;
-        static bool isThumbDragInProgress = false;
+		static bool isThumbDragInProgress = false;
 
-        public static readonly DependencyProperty BrushProperty =
-			DependencyProperty.Register("Brush", typeof(GradientBrush), typeof(GradientSlider));
+		public static readonly StyledProperty<GradientBrush> BrushProperty =
+			AvaloniaProperty.Register<GradientSlider, GradientBrush>(nameof(Brush));
 
 		public GradientBrush Brush {
-			get { return (GradientBrush)GetValue(BrushProperty); }
+			get { return GetValue(BrushProperty); }
 			set { SetValue(BrushProperty, value); }
 		}
 
-		public static readonly DependencyProperty SelectedStopProperty =
-			DependencyProperty.Register("SelectedStop", typeof(GradientStop), typeof(GradientSlider));
+		public static readonly StyledProperty<GradientStop> SelectedStopProperty =
+			AvaloniaProperty.Register<GradientSlider, GradientStop>(nameof(SelectedStop));
 
 		public GradientStop SelectedStop {
-			get { return (GradientStop)GetValue(SelectedStopProperty); }
+			get { return GetValue(SelectedStopProperty); }
 			set { SetValue(SelectedStopProperty, value); }
 		}
 
-		public static readonly DependencyProperty GradientStopsProperty =
-			DependencyProperty.Register("GradientStops", typeof(BindingList<GradientStop>), typeof(GradientSlider));
+		public static readonly StyledProperty<BindingList<GradientStop>> GradientStopsProperty =
+			AvaloniaProperty.Register<GradientSlider, BindingList<GradientStop>>(nameof(GradientStops));
 
 		public BindingList<GradientStop> GradientStops {
-			get { return (BindingList<GradientStop>)GetValue(GradientStopsProperty); }
+			get { return GetValue(GradientStopsProperty); }
 			set { SetValue(GradientStopsProperty, value); }
 		}
 
@@ -87,31 +96,31 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			);
 		}
 
-		static void ThumbDragDelta(object sender, DragDeltaEventArgs e)
+		private void OnThumbDragDelta(VectorEventArgs e)
 		{
-			(sender as GradientSlider).thumb_DragDelta(sender, e);
+			thumb_DragDelta(this, e);
 		}
 
-        static void ThumbDragStarted(object sender, DragStartedEventArgs e)
-        {
-            isThumbDragInProgress = true;
-        }
-
-        static void ThumbDragCompleted(object sender, DragCompletedEventArgs e)
-        {
-            isThumbDragInProgress = false;
-        }
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+		private void OnThumbDragStarted(VectorEventArgs e)
 		{
-			base.OnPropertyChanged(e);
+			isThumbDragInProgress = true;
+		}
+
+		private void OnThumbDragCompleted(VectorEventArgs e)
+		{
+			isThumbDragInProgress = false;
+		}
+
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+		{
+			base.OnPropertyChanged(change);
 			
-			if (e.Property == BrushProperty && !isThumbDragInProgress)
-            {
+			if (change.Property == BrushProperty && !isThumbDragInProgress)
+			{
 				if (Brush != null) {
 					GradientStops = new BindingList<GradientStop>(Brush.GradientStops);
-                    if (SelectedStop == null)
-                        SelectedStop = GradientStops.FirstOrDefault();
+					if (SelectedStop == null)
+						SelectedStop = GradientStops.FirstOrDefault();
 				}
 				else {
 					GradientStops = null;
@@ -119,56 +128,75 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			}
 		}
 
-		void strip_DragStarted(object sender, DragStartedEventArgs e)
+		void strip_DragStarted(object sender, VectorEventArgs e)
 		{
-			startOffset = e.HorizontalOffset / strip.ActualWidth;
-			newStop = new GradientStop(GetColorAtOffset(GradientStops, startOffset), startOffset);
-			GradientStops.Add(newStop);
-			SelectedStop = newStop;
-			e.Handled = true;
+			if (strip != null && GradientStops != null)
+			{
+				startOffset = e.Vector.X / strip.Bounds.Width;
+				newStop = new GradientStop(GetColorAtOffset(GradientStops, startOffset), startOffset);
+				GradientStops.Add(newStop);
+				SelectedStop = newStop;
+				e.Handled = true;
+			}
 		}
 
-		void strip_DragDelta(object sender, DragDeltaEventArgs e)
+		void strip_DragDelta(object sender, VectorEventArgs e)
 		{
-			MoveStop(newStop, startOffset, e);
-			e.Handled = true;
+			if (newStop != null)
+			{
+				MoveStop(newStop, startOffset, e);
+				e.Handled = true;
+			}
 		}
 
-		void thumb_DragDelta(object sender, DragDeltaEventArgs e)
+		void thumb_DragDelta(object sender, VectorEventArgs e)
 		{
-			var stop = (e.OriginalSource as GradientThumb).GradientStop;
-			MoveStop(stop, stop.Offset, e);
+			var stop = (e.Source as GradientThumb)?.GradientStop;
+			if (stop != null)
+			{
+				MoveStop(stop, stop.Offset, e);
+			}
 		}
 
-		void MoveStop(GradientStop stop, double oldOffset, DragDeltaEventArgs e)
+		void MoveStop(GradientStop stop, double oldOffset, VectorEventArgs e)
 		{
-			if (e.VerticalChange > 50 && GradientStops.Count > 2) {
+			if (e.Vector.Y > 50 && GradientStops != null && GradientStops.Count > 2) {
 				GradientStops.Remove(stop);
 				SelectedStop = GradientStops.FirstOrDefault();
 				return;
 			}
-            try
-            {
-                stop.Offset = (oldOffset + e.HorizontalChange / strip.ActualWidth).Coerce(0, 1);
-            }
-            catch (Exception ec)
-            {
-                string msg = ec.Message;
-                if (ec.InnerException != null && ec.InnerException.Message != null)
-                    msg += " Inner:" + ec.InnerException.Message;
+			try
+			{
+				if (strip != null)
+				{
+					double newOffset = oldOffset + e.Vector.X / strip.Bounds.Width;
+					stop.Offset = Math.Max(0, Math.Min(1, newOffset));
+				}
+			}
+			catch (Exception ec)
+			{
+				string msg = ec.Message;
+				if (ec.InnerException != null && ec.InnerException.Message != null)
+					msg += " Inner:" + ec.InnerException.Message;
 
-                if (core.datamodel.Database.Root != null && core.datamodel.Database.Root.Messages != null
-                                                               && core.datamodel.Database.Root.InitState == core.datamodel.ACInitState.Initialized)
-                    core.datamodel.Database.Root.Messages.LogException("GradientSlider", "MoveStop", msg);
-            }
+				if (core.datamodel.Database.Root != null && core.datamodel.Database.Root.Messages != null
+												   && core.datamodel.Database.Root.InitState == core.datamodel.ACInitState.Initialized)
+					core.datamodel.Database.Root.Messages.LogException("GradientSlider", "MoveStop", msg);
+			}
 		}
 	}
 
-	public class GradientItemsControl : Selector
+	public class GradientItemsControl : SelectingItemsControl
 	{
-		protected override DependencyObject GetContainerForItemOverride()
+		protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
 		{
 			return new GradientThumb();
+		}
+
+		protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+		{
+			recycleKey = null;
+			return !(item is GradientThumb);
 		}
 	}
 
@@ -178,11 +206,12 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			get { return DataContext as GradientStop; }
 		}
 
-		protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+		protected override void OnPointerPressed(PointerPressedEventArgs e)
 		{
-			base.OnPreviewMouseDown(e);
+			base.OnPointerPressed(e);
 			var itemsControl = ItemsControl.ItemsControlFromItemContainer(this) as GradientItemsControl;
-			itemsControl.SelectedItem = GradientStop;
+			if (itemsControl != null)
+				itemsControl.SelectedItem = GradientStop;
 		}
 	}
 

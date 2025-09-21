@@ -10,11 +10,9 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Globalization;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows.Threading;
 using System.Diagnostics;
-using System.Windows.Media;
-using System.Windows;
 using gip.ext.design.avui;
+using Avalonia.Threading;
 
 namespace gip.ext.designer.avui.PropertyGrid
 {
@@ -257,11 +255,11 @@ namespace gip.ext.designer.avui.PropertyGrid
                 else
                     selectedItems = value.ToList();
                 RaisePropertyChanged("SelectedItems");
-                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(
+                Dispatcher.UIThread.Invoke(new Action(
                     delegate
                     {
                         Reload();
-                    }));
+                    }), DispatcherPriority.Background);
             }
         }
 

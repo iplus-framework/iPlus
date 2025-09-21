@@ -1,8 +1,22 @@
-﻿<ResourceDictionary 
-	xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+﻿<!-- 
+    Avalonia Resource Dictionary for Collection Templates
+    
+    Note: These templates are defined for potential use with alternative approaches
+    but the primary CollectionTemplateSelector creates controls directly without
+    using these XAML templates for better performance and simpler maintenance.
+    
+    Converted from WPF to Avalonia:
+    - Changed namespace from WPF to Avalonia
+    - Updated xmlns references
+    - Simplified MultiBinding to direct binding (WPF-specific feature)
+    - Updated assembly references to use correct Avalonia namespaces
+-->
+<ResourceDictionary 
+	xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:wpfDesign="clr-namespace:gip.ext.designer.avui;assembly=gip.ext.designer.avui">
-	<DataTemplate x:Key="PointTemplate" DataType="wpfDesign:DesignItem">
+	xmlns:design="clr-namespace:gip.ext.design.avui;assembly=gip.ext.design.avui">
+	
+	<DataTemplate x:Key="PointTemplate" DataType="design:DesignItem">
 		<StackPanel Orientation="Horizontal">
 			<TextBlock Text="Point (" />
 			<TextBlock Text="{Binding Component.X}" />
@@ -11,16 +25,13 @@
 			<TextBlock Text=")" />
 		</StackPanel>
 	</DataTemplate>
-	<DataTemplate x:Key="StringTemplate" DataType="wpfDesign:DesignItem">
+	
+	<DataTemplate x:Key="StringTemplate" DataType="design:DesignItem">
 		<TextBlock Text="{Binding Component}" />
 	</DataTemplate>
-	<DataTemplate x:Key="DefaultTemplate" DataType="wpfDesign:DesignItem">
-		<TextBlock>
-			<TextBlock.Text>
-				<MultiBinding StringFormat="{}{0}">
-					<Binding Path="Component" />
-				</MultiBinding>
-			</TextBlock.Text>
-		</TextBlock>
+	
+	<DataTemplate x:Key="DefaultTemplate" DataType="design:DesignItem">
+		<TextBlock Text="{Binding Component}" />
 	</DataTemplate>
+	
 </ResourceDictionary>

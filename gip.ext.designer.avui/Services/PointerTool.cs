@@ -21,12 +21,16 @@ namespace gip.ext.designer.avui.Services
 		public void Activate(IDesignPanel designPanel)
 		{
 			designPanel.PointerPressed += OnMouseDown;
-		}
+            if (designPanel is InputElement ie)
+                ie.Cursor = Cursor;
+        }
 		
 		public void Deactivate(IDesignPanel designPanel)
 		{
 			designPanel.PointerPressed -= OnMouseDown;
-		}
+            if (designPanel is InputElement ie)
+                ie.Cursor = null;
+        }
 		
 		void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{

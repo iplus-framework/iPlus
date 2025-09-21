@@ -28,13 +28,13 @@ namespace gip.ext.designer.avui.Controls
         /// <summary>
         /// This property is binded to the Text Property of the editor.
         /// </summary>
-        public static readonly StyledProperty<string> BindProperty =
-            AvaloniaProperty.Register<InPlaceEditor, string>("Bind", string.Empty);
+        public static readonly StyledProperty<string> BindPlaceProperty =
+            AvaloniaProperty.Register<InPlaceEditor, string>("BindPlace", string.Empty);
 
-        public string Bind
+        public string BindPlace
         {
-            get { return GetValue(BindProperty); }
-            set { SetValue(BindProperty, value); }
+            get { return GetValue(BindPlaceProperty); }
+            set { SetValue(BindPlaceProperty, value); }
         }
 
         readonly DesignItem designItem;
@@ -88,7 +88,7 @@ namespace gip.ext.designer.avui.Controls
                 Source = this.textBlock,
                 Mode = BindingMode.TwoWay
             };
-            this.Bind(BindProperty, binding);
+            this.Bind(BindPlaceProperty, binding);
             property = PropertyUpdated(textBlock);
         }
 
@@ -157,7 +157,7 @@ namespace gip.ext.designer.avui.Controls
                     case Key.Enter:
                         // Commit the changes to DOM.
                         if (property != null)
-                            designItem.Properties[property].SetValue(Bind);
+                            designItem.Properties[property].SetValue(BindPlace);
                         if ((FontFamily)designItem.Properties[TemplatedControl.FontFamilyProperty].ValueOnInstance != editor.FontFamily)
                             designItem.Properties[TemplatedControl.FontFamilyProperty].SetValue(editor.FontFamily);
                         if ((double)designItem.Properties[TemplatedControl.FontSizeProperty].ValueOnInstance != editor.FontSize)

@@ -160,13 +160,13 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        public ServiceContainer Services
-        {
-            get 
-            {
-                return this.DesignItem.Services;
-            }
-        }
+        //public override ServiceContainer Services
+        //{
+        //    get 
+        //    {
+        //        return this.DesignItem.Services;
+        //    }
+        //}
 
         public DesignItemProperty FirstProperty
         {

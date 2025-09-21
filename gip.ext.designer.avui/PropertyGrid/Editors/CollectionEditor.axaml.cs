@@ -10,6 +10,8 @@ using gip.ext.designer.avui.OutlineView;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
@@ -20,7 +22,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
         {
             TypeMappings.Add(typeof(Menu), typeof(MenuItem));
             TypeMappings.Add(typeof(ListBox), typeof(ListBoxItem));
-            TypeMappings.Add(typeof(ListView), typeof(ListViewItem));
+            //TypeMappings.Add(typeof(ListView), typeof(ListViewItem));
             TypeMappings.Add(typeof(ComboBox), typeof(ComboBoxItem));
             TypeMappings.Add(typeof(TreeView), typeof(TreeViewItem));
             TypeMappings.Add(typeof(TabControl), typeof(TabItem));
@@ -29,9 +31,35 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
         private DesignItem _item;
         private Type _type;
         private IComponentService _componentService;
+        
+        // AvaloniaUI control references
+        private Outline _outline;
+        private gip.ext.designer.avui.PropertyGrid.PropertyGridView _propertyGridView;
+        private Button _addItem;
+        private Button _removeItem;
+        private Button _moveUpItem;
+        private Button _moveDownItem;
+        
         public CollectionEditor()
         {
             InitializeComponent();
+            InitializeControls();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
+        
+        private void InitializeControls()
+        {
+            // Get references to named controls
+            _outline = this.FindControl<Outline>("Outline");
+            _propertyGridView = this.FindControl<gip.ext.designer.avui.PropertyGrid.PropertyGridView>("PropertyGridView");
+            _addItem = this.FindControl<Button>("AddItem");
+            _removeItem = this.FindControl<Button>("RemoveItem");
+            _moveUpItem = this.FindControl<Button>("MoveUpItem");
+            _moveDownItem = this.FindControl<Button>("MoveDownItem");
         }
 
         public void LoadItemsCollection(DesignItem item)
@@ -39,7 +67,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             Debug.Assert(item.View is ItemsControl);
             _item = item;
             _componentService = item.Services.Component;
-            item.Services.Selection.SelectionChanged += delegate { PropertyGridView.SelectedItems = item.Services.Selection.SelectedItems; };
+            item.Services.Selection.SelectionChanged += delegate { this._propertyGridView.SelectedItems = item.Services.Selection.SelectedItems; };
             var control = item.View as ItemsControl;
             if (control != null)
             {
@@ -48,17 +76,17 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
                 {
                     IOutlineNode node = item.CreateOutlineNode();
                     //OutlineNode node = OutlineNode.Create(item);
-                    Outline.Root = node;
-                    PropertyGridView.PropertyGrid.SelectedItems = item.Services.Selection.SelectedItems;
+                    this._outline.Root = node;
+                    this._propertyGridView.PropertyGrid.SelectedItems = item.Services.Selection.SelectedItems;
                 }
                 else
                 {
-                    PropertyGridView.IsEnabled = false;
-                    Outline.IsEnabled = false;
-                    AddItem.IsEnabled = false;
-                    RemoveItem.IsEnabled = false;
-                    MoveUpItem.IsEnabled = false;
-                    MoveDownItem.IsEnabled = false;
+                    this._propertyGridView.IsEnabled = false;
+                    this._outline.IsEnabled = false;
+                    _addItem.IsEnabled = false;
+                    _removeItem.IsEnabled = false;
+                    _moveUpItem.IsEnabled = false;
+                    _moveDownItem.IsEnabled = false;
                 }
             }
 
@@ -127,9 +155,10 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             }
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnClosing(WindowClosingEventArgs e)
         {
             _item.Services.Selection.SetSelectedComponents(new[] { _item });
+            base.OnClosing(e);
         }
     }
 }

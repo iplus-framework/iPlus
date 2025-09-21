@@ -1,17 +1,17 @@
 ﻿<UserControl x:Class="gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor.BrushEditorView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Designer="clr-namespace:gip.ext.designer.avui"
-             xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
-             xmlns:BrushEditor="clr-namespace:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
-             xmlns:Converters="clr-namespace:gip.ext.designer.avui.Converters"
-             xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
+             xmlns:Designer="using:gip.ext.designer.avui"
+             xmlns:Controls="using:gip.ext.designer.avui.Controls"
+             xmlns:BrushEditor="using:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
+             xmlns:Converters="using:gip.ext.designer.avui.Converters"
+             xmlns:PropertyGrid="using:gip.ext.designer.avui.PropertyGrid"
              xmlns:widgets="http://icsharpcode.net/sharpdevelop/widgets"
              Width="395">
 	
 	<UserControl.Resources>
 			
-			<DataTemplate DataType="{x:Type BrushEditor:BrushItem}">
+			<DataTemplate DataType="BrushEditor:BrushItem">
 				<StackPanel Orientation="Horizontal">
 					<Border Background="{Binding Brush}"
 					        Width="30"
@@ -34,10 +34,8 @@
 			        BorderBrush="Black"
 			        HorizontalAlignment="Center"
 			        VerticalAlignment="Center">
-				<Line X1="0"
-				      Y1="40"
-				      X2="70"
-				      Y2="0"
+				<Line StartPoint="0,40"
+				      EndPoint="70,0"
 				      Stroke="Red"
 				      StrokeThickness="1" />
 			</Border>
@@ -46,8 +44,13 @@
 			<BrushEditor:SolidBrushEditor Color="{Binding Brush.Color}" />
 		</TabItem>
 		<TabItem Header="Linear">
-			<DockPanel>
-				<StackPanel DockPanel.Dock="Top"
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="*" />
+				</Grid.RowDefinitions>
+				
+				<StackPanel Grid.Row="0"
 				            Orientation="Horizontal"
 				            Margin="5">
 					<TextBlock Text="Angle"
@@ -66,8 +69,8 @@
 					        Margin="5 0 0 0"
 					        Width="30" />
 				</StackPanel>
-				<BrushEditor:GradientBrushEditor />
-			</DockPanel>
+				<BrushEditor:GradientBrushEditor Grid.Row="1" />
+			</Grid>
 		</TabItem>
 		<TabItem Header="Radial">
 			<BrushEditor:GradientBrushEditor />

@@ -10,32 +10,29 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Globalization;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows.Threading;
 using System.Diagnostics;
-using System.Windows.Media;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Primitives;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.OutlineView;
 using gip.ext.designer.avui.Extensions;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Metadata;
+using Avalonia.Input;
+using Avalonia;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using Avalonia.LogicalTree;
 
 namespace gip.ext.designer.avui.PropertyGrid
 {
     [TemplatePart(Name = "PART_clearButton", Type = typeof(Button))]
     [TemplatePart(Name = "PART_NameTextBox", Type = typeof(TextBox))]
     [TemplatePart(Name = "PART_TreeView", Type = typeof(TreeView))]
-    public class DesignItemTreeView : Control, INotifyPropertyChanged
+    public class DesignItemTreeView : TemplatedControl, INotifyPropertyChanged
     {
         static DesignItemTreeView()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(DesignItemTreeView), new FrameworkPropertyMetadata(typeof(DesignItemTreeView)));
+            //DefaultStyleKeyProperty.OverrideMetadata(typeof(DesignItemTreeView), new FrameworkPropertyMetadata(typeof(DesignItemTreeView)));
         }
 
         public DesignItemTreeView()
@@ -49,29 +46,37 @@ namespace gip.ext.designer.avui.PropertyGrid
         public TextBox NameTextBox { get; set; }
         public TreeView TreeView { get; set; }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            clearButton = Template.FindName("PART_clearButton", this) as Button;
+            clearButton = e.NameScope.Find("PART_clearButton") as Button;
             if (clearButton != null)
-                clearButton.Click += new RoutedEventHandler(clearButton_Click);
+                clearButton.Click += clearButton_Click;
 
-            NameTextBox = Template.FindName("PART_NameTextBox", this) as TextBox;
-            TreeView = Template.FindName("PART_TreeView", this) as TreeView;
-            TreeView.MouseRightButtonDown += new MouseButtonEventHandler(TreeView_MouseRightButtonDown);
-            //TreeView.SelectedItemChanged += new RoutedPropertyChangedEventHandler<object>(TreeView_SelectedItemChanged);
+            NameTextBox = e.NameScope.Find("PART_NameTextBox") as TextBox;
+            TreeView = e.NameScope.Find("PART_TreeView") as TreeView;
+            if (TreeView != null)
+            {
+                TreeView.PointerPressed += TreeView_MouseRightButtonDown;
+                //TreeView.SelectionChanged += TreeView_SelectionChanged;
+            }
         }
 
-        void TreeView_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        void TreeView_MouseRightButtonDown(object sender, PointerPressedEventArgs e)
         {
-            TreeViewItem ClickedTreeViewItem = new TreeViewItem();
+            if (!e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+                return;
+            TreeViewItem ClickedTreeViewItem = null;
 
-            UIElement ClickedItem = VisualTreeHelper.GetParent(e.OriginalSource as UIElement) as UIElement;
+            var source = e.Source as Visual;
+            if (source == null) return;
+
+            Control ClickedItem = source.FindAncestorOfType<Control>();
 
             while ((ClickedItem != null) && !(ClickedItem is TreeViewItem))
             {
-                ClickedItem = VisualTreeHelper.GetParent(ClickedItem) as UIElement;
+                ClickedItem = ClickedItem.FindAncestorOfType<Control>();
             }
 
             ClickedTreeViewItem = ClickedItem as TreeViewItem;
@@ -88,7 +93,7 @@ namespace gip.ext.designer.avui.PropertyGrid
                         ContextMenu menu = BuildContextMenu();
                         menu.Items.Add(node.Menu.MainHeader);
                         ClickedTreeViewItem.ContextMenu = menu;
-                        menu.IsOpen = true;
+                        menu.Open(ClickedTreeViewItem);
                         e.Handled = true;
                     }
                 }
@@ -98,6 +103,11 @@ namespace gip.ext.designer.avui.PropertyGrid
         protected virtual ContextMenu BuildContextMenu()
         {
             return new ContextMenu();
+        }
+
+        void clearButton_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
+        {
+            // Implementation for clear button click
         }
 
         //void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -154,8 +164,8 @@ namespace gip.ext.designer.avui.PropertyGrid
 
 
 
-        public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.Register("SelectedItems", typeof(IEnumerable<DesignItem>), typeof(DesignItemTreeView));
+        public static readonly AvaloniaProperty<IEnumerable<DesignItem>> SelectedItemsProperty =
+            AvaloniaProperty.Register<DesignItemTreeView, IEnumerable<DesignItem>>("SelectedItems");
 
         public IEnumerable<DesignItem> SelectedItems
         {
@@ -163,28 +173,13 @@ namespace gip.ext.designer.avui.PropertyGrid
             set { SetValue(SelectedItemsProperty, value); }
         }
 
-        public static readonly DependencyProperty NameSearchProperty =
-            DependencyProperty.Register("NameSearch", typeof(String), typeof(DesignItemTreeView));
+        public static readonly AvaloniaProperty<String> NameSearchProperty =
+            AvaloniaProperty.Register<DesignItemTreeView, String>("NameSearch");
 
         public String NameSearch
         {
             get { return (String)GetValue(NameSearchProperty); }
             set { SetValue(NameSearchProperty, value); }
-        }
-
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
-        {
-            base.OnPropertyChanged(e);
-        }
-
-        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
-        {
-            base.OnMouseRightButtonUp(e);
-        }
-
-        void clearButton_Click(object sender, RoutedEventArgs e)
-        {
         }
 
         List<OutlineNode> _LogicalTree;
@@ -207,7 +202,7 @@ namespace gip.ext.designer.avui.PropertyGrid
             {
                 _RootItem = value;
                 RaisePropertyChanged("RootItem");
-                Dispatcher.CurrentDispatcher.BeginInvoke(DispatcherPriority.Background, new Action(
+                Dispatcher.UIThread.Invoke(new Action(
                     delegate
                     {
                         _LogicalTree = new List<OutlineNode>();
@@ -216,7 +211,7 @@ namespace gip.ext.designer.avui.PropertyGrid
                             _LogicalTree.Add(CreateOutlineNode());
 
                         RaisePropertyChanged("LogicalTree");
-                    }));
+                    }), DispatcherPriority.Background);
             }
         }
 
@@ -227,7 +222,7 @@ namespace gip.ext.designer.avui.PropertyGrid
 
         #region INotifyPropertyChanged Members
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public new event PropertyChangedEventHandler PropertyChanged;
 
         void RaisePropertyChanged(string name)
         {

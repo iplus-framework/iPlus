@@ -6,6 +6,9 @@ using System.Windows;
 using System.Collections.Generic;
 using System.Diagnostics;
 using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
 
 namespace gip.ext.designer.avui
 {
@@ -42,9 +45,9 @@ namespace gip.ext.designer.avui
 			
 		}
 		
-		public System.Windows.Rect GetPosition(PlacementOperation operation, DesignItem childItem, bool verifyAndCorrectPosition)
+		public Rect GetPosition(PlacementOperation operation, DesignItem childItem, bool verifyAndCorrectPosition)
 		{
-			UIElement child = childItem.View;
+			Control child = childItem.View;
 			return new Rect(0, 0, ModelTools.GetWidth(child), ModelTools.GetHeight(child));
 		}
 		
@@ -54,13 +57,13 @@ namespace gip.ext.designer.avui
 		
 		public void SetPosition(PlacementInformation info)
 		{
-			UIElement element = info.Item.View;
+            Control element = info.Item.View;
 			Rect newPosition = info.Bounds;
 			if (newPosition.Right != ModelTools.GetWidth(element)) {
-				info.Item.Properties[FrameworkElement.WidthProperty].SetValue(newPosition.Right);
+				info.Item.Properties[Layoutable.WidthProperty].SetValue(newPosition.Right);
 			}
 			if (newPosition.Bottom != ModelTools.GetHeight(element)) {
-				info.Item.Properties[FrameworkElement.HeightProperty].SetValue(newPosition.Bottom);
+				info.Item.Properties[Layoutable.HeightProperty].SetValue(newPosition.Bottom);
 			}
 		}
 		

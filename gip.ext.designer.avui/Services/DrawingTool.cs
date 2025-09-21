@@ -42,9 +42,11 @@ namespace gip.ext.designer.avui.Services
                 }
             }
 
+            if (designPanel is InputElement ie)
+                ie.Cursor = Cursor;
             //if (!_RegisteredToEvent)
             //{
-                designPanel.Context.Services.GetRequiredService<UndoService>().TransactionExecuted += new UndoServiceTransactionExecuted(DrawShapesAdornerBase_TransactionExecuted);
+            designPanel.Context.Services.GetRequiredService<UndoService>().TransactionExecuted += new UndoServiceTransactionExecuted(DrawShapesAdornerBase_TransactionExecuted);
                 //_RegisteredToEvent = true;
             //}
                 OnActivated(designPanel);
@@ -87,6 +89,8 @@ namespace gip.ext.designer.avui.Services
                 }
             }
             designPanel.Context.Services.GetRequiredService<UndoService>().TransactionExecuted -= DrawShapesAdornerBase_TransactionExecuted;
+            if (designPanel is InputElement ie)
+                ie.Cursor = null;
             OnDeactivated(designPanel);
         }
 

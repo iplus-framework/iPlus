@@ -5,21 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Diagnostics;
 using System.Globalization;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-	public partial class BrushEditorView
+	public partial class BrushEditorView : UserControl
 	{
 		public BrushEditorView()
 		{
@@ -28,9 +24,14 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
 			InitializeComponent();
 
-			SetBinding(HeightProperty, new Binding("Brush") {
+			this.Bind(HeightProperty, new Binding("Brush") {
 				Converter = HeightConverter.Instance
 			});
+		}
+
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
 		}
 
 		public BrushEditor BrushEditor { get; private set; }

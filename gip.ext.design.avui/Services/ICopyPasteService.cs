@@ -11,7 +11,7 @@ namespace gip.ext.design.avui
 
 		void Copy(DesignContext designContext);
 
-        Task<bool> CanPasteAsync(DesignContext designContext);
+        bool CanPaste(DesignContext designContext);
 
 		void Paste(DesignContext designContext);
 

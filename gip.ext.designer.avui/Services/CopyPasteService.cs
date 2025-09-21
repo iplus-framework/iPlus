@@ -85,6 +85,24 @@ namespace WpfDesign.Designer.Services
 			return false;
 		}
 
+		public virtual bool CanPaste(DesignContext designContext)
+		{
+			ISelectionService selectionService = designContext.Services.GetService<ISelectionService>();
+			if (selectionService != null && selectionService.SelectedItems.Count != 0)
+			{
+				try
+				{
+					string xaml = TopLevel.GetTopLevel(designContext.RootItem.View)?.Clipboard?.GetTextAsync().Result;
+					if (xaml != "" && xaml != " ")
+						return true;
+				}
+				catch (Exception)
+				{
+				}
+			}
+			return false;
+		}
+
 		public virtual void Paste(DesignContext designContext)
 		{
 			XamlDesignContext xamlContext = designContext as XamlDesignContext;

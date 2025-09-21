@@ -10,30 +10,27 @@ using System.Collections.ObjectModel;
 using System.Threading;
 using System.Globalization;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows.Threading;
 using System.Diagnostics;
-using System.Windows.Media;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Primitives;
 using gip.ext.design.avui;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Metadata;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
+using Avalonia.VisualTree;
 
 namespace gip.ext.designer.avui.PropertyGrid
 {
-    [TemplatePart(Name = "PART_Thumb", Type = typeof(FrameworkElement))]
+    [TemplatePart(Name = "PART_Thumb", Type = typeof(Control))]
     [TemplatePart(Name = "PART_clearButton", Type = typeof(Button))]
     [TemplatePart(Name = "PART_NameTextBox", Type = typeof(TextBox))]
-    public class PropertyGridView : Control
+    public class PropertyGridView : TemplatedControl
     {
         static PropertyGridView()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(PropertyGridView), new FrameworkPropertyMetadata(typeof(PropertyGridView)));
+            // In Avalonia, we use the DefaultStyleKeyProperty differently
         }
 
         public PropertyGridView()
@@ -51,46 +48,43 @@ namespace gip.ext.designer.avui.PropertyGrid
         Button clearButton;
         public TextBox NameTextBox { get; set; }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             this.PropertyGrid.DependencyPropFilter = this.DependencyPropFilter;
 
-            thumb = Template.FindName("PART_Thumb", this) as Thumb;
+            thumb = e.NameScope.Find("PART_Thumb") as Thumb;
             if (thumb != null)
-                thumb.DragDelta += new DragDeltaEventHandler(thumb_DragDelta);
+                thumb.DragDelta += thumb_DragDelta;
 
-            clearButton = Template.FindName("PART_clearButton", this) as Button;
+            clearButton = e.NameScope.Find("PART_clearButton") as Button;
             if (clearButton != null)
-                clearButton.Click += new RoutedEventHandler(clearButton_Click);
+                clearButton.Click += clearButton_Click;
 
-            NameTextBox = Template.FindName("PART_NameTextBox", this) as TextBox;
+            NameTextBox = e.NameScope.Find("PART_NameTextBox") as TextBox;
         }
-
 
         static PropertyContextMenu propertyContextMenu = new PropertyContextMenu();
 
         public PropertyGrid PropertyGrid { get; protected set; }
 
-        public static readonly DependencyProperty FirstColumnWidthProperty =
-            DependencyProperty.Register("FirstColumnWidth", typeof(double), typeof(PropertyGridView),
-            new PropertyMetadata(120.0));
+        public static readonly StyledProperty<double> FirstColumnWidthProperty =
+            AvaloniaProperty.Register<PropertyGridView, double>(nameof(FirstColumnWidth), 120.0);
 
         public double FirstColumnWidth
         {
-            get { return (double)GetValue(FirstColumnWidthProperty); }
+            get { return GetValue(FirstColumnWidthProperty); }
             set { SetValue(FirstColumnWidthProperty, value); }
         }
 
-        public static readonly DependencyProperty SelectedItemsProperty =
-            DependencyProperty.Register("SelectedItems", typeof(IEnumerable<DesignItem>), typeof(PropertyGridView));
+        public static readonly StyledProperty<IEnumerable<DesignItem>> SelectedItemsProperty =
+            AvaloniaProperty.Register<PropertyGridView, IEnumerable<DesignItem>>(nameof(SelectedItems));
 
         public IEnumerable<DesignItem> SelectedItems
         {
-            get { return (IEnumerable<DesignItem>)GetValue(SelectedItemsProperty); }
+            get { return GetValue(SelectedItemsProperty); }
             set { SetValue(SelectedItemsProperty, value); }
         }
-
 
         public enum ShowAsMode
         {
@@ -99,15 +93,14 @@ namespace gip.ext.designer.avui.PropertyGrid
             OnlyPropertyGrid
         }
 
-        public static readonly DependencyProperty ShowAsProperty =
-            DependencyProperty.Register("ShowAs", typeof(ShowAsMode), typeof(PropertyGridView), new PropertyMetadata(ShowAsMode.AsGrid));
+        public static readonly StyledProperty<ShowAsMode> ShowAsProperty =
+            AvaloniaProperty.Register<PropertyGridView, ShowAsMode>(nameof(ShowAs), ShowAsMode.AsGrid);
 
         public ShowAsMode ShowAs
         {
-            get { return (ShowAsMode)GetValue(ShowAsProperty); }
+            get { return GetValue(ShowAsProperty); }
             set { SetValue(ShowAsProperty, value); }
         }
-
 
         public enum EnumBarMode
         {
@@ -116,72 +109,78 @@ namespace gip.ext.designer.avui.PropertyGrid
             OnlyEvents
         }
 
-        public static readonly DependencyProperty FilterVisibilityProperty =
-            DependencyProperty.Register("FilterVisibility", typeof(Visibility), typeof(PropertyGridView), new PropertyMetadata(Visibility.Visible));
+        public static readonly StyledProperty<bool> FilterVisibilityProperty =
+            AvaloniaProperty.Register<PropertyGridView, bool>(nameof(FilterVisibility), true);
 
-        public Visibility FilterVisibility
+        public bool FilterVisibility
         {
-            get { return (Visibility)GetValue(FilterVisibilityProperty); }
+            get { return GetValue(FilterVisibilityProperty); }
             set { SetValue(FilterVisibilityProperty, value); }
         }
 
-
-        public static readonly DependencyProperty ShowEnumBarProperty =
-            DependencyProperty.Register("ShowEnumBar", typeof(EnumBarMode), typeof(PropertyGridView), new PropertyMetadata(EnumBarMode.ShowBoth));
+        public static readonly StyledProperty<EnumBarMode> ShowEnumBarProperty =
+            AvaloniaProperty.Register<PropertyGridView, EnumBarMode>(nameof(ShowEnumBar), EnumBarMode.ShowBoth);
 
         public EnumBarMode ShowEnumBar
         {
-            get { return (EnumBarMode)GetValue(ShowEnumBarProperty); }
+            get { return GetValue(ShowEnumBarProperty); }
             set { SetValue(ShowEnumBarProperty, value); }
         }
 
-
-        public static readonly DependencyProperty DependencyPropFilterProperty =
-            DependencyProperty.Register("DependencyPropFilter", typeof(bool), typeof(PropertyGridView),
-            new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> DependencyPropFilterProperty =
+            AvaloniaProperty.Register<PropertyGridView, bool>(nameof(DependencyPropFilter), false);
 
         public bool DependencyPropFilter
         {
-            get { return (bool)GetValue(DependencyPropFilterProperty); }
+            get { return GetValue(DependencyPropFilterProperty); }
             set { SetValue(DependencyPropFilterProperty, value); }
         }
 
-
-        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            base.OnPropertyChanged(e);
-            if (e.Property == SelectedItemsProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == SelectedItemsProperty)
             {
                 PropertyGrid.SelectedItems = SelectedItems;
             }
         }
 
-        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-#if DEBUG
-            Point x = e.GetPosition(this);
-            HitTestResult result = VisualTreeHelper.HitTest(this, x);
-            if ((result != null) && (result.VisualHit != null))
+            if (e.InitialPressMouseButton == MouseButton.Right)
             {
-                System.Diagnostics.Debug.WriteLine("OnMouseRightButtonUp() P:" + x.ToString() + " Type:" + result.VisualHit.GetType().FullName);
-            }
+#if DEBUG
+                Point x = e.GetPosition(this);
+                var result = this.InputHitTest(x);
+                if (result != null)
+                {
+                    System.Diagnostics.Debug.WriteLine("OnPointerReleased() P:" + x.ToString() + " Type:" + result.GetType().FullName);
+                }
 #endif
-            Border row;
-            PropertyNode node = GetNodeOverVisualPos(e.OriginalSource as DependencyObject, out row);
-            //if (node.IsEvent) return;
+                Border row;
+                PropertyNode node = GetNodeOverVisualPos(e.Source as Visual, out row);
+                //if (node.IsEvent) return;
 
-            PropertyContextMenu contextMenu = new PropertyContextMenu();
-            contextMenu.DataContext = node;
-            contextMenu.Placement = PlacementMode.Bottom;
-            contextMenu.HorizontalOffset = -30;
-            contextMenu.PlacementTarget = row;
-            contextMenu.IsOpen = true;
+                PropertyContextMenu contextMenu = new PropertyContextMenu();
+                contextMenu.DataContext = node;
+                contextMenu.Placement = PlacementMode.Bottom;
+                contextMenu.HorizontalOffset = -30;
+                contextMenu.PlacementTarget = row;
+                // In Avalonia, use Open method to display the context menu
+                if (row != null)
+                {
+                    contextMenu.Open(row);
+                }
+                else
+                    contextMenu.Open();
+            }
+            base.OnPointerReleased(e);
         }
 
-        protected PropertyNode GetNodeOverVisualPos(DependencyObject visual, out Border row)
+        protected PropertyNode GetNodeOverVisualPos(Visual visual, out Border row)
         {
-            var ancestors = (visual as DependencyObject).GetVisualAncestors();
-            row = ancestors.OfType<Border>().Where(b => b.Name == "uxPropertyNodeRow").FirstOrDefault();
+            var ancestors = visual?.GetVisualAncestors();
+            row = ancestors?.OfType<Border>().Where(b => b.Name == "uxPropertyNodeRow").FirstOrDefault();
             if (row == null)
                 return null;
 
@@ -196,9 +195,9 @@ namespace gip.ext.designer.avui.PropertyGrid
             PropertyGrid.ClearFilter();
         }
 
-        void thumb_DragDelta(object sender, DragDeltaEventArgs e)
+        void thumb_DragDelta(object sender, VectorEventArgs e)
         {
-            FirstColumnWidth = Math.Max(0, FirstColumnWidth + e.HorizontalChange);
+            FirstColumnWidth = Math.Max(0, FirstColumnWidth + e.Vector.X);
         }
     }
 }

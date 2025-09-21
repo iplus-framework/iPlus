@@ -5,23 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using Avalonia.Markup.Xaml;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows.Controls.Primitives;
+
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
 	[TypeEditor(typeof(Enum))]
-	public partial class ComboBoxEditor
+	public partial class ComboBoxEditor : UserControl
 	{
+		private ComboBox _comboBox;
+
 		/// <summary>
 		/// Create a new ComboBoxEditor instance.
 		/// </summary>
@@ -30,12 +28,24 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 			InitializeComponent();
 		}
 
-		/// <inheritdoc/>
-		public override void OnApplyTemplate()
+		private void InitializeComponent()
 		{
-			base.OnApplyTemplate();
-			var popup = (Popup)Template.FindName("PART_Popup", this);
-			popup.SetValue(FontWeightProperty, FontWeights.Normal);
+			AvaloniaXamlLoader.Load(this);
+			_comboBox = this.FindControl<ComboBox>("PART_ComboBox");
+		}
+
+		/// <summary>
+		/// Gets the inner ComboBox control.
+		/// </summary>
+		public ComboBox ComboBox => _comboBox;
+
+		/// <inheritdoc/>
+		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+		{
+			base.OnApplyTemplate(e);
+			
+			// The ComboBox will handle its own template application
+			// We don't need to set FontWeight on popup here as it's typically handled by styles
 		}
 	}
 }

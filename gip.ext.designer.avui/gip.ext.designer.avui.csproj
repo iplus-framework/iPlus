@@ -66,6 +66,7 @@
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Avalonia.Labs.CommandManager" Version="11.3.1" />
   </ItemGroup>
@@ -92,12 +93,6 @@
     <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <None Include="PropertyGrid\Editors\ComboBoxEditor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-    <None Include="PropertyGrid\Editors\TextBoxEditor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\CursorEditNode.cur" />
@@ -114,6 +109,9 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="AvaloniaWPFComp\" />
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>

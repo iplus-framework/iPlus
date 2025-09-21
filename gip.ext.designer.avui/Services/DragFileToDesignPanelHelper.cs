@@ -34,8 +34,7 @@ namespace gip.ext.designer.avui.Services
             helper._createItems = createItems;
             helper._designPanel = designSurface.DesignPanel as DesignPanel;
 
-            // Avalonia doesn't have AllowDrop property
-            //helper._designPanel.AllowDrop = true;
+            DragDrop.SetAllowDrop(helper._designPanel, true);
             helper._designPanel.DragOver += helper.designPanel_DragOver;
             helper._designPanel.Drop += helper.designPanel_Drop;
             helper._designPanel.DragLeave += helper.designPanel_DragLeave;

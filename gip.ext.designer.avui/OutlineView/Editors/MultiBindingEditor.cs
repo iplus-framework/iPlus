@@ -67,7 +67,7 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         bool _Loaded = false;
-        void MultiBindingEditor_Loaded(object? sender, RoutedEventArgs e)
+        void MultiBindingEditor_Loaded(object sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents += OnToolEvents;
@@ -90,13 +90,13 @@ namespace gip.ext.designer.avui.OutlineView
             _Loaded = true;
         }
 
-        void MultiBindingEditor_Unloaded(object? sender, RoutedEventArgs e)
+        void MultiBindingEditor_Unloaded(object sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents -= OnToolEvents;
         }
 
-        void PART_BindingList_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+        void PART_BindingList_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             RefreshBindingEditor();
         }
@@ -201,7 +201,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        private void OnAddItemClicked(object? sender, RoutedEventArgs e)
+        private void OnAddItemClicked(object sender, RoutedEventArgs e)
         {
             if ((PART_BindingList == null) || (Wrapper == null))
                 return;
@@ -215,7 +215,7 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        private void OnRemoveItemClicked(object? sender, RoutedEventArgs e)
+        private void OnRemoveItemClicked(object sender, RoutedEventArgs e)
         {
             if ((PART_BindingList == null) || (Wrapper == null))
                 return;
@@ -229,7 +229,7 @@ namespace gip.ext.designer.avui.OutlineView
             Wrapper.RemoveBinding(selectedWrapper);
         }
 
-        void _Wrapper_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        void _Wrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Description")
             {               

@@ -1,11 +1,11 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia.Controls;
 using System;
 using System.ComponentModel;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Windows;
 
 namespace gip.ext.designer.avui.themes
 {
@@ -26,13 +26,18 @@ namespace gip.ext.designer.avui.themes
 
 		void ISupportInitialize.EndInit()
 		{
-			this.Source = new Uri(_uriStart + this.RelativePath, UriKind.Relative);
-			base.EndInit();
+			//this.Source = new Uri(_uriStart + this.RelativePath, UriKind.Relative);
+			//base.EndInit();
 		}
 
 		public static string GetXamlNameForType(Type t)
 		{
 			return _uriStart + t.FullName.Substring(_subLength).Replace(".","/").ToLower() + ".xaml";
 		}
-	}
+
+        public void BeginInit()
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

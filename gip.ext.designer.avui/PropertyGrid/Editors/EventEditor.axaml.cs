@@ -5,27 +5,27 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.design.avui;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
     [TypeEditor(typeof(MulticastDelegate))]
-    public partial class EventEditor
+    public partial class EventEditor : TextBox
     {
         public EventEditor()
         {
             InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
 
         public IPropertyNode PropertyNode
@@ -37,7 +37,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
         {
             get
             {
-                if (PropertyNode.Value == null)
+                if (PropertyNode?.Value == null)
                     return "";
                 else if (PropertyNode.Value is IConvertible)
                     return System.Convert.ToString(PropertyNode.Value);
@@ -50,24 +50,37 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             if (e.Key == Key.Enter)
             {
                 Commit();
+                e.Handled = true;
             }
             else if (e.Key == Key.Escape)
             {
-                BindingOperations.GetBindingExpression(this, TextProperty).UpdateTarget();
+                // In Avalonia, we need to reset the binding differently
+                if (PropertyNode != null)
+                {
+                    Text = ValueString;
+                }
+                e.Handled = true;
             }
+            base.OnKeyDown(e);
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            Commit();
+            if (e.ClickCount == 2)
+            {
+                Commit();
+                e.Handled = true;
+            }
+            base.OnPointerPressed(e);
         }
 
-        protected override void OnPreviewLostKeyboardFocus(KeyboardFocusChangedEventArgs e)
+        protected override void OnLostFocus(RoutedEventArgs e)
         {
             if (PropertyNode != null && Text != ValueString)
             {
                 Commit();
             }
+            base.OnLostFocus(e);
         }
 
         public void Commit()
@@ -76,13 +89,13 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             {
                 if (string.IsNullOrEmpty(Text))
                 {
-                    PropertyNode.Reset();
+                    PropertyNode?.Reset();
                     return;
                 }
                 //if (PropertyNode.Value is MarkupExtension)
                 //PropertyNode.Value = Text;
             }
-            IEventHandlerService s = PropertyNode.Services.GetService<IEventHandlerService>();
+            IEventHandlerService s = PropertyNode?.Services?.GetService<IEventHandlerService>();
             if (s != null)
             {
                 s.CreateEventHandler(PropertyNode.FirstProperty);

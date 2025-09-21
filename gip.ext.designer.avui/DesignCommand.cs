@@ -4,6 +4,7 @@
 using System;
 using System.Windows.Input;
 using System.Diagnostics;
+using Avalonia.Labs.Input;
 
 namespace gip.ext.designer.avui
 {

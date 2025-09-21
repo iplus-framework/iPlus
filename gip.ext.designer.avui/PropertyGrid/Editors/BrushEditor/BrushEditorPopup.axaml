@@ -1,11 +1,8 @@
 ﻿<Popup x:Class="gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor.BrushEditorPopup"
-       xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+       xmlns="https://github.com/avaloniaui"
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-       xmlns:BrushEditor="clr-namespace:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
+       xmlns:BrushEditor="using:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
        Placement="Bottom"
-       AllowsTransparency="True"
-       SnapsToDevicePixels="True"
-       StaysOpen="False">
-    <BrushEditor:BrushEditorView x:Name="BrushEditorView"
-                                 x:FieldModifier="public" />
+       IsLightDismissEnabled="True">
+    <BrushEditor:BrushEditorView x:Name="BrushEditorView" />
 </Popup>

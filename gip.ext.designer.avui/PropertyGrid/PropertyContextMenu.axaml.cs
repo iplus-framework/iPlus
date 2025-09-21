@@ -5,24 +5,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
 using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.ext.designer.avui.PropertyGrid
 {
-    public partial class PropertyContextMenu
+    public partial class PropertyContextMenu : ContextMenu
     {
         public PropertyContextMenu()
         {
             InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
 
         public IPropertyNode PropertyNode

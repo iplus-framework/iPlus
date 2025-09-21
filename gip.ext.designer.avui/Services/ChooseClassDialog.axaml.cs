@@ -57,7 +57,7 @@ namespace gip.ext.designer.avui.Services
 			base.OnKeyDown(e);
 		}
 		
-		void uxList_DoubleTapped(object? sender, TappedEventArgs e)
+		void uxList_DoubleTapped(object sender, TappedEventArgs e)
 		{
 			if (e.Source is Control f && f.DataContext is Type) {
 				Ok();
@@ -88,7 +88,7 @@ namespace gip.ext.designer.avui.Services
 			}
 		}
 		
-		private void OnSelectionChangedInternal(object? sender, SelectionChangedEventArgs e)
+		private void OnSelectionChangedInternal(object sender, SelectionChangedEventArgs e)
 		{
 			if (SelectedIndex >= 0)
 				ScrollIntoView(SelectedIndex);
@@ -99,14 +99,14 @@ namespace gip.ext.designer.avui.Services
 	{
 		public static ClassNameConverter Instance = new ClassNameConverter();
 		
-		public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			var c = value as Type;
 			if (c == null) return value;
 			return c.Name + " (" + c.Namespace + ")";
 		}
 		
-		public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new NotImplementedException();
 		}
@@ -116,12 +116,12 @@ namespace gip.ext.designer.avui.Services
 	{
 		public static NullToBoolConverter Instance = new NullToBoolConverter();
 		
-		public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+		public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			return value != null;
 		}
 		
-		public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+		public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
 		{
 			throw new NotImplementedException();
 		}

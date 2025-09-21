@@ -7,10 +7,11 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows.Media;
 using System.Reflection;
-using System.Windows;
 using gip.ext.design.avui;
+using Avalonia.Media;
+using Avalonia;
+using gip.ext.design.avui.UIExtensions;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
@@ -23,22 +24,24 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
         private void ResetBrushes()
         {
-            GradientStopCollection stops = new GradientStopCollection();
+            GradientStops stops = new GradientStops();
             stops.Add(new GradientStop(Colors.Black, 0));
             stops.Add(new GradientStop(Colors.White, 1));
 
-            linearGradientBrush = new LinearGradientBrush(stops);
-            linearGradientBrush.EndPoint = new Point(1, 0);
-            radialGradientBrush = new RadialGradientBrush(stops);
+            linearGradientBrush = new LinearGradientBrush();
+            linearGradientBrush.GradientStops = stops;
+            linearGradientBrush.EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative);
+            radialGradientBrush = new RadialGradientBrush();
+            radialGradientBrush.GradientStops = stops;
         }
 
-        public static BrushItem[] SystemBrushes = typeof(SystemColors)
+        public static BrushItem[] SystemBrushes = typeof(Colors)
             .GetProperties(BindingFlags.Static | BindingFlags.Public)
             .Where(p => p.PropertyType == typeof(SolidColorBrush))
             .Select(p => new BrushItem() { Name = p.Name, Brush = (Brush)p.GetValue(null, null) })
             .ToArray();
 
-        public static BrushItem[] SystemColors = typeof(SystemColors)
+        public static BrushItem[] SystemColors = typeof(Colors)
             .GetProperties(BindingFlags.Static | BindingFlags.Public)
             .Where(p => p.PropertyType == typeof(Color))
             .Select(p => new BrushItem()
@@ -65,8 +68,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                 property = value;
                 if (property != null)
                 {
-                    var f = property.Value as Freezable;
-                    if (f != null && f.IsFrozen) property.Value = f.Clone();
+                    var f = property.Value as IImmutableBrush;
+                    if (f != null) 
+                        property.Value = f.Clone();
                 }
                 DetermineCurrentKind();
                 RaisePropertyChanged("Property");
@@ -74,13 +78,13 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
             }
         }
 
-        public Brush Brush
+        public IBrush Brush
         {
             get
             {
                 if (property != null)
                 {
-                    return property.Value as Brush;
+                    return property.Value as IBrush;
                 }
                 return null;
             }
@@ -107,7 +111,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
             set
             {
-                if (Brush is SolidColorBrush && !Brush.IsFrozen)
+                if (Brush is SolidColorBrush && !(Brush is IImmutableBrush))
                 {
                     ((SolidColorBrush)Brush).Color = value;
                 }
@@ -185,20 +189,20 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
         {
             get
             {
-                var x = linearGradientBrush.EndPoint.X - linearGradientBrush.StartPoint.X;
-                var y = linearGradientBrush.EndPoint.Y - linearGradientBrush.StartPoint.Y;
-                return Vector.AngleBetween(new Vector(1, 0), new Vector(x, -y));
+                var x = linearGradientBrush.EndPoint.Point.X - linearGradientBrush.StartPoint.Point.X;
+                var y = linearGradientBrush.EndPoint.Point.Y - linearGradientBrush.StartPoint.Point.Y;
+                return VectorExtensions.AngleBetween(new Vector(1, 0), new Vector(x, -y));
             }
             set
             {
                 var d = value * Math.PI / 180;
                 var p = new Point(Math.Cos(d), -Math.Sin(d));
                 var k = 1 / Math.Max(Math.Abs(p.X), Math.Abs(p.Y));
-                p.X *= k;
-                p.Y *= k;
-                var p2 = new Point(-p.X, -p.Y);
-                linearGradientBrush.StartPoint = new Point((p2.X + 1) / 2, (p2.Y + 1) / 2);
-                linearGradientBrush.EndPoint = new Point((p.X + 1) / 2, (p.Y + 1) / 2);
+                double x = p.X * k;
+                double y = p.Y * k;
+                var p2 = new Point(-x, -y);
+                linearGradientBrush.StartPoint = new RelativePoint((p2.X + 1) / 2, (p2.Y + 1) / 2, RelativeUnit.Relative);
+                linearGradientBrush.EndPoint = new RelativePoint((x + 1) / 2, (y + 1) / 2, RelativeUnit.Relative);
                 RaisePropertyChanged("GradientAngle");
             }
         }
@@ -234,8 +238,8 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                     {
                         // Brush Member
                         Property.ValueItem.Properties["Opacity"].SetValue(Brush.Opacity);
-                        if (Brush.RelativeTransform != null)
-                            Property.ValueItem.Properties["RelativeTransform"].SetValue(Brush.RelativeTransform);
+                        //if (Brush.RelativeTransform != null)
+                        //    Property.ValueItem.Properties["RelativeTransform"].SetValue(Brush.RelativeTransform);
                         if (Brush.Transform != null)
                             Property.ValueItem.Properties["Transform"].SetValue(Brush.Transform);
                         if (CurrentKind == BrushEditorKind.Solid)
@@ -245,8 +249,8 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                         if ((CurrentKind == BrushEditorKind.Linear) || (CurrentKind == BrushEditorKind.Radial))
                         {
                             GradientBrush gradientBrush = (GradientBrush)Brush;
-                            Property.ValueItem.Properties["ColorInterpolationMode"].SetValue(gradientBrush.ColorInterpolationMode);
-                            Property.ValueItem.Properties["MappingMode"].SetValue(gradientBrush.MappingMode);
+                            //Property.ValueItem.Properties["ColorInterpolationMode"].SetValue(gradientBrush.ColorInterpolationMode);
+                            //Property.ValueItem.Properties["MappingMode"].SetValue(gradientBrush.MappingMode);
                             Property.ValueItem.Properties["SpreadMethod"].SetValue(gradientBrush.SpreadMethod);
                             if (Property.ValueItem.ContentProperty.CollectionElements.Count > 0)
                             {

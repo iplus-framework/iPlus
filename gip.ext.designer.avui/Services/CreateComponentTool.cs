@@ -67,7 +67,9 @@ namespace gip.ext.designer.avui.Services
 			designPanel.DragOver += designPanel_DragOver;
 			designPanel.Drop += designPanel_Drop;
 			designPanel.DragLeave += designPanel_DragLeave;
-		}
+            if (designPanel is InputElement ie)
+                ie.Cursor = Cursor;
+        }
 		
 		public void Deactivate(IDesignPanel designPanel)
 		{
@@ -76,7 +78,9 @@ namespace gip.ext.designer.avui.Services
 			designPanel.DragOver -= designPanel_DragOver;
 			designPanel.Drop -= designPanel_Drop;
 			designPanel.DragLeave -= designPanel_DragLeave;
-		}
+			if (designPanel is InputElement ie)
+				ie.Cursor = null;
+        }
 
 		protected virtual void designPanel_DragOver(object sender, DragEventArgs e)
 		{

@@ -19,7 +19,7 @@ using Avalonia.Media;
 
 namespace gip.ext.designer.avui
 {
-    public sealed class DesignPanel : Decorator, IDesignPanel, INotifyPropertyChanged
+    public sealed class DesignPanel : Decorator, IDesignPanel
     {
         #region Hit Testing
 
@@ -31,20 +31,35 @@ namespace gip.ext.designer.avui
         /// </summary>
         sealed class EatAllHitTestRequests : Control
         {
-            protected override GeometryHitTestResult HitTestCore(GeometryHitTestParameters hitTestParameters)
-            {
-                return new GeometryHitTestResult(this, IntersectionDetail.FullyContains);
-            }
+            // In AvaloniaUI, we don't need to override HitTestCore methods
+            // Instead, we can use the InputHitTest method or rely on the natural hit testing
+            // The purpose of this control is to "eat" all hit test requests that reach it
+            // to ensure the design panel can capture mouse events even when clicking on empty areas
+            //protected override GeometryHitTestResult HitTestCore(GeometryHitTestParameters hitTestParameters)
+            //{
+            //    return new GeometryHitTestResult(this, IntersectionDetail.FullyContains);
+            //}
 
-            protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
-            {
-                return new PointHitTestResult(this, hitTestParameters.HitPoint);
-            }
+            // AvaloniaUI handles hit testing automatically based on the control's bounds
+            // and IsHitTestVisible property. By having this control always visible
+            // and hit-testable, it will naturally capture mouse events.
+            //protected override HitTestResult HitTestCore(PointHitTestParameters hitTestParameters)
+            //{
+            //    return new PointHitTestResult(this, hitTestParameters.HitPoint);
+            //}
+        }
+
+        private readonly Dictionary<Key, bool> _pressedKeys = new Dictionary<Key, bool>();
+
+
+        public bool IsKeyDown(Key key)
+        {
+            return _pressedKeys.TryGetValue(key, out bool isPressed) && isPressed;
         }
 
         void RunHitTest(Visual reference, Point point, HitTestFilterCallback filterCallback, HitTestResultCallback resultCallback)
         {
-            if (!Keyboard.IsKeyDown(Key.LeftAlt))
+            if (!IsKeyDown(Key.LeftAlt))
             {
                 hitTestElements.Clear();
                 skippedHitTestElements.Clear();
@@ -68,7 +83,7 @@ namespace gip.ext.designer.avui
 
                 if (hitTestType == HitTestType.ElementSelection)
                 {
-                    if (Keyboard.IsKeyDown(Key.LeftAlt))
+                    if (IsKeyDown(Key.LeftAlt))
                     {
                         if (designItem != null)
                         {
@@ -328,16 +343,52 @@ namespace gip.ext.designer.avui
             //DesignerProperties.SetIsInDesignMode(this, true);
 
             _eatAllHitTestRequests = new EatAllHitTestRequests();
-            _eatAllHitTestRequests.MouseDown += delegate
+            _eatAllHitTestRequests.PointerPressed += delegate
             {
                 // ensure the design panel has focus while the user is interacting with it
                 this.Focus();
             };
-            _eatAllHitTestRequests.AllowDrop = true;
+            DragDrop.SetAllowDrop(_eatAllHitTestRequests, true);
+            //_eatAllHitTestRequests.SetValue(DragDrop.AllowDropProperty, true);
             _adornerLayer = new AdornerLayer(this);
 
+
+        }
+
+        // Create handler fields
+        private EventHandler<DragEventArgs> _dragEnterHandler;
+        private EventHandler<DragEventArgs> _dragOverHandler;
+        private EventHandler<DragEventArgs> _dragLeaveHandler;
+
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
             this.KeyUp += DesignPanel_KeyUp;
             this.KeyDown += DesignPanel_KeyDown;
+            // With the following, which correctly subscribes to the event using AddHandler:
+            // Create handler instances and store them
+            _dragEnterHandler = (s, e) => DragEnter?.Invoke(this, e);
+            _dragOverHandler = (s, e) => DragOver?.Invoke(this, e);
+            _dragLeaveHandler = (s, e) => DragLeave?.Invoke(this, e);
+            
+            // Add handlers using the stored instances
+            this.AddHandler(DragDrop.DragEnterEvent, _dragEnterHandler);
+            this.AddHandler(DragDrop.DragOverEvent, _dragOverHandler);
+            this.AddHandler(DragDrop.DragLeaveEvent, _dragLeaveHandler);
+
+            base.OnLoaded(e);
+        }
+
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            this.KeyUp -= DesignPanel_KeyUp;
+            this.KeyDown -= DesignPanel_KeyDown;
+            // With the following, which correctly subscribes to the event using AddHandler:
+            // Remove handlers using the same instances
+            this.RemoveHandler(DragDrop.DragEnterEvent, _dragEnterHandler);
+            this.RemoveHandler(DragDrop.DragOverEvent, _dragOverHandler);
+            this.RemoveHandler(DragDrop.DragLeaveEvent, _dragLeaveHandler);
+
+            base.OnUnloaded(e);
         }
         #endregion
 
@@ -394,65 +445,49 @@ namespace gip.ext.designer.avui
         /// <summary>
         /// Enables / Disables the Snapline Placement
         /// </summary>
-        private bool _useSnaplinePlacement = true;
+        public static readonly StyledProperty<bool> UseSnaplinePlacementProperty =
+            AvaloniaProperty.Register<DesignPanel, bool>(nameof(UseSnaplinePlacement), true);
+
         public bool UseSnaplinePlacement
         {
-            get { return _useSnaplinePlacement; }
-            set
-            {
-                if (_useSnaplinePlacement != value)
-                {
-                    _useSnaplinePlacement = value;
-                    OnPropertyChanged("UseSnaplinePlacement");
-                }
-            }
+            get { return GetValue(UseSnaplinePlacementProperty); }
+            set { SetValue(UseSnaplinePlacementProperty, value); }
         }
 
         /// <summary>
         /// Enables / Disables the Raster Placement
         /// </summary>
-        private bool _useRasterPlacement = false;
+        public static readonly StyledProperty<bool> UseRasterPlacementProperty =
+            AvaloniaProperty.Register<DesignPanel, bool>(nameof(UseRasterPlacement), false);
+
         public bool UseRasterPlacement
         {
-            get { return _useRasterPlacement; }
-            set
-            {
-                if (_useRasterPlacement != value)
-                {
-                    _useRasterPlacement = value;
-                    OnPropertyChanged("UseRasterPlacement");
-                }
-            }
+            get { return GetValue(UseRasterPlacementProperty); }
+            set { SetValue(UseRasterPlacementProperty, value); }
         }
 
         /// <summary>
         /// Sets the with of the Raster when using Raster Placement
         /// </summary>
-        private int _rasterWidth = 5;
+        public static readonly StyledProperty<int> RasterWidthProperty =
+            AvaloniaProperty.Register<DesignPanel, int>(nameof(RasterWidth), 5);
+
         public int RasterWidth
         {
-            get { return _rasterWidth; }
-            set
-            {
-                if (_rasterWidth != value)
-                {
-                    _rasterWidth = value;
-                    OnPropertyChanged("RasterWidth");
-                }
-            }
+            get { return GetValue(RasterWidthProperty); }
+            set { SetValue(RasterWidthProperty, value); }
         }
 
-        private Double _RasterSize = 0;
-        public Double RasterSize
+        /// <summary>
+        /// Gets/Sets the size of the raster
+        /// </summary>
+        public static readonly StyledProperty<double> RasterSizeProperty =
+            AvaloniaProperty.Register<DesignPanel, double>(nameof(RasterSize), 0.0);
+
+        public double RasterSize
         {
-            get
-            {
-                return _RasterSize;
-            }
-            set
-            {
-                _RasterSize = value;
-            }
+            get { return GetValue(RasterSizeProperty); }
+            set { SetValue(RasterSizeProperty, value); }
         }
 
         public bool IsRasterOn
@@ -472,55 +507,66 @@ namespace gip.ext.designer.avui
         #endregion
 
         #region Visual Child Management
-        public override Control Child
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            get { return base.Child; }
-            set
+            if (change.Property == ChildProperty)
             {
-                if (base.Child == value)
-                    return;
-                if (value == null)
+                //if (change.OldValue != null)
+                //{
+                //    var oldChild = change.OldValue as Control;
+                //    if (oldChild != null)
+                //    {
+                //    }
+                //}
+                if (change.NewValue == null)
                 {
-                    // Child is being set from some value to null
-
-                    // remove _adornerLayer and _eatAllHitTestRequests
-                    RemoveVisualChild(_adornerLayer);
-                    RemoveVisualChild(_eatAllHitTestRequests);
+                    if (VisualChildren != null)
+                    {
+                        if (VisualChildren.Contains(_adornerLayer))
+                            VisualChildren.Remove(_adornerLayer);
+                        if (VisualChildren.Contains(_eatAllHitTestRequests))
+                            VisualChildren.Remove(_eatAllHitTestRequests);
+                    }
                 }
-                else if (base.Child == null)
-                {
-                    // Child is being set from null to some value
-                    AddVisualChild(_adornerLayer);
-                    AddVisualChild(_eatAllHitTestRequests);
-                }
-                base.Child = value;
-            }
-        }
-
-        protected override Visual GetVisualChild(int index)
-        {
-            if (base.Child != null)
-            {
-                if (index == 0)
-                    return base.Child;
-                else if (index == 1)
-                    return _eatAllHitTestRequests;
-                else if (index == 2)
-                    return _adornerLayer;
-            }
-            return base.GetVisualChild(index);
-        }
-
-        protected override int VisualChildrenCount
-        {
-            get
-            {
-                if (base.Child != null)
-                    return 3;
                 else
-                    return base.VisualChildrenCount;
+                {
+                    if (VisualChildren != null)
+                    {
+                        if (!VisualChildren.Contains(_adornerLayer))
+                            VisualChildren.Add(_adornerLayer);
+                        if (!VisualChildren.Contains(_eatAllHitTestRequests))
+                            VisualChildren.Add(_eatAllHitTestRequests);
+                    }
+                }
             }
+            base.OnPropertyChanged(change);
         }
+
+        //protected override Visual GetVisualChild(int index)
+        //{
+        //    if (base.Child != null)
+        //    {
+        //        if (index == 0)
+        //            return base.Child;
+        //        else if (index == 1)
+        //            return _eatAllHitTestRequests;
+        //        else if (index == 2)
+        //            return _adornerLayer;
+        //    }
+        //    return base.GetVisualChild(index);
+        //}
+
+        //protected override int VisualChildrenCount
+        //{
+        //    get
+        //    {
+        //        if (base.Child != null)
+        //            return 3;
+        //        else
+        //            return base.VisualChildrenCount;
+        //    }
+        //}
 
         protected override Size MeasureOverride(Size constraint)
         {
@@ -568,6 +614,8 @@ namespace gip.ext.designer.avui
 
         private void DesignPanel_KeyUp(object sender, KeyEventArgs e)
         {
+            _pressedKeys[e.Key] = false;
+
             // Only preview events
             if (e.Route != Avalonia.Interactivity.RoutingStrategies.Tunnel)
                 return;
@@ -601,6 +649,8 @@ namespace gip.ext.designer.avui
 
         void DesignPanel_KeyDown(object sender, KeyEventArgs e)
         {
+            _pressedKeys[e.Key] = true;
+
             // Only previe events
             if (e.Route != Avalonia.Interactivity.RoutingStrategies.Tunnel)
                 return;
@@ -621,11 +671,9 @@ namespace gip.ext.designer.avui
 
             if (e.Key == Key.Left || e.Key == Key.Right || e.Key == Key.Up || e.Key == Key.Down)
             {
-                bool initialEvent = false;
-
                 e.Handled = true;
 
-                PlacementType placementType = Keyboard.IsKeyDown(Key.LeftCtrl) ? PlacementType.Resize : PlacementType.MoveAndIgnoreOtherContainers;
+                PlacementType placementType = IsKeyDown(Key.LeftCtrl) ? PlacementType.Resize : PlacementType.MoveAndIgnoreOtherContainers;
 
                 if (placementOp != null && placementOp.Type != placementType)
                 {
@@ -654,16 +702,16 @@ namespace gip.ext.designer.avui
                 switch (e.Key)
                 {
                     case Key.Left:
-                        odx = Keyboard.IsKeyDown(Key.LeftShift) ? -10 : -1;
+                        odx = IsKeyDown(Key.LeftShift) ? -10 : -1;
                         break;
                     case Key.Up:
-                        ody = Keyboard.IsKeyDown(Key.LeftShift) ? -10 : -1;
+                        ody = IsKeyDown(Key.LeftShift) ? -10 : -1;
                         break;
                     case Key.Right:
-                        odx = Keyboard.IsKeyDown(Key.LeftShift) ? 10 : 1;
+                        odx = IsKeyDown(Key.LeftShift) ? 10 : 1;
                         break;
                     case Key.Down:
-                        ody = Keyboard.IsKeyDown(Key.LeftShift) ? 10 : 1;
+                        ody = IsKeyDown(Key.LeftShift) ? 10 : 1;
                         break;
                 }
 
@@ -674,11 +722,10 @@ namespace gip.ext.designer.avui
                         dx[info] = 0;
                         dy[info] = 0;
                     }
-                    var transform = info.Item.Parent.View.TransformToVisual(this);
-                    var mt = transform as MatrixTransform;
-                    if (mt != null)
+                    Matrix? transform = info.Item.Parent.View.TransformToVisual(this);
+                    if (transform.HasValue)
                     {
-                        var angle = Math.Atan2(mt.Matrix.M21, mt.Matrix.M11) * 180 / Math.PI;
+                        var angle = Math.Atan2(transform.Value.M21, transform.Value.M11) * 180 / Math.PI;
                         if (angle > 45.0 && angle < 135.0)
                         {
                             dx[info] += ody * -1;
@@ -729,31 +776,32 @@ namespace gip.ext.designer.avui
 
         static bool IsPropertySet(Control element, AvaloniaProperty d)
         {
-            return element.ReadLocalValue(d) != AvaloniaProperty.UnsetValue;
+            return element.IsSet(d);
         }
 
-        protected override void OnQueryCursor(QueryCursorEventArgs e)
-        {
-            DesignPanelHitTestResult result = this.HitTest(e.GetPosition(this), false, true);
-            // TODO: Prüfen ob immer Funktioniert
-            if (result.VisualHit != null && result.VisualHit.GetType().Name != "VBCanvas")
-            {
-                //e.Cursor = Cursors.Hand;
-                //e.Handled = true;
-                //return;
-            }
+        // Old wpf code: Code moved to implementations of ITool.Activate and ITool.Deactivate
+        //protected override void OnQueryCursor(QueryCursorEventArgs e)
+        //{
+        //    DesignPanelHitTestResult result = this.HitTest(e.GetPosition(this), false, true);
+        //    // TODO: Prüfen ob immer Funktioniert
+        //    if (result.VisualHit != null && result.VisualHit.GetType().Name != "VBCanvas")
+        //    {
+        //        //e.Cursor = Cursors.Hand;
+        //        //e.Handled = true;
+        //        //return;
+        //    }
 
-            base.OnQueryCursor(e);
-            if (_context != null)
-            {
-                Cursor cursor = _context.Services.Tool.CurrentTool.Cursor;
-                if (cursor != null)
-                {
-                    e.Cursor = cursor;
-                    e.Handled = true;
-                }
-            }
-        }
+        //    base.OnQueryCursor(e);
+        //    if (_context != null)
+        //    {
+        //        Cursor cursor = _context.Services.Tool.CurrentTool.Cursor;
+        //        if (cursor != null)
+        //        {
+        //            e.Cursor = cursor;
+        //            e.Handled = true;
+        //        }
+        //    }
+        //}
 
         //public event PropertyChangedEventHandler PropertyChanged;
         public event EventHandler<DragEventArgs> DragEnter;
@@ -761,10 +809,6 @@ namespace gip.ext.designer.avui
         public event EventHandler<DragEventArgs> DragLeave;
         public event EventHandler<DragEventArgs> Drop;
 
-        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-        {
-            base.OnPropertyChanged(change);
-        }
 
         //protected override void OnGotFocus(RoutedEventArgs e)
         //{
@@ -821,7 +865,7 @@ namespace gip.ext.designer.avui
 
                 foreach (var entry in entries)
                 {
-                    var ctl = ((FrameworkElement)entry).TryFindParent<ItemsControl>();
+                    var ctl = ((Control)entry).TryFindParent<ItemsControl>();
                     if (ctl != null)
                         ctl.Items.Remove(entry);
                     contextMenu.Items.Add(entry);

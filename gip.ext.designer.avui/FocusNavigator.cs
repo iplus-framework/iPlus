@@ -4,6 +4,8 @@
 using System;
 using System.Linq;
 using System.Windows.Input;
+using Avalonia;
+using Avalonia.Input;
 using gip.ext.design.avui;
 
 namespace gip.ext.designer.avui
@@ -50,16 +52,16 @@ namespace gip.ext.designer.avui
             DesignCommand itemShiftLeft = new DesignCommand(parameter => this.MoveItem(_surface, Key.Left, true), parameter => CanMoveItem(_surface));
             DesignCommand itemShiftRight = new DesignCommand(parameter => this.MoveItem(_surface, Key.Right, true), parameter => CanMoveItem(_surface));
 
-            _tabBinding = new KeyBinding(tabFocus, new KeyGesture(Key.Tab));
-            _shiftTabBinding = new KeyBinding(shiftTabFocus, new KeyGesture(Key.Tab, ModifierKeys.Shift));
-            _ctrlUpBinding = new KeyBinding(itemCtrlUp, new KeyGesture(Key.Up, ModifierKeys.Control));
-            _ctrlDownBinding = new KeyBinding(itemCtrlDown, new KeyGesture(Key.Down, ModifierKeys.Control));
-            _ctrlLeftBinding = new KeyBinding(itemCtrlLeft, new KeyGesture(Key.Left, ModifierKeys.Control));
-            _ctrlRightBinding = new KeyBinding(itemCtrlRight, new KeyGesture(Key.Right, ModifierKeys.Control));
-            _ShiftUpBinding = new KeyBinding(itemShiftUp, new KeyGesture(Key.Up, ModifierKeys.Shift));
-            _ShiftDownBinding = new KeyBinding(itemShiftDown, new KeyGesture(Key.Down, ModifierKeys.Shift));
-            _ShiftLeftBinding = new KeyBinding(itemShiftLeft, new KeyGesture(Key.Left, ModifierKeys.Shift));
-            _ShiftRightBinding = new KeyBinding(itemShiftRight, new KeyGesture(Key.Right, ModifierKeys.Shift));
+            _tabBinding = new KeyBinding() { Command = tabFocus, Gesture = new KeyGesture(Key.Tab) };
+            _shiftTabBinding = new KeyBinding() { Command = shiftTabFocus, Gesture = new KeyGesture(Key.Tab, KeyModifiers.Shift) };
+            _ctrlUpBinding = new KeyBinding() { Command = itemCtrlUp, Gesture = new KeyGesture(Key.Up, KeyModifiers.Control) };
+            _ctrlDownBinding = new KeyBinding() { Command = itemCtrlDown, Gesture = new KeyGesture(Key.Down, KeyModifiers.Control) };
+            _ctrlLeftBinding = new KeyBinding() { Command = itemCtrlLeft, Gesture = new KeyGesture(Key.Left, KeyModifiers.Control) };
+            _ctrlRightBinding = new KeyBinding() { Command = itemCtrlRight, Gesture = new KeyGesture(Key.Right, KeyModifiers.Control) };
+            _ShiftUpBinding = new KeyBinding() { Command = itemShiftUp, Gesture = new KeyGesture(Key.Up, KeyModifiers.Shift) };
+            _ShiftDownBinding = new KeyBinding() { Command = itemShiftDown, Gesture = new KeyGesture(Key.Down, KeyModifiers.Shift) };
+            _ShiftLeftBinding = new KeyBinding() { Command = itemShiftLeft, Gesture = new KeyGesture(Key.Left, KeyModifiers.Shift) };
+            _ShiftRightBinding = new KeyBinding() { Command = itemShiftRight, Gesture = new KeyGesture(Key.Right, KeyModifiers.Shift) };
             IKeyBindingService kbs = _surface.DesignContext.Services.GetService(typeof(IKeyBindingService)) as IKeyBindingService;
             if (kbs != null)
             {
@@ -157,8 +159,11 @@ namespace gip.ext.designer.avui
         {
             var designSurface = surface as DesignSurface;
             if (designSurface != null)
-                if (Keyboard.FocusedElement == designSurface._designPanel)
+            {
+                if (designSurface._designPanel.IsKeyboardFocusWithin)
+                //if (Keyboard.FocusedElement == designSurface._designPanel)
                     return true;
+            }
             return false;
         }
 
@@ -211,8 +216,11 @@ namespace gip.ext.designer.avui
         {
             var designSurface = surface as DesignSurface;
             if (designSurface != null)
-                if (Keyboard.FocusedElement == designSurface._designPanel)
+            {
+                if (designSurface._designPanel.IsKeyboardFocusWithin)
+                //if (Keyboard.FocusedElement == designSurface._designPanel)
                     return true;
+            }
             return false;
         }
 
@@ -300,14 +308,14 @@ namespace gip.ext.designer.avui
                                             //if (rest > 0)
                                             //rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
                                         }
-                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                        info.Bounds = new Rect(info.OriginalBounds.Left,
                                                                System.Convert.ToInt32(info.OriginalBounds.Top) - rest,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
                                     }
                                     else
                                     {
-                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                        info.Bounds = new Rect(info.OriginalBounds.Left,
                                                                info.OriginalBounds.Top - 10,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
@@ -315,7 +323,7 @@ namespace gip.ext.designer.avui
                                 }
                                 else
                                 {
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                    info.Bounds = new Rect(info.OriginalBounds.Left,
                                                             info.OriginalBounds.Top - 1,
                                                             info.OriginalBounds.Width,
                                                             info.OriginalBounds.Height);
@@ -339,14 +347,14 @@ namespace gip.ext.designer.avui
                                             if (rest > 0)
                                                 rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
                                         }
-                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                        info.Bounds = new Rect(info.OriginalBounds.Left,
                                                                System.Convert.ToInt32(info.OriginalBounds.Top) + rest,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
                                     }
                                     else
                                     {
-                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                        info.Bounds = new Rect(info.OriginalBounds.Left,
                                                                info.OriginalBounds.Top + 10,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
@@ -354,7 +362,7 @@ namespace gip.ext.designer.avui
                                 }
                                 else
                                 {
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left,
+                                    info.Bounds = new Rect(info.OriginalBounds.Left,
                                                            info.OriginalBounds.Top + 1,
                                                            info.OriginalBounds.Width,
                                                            info.OriginalBounds.Height);
@@ -378,14 +386,14 @@ namespace gip.ext.designer.avui
                                             //if (rest > 0)
                                             //rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
                                         }
-                                        info.Bounds = new System.Windows.Rect(System.Convert.ToInt32(info.OriginalBounds.Left) - rest,
+                                        info.Bounds = new Rect(System.Convert.ToInt32(info.OriginalBounds.Left) - rest,
                                                                info.OriginalBounds.Top,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
                                     }
                                     else
                                     {
-                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left - 10,
+                                        info.Bounds = new Rect(info.OriginalBounds.Left - 10,
                                                                info.OriginalBounds.Top,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
@@ -393,7 +401,7 @@ namespace gip.ext.designer.avui
                                 }
                                 else
                                 {
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left - 1,
+                                    info.Bounds = new Rect(info.OriginalBounds.Left - 1,
                                                            info.OriginalBounds.Top,
                                                            info.OriginalBounds.Width,
                                                            info.OriginalBounds.Height);
@@ -417,14 +425,14 @@ namespace gip.ext.designer.avui
                                             if (rest > 0)
                                                 rest = System.Convert.ToInt32(designSurface.RasterSize) - rest;
                                         }
-                                        info.Bounds = new System.Windows.Rect(System.Convert.ToInt32(info.OriginalBounds.Left) + rest,
+                                        info.Bounds = new Rect(System.Convert.ToInt32(info.OriginalBounds.Left) + rest,
                                                                info.OriginalBounds.Top,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
                                     }
                                     else
                                     {
-                                        info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left + 10,
+                                        info.Bounds = new Rect(info.OriginalBounds.Left + 10,
                                                                info.OriginalBounds.Top,
                                                                info.OriginalBounds.Width,
                                                                info.OriginalBounds.Height);
@@ -432,7 +440,7 @@ namespace gip.ext.designer.avui
                                 }
                                 else
                                 {
-                                    info.Bounds = new System.Windows.Rect(info.OriginalBounds.Left + 1,
+                                    info.Bounds = new Rect(info.OriginalBounds.Left + 1,
                                                            info.OriginalBounds.Top,
                                                            info.OriginalBounds.Width,
                                                            info.OriginalBounds.Height);
@@ -468,7 +476,8 @@ namespace gip.ext.designer.avui
             var designSurface = surface as DesignSurface;
             if (designSurface != null)
             {
-                if (Keyboard.FocusedElement == designSurface._designPanel)
+                //if (Keyboard.FocusedElement == designSurface._designPanel)
+                if (designSurface._designPanel.IsKeyboardFocusWithin)
                     return true;
             }
             return false;

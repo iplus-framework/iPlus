@@ -29,7 +29,7 @@ namespace gip.ext.designer.avui.OutlineView
         DataTemplate dtmpltMultiTrigger;
         DataTemplate dtmpltMultiDataTrigger;
 
-        public Control Build(object? item)
+        public Control Build(object item)
         {
             if (item == null)
                 return null;
@@ -47,7 +47,7 @@ namespace gip.ext.designer.avui.OutlineView
                    data is MultiDataTriggerOutlineNode;
         }
 
-        private DataTemplate? SelectTemplate(object item)
+        private DataTemplate SelectTemplate(object item)
         {
             // Try to get resource from Application if not already loaded
             if (dtmpltPropertyTrigger == null)

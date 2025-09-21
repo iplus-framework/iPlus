@@ -1,13 +1,24 @@
 ﻿<UserControl x:Class="gip.ext.designer.avui.DesignSurface"
-             xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:Default="clr-namespace:gip.ext.designer.avui"
              xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
-             xmlns:widgets="http://icsharpcode.net/sharpdevelop/widgets"
              DataContext="{x:Null}"
              Background="#888">
-    <DockPanel>
-        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" Height="20">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="20"/>
+        </Grid.RowDefinitions>
+        
+        <Controls:ZoomControl Grid.Row="0" x:Name="uxZoom" AlwaysShowZoomButtons="True" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+            <Default:DesignPanel x:Name="_designPanel" HorizontalAlignment="Center" VerticalAlignment="Center" >
+                <!-- Reset some inherited properties to avoid values from SharpDevelop applying to designed forms. -->
+                <Border x:Name="_sceneContainer" AllowDrop="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            </Default:DesignPanel>
+        </Controls:ZoomControl>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Height="20">
             <TextBlock Text="X: " Margin="0,2,0,0"/>
             <TextBlock x:Name="_XCoord" Width="30" Margin="0,2,0,0"/>
             <TextBlock Text="Y: " Margin="0,2,0,0"/>
@@ -21,18 +32,12 @@
             <TextBlock Text="ΔY2: " Margin="0,2,0,0"/>
             <TextBlock x:Name="_YCoord2" Width="30" Margin="0,2,0,0"/>
             <TextBlock Margin="20,2,0,0" Text="Raster:"/>
-            <widgets:NumericUpDown x:Name="_UpDownRasterSize" Background="Transparent" Width="40" SmallChange="5" LargeChange="10" Maximum="100" />
+            <Controls:NumericUpDown x:Name="_UpDownRasterSize" Background="Transparent" Width="40" SmallChange="5" LargeChange="10" Maximum="100" />
             <TextBlock Margin="20,2,0,0" Text="Rotation °:"/>
-            <widgets:NumericUpDown x:Name="_UpDownRotation" Background="Transparent" Width="40" SmallChange="1" LargeChange="5" Maximum="360" Minimum="-360" />
+            <Controls:NumericUpDown x:Name="_UpDownRotation" Background="Transparent" Width="40" SmallChange="1" LargeChange="5" Maximum="360" Minimum="-360" />
             <TextBlock Margin="20,2,0,0" Text="Layer:"/>
-            <widgets:NumericUpDown x:Name="_LayerHitTest" Background="Transparent" Width="40" SmallChange="1" LargeChange="5" Maximum="20" Minimum="-1" />
-            <CheckBox  Margin="2,2,0,0" x:Name="_GroupedOnly" Content="Grouped only" Checked="GroupedOnly_Checked" Unchecked="GroupedOnly_Checked" />
+            <Controls:NumericUpDown x:Name="_LayerHitTest" Background="Transparent" Width="40" SmallChange="1" LargeChange="5" Maximum="20" Minimum="-1" />
+            <CheckBox Margin="2,2,0,0" x:Name="_GroupedOnly" Content="Grouped only" />
         </StackPanel>
-        <Controls:ZoomControl DockPanel.Dock="Top" x:Name="uxZoom" AlwaysShowZoomButtons="True" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-            <Default:DesignPanel x:Name="_designPanel" HorizontalAlignment="Center" VerticalAlignment="Center" >
-                <!-- Reset some inherited properties to the WPF defaults to avoid values from SharpDevelop applying to designed forms. -->
-                <Border x:Name="_sceneContainer" AllowDrop="False" UseLayoutRounding="False" TextOptions.TextFormattingMode="Ideal" HorizontalAlignment="Center" VerticalAlignment="Center" />
-            </Default:DesignPanel>
-        </Controls:ZoomControl>
-    </DockPanel>
+    </Grid>
 </UserControl>

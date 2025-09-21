@@ -5,37 +5,39 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
-	public partial class TextBoxEditor
+	public partial class TextBoxEditor : TextBox
 	{
 		/// <summary>
 		/// Creates a new TextBoxEditor instance.
 		/// </summary>
 		public TextBoxEditor()
 		{
-			InitializeComponent();
+			AvaloniaXamlLoader.Load(this);
 		}
 		
 		/// <inheritdoc/>
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
 			if (e.Key == Key.Enter) {
-				BindingOperations.GetBindingExpressionBase(this, TextProperty).UpdateSource();
+                // Force binding update by clearing and setting focus
+                // BindingOperations.GetBindingExpressionBase(this, TextProperty).UpdateSource();
+                var currentText = Text;
+				Focus();
 				SelectAll();
 			} else if (e.Key == Key.Escape) {
-				BindingOperations.GetBindingExpression(this, TextProperty).UpdateTarget();
+                // Reset to bound value by clearing local value
+                // BindingOperations.GetBindingExpression(this, TextProperty).UpdateTarget();
+                this.ClearValue(TextProperty);
 			}
+			
+			base.OnKeyDown(e);
 		}
 	}
 }

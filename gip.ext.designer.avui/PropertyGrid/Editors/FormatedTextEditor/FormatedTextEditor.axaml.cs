@@ -14,6 +14,7 @@ using AvRichTextBox;
 // using AvRichTextBox.Documents; // This may not exist
 using gip.ext.design.avui;
 using gip.ext.designer.avui.themes;
+using Avalonia.VisualTree;
 
 namespace gip.ext.designer.avui.PropertyGrid
 {
@@ -43,12 +44,9 @@ namespace gip.ext.designer.avui.PropertyGrid
 		private void InitializeComponent()
 		{
 			AvaloniaXamlLoader.Load(this);
-			richTextBox = this.FindControl<RichTextBox>("richTextBox");
-			richTextBoxToolbar = this.FindControl<Editors.FormatedTextEditor.RichTextBoxToolbar>("richTextBoxToolbar");
+			//richTextBox = this.FindControl<RichTextBox>("richTextBox");
+			//richTextBoxToolbar = this.FindControl<Editors.FormatedTextEditor.RichTextBoxToolbar>("richTextBoxToolbar");
 		}
-
-		private RichTextBox richTextBox;
-		private Editors.FormatedTextEditor.RichTextBoxToolbar richTextBoxToolbar;
 
 		public static void SetRichTextBoxTextFromTextBlock(RichTextBox richTextBox, TextBlock textBlock)
 		{
@@ -57,7 +55,7 @@ namespace gip.ext.designer.avui.PropertyGrid
 			try
 			{
 				// Check if AvRichTextBox has a Document property and what type it is
-				var document = richTextBox.Document;
+				var document = richTextBox.FlowDocument;
 				if (document != null)
 				{
 					// TODO: Determine the correct way to clear and populate document content
@@ -201,7 +199,7 @@ namespace gip.ext.designer.avui.PropertyGrid
 
 			try
 			{
-				var doc = richTextBox.Document;
+				var doc = richTextBox.FlowDocument;
 				if (doc != null)
 				{
 					// TODO: Extract content from AvRichTextBox document

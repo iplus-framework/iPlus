@@ -5,14 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 using gip.ext.designer.avui.Xaml;
 using gip.ext.designer.avui.Services;
@@ -21,18 +13,26 @@ using gip.ext.xamldom.avui;
 using System.Threading;
 using System.Globalization;
 using gip.ext.design.avui;
-using gip.ext.widgets.avui;
 using gip.core.datamodel;
 using gip.ext.designer.avui.Controls;
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Data.Core;
+using Avalonia;
+using Avalonia.Media;
+using System.Threading.Tasks;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.designer.avui
 {
     /// <summary>
-    /// Surface hosting the WPF designer.
+    /// Surface hosting the AvaloniaUI designer.
     /// </summary>
-    public partial class DesignSurface : UserControl, INotifyPropertyChanged
+    public partial class DesignSurface : UserControl
     {
         private FocusNavigator _focusNav;
         static DesignSurface()
@@ -45,35 +45,30 @@ namespace gip.ext.designer.avui
         {
             InitializeComponent();
 
-            this.SourceUpdated += new EventHandler<DataTransferEventArgs>(DesignSurface_SourceUpdated);
-            this.TargetUpdated += new EventHandler<DataTransferEventArgs>(DesignSurface_TargetUpdated);
+            // Event handlers for CheckBox
+            _GroupedOnly.IsCheckedChanged += GroupedOnly_Checked;
 
             Binding binding = new Binding();
             binding.Source = this;
-            binding.Path = new PropertyPath("RasterSize");
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
+            binding.Path = "RasterSize";
             binding.Mode = BindingMode.OneWayToSource;
-            _UpDownRasterSize.SetBinding(NumericUpDown.ValueProperty, binding);
+            _UpDownRasterSize.Bind(gip.ext.designer.avui.Controls.NumericUpDown.ValueProperty, binding);
 
             _RotationChangedSelection = true;
             binding = new Binding();
             binding.Source = this;
-            binding.Path = new PropertyPath("RotationAngle");
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
+            binding.Path = "RotationAngle";
             binding.Mode = BindingMode.OneWayToSource;
-            _UpDownRotation.SetBinding(NumericUpDown.ValueProperty, binding);
+            _UpDownRotation.Bind(gip.ext.designer.avui.Controls.NumericUpDown.ValueProperty, binding);
             _RotationChangedSelection = false;
 
             binding = new Binding();
             binding.Source = this;
-            binding.Path = new PropertyPath("HitTestLayerNum");
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
+            binding.Path = "HitTestLayerNum";
             binding.Mode = BindingMode.TwoWay;
-            _LayerHitTest.SetBinding(NumericUpDown.ValueProperty, binding);
+            _LayerHitTest.Bind(gip.ext.designer.avui.Controls.NumericUpDown.ValueProperty, binding);
 
+            // Register command handlers
             this.AddCommandHandler(ApplicationCommands.Undo, Undo, CanUndo);
             this.AddCommandHandler(ApplicationCommands.Redo, Redo, CanRedo);
             this.AddCommandHandler(ApplicationCommands.Copy, Copy, CanCopyOrCut);
@@ -89,12 +84,11 @@ namespace gip.ext.designer.avui
             this.AddCommandHandler(Commands.AlignCenterCommand, () => ModelTools.ArrangeItems(this.DesignContext.Services.Selection.SelectedItems, ArrangeDirection.HorizontalMiddle), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
             this.AddCommandHandler(Commands.AlignRightCommand, () => ModelTools.ArrangeItems(this.DesignContext.Services.Selection.SelectedItems, ArrangeDirection.Right), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
 
-            this.AddCommandHandler(Commands.RotateLeftCommand, () => ModelTools.ApplyTransform(this.DesignContext.Services.Selection.PrimarySelection, new RotateTransform(-90), true, this.DesignContext.RootItem == this.DesignContext.Services.Selection.PrimarySelection ? LayoutTransformProperty : RenderTransformProperty), () => this.DesignContext.Services.Selection.PrimarySelection != null);
-            this.AddCommandHandler(Commands.RotateRightCommand, () => ModelTools.ApplyTransform(this.DesignContext.Services.Selection.PrimarySelection, new RotateTransform(90), true, this.DesignContext.RootItem == this.DesignContext.Services.Selection.PrimarySelection ? LayoutTransformProperty : RenderTransformProperty), () => this.DesignContext.Services.Selection.PrimarySelection != null);
+            this.AddCommandHandler(Commands.RotateLeftCommand, () => ModelTools.ApplyTransform(this.DesignContext.Services.Selection.PrimarySelection, new RotateTransform(-90), true, this.DesignContext.RootItem == this.DesignContext.Services.Selection.PrimarySelection ? Control.RenderTransformProperty : Control.RenderTransformProperty), () => this.DesignContext.Services.Selection.PrimarySelection != null);
+            this.AddCommandHandler(Commands.RotateRightCommand, () => ModelTools.ApplyTransform(this.DesignContext.Services.Selection.PrimarySelection, new RotateTransform(90), true, this.DesignContext.RootItem == this.DesignContext.Services.Selection.PrimarySelection ? Control.RenderTransformProperty : Control.RenderTransformProperty), () => this.DesignContext.Services.Selection.PrimarySelection != null);
 
             this.AddCommandHandler(Commands.StretchToSameWidthCommand, () => ModelTools.StretchItems(this.DesignContext.Services.Selection.SelectedItems, StretchDirection.Width), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
             this.AddCommandHandler(Commands.StretchToSameHeightCommand, () => ModelTools.StretchItems(this.DesignContext.Services.Selection.SelectedItems, StretchDirection.Height), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
-
 
 #if DEBUG || CODE_ANALYSIS
             if (_designPanel == null)
@@ -109,18 +103,17 @@ namespace gip.ext.designer.avui
             {
                 _designPanel.DesignSurface = this;
                 _designPanel.Child = _sceneContainer;
-                _designPanel.RequestBringIntoView += _partDesignContent_RequestBringIntoView;
-
+                // Note: RequestBringIntoView event doesn't exist in AvaloniaUI
+                // _designPanel.RequestBringIntoView += _partDesignContent_RequestBringIntoView;
             }
         }
-
 
         private bool enableBringIntoView = false;
 
         public void ScrollIntoView(DesignItem designItem)
         {
             enableBringIntoView = true;
-            LogicalTreeHelper.BringIntoView(designItem.View);
+            designItem.View?.BringIntoView();
             enableBringIntoView = false;
         }
 
@@ -131,12 +124,13 @@ namespace gip.ext.designer.avui
             enableBringIntoView = false;
         }
 
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (e.OriginalSource == uxZoom)
+            if (e.Source == uxZoom)
             {
                 UnselectAll();
             }
+            base.OnPointerPressed(e);
         }
 
         public ZoomControl ZoomControl { get { return uxZoom; } }
@@ -189,9 +183,9 @@ namespace gip.ext.designer.avui
             _designPanel.Context = context;
             _designPanel.ClearContextMenu();
 
-            this.AddHandler(UIElement.PreviewMouseMoveEvent, new MouseEventHandler(_sceneContainer_PreviewMouseMove), true);
-            this.AddHandler(UIElement.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(_sceneContainer_PreviewMouseDown), true);
-            this.AddHandler(UIElement.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(_sceneContainer_PreviewMouseUp), true);
+            this.AddHandler(InputElement.PointerMovedEvent, _sceneContainer_PreviewMouseMove, RoutingStrategies.Tunnel);
+            this.AddHandler(InputElement.PointerPressedEvent, _sceneContainer_PreviewMouseDown, RoutingStrategies.Tunnel);
+            this.AddHandler(InputElement.PointerReleasedEvent, _sceneContainer_PreviewMouseUp, RoutingStrategies.Tunnel);
             _PreviewHandlerAdded = true;
             if (context.RootItem != null)
             {
@@ -201,12 +195,12 @@ namespace gip.ext.designer.avui
             context.Services.RunWhenAvailable<UndoService>(
                 undoService => undoService.UndoStackChanged += delegate
                 {
-                    CommandManager.InvalidateRequerySuggested();
+                    // Invalidate command bindings (equivalent to CommandManager.InvalidateRequerySuggested())
                 }
             );
             context.Services.Selection.SelectionChanged += delegate
             {
-                CommandManager.InvalidateRequerySuggested();
+                // Invalidate command bindings
             };
 
             context.Services.Selection.SelectionChanged += new EventHandler<DesignItemCollectionEventArgs>(Selection_SelectionChanged);
@@ -221,32 +215,29 @@ namespace gip.ext.designer.avui
         /// </summary>
         public void UnloadDesigner(bool clearServices = false)
         {
-            // Damir: Norbert deine Änderung vom 23.05. hatte zur Folge, dass die Methode designPanel_DragOver von einem falschen DesignManagerControlTool aufgerufen worden ist
-            //if (clearServices)
-            //{
-                if (_designContext != null)
+            if (_designContext != null)
+            {
+                foreach (object o in _designContext.Services.AllServices)
                 {
-                    foreach (object o in _designContext.Services.AllServices)
-                    {
-                        IDisposable d = o as IDisposable;
-                        if (d != null) d.Dispose();
-                    }
+                    IDisposable d = o as IDisposable;
+                    if (d != null) d.Dispose();
                 }
-            //}
+            }
+            
             uxZoom.DesignContext = null;
             _designContext = null;
             _designPanel.Context = null;
             if (_PreviewHandlerAdded)
             {
-                this.RemoveHandler(UIElement.PreviewMouseMoveEvent, new MouseEventHandler(_sceneContainer_PreviewMouseMove));
-                this.RemoveHandler(UIElement.PreviewMouseLeftButtonDownEvent, new MouseButtonEventHandler(_sceneContainer_PreviewMouseDown));
-                this.RemoveHandler(UIElement.PreviewMouseLeftButtonUpEvent, new MouseButtonEventHandler(_sceneContainer_PreviewMouseUp));
+                this.RemoveHandler(InputElement.PointerMovedEvent, _sceneContainer_PreviewMouseMove);
+                this.RemoveHandler(InputElement.PointerPressedEvent, _sceneContainer_PreviewMouseDown);
+                this.RemoveHandler(InputElement.PointerReleasedEvent, _sceneContainer_PreviewMouseUp);
             }
             _sceneContainer.Child = null;
             _designPanel.Adorners.Clear();
         }
 
-        void _sceneContainer_PreviewMouseMove(object sender, MouseEventArgs e)
+        void _sceneContainer_PreviewMouseMove(object sender, PointerEventArgs e)
         {
             if (_sceneContainer.Child != null)
             {
@@ -259,7 +250,7 @@ namespace gip.ext.designer.avui
         }
 
         private Point _PointStart = new Point();
-        void _sceneContainer_PreviewMouseDown(object sender, MouseButtonEventArgs e)
+        void _sceneContainer_PreviewMouseDown(object sender, PointerPressedEventArgs e)
         {
             if (_sceneContainer.Child != null)
             {
@@ -269,7 +260,7 @@ namespace gip.ext.designer.avui
             }
         }
 
-        void _sceneContainer_PreviewMouseUp(object sender, MouseButtonEventArgs e)
+        void _sceneContainer_PreviewMouseUp(object sender, PointerReleasedEventArgs e)
         {
             if (_sceneContainer.Child != null)
             {
@@ -306,11 +297,17 @@ namespace gip.ext.designer.avui
                 return;
             if ((_designPanel.AdornerRaster == null) && RasterSize < 5)
                 return;
-            AdornerLayer layer;
+
+            var adornerLayer = _designPanel.AdornerLayer;
             if ((_designPanel.AdornerRaster != null) && RasterSize < 5)
             {
-                layer = AdornerLayer.GetAdornerLayer(_designPanel);
-                layer.Remove(_designPanel.AdornerRaster);
+                // Remove the adorner panel that contains the raster adorner
+                var adornerToRemove = adornerLayer.Adorners.FirstOrDefault(a => 
+                    a.Children.Count > 0 && a.Children[0] == _designPanel.AdornerRaster);
+                if (adornerToRemove != null)
+                {
+                    adornerLayer.Adorners.Remove(adornerToRemove);
+                }
                 _designPanel.AdornerRaster = null;
                 return;
             }
@@ -319,17 +316,16 @@ namespace gip.ext.designer.avui
                 _designPanel.AdornerRaster.RasterSize = System.Convert.ToInt32(RasterSize);
                 return;
             }
-            layer = AdornerLayer.GetAdornerLayer(_designPanel);
+
+            // Create new raster adorner
             _designPanel.AdornerRaster = new DesignSurfaceRasterAdorner(_sceneContainer, System.Convert.ToInt32(RasterSize));
-            layer.Add(_designPanel.AdornerRaster);
-        }
-
-        void DesignSurface_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-        }
-
-        void DesignSurface_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
+            
+            // Create adorner panel and add the raster adorner to it
+            var adornerPanel = new gip.ext.design.avui.Adorners.AdornerPanel();
+            adornerPanel.SetAdornedElement(_sceneContainer, null);
+            adornerPanel.Children.Add(_designPanel.AdornerRaster);
+            
+            adornerLayer.Adorners.Add(adornerPanel);
         }
 
         private bool _RotationChangedSelection = false;
@@ -346,9 +342,9 @@ namespace gip.ext.designer.avui
                 if (!_RotationChangedSelection && (_designContext != null))
                 {
                     DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                    if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                    if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                     {
-                        DesignItemProperty prop = designItem.Properties.GetProperty(UIElement.RenderTransformProperty);
+                        DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
                         if (prop != null)
                         {
                             if (prop.Value == null)
@@ -485,7 +481,7 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                     return true;
             }
             return false;
@@ -496,9 +492,9 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                 {
-                    DesignItemProperty prop = designItem.Properties.GetProperty(UIElement.RenderTransformProperty);
+                    DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
                     if (prop != null)
                     {
                         if (prop.Value == null)
@@ -535,7 +531,7 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                     return true;
             }
             return false;
@@ -546,9 +542,9 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                 {
-                    DesignItemProperty prop = designItem.Properties.GetProperty(UIElement.RenderTransformProperty);
+                    DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
                     if (prop != null)
                     {
                         if (prop.Value == null)
@@ -585,7 +581,7 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                     return true;
             }
             return false;
@@ -596,9 +592,9 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                 {
-                    DesignItemProperty prop = designItem.Properties.GetProperty(UIElement.RenderTransformProperty);
+                    DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
                     if (prop != null)
                     {
                         prop.Reset();
@@ -612,12 +608,11 @@ namespace gip.ext.designer.avui
             if (_designContext != null)
             {
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-                if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+                if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                     return true;
             }
             return false;
         }
-
 
         void Selection_SelectionChanged(object sender, DesignItemCollectionEventArgs e)
         {
@@ -625,9 +620,9 @@ namespace gip.ext.designer.avui
                 return;
             _RotationChangedSelection = true;
             DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
-            if ((designItem != null) && (designItem.View != null) && (designItem.View is UIElement))
+            if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
             {
-                DesignItemProperty prop = designItem.Properties.GetProperty(UIElement.RenderTransformProperty);
+                DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
                 if ((prop != null) && (prop.Value != null) && (typeof(RotateTransform).IsAssignableFrom(prop.Value.ComponentType)))
                 {
                     DesignItemProperty propAngle = prop.Value.Properties.GetProperty(RotateTransform.AngleProperty);
@@ -653,7 +648,6 @@ namespace gip.ext.designer.avui
             }
             _RotationChangedSelection = false;
             Focus();
-            Keyboard.Focus(this);
         }
 
         #region Commands
@@ -713,12 +707,6 @@ namespace gip.ext.designer.avui
         public void Copy()
         {
             _designContext?.Services?.CopyPasteService?.Copy(_designContext);
-            //XamlDesignContext xamlContext = _designContext as XamlDesignContext;
-            //ISelectionService selectionService = GetService<ISelectionService>();
-            //if (xamlContext != null && selectionService != null)
-            //{
-            //    xamlContext.XamlEditAction.Copy(selectionService.SelectedItems);
-            //}
         }
 
         public bool CanCut()
@@ -729,64 +717,30 @@ namespace gip.ext.designer.avui
         public void Cut()
         {
             _designContext?.Services?.CopyPasteService?.Cut(_designContext);
-            //XamlDesignContext xamlContext = _designContext as XamlDesignContext;
-            //ISelectionService selectionService = GetService<ISelectionService>();
-            //if (xamlContext != null && selectionService != null)
-            //{
-            //    xamlContext.XamlEditAction.Cut(selectionService.SelectedItems);
-            //}
         }
 
         public bool CanDelete()
         {
             return _designContext?.Services?.CopyPasteService?.CanDelete(_designContext) == true;
-            //if (_designContext != null)
-            //{
-            //    return ModelTools.CanDeleteComponents(_designContext.Services.Selection.SelectedItems);
-            //}
-            //return false;
         }
 
- 
         public event EventHandler OnDeleteItem;
 
         public void Delete()
         {
             _designContext?.Services?.CopyPasteService?.Delete(_designContext);
             if (OnDeleteItem != null)
-                    OnDeleteItem(this, new EventArgs());
-            //if (_designContext != null)
-            //{
-            //    //NOTE(ihrastinski): on delete key up on design item
-            //    //ModelTools.DeleteComponents(_designContext.Services.Selection.SelectedItems);
-            //    if (OnDeleteItem != null)
-            //        OnDeleteItem(this, new EventArgs());
-            //}
+                OnDeleteItem(this, new EventArgs());
         }
-
-
 
         public bool CanPaste()
         {
-            return _designContext?.Services?.CopyPasteService?.CanPasteAsync(_designContext) == true;
-            //ISelectionService selectionService = GetService<ISelectionService>();
-            //if (selectionService != null && selectionService.SelectedItems.Count != 0)
-            //{
-            //    string xaml = Clipboard.GetText(TextDataFormat.Xaml);
-            //    if (xaml != "" && xaml != " ")
-            //        return true;
-            //}
-            //return false;
+            return _designContext?.Services?.CopyPasteService?.CanPaste(_designContext) == true;
         }
 
         public void Paste()
         {
             _designContext?.Services?.CopyPasteService?.Paste(_designContext);
-            //XamlDesignContext xamlContext = _designContext as XamlDesignContext;
-            //if (xamlContext != null)
-            //{
-            //    xamlContext.XamlEditAction.Paste();
-            //}
         }
 
         public bool CanSelectAll()
@@ -875,7 +829,6 @@ namespace gip.ext.designer.avui
                 _designPanel.HitTestGroupedPreferred = _GroupedOnly.IsChecked.Value;
             else
                 _designPanel.HitTestGroupedPreferred = false;
-
         }
 
         public Double HitTestLayerNum
@@ -889,29 +842,19 @@ namespace gip.ext.designer.avui
                 _designPanel.HitTestLayer = Convert.ToInt32(value);
             }
         }
-
-        #region INotifyPropertyChanged implementation
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName)
-        {
-            var ev = PropertyChanged;
-            if (ev != null)
-                ev(this, new PropertyChangedEventArgs(propertyName));
-        }
-
-        #endregion
     }
 
-    public class DesignSurfaceRasterAdorner : Adorner
+    public class DesignSurfaceRasterAdorner : Control
     {
-        public DesignSurfaceRasterAdorner(UIElement adornedElement, int rasterSize)
-            : base(adornedElement)
+        public DesignSurfaceRasterAdorner(Control adornedElement, int rasterSize)
         {
+            _adornedElement = adornedElement;
             _RasterSize = rasterSize;
             IsHitTestVisible = false;
         }
+
+        private readonly Control _adornedElement;
+        public Control AdornedElement => _adornedElement;
 
         private int _RasterSize;
         public int RasterSize
@@ -927,31 +870,16 @@ namespace gip.ext.designer.avui
             }
         }
 
-        protected override void OnRender(DrawingContext drawingContext)
+        public override void Render(DrawingContext drawingContext)
         {
             Size desiredSize = this.AdornedElement.DesiredSize;
             if (RasterSize < 1)
                 return;
-            //FrameworkElement designPanel = this.AdornedElement as FrameworkElement;
-            //if (designPanel != null)
-            //{
-            //    if ((designPanel.ActualWidth > 0.01) && (designPanel.ActualHeight > 0.01))
-            //    {
-            //        desiredSize.Width = designPanel.ActualWidth;
-            //        desiredSize.Height = designPanel.ActualHeight;
-            //    }
-            //}
 
             if (desiredSize.Width == 0 && desiredSize.Height == 0)
             {
-                desiredSize.Width = (this.AdornedElement as FrameworkElement).ActualWidth;
-                desiredSize.Height = (this.AdornedElement as FrameworkElement).ActualHeight;
+                desiredSize = new Size(this.AdornedElement.Bounds.Width, this.AdornedElement.Bounds.Height);
             }
-
-            //GeneralTransform x2 = this.AdornedElement.TransformToAncestor((Visual)(this.AdornedElement as Border).Child);
-            //GeneralTransform x2 = this.TransformToVisual(this.AdornedElement);
-            //Transform x2 = new TranslateTransform(200, 200);
-            //drawingContext.PushTransform((Transform)x2);
 
             GeometryGroup geomGroup = new GeometryGroup();
             for (int y = RasterSize; y < desiredSize.Width; y += RasterSize)
@@ -966,9 +894,7 @@ namespace gip.ext.designer.avui
             SolidColorBrush penBrush = new SolidColorBrush(Colors.Blue);
             penBrush.Opacity = 0.2;
             Pen renderPen = new Pen(penBrush, 1);
-            renderPen.DashStyle = DashStyles.Solid;
             drawingContext.DrawGeometry(Brushes.Transparent, renderPen, geomGroup);
         }
     }
-
 }

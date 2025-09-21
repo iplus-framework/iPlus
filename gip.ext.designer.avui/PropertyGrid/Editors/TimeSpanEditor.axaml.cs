@@ -2,7 +2,9 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using gip.ext.design.avui.PropertyGrid;
 using gip.ext.designer.avui.themes;
 
@@ -10,35 +12,25 @@ using gip.ext.designer.avui.themes;
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
 	[TypeEditor(typeof(TimeSpan))]
-	public partial class TimeSpanEditor
+	public partial class TimeSpanEditor : UserControl
 	{
 		public TimeSpanEditor()
 		{
-			SpecialInitializeComponent();
+			InitializeComponent();
 			DataContextChanged += NumberEditor_DataContextChanged;
 		}
 
-		/// <summary>
-		/// Fixes InitializeComponent with multiple Versions of same Assembly loaded
-		/// </summary>
-		public void SpecialInitializeComponent()
-		{
-			if (!this._contentLoaded)
-			{
-				this._contentLoaded = true;
-				Uri resourceLocator = new Uri(VersionedAssemblyResourceDictionary.GetXamlNameForType(this.GetType()), UriKind.Relative);
-				Application.LoadComponent(this, resourceLocator);
-			}
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
+        }
 
-			this.InitializeComponent();
-		}
-
-		public PropertyNode PropertyNode
+        public PropertyNode PropertyNode
 		{
 			get { return DataContext as PropertyNode; }
 		}
 
-		void NumberEditor_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+		void NumberEditor_DataContextChanged(object sender, EventArgs e)
 		{
 			if (PropertyNode == null)
 				return;
@@ -52,35 +44,35 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 
 			if (value < TimeSpan.Zero)
 			{
-				this.Neagtive = true;
+				this.Negative = true;
 				value = value.Negate();
 			}
 			this.Days = value.Days;
 			this.Hours = value.Hours;
 			this.Minutes = value.Minutes;
 			this.Seconds = value.Seconds;
-			this.MiliSeconds = value.Milliseconds;
+			this.Milliseconds = value.Milliseconds;
 		}
 
 		private void UpdateValue()
 		{
-			var ts = new TimeSpan(this.Days, this.Hours, this.Minutes, this.Seconds, this.MiliSeconds);
-			if (this.Neagtive)
+			var ts = new TimeSpan(this.Days, this.Hours, this.Minutes, this.Seconds, this.Milliseconds);
+			if (this.Negative)
 				ts = ts.Negate();
 			PropertyNode.DesignerValue = ts;
 		}
 
-		public bool Neagtive
+		public bool Negative
 		{
-			get { return (bool)GetValue(NeagtiveProperty); }
-			set { SetValue(NeagtiveProperty, value); }
+			get { return GetValue(NegativeProperty); }
+			set { SetValue(NegativeProperty, value); }
 		}
 		 
-		// Using a DependencyProperty as the backing store for Neagtive.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty NeagtiveProperty =
-			DependencyProperty.Register("Neagtive", typeof(bool), typeof(TimeSpanEditor), new PropertyMetadata(OnNeagtivePropertyChanged));
+		// Using a StyledProperty as the backing store for Negative.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<bool> NegativeProperty =
+			AvaloniaProperty.Register<TimeSpanEditor, bool>(nameof(Negative), false);
 
-		private static void OnNeagtivePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void OnNegativePropertyChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var ctl = (TimeSpanEditor)d;
 			ctl.UpdateValue();
@@ -89,15 +81,15 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 
 		public int Days
 		{
-			get { return (int)GetValue(DaysProperty); }
+			get { return GetValue(DaysProperty); }
 			set { SetValue(DaysProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for Days.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty DaysProperty =
-			DependencyProperty.Register("Days", typeof(int), typeof(TimeSpanEditor), new PropertyMetadata(OnDaysPropertyChanged));
+		// Using a StyledProperty as the backing store for Days.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<int> DaysProperty =
+			AvaloniaProperty.Register<TimeSpanEditor, int>(nameof(Days), 0);
 
-		private static void OnDaysPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void OnDaysPropertyChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var ctl = (TimeSpanEditor)d;
 			
@@ -106,15 +98,15 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 
 		public int Hours
 		{
-			get { return (int)GetValue(HoursProperty); }
+			get { return GetValue(HoursProperty); }
 			set { SetValue(HoursProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for Hours.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty HoursProperty =
-			DependencyProperty.Register("Hours", typeof(int), typeof(TimeSpanEditor), new PropertyMetadata(OnHoursPropertyChanged));
+		// Using a StyledProperty as the backing store for Hours.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<int> HoursProperty =
+			AvaloniaProperty.Register<TimeSpanEditor, int>(nameof(Hours), 0);
 
-		private static void OnHoursPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void OnHoursPropertyChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var ctl = (TimeSpanEditor) d;
 			if (ctl.Hours > 23)
@@ -133,15 +125,15 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 
 		public int Minutes
 		{
-			get { return (int)GetValue(MinutesProperty); }
+			get { return GetValue(MinutesProperty); }
 			set { SetValue(MinutesProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for Minutes.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty MinutesProperty =
-			DependencyProperty.Register("Minutes", typeof(int), typeof(TimeSpanEditor), new PropertyMetadata(OnMinutesPropertyChanged));
+		// Using a StyledProperty as the backing store for Minutes.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<int> MinutesProperty =
+			AvaloniaProperty.Register<TimeSpanEditor, int>(nameof(Minutes), 0);
 
-		private static void OnMinutesPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void OnMinutesPropertyChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var ctl = (TimeSpanEditor)d;
 			if (ctl.Minutes > 59)
@@ -160,15 +152,15 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 		 
 		public int Seconds
 		{
-			get { return (int)GetValue(SecondsProperty); }
+			get { return GetValue(SecondsProperty); }
 			set { SetValue(SecondsProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for Seconds.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty SecondsProperty =
-			DependencyProperty.Register("Seconds", typeof(int), typeof(TimeSpanEditor), new PropertyMetadata(OnSecondsPropertyChanged));
+		// Using a StyledProperty as the backing store for Seconds.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<int> SecondsProperty =
+			AvaloniaProperty.Register<TimeSpanEditor, int>(nameof(Seconds), 0);
 
-		private static void OnSecondsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void OnSecondsPropertyChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var ctl = (TimeSpanEditor)d;
 			if (ctl.Seconds > 59)
@@ -184,31 +176,41 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 
 			ctl.UpdateValue();
 		}
-		public int MiliSeconds
+		public int Milliseconds
 		{
-			get { return (int)GetValue(MiliSecondsProperty); }
-			set { SetValue(MiliSecondsProperty, value); }
+			get { return GetValue(MillisecondsProperty); }
+			set { SetValue(MillisecondsProperty, value); }
 		}
 
-		// Using a DependencyProperty as the backing store for MiliSeconds.  This enables animation, styling, binding, etc...
-		public static readonly DependencyProperty MiliSecondsProperty =
-			DependencyProperty.Register("MiliSeconds", typeof(int), typeof(TimeSpanEditor), new PropertyMetadata(OnMiliSecondsPropertyChanged));
+		// Using a StyledProperty as the backing store for Milliseconds.  This enables animation, styling, binding, etc...
+		public static readonly StyledProperty<int> MillisecondsProperty =
+			AvaloniaProperty.Register<TimeSpanEditor, int>(nameof(Milliseconds), 0);
 
-		private static void OnMiliSecondsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void OnMillisecondsPropertyChanged(AvaloniaObject d, AvaloniaPropertyChangedEventArgs e)
 		{
 			var ctl = (TimeSpanEditor)d;
-			if (ctl.MiliSeconds > 999)
+			if (ctl.Milliseconds > 999)
 			{
 				ctl.Seconds++;
-				ctl.MiliSeconds = 0;
+				ctl.Milliseconds = 0;
 			}
-			else if (ctl.MiliSeconds < 0)
+			else if (ctl.Milliseconds < 0)
 			{
 				ctl.Seconds--;
-				ctl.MiliSeconds = 999;
+				ctl.Milliseconds = 999;
 			}
 
 			ctl.UpdateValue();
+		}
+
+		static TimeSpanEditor()
+		{
+			NegativeProperty.Changed.AddClassHandler<TimeSpanEditor>((x, e) => OnNegativePropertyChanged(x, e));
+			DaysProperty.Changed.AddClassHandler<TimeSpanEditor>((x, e) => OnDaysPropertyChanged(x, e));
+			HoursProperty.Changed.AddClassHandler<TimeSpanEditor>((x, e) => OnHoursPropertyChanged(x, e));
+			MinutesProperty.Changed.AddClassHandler<TimeSpanEditor>((x, e) => OnMinutesPropertyChanged(x, e));
+			SecondsProperty.Changed.AddClassHandler<TimeSpanEditor>((x, e) => OnSecondsPropertyChanged(x, e));
+			MillisecondsProperty.Changed.AddClassHandler<TimeSpanEditor>((x, e) => OnMillisecondsPropertyChanged(x, e));
 		}
 	}
 }

@@ -30,7 +30,7 @@ namespace gip.ext.designer.avui.Controls
             }
         }
 
-        private void Btn_PointerPressed(object? sender, PointerPressedEventArgs e)
+        private void Btn_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             if (sender is Button clearButton)
             {

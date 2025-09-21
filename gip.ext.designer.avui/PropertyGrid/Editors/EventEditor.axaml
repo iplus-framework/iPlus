@@ -1,9 +1,9 @@
 ﻿<TextBox 
     x:Class="gip.ext.designer.avui.PropertyGrid.Editors.EventEditor"
-    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     BorderThickness="0"
     Background="{x:Null}"
-    Text="{Binding Value, UpdateSourceTrigger=Explicit}"
+    Text="{Binding Value, Mode=TwoWay}"
     >	
 </TextBox>

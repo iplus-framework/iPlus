@@ -15,11 +15,12 @@ using Avalonia.Interactivity;
 using Avalonia.Styling;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
+using Avalonia;
 
 namespace gip.ext.designer.avui.OutlineView
 {
     [CLSCompliant(false)]
-    public class BindingEditor : TemplatedControl, INotifyPropertyChanged, ITypeEditorInitItem
+    public class BindingEditor : TemplatedControl, ITypeEditorInitItem
     {
         static BindingEditor()
         {
@@ -46,13 +47,13 @@ namespace gip.ext.designer.avui.OutlineView
             base.OnApplyTemplate(e);
         }
 
-        void BindingEditor_Loaded(object? sender, RoutedEventArgs e)
+        void BindingEditor_Loaded(object sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents += OnToolEvents;
         }
 
-        void BindingEditor_Unloaded(object? sender, RoutedEventArgs e)
+        void BindingEditor_Unloaded(object sender, RoutedEventArgs e)
         {
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents -= OnToolEvents;
@@ -92,8 +93,8 @@ namespace gip.ext.designer.avui.OutlineView
         {
         }
 
-        protected BindingEditorWrapperSingle? _Wrapper;
-        public BindingEditorWrapperSingle? Wrapper
+        protected BindingEditorWrapperSingle _Wrapper;
+        public BindingEditorWrapperSingle Wrapper
         {
             get
             {
@@ -113,8 +114,8 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        protected TriggerOutlineNodeBase? _ParentTriggerNode = null;
-        public TriggerOutlineNodeBase? ParentTriggerNode
+        protected TriggerOutlineNodeBase _ParentTriggerNode = null;
+        public TriggerOutlineNodeBase ParentTriggerNode
         {
             get
             {
@@ -134,28 +135,29 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        void _Wrapper_PropertyChanged(object? sender, PropertyChangedEventArgs e)
+        void _Wrapper_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Description")
             {
-                RaisePropertyChanged("TriggerInfoText");
+                UpdateTriggerInfoText();
             }
         }
 
-        public virtual string TriggerInfoText
+        public string TriggerInfoText
         {
-            get
-            {
-                if (Wrapper != null)
-                    return Wrapper.Description;
-                return "";
-            }
+            get { return GetValue(TriggerInfoTextProperty); }
+            private set { SetValue(TriggerInfoTextProperty, value); }
         }
 
-        public event PropertyChangedEventHandler? PropertyChanged;
-        protected void RaisePropertyChanged(string name)
+        public static readonly StyledProperty<string> TriggerInfoTextProperty =
+            AvaloniaProperty.Register<BindingEditor, string>(nameof(TriggerInfoText), string.Empty);
+
+        private void UpdateTriggerInfoText()
         {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            string newValue = string.Empty;
+            if (Wrapper != null)
+                newValue = Wrapper.Description ?? string.Empty;
+            TriggerInfoText = newValue;
         }
     }
 }

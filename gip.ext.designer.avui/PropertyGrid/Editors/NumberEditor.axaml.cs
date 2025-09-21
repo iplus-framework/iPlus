@@ -5,18 +5,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.ext.design.avui.PropertyGrid;
 using System.Reflection;
 using gip.ext.design.avui;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml;
+using System.Reactive.Linq;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
@@ -31,7 +30,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
     [TypeEditor(typeof(ulong))]
     [TypeEditor(typeof(short))]
     [TypeEditor(typeof(ushort))]
-    public partial class NumberEditor
+    public partial class NumberEditor : Controls.NumericUpDown
     {
         static NumberEditor()
         {
@@ -63,7 +62,12 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
         public NumberEditor()
         {
             InitializeComponent();
-            DataContextChanged += new DependencyPropertyChangedEventHandler(NumberEditor_DataContextChanged);
+            this.GetObservable(StyledElement.DataContextProperty).Subscribe(_ => NumberEditor_DataContextChanged());
+        }
+
+        private void InitializeComponent()
+        {
+            AvaloniaXamlLoader.Load(this);
         }
 
         static Dictionary<Type, double> minimums = new Dictionary<Type, double>();
@@ -74,7 +78,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             get { return DataContext as IPropertyNode; }
         }
 
-        void NumberEditor_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void NumberEditor_DataContextChanged()
         {
             if (PropertyNode == null) return;
             var type = PropertyNode.FirstProperty.ReturnType;
@@ -117,16 +121,16 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             }
             else
             {
-                ClearValue(DecimalPlacesProperty);
-                ClearValue(SmallChangeProperty);
-                ClearValue(LargeChangeProperty);
+                this.ClearValue(DecimalPlacesProperty);
+                this.ClearValue(SmallChangeProperty);
+                this.ClearValue(LargeChangeProperty);
             }
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            TextBox textBox = Template.FindName("PART_TextBox", this) as TextBox;
+            base.OnApplyTemplate(e);
+            TextBox textBox = e.NameScope.Find<TextBox>("PART_TextBox");
             if (textBox != null)
                 textBox.TextChanged += TextValueChanged;
         }
@@ -146,24 +150,24 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
                     if (val >= Minimum && val <= Maximum || double.IsNaN(val))
                     {
                         textBox.Foreground = Brushes.Black;
-                        textBox.ToolTip = textBox.Text;
+                        ToolTip.SetTip(textBox, textBox.Text);
                     }
                     else
                     {
                         textBox.Foreground = Brushes.DarkBlue;
-                        textBox.ToolTip = "Value should be in between " + Minimum + " and " + Maximum;
+                        ToolTip.SetTip(textBox, "Value should be in between " + Minimum + " and " + Maximum);
                     }
                 }
                 else
                 {
                     textBox.Foreground = Brushes.DarkRed;
-                    textBox.ToolTip = "Cannot convert to Type : " + PropertyNode.FirstProperty.ReturnType.Name;
+                    ToolTip.SetTip(textBox, "Cannot convert to Type : " + PropertyNode.FirstProperty.ReturnType.Name);
                 }
             }
             else
             {
                 textBox.Foreground = Brushes.DarkRed;
-                textBox.ToolTip = string.IsNullOrWhiteSpace(textBox.Text) ? null : "Value does not belong to any numeric type";
+                ToolTip.SetTip(textBox, string.IsNullOrWhiteSpace(textBox.Text) ? null : "Value does not belong to any numeric type");
             }
 
         }

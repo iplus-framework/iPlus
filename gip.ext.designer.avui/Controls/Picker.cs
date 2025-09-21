@@ -22,10 +22,10 @@ namespace gip.ext.designer.avui.Controls
 			SizeChanged += delegate { UpdateValueOffset(); };
 		}
 
-		public static readonly StyledProperty<Control?> MarkerProperty =
-			AvaloniaProperty.Register<Picker, Control?>(nameof(Marker));
+		public static readonly StyledProperty<Control> MarkerProperty =
+			AvaloniaProperty.Register<Picker, Control>(nameof(Marker));
 
-		public Control? Marker {
+		public Control Marker {
 			get { return GetValue(MarkerProperty); }
 			set { SetValue(MarkerProperty, value); }
 		}
@@ -77,7 +77,7 @@ namespace gip.ext.designer.avui.Controls
 			if (change.Property == MarkerProperty) {
 				if (Marker != null)
 				{
-					TranslateTransform? t = Marker.RenderTransform as TranslateTransform;
+					TranslateTransform t = Marker.RenderTransform as TranslateTransform;
 					if (t == null) {
 						t = new TranslateTransform();
 						Marker.RenderTransform = t;

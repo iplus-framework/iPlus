@@ -5,11 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Markup;
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Input;
 using System.Reflection;
+using Avalonia.Markup.Xaml;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Data;
+using System.Windows.Input;
 
 namespace gip.ext.designer.avui
 {
@@ -25,35 +26,36 @@ namespace gip.ext.designer.avui
 		public override object ProvideValue(IServiceProvider serviceProvider)
 		{
 			var t = (IProvideValueTarget)serviceProvider.GetService(typeof(IProvideValueTarget));
-			return new CallCommand(t.TargetObject as FrameworkElement, methodName);
+			return new CallCommand(t.TargetObject as Control, methodName);
 		}
 	}
 
-	public class CallCommand : DependencyObject, ICommand
+	public class CallCommand : AvaloniaObject, ICommand
 	{
-		public CallCommand(FrameworkElement element, string methodName)
+		public CallCommand(Control element, string methodName)
 		{
 			this.element = element;
 			this.methodName = methodName;
 			element.DataContextChanged += target_DataContextChanged;
 
-			BindingOperations.SetBinding(this, CanCallProperty, new Binding("DataContext.Can" + methodName) {
+			// Use AvaloniaUI binding approach
+			var binding = new Binding("DataContext.Can" + methodName) {
 				Source = element
-			});
+			};
+			this.Bind(CanCallProperty, binding);
 
 			GetMethod();
 		}
 
-		FrameworkElement element;
+        Control element;
 		string methodName;
 		MethodInfo method;
 
-		public static readonly DependencyProperty CanCallProperty =
-			DependencyProperty.Register("CanCall", typeof(bool), typeof(CallCommand),
-			                            new PropertyMetadata(true));
+		public static readonly StyledProperty<bool> CanCallProperty =
+			AvaloniaProperty.Register<CallCommand, bool>(nameof(CanCall), true);
 
 		public bool CanCall {
-			get { return (bool)GetValue(CanCallProperty); }
+			get { return GetValue(CanCallProperty); }
 			set { SetValue(CanCallProperty, value); }
 		}
 
@@ -61,11 +63,11 @@ namespace gip.ext.designer.avui
 			get { return element.DataContext; }
 		}
 
-		protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+		protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
 		{
-			base.OnPropertyChanged(e);
+			base.OnPropertyChanged(change);
 
-			if (e.Property == CanCallProperty) {
+			if (change.Property == CanCallProperty) {
 				RaiseCanExecuteChanged();
 			}
 		}
@@ -80,7 +82,7 @@ namespace gip.ext.designer.avui
 			}
 		}
 
-		void target_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+		void target_DataContextChanged(object sender, EventArgs e)
 		{
 			GetMethod();
 			RaiseCanExecuteChanged();

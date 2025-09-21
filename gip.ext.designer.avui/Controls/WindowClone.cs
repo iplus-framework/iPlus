@@ -59,8 +59,8 @@ namespace gip.ext.designer.avui.Controls
 		/// <summary>
 		/// Defines the Icon property.
 		/// </summary>
-		public static readonly StyledProperty<WindowIcon?> IconProperty =
-			AvaloniaProperty.Register<WindowClone, WindowIcon?>(nameof(Icon));
+		public static readonly StyledProperty<WindowIcon> IconProperty =
+			AvaloniaProperty.Register<WindowClone, WindowIcon>(nameof(Icon));
 
 		/// <summary>
 		/// Specifies the icon to use.
@@ -150,7 +150,7 @@ namespace gip.ext.designer.avui.Controls
 			set { SetValue(SizeToContentProperty, value); }
 		}
 		
-		object? taskbarItemInfo;
+		object taskbarItemInfo;
 		
 		/// <summary>
 		/// This property has no effect. (for compatibility with <see cref="Window"/> only).
@@ -163,8 +163,8 @@ namespace gip.ext.designer.avui.Controls
 		/// <summary>
 		/// Defines the Title property.
 		/// </summary>
-		public static readonly StyledProperty<string?> TitleProperty =
-			AvaloniaProperty.Register<WindowClone, string?>(nameof(Title));
+		public static readonly StyledProperty<string> TitleProperty =
+			AvaloniaProperty.Register<WindowClone, string>(nameof(Title));
 
 		/// <summary>
 		/// The title to display in the Window's title bar.

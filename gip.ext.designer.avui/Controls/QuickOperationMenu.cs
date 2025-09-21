@@ -16,7 +16,7 @@ namespace gip.ext.designer.avui.Controls
     /// </summary>
     public class QuickOperationMenu : TemplatedControl
     {
-        private MenuItem? _mainHeader;
+        private MenuItem _mainHeader;
 
         /// <summary>
         /// Contains Default values in the Sub menu for example "HorizontalAlignment" has "HorizontalAlignment.Stretch" as it's value.

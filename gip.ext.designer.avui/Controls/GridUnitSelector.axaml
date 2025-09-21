@@ -12,7 +12,7 @@
 			<Setter
 				Property="Template">
 				<Setter.Value>
-					<ControlTemplate>
+					<ControlTemplate TargetType="RadioButton">
 						<ToggleButton
 							IsChecked="{Binding Path=IsChecked, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
 							Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"
@@ -31,14 +31,14 @@
 		<StackPanel
 			Orientation="{Binding Orientation, ElementName=control}">
 			<RadioButton
-				x:Name="fixed"
+				x:Name="fixedButton"
 				Content="Fixed"
 				Margin="1"
 				FontSize="8"
 				ToolTip.Tip="Fixed - Column size is fixed width"
 				GroupName="group" />
 			<RadioButton
-				x:Name="star"
+				x:Name="starButton"
 				Margin="1"
 				FontSize="16"
 				ToolTip.Tip="Star - Column size is weighted proportion"
@@ -48,7 +48,7 @@
 					Margin="3,-4,3,-8" />
 			</RadioButton>
 			<RadioButton
-				x:Name="auto"
+				x:Name="autoButton"
 				Content="Auto"
 				Margin="1"
 				FontSize="8"

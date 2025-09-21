@@ -2,36 +2,35 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
-using System.Windows;
-using System.Windows.Input;
 using gip.ext.designer.avui.themes;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml;
+using gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor
 {
-	public partial class ColorEditorPopup
+	public partial class ColorEditorPopup : Window
 	{
+		private bool _contentLoaded;
+		
 		public ColorEditorPopup()
 		{
-			SpecialInitializeComponent();
-		}
-		
-		/// <summary>
-		/// Fixes InitializeComponent with multiple Versions of same Assembly loaded
-		/// </summary>
-		public void SpecialInitializeComponent()
-		{
-			if (!this._contentLoaded) {
-				this._contentLoaded = true;
-				Uri resourceLocator = new Uri(VersionedAssemblyResourceDictionary.GetXamlNameForType(this.GetType()), UriKind.Relative);
-				Application.LoadComponent(this, resourceLocator);
-			}
+            this.InitializeComponent();
+        }
 			
-			this.InitializeComponent();
+		private void InitializeComponent()
+		{
+			AvaloniaXamlLoader.Load(this);
 		}
 		
 		protected override void OnKeyDown(KeyEventArgs e)
 		{
-			if (e.Key == Key.Escape) IsOpen = false;
+			if (e.Key == Key.Escape) 
+			{
+				Close();
+			}
+			base.OnKeyDown(e);
 		}
 	}
 }
