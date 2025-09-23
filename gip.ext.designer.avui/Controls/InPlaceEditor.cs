@@ -18,7 +18,7 @@ namespace gip.ext.designer.avui.Controls
     /// <summary>
     /// Supports editing Text in the Designer
     /// </summary>
-    public class InPlaceEditor : TextBox
+    public class InPlaceEditor : TemplatedControl
     {
         static InPlaceEditor()
         {

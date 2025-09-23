@@ -6,26 +6,7 @@
              xmlns:BrushEditor="using:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
              xmlns:Converters="using:gip.ext.designer.avui.Converters"
              xmlns:PropertyGrid="using:gip.ext.designer.avui.PropertyGrid"
-             xmlns:widgets="http://icsharpcode.net/sharpdevelop/widgets"
              Width="395">
-	
-	<UserControl.Resources>
-			
-			<DataTemplate DataType="BrushEditor:BrushItem">
-				<StackPanel Orientation="Horizontal">
-					<Border Background="{Binding Brush}"
-					        Width="30"
-					        Height="15"
-					        Margin="2"
-					        BorderThickness="1"
-					        BorderBrush="Black" />
-					<TextBlock Text="{Binding Name}"
-					           VerticalAlignment="Center" />
-				</StackPanel>
-			</DataTemplate>
-	
-	</UserControl.Resources>
-	
 	<TabControl x:Name="tabControl"
 	            SelectedIndex="{Binding CurrentKind, Converter={x:Static Converters:IntFromEnumConverter.Instance}}">
 		<TabItem Header="None">
@@ -55,7 +36,7 @@
 				            Margin="5">
 					<TextBlock Text="Angle"
 					           VerticalAlignment="Center" />
-					<widgets:NumericUpDown Value="{Binding GradientAngle}"
+          <Controls:NumericUpDown Value="{Binding GradientAngle}"
 					                 Minimum="-360"
 					                 Maximum="360"
 					                 Margin="5 0 0 0"
@@ -76,9 +57,23 @@
 			<BrushEditor:GradientBrushEditor />
 		</TabItem>
 		<TabItem Header="Brush List">
-			<ListBox ItemsSource="{Binding AvailableBrushes}"
-			         SelectedValue="{Binding Brush.Color}"
-			         SelectedValuePath="Brush.Color" />
+      <ListBox ItemsSource="{Binding AvailableBrushes}"
+			         SelectedValue="{Binding Color}">
+        <ListBox.ItemTemplate>
+          <DataTemplate>
+            <StackPanel Orientation="Horizontal">
+              <Border Background="{Binding Brush}"
+                      Width="30"
+                      Height="15"
+                      Margin="2"
+                      BorderThickness="1"
+                      BorderBrush="Black" />
+              <TextBlock Text="{Binding Name}"
+                         VerticalAlignment="Center" />
+            </StackPanel>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
 		</TabItem>
 	</TabControl>
 

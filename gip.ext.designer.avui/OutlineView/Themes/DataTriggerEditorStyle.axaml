@@ -1,74 +1,72 @@
-﻿<ResourceDictionary 
-    xmlns="https://github.com/avaloniaui" 
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
-    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
+    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-    <Style Selector="OutlineView|DataTriggerEditor">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="OutlineView:DataTriggerEditor">
-                    <TabControl>
-                        <TabItem Header="Triggerdata">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30" />
-                                    <RowDefinition Height="*" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <Button x:Name="PART_SetBinding" 
-                                        Grid.Row="0" Grid.Column="0" 
-                                        Content="One data item"
-                                        IsEnabled="{TemplateBinding IsTriggerEditable}" />
-                                <Button x:Name="PART_SetMultiBinding" 
-                                        Grid.Row="0" Grid.Column="1" 
-                                        Content="More data items"
-                                        IsEnabled="{TemplateBinding IsTriggerEditable}" />
-                                
-                                <!-- Using StackPanel instead of DockPanel since DockPanel isn't available in Avalonia -->
-                                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical">
-                                    <ContentControl x:Name="PART_BindingEditor"
-                                                    VerticalAlignment="Center"
-                                                    Margin="3 0" />
-                                    
-                                    <Grid>
-                                        <Grid.RowDefinitions>
-                                            <RowDefinition Height="30" />
-                                        </Grid.RowDefinitions>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="60" />
-                                            <ColumnDefinition Width="*" />
-                                        </Grid.ColumnDefinitions>
-                                        <TextBlock Text="Value" Grid.Column="0" />
-                                        <ContentControl Grid.Row="0" Grid.Column="1" x:Name="PART_TriggerValueEditor"
-								                        VerticalAlignment="Center"
-								                        Margin="3 0"
-                                                        IsHitTestVisible="{TemplateBinding IsTriggerEditable}"/>
-                                    </Grid>
-                                </StackPanel>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="Setter">
-                            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor"
-                                                                 IsVisible="{TemplateBinding AreTriggerValuesValid}"/>
-                        </TabItem>
-                        <TabItem Header="Enter Actions">
-                            <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor" 
-                                                               IsVisible="{TemplateBinding AreTriggerValuesValid}" 
-                                                               Margin="0,5,0,0"/>
-                        </TabItem>
-                        <TabItem Header="Exit Actions">
-                            <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor" 
-                                                               IsVisible="{TemplateBinding AreTriggerValuesValid}" 
-                                                               Margin="0,5,0,0"/>
-                        </TabItem>
-                    </TabControl>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+  <ControlTheme x:Key="{x:Type OutlineView:DataTriggerEditor}" TargetType="OutlineView:DataTriggerEditor">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="OutlineView:DataTriggerEditor">
+        <TabControl>
+          <TabItem Header="Triggerdata">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <Button x:Name="PART_SetBinding"
+                      Grid.Row="0" Grid.Column="0"
+                      Content="One data item"
+                      IsEnabled="{TemplateBinding IsTriggerEditable}" />
+              <Button x:Name="PART_SetMultiBinding"
+                      Grid.Row="0" Grid.Column="1"
+                      Content="More data items"
+                      IsEnabled="{TemplateBinding IsTriggerEditable}" />
+
+              <!-- Using StackPanel instead of DockPanel since DockPanel isn't available in Avalonia -->
+              <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical">
+                <ContentControl x:Name="PART_BindingEditor"
+                                VerticalAlignment="Center"
+                                Margin="3 0" />
+
+                <Grid>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="30" />
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="60" />
+                    <ColumnDefinition Width="*" />
+                  </Grid.ColumnDefinitions>
+                  <TextBlock Text="Value" Grid.Column="0" />
+                  <ContentControl Grid.Row="0" Grid.Column="1" x:Name="PART_TriggerValueEditor"
+                  VerticalAlignment="Center"
+                  Margin="3 0"
+                                  IsHitTestVisible="{TemplateBinding IsTriggerEditable}"/>
+                </Grid>
+              </StackPanel>
+            </Grid>
+          </TabItem>
+          <TabItem Header="Setter">
+            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor"
+                                                 IsVisible="{TemplateBinding AreTriggerValuesValid}"/>
+          </TabItem>
+          <TabItem Header="Enter Actions">
+            <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor"
+                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                               Margin="0,5,0,0"/>
+          </TabItem>
+          <TabItem Header="Exit Actions">
+            <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor"
+                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                               Margin="0,5,0,0"/>
+          </TabItem>
+        </TabControl>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
 </ResourceDictionary>

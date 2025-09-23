@@ -18,7 +18,11 @@ namespace gip.ext.designer.avui.Extensions
 {
 	public partial class EditStyleContextMenu : ContextMenu
 	{
-		private DesignItem designItem;
+        public EditStyleContextMenu() : base()
+        {
+        }
+
+        private DesignItem designItem;
 
 		public EditStyleContextMenu(DesignItem designItem)
 		{

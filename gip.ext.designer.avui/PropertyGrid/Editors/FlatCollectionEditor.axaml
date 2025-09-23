@@ -29,9 +29,9 @@
 			<Border.Resources>
 				<ResourceDictionary>
 					<ResourceDictionary.MergedDictionaries>
-						<ResourceDictionary Source="CollectionTemplateDictionary.axaml"/>
+            <ResourceInclude Source="/PropertyGrid/Editors/CollectionTemplateDictionary.axaml"/>
 					</ResourceDictionary.MergedDictionaries>
-					<editors:CollectionTemplateSelector x:Key="CollectionTemplateSelector" />
+          <editors:CollectionTemplateSelector x:Key="CollectionTemplateSelector" />
 				</ResourceDictionary>
 			</Border.Resources>
 			<ListBox

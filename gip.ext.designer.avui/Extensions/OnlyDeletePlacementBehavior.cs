@@ -78,8 +78,6 @@ namespace gip.ext.designer.avui.Extensions
 			}
 		}
 
-		private static InfoTextEnterArea infoTextEnterArea;
-
 		public virtual bool CanEnterContainer(PlacementOperation operation, bool shouldAlwaysEnter)
 		{
 			return false;

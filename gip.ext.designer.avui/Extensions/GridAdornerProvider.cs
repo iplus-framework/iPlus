@@ -102,8 +102,8 @@ namespace gip.ext.designer.avui.Extensions
 			// changes to the collection are done.
 			// It also ensures that the Offset property of new rows/columns is initialized when the splitter
 			// is added.
-			Dispatcher.UIThread.InvokeAsync(
-				async () => {
+			Dispatcher.UIThread.Invoke(
+				() => {
 					requireSplitterRecreation = false;
 					foreach (GridSplitterAdorner splitter in splitterList) {
 						adornerPanel.Children.Remove(splitter);

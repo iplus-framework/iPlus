@@ -19,7 +19,7 @@ namespace gip.ext.designer.avui.Controls
 	/// <summary>
 	/// A custom control that imitates the properties of <see cref="Window"/>, but is not a top-level control.
 	/// </summary>
-	public class WindowClone : StyledElement //ContentControl, IStyleable
+	public class WindowClone : ContentControl
     {
 		//Type IStyleable.StyleKey => typeof(WindowClone);
 

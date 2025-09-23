@@ -5,10 +5,10 @@
     xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-    <Style Selector="OutlineView|ActionCollectionEditor">
+  <ControlTheme x:Key="{x:Type OutlineView:ActionCollectionEditor}" TargetType="OutlineView:ActionCollectionEditor">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="OutlineView:ActionCollectionEditor">
+                <ControlTemplate>
                     <Grid x:Name="PART_OutlineNodesContext">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="100" />
@@ -53,5 +53,5 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+    </ControlTheme>
 </ResourceDictionary>

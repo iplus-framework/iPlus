@@ -1,10 +1,11 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls">
-	
-	<Style Selector="Controls|ZoomScrollViewer">
-		<Setter Property="Template">
-			<ControlTemplate TargetType="Controls:ZoomScrollViewer">
+
+
+  <ControlTheme x:Key="{x:Type Controls:ZoomScrollViewer}" TargetType="Controls:ZoomScrollViewer">
+    <Setter Property="Template">
+			<ControlTemplate>
 				<Grid Background="{TemplateBinding Background}">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="Auto" />
@@ -19,79 +20,87 @@
 						<Controls:ZoomButtons x:Name="zoomButtons" Value="{Binding $parent[Controls:ZoomScrollViewer].CurrentZoom}" Minimum="{Binding $parent[Controls:ZoomScrollViewer].MinimumZoom}" Maximum="{Binding $parent[Controls:ZoomScrollViewer].MaximumZoom}" />
 					</Controls:SelfCollapsingPanel>
 					<Rectangle Grid.Column="2" Grid.Row="1" Fill="{DynamicResource SystemControlBackgroundBaseLowBrush}" />
-					<ScrollContentPresenter Name="PART_Presenter" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="{TemplateBinding Padding}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" CanHorizontallyScroll="{TemplateBinding CanHorizontallyScroll}" CanVerticallyScroll="{TemplateBinding CanVerticallyScroll}">
-						<ScrollContentPresenter.RenderTransform>
-							<ScaleTransform ScaleX="{Binding $parent[Controls:ZoomScrollViewer].CurrentZoom}" ScaleY="{Binding $parent[Controls:ZoomScrollViewer].CurrentZoom}"/>
-						</ScrollContentPresenter.RenderTransform>
-					</ScrollContentPresenter>
-					<ScrollBar Name="PART_VerticalScrollBar" Grid.Column="2" Grid.Row="0" Minimum="0" Maximum="{TemplateBinding ScrollBarMaximum.Y}" LargeChange="{TemplateBinding Viewport.Height}" Value="{TemplateBinding Offset.Y, Mode=TwoWay}" IsVisible="{TemplateBinding IsScrollBarVisible.Y}" />
-					<ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Minimum="0" Maximum="{TemplateBinding ScrollBarMaximum.X}" LargeChange="{TemplateBinding Viewport.Width}" Value="{TemplateBinding Offset.X, Mode=TwoWay}" IsVisible="{TemplateBinding IsScrollBarVisible.X}" />
+          <ScrollContentPresenter Name="PART_Presenter" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="{TemplateBinding Padding}"
+                                  Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" >
+            <!-- In Avalonia not an DependencyProperty: CanHorizontallyScroll="{TemplateBinding CanHorizontallyScroll}" CanVerticallyScroll="{TemplateBinding CanVerticallyScroll}">-->
+            <ScrollContentPresenter.RenderTransform>
+              <ScaleTransform ScaleX="{Binding $parent[Controls:ZoomScrollViewer].CurrentZoom}" ScaleY="{Binding $parent[Controls:ZoomScrollViewer].CurrentZoom}"/>
+            </ScrollContentPresenter.RenderTransform>
+          </ScrollContentPresenter>
+          <!-- Old WPF Code:
+          <ScrollBar Name="PART_VerticalScrollBar" Grid.Column="2" Grid.Row="0" Minimum="0" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Value="{TemplateBinding VerticalOffset}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" />
+          <ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Minimum="0" Maximum="{TemplateBinding ScrollableWidth}" ViewportSize="{TemplateBinding ViewportWidth}" Value="{TemplateBinding HorizontalOffset}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" />
+          -->
+          <!-- TODO: Fix New Avalonia buggy code
+          <ScrollBar Name="PART_VerticalScrollBar" Grid.Column="2" Grid.Row="0" Minimum="0" Maximum="{TemplateBinding ScrollBarMaximum.Y}" LargeChange="{TemplateBinding ViewportSize}" Value="{TemplateBinding Offset.Y, Mode=TwoWay}" IsVisible="{TemplateBinding IsScrollBarVisible.Y}" />
+					<ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Column="1" Grid.Row="1" Minimum="0" Maximum="{TemplateBinding ScrollBarMaximum.X}" LargeChange="{TemplateBinding ViewportSize}" Value="{TemplateBinding Offset.X, Mode=TwoWay}" IsVisible="{TemplateBinding IsScrollBarVisible.X}" />
+          -->
 				</Grid>
 			</ControlTemplate>
 		</Setter>
-	</Style>
-	
-	<Style x:Key="ZoomButtonStyle" Selector="RepeatButton">
-		<Setter Property="Delay" Value="0" />
-		<Setter Property="Focusable" Value="False" />
-		<Setter Property="Opacity" Value="0.5" />
-		<Setter Property="Template">
-			<ControlTemplate TargetType="RepeatButton">
-				<ContentPresenter />
-			</ControlTemplate>
-		</Setter>
-	</Style>
-	
-	<Style Selector="RepeatButton:pointerover /template/ ContentPresenter">
-		<Setter Property="Opacity" Value="1" />
-	</Style>
-	
-	<Style Selector="Controls|ZoomButtons">
-		<Setter Property="Minimum" Value="0.2"/>
-		<Setter Property="Maximum" Value="10"/>
-		<Setter Property="Value" Value="1"/>
-		<Setter Property="Template">
-			<ControlTemplate TargetType="Controls:ZoomButtons">
-				<Border Background="{TemplateBinding Background}"
-				        BorderBrush="{TemplateBinding BorderBrush}"
-				        BorderThickness="{TemplateBinding BorderThickness}">
-                    <StackPanel Orientation="Horizontal"
-					            Background="#3000">
-                        <RepeatButton x:Name="uxPlus"
-						              Width="16" Height="16" Padding="0" BorderThickness="0"
-						              Classes="ZoomButtonStyle">
-                            <Image Source="/gip.ext.designer.avui;component/Images/ZoomIn.png"
-							       Stretch="Uniform"/>
-                        </RepeatButton>
-                        <RepeatButton x:Name="uxMinus"
-						              Width="16" Height="16" Padding="0" BorderThickness="0"
-						              Classes="ZoomButtonStyle">
-                            <Image Source="/gip.ext.designer.avui;component/Images/ZoomOut.png"
-							       Stretch="Uniform" />
-                        </RepeatButton>
-                        <RepeatButton x:Name="uxReset"
-						              Width="16" Height="16" Padding="0" BorderThickness="0"
-						              Classes="ZoomButtonStyle">
-                            <Border Background="#5000">
-                                <TextBlock Foreground="White"
-								           HorizontalAlignment="Center"
-								           VerticalAlignment="Center">1</TextBlock>
-                            </Border>
-                        </RepeatButton>
-                        <RepeatButton x:Name="ux100Percent"
-						              Width="16" Height="16" Padding="0" BorderThickness="0"
-						              Classes="ZoomButtonStyle">
-                            <Border Background="#5000">
-                                <Viewbox Stretch="Uniform">
-                                    <TextBlock Foreground="White"
-								           HorizontalAlignment="Center"
-								           VerticalAlignment="Center">100%</TextBlock>
-                                </Viewbox>
-                            </Border>
-                        </RepeatButton>
-                    </StackPanel>
+    
+    <Style Selector="RepeatButton">
+      <Setter Property="Delay" Value="0" />
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="Opacity" Value="0.5" />
+      <Setter Property="Template">
+        <ControlTemplate TargetType="RepeatButton">
+          <ContentPresenter />
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="RepeatButton:pointerover /template/ ContentPresenter">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <Style Selector="Controls|ZoomButtons">
+      <Setter Property="Minimum" Value="0.2"/>
+      <Setter Property="Maximum" Value="10"/>
+      <Setter Property="Value" Value="1"/>
+      <Setter Property="Template">
+        <ControlTemplate TargetType="Controls:ZoomButtons">
+          <Border Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+            <StackPanel Orientation="Horizontal"
+              Background="#3000">
+              <RepeatButton x:Name="uxPlus"
+                Width="16" Height="16" Padding="0" BorderThickness="0"
+                Classes="ZoomButtonStyle">
+                <Image Source="/gip.ext.designer.avui;component/Images/ZoomIn.png"
+         Stretch="Uniform"/>
+              </RepeatButton>
+              <RepeatButton x:Name="uxMinus"
+                Width="16" Height="16" Padding="0" BorderThickness="0"
+                Classes="ZoomButtonStyle">
+                <Image Source="/gip.ext.designer.avui;component/Images/ZoomOut.png"
+         Stretch="Uniform" />
+              </RepeatButton>
+              <RepeatButton x:Name="uxReset"
+                Width="16" Height="16" Padding="0" BorderThickness="0"
+                Classes="ZoomButtonStyle">
+                <Border Background="#5000">
+                  <TextBlock Foreground="White"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center">1</TextBlock>
                 </Border>
-			</ControlTemplate>
-		</Setter>
-	</Style>
+              </RepeatButton>
+              <RepeatButton x:Name="ux100Percent"
+                Width="16" Height="16" Padding="0" BorderThickness="0"
+                Classes="ZoomButtonStyle">
+                <Border Background="#5000">
+                  <Viewbox Stretch="Uniform">
+                    <TextBlock Foreground="White"
+           HorizontalAlignment="Center"
+           VerticalAlignment="Center">100%</TextBlock>
+                  </Viewbox>
+                </Border>
+              </RepeatButton>
+            </StackPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+	</ControlTheme>
 </ResourceDictionary>

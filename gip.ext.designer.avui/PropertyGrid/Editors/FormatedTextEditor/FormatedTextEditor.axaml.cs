@@ -23,7 +23,11 @@ namespace gip.ext.designer.avui.PropertyGrid
 	/// </summary>
 	public partial class FormatedTextEditor : UserControl
 	{
-		private DesignItem designItem;
+        public FormatedTextEditor() : base()
+        {
+        }
+
+        private DesignItem designItem;
 
 		public FormatedTextEditor(DesignItem designItem)
 		{
@@ -95,7 +99,7 @@ namespace gip.ext.designer.avui.PropertyGrid
 			// 2. How to iterate through document content in AvRichTextBox
 			// 3. What block types are supported (Paragraph, Section, etc.)
 			
-			bool first = true;
+			//bool first = true;
 
 			try
 			{

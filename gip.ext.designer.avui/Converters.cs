@@ -49,8 +49,23 @@ namespace gip.ext.designer.avui.Converters
         }
     }
 
+    public class BoolInverter : IValueConverter
+    {
+        public static readonly BoolInverter Instance = new BoolInverter();
 
-	public class HiddenWhenFalse : IValueConverter
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return (bool)value ? false : true;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
+
+    public class HiddenWhenFalse : IValueConverter
 	{
 		[System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes", Justification = "converter is immutable")]
 		public static readonly HiddenWhenFalse Instance = new HiddenWhenFalse();
@@ -389,6 +404,18 @@ namespace gip.ext.designer.avui.Converters
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return 1.0 / ((double)value);
+        }
+    }
+
+    public sealed class PointConverter : IMultiValueConverter
+    {
+        public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
+        {
+            // Ensure all bindings are provided and attached to correct target type
+            if (values?.Count != 2 || !targetType.IsAssignableFrom(typeof(Point)))
+                throw new NotSupportedException();
+
+            return new Point((double)values[0], (double)values[1]);
         }
     }
 }

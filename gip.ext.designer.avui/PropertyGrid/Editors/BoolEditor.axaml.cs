@@ -5,14 +5,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors
 {
 	[TypeEditor(typeof(bool))]
-	public partial class BoolEditor
-	{
+	public partial class BoolEditor : CheckBox
+    {
 		public BoolEditor()
 		{
             InitializeComponent();

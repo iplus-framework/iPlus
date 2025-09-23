@@ -14,6 +14,10 @@ namespace gip.ext.designer.avui.Extensions
 {
     public partial class PathContextMenu : ContextMenu
     {
+        public PathContextMenu() : base()
+        {
+        }
+
         private DesignItem designItem;
 
         public PathContextMenu(DesignItem designItem)

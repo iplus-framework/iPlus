@@ -1,231 +1,185 @@
-<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:Default="clr-namespace:gip.ext.designer.avui.OutlineView"
 	xmlns:Converters="clr-namespace:gip.ext.designer.avui.Converters">
 
-    <Converters:LevelConverter x:Key="LevelConverter" />
+	<Converters:LevelConverter x:Key="LevelConverter" />
 
-    <Style TargetType="{x:Type Default:IconItem}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Default:IconItem}">
-                    <StackPanel Orientation="Horizontal">
-                        <Image Source="{TemplateBinding Icon}"
-						       Stretch="None" />
-                        <TextBlock Text="{TemplateBinding Text}"
-						           VerticalAlignment="Center"
-						           Margin="5 0 0 0" />
-                    </StackPanel>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+	<ControlTheme x:Key="{x:Type Default:IconItem}" TargetType="Default:IconItem">
+		<Setter Property="Template">
+			<ControlTemplate TargetType="Default:IconItem">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="{TemplateBinding Icon}" Stretch="None" />
+					<TextBlock Text="{TemplateBinding Text}" VerticalAlignment="Center" Margin="5 0 0 0" />
+				</StackPanel>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+
+	<SolidColorBrush x:Key="InsertBrush" Color="#FFC73C" />
+
+	<ControlTheme x:Key="{x:Type Default:DragTreeView}" TargetType="Default:DragTreeView">
+		<Setter Property="Template">
+			<ControlTemplate TargetType="Default:DragTreeView">
+				<Grid Background="White">
+					<Grid.DataTemplates>
+						<TreeDataTemplate DataType="{x:Type Default:PropertyOutlineNode}" ItemsSource="{Binding Children}">
+							<DockPanel>
+								<TextBlock Margin="5,0,0,0" FontStyle="Italic" Text="{Binding Name}" />
+							</DockPanel>
+						</TreeDataTemplate>
+						<TreeDataTemplate DataType="{x:Type Default:OutlineNode}" ItemsSource="{Binding Children}">
+							<DockPanel>
+								<!-- Lock/Unlock Toggle Button -->
+								<ToggleButton IsVisible="{Binding IsVisualNode}" DockPanel.Dock="Right" Width="20" Margin="0,0,5,0" IsChecked="{Binding IsDesignTimeLocked}" Classes="LockToggle">
+									<ToggleButton.Template>
+										<ControlTemplate>
+											<Grid Background="Transparent" IsHitTestVisible="True">
+												<Image Width="16" Height="16" x:Name="locked" Stretch="Uniform" 
+													   Source="pack://application:,,,/gip.ext.designer.avui;component/Images/lock.png" 
+													   IsVisible="False" />
+												<Ellipse x:Name="unlocked" Width="6" Height="6" Stroke="Black" StrokeThickness="1" 
+														 IsVisible="True" />
+											</Grid>
+										</ControlTemplate>
+									</ToggleButton.Template>
+								</ToggleButton>
+								
+								<!-- Visibility Toggle Button -->
+								<ToggleButton IsVisible="{Binding IsVisualNode}" DockPanel.Dock="Right" Width="20" Margin="0,0,5,0" IsChecked="{Binding IsDesignTimeVisible}" Classes="VisibilityToggle">
+									<ToggleButton.Template>
+										<ControlTemplate>
+											<Grid Background="Transparent" IsHitTestVisible="True">
+												<Image x:Name="eye" Stretch="None" 
+													   Source="pack://application:,,,/gip.ext.designer.avui;component/Images/Icons.16x16.WpfOutline.Eye.png" 
+													   IsVisible="False" />
+												<Image x:Name="closed_eye" Stretch="None" 
+													   Source="pack://application:,,,/gip.ext.designer.avui;component/Images/Icons.16x16.WpfOutline.EyeClose.png" 
+													   IsVisible="True" />
+											</Grid>
+										</ControlTemplate>
+									</ToggleButton.Template>
+								</ToggleButton>
+								
+								<Default:IconItem Icon="../Images/Tag.png" Text="{Binding Name}" />
+							</DockPanel>
+						</TreeDataTemplate>            
+					</Grid.DataTemplates>
+					<ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+						<ItemsPresenter />
+					</ScrollViewer>
+					<Border x:Name="PART_InsertLine"
+						Background="{StaticResource InsertBrush}"
+						Height="2"
+						Width="50"
+						HorizontalAlignment="Left"
+						VerticalAlignment="Top"
+						IsVisible="False"
+						IsHitTestVisible="False" />
+				</Grid>
+			</ControlTemplate>
+		</Setter>
+
+    <!-- Styles for Toggle Button States -->
+    <Style Selector="ToggleButton.LockToggle:checked /template/ Image#locked">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    <Style Selector="ToggleButton.LockToggle:checked /template/ Ellipse#unlocked">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
 
-    <Style x:Key="ExpandButtonStyle"
-	       TargetType="ToggleButton">
-        <Setter Property="Focusable"
-		        Value="False" />
-        <Setter Property="ClickMode"
-		        Value="Press" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
-                    <Border Background="Transparent">
-                        <Border Width="9"
-						        Height="9"
-						        SnapsToDevicePixels="true"
-						        BorderBrush="#FF7898B5"
-						        BorderThickness="1"
-						        CornerRadius="1">
-                            <Border.Background>
-                                <LinearGradientBrush EndPoint="1,1"
-									StartPoint="0,0">
-                                    <GradientStop Color="White"
-									              Offset=".2" />
-                                    <GradientStop Color="#FFC0B7A6"
-									              Offset="1" />
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Path Margin="1,1,1,1"
-							      x:Name="ExpandPath"
-							      Fill="Black"
-							      Data="M 0 2 L 0 3 L 2 3 L 2 5 L 3 5 L 3 3 L 5 3 L 5 2 L 3 2 L 3 0 L 2 0 L 2 2 Z" />
-                        </Border>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsChecked"
-						         Value="True">
-                            <Setter Property="Data"
-							        TargetName="ExpandPath"
-							        Value="M 0 2 L 0 3 L 5 3 L 5 2 Z" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="ToggleButton.VisibilityToggle:checked /template/ Image#eye">
+      <Setter Property="IsVisible" Value="True" />
     </Style>
-
-    <Brush x:Key="InsertBrush">#FFC73C</Brush>
-
-    <Style TargetType="{x:Type Default:DragTreeView}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Default:DragTreeView}">
-                    <Grid Background="White">
-                        <ScrollViewer HorizontalScrollBarVisibility="Auto"
-						              VerticalScrollBarVisibility="Auto">
-                            <ItemsPresenter />
-                        </ScrollViewer>
-                        <Border x:Name="PART_InsertLine"
-						        Background="{StaticResource InsertBrush}"
-						        Height="2"
-						        Width="50"
-						        HorizontalAlignment="Left"
-						        VerticalAlignment="Top"
-						        Visibility="Collapsed"
-						        IsHitTestVisible="False" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="ToggleButton.VisibilityToggle:checked /template/ Image#closed_eye">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
+	</ControlTheme>
 
-    <Style TargetType="{x:Type Default:DragTreeViewItem}">
-        <Setter Property="Foreground"
-		        Value="{x:Static SystemColors.ControlTextBrush}" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Default:DragTreeViewItem}">
 
-                    <DockPanel Background="White" ContextMenu="{Binding DesignItem.Services.DesignPanel.ContextMenu}">
-                        <Grid x:Name="bg"
-						           Margin="{TemplateBinding Level, Converter={StaticResource LevelConverter}}"
-						           DockPanel.Dock="Top"
-						           Background="{TemplateBinding Background}">
-                            <ToggleButton HorizontalAlignment="Left" x:Name="expandButton"
-							              Style="{StaticResource ExpandButtonStyle}"
-							              IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" />
-                            <Border x:Name="contentBorder"
-							        Margin="11,0,0,0"
-							        HorizontalAlignment="Stretch">
-                                <ContentPresenter x:Name="PART_Header"
-									ContentSource="Header" />
-                            </Border>
-                        </Grid>
-                        <ItemsPresenter x:Name="itemsHost" />
-                        <DockPanel.ToolTip>
-                            <ToolTip Background="White">
-                                <Rectangle Width="50" Height="50">
-                                    <Rectangle.Fill>
-                                        <VisualBrush Stretch="Uniform" Visual="{Binding DesignItem.View}" />
-                                    </Rectangle.Fill>
-                                </Rectangle>
-                            </ToolTip>
-                        </DockPanel.ToolTip>
-                    </DockPanel>
+	<ControlTheme x:Key="{x:Type Default:DragTreeViewItem}" TargetType="Default:DragTreeViewItem">
+		<Setter Property="Template">
+			<ControlTemplate>
+				<DockPanel Background="White">
+					<ToolTip.Tip>
+						<Border Background="White" Padding="5">
+							<Rectangle Width="50" Height="50">
+								<Rectangle.Fill>
+									<VisualBrush Stretch="Uniform" Visual="{Binding DesignItem.View}" />
+								</Rectangle.Fill>
+							</Rectangle>
+						</Border>
+					</ToolTip.Tip>
+					<Grid x:Name="bg"
+						Margin="{TemplateBinding Level, Converter={StaticResource LevelConverter}}"
+						DockPanel.Dock="Top"
+						Background="{TemplateBinding Background}">
+						<ToggleButton Classes="ExpandButtonStyle" 
+							HorizontalAlignment="Left" x:Name="expandButton"
+							IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" />
+						<Border x:Name="contentBorder" Margin="11,0,0,0" HorizontalAlignment="Stretch">
+							<ContentPresenter x:Name="PART_Header" Content="{TemplateBinding Header}" />
+						</Border>
+					</Grid>
+					<ItemsPresenter x:Name="itemsHost" />
+          <!--<Interaction.Behaviors>
+            <DataTriggerBehavior Binding="{TemplateBinding IsExpanded}" ComparisonCondition="Equal" Value="False">
+              <ChangePropertyAction TargetObject="itemsHost" PropertyName="IsVisible" Value="False" />
+            </DataTriggerBehavior>
+            <DataTriggerBehavior Binding="{TemplateBinding IsSelected}" ComparisonCondition="Equal" Value="True">
+              <ChangePropertyAction TargetObject="bg" PropertyName="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
+              <ChangePropertyAction PropertyName="Foreground" Value="{DynamicResource HighlightBrush}" />
+            </DataTriggerBehavior>
+            <DataTriggerBehavior Binding="{TemplateBinding IsDragHover}" ComparisonCondition="Equal" Value="True">
+              <ChangePropertyAction TargetObject="contentBorder" PropertyName=">" Value="{StaticResource InsertBrush}" />
+            </DataTriggerBehavior>
+            <Trigger Property="HasItems" Value="False">
+                <Setter TargetName="expandButton" Property="Visibility" Value="Collapsed" />
+              </Trigger>
+          </Interaction.Behaviors>-->
+				</DockPanel>
+			</ControlTemplate>
+		</Setter>
+		
+		<!-- Styling for different states -->
+		<Style Selector="^:expanded /template/ ItemsPresenter#itemsHost">
+			<Setter Property="IsVisible" Value="True" />
+		</Style>
+		<Style Selector="^:not(:expanded) /template/ ItemsPresenter#itemsHost">
+			<Setter Property="IsVisible" Value="False" />
+		</Style>
+		<Style Selector="^:selected /template/ Grid#bg">
+			<Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
+		</Style>
+		<Style Selector="^:selected">
+			<Setter Property="Foreground" Value="{DynamicResource HighlightBrush}" />
+		</Style>
 
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsExpanded"
-						         Value="False">
-                            <Setter TargetName="itemsHost"
-							        Property="Visibility"
-							        Value="Collapsed" />
-                        </Trigger>
-                        <Trigger Property="HasItems"
-						         Value="False">
-                            <Setter TargetName="expandButton"
-							        Property="Visibility"
-							        Value="Collapsed" />
-                        </Trigger>
-                        <Trigger Property="IsSelected"
-						         Value="True">
-                            <Setter TargetName="bg"
-							        Property="Background"
-							        Value="{x:Static SystemColors.HighlightBrush}" />
-                            <Setter Property="Foreground"
-							        Value="{x:Static SystemColors.HighlightTextBrush}" />
-                        </Trigger>
-                        <Trigger Property="IsDragHover"
-						         Value="True">
-                            <Setter TargetName="contentBorder"
-							        Property="Background"
-							        Value="{StaticResource InsertBrush}" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+		<!-- ExpandButton Style -->
+		<Style Selector="ToggleButton.ExpandButtonStyle">
+			<Setter Property="Focusable" Value="False" />
+			<Setter Property="ClickMode" Value="Press" />
+			<Setter Property="Template">
+				<ControlTemplate>
+					<Border Background="Transparent">
+						<Border Width="9" Height="9" BorderBrush="#FF7898B5" BorderThickness="1" CornerRadius="1">
+							<Border.Background>
+								<LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+									<GradientStop Color="White" Offset=".2" />
+									<GradientStop Color="#FFC0B7A6" Offset="1" />
+								</LinearGradientBrush>
+							</Border.Background>
+							<Path Margin="1,1,1,1" x:Name="ExpandPath" Fill="Black"
+								Data="M 0 2 L 0 3 L 2 3 L 2 5 L 3 5 L 3 3 L 5 3 L 5 2 L 3 2 L 3 0 L 2 0 L 2 2 Z" />
+						</Border>
+					</Border>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		
+		<Style Selector="ToggleButton.ExpandButtonStyle:checked /template/ Path#ExpandPath">
+			<Setter Property="Data" Value="M 0 2 L 0 3 L 5 3 L 5 2 Z" />
+		</Style>
+	</ControlTheme>
 
-    <Style TargetType="ToggleButton" x:Key="eyeStyle">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
-                    <Grid Background="Transparent" IsHitTestVisible="True">
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CheckStates">
-                                <VisualState x:Name="Checked">
-                                    <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="eye" Storyboard.TargetProperty="(UIElement.Visibility)">
-                                            <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                        <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="closed_eye" Storyboard.TargetProperty="(UIElement.Visibility)">
-                                            <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Collapsed}"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Unchecked"/>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <Image x:Name="eye" Stretch="None" Visibility="Hidden" Source="pack://application:,,,/gip.ext.designer.avui;component/Images/Icons.16x16.WpfOutline.Eye.png" />
-                        <Image x:Name="closed_eye" Stretch="None" Source="pack://application:,,,/gip.ext.designer.avui;component/Images/Icons.16x16.WpfOutline.EyeClose.png" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <Style TargetType="ToggleButton" x:Key="lockedStyle">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="ToggleButton">
-                    <Grid Background="Transparent" IsHitTestVisible="True">
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CheckStates">
-                                <VisualState x:Name="Checked">
-                                    <Storyboard>
-                                        <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="locked" Storyboard.TargetProperty="(UIElement.Visibility)">
-                                            <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Visible}"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                        <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" Storyboard.TargetName="unlocked" Storyboard.TargetProperty="(UIElement.Visibility)">
-                                            <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="{x:Static Visibility.Collapsed}"/>
-                                        </ObjectAnimationUsingKeyFrames>
-                                    </Storyboard>
-                                </VisualState>
-                                <VisualState x:Name="Unchecked"/>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <Image Width="16" Height="16" x:Name="locked" Stretch="Uniform" Visibility="Hidden" Source="pack://application:,,,/gip.ext.designer.avui;component/Images/lock.png" />
-                        <Ellipse x:Name="unlocked" Width="6" Height="6" Stroke="Black" StrokeThickness="1" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
-
-    <HierarchicalDataTemplate DataType="{x:Type Default:PropertyOutlineNode}"
-			ItemsSource="{Binding Children}">
-        <DockPanel>
-            <TextBlock Margin="5,0,0,0" FontStyle="Italic" Text="{Binding Name}" />
-        </DockPanel>
-    </HierarchicalDataTemplate>
-
-    <HierarchicalDataTemplate DataType="{x:Type Default:OutlineNode}"
-		                          ItemsSource="{Binding Children}">
-        <DockPanel>
-            <ToggleButton Visibility="{Binding IsVisualNode}" Style="{StaticResource lockedStyle}" DockPanel.Dock="Right" Width="20" Margin="0,0,5,0" IsChecked="{Binding IsDesignTimeLocked}" />
-            <ToggleButton Visibility="{Binding IsVisualNode}" Style="{StaticResource eyeStyle}" DockPanel.Dock="Right" Width="20" Margin="0,0,5,0" IsChecked="{Binding IsDesignTimeVisible}" />
-            <Default:IconItem Icon="../Images/Tag.png" Text="{Binding Name}" />
-        </DockPanel>
-    </HierarchicalDataTemplate>
 </ResourceDictionary>

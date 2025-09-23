@@ -1,6 +1,6 @@
-﻿<ResourceDictionary 
-    xmlns="https://github.com/avaloniaui" 
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Converters="clr-namespace:gip.ext.designer.avui.Converters"
     xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:PropertyGridBase="clr-namespace:gip.ext.design.avui.PropertyGrid;assembly=gip.ext.design.avui"
@@ -8,84 +8,77 @@
     xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
     xmlns:Prop="clr-namespace:gip.ext.designer.avui.PropertyGrid">
 
-    <!-- Global TreeViewItem style -->
-    <Style Selector="TreeViewItem">
-        <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
-        <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
-    </Style>
-    
-    <!-- DesignItemTreeView Control Template -->
-    <ControlTemplate x:Key="AsGrid" TargetType="PropertyGrid:DesignItemTreeView">
+  <!-- DesignItemTreeView Control Template -->
+  <ControlTheme x:Key="{x:Type PropertyGrid:DesignItemTreeView}" TargetType="PropertyGrid:DesignItemTreeView">
+    <Setter Property="Template">
+      <ControlTemplate>
         <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <!-- Top section with search controls -->
+          <Grid Grid.Row="0" Height="78">
             <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="Auto" />
+              <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            
-            <!-- Top section with search controls -->
-            <Grid Grid.Row="0" Height="78">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="Auto" />
-                    <RowDefinition Height="*" />
-                </Grid.RowDefinitions>
-                
-                <!-- Name label and text box -->
-                <TextBlock Grid.Row="0"
-                          Text="Name:"
-                          Margin="6,6,0,3"
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Center" />
-                          
-                <Controls:EnterTextBox x:Name="PART_NameTextBox"
-                                      Grid.Row="1"
-                                      Text="{Binding NameSearch}"
-                                      Margin="6,0,52,3"
-                                      Height="22"
-                                      VerticalAlignment="Top">
-                </Controls:EnterTextBox>
 
-                <!-- Clear button -->
-                <Button x:Name="PART_clearButton"
-                       Grid.Row="1"
-                       Content="Clear"
-                       HorizontalAlignment="Right"
-                       VerticalAlignment="Top"
-                       Margin="0,0,6,3"
-                       Height="22"
-                       Width="40" />
-            </Grid>
+            <!-- Name label and text box -->
+            <TextBlock Grid.Row="0"
+                      Text="Name:"
+                      Margin="6,6,0,3"
+                      HorizontalAlignment="Left"
+                      VerticalAlignment="Center" />
 
-            <!-- TreeView container -->
-            <Grid x:Name="c1" Grid.Row="1">
-                <TreeView x:Name="PART_TreeView" 
-                         ItemsSource="{Binding LogicalTree}"
-                         Background="Transparent">
-                    <TreeView.Styles>
-                        <Style Selector="TreeViewItem">
-                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                        </Style>
-                    </TreeView.Styles>
-                    <TreeView.ItemTemplate>
-                        <TreeDataTemplate ItemsSource="{Binding Children}">
-                            <TextBlock>
-                                <TextBlock.Text>
-                                    <MultiBinding StringFormat="({0}) {1}">
-                                        <Binding Path="LayerDepth" />
-                                        <Binding Path="Name" />
-                                    </MultiBinding>
-                                </TextBlock.Text>
-                            </TextBlock>
-                        </TreeDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
-            </Grid>
+            <Controls:EnterTextBox x:Name="PART_NameTextBox"
+                                  Grid.Row="1"
+                                  Text="{Binding NameSearch}"
+                                  Margin="6,0,52,3"
+                                  Height="22"
+                                  VerticalAlignment="Top">
+            </Controls:EnterTextBox>
+
+            <!-- Clear button -->
+            <Button x:Name="PART_clearButton"
+                   Grid.Row="1"
+                   Content="Clear"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Top"
+                   Margin="0,0,6,3"
+                   Height="22"
+                   Width="40" />
+          </Grid>
+
+          <!-- TreeView container -->
+          <Grid x:Name="c1" Grid.Row="1">
+            <TreeView x:Name="PART_TreeView"
+                     ItemsSource="{Binding LogicalTree}"
+                     Background="Transparent">
+              <TreeView.Styles>
+                <Style Selector="TreeViewItem">
+                  <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                  <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                </Style>
+              </TreeView.Styles>
+              <TreeView.ItemTemplate>
+                <TreeDataTemplate ItemsSource="{Binding Children}">
+                  <TextBlock>
+                    <TextBlock.Text>
+                      <MultiBinding StringFormat="({0}) {1}">
+                        <Binding Path="LayerDepth" />
+                        <Binding Path="Name" />
+                      </MultiBinding>
+                    </TextBlock.Text>
+                  </TextBlock>
+                </TreeDataTemplate>
+              </TreeView.ItemTemplate>
+            </TreeView>
+          </Grid>
         </Grid>
-    </ControlTemplate>
-
-    <!-- Style for DesignItemTreeView -->
-    <Style Selector="PropertyGrid|DesignItemTreeView">
-        <Setter Property="Template" Value="{StaticResource AsGrid}" />
-    </Style>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
 </ResourceDictionary>

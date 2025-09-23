@@ -23,7 +23,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor
 	[TypeEditor(typeof(Color))]
 	public partial class ColorTypeEditor : UserControl
 	{
-		private bool _contentLoaded;
 		private ChangeGroup _changeGroup = null;
 
 		public ColorTypeEditor()

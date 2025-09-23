@@ -13,7 +13,11 @@ namespace gip.ext.designer.avui.Extensions
 {
 	public partial class TextBlockRightClickContextMenu : ContextMenu
 	{
-		private DesignItem designItem;
+        public TextBlockRightClickContextMenu() : base()
+        {
+        }
+
+        private DesignItem designItem;
 
 		public TextBlockRightClickContextMenu(DesignItem designItem)
 		{

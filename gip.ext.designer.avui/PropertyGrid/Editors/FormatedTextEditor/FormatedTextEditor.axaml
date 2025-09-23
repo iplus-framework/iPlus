@@ -17,7 +17,7 @@
 		</CollectionViewSource>
 		-->
 		
-		<Style x:Key="FocusVisual" Selector="Control">
+		<!--<Style x:Key="FocusVisual" Selector="Control">
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate>
@@ -25,7 +25,7 @@
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
-		</Style>
+		</Style>-->
 	</UserControl.Resources>
 
 	<Grid>

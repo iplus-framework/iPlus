@@ -1,18 +1,18 @@
-﻿<ResourceDictionary 
-    xmlns="https://github.com/avaloniaui" 
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
-    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
+    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-    <Style Selector="OutlineView|BindingEditor">
-        <Setter Property="Template">
-            <ControlTemplate TargetType="OutlineView:BindingEditor">
-                <StackPanel>
-                    <ContentControl Content="{Binding Mode.Editor}" />
-                    <ContentControl Content="{Binding StringFormat.Editor}" />
-                </StackPanel>
-            </ControlTemplate>
-        </Setter>
-    </Style>
+  <ControlTheme x:Key="{x:Type OutlineView:BindingEditor}" TargetType="OutlineView:BindingEditor">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="OutlineView:BindingEditor">
+        <StackPanel>
+          <ContentControl Content="{Binding Mode.Editor}" />
+          <ContentControl Content="{Binding StringFormat.Editor}" />
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
 </ResourceDictionary>

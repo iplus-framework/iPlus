@@ -11,9 +11,7 @@ using gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor;
 namespace gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor
 {
 	public partial class ColorEditorPopup : Window
-	{
-		private bool _contentLoaded;
-		
+	{	
 		public ColorEditorPopup()
 		{
             this.InitializeComponent();

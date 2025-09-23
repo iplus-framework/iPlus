@@ -12,7 +12,11 @@ namespace gip.ext.designer.avui.Extensions
 {
 	public partial class ArrangeItemsContextMenu : ContextMenu
     {
-		private DesignItem designItem;
+        public ArrangeItemsContextMenu() : base()
+        {
+        }
+
+        private DesignItem designItem;
 		
 		public ArrangeItemsContextMenu(DesignItem designItem)
 		{

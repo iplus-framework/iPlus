@@ -3,11 +3,12 @@
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Media;
 
 namespace gip.ext.designer.avui.OutlineView
 {
-	public class IconItem : Control
+	public class IconItem : TemplatedControl
 	{
 		public static readonly StyledProperty<IImage> IconProperty =
 			AvaloniaProperty.Register<IconItem, IImage>("Icon");

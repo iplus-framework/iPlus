@@ -12,10 +12,11 @@ using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
 using Avalonia.Controls;
 using Avalonia;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.designer.avui.Controls
 {
-    public class ShapePointAdorner : Control
+    public class ShapePointAdorner : TemplatedControl
     {
         static ShapePointAdorner()
 		{

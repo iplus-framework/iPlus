@@ -33,9 +33,9 @@
 		<Style Selector="^:pressed /template/ Border#bg">
 			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
 		</Style>
-		<Style Selector="^[IsDragging=True] /template/ Border#bg">
+		<!--<Style Selector="^[IsDragging=True] /template/ Border#bg">
 			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
-		</Style>
+		</Style>-->
 	</ControlTheme>
 	
 	<ControlTheme x:Key="DownButton" TargetType="RepeatButton">
@@ -62,9 +62,9 @@
 		<Style Selector="^:pressed /template/ Border#bg">
 			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
 		</Style>
-		<Style Selector="^[IsDragging=True] /template/ Border#bg">
+		<!--<Style Selector="^[IsDragging=True] /template/ Border#bg">
 			<Setter Property="Background" Value="{StaticResource ButtonPressed}" />
-		</Style>
+		</Style>-->
 	</ControlTheme>
 	
 	<ControlTheme x:Key="{x:Type Controls:NumericUpDown}" TargetType="Controls:NumericUpDown">

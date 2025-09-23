@@ -1,34 +1,35 @@
 ﻿<ContextMenu x:Class="gip.ext.designer.avui.Extensions.DefaultCommandsContextMenu"
              xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-	<MenuItem Command="ApplicationCommands.Cut">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:cmd="clr-namespace:gip.ext.designer.avui">
+	<MenuItem Command="{x:Static cmd:ApplicationCommands.Cut}" CommandParameter="{Binding .}">
 		<MenuItem.Icon>
 			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.CutIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
-	<MenuItem Command="ApplicationCommands.Copy">
+	<MenuItem Command="{x:Static cmd:ApplicationCommands.Copy}" CommandParameter="{Binding .}">
 		<MenuItem.Icon>
 			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.CopyIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
-	<MenuItem Command="ApplicationCommands.Paste">
+	<MenuItem Command="{x:Static cmd:ApplicationCommands.Paste}" CommandParameter="{Binding .}">
 		<MenuItem.Icon>
 			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.PasteIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<Separator />
-	<MenuItem Command="ApplicationCommands.Delete">
+	<MenuItem Command="{x:Static cmd:ApplicationCommands.Delete}" CommandParameter="{Binding .}">
 		<MenuItem.Icon>
 			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.DeleteIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
 	<Separator />
-	<MenuItem Command="ApplicationCommands.Undo">
+	<MenuItem Command="{x:Static cmd:ApplicationCommands.Undo}" CommandParameter="{Binding .}">
 		<MenuItem.Icon>
 			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.UndoIcon.png" />
 		</MenuItem.Icon>
 	</MenuItem>
-	<MenuItem Command="ApplicationCommands.Redo">
+	<MenuItem Command="{x:Static cmd:ApplicationCommands.Redo}" CommandParameter="{Binding .}">
 		<MenuItem.Icon>
 			<Image Source="avares://gip.ext.designer.avui/Images/Icons.16x16.RedoIcon.png" />
 		</MenuItem.Icon>

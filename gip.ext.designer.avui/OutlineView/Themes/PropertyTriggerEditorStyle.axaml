@@ -1,64 +1,67 @@
-﻿<ResourceDictionary 
-    xmlns="https://github.com/avaloniaui" 
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
-    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
+    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-    <Style Selector="OutlineView|PropertyTriggerEditor">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="OutlineView:PropertyTriggerEditor">
-                    <TabControl>
-                        <TabItem Header="Triggerdata">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30" />
-                                    <RowDefinition Height="30" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="60" />
-                                    <ColumnDefinition Width="*" />
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.RowSpan="2" Grid.ColumnSpan="2" 
-                                    BorderBrush="{DynamicResource ThemeBorderMidBrush}" 
-                                    BorderThickness="1" />
-                                <TextBlock Text="Property" Grid.Row="0" Grid.Column="0" 
-                                    VerticalAlignment="Center" Margin="3,0" />
-                                <ComboBox Grid.Row="0" Grid.Column="1" 
-                                    x:Name="PART_SelectorTriggerable" 
-                                    ItemsSource="{Binding TriggerableProperties}" 
-                                    SelectedItem="{Binding SelectedTriggerableProperty}" 
-                                    DisplayMemberPath="Name" 
-                                    IsEnabled="{Binding $parent[OutlineView:PropertyTriggerEditor].IsTriggerEditable}"
-                                    Margin="3,0" />
-                                <TextBlock Text="Value" Grid.Row="1" Grid.Column="0" 
-                                    VerticalAlignment="Center" Margin="3,0" />
-                                <ContentControl Grid.Row="1" Grid.Column="1" x:Name="PART_TriggerValueEditor"
-                                    VerticalAlignment="Center"
-                                    Margin="3,0"
-                                    IsHitTestVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].IsTriggerEditable}"/>
-                                <!--Content="{Binding TriggerValueEditor}"-->
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="Setter">
-                            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor" 
-                                IsVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].AreTriggerValuesValid}" 
-                                Margin="0,5,0,0"/>
-                        </TabItem>
-                        <TabItem Header="Enter Actions">
-                            <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor" 
-                                IsVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].AreTriggerValuesValid}" 
-                                Margin="0,5,0,0"/>
-                        </TabItem>
-                        <TabItem Header="Exit Actions">
-                            <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor" 
-                                IsVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].AreTriggerValuesValid}" 
-                                Margin="0,5,0,0"/>
-                        </TabItem>
-                    </TabControl>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+  <ControlTheme x:Key="{x:Type OutlineView:PropertyTriggerEditor}" TargetType="OutlineView:PropertyTriggerEditor">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="OutlineView:PropertyTriggerEditor">
+        <TabControl>
+          <TabItem Header="Triggerdata">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="30" />
+                <RowDefinition Height="30" />
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <Border Grid.RowSpan="2" Grid.ColumnSpan="2"
+                  BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                  BorderThickness="1" />
+              <TextBlock Text="Property" Grid.Row="0" Grid.Column="0"
+                  VerticalAlignment="Center" Margin="3,0" />
+              <ComboBox Grid.Row="0" Grid.Column="1"
+                  x:Name="PART_SelectorTriggerable"
+                  ItemsSource="{Binding TriggerableProperties}"
+                  SelectedItem="{Binding SelectedTriggerableProperty}"
+                  IsEnabled="{Binding $parent[OutlineView:PropertyTriggerEditor].IsTriggerEditable}"
+                  Margin="3,0">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </ComboBox>
+              <TextBlock Text="Value" Grid.Row="1" Grid.Column="0"
+                  VerticalAlignment="Center" Margin="3,0" />
+              <ContentControl Grid.Row="1" Grid.Column="1" x:Name="PART_TriggerValueEditor"
+                  VerticalAlignment="Center"
+                  Margin="3,0"
+                  IsHitTestVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].IsTriggerEditable}"/>
+              <!--Content="{Binding TriggerValueEditor}"-->
+            </Grid>
+          </TabItem>
+          <TabItem Header="Setter">
+            <OutlineView:SettersCollectionEditor x:Name="PART_SetterEditor"
+                IsVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].AreTriggerValuesValid}"
+                Margin="0,5,0,0"/>
+          </TabItem>
+          <TabItem Header="Enter Actions">
+            <OutlineView:ActionCollectionEditor x:Name="PART_EnterActionsEditor"
+                IsVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].AreTriggerValuesValid}"
+                Margin="0,5,0,0"/>
+          </TabItem>
+          <TabItem Header="Exit Actions">
+            <OutlineView:ActionCollectionEditor x:Name="PART_ExitActionsEditor"
+                IsVisible="{Binding $parent[OutlineView:PropertyTriggerEditor].AreTriggerValuesValid}"
+                Margin="0,5,0,0"/>
+          </TabItem>
+        </TabControl>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
 </ResourceDictionary>

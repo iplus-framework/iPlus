@@ -7,13 +7,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.designer.avui.Controls
 {
     /// <summary>
     /// Display height of the element.
     /// </summary>
-    public class HeightDisplay : Control
+    public class HeightDisplay : TemplatedControl
     {
         static HeightDisplay()
         {
@@ -24,7 +25,7 @@ namespace gip.ext.designer.avui.Controls
     /// <summary>
     /// Display width of the element.
     /// </summary>
-    public class WidthDisplay : Control
+    public class WidthDisplay : TemplatedControl
     {
         static WidthDisplay()
         {

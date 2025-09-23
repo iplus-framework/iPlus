@@ -1,7 +1,7 @@
 ﻿<ContextMenu x:Class="gip.ext.designer.avui.Extensions.ArrangeItemsContextMenu"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Translation="clr-namespace:gip.ext.designer.avui"
+             xmlns:Translation="clr-namespace:gip.ext.design.avui.Designer"
 >
 	<MenuItem Header="{Binding ArrangeLeft, Source={x:Static Translation:Translations.Instance}}" Click="Click_ArrangeLeft">
 		<MenuItem.Icon>

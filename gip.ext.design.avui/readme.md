@@ -29,6 +29,8 @@ OnMouseLeave -> OnPointerExited
 
 ArrowAngleProperty.DefaultMetadata.DefaultValue => ArrowAngleProperty.GetMetadata(typeof(ArrowLineBase))
 
+Example nested Style: NullableComboBox
+
 
 TODO: Incompatibilites with Avalonia 11.0.0
 MultiDataTrigger doesn't exist and therfore Condition-Collections are unsupported. Instead build OutlineViews for DataTriggerBehavior from the Xaml Behaviors extensions. See ConditionEditor.cs and MultiDataTriggerOutlineNode.
@@ -37,3 +39,4 @@ PropertyTrigger, Multitrigger -> StyledElementBehavior
 EventTrigger -> EventTriggerBehavior
 
 This is old WPF code for editing TriggersCollection in a designer. Even though Avalonia UI doesn't have triggers, please convert these files to Avaloni UI code. In a later step, I'll adapt it by using the BehaviorCollection element from the Xaml Behaviors extension.
+

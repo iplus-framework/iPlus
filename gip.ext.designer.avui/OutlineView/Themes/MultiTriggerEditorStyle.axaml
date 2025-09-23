@@ -1,53 +1,53 @@
-﻿<ResourceDictionary 
+﻿<ResourceDictionary
     xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls"
-    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
+    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-    <Style Selector="OutlineView|MultiTriggerEditor">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="OutlineView:MultiTriggerEditor">
-                    <TabControl>
-                        <TabItem Header="Triggerdata">
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="30" />
-                                    <RowDefinition Height="*" MinHeight="100" />
-                                    <RowDefinition Height="30" />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="140" />
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.RowSpan="3" Grid.ColumnSpan="2" BorderBrush="Gray" BorderThickness="1" Background="Transparent" />
-                                <ListBox Grid.Row="0" Grid.RowSpan="2" 
-                                         Name="PART_ConditionList" 
-                                         ItemsSource="{Binding ConditionWrapperCollection, RelativeSource={RelativeSource TemplatedParent}}" 
-                                         DisplayMemberBinding="{Binding Description}"/>
-                                <UniformGrid Grid.Row="2" Columns="2" Rows="1">
-                                    <Button Name="PART_AddItem" Content="Add" Margin="2,0,0,0" MaxHeight="30" />
-                                    <Button Name="PART_RemoveItem" Content="Remove" Margin="2,0,0,0" MaxHeight="30" />
-                                </UniformGrid>
-                                <DockPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
-                                    <TextBlock DockPanel.Dock="Top" Text="Condition:" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
-                                    <ContentControl DockPanel.Dock="Bottom" Name="PART_ConditionEditor" />
-                                </DockPanel>
-                            </Grid>
-                        </TabItem>
-                        <TabItem Header="Setter">
-                            <OutlineView:SettersCollectionEditor Name="PART_SetterEditor" DockPanel.Dock="Bottom"/>
-                        </TabItem>
-                        <TabItem Header="Enter Actions">
-                            <OutlineView:ActionCollectionEditor Name="PART_EnterActionsEditor" Margin="0,5,0,0"/>
-                        </TabItem>
-                        <TabItem Header="Exit Actions">
-                            <OutlineView:ActionCollectionEditor Name="PART_ExitActionsEditor" Margin="0,5,0,0"/>
-                        </TabItem>
-                    </TabControl>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>
+  <ControlTheme x:Key="{x:Type OutlineView:MultiTriggerEditor}" TargetType="OutlineView:MultiTriggerEditor">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <TabControl>
+            <TabItem Header="Triggerdata">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="30" />
+                  <RowDefinition Height="*" MinHeight="100" />
+                  <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="140" />
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.RowSpan="3" Grid.ColumnSpan="2" BorderBrush="Gray" BorderThickness="1" Background="Transparent" />
+                <ListBox Grid.Row="0" Grid.RowSpan="2"
+                         Name="PART_ConditionList"
+                         ItemsSource="{Binding ConditionWrapperCollection, RelativeSource={RelativeSource TemplatedParent}}"
+                         DisplayMemberBinding="{Binding Description}"/>
+                <UniformGrid Grid.Row="2" Columns="2" Rows="1">
+                  <Button Name="PART_AddItem" Content="Add" Margin="2,0,0,0" MaxHeight="30" />
+                  <Button Name="PART_RemoveItem" Content="Remove" Margin="2,0,0,0" MaxHeight="30" />
+                </UniformGrid>
+                <DockPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
+                  <TextBlock DockPanel.Dock="Top" Text="Condition:" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
+                  <OutlineView:ConditionEditor DockPanel.Dock="Bottom" Name="PART_ConditionEditor" />
+                </DockPanel>
+              </Grid>
+            </TabItem>
+            <TabItem Header="Setter">
+              <OutlineView:SettersCollectionEditor Name="PART_SetterEditor" DockPanel.Dock="Bottom"/>
+            </TabItem>
+            <TabItem Header="Enter Actions">
+              <OutlineView:ActionCollectionEditor Name="PART_EnterActionsEditor" Margin="0,5,0,0"/>
+            </TabItem>
+            <TabItem Header="Exit Actions">
+              <OutlineView:ActionCollectionEditor Name="PART_ExitActionsEditor" Margin="0,5,0,0"/>
+            </TabItem>
+          </TabControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
 </ResourceDictionary>

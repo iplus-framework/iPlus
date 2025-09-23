@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using gip.ext.design.avui.Extensions;
 
 namespace gip.ext.designer.avui.Controls
@@ -12,7 +13,7 @@ namespace gip.ext.designer.avui.Controls
 	/// <summary>
 	/// The rectangle shown during a rubber-band selecting operation.
 	/// </summary>
-	public class SelectionFrame : Control
+	public class SelectionFrame : TemplatedControl
 	{
 		static SelectionFrame()
 		{

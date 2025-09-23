@@ -2,180 +2,68 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:local="clr-namespace:gip.ext.designer.avui.Controls"
 	xmlns:converters="clr-namespace:gip.ext.designer.avui.Converters">
-	
-	<converters:CollapsedWhenFalse x:Key="TrueVisibleConverter" />
-	
-	<Style x:Key="ClearSelectionButtonStyle" Selector="Button">
-		<Setter Property="Background" Value="#FF3C688D"/>
-		<Setter Property="BorderBrush" Value="#FF617584"/>
-		<Setter Property="BorderThickness" Value="1"/>
-		<Setter Property="Width" Value="15"/>
-		<Setter Property="Height" Value="15"/>
-		<Setter Property="Padding" Value="0"/>
-		<Setter Property="Template">
-			<ControlTemplate>
-				<Grid Background="Transparent">
-					<Border x:Name="MouseOverElement" 
-						BorderThickness="{TemplateBinding BorderThickness}" 
-						Background="#FFC8E4ED" 
-						BorderBrush="#FF3F6A8E" 
-						IsVisible="False"/>
-					<ContentPresenter x:Name="contentPresenter" 
-						ContentTemplate="{TemplateBinding ContentTemplate}" 
-						Content="{TemplateBinding Content}" 
-						HorizontalAlignment="Center" 
-						Margin="{TemplateBinding Padding}" 
-						VerticalAlignment="Center"/>
-				</Grid>
-			</ControlTemplate>
-		</Setter>
-	</Style>
-	
-	<Style x:Key="ClearSelectionButtonStyle:pointerover" Selector="Button.ClearSelectionButtonStyle:pointerover /template/ Border#MouseOverElement">
-		<Setter Property="IsVisible" Value="True"/>
-	</Style>
-	
-	<Style x:Key="ClearSelectionButtonStyle:pressed" Selector="Button.ClearSelectionButtonStyle:pressed /template/ Border#MouseOverElement">
-		<Setter Property="IsVisible" Value="True"/>
-	</Style>
-	
-	<LinearGradientBrush x:Key="ButtonNormalBackground" EndPoint="0,1" StartPoint="0,0">
-		<GradientStop Color="#F3F3F3" Offset="0"/>
-		<GradientStop Color="#EBEBEB" Offset="0.5"/>
-		<GradientStop Color="#DDDDDD" Offset="0.5"/>
-		<GradientStop Color="#CDCDCD" Offset="1"/>
-	</LinearGradientBrush>
-	<SolidColorBrush x:Key="ButtonNormalBorder" Color="#FF707070"/>
-	
-	<StreamGeometry x:Key="DownArrowGeometry">M 0 0 L 3.5 4 L 7 0 Z</StreamGeometry>
-	
-	<Style x:Key="ComboBoxReadonlyToggleButton" Selector="ToggleButton">
-		<Setter Property="IsTabStop" Value="False"/>
-		<Setter Property="Focusable" Value="False"/>
-		<Setter Property="Template">
-			<ControlTemplate>
-				<Border x:Name="Chrome" 
-					BorderBrush="{TemplateBinding BorderBrush}" 
-					Background="{TemplateBinding Background}" 
-					BorderThickness="{TemplateBinding BorderThickness}">
-					<Grid HorizontalAlignment="Right" Width="20">
-						<Path x:Name="Arrow" 
-							Data="{StaticResource DownArrowGeometry}" 
-							Fill="Black" 
-							HorizontalAlignment="Center" 
-							Margin="3,1,0,0" 
-							VerticalAlignment="Center"/>
-					</Grid>
-				</Border>
-			</ControlTemplate>
-		</Setter>
-	</Style>
-	
-	<Style x:Key="ComboBoxReadonlyToggleButton:pointerover" Selector="ToggleButton.ComboBoxReadonlyToggleButton:pointerover /template/ Border#Chrome">
-		<Setter Property="Background" Value="#FFE5F1FB"/>
-	</Style>
-	
-	<Style x:Key="ComboBoxReadonlyToggleButton:pressed" Selector="ToggleButton.ComboBoxReadonlyToggleButton:pressed /template/ Border#Chrome">
-		<Setter Property="Background" Value="#FFBEE6FD"/>
-	</Style>
-	
-	<Style x:Key="ComboBoxReadonlyToggleButton:disabled" Selector="ToggleButton.ComboBoxReadonlyToggleButton:disabled /template/ Path#Arrow">
-		<Setter Property="Fill" Value="#AFAFAF"/>
-	</Style>
-	
-	<LinearGradientBrush x:Key="TextBoxBorder" EndPoint="0,20" StartPoint="0,0">
-		<GradientStop Color="#ABADB3" Offset="0.05"/>
-		<GradientStop Color="#E2E3EA" Offset="0.07"/>
-		<GradientStop Color="#E3E9EF" Offset="1"/>
-	</LinearGradientBrush>
-	
-	<Style x:Key="ComboBoxEditableTextBox" Selector="TextBox">
-		<Setter Property="MinWidth" Value="0"/>
-		<Setter Property="MinHeight" Value="0"/>
-		<Setter Property="Template">
-			<ControlTemplate>
-				<ScrollViewer x:Name="PART_ContentHost" 
-					Background="Transparent" 
-					Focusable="False" 
-					HorizontalScrollBarVisibility="Hidden" 
-					VerticalScrollBarVisibility="Hidden"/>
-			</ControlTemplate>
-		</Setter>
-	</Style>
-	
-	<Style x:Key="ComboBoxToggleButton" Selector="ToggleButton">
-		<Setter Property="IsTabStop" Value="False"/>
-		<Setter Property="Focusable" Value="False"/>
-		<Setter Property="Template">
-			<ControlTemplate>
-				<Border x:Name="Chrome" 
-					BorderBrush="{TemplateBinding BorderBrush}" 
-					Background="{TemplateBinding Background}" 
-					BorderThickness="{TemplateBinding BorderThickness}"
-					Width="20">
-					<Path x:Name="Arrow" 
-						Data="{StaticResource DownArrowGeometry}" 
-						Fill="Black" 
-						HorizontalAlignment="Center" 
-						Margin="0,1,0,0" 
-						VerticalAlignment="Center"/>
-				</Border>
-			</ControlTemplate>
-		</Setter>
-	</Style>
-	
-	<Style x:Key="ComboBoxToggleButton:pointerover" Selector="ToggleButton.ComboBoxToggleButton:pointerover /template/ Border#Chrome">
-		<Setter Property="Background" Value="#FFE5F1FB"/>
-	</Style>
-	
-	<Style x:Key="ComboBoxToggleButton:pressed" Selector="ToggleButton.ComboBoxToggleButton:pressed /template/ Border#Chrome">
-		<Setter Property="Background" Value="#FFBEE6FD"/>
-	</Style>
-	
-	<Style x:Key="ComboBoxToggleButton:disabled" Selector="ToggleButton.ComboBoxToggleButton:disabled /template/ Path#Arrow">
-		<Setter Property="Fill" Value="#AFAFAF"/>
-	</Style>
-	
-	<ControlTemplate x:Key="ComboBoxEditableTemplate" TargetType="ComboBox">
-		<Grid x:Name="Placement">
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="*"/>
-				<ColumnDefinition Width="Auto"/>
-			</Grid.ColumnDefinitions>
-			<Popup x:Name="PART_Popup" 
-				Grid.ColumnSpan="2" 
-				IsOpen="{TemplateBinding IsDropDownOpen}" 
-				Placement="Bottom"
-				PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-				<Border x:Name="DropDownBorder" 
-					BorderBrush="{DynamicResource ThemeBorderMidBrush}" 
-					BorderThickness="1" 
-					Background="{DynamicResource ThemeBackgroundBrush}"
-					MaxHeight="{TemplateBinding MaxDropDownHeight}" 
-					MinWidth="{Binding Bounds.Width, ElementName=Placement}">
-					<ScrollViewer>
-						<ItemsPresenter x:Name="PART_ItemsPresenter"/>
-					</ScrollViewer>
-				</Border>
-			</Popup>
-			<Border x:Name="Border" 
-				BorderBrush="{TemplateBinding BorderBrush}" 
-				BorderThickness="{TemplateBinding BorderThickness}" 
-				Background="{TemplateBinding Background}" 
-				Grid.ColumnSpan="2"/>
-			<TextBox x:Name="PART_EditableTextBox" 
-				Margin="3,3,23,3" 
-				HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" 
-				IsReadOnly="{TemplateBinding IsReadOnly}" 
-				Classes="ComboBoxEditableTextBox"
-				VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-			<ToggleButton Grid.Column="1" 
-				IsChecked="{TemplateBinding IsDropDownOpen, Mode=TwoWay}" 
-				Classes="ComboBoxToggleButton"/>
-		</Grid>
-	</ControlTemplate>
-	
-	<Style Selector="local|NullableComboBox">
+		
+  <ControlTheme x:Key="{x:Type local:NullableComboBox}" TargetType="local:NullableComboBox">
+    <ControlTheme.Resources>
+      <converters:CollapsedWhenFalse x:Key="TrueVisibleConverter" />
+      <converters:BoolInverter x:Key="BoolInverter" />
+
+      <LinearGradientBrush x:Key="ButtonNormalBackground" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#F3F3F3" Offset="0"/>
+        <GradientStop Color="#EBEBEB" Offset="0.5"/>
+        <GradientStop Color="#DDDDDD" Offset="0.5"/>
+        <GradientStop Color="#CDCDCD" Offset="1"/>
+      </LinearGradientBrush>
+      <SolidColorBrush x:Key="ButtonNormalBorder" Color="#FF707070"/>
+
+      <StreamGeometry x:Key="DownArrowGeometry">M 0 0 L 3.5 4 L 7 0 Z</StreamGeometry>
+
+      <LinearGradientBrush x:Key="TextBoxBorder" EndPoint="0,20" StartPoint="0,0">
+        <GradientStop Color="#ABADB3" Offset="0.05"/>
+        <GradientStop Color="#E2E3EA" Offset="0.07"/>
+        <GradientStop Color="#E3E9EF" Offset="1"/>
+      </LinearGradientBrush>
+      
+      <ControlTemplate x:Key="ComboBoxEditableTemplate" TargetType="local:NullableComboBox">
+        <Grid x:Name="Placement">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Popup x:Name="PART_Popup"
+            Grid.ColumnSpan="2"
+            IsOpen="{TemplateBinding IsDropDownOpen}"
+            Placement="Bottom"
+            PlacementTarget="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Border x:Name="DropDownBorder"
+              BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+              BorderThickness="1"
+              Background="{DynamicResource ThemeBackgroundBrush}"
+              MaxHeight="{TemplateBinding MaxDropDownHeight}"
+              MinWidth="{Binding Bounds.Width, ElementName=Placement}">
+              <ScrollViewer>
+                <ItemsPresenter x:Name="PART_ItemsPresenter"/>
+              </ScrollViewer>
+            </Border>
+          </Popup>
+          <Border x:Name="Border"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            Background="{TemplateBinding Background}"
+            Grid.ColumnSpan="2"/>
+          <TextBox x:Name="PART_EditableTextBox"
+            Margin="3,3,23,3"
+            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+            IsReadOnly="{TemplateBinding IsEditable, Converter={StaticResource TrueVisibleConverter}}"
+            Classes="ComboBoxEditableTextBox"
+            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+          <ToggleButton Grid.Column="1"
+            IsChecked="{TemplateBinding IsDropDownOpen, Mode=TwoWay}"
+            Classes="ComboBoxToggleButton"/>
+        </Grid>
+      </ControlTemplate>
+      
+    </ControlTheme.Resources>
 		<Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
 		<Setter Property="Background" Value="{StaticResource ButtonNormalBackground}"/>
 		<Setter Property="BorderBrush" Value="{StaticResource ButtonNormalBorder}"/>
@@ -233,19 +121,86 @@
 				</Grid>
 			</ControlTemplate>
 		</Setter>
-	</Style>
-	
-	<Style Selector="local|NullableComboBox:disabled">
-		<Setter Property="Foreground" Value="{DynamicResource ThemeDisabledForegroundBrush}"/>
-		<Setter Property="Background" Value="#FFF4F4F4"/>
-	</Style>
-	
-	<Style Selector="local|NullableComboBox[IsEditable=True]">
-		<Setter Property="BorderBrush" Value="{StaticResource TextBoxBorder}"/>
-		<Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
-		<Setter Property="IsTabStop" Value="False"/>
-		<Setter Property="Padding" Value="3"/>
-		<Setter Property="Template" Value="{StaticResource ComboBoxEditableTemplate}"/>
-	</Style>
-	
+
+    <Style Selector="Button.ClearSelectionButtonStyle">
+      <Setter Property="Background" Value="#FF3C688D"/>
+      <Setter Property="BorderBrush" Value="#FF617584"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="Width" Value="15"/>
+      <Setter Property="Height" Value="15"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Grid Background="Transparent">
+            <Border x:Name="MouseOverElement"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="#FFC8E4ED"
+              BorderBrush="#FF3F6A8E"
+              IsVisible="False"/>
+            <ContentPresenter x:Name="contentPresenter"
+              ContentTemplate="{TemplateBinding ContentTemplate}"
+              Content="{TemplateBinding Content}"
+              HorizontalAlignment="Center"
+              Margin="{TemplateBinding Padding}"
+              VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.ClearSelectionButtonStyle:pointerover /template/ Border#MouseOverElement">
+      <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <Style Selector="Button.ClearSelectionButtonStyle:pressed /template/ Border#MouseOverElement">
+      <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <Style Selector="ToggleButton.ComboBoxReadonlyToggleButton">
+      <Setter Property="IsTabStop" Value="False"/>
+      <Setter Property="Focusable" Value="False"/>
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="Chrome"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            Background="{TemplateBinding Background}"
+            BorderThickness="{TemplateBinding BorderThickness}">
+            <Grid HorizontalAlignment="Right" Width="20">
+              <Path x:Name="Arrow"
+                Data="{StaticResource DownArrowGeometry}"
+                Fill="Black"
+                HorizontalAlignment="Center"
+                Margin="3,1,0,0"
+                VerticalAlignment="Center"/>
+            </Grid>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="ToggleButton.ComboBoxReadonlyToggleButton:pointerover /template/ Border#Chrome">
+      <Setter Property="Background" Value="#FFE5F1FB"/>
+    </Style>
+
+    <Style Selector="ToggleButton.ComboBoxReadonlyToggleButton:pressed /template/ Border#Chrome">
+      <Setter Property="Background" Value="#FFBEE6FD"/>
+    </Style>
+
+    <Style Selector="ToggleButton.ComboBoxReadonlyToggleButton:disabled /template/ Path#Arrow">
+      <Setter Property="Fill" Value="#AFAFAF"/>
+    </Style>
+
+    <Style Selector="local|NullableComboBox:disabled">
+      <Setter Property="Foreground" Value="{DynamicResource ThemeDisabledForegroundBrush}"/>
+      <Setter Property="Background" Value="#FFF4F4F4"/>
+    </Style>
+
+    <Style Selector="local|NullableComboBox[IsEditable=True]">
+      <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorder}"/>
+      <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
+      <Setter Property="IsTabStop" Value="False"/>
+      <Setter Property="Padding" Value="3"/>
+      <Setter Property="Template" Value="{StaticResource ComboBoxEditableTemplate}"/>
+    </Style>
+	</ControlTheme>	
 </ResourceDictionary>

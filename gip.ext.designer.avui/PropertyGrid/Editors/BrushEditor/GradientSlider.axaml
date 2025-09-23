@@ -23,8 +23,8 @@
 				</Border>
 			</Grid>
 		</DataTemplate>
-		
-		<Style Selector="BrushEditor|GradientThumb">
+
+    <ControlTheme x:Key="{x:Type BrushEditor:GradientThumb}" TargetType="BrushEditor:GradientThumb">
 			<Setter Property="BrushEditor:NormalizedPanel.X"
 			        Value="{Binding Offset}" />
 			<Setter Property="Template">
@@ -50,9 +50,9 @@
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
-		</Style>
-		
-		<Style Selector="BrushEditor|Dragger">
+		</ControlTheme>
+
+    <ControlTheme x:Key="{x:Type BrushEditor:Dragger}" TargetType="BrushEditor:Dragger">
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate>
@@ -62,7 +62,7 @@
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
-		</Style>
+		</ControlTheme>
 	
 	</UserControl.Resources>
 	

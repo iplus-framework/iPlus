@@ -359,6 +359,8 @@ namespace gip.ext.designer.avui
         private EventHandler<DragEventArgs> _dragEnterHandler;
         private EventHandler<DragEventArgs> _dragOverHandler;
         private EventHandler<DragEventArgs> _dragLeaveHandler;
+        private EventHandler<DragEventArgs> _dropHandler;
+
 
         protected override void OnLoaded(RoutedEventArgs e)
         {
@@ -369,11 +371,13 @@ namespace gip.ext.designer.avui
             _dragEnterHandler = (s, e) => DragEnter?.Invoke(this, e);
             _dragOverHandler = (s, e) => DragOver?.Invoke(this, e);
             _dragLeaveHandler = (s, e) => DragLeave?.Invoke(this, e);
-            
+            _dropHandler = (s, e) => Drop?.Invoke(this, e);
+
             // Add handlers using the stored instances
             this.AddHandler(DragDrop.DragEnterEvent, _dragEnterHandler);
             this.AddHandler(DragDrop.DragOverEvent, _dragOverHandler);
             this.AddHandler(DragDrop.DragLeaveEvent, _dragLeaveHandler);
+            this.AddHandler(DragDrop.DropEvent, _dropHandler);
 
             base.OnLoaded(e);
         }
@@ -387,6 +391,7 @@ namespace gip.ext.designer.avui
             this.RemoveHandler(DragDrop.DragEnterEvent, _dragEnterHandler);
             this.RemoveHandler(DragDrop.DragOverEvent, _dragOverHandler);
             this.RemoveHandler(DragDrop.DragLeaveEvent, _dragLeaveHandler);
+            this.RemoveHandler(DragDrop.DropEvent, _dropHandler);
 
             base.OnUnloaded(e);
         }

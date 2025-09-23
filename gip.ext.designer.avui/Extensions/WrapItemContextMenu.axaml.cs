@@ -12,7 +12,11 @@ namespace gip.ext.designer.avui.Extensions
 {
 	public partial class WrapItemContextMenu : ContextMenu
     {
-		private DesignItem designItem;
+        public WrapItemContextMenu() : base()
+        {
+        }
+
+        private DesignItem designItem;
 
 		public WrapItemContextMenu(DesignItem designItem)
 		{

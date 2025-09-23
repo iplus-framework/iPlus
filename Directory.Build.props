@@ -40,6 +40,5 @@
     <CoreWCFVersion>1.8.0</CoreWCFVersion>-->
 
     <AvaloniaVersion>11.3.6</AvaloniaVersion>
-    
   </PropertyGroup>
 </Project>

@@ -1,7 +1,7 @@
 ﻿<ContextMenu x:Class="gip.ext.designer.avui.Extensions.WrapItemsContextMenu"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:Translation="clr-namespace:gip.ext.designer.avui">
+             xmlns:Translation="clr-namespace:gip.ext.design.avui.Designer">
 	<MenuItem Header="{Binding WrapInCanvas, Source={x:Static Translation:Translations.Instance}}" Click="Click_WrapInCanvas">
         <MenuItem.Icon>
             <Image Width="16" Source="avares://gip.ext.designer.avui/Images/canvas.png" />

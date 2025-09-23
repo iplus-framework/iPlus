@@ -17,84 +17,33 @@ using Avalonia;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
+using Avalonia.Metadata;
 
 
 namespace gip.ext.designer.avui.OutlineView
 {
     public class TriggerItemTemplateSelector : IDataTemplate
     {
-        DataTemplate dtmpltPropertyTrigger;
-        DataTemplate dtmpltDataTrigger;
-        DataTemplate dtmpltEventTrigger;
-        DataTemplate dtmpltMultiTrigger;
-        DataTemplate dtmpltMultiDataTrigger;
+        [Content]
+        public Dictionary<string, IDataTemplate> AvailableTemplates { get; } = new Dictionary<string, IDataTemplate>();
 
-        public Control Build(object item)
+        public Control Build(object param)
         {
-            if (item == null)
-                return null;
-
-            DataTemplate template = SelectTemplate(item);
-            return template.Build(item);
+            var key = param?.ToString(); // Our Keys in the dictionary are strings, so we call .ToString() to get the key to look up
+            if (key is null) // If the key is null, we throw an ArgumentNullException
+            {
+                throw new ArgumentNullException(nameof(param));
+            }
+            return AvailableTemplates[key].Build(param);
         }
 
         public bool Match(object data)
         {
-            return data is PropertyTriggerOutlineNode ||
-                   data is DataTriggerOutlineNode ||
-                   data is EventTriggerOutlineNode ||
-                   data is MultiTriggerOutlineNode ||
-                   data is MultiDataTriggerOutlineNode;
-        }
+            // Our Keys in the dictionary are strings, so we call .ToString() to get the key to look up
+            var key = data?.ToString();
 
-        private DataTemplate SelectTemplate(object item)
-        {
-            // Try to get resource from Application if not already loaded
-            if (dtmpltPropertyTrigger == null)
-            {
-                dtmpltPropertyTrigger = TryFindResource("dtmpltPropertyTrigger");
-            }
-            if (dtmpltDataTrigger == null)
-            {
-                dtmpltDataTrigger = TryFindResource("dtmpltDataTrigger");
-            }
-            if (dtmpltEventTrigger == null)
-            {
-                dtmpltEventTrigger = TryFindResource("dtmpltEventTrigger");
-            }
-            if (dtmpltMultiTrigger == null)
-            {
-                dtmpltMultiTrigger = TryFindResource("dtmpltMultiTrigger");
-            }
-            if (dtmpltMultiDataTrigger == null)
-            {
-                dtmpltMultiDataTrigger = TryFindResource("dtmpltMultiDataTrigger");
-            }
-
-            if (item != null)
-            {
-                if (item is PropertyTriggerOutlineNode)
-                    return dtmpltPropertyTrigger;
-                else if (item is DataTriggerOutlineNode)
-                    return dtmpltDataTrigger;
-                else if (item is EventTriggerOutlineNode)
-                    return dtmpltEventTrigger;
-                else if (item is MultiTriggerOutlineNode)
-                    return dtmpltMultiTrigger;
-                else if (item is MultiDataTriggerOutlineNode)
-                    return dtmpltMultiDataTrigger;
-            }
-
-            return null;
-        }
-
-        private DataTemplate TryFindResource(string resourceKey)
-        {
-            if (Application.Current.TryFindResource(resourceKey, out var resource) == true)
-            {
-                return resource as DataTemplate;
-            }
-            return null;
+            return !string.IsNullOrEmpty(key)           // and the key must not be null or empty
+                    && AvailableTemplates.ContainsKey(key); // and the key must be found in our Dictionary
         }
     }
 }

@@ -14,6 +14,7 @@ using Avalonia.Layout;
 using Avalonia.Input;
 using Avalonia;
 using Avalonia.VisualTree;
+using Avalonia.Controls.Primitives;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -584,7 +585,7 @@ namespace gip.ext.designer.avui.Controls
         }
     }
 
-    public abstract class GridSplitterAdorner : Control
+    public abstract class GridSplitterAdorner : TemplatedControl
     {
         public static readonly StyledProperty<bool> IsPreviewProperty =
             AvaloniaProperty.Register<GridSplitterAdorner, bool>(nameof(IsPreview), false);
@@ -730,7 +731,7 @@ namespace gip.ext.designer.avui.Controls
             CursorProperty.OverrideDefaultValue<GridRowSplitterAdorner>(new Cursor(StandardCursorType.SizeNorthSouth));
         }
 
-        internal GridRowSplitterAdorner(GridRailAdorner rail, DesignItem gridItem, DesignItem firstRow, DesignItem secondRow)
+        public GridRowSplitterAdorner(GridRailAdorner rail, DesignItem gridItem, DesignItem firstRow, DesignItem secondRow)
             : base(rail, gridItem, firstRow, secondRow)
         {
         }

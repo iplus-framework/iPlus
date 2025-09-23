@@ -2,13 +2,12 @@
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:Controls="using:gip.ext.designer.avui.Controls">
 
-  <Style Selector="Controls|CollapsiblePanel">
+  <ControlTheme x:Key="{x:Type Controls:CollapsiblePanel}" TargetType="Controls:CollapsiblePanel">
+    <ControlTheme.Resources>
+      <Controls:CollapsiblePanelProgressToVisibilityConverter x:Key="visibilityConverter"/>
+    </ControlTheme.Resources>
     <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="Controls:CollapsiblePanel">
-          <ControlTemplate.Resources>
-            <Controls:CollapsiblePanelProgressToVisibilityConverter x:Key="visibilityConverter"/>
-          </ControlTemplate.Resources>
+        <ControlTemplate>
           <Border
   BorderThickness="{TemplateBinding BorderThickness}"
   BorderBrush="{TemplateBinding BorderBrush}"
@@ -28,8 +27,7 @@
   VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
           </Border>
         </ControlTemplate>
-      </Setter.Value>
     </Setter>
-  </Style>
+  </ControlTheme>
 
 </ResourceDictionary>

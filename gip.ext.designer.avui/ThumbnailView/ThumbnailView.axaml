@@ -1,33 +1,31 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	xmlns:thumbnailView="clr-namespace:gip.ext.designer.avui.ThumbnailView">
-	
-	<Style Selector="thumbnailView|ThumbnailView">
-		<Setter Property="HorizontalAlignment" Value="Stretch" />
-		<Setter Property="VerticalAlignment" Value="Stretch" />
-		<Setter Property="Padding" Value="5" />
-		<Setter Property="Template">
-			<Setter.Value>
-				<ControlTemplate TargetType="thumbnailView:ThumbnailView">
-					<Border CornerRadius="1"
-					        ClipToBounds="True"
-					        BorderThickness="1"
-					        Background="#EEEEEE"
-					        BorderBrush="DimGray">
-						<Grid>
-							<Canvas Margin="{TemplateBinding Padding}" Name="PART_ZoomCanvas" Background="White">
-								<Thumb Name="PART_ZoomThumb" Cursor="SizeAll">
-									<Thumb.Template>
-										<ControlTemplate TargetType="Thumb">
-											<Rectangle StrokeThickness="1" Stroke="Black" Fill="Transparent" />
-										</ControlTemplate>
-									</Thumb.Template>
-								</Thumb>
-							</Canvas>
-						</Grid>
-					</Border>
-				</ControlTemplate>
-			</Setter.Value>
-		</Setter>
-	</Style>
+
+  <ControlTheme x:Key="{x:Type thumbnailView:ThumbnailView}" TargetType="thumbnailView:ThumbnailView">
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="Padding" Value="5" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border CornerRadius="1"
+                ClipToBounds="True"
+                BorderThickness="1"
+                Background="#EEEEEE"
+                BorderBrush="DimGray">
+          <Grid>
+            <Canvas Margin="{TemplateBinding Padding}" Name="PART_ZoomCanvas" Background="White">
+              <Thumb Name="PART_ZoomThumb" Cursor="SizeAll">
+                <Thumb.Template>
+                  <ControlTemplate TargetType="Thumb">
+                    <Rectangle StrokeThickness="1" Stroke="Black" Fill="Transparent" />
+                  </ControlTemplate>
+                </Thumb.Template>
+              </Thumb>
+            </Canvas>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
 </ResourceDictionary>

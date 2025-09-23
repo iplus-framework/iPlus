@@ -1,16 +1,29 @@
 ﻿<UserControl x:Class="gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor.SolidBrushEditor"
 	xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-	xmlns:widgets="http://icsharpcode.net/sharpdevelop/widgets"
-	Height="284">
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 	<TabControl>
 		<TabItem Header="Color Picker">
 			<ColorPicker Color="{Binding Color, ElementName=this}" />
 		</TabItem>
 		<TabItem Header="Color List">
 			<ListBox ItemsSource="{Binding AvailableColors}"
-			         SelectedValue="{Binding Color, ElementName=this}"
-			         SelectedValuePath="Brush.Color" />
+			         SelectedItem="{Binding SelectedColorItem}">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<StackPanel Orientation="Horizontal">
+							<Border Background="{Binding Brush}"
+							        Width="20"
+							        Height="15"
+							        Margin="2"
+							        BorderThickness="1"
+							        BorderBrush="Gray" />
+							<TextBlock Text="{Binding Name}"
+							           VerticalAlignment="Center"
+							           Margin="5,0,0,0" />
+						</StackPanel>
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
 		</TabItem>
 	</TabControl>
 </UserControl>

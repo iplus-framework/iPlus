@@ -14,7 +14,7 @@
         <Controls:ZoomControl Grid.Row="0" x:Name="uxZoom" AlwaysShowZoomButtons="True" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
             <Default:DesignPanel x:Name="_designPanel" HorizontalAlignment="Center" VerticalAlignment="Center" >
                 <!-- Reset some inherited properties to avoid values from SharpDevelop applying to designed forms. -->
-                <Border x:Name="_sceneContainer" AllowDrop="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Border x:Name="_sceneContainer" DragDrop.AllowDrop="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
             </Default:DesignPanel>
         </Controls:ZoomControl>
         

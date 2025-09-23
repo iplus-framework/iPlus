@@ -1,32 +1,55 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+﻿<Styles xmlns="https://github.com/avaloniaui"
 	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.ext.designer.avui.Controls">
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/Controls/ControlStyles.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/Controls/CollapsiblePanel.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/OutlineView.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/PropertyGrid/Themes/PropertyGridViewStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/SettersCollectionEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/TriggersCollectionEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/PropertyTriggerEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/DataTriggerEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Editors/BindingEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Editors/MultiBindingEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/EventTriggerEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Editors/ConditionEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/MultiTriggerEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/OutlineView/Themes/ActionCollectionEditorStyle.xaml" />
-        <ResourceDictionary Source="/gip.ext.designer.avui;component/PropertyGrid/Themes/DesignItemTreeViewStyle.xaml" />
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <!-- Templates of simple custom controls - together in one file -->
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/ControlStyles.axaml" />
 
+        <!-- User Controls -->
+        <!--<MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/EnumBar.xaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/GridUnitSelector.xaml" />
 
-        <!--<v:VersionedAssemblyResourceDictionary RelativePath="Controls/CollapsiblePanel.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/ZoomScrollViewer.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/ControlStyles.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/NullableComboBox.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="OutlineView/OutlineView.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="DesignSurface.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="PropertyGrid/PropertyGridView.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="ThumbnailView/ThumbnailView.xaml" />
-        <v:VersionedAssemblyResourceDictionary RelativePath="Controls/NumericUpDown.xaml" />-->
-    </ResourceDictionary.MergedDictionaries>
-</ResourceDictionary>
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/ArrangeItemsContextMenu.xaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/DefaultCommandsContextMenu.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/EditStyleContextMenu.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/PathContextMenu.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/TextBlockRightClickContextMenu.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/UnwrapItemContextMenu.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/WrapItemContextMenu.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Extensions/WrapItemsContextMenu.axaml" />
+
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Outline.xaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/OutlineView.xaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/StyleSetterWindow.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/StyleTriggerWindow.axaml" />
+
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/DesignSurface.xaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/ThumbnailView/ThumbnailView.xaml" />-->
+
+        <!-- Templates of complex custom controls - file by file-->
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/CollapsiblePanel.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/NullableComboBox.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/NumericUpDown.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/Controls/ZoomScrollViewer.axaml" />
+
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Editors/BindingEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Editors/ConditionEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Editors/MultiBindingEditorStyle.axaml" />
+
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/ActionCollectionEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/DataTriggerEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/EventTriggerEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/MultiTriggerEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/PropertyTriggerEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/TriggersCollectionEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/OutlineView/Themes/SettersCollectionEditorStyle.axaml" />
+
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Themes/DesignItemTreeViewStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Themes/PropertyGridViewStyle.axaml" />
+
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+</Styles>

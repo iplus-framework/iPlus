@@ -13,7 +13,7 @@ namespace gip.ext.designer.avui.Controls
 	/// </summary>
 	public class ResizeThumb : DesignerThumb
 	{
-		bool checkWidth, checkHeight;
+		protected bool checkWidth, checkHeight;
 
 		public ResizeThumb(bool checkWidth, bool checkHeight)
 		{
@@ -39,11 +39,9 @@ namespace gip.ext.designer.avui.Controls
     /// <summary>
     /// Resize thumb that automatically disappears if the adornered element is too small.
     /// </summary>
-    sealed class ResizeThumbImpl : ResizeThumb
+    public sealed class ResizeThumbImpl : ResizeThumb
     {
-        bool checkWidth, checkHeight;
-
-        internal ResizeThumbImpl(bool checkWidth, bool checkHeight) : base(checkWidth, checkHeight)
+        public ResizeThumbImpl(bool checkWidth, bool checkHeight) : base(checkWidth, checkHeight)
         {
         }
 

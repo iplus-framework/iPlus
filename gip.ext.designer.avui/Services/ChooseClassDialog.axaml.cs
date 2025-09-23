@@ -16,7 +16,11 @@ namespace gip.ext.designer.avui.Services
 {
 	public partial class ChooseClassDialog : Window
 	{
-		public ChooseClassDialog(ChooseClass core)
+		public ChooseClassDialog() : base()
+		{
+		}
+
+        public ChooseClassDialog(ChooseClass core)
 		{
 			DataContext = core;
 			InitializeComponent();

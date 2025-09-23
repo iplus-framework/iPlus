@@ -28,6 +28,27 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			set { SetValue(ColorProperty, value); }
 		}
 
+		public static readonly StyledProperty<BrushItem> SelectedColorItemProperty =
+			AvaloniaProperty.Register<SolidBrushEditor, BrushItem>(nameof(SelectedColorItem), defaultBindingMode: BindingMode.TwoWay);
+
+		public BrushItem SelectedColorItem {
+			get { return GetValue(SelectedColorItemProperty); }
+			set { SetValue(SelectedColorItemProperty, value); }
+		}
+
+		static SolidBrushEditor()
+		{
+			SelectedColorItemProperty.Changed.AddClassHandler<SolidBrushEditor>((x, e) => x.OnSelectedColorItemChanged(e));
+		}
+
+		private void OnSelectedColorItemChanged(AvaloniaPropertyChangedEventArgs e)
+		{
+			if (e.NewValue is BrushItem brushItem && brushItem.Brush is SolidColorBrush solidBrush)
+			{
+				Color = solidBrush.Color;
+			}
+		}
+
         //private void InitializeComponent()
         //{
         //    AvaloniaXamlLoader.Load(this);

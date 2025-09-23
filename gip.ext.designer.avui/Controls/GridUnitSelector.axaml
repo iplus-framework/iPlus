@@ -7,8 +7,7 @@
 	HorizontalContentAlignment="Left"
 	VerticalContentAlignment="Top">
 	<UserControl.Resources>
-		<Style
-			Selector="RadioButton">
+    <ControlTheme x:Key="{x:Type RadioButton}" TargetType="RadioButton">
 			<Setter
 				Property="Template">
 				<Setter.Value>
@@ -21,7 +20,7 @@
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
-		</Style>
+		</ControlTheme>
 	</UserControl.Resources>
 	<Border
 		CornerRadius="3"

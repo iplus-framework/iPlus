@@ -24,7 +24,8 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			base.OnInitialized();
 
-			if (!(ExtendedItem.View is WindowClone)) {
+			//if (!(ExtendedItem.View is WindowClone)) 
+			{
 				contextMenu = new WrapItemContextMenu(ExtendedItem);
 				panel = ExtendedItem.Context.Services.DesignPanel as DesignPanel;
 				if (panel != null)
