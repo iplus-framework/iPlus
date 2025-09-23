@@ -144,6 +144,23 @@ namespace gip.core.reporthandler.Flowdoc
         public static readonly DependencyProperty ESCMaxModuleProperty =
             DependencyProperty.Register(nameof(ESCMaxModule), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(6));
 
+        public virtual bool ShowHRI
+        {
+            get { return (bool)GetValue(ShowHRIProperty); }
+            set { SetValue(ShowHRIProperty, value); }
+        }
+        public static readonly DependencyProperty ShowHRIProperty =
+            DependencyProperty.Register(nameof(ShowHRI), typeof(bool), typeof(InlineBarcode), new UIPropertyMetadata(false));
+
+
+        public virtual bool Rotate90
+        {
+            get { return (bool)GetValue(Rotate90Property); }
+            set { SetValue(Rotate90Property, value); }
+        }
+        public static readonly DependencyProperty Rotate90Property =
+            DependencyProperty.Register(nameof(Rotate90), typeof(bool), typeof(InlineBarcode), new UIPropertyMetadata(false));
+
         #endregion
 
         #region GS1 data input
@@ -238,15 +255,6 @@ namespace gip.core.reporthandler.Flowdoc
                     wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
                     this.Child = wpfImage;
                 }
-
-                //using (QRCoder.QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator())
-                //using (QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(strValue, QRCoder.QRCodeGenerator.ECCLevel.Q))
-                //using (QRCoder.QRCode qrCode = new QRCoder.QRCode(qrCodeData))
-                //{
-                //    img = qrCode.GetGraphic(QRPixelsPerModule);
-                //    wpfImage.MaxHeight = MaxHeight > 0.1 ? MaxHeight : 200;
-                //    wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
-                //}
             }
             else
             {
