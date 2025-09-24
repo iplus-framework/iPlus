@@ -125,7 +125,7 @@ namespace gip.core.layoutengine.avui
             Items.All(c => ContainerFromItem(c).DeInitVBControl());
             BindingOperations.ClearBinding(this, ItemsSourceProperty);
             BindingOperations.ClearBinding(this, SelectedItemProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             base.DeInitVBControl(bso);
         }
 

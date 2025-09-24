@@ -1,0 +1,66 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <SolidColorBrush x:Key="TextAreaSelectionBorderAero" Color="DodgerBlue"/>
+    <SolidColorBrush x:Key="TextAreaSelectionBgAero" Color="Cyan"/>
+    <SolidColorBrush x:Key="TextAreaSelectionFgAero" Color="Black"/>
+    <!--<LinearGradientBrush x:Key="TextAreaSelectionBgAero" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#80FFF3F3" Offset="0"/>
+        <GradientStop Color="#80FFEBEB" Offset="0.5"/>
+        <GradientStop Color="#80FFDDDD" Offset="0.5"/>
+        <GradientStop Color="#80FFCDCD" Offset="1"/>
+    </LinearGradientBrush>-->
+    <SolidColorBrush x:Key="TextAreaBgEnabledAero" Color="White"/>
+    <SolidColorBrush x:Key="TextAreaStatusBarBorderAero" Color="Gray"/>
+
+
+    <Style x:Key="TextAreaStyleAero" TargetType="{x:Type local:VBTextArea}">
+        <Setter Property="Background" Value="{StaticResource TextAreaBgEnabledAero}" />
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource TextAreaSelectionBgAero}"/>
+        <Setter Property="SelectionBorder">
+            <Setter.Value>
+                <Pen Brush="{StaticResource TextAreaSelectionBorderAero}"
+				     Thickness="1"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="SelectionForeground" Value="{StaticResource TextAreaSelectionFgAero}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VBTextArea}">
+                    <DockPanel Focusable="False">
+                        <ItemsControl DockPanel.Dock="Left"
+						              Focusable="False"
+						              ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=LeftMargins}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <local:VBStatusBar DockPanel.Dock="Bottom" Focusable="False" Height="20" x:Name="PART_StatusBar"
+                                                 Background="{StaticResource TextAreaBgEnabledAero}"
+                                                 BorderThickness="0,1,0,0"
+                                                 BorderBrush="{StaticResource TextAreaStatusBarBorderAero}">
+                            <local:VBStatusBarItem>
+                                <local:VBTextBlock x:Name="PART_StatusBarItemCaretLineInfo" Foreground="{StaticResource TextAreaStatusBarBorderAero}"></local:VBTextBlock>
+                            </local:VBStatusBarItem>
+                            <local:VBStatusBarItem>
+                                <local:VBTextBlock x:Name="PART_StatusBarItemCaretColInfo" Foreground="{StaticResource TextAreaStatusBarBorderAero}"></local:VBTextBlock>
+                            </local:VBStatusBarItem>
+                        </local:VBStatusBar>
+                        <ContentPresenter
+							Panel.ZIndex="-1"
+							Focusable="False"
+							Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextView}"/>
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

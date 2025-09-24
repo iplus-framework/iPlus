@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace gip.core.layoutengine.avui
+﻿namespace gip.core.layoutengine.avui
 {
     /// <summary>
     /// Mode of the WPF-Control to control the Drag-and-Drop behaviour.

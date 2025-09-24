@@ -3,15 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.IO;
 using gip.ext.chart.avui;
 using gip.ext.chart.avui.Common.Auxiliary;
@@ -200,7 +191,7 @@ namespace gip.core.layoutengine.avui
                 }
             }
             BindingOperations.ClearBinding(this, VBChartPlotter.BindableChartItemsProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             this.Loaded -= VBChartPlotter_Loaded;
             this.Unloaded -= VBChartPlotter_Unloaded;

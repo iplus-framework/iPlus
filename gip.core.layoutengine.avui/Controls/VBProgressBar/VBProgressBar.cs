@@ -598,7 +598,7 @@ namespace gip.core.layoutengine.avui
                 BindingOperations.ClearBinding(this, ProgressBar.ValueProperty);
                 //BindingOperations.ClearBinding(this, VBProgressBar.ACUrlCmdMessageProperty);
                 BindingOperations.ClearBinding(this, VBProgressBar.ACCompInitStateProperty);
-                BindingOperations.ClearAllBindings(this);
+                this.ClearAllBindings();
             }
             catch 
             { 

@@ -102,7 +102,7 @@ namespace gip.core.layoutengine.avui
                 if (conn != null)
                     conn.OnConnectorArranged -= OnConnectorArranged;
 
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             Name = null;
             ParentSurface = null;

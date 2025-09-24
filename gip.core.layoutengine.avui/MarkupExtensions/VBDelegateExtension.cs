@@ -1,21 +1,17 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using gip.core.datamodel;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Markup;
 using System.Reflection;
-using System.Xaml;
-using gip.core.datamodel;
-using System.ComponentModel;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media.Animation;
 
 namespace gip.core.layoutengine.avui
 {
-    [MarkupExtensionReturnType(typeof(Delegate))]
-    [Localizability(LocalizationCategory.NeverLocalize)]
+    //[MarkupExtensionReturnType(typeof(Delegate))]
+    //[Localizability(LocalizationCategory.NeverLocalize)]
     public class VBDelegateExtension : MarkupExtension, IACObject
     {
         public VBDelegateExtension()
@@ -29,20 +25,24 @@ namespace gip.core.layoutengine.avui
             if (service == null)
                 throw new ArgumentException("DelegateExtension is used in wrong context");
 
-            DependencyObject target = service.TargetObject as DependencyObject;
+            AvaloniaObject target = service.TargetObject as AvaloniaObject;
             if (!(service.TargetProperty is EventInfo))
                 throw new ArgumentException("TargetProperty is not an Event");
             EventInfo eventInfo = service.TargetProperty as EventInfo;
-            if (eventInfo.EventHandlerType.Name == "MouseEventHandler")
+            if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
             {
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((MouseEventHandler)OnMouseEvent).Method);
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
             }
-            else if (eventInfo.EventHandlerType.Name == "KeyEventHandler")
+            else if (typeof(EventHandler<KeyEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
             {
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((KeyEventHandler)OnKeyEvent).Method);
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
             }
+            else if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
+            else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
             else
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((MouseButtonEventHandler)OnMouseButtonEvent).Method);
+                throw new ArgumentException("TargetProperty is not an Event");
         }
 
         #region XAML-Properties
@@ -139,11 +139,11 @@ namespace gip.core.layoutengine.avui
 
         #region methods and eventhandler
 
-        public void OnMouseEvent(object sender, MouseEventArgs e)
+        public void OnPointerEvent(object sender, PointerEventArgs e)
         {
-            if (InvokeAtVBControl != null && sender is DependencyObject)
+            if (InvokeAtVBControl != null && sender is AvaloniaObject)
             {
-                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as DependencyObject, InvokeAtVBControl) as IACObject;
+                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as AvaloniaObject, InvokeAtVBControl) as IACObject;
                 if (vbControl != null)
                 {
                     vbControl.ACUrlCommand(ACUrlCmd, null);
@@ -194,16 +194,16 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public void OnMouseButtonEvent(object sender, MouseButtonEventArgs e)
+        public void OnPointerPressedEvent(object sender, PointerPressedEventArgs e)
         {
             if (OnlyOnDoubleClick)
             {
                 if (e.ClickCount < 2)
                     return;
             }
-            if (InvokeAtVBControl != null && sender is DependencyObject)
+            if (InvokeAtVBControl != null && sender is AvaloniaObject)
             {
-                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as DependencyObject, InvokeAtVBControl) as IACObject;
+                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as AvaloniaObject, InvokeAtVBControl) as IACObject;
                 if (vbControl != null)
                 {
                     vbControl.ACUrlCommand(ACUrlCmd, null);
@@ -257,9 +257,9 @@ namespace gip.core.layoutengine.avui
 
         public void OnKeyEvent(object sender, KeyEventArgs e)
         {
-            if (InvokeAtVBControl != null && sender is DependencyObject)
+            if (InvokeAtVBControl != null && sender is AvaloniaObject)
             {
-                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as DependencyObject, InvokeAtVBControl) as IACObject;
+                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as AvaloniaObject, InvokeAtVBControl) as IACObject;
                 if (vbControl != null)
                 {
                     vbControl.ACUrlCommand(ACUrlCmd, null);
@@ -309,6 +309,10 @@ namespace gip.core.layoutengine.avui
                 if (typeof(RoutedEventArgs).IsAssignableFrom(e.GetType()))
                     ((RoutedEventArgs)e).Handled = handled;
             }
+        }
+
+        public void OnRoutedEvent(object sender, RoutedEventArgs e)
+        {
         }
 
 

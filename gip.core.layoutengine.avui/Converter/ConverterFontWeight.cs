@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
+﻿using Avalonia.Data.Converters;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.ext.design.avui.PropertyGrid;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -34,7 +33,7 @@ namespace gip.core.layoutengine.avui
     public class ConverterFontWeightMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return Convert(this, values, targetType, parameter, culture);
         }
@@ -45,7 +44,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             byte val = 0;
@@ -63,8 +62,7 @@ namespace gip.core.layoutengine.avui
                     {
                         if (result is String)
                         {
-                            FontWeightConverter fontConv = new FontWeightConverter();
-                            return fontConv.ConvertFromString(result as String);
+                            return Enum.Parse<FontWeight>(result as String);
                         }
                         else if (result is IConvertible)
                             val = System.Convert.ToByte(result);
@@ -76,8 +74,7 @@ namespace gip.core.layoutengine.avui
                 {
                     if (values[0] is String)
                     {
-                        FontWeightConverter fontConv = new FontWeightConverter();
-                        return fontConv.ConvertFromString(values[0] as String);
+                        return Enum.Parse<FontWeight>(values[0] as String);
                     }
                     else if (values[0] is IConvertible)
                         val = System.Convert.ToByte(values[0]);
@@ -96,39 +93,39 @@ namespace gip.core.layoutengine.avui
             {
                 case 0:
                 case 1:
-                    return FontWeights.Black;
+                    return FontWeight.Black;
                 case 2:
-                    return FontWeights.Bold;
+                    return FontWeight.Bold;
                 case 3:
-                    return FontWeights.DemiBold;
+                    return FontWeight.DemiBold;
                 case 4:
-                    return FontWeights.ExtraBlack;
+                    return FontWeight.ExtraBlack;
                 case 5:
-                    return FontWeights.ExtraBold;
+                    return FontWeight.ExtraBold;
                 case 6:
-                    return FontWeights.ExtraLight;
+                    return FontWeight.ExtraLight;
                 case 7:
-                    return FontWeights.Heavy;
+                    return FontWeight.Heavy;
                 case 8:
-                    return FontWeights.Light;
+                    return FontWeight.Light;
                 case 9:
-                    return FontWeights.Medium;
+                    return FontWeight.Medium;
                 case 10:
-                    return FontWeights.Normal;
+                    return FontWeight.Normal;
                 case 11:
-                    return FontWeights.Regular;
+                    return FontWeight.Regular;
                 case 12:
-                    return FontWeights.SemiBold;
+                    return FontWeight.SemiBold;
                 case 13:
-                    return FontWeights.Thin;
+                    return FontWeight.Thin;
                 case 14:
-                    return FontWeights.UltraBlack;
+                    return FontWeight.UltraBlack;
                 case 15:
-                    return FontWeights.UltraBold;
+                    return FontWeight.UltraBold;
                 case 16:
-                    return FontWeights.UltraLight;
+                    return FontWeight.UltraLight;
                 default:
-                    return FontWeights.Normal;
+                    return FontWeight.Normal;
             }
         }
 

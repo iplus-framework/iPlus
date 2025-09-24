@@ -217,7 +217,7 @@ namespace gip.core.layoutengine.avui.timeline
             BindingOperations.ClearBinding(this, TimelinePanel.EndDateProperty);
             BindingOperations.ClearBinding(this, TimelinePanel.RowIndexProperty);
             BindingOperations.ClearBinding(this, ToolTipContentProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             ToolTipOpening -= TimelineItem_ToolTipOpening;
             Loaded -= TimelineItem_Loaded;
             VBTreeListViewItemMap = null;

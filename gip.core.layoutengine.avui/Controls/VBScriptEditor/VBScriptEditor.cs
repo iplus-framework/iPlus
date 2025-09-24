@@ -313,7 +313,7 @@ namespace gip.core.layoutengine.avui
 
             BindingOperations.ClearBinding(this, VBScriptEditor.VBTextProperty);
             BindingOperations.ClearBinding(this, VBScriptEditor.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             _VBContentPropertyInfo = null;
 
             if (_VBFindAndReplace != null && _VBFindAndReplace.ReferencePoint != null)

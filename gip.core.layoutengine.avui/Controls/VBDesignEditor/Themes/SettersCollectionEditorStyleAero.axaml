@@ -1,0 +1,16 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/SettersCollectionEditorStyleGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style x:Key="SettersCollectionEditorStyleAero" 
+           TargetType="{x:Type local:VBSettersCollectionEditor}" 
+           BasedOn="{StaticResource SettersCollectionEditorStyleGip}">
+    </Style>
+</ResourceDictionary>

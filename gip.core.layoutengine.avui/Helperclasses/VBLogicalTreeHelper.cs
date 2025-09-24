@@ -1,11 +1,13 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.LogicalTree;
+using gip.core.datamodel;
+using gip.ext.design.avui;
+using gip.ext.designer.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Data;
-using System.Windows.Controls;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
@@ -15,10 +17,10 @@ namespace gip.core.layoutengine.avui.Helperclasses
         {
             if (guiObject == null)
                 return;
-            DependencyObject depObject = guiObject as DependencyObject;
+            ILogical depObject = guiObject as ILogical;
             if (depObject != null)
             {
-                foreach (object o in LogicalTreeHelper.GetChildren(depObject))
+                foreach (object o in depObject.GetLogicalChildren())
                 {
                     DeInitVBControls(acObject, o);
                 }
@@ -28,7 +30,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     if (vbContentObj != null)
                         vbContentObj.DeInitVBControl(null);
                 }
-                BindingOperations.ClearAllBindings(guiObject as DependencyObject);
+                (guiObject as AvaloniaObject)?.ClearAllBindings();
             }
 
         }
@@ -55,9 +57,12 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
         }
 
-        public static DependencyObject FindObjectInLogicalTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindObjectInLogicalTree(AvaloniaObject obj, string PART_Name)
         {
-            DependencyObject partObj = LogicalTreeHelper.FindLogicalNode(obj, PART_Name);
+            ILogical depObject = obj as ILogical;
+            if (depObject == null)
+                return null;
+            AvaloniaObject partObj = LogicalTreeHelper.FindLogicalNode(obj, PART_Name);
             if (partObj != null)
                 return partObj;
             partObj = VBLogicalTreeHelper.FindParentObjectInLogicalTree(obj, PART_Name);
@@ -69,9 +74,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        public static DependencyObject FindObjectInLogicalTree(DependencyObject obj, Type type)
+        public static AvaloniaObject FindObjectInLogicalTree(AvaloniaObject obj, Type type)
         {
-            DependencyObject partObj = VBLogicalTreeHelper.FindParentObjectInLogicalTree(obj, type);
+            AvaloniaObject partObj = VBLogicalTreeHelper.FindParentObjectInLogicalTree(obj, type);
             if (partObj != null)
                 return partObj;
             partObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(obj, type);
@@ -80,28 +85,28 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        public static DependencyObject FindChildObjectInLogicalTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindChildObjectInLogicalTree(AvaloniaObject obj, string PART_Name)
         {
             if (obj == null)
                 return null;
-            if (obj is FrameworkElement)
+            if (obj is Control)
             {
-                FrameworkElement partObj = obj as FrameworkElement;
+                Control partObj = obj as Control;
                 if (partObj.Name == PART_Name)
                     return partObj;
             }
             foreach (object childObj in LogicalTreeHelper.GetChildren(obj))
             {
-                if (!(childObj is FrameworkElement))
+                if (!(childObj is Control))
                     continue;
-                DependencyObject found = FindChildObjectInLogicalTree(childObj as DependencyObject, PART_Name);
+                AvaloniaObject found = FindChildObjectInLogicalTree(childObj as AvaloniaObject, PART_Name);
                 if (found != null)
                     return found;
             }
             return null;
         }
 
-        public static DependencyObject FindChildObjectInLogicalTree(DependencyObject obj, Type type)
+        public static AvaloniaObject FindChildObjectInLogicalTree(AvaloniaObject obj, Type type)
         {
             if (obj == null)
                 return null;
@@ -111,16 +116,16 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return obj;
             foreach (object childObj in LogicalTreeHelper.GetChildren(obj))
             {
-                if (!(childObj is DependencyObject))
+                if (!(childObj is AvaloniaObject))
                     continue;
-                DependencyObject found = FindChildObjectInLogicalTree(childObj as DependencyObject, type);
+                AvaloniaObject found = FindChildObjectInLogicalTree(childObj as AvaloniaObject, type);
                 if (found != null)
                     return found;
             }
             return null;
         }
 
-        public static DependencyObject FindChildObject(DependencyObject obj, Type type)
+        public static AvaloniaObject FindChildObject(AvaloniaObject obj, Type type)
         {
             if (obj == null)
                 return null;
@@ -130,10 +135,10 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return obj;
             if (obj is ContentPresenter)
             {
-                DependencyObject contentObj = (obj as ContentPresenter).Content as DependencyObject;
+                AvaloniaObject contentObj = (obj as ContentPresenter).Content as AvaloniaObject;
                 if (contentObj != null)
                 {
-                    DependencyObject found = FindChildObject(contentObj, type);
+                    AvaloniaObject found = FindChildObject(contentObj, type);
                     if (found != null)
                         return found;
                 }
@@ -142,9 +147,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
             {
                 foreach (object childObj in LogicalTreeHelper.GetChildren(obj))
                 {
-                    if (!(childObj is DependencyObject))
+                    if (!(childObj is AvaloniaObject))
                         continue;
-                    DependencyObject found = FindChildObject(childObj as DependencyObject, type);
+                    AvaloniaObject found = FindChildObject(childObj as AvaloniaObject, type);
                     if (found != null)
                         return found;
                 }
@@ -152,7 +157,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        public static IEnumerable<T> FindChildObjects<T>(DependencyObject obj) where T : class
+        public static IEnumerable<T> FindChildObjects<T>(AvaloniaObject obj) where T : class
         {
             List<T> result = new List<T>();
 
@@ -161,7 +166,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return result;
         }
 
-        private static void FindChildObjects<T>(DependencyObject obj, List<T> resultList) where T : class
+        private static void FindChildObjects<T>(AvaloniaObject obj, List<T> resultList) where T : class
         {
             if (obj == null)
                 return;
@@ -179,7 +184,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
             if (obj is ContentPresenter)
             {
-                DependencyObject contentObj = (obj as ContentPresenter).Content as DependencyObject;
+                AvaloniaObject contentObj = (obj as ContentPresenter).Content as AvaloniaObject;
                 if (contentObj != null)
                 {
                     FindChildObjects<T>(contentObj, resultList);
@@ -189,28 +194,28 @@ namespace gip.core.layoutengine.avui.Helperclasses
             {
                 foreach (object childObj in LogicalTreeHelper.GetChildren(obj))
                 {
-                    if (!(childObj is DependencyObject))
+                    if (!(childObj is AvaloniaObject))
                         continue;
-                    FindChildObjects<T>(childObj as DependencyObject, resultList);
+                    FindChildObjects<T>(childObj as AvaloniaObject, resultList);
                 }
             }
         }
 
 
-        public static DependencyObject FindParentObjectInLogicalTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindParentObjectInLogicalTree(AvaloniaObject obj, string PART_Name)
         {
             if (obj == null)
                 return null;
-            if (obj is FrameworkElement)
+            if (obj is Control)
             {
-                FrameworkElement partObj = obj as FrameworkElement;
+                Control partObj = obj as Control;
                 if (partObj.Name == PART_Name)
                     return partObj;
             }
             return FindParentObjectInLogicalTree(LogicalTreeHelper.GetParent(obj), PART_Name);
         }
 
-        public static DependencyObject FindParentObjectInLogicalTree(DependencyObject obj, Type type)
+        public static AvaloniaObject FindParentObjectInLogicalTree(AvaloniaObject obj, Type type)
         {
             if (obj == null)
                 return null;
@@ -222,7 +227,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return FindParentObjectInLogicalTree(LogicalTreeHelper.GetParent(obj), type);
         }
 
-        public static IACComponent FindParentBSO(FrameworkElement obj)
+        public static IACComponent FindParentBSO(Control obj)
         {
             IACInteractiveObject acElement = VBLogicalTreeHelper.FindObjectInLogicalTree(obj.Parent, typeof(IACInteractiveObject)) as IACInteractiveObject;
             if (acElement == null)
@@ -231,12 +236,12 @@ namespace gip.core.layoutengine.avui.Helperclasses
             {
                 if (acElement.ContextACObject.ACType.ACKind == Global.ACKinds.TACBSO)
                     return acElement.ContextACObject as IACComponent;
-                return VBLogicalTreeHelper.FindParentBSO(acElement as FrameworkElement);
+                return VBLogicalTreeHelper.FindParentBSO(acElement as Control);
             }
             return null;
         }
 
-        public static VBDesign GetVBDesign(this DependencyObject obj)
+        public static VBDesign GetVBDesign(this AvaloniaObject obj)
         {
             VBDesign result = FindParentObjectInLogicalTree(obj, typeof(VBDesign)) as VBDesign;
             if (result == null)
@@ -244,7 +249,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return result;
         }
 
-        public static VBDesignBase GetVBDesignBase(this DependencyObject obj)
+        public static VBDesignBase GetVBDesignBase(this AvaloniaObject obj)
         {
             VBDesignBase result = FindParentObjectInLogicalTree(obj, typeof(VBDesignBase)) as VBDesignBase;
             if (result == null)
@@ -273,12 +278,12 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     }
                 }
 
-                if (obj is DependencyObject)
+                if (obj is AvaloniaObject)
                 {
-                    DependencyObject parentObj = LogicalTreeHelper.GetParent(obj as DependencyObject);
+                    AvaloniaObject parentObj = LogicalTreeHelper.GetParent(obj as AvaloniaObject);
                     if (parentObj != null)
                     {
-                        IACMenuBuilderWPFTree parentMenuBuilder = FindParentObjectInLogicalTree(parentObj as DependencyObject, typeof(IACMenuBuilderWPFTree)) as IACMenuBuilderWPFTree;
+                        IACMenuBuilderWPFTree parentMenuBuilder = FindParentObjectInLogicalTree(parentObj as AvaloniaObject, typeof(IACMenuBuilderWPFTree)) as IACMenuBuilderWPFTree;
                         if (parentMenuBuilder != null)
                             parentMenuBuilder.AppendMenu(obj.VBContent, obj.GetType().Name, ref acMenuItemList);
                     }
@@ -295,7 +300,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             }
         }
 
-        public static void GetDesignManagerMenu(this DependencyObject obj, string vbContent, ref ACMenuItemList acMenuItemList)
+        public static void GetDesignManagerMenu(this AvaloniaObject obj, string vbContent, ref ACMenuItemList acMenuItemList)
         {
             VBDesign vbDesign = obj.GetVBDesign();
             if (vbDesign != null)
@@ -317,7 +322,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
         }
 
-        public static bool IsChildObjectInLogicalTree(DependencyObject objStart, DependencyObject objToFind, Type breakSearchAtType = null)
+        public static bool IsChildObjectInLogicalTree(AvaloniaObject objStart, AvaloniaObject objToFind, Type breakSearchAtType = null)
         {
             if ((objStart == null) || (objToFind == null))
                 return false;
@@ -325,11 +330,11 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return true;
             foreach (object childObj in LogicalTreeHelper.GetChildren(objStart))
             {
-                if (!(childObj is DependencyObject))
+                if (!(childObj is AvaloniaObject))
                     continue;
                 if (breakSearchAtType != null && childObj != null && breakSearchAtType.IsAssignableFrom(childObj.GetType()))
                     return false;
-                if (IsChildObjectInLogicalTree(childObj as DependencyObject, objToFind, breakSearchAtType))
+                if (IsChildObjectInLogicalTree(childObj as AvaloniaObject, objToFind, breakSearchAtType))
                     return true;
             }
             return false;

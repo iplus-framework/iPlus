@@ -1,22 +1,20 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Input.Raw;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui;
 using gip.ext.designer.avui.Controls;
 using gip.ext.designer.avui.Services;
-using gip.ext.designer.avui.Extensions;
-using gip.core.layoutengine.avui;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using Avalonia.Input;
-using Avalonia;
+using System;
+using System.Linq;
 
 
 namespace gip.core.layoutengine.avui
@@ -43,22 +41,22 @@ namespace gip.core.layoutengine.avui
 
         public void HandleStartDrawingOnMouseDown(IDesignPanel designPanel, PointerEventArgs e, DesignPanelHitTestResult result, IDrawingTool tool)
         {
-            DependencyObject vbConnectorAdorner = VBVisualTreeHelper.FindParentObjectInVisualTree(result.VisualHit, typeof(VBConnectorAdorner));
+            AvaloniaObject vbConnectorAdorner = VBVisualTreeHelper.FindParentObjectInVisualTree(result.VisualHit, typeof(VBConnectorAdorner));
             if (vbConnectorAdorner == null)
                 return;
-            VBConnectorDrawingBehavior.VBConnectorPlacement placement = AdornerPanel.GetPlacement(vbConnectorAdorner as UIElement) as VBConnectorDrawingBehavior.VBConnectorPlacement;
+            VBConnectorDrawingBehavior.VBConnectorPlacement placement = AdornerPanel.GetPlacement(vbConnectorAdorner as Control) as VBConnectorDrawingBehavior.VBConnectorPlacement;
             if (placement == null)
                 return;
 
             if ((result.AdornerHit != null) && (result.AdornerHit.AdornedDesignItem != null)
-                && (placement.ConnectorPoint != null) && e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
+                && (placement.ConnectorPoint != null) && e.Properties.IsLeftButtonPressed && MouseGestureBase.IsOnlyButtonPressed(e, RawPointerEventType.LeftButtonDown))
             {
                 if (String.IsNullOrEmpty(placement.ConnectorPoint.Name))
                     return;
                 tool.RaiseToolEvent(designPanel, new ToolEventArgs("VBConnectorClicked", new object[] { result, placement }));
                 e.Handled = true;
 
-                var ancestors = (result.AdornerHit.AdornedDesignItem.View as DependencyObject).GetVisualAncestors();
+                var ancestors = (result.AdornerHit.AdornedDesignItem.View as AvaloniaObject).GetVisualAncestors();
                 var queryVBCanvases = ancestors.OfType<VBCanvas>();
                 if (!queryVBCanvases.Any())
                     return;

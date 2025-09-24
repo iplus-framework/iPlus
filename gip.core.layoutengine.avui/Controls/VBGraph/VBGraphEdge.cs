@@ -60,7 +60,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, ToolTipProperty);
             BindingOperations.ClearBinding(this, DataContextProperty);
             BindingOperations.ClearBinding(this, ParentSurfaceProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             base.DeInitVBControl(bso);
         }

@@ -1,0 +1,9 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBVisual/Themes/VBVisualStyleGip.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <Style x:Key="VBVisualStyleAero" TargetType="{x:Type local:VBVisual}" BasedOn="{StaticResource VBVisualStyleGip}" />
+</ResourceDictionary>

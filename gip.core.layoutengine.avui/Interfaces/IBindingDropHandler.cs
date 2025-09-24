@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
+﻿using gip.core.datamodel;
+using System;
 
 namespace gip.core.layoutengine.avui
 {

@@ -387,7 +387,7 @@ namespace gip.core.layoutengine.avui
         public override void DeInitVBControl(IACComponent bso)
         {
             BindingOperations.ClearBinding(this, ItemsSourceProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             if (_ColumnHeaders != null)
             {

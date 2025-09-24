@@ -448,7 +448,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, MarkdownScrollViewer.MarkdownProperty);
             //BindingOperations.ClearBinding(this, VBMarkDownViewer.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBMarkDownViewer.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

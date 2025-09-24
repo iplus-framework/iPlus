@@ -86,7 +86,7 @@ namespace gip.core.layoutengine.avui
             VBVisualTreeHelper.DeInitVBControls(bso, this.Content);
             BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             if (ReadLocalValue(DataContextProperty) != DependencyProperty.UnsetValue)
                 DataContext = null;

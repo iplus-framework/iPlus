@@ -1,0 +1,202 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <ItemsPanelTemplate x:Key="HorizontalRadioButtonItems">
+        <VirtualizingStackPanel 
+        Orientation="Horizontal" />
+    </ItemsPanelTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupStackScrollTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <!--<Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="15*" MaxWidth="120"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="20*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}"></local:VBTextBlock>-->
+            <ScrollViewer x:Name="Border" Focusable="false" Visibility="{TemplateBinding ScrollViewerVisibility}">
+                <StackPanel x:Name="ItemsPresenter" IsItemsHost="True" Orientation="Vertical" />
+            </ScrollViewer>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <!--<DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self},Path=ShowCaption}" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
+            </DataTrigger>-->
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self},Path=HorizontalItems}" Value="True">
+                <Setter TargetName="ItemsPresenter" Property="Orientation" Value="Horizontal"/>
+            </DataTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupStackTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <StackPanel x:Name="ItemsPresenter" IsItemsHost="True" Orientation="Vertical" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self},Path=HorizontalItems}" Value="True">
+                <Setter TargetName="ItemsPresenter" Property="Orientation" Value="Horizontal"/>
+            </DataTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupWrapScrollTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" Visibility="{TemplateBinding ScrollViewerVisibility}">
+                <WrapPanel x:Name="ItemsPresenter" IsItemsHost="True" Orientation="Vertical" />
+            </ScrollViewer>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self},Path=HorizontalItems}" Value="True">
+                <Setter TargetName="ItemsPresenter" Property="Orientation" Value="Horizontal"/>
+            </DataTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupWrapTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <WrapPanel x:Name="ItemsPresenter" IsItemsHost="True" Orientation="Vertical" />
+        </Grid>
+        <ControlTemplate.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=Self},Path=HorizontalItems}" Value="True">
+                <Setter TargetName="ItemsPresenter" Property="Orientation" Value="Horizontal"/>
+            </DataTrigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupDockScrollTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" Visibility="{TemplateBinding ScrollViewerVisibility}">
+                <DockPanel x:Name="ItemsPresenter" IsItemsHost="True" />
+            </ScrollViewer>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupDockTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <DockPanel x:Name="ItemsPresenter" IsItemsHost="True" />
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupGridScrollTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" Visibility="{TemplateBinding ScrollViewerVisibility}">
+                <UniformGrid x:Name="ItemsPresenter" IsItemsHost="True" Columns="{TemplateBinding Columns}" Rows="{TemplateBinding Rows}" />
+            </ScrollViewer>
+        </Grid>
+        <ControlTemplate.Triggers>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupGridTemplateGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <UniformGrid x:Name="ItemsPresenter" IsItemsHost="True" Columns="{TemplateBinding Columns}" Rows="{TemplateBinding Rows}"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+
+    <Style x:Key="RadioButtonGroupStyleGip" TargetType="{x:Type local:VBRadioButtonGroup}">
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Template" Value="{StaticResource RadioButtonGroupStackScrollTemplateGip}" />
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="StackPanel"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupStackTemplateGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="WrapPanel"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupWrapTemplateGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="WrapPanel"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Visible"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupWrapScrollTemplateGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="DockPanel"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupDockTemplateGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="DockPanel"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Visible"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupDockScrollTemplateGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="Grid"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Hidden"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupGridTemplateGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="ItemsHostType" Value="Grid"/>
+                    <Condition Property="ScrollViewerVisibility" Value="Visible"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Template" Value="{StaticResource RadioButtonGroupGridScrollTemplateGip}"/>
+            </MultiTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="RadioButtonItemStyleGip" TargetType="{x:Type local:VBRadioButtonGroupItem}">
+        <Setter Property="Margin" Value="0,0,10,2" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VBRadioButtonGroupItem}">
+                    <Border BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <!-- Note: IsChecked is bound to IsSelected-->
+                    <local:VBRadioButton  x:Name="radioButton"
+                        IsChecked="{TemplateBinding IsSelected}"
+                        Focusable="False" 
+                        IsHitTestVisible="False"
+                        PushButtonStyle="{TemplateBinding PushButtonStyle}" MinWidth="{TemplateBinding MinWidth}" MaxWidth="{TemplateBinding MaxWidth}"
+                                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                            <ContentPresenter />
+                        </local:VBRadioButton>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="radioButton" Property="IsMouseOverParent" Value="True"></Setter>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="False">
+                            <Setter TargetName="radioButton" Property="IsMouseOverParent" Value="False"></Setter>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="PushButtonStyle" Value="True">
+                <Setter Property="Margin" Value="0,0,2,2"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+
+</ResourceDictionary>

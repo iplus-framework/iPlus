@@ -2,15 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.layoutengine.avui.VisualControlAnalyser;
@@ -22,6 +13,9 @@ using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
 using System.ComponentModel;
+using Avalonia.Input;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
 
 namespace gip.core.layoutengine.avui
 {
@@ -1295,7 +1289,7 @@ namespace gip.core.layoutengine.avui
             _VBContentValueType = null;
             BindingOperations.ClearBinding(this, VBVisual.ACCompInitStateProperty);
             BindingOperations.ClearBinding(this, FrameworkElement.DataContextProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             DataContext = null;
             Content = null;
         }
@@ -1476,10 +1470,10 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnMouseDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        protected override void OnMouseDown(PointerEventArgs e)
         {
             if (DragEnabled == DragMode.Enabled && this.ContentACObject is IACObject)
-                VBDragDrop.VBDoDragDrop(this);
+                VBDragDrop.VBDoDragDrop(e, this);
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)

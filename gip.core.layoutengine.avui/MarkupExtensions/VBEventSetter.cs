@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Markup;
-using System.Reflection;
-using System.Xaml;
+﻿using Avalonia;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml;
+using Avalonia.Xaml.Interactions.Core;
 using gip.core.datamodel;
+using gip.ext.design.avui;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Controls;
+using System.Linq;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
-    public class VBEventSetter : EventSetter, IACObject
+    public class VBEventSetter : EventTriggerBehavior, IACObject
     {
         #region c'tors
         public VBEventSetter() 
@@ -38,18 +38,20 @@ namespace gip.core.layoutengine.avui
 
         /// <summary>
         /// In XAML: Set thid value as String. A TypeConverter resolves automatically the Event
+        /// TODO:
         /// </summary>
-        public VBEventHandler OrdinaryEvent
-        {
-            get { return _OrdinaryEventHandler; }
-            set
-            {
-                if (value == null) 
-                    throw new ArgumentNullException("value");
-                _OrdinaryEventHandler = value;
-                this.Event = _OrdinaryEvent;
-            }
-        }
+        //public VBEventHandler OrdinaryEvent
+        //{
+        //    get { return _OrdinaryEventHandler; }
+        //    set
+        //    {
+        //        if (value == null) 
+        //            throw new ArgumentNullException("value");
+        //        _OrdinaryEventHandler = value;
+        //        // TODO Avalonia:
+        //        //this.Event = _OrdinaryEvent;
+        //    }
+        //}
 
 
         // Property kann nicht ACUrlCommand heissen, da ACUrlCommand bereits eine Methode ist.
@@ -65,14 +67,16 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if (this.Event == null)
+                if (string.IsNullOrEmpty(this.EventName))
                     return;
-                this.Handler = Delegate.CreateDelegate(this.Event.HandlerType, this, ((EventHandler)OnEvent).Method);
+                throw new InvalidOperationException("EventName must be set before ACUrlCmd can be set!");
+                // TODO Avalonia:
+                // this.Handler = Delegate.CreateDelegate(this.Event.HandlerType, this, ((EventHandler)OnEvent).Method);
                 // Falls normales Event (Direct)
-                if (OrdinaryEvent != null)
-                    OrdinaryEvent.Handler += new EventHandler(OnEvent);
-                _ACUrlCmd = value;
-                UpdateACComponent();
+                //if (OrdinaryEvent != null)
+                //    OrdinaryEvent.Handler += new EventHandler(OnEvent);
+                //_ACUrlCmd = value;
+                //UpdateACComponent();
             }
         }
 
@@ -120,13 +124,14 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region methods and eventhandler
-        private VBEventHandler _OrdinaryEventHandler;
-        private static readonly RoutedEvent _OrdinaryEvent = EventManager.RegisterRoutedEvent(
-                       "OrdinaryEvent",
-                       RoutingStrategy.Bubble,
-                       typeof(RoutedEventHandler),
-                       typeof(VBEventSetter)
-              );
+        // TODO Avalonia:
+        //private VBEventHandler _OrdinaryEventHandler;
+        //private static readonly RoutedEvent _OrdinaryEvent = EventManager.RegisterRoutedEvent(
+        //               "OrdinaryEvent",
+        //               RoutingStrategy.Bubble,
+        //               typeof(RoutedEventHandler),
+        //               typeof(VBEventSetter)
+        //      );
 
 
         private void OnEvent(object sender, EventArgs e)
@@ -334,8 +339,8 @@ namespace gip.core.layoutengine.avui
         private void AddCurrentChild(object current, Type targetType, List<object> coll)
         {
             if (targetType.IsAssignableFrom(current.GetType())) coll.Add(current);
-            if (!typeof(DependencyObject).IsAssignableFrom(current.GetType())) return;
-            foreach (object child in LogicalTreeHelper.GetChildren((DependencyObject)current)) AddCurrentChild(child, targetType, coll);
+            if (!typeof(AvaloniaObject).IsAssignableFrom(current.GetType())) return;
+            foreach (object child in LogicalTreeHelper.GetChildren((AvaloniaObject)current)) AddCurrentChild(child, targetType, coll);
         }
 
         public IList<object> FindChildren(IRootObjectProvider root, Type targetType)
@@ -347,12 +352,15 @@ namespace gip.core.layoutengine.avui
 
         public override object ConvertFrom(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value)
         {
-            if (context == null) return null;
+            if (context == null) 
+                return null;
+            throw new NotImplementedException("VBEventConverter.ConvertFrom not implemented without AVALONIA_SUPPORTS_FROM_WPF");
+#if AVALONIA_SUPPORTS_FROM_WPF
             var schema = GetService<IXamlSchemaContextProvider>(context).SchemaContext;
             var ambient = GetService<IAmbientProvider>(context);
             var root = GetService<IRootObjectProvider>(context);
             var targetType = ambient.GetFirstAmbientValue(null,
-                schema.GetXamlType(typeof(Style)).GetMember("TargetType"),
+                schema.GetXamlType(typeof(ControlTheme)).GetMember("TargetType"),
                 schema.GetXamlType(typeof(ControlTemplate)).GetMember("TargetType")
                 );
             if (targetType == null) 
@@ -365,6 +373,7 @@ namespace gip.core.layoutengine.avui
                 throw new Exception("Could not find instance of " + eventInfo.DeclaringType.ToString() + "!");
             // the last one is the one we currently parse
             return new VBEventHandler(children[children.Count - 1], eventInfo);
+#endif
         }
 
         public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, Type destinationType)

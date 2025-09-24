@@ -1,6 +1,6 @@
-﻿using System;
+﻿using gip.core.datamodel;
 using gip.ext.design.avui;
-using gip.core.datamodel;
+using System;
 
 namespace gip.core.layoutengine.avui
 {

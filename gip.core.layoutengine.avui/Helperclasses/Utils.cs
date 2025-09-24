@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Input;
+﻿using Avalonia;
+using Avalonia.Input;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
@@ -36,19 +33,20 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                if (_HasTouchDev.HasValue)
-                    return _HasTouchDev.Value;
-                foreach (TabletDevice tabletDevice in Tablet.TabletDevices)
-                {
-                    //Only detect if it is a touch Screen not how many touches (i.e. Single touch or Multi-touch)
-                    if (tabletDevice.Type == TabletDeviceType.Touch)
-                    {
-                        _HasTouchDev = true;
-                        return true;
-                    }
-                }
-                _HasTouchDev = false;
-                return false;
+                throw new NotImplementedException("Tablet.TabletDevices is not implemented in Avalonia");
+                //if (_HasTouchDev.HasValue)
+                //    return _HasTouchDev.Value;
+                //foreach (TabletDevice tabletDevice in Tablet.TabletDevices)
+                //{
+                //    //Only detect if it is a touch Screen not how many touches (i.e. Single touch or Multi-touch)
+                //    if (tabletDevice.Type == TabletDeviceType.Touch)
+                //    {
+                //        _HasTouchDev = true;
+                //        return true;
+                //    }
+                //}
+                //_HasTouchDev = false;
+                //return false;
             }
         }
     }
@@ -59,16 +57,17 @@ namespace gip.core.layoutengine.avui
 
         public WaitCursor()
         {
-            _previousCursor = Mouse.OverrideCursor;
+            throw new NotImplementedException("Mouse.OverrideCursor is not implemented in Avalonia");
+            //_previousCursor = Mouse.OverrideCursor;
 
-            Mouse.OverrideCursor = Cursors.Wait;
+            //Mouse.OverrideCursor = Cursors.Wait;
         }
 
         #region IDisposable Members
 
         public void Dispose()
         {
-            Mouse.OverrideCursor = _previousCursor;
+            //Mouse.OverrideCursor = _previousCursor;
         }
 
         #endregion

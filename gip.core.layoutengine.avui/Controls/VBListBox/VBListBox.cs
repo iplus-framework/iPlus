@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.Reflection;
 using System.ComponentModel;
 using System.Windows.Threading;
+using Avalonia.Input;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -672,7 +669,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, ListBox.SelectedValueProperty);
             //BindingOperations.ClearBinding(this, VBListBox.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBListBox.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             this.ItemsSource = null;
         }
 
@@ -1257,14 +1254,14 @@ namespace gip.core.layoutengine.avui
 
         #region DragAndDrop
 
-        void VBListBox_MouseButtonDown(object sender, MouseButtonEventArgs e)
+        void VBListBox_MouseButtonDown(object sender, PointerEventArgs e)
         {
             if (DragEnabled == DragMode.Enabled)
             {
                 object dragItem = SelectedItem;
                 if (dragItem != null)
                 {
-                    VBDragDrop.VBDoDragDrop(this/*, acObject, ACComponent, new Point()*/);
+                    VBDragDrop.VBDoDragDrop(e, this/*, acObject, ACComponent, new Point()*/);
                 }
             }
         }

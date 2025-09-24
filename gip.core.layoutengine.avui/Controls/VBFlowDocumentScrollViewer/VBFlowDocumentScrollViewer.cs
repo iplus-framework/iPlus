@@ -274,7 +274,7 @@ namespace gip.core.layoutengine.avui
             Loaded -= VBFlowDocumentScrollViewer_Loaded;
             BindingOperations.ClearBinding(this, DocumentContentProperty);
             BindingOperations.ClearBinding(this, BSOACComponentProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         public string GetACUrl(IACObject rootACObject = null)

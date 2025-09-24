@@ -1,0 +1,44 @@
+<DockPanel xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+           x:Name="buttontest">
+    <TextBlock DockPanel.Dock="Top" x:Name="Caption" TextAlignment="Center" Foreground="White">Name</TextBlock>
+    <Viewbox DockPanel.Dock="Bottom" Stretch="Uniform">
+        <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="CanvasKneter" Width="20" Height="30" Canvas.Left="0" Canvas.Top="0">
+            <Path x:Name="Quirl2" Width="9.11477" Height="15.2961" Canvas.Left="4.44262" Canvas.Top="14.3519" Stretch="Fill" Data="F1 M 11.3941,15.4222C 12.8473,15.9511 12.9534,19.3248 11.6311,22.9577C 10.3089,26.5905 8.059,29.1068 6.60586,28.5779C 5.15272,28.049 5.04661,24.6752 6.36886,21.0423C 7.69111,17.4095 9.941,14.8933 11.3941,15.4222 Z " StrokeThickness="2" StrokeLineJoin="Round">
+                <Path.Stroke>
+                    <LinearGradientBrush StartPoint="-0.0873311,0.5" EndPoint="1.08733,0.5">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#FF6A6A6A" Offset="0"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Path.Stroke>
+            </Path>
+            <Path x:Name="Quirl1" Width="9.11477" Height="15.2961" Canvas.Left="6.98076" Canvas.Top="14.0504" Stretch="Fill" Data="F1 M 9.144,15.1206C 10.5971,14.5917 12.847,17.108 14.1693,20.7408C 15.4915,24.3737 15.3854,27.7474 13.9323,28.2763C 12.4791,28.8052 10.2293,26.289 8.90701,22.6561C 7.58476,19.0233 7.69087,15.6495 9.144,15.1206 Z " StrokeThickness="2" StrokeLineJoin="Round">
+                <Path.Stroke>
+                    <LinearGradientBrush StartPoint="-0.0873307,0.5" EndPoint="1.08733,0.5">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#FF6A6A6A" Offset="0"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Path.Stroke>
+            </Path>
+            <Path x:Name="Kasten" Width="18" Height="16" Canvas.Left="1" Canvas.Top="0.999998" Stretch="Fill" Fill="#FFADADAD" Data="F1 M 4,2L 16,2C 17.1046,2 18,2.89543 18,4L 18,14C 18,15.1046 17.1046,16 16,16L 4,16C 2.89543,16 2,15.1046 2,14L 2,4C 2,2.89543 2.89543,2 4,2 Z " StrokeThickness="2" StrokeLineJoin="Round">
+                <Path.Stroke>
+                    <LinearGradientBrush StartPoint="0.5,1.74414" EndPoint="0.5,-0.74414">
+                        <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#FF686868" Offset="0"/>
+                            <GradientStop Color="#FFFFFFFF" Offset="0.568001"/>
+                            <GradientStop Color="#FF585858" Offset="1"/>
+                        </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                </Path.Stroke>
+            </Path>
+            <Ellipse x:Name="LampeAktiv" Width="11" Height="11" Canvas.Left="4.5" Canvas.Top="3.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FF7A7A00" Fill="#FFFFFF00"/>
+        </Canvas>
+    </Viewbox>
+</DockPanel>
+

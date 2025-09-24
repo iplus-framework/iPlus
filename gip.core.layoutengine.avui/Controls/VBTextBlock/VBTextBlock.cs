@@ -566,7 +566,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, TextBlock.TextProperty);
             //BindingOperations.ClearBinding(this, VBTextBlock.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBTextBlock.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

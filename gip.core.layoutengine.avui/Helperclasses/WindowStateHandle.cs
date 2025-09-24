@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Avalonia;
+using Avalonia.Controls;
+using System;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 
 namespace gip.core.layoutengine.avui
 {
@@ -24,16 +22,16 @@ namespace gip.core.layoutengine.avui
             WindowStateHandleSettings settings = WindowStateHandleSettings.Factory();
             System.Windows.Forms.Screen usedScreen = System.Windows.Forms.Screen.FromRectangle(
                new System.Drawing.Rectangle(
-                   (int)window.Left, (int)window.Top,
+                   (int)window.Position.X, (int)window.Position.Y,
                    (int)window.Width, (int)window.Height));
             settings.ScreenName = usedScreen.DeviceName;
             if (!onlyUsedScreen)
             {
-                settings.WindowMaximized = window.WindowState == System.Windows.WindowState.Maximized;
+                settings.WindowMaximized = window.WindowState == WindowState.Maximized;
                 settings.WindowPosition =
                     new Rect(
-                                Math.Abs(window.Left - usedScreen.WorkingArea.Left) / usedScreen.WorkingArea.Width,
-                                Math.Abs(window.Top - usedScreen.WorkingArea.Top) / usedScreen.WorkingArea.Height,
+                                Math.Abs(window.Position.X - usedScreen.WorkingArea.Left) / usedScreen.WorkingArea.Width,
+                                Math.Abs(window.Position.Y - usedScreen.WorkingArea.Top) / usedScreen.WorkingArea.Height,
                                 window.Width / usedScreen.WorkingArea.Width,
                                 window.Height / usedScreen.WorkingArea.Height
                              );
@@ -61,33 +59,31 @@ namespace gip.core.layoutengine.avui
 
             Rect restoreBounds = settings.WindowPosition;
 
-            window.Left = 0;
-            window.Top = 0;
-            window.WindowState = System.Windows.WindowState.Normal;
+            window.WindowState = WindowState.Normal;
             if (settings.WindowMaximized)
             {
-                window.Left = usedScreen.WorkingArea.Left;
-                window.Top = usedScreen.WorkingArea.Top;
+                PixelPoint restoreLocation = new PixelPoint(usedScreen.WorkingArea.Left, usedScreen.WorkingArea.Top);
+                window.Position = restoreLocation;
                 window.WindowState = WindowState.Maximized;
             }
             else
             {
-                window.Left = usedScreen.WorkingArea.Left + restoreBounds.Left * usedScreen.WorkingArea.Width;
-                window.Top = usedScreen.WorkingArea.Top + restoreBounds.Top * usedScreen.WorkingArea.Height;
-                window.Width = restoreBounds.Width * usedScreen.WorkingArea.Width;
-                window.Height = restoreBounds.Height * usedScreen.WorkingArea.Height;
+                PixelPoint restoreLocation = new PixelPoint((int) (usedScreen.WorkingArea.Left + restoreBounds.Left * usedScreen.WorkingArea.Width), 
+                                                            (int) (usedScreen.WorkingArea.Top + restoreBounds.Top * usedScreen.WorkingArea.Height));
+                double width = restoreBounds.Width * usedScreen.WorkingArea.Width;
+                double height = restoreBounds.Height * usedScreen.WorkingArea.Height;
 
                 bool outsideBorder = !usedScreen.WorkingArea.IntersectsWith(new System.Drawing.Rectangle(
-                    (int)window.Left, (int)window.Top,
-                    (int)window.Width, (int)window.Height));
-
+                    (int)restoreLocation.X, (int)restoreLocation.Y,
+                    (int)width, (int)height));
                 if (outsideBorder)
-                {
-                    window.Left = usedScreen.WorkingArea.Left;
-                    window.Top = usedScreen.WorkingArea.Top;
-                    if (window.IsLoaded)
-                        window.WindowState = WindowState.Maximized;
-                }
+                    restoreLocation = new PixelPoint(usedScreen.WorkingArea.Left, usedScreen.WorkingArea.Top);
+
+                window.Position = restoreLocation;
+                window.Width = width;
+                window.Height = height;
+                if (outsideBorder && window.IsLoaded)
+                    window.WindowState = WindowState.Maximized;
             }
         }
     }

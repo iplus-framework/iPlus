@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Markup;
 using System.Reflection;
-using System.Windows.Data;
+using Avalonia.Markup.Xaml;
 
 namespace gip.core.layoutengine.avui
 {
-    public class VBResourceKey : ResourceKey
+    public class VBResourceKey : MarkupExtension
     {
         public VBResourceKey()
             : base()
@@ -139,12 +137,12 @@ namespace gip.core.layoutengine.avui
             return _ACDesignProperty + _xNameInDesign + _ACUrlWPF + _ACUrlProperty;
         }
 
-        public override Assembly Assembly 
-        {
-            get
-            {
-                return null;
-            }
-        }
+        //public override Assembly Assembly 
+        //{
+        //    get
+        //    {
+        //        return null;
+        //    }
+        //}
     }
 }

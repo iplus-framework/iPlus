@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="gip.core.layoutengine.avui.VBOEEControl"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+             mc:Ignorable="d" 
+             d:DesignHeight="500" d:DesignWidth="500"
+             x:Name="OEEControl">
+    <Viewbox>
+    <Grid Width="500" Height="500">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="4*"></ColumnDefinition>
+            <ColumnDefinition Width="3*"></ColumnDefinition>
+            <ColumnDefinition Width="2*"></ColumnDefinition>
+            <ColumnDefinition Width="1*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="1*"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition Height="3*"></RowDefinition>
+            <RowDefinition Height="4*"></RowDefinition>
+            <RowDefinition Height="3*"></RowDefinition>
+            <RowDefinition Height="2*"></RowDefinition>
+            <RowDefinition Height="1*"></RowDefinition>
+        </Grid.RowDefinitions>
+            <local:VBProgressBar Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="7" Grid.RowSpan="7" ProgressBarStyle="Circular" Value="{Binding ElementName=OEEControl, Path=AvailabilityOEE}" PieFill="{Binding ElementName=OEEControl, Path=AvailabilityColor}" PieStroke="Transparent" ValueVisibility="Hidden" />
+            <local:VBProgressBar Margin="15" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="5" Grid.RowSpan="5" ProgressBarStyle="Circular" PieFill="{Binding ElementName=OEEControl, Path=PerformanceColor}" PieStroke="Transparent" Value="{Binding ElementName=OEEControl, Path=PerformanceOEE}"  ValueVisibility="Hidden" />
+            <local:VBProgressBar Margin="-2" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="3" Grid.RowSpan="3" ProgressBarStyle="Circular" PieFill="{Binding ElementName=OEEControl, Path=QualityColor}" PieStroke="Transparent" Value="{Binding ElementName=OEEControl, Path=QualityOEE}" ValueVisibility="Hidden" />
+            <local:VBProgressBar Margin="-55" Grid.Row="3" Grid.Column="3" ProgressBarStyle="NormalPie"  Value="{Binding ElementName=OEEControl, Path=TotalOEE}" PieFill="{Binding ElementName=OEEControl, Path=TotalOEEColor}" FontSize="60" PieTextColor="{Binding ElementName=OEEControl, Path=OEETextColor}" />
+    </Grid>
+    </Viewbox>
+</UserControl>

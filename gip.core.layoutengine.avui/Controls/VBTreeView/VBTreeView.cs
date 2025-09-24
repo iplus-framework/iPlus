@@ -18,6 +18,7 @@ using gip.core.datamodel;
 using System.Reflection;
 using System.Collections;
 using System.Transactions;
+using Avalonia.Input;
 
 namespace gip.core.layoutengine.avui
 {
@@ -491,7 +492,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBTreeView.ChangeInfoProperty);
             //BindingOperations.ClearBinding(this, VBTreeView.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBTreeView.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             _VBContentPropertyInfo = null;
 
             ACQueryDefinition = null;
@@ -1596,7 +1597,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        void VBTreeView_MouseButtonDown(object sender, MouseButtonEventArgs e)
+        void VBTreeView_MouseButtonDown(object sender, PointerEventArgs e)
         {
             if (DragEnabled == DragMode.Enabled || (Keyboard.IsKeyDown(Key.LeftShift) && DragEnabled == DragMode.EnabledMove))
             {
@@ -1612,7 +1613,7 @@ namespace gip.core.layoutengine.avui
 
                     try
                     {
-                        VBDragDrop.VBDoDragDrop(vbTreeViewItem/*, acObject, ACComponent, new Point()*/);
+                        VBDragDrop.VBDoDragDrop(e, vbTreeViewItem/*, acObject, ACComponent, new Point()*/);
                     }
                     catch (Exception) 
                     {

@@ -1,14 +1,11 @@
-﻿using System;
+﻿using gip.core.datamodel;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
-using System.Windows.Markup;
-using System.Windows.Controls;
 
 namespace gip.core.layoutengine.avui
 {
-    public class VBValidationRule : ValidationRule, IACObject
+    // TODO use https://github.com/reactiveui/ReactiveUI.Validation
+    public class VBValidationRule : IACObject //: ValidationRule, IACObject
     {
         #region c'tors
         public VBValidationRule() 
@@ -23,8 +20,9 @@ namespace gip.core.layoutengine.avui
             this.ACUrlCmd = acUrlCommand;
         }
 
-        public VBValidationRule(ValidationStep validationStep, bool validatesOnTargetUpdated, IACObject acComponent, string vbContent, string acUrlCommand)
-            : base(validationStep, validatesOnTargetUpdated)
+        //public VBValidationRule(ValidationStep validationStep, bool validatesOnTargetUpdated, IACObject acComponent, string vbContent, string acUrlCommand)
+        public VBValidationRule(object validationStep, bool validatesOnTargetUpdated, IACObject acComponent, string vbContent, string acUrlCommand)
+            //: base(validationStep, validatesOnTargetUpdated)
         {
             ACComponent = acComponent;
             this.VBContent = vbContent;
@@ -92,42 +90,42 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo)
-        {
-            if (ACComponent == null)
-                return new ValidationResult(false, "ACComponent == null");
-            else if (String.IsNullOrEmpty(ACUrlCmd))
-                return new ValidationResult(false, "ACUrlCommand is Empty");
+        //public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo)
+        //{
+        //    if (ACComponent == null)
+        //        return new ValidationResult(false, "ACComponent == null");
+        //    else if (String.IsNullOrEmpty(ACUrlCmd))
+        //        return new ValidationResult(false, "ACUrlCommand is Empty");
 
-            object result = ACComponent.ACUrlCommand(ACUrlCmd, VBContent, value, cultureInfo);
-            if (result == null)
-                return ValidationResult.ValidResult;
-            else if (result is Boolean)
-            {
-                bool valid = (bool)result;
-                if (valid)
-                    return ValidationResult.ValidResult;
-                else
-                    return new ValidationResult(false, "");
-            }
-            else if (result is Msg)
-            {
-                Msg msg = result as Msg;
-                string message = msg.Message;
-                if (String.IsNullOrEmpty(message) && msg is MsgWithDetails)
-                    message = (msg as MsgWithDetails).InnerMessage;
-                if (msg.MessageLevel == eMsgLevel.Failure
-                    || msg.MessageLevel == eMsgLevel.Error
-                    || msg.MessageLevel == eMsgLevel.Exception
-                    || msg.MessageLevel == eMsgLevel.Warning)
-                {
-                    return new ValidationResult(false, message);
-                }
-                else
-                    return new ValidationResult(true, message);
-            }
-            return ValidationResult.ValidResult;
-        }
+        //    object result = ACComponent.ACUrlCommand(ACUrlCmd, VBContent, value, cultureInfo);
+        //    if (result == null)
+        //        return ValidationResult.ValidResult;
+        //    else if (result is Boolean)
+        //    {
+        //        bool valid = (bool)result;
+        //        if (valid)
+        //            return ValidationResult.ValidResult;
+        //        else
+        //            return new ValidationResult(false, "");
+        //    }
+        //    else if (result is Msg)
+        //    {
+        //        Msg msg = result as Msg;
+        //        string message = msg.Message;
+        //        if (String.IsNullOrEmpty(message) && msg is MsgWithDetails)
+        //            message = (msg as MsgWithDetails).InnerMessage;
+        //        if (msg.MessageLevel == eMsgLevel.Failure
+        //            || msg.MessageLevel == eMsgLevel.Error
+        //            || msg.MessageLevel == eMsgLevel.Exception
+        //            || msg.MessageLevel == eMsgLevel.Warning)
+        //        {
+        //            return new ValidationResult(false, message);
+        //        }
+        //        else
+        //            return new ValidationResult(true, message);
+        //    }
+        //    return ValidationResult.ValidResult;
+        //}
 
         #region public member
         private ACRef<IACObject> _ACComponentRef;

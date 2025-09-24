@@ -103,7 +103,7 @@ namespace gip.core.layoutengine.avui
                 ((Grid)Content).Children.Clear();
             }
             BindingOperations.ClearBinding(this, ItemsProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             _Initialized = false;
         }
 

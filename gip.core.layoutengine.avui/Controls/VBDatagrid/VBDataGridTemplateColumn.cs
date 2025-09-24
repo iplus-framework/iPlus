@@ -204,7 +204,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bso parameter.</param>
         public void DeInitVBControl(IACComponent bso)
         {
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             _ACColumnItem = null;
             _ColACTypeInfo = null;
         }

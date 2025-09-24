@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Input;
-using System.Windows;
+﻿using Avalonia.Interactivity;
+using Avalonia.Labs.Input;
 using gip.core.datamodel;
+using System.Collections.Generic;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
@@ -26,7 +23,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return n.ACCommand;
         }
 
-        public static CommandBinding FindCommandBinding(this CommandBindingCollection cbColl, RoutedUICommandEx appCommand)
+        public static CommandBinding FindCommandBinding(this IList<CommandBinding> cbColl, RoutedUICommandEx appCommand)
         {
             if (appCommand == null)
                 return null;
@@ -40,7 +37,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        public static bool RemoveCommandBinding(this CommandBindingCollection cbColl, RoutedUICommandEx appCommand)
+        public static bool RemoveCommandBinding(this IList<CommandBinding> cbColl, RoutedUICommandEx appCommand)
         {
             CommandBinding cb = RoutedEventHelper.FindCommandBinding(cbColl, appCommand);
             if (cb == null)

@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
+using gip.ext.design.avui;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -35,7 +37,7 @@ namespace gip.core.layoutengine.avui
         }
     }
 
-    public class VBStyle : Style
+    public class VBStyle : ControlTheme
     {
         public VBStyle()
             : base()
@@ -46,9 +48,10 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBStyle(Type targetType, Style basedOn)
-            : base(targetType, basedOn)
+        public VBStyle(Type targetType, ControlTheme basedOn)
+            : base(targetType)
         {
+            this.BasedOn = basedOn;
         }
     }
 
@@ -58,39 +61,39 @@ namespace gip.core.layoutengine.avui
             new List<CustomControlStyleInfo> { 
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
                                                      styleName = "{x:Type ScrollViewer}", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBScrollViewer/Themes/ScrollViewerStyleGip.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyleGip.xaml" },
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
                                                      styleName = "{x:Type ScrollViewer}", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBScrollViewer/Themes/ScrollViewerStyleAero.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyleAero.xaml" },
                 },
             new List<CustomControlStyleInfo> { 
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
                                                      styleName = "{x:Type ToggleButton}", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBButton/Themes/ToggleButtonStyleGip.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ToggleButtonStyleGip.xaml" },
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
                                                      styleName = "{x:Type ToggleButton}", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBButton/Themes/ToggleButtonStyleGip.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ToggleButtonStyleGip.xaml" },
                 },
             new List<CustomControlStyleInfo> { 
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
                                                      styleName = "WpfDesignStyle", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Themes/WpfDesignStyles.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.xaml" },
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
                                                      styleName = "WpfDesignStyle", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Themes/WpfDesignStyles.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.xaml" },
                 },
             new List<CustomControlStyleInfo> { 
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
                                                      styleName = "sharedtestdamir", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBButton/Themes/SharedResourceTest.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/SharedResourceTest.xaml" },
                 },
             /*new List<CustomControlStyleInfo> { 
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
                                                      styleName = "TextBlockStyleGip", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBlock/Themes/TextBlockStyleGip.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBTextBlock/Themes/TextBlockStyleGip.xaml" },
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
                                                      styleName = "TextBlockStyleAero", 
-                                                     styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBlock/Themes/TextBlockStyleAero.xaml" },
+                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBTextBlock/Themes/TextBlockStyleAero.xaml" },
                     },*/
         };
 
@@ -153,7 +156,7 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        static public void RegisterImplicitStyles(FrameworkElement oneElementInTree)
+        static public void RegisterImplicitStyles(Control oneElementInTree)
         {
             if (oneElementInTree == null)
                 return;
@@ -174,34 +177,22 @@ namespace gip.core.layoutengine.avui
                 CustomControlStyleInfo CustomControlStyleInfo = (from o in styleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
                 if (CustomControlStyleInfo == null)
                     continue;
-                ResourceDictionary dict = new ResourceDictionary();
-                dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-                app.Resources.MergedDictionaries.Add(dict);
+                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative)));
             }
 
             if (WpfTheme == eWpfTheme.Aero)
             {
-                ResourceDictionary dict2 = new ResourceDictionary();
-                dict2.Source = new Uri("/gip.core.layoutengine.avui;Component/Themes/AeroStyles.xaml", UriKind.Relative);
-                app.Resources.MergedDictionaries.Add(dict2);
-
-                dict2 = new ResourceDictionary();
-                dict2.Source = new Uri("/Fluent;Component/Themes/Office2010/Silver.xaml", UriKind.Relative);
-                app.Resources.MergedDictionaries.Add(dict2);
+                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Themes/AeroStyles.xaml", UriKind.Relative)));
+                //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Silver.xaml", UriKind.Relative)));
             }
             else if (WpfTheme == eWpfTheme.Gip)
             {
-                ResourceDictionary dict2 = new ResourceDictionary();
-                dict2.Source = new Uri("/gip.core.layoutengine.avui;Component/Themes/Generic.xaml", UriKind.Relative);
-                app.Resources.MergedDictionaries.Add(dict2);
-
-                dict2 = new ResourceDictionary();
-                dict2.Source = new Uri("/Fluent;Component/Themes/Office2010/Black.xaml", UriKind.Relative);
-                app.Resources.MergedDictionaries.Add(dict2);
+                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Themes/Generic.xaml", UriKind.Relative)));
+                //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Black.xaml", UriKind.Relative)));
             }
         }
 
-        static public bool RegisterImplicitStyle(FrameworkElement guiObject, List<CustomControlStyleInfo> CustomControlStyleInfoList, bool isInInitializing, bool setGipDefaultStyleIntoLogicalTree = false)
+        static public bool RegisterImplicitStyle(Control guiObject, List<CustomControlStyleInfo> CustomControlStyleInfoList, bool isInInitializing, bool setGipDefaultStyleIntoLogicalTree = false)
         {
             return true;
 
@@ -221,14 +212,14 @@ namespace gip.core.layoutengine.avui
             ////if (CustomControlStyleInfo.IsRegisteredAsImplicitStyle)
             ////return true;
 
-            ////DependencyObject elementOnTopInLogicalTree = GetHighestFrameworkElementInLogicalTree(guiObject);
+            ////AvaloniaObject elementOnTopInLogicalTree = GetHighestControlInLogicalTree(guiObject);
             ////if (elementOnTopInLogicalTree == null)
             ////    return false;
 
             ////ResourceDictionary dict = new ResourceDictionary();
             ////dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
             ////// Falls kein ParentObjekt gefunden, dann trage RessourceDictionary in lokales Objekt ein
-            ////(elementOnTopInLogicalTree as FrameworkElement).Resources.MergedDictionaries.Add(dict);
+            ////(elementOnTopInLogicalTree as Control).Resources.MergedDictionaries.Add(dict);
 
             //// Falls anderer Style, dann soll dieser auf eine möglichst hohe Ebene im Logical Tress gesetzt werden,
             //// damit nicht unnötige Kopien lokal herrschen
@@ -247,10 +238,10 @@ namespace gip.core.layoutengine.avui
             //    object resource = guiObject.TryFindResource(CustomControlStyleInfo.styleName);
             //    if (resource == null)
             //    {
-            //        DependencyObject parentLogicalObject = GetHighestFrameworkElementInLogicalTree(guiObject);
+            //        AvaloniaObject parentLogicalObject = GetHighestControlInLogicalTree(guiObject);
             //        if (parentLogicalObject != null)
             //        {
-            //            if (!(parentLogicalObject is FrameworkElement))
+            //            if (!(parentLogicalObject is Control))
             //                parentLogicalObject = null;
             //            else if (isInInitializing && (parentLogicalObject is UserControl))
             //            {
@@ -275,8 +266,8 @@ namespace gip.core.layoutengine.avui
             //            guiObject.Resources.MergedDictionaries.Add(dict);
             //        else
             //        {
-            //            if (parentLogicalObject is FrameworkElement)
-            //                (parentLogicalObject as FrameworkElement).Resources.MergedDictionaries.Add(dict);
+            //            if (parentLogicalObject is Control)
+            //                (parentLogicalObject as Control).Resources.MergedDictionaries.Add(dict);
             //            else
             //                guiObject.Resources.MergedDictionaries.Add(dict);
             //        }
@@ -288,17 +279,15 @@ namespace gip.core.layoutengine.avui
             //return true;
         }
 
-        static public ResourceDictionary GetResourceDict(List<CustomControlStyleInfo> CustomControlStyleInfoList)
+        static public ResourceInclude GetResourceDict(List<CustomControlStyleInfo> CustomControlStyleInfoList)
         {
             CustomControlStyleInfo CustomControlStyleInfo = (from o in CustomControlStyleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
             if (CustomControlStyleInfo == null)
                 return null;
-            ResourceDictionary dict = new ResourceDictionary();
-            dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-            return dict;
+            return new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative));
         }
 
-        static public Style GetStyleOfTheme(List<CustomControlStyleInfo> CustomControlStyleInfoList)
+        static public ControlTheme GetStyleOfTheme(List<CustomControlStyleInfo> CustomControlStyleInfoList)
         {
             CustomControlStyleInfo CustomControlStyleInfo = (from o in CustomControlStyleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
             if (CustomControlStyleInfo == null)
@@ -306,10 +295,11 @@ namespace gip.core.layoutengine.avui
 
             try
             {
-                ResourceDictionary dict = new ResourceDictionary();
-                dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-
-                Style style = dict[CustomControlStyleInfo.styleName] as Style;
+                ResourceInclude dict = new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative));
+                object res;
+                if (!dict.TryGetResource(CustomControlStyleInfo.styleName, null, out res))
+                    return null;
+                ControlTheme style = res as ControlTheme;
                 if (style != null)
                     return style;
             }
@@ -325,40 +315,42 @@ namespace gip.core.layoutengine.avui
             return null;
         }
 
-        static public bool OverrideStyleWithTheme(FrameworkElement guiObject, List<CustomControlStyleInfo> CustomControlStyleInfoList)
+        static public bool OverrideStyleWithTheme(Control guiObject, List<CustomControlStyleInfo> CustomControlStyleInfoList)
         {
             CustomControlStyleInfo CustomControlStyleInfo = (from o in CustomControlStyleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
             if (CustomControlStyleInfo == null)
                 return false;
-            object resource = guiObject.TryFindResource(CustomControlStyleInfo.styleName);
-            if ((resource != null) && (resource is Style))
-                guiObject.Style = resource as Style;
-            else
-                guiObject.SetResourceReference(FrameworkElement.StyleProperty, CustomControlStyleInfo.styleName);
+            object resource;
+            if (!guiObject.TryFindResource(CustomControlStyleInfo.styleName, out resource))
+                return false;
+            if ((resource != null) && (resource is ControlTheme))
+                guiObject.Theme = resource as ControlTheme;
+            //else
+            //    guiObject SetResourceReference(StyledElement.ThemeProperty, CustomControlStyleInfo.styleName);
             return true;
         }
 
-        static public DependencyObject GetHighestFrameworkElementInLogicalTree(DependencyObject guiObject)
+        static public AvaloniaObject GetHighestControlInLogicalTree(AvaloniaObject guiObject)
         {
             if (guiObject == null)
                 return null;
-            DependencyObject parent = LogicalTreeHelper.GetParent(guiObject);
+            AvaloniaObject parent = LogicalTreeHelper.GetParent(guiObject);
             // Ganz oben angelangt
             if (parent == null)
             {
-                if (guiObject is FrameworkElement)
+                if (guiObject is Control)
                     return guiObject;
                 return null;
             }
 
             // Sonst untersuche ob parent parents hat
-            DependencyObject parent2 = GetHighestFrameworkElementInLogicalTree(parent); ;
+            AvaloniaObject parent2 = GetHighestControlInLogicalTree(parent); ;
             if (parent2 != null)
             {
-                if (parent2 is FrameworkElement)
+                if (parent2 is Control)
                     return parent2;
             }
-            if (parent is FrameworkElement)
+            if (parent is Control)
                 return parent;
             return guiObject;
         }

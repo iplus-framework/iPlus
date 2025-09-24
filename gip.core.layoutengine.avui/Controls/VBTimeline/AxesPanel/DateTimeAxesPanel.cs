@@ -101,7 +101,7 @@ namespace gip.core.layoutengine.avui.timeline
 
         public void DeInitControl()
         {
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             foreach (DateTimeAxis axis in Children)
                 axis.DeInitControl();
         }

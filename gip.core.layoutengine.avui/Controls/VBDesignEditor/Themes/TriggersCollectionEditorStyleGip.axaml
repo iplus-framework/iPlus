@@ -1,0 +1,156 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+    <Style x:Key="TriggersCollectionEditorStyleGip" TargetType="{x:Type local:VBTriggersCollectionEditor}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VBTriggersCollectionEditor}">
+                    <local:VBGrid x:Name="PART_OutlineNodesContext">
+                        <Grid.Resources>
+                            <OutlineView:TriggerItemTemplateSelector x:Key="dtmpltSelector" />
+                            <DataTemplate x:Key="dtmpltPropertyTrigger">
+                                <local:VBGrid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <!-- TODO: Image Icon-->
+                                    <local:VBTextBlock Text="P: "
+							                VerticalAlignment="Center"
+							                TextTrimming="CharacterEllipsis"
+                                            Grid.Column="0"
+                                            />
+                                    <local:VBTextBlock Text="{Binding TriggerInfoText}"
+							                TextTrimming="CharacterEllipsis"
+							                VerticalAlignment="Center"
+							                Margin="7 0 0 0"
+                                            Grid.Column="1"
+                                            />
+                                </local:VBGrid>
+                            </DataTemplate>
+                            <DataTemplate x:Key="dtmpltDataTrigger">
+                                <local:VBGrid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <!-- TODO: Image Icon-->
+                                    <local:VBTextBlock Text="D: "
+							                VerticalAlignment="Center"
+							                TextTrimming="CharacterEllipsis"
+                                            Grid.Column="0"
+                                            />
+                                    <local:VBTextBlock Text="{Binding TriggerInfoText}"
+							                TextTrimming="CharacterEllipsis"
+							                VerticalAlignment="Center"
+							                Margin="7 0 0 0"
+                                            Grid.Column="1"
+                                            />
+                                </local:VBGrid>
+                            </DataTemplate>
+                            <DataTemplate x:Key="dtmpltEventTrigger">
+                                <local:VBGrid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <!-- TODO: Image Icon-->
+                                    <local:VBTextBlock Text="E: "
+							                VerticalAlignment="Center"
+							                TextTrimming="CharacterEllipsis"
+                                            Grid.Column="0"
+                                            />
+                                    <local:VBTextBlock Text="{Binding TriggerInfoText}"
+							                TextTrimming="CharacterEllipsis"
+							                VerticalAlignment="Center"
+							                Margin="7 0 0 0"
+                                            Grid.Column="1"
+                                            />
+                                </local:VBGrid>
+                            </DataTemplate>
+                            <DataTemplate x:Key="dtmpltMultiTrigger">
+                                <local:VBGrid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <!-- TODO: Image Icon-->
+                                    <local:VBTextBlock Text="M: "
+							                VerticalAlignment="Center"
+							                TextTrimming="CharacterEllipsis"
+                                            Grid.Column="0"
+                                            />
+                                    <local:VBTextBlock Text="{Binding TriggerInfoText}"
+							                TextTrimming="CharacterEllipsis"
+							                VerticalAlignment="Center"
+							                Margin="7 0 0 0"
+                                            Grid.Column="1"
+                                            />
+                                </local:VBGrid>
+                            </DataTemplate>
+                            <DataTemplate x:Key="dtmpltMultiDataTrigger">
+                                <local:VBGrid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="20" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+                                    <!-- TODO: Image Icon-->
+                                    <local:VBTextBlock Text="MD: "
+							                VerticalAlignment="Center"
+							                TextTrimming="CharacterEllipsis"
+                                            Grid.Column="0"
+                                            />
+                                    <local:VBTextBlock Text="{Binding TriggerInfoText}"
+							                TextTrimming="CharacterEllipsis"
+							                VerticalAlignment="Center"
+							                Margin="7 0 0 0"
+                                            Grid.Column="1"
+                                            />
+                                </local:VBGrid>
+                            </DataTemplate>
+                        </Grid.Resources>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="170" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <local:VBGrid Grid.Row="0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+                            <local:VBListBox Grid.Column="0" x:Name="PART_OutlineList" ItemsSource="{Binding }" IsSynchronizedWithCurrentItem="True" ItemTemplateSelector="{StaticResource dtmpltSelector}" ShowCaption="False">
+                            </local:VBListBox>
+                            <local:VBFrame Grid.Column="1" />
+                            <local:VBGrid Grid.Column="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="1*" />
+                                    <ColumnDefinition Width="1*" />
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="25" />
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="30" />
+                                    <RowDefinition Height="30" />
+                                </Grid.RowDefinitions>
+                                <local:VBButton Content="Remove" x:Name="PART_RemoveItem" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" />
+                                <local:VBTextBlock Text="Add Trigger as:" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" />
+                                <local:VBButton Content="Property" Grid.Row="2" Grid.Column="0" x:Name="PART_NewPropertyTrigger" />
+                                <local:VBButton Content="Data"  Grid.Row="3" Grid.Column="0" x:Name="PART_NewDataTrigger" />
+                                <local:VBButton Content="Event"  Grid.Row="4" Grid.Column="0" x:Name="PART_NewEventTrigger" />
+                                <local:VBButton Content="Multi"  Grid.Row="2" Grid.Column="1" x:Name="PART_NewMultiTrigger" />
+                                <local:VBButton Content="Multi-Data" Grid.Row="3" Grid.Column="1"  x:Name="PART_NewMultiDataTrigger" />
+                            </local:VBGrid>
+                        </local:VBGrid>
+                        <ContentControl Grid.Row="1" Content="{Binding /Editor}" />
+                    </local:VBGrid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
-using System.Windows.Data;
+﻿using Avalonia.Data.Converters;
+using System;
 using System.Globalization;
 
 namespace gip.core.layoutengine.avui

@@ -2,15 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.ext.designer.avui;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -22,6 +13,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Windows.Controls.Primitives;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -164,7 +156,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBDesignBase.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBDesignBase.ACCompInitStateProperty);
             BindingOperations.ClearBinding(this, VBDesignBase.MsgFromSelMngrProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             _SelectionManager = null;
             _VBContentPropertyInfo = null;

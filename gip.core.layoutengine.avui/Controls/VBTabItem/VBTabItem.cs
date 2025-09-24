@@ -223,7 +223,7 @@ namespace gip.core.layoutengine.avui
             }
             //BindingOperations.ClearBinding(this, VBTabItem.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBTabItem.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             _PART_TabItemBorder = null;
             _PART_CloseButton = null;

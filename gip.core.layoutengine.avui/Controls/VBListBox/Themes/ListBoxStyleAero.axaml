@@ -1,0 +1,176 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+
+    <SolidColorBrush x:Key="ListBoxBgEnabledAero" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ListBoxFgEnabledAero" Color="#FF000000"/>
+    <SolidColorBrush x:Key="ListBoxFgEnabledAeroFocus" Color="#FF000000"/>
+    <RadialGradientBrush x:Key="ListBoxBorderEnabledAero" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
+        <GradientStop Color="#FF666666" Offset="0.8"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="ListBoxBgDisabledAero" Color="#FFC3C3C3"/>
+    <SolidColorBrush x:Key="ListBoxFgDisabledAero" Color="#FF404040"/>
+    <RadialGradientBrush x:Key="ListBoxBorderDisabledAero" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
+        <GradientStop Color="#FF666666" Offset="0.5"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="ListBoxBgRequiredAero" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ListBoxFgRequiredAero" Color="#FF000000"/>
+    <SolidColorBrush x:Key="ListBoxFgRequiredAeroFocus" Color="Yellow"/>
+    <RadialGradientBrush x:Key="ListBoxBorderRequiredAero" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFFEA00" Offset="0.2"/>
+        <GradientStop Color="#FFD1D261" Offset="0.8"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="ListBoxBgWrongAero" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ListBoxFgWrongAero" Color="#FF000000"/>
+    <SolidColorBrush x:Key="ListBoxFgWrongAeroFocus" Color="Red"/>
+    <RadialGradientBrush x:Key="ListBoxBorderWrongAero" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFF0004" Offset="0.2"/>
+        <GradientStop Color="#FFE43D3D" Offset="0.8"/>
+        <GradientStop Color="#FF020101" Offset="1"/>
+    </RadialGradientBrush>
+
+    <ControlTemplate x:Key="ListBoxTemplateAero" TargetType="{x:Type local:VBListBox}">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}"></local:VBTextBlock>
+            <Border Margin="5,0,0,0" Grid.Column="1" x:Name="Border" 
+							CornerRadius="3"
+							BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}" 
+							SnapsToDevicePixels="true">
+                <ScrollViewer Margin="0" Focusable="false">
+                    <!--<StackPanel Margin="2" IsItemsHost="True" />-->
+                    <ItemsPresenter />
+                </ScrollViewer>
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="ShowCaption" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource ListBoxBgDisabledAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgDisabledAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderDisabledAero}"/>
+            </Trigger>
+            <Trigger Property="IsGrouping" Value="true">
+                <Setter Property="ScrollViewer.CanContentScroll" Value="false"/>
+            </Trigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource ListBoxBgEnabledAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderEnabledAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgEnabledAeroFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource ListBoxBgEnabledAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgEnabledAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderEnabledAero}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="SelectedValue" Value="{x:Null}"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource ListBoxBgRequiredAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderRequiredAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgRequiredAeroFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                    <Condition Property="SelectedValue" Value="{x:Null}"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource ListBoxBgRequiredAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgRequiredAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderRequiredAero}"/>
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource ListBoxBgWrongAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderWrongAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgWrongAeroFocus}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource ListBoxBgWrongAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgWrongAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderWrongAero}"/>
+            </MultiTrigger>
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource ListBoxBgWrongAero}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderWrongAero}"/>
+                <Setter Property="Foreground" Value="{StaticResource ListBoxFgWrongAeroFocus}" />
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+
+    <Style x:Key="ListBoxStyleBaseAero" TargetType="{x:Type local:VBListBox}">
+        <Setter Property="Foreground" Value="{StaticResource ListBoxFgEnabledAero}"/>
+        <Setter Property="Background" Value="{StaticResource ListBoxBgEnabledAero}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ListBoxBorderEnabledAero}"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
+        <Setter Property="ScrollViewer.PanningMode" Value="Both"/>
+        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <AdornedElementPlaceholder/>
+                        <!-- TODO <TextBlock Text="!"/>-->
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- SimpleStyles: ListBox -->
+    <Style x:Key="ListBoxStyleAero" BasedOn="{StaticResource ListBoxStyleBaseAero}" TargetType="{x:Type local:VBListBox}">
+        <Setter Property="Template" Value="{StaticResource ListBoxTemplateAero}" />
+    </Style>
+</ResourceDictionary>

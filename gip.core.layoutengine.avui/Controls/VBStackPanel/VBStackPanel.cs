@@ -134,7 +134,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBDockPanel.ACUpdateControlModeProperty);
             //BindingOperations.ClearBinding(this, VBStackPanel.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBStackPanel.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             
         }
 

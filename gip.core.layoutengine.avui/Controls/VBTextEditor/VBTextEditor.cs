@@ -16,9 +16,7 @@ using System.Windows.Markup;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.Windows.Threading;
-using ICSharpCode.AvalonEdit;
-using ICSharpCode.AvalonEdit.CodeCompletion;
-using ICSharpCode.AvalonEdit.Folding;
+using AvaloniaEdit;
 
 namespace gip.core.layoutengine.avui
 {
@@ -234,7 +232,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBTextEditor.VBTextProperty);
             //BindingOperations.ClearBinding(this, VBTextEditor.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBTextEditor.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             _VBContentPropertyInfo = null;
 
             if (_VBFindAndReplace != null && _VBFindAndReplace.ReferencePoint != null)

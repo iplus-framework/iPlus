@@ -1,8 +1,8 @@
+using Avalonia.Data.Converters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Data;
 
 namespace gip.core.layoutengine.avui
 {
@@ -10,7 +10,7 @@ namespace gip.core.layoutengine.avui
 	{
 		#region IMultiValueConverter Members
 
-		public object Convert( object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture )
+		public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture )
 		{
 			return string.Format( (string) parameter, values );
 		}

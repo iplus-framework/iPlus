@@ -1,11 +1,7 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia.Media.Imaging;
+using gip.core.datamodel;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Media.Imaging;
 
 namespace gip.core.layoutengine.avui
 {
@@ -31,7 +27,7 @@ namespace gip.core.layoutengine.avui
 
         void InterpolationParamsChangedInView(Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null);
 
-        BitmapSource CreatePrintableBitmap();
+        Bitmap CreatePrintableBitmap();
 
         void SwitchNormalPrintingMode();
     }

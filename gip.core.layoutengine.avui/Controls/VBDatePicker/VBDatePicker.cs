@@ -461,7 +461,7 @@ namespace gip.core.layoutengine.avui
 
             BindingOperations.ClearBinding(this, DatePicker.SelectedDateProperty);
             BindingOperations.ClearBinding(this, VBDatePicker.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         /// <summary>

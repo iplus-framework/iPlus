@@ -2,20 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Media;
 using gip.ext.chart.avui;
 using gip.core.datamodel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.ComponentModel;
+using Avalonia.Controls.Primitives;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
     /// Represents the item in VBPropertyLogChart.
     /// </summary>
-    public class VBChartItem : FrameworkElement, IVBChartItem
+    public class VBChartItem : TemplatedControl, IVBChartItem
     {
         /// <summary>
         /// Creates a new instance of VBChartItem.
@@ -117,10 +115,7 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            BindingOperations.ClearBinding(this, VBChartItem.ACCompInitStateProperty);
-            BindingOperations.ClearBinding(this, FrameworkElement.DataContextProperty);
-            BindingOperations.ClearBinding(this, VBChartItem.BSOACComponentProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         /// <summary>

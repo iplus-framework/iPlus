@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using gip.core.datamodel;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -11,16 +10,16 @@ namespace gip.core.layoutengine.avui
     {
         public static IEnumerable<object> FindResources(IACInteractiveObject acContext)
         {
-            if (!(acContext is FrameworkElement))
+            if (!(acContext is StyledElement))
                 return null;
             
             List<object> resources = new List<object>();
-            FrameworkElement fwElement = acContext as FrameworkElement;
+            StyledElement fwElement = acContext as StyledElement;
 
             // Generelle Einstellungen für WPF-Objekte
             VBResourceKey key = new VBResourceKey() { ACUrlWPF = acContext.ACType.GetACUrl() };
-            object resource = fwElement.TryFindResource(key.GetHashCode());
-            if (resource != null)
+            object resource = null;
+            if (fwElement.TryFindResource(key.GetHashCode(), out resource))
                 resources.Add(resource);
 
             // Generelle Einstellungen für die gebundene Property
@@ -31,14 +30,12 @@ namespace gip.core.layoutengine.avui
                 foreach (ACClassProperty baseProperty in acClassProperty.OverriddenProperties)
                 {
                     key = new VBResourceKey() { ACUrlProperty = baseProperty.GetACUrl() };
-                    resource = fwElement.TryFindResource(key.GetHashCode());
-                    if (resource != null)
+                    if (fwElement.TryFindResource(key.GetHashCode(), out resource))
                         resources.Add(resource);
 
                     // Kombination aus Property mit WPF-Objekt
                     key = new VBResourceKey() { ACUrlWPF = acContext.ACType.GetACUrl(), ACUrlProperty = baseProperty.GetACUrl() };
-                    resource = fwElement.TryFindResource(key.GetHashCode());
-                    if (resource != null)
+                    if (fwElement.TryFindResource(key.GetHashCode(), out resource))
                         resources.Add(resource);
                 }
             }

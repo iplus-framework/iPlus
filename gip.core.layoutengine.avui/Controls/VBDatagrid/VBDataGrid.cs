@@ -17,6 +17,7 @@ using System.Reflection;
 using System.Data;
 using ClosedXML.Excel;
 using System.Windows.Threading;
+using Avalonia.Input;
 
 namespace gip.core.layoutengine.avui
 {
@@ -636,7 +637,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, DataGrid.ItemsSourceProperty);
             BindingOperations.ClearBinding(this, VBDataGrid.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBDataGrid.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             this.ItemsSource = null;
         }
 
@@ -1913,7 +1914,7 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnMouseLeftButtonDown event.
         /// </summary>
         /// <param name="e">The MouseButtonEvent arguments.</param>
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        protected override void OnMouseLeftButtonDown(PointerEventArgs e)
         {
             if (DragEnabled == DragMode.Enabled)
             {
@@ -1922,7 +1923,7 @@ namespace gip.core.layoutengine.avui
                 {
                     string vbContent = null;
                     UpdateACContentList(dragItem as IACObject, vbContent);
-                    VBDragDrop.VBDoDragDrop(this);
+                    VBDragDrop.VBDoDragDrop(e, this);
                 }
             }
             else if (IsEnabledMoveRows)

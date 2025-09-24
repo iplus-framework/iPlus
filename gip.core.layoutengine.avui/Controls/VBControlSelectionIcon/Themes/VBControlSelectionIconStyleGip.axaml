@@ -1,0 +1,47 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <SolidColorBrush x:Key="StrokePath" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="PathFill" Color="#FFFF0000"/>
+
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TemplateFreezeScreenGip, TypeInTargetAssembly={x:Type local:VBControlSelectionIcon}}" TargetType="{x:Type local:VBControlSelectionIcon}">
+        <Viewbox SnapsToDevicePixels="True" Stretch="Uniform" Height="23">
+            <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                <Path Width="24" Height="24" Canvas.Left="1.94709e-006" Canvas.Top="-5.72205e-006" Stretch="Fill" Data="F1 M 2,-5.72205e-006L 22,-5.72205e-006C 23.1046,-5.72205e-006 24,0.895424 24,1.99999L 24,22C 24,23.1046 23.1046,24 22,24L 2,24C 0.895432,24 1.94709e-006,23.1046 1.94709e-006,22L 1.94709e-006,1.99999C 1.94709e-006,0.895424 0.895432,-5.72205e-006 2,-5.72205e-006 Z "/>
+                <Ellipse x:Name="PART_Lense" Width="13" Height="13" Canvas.Left="5.5" Canvas.Top="7.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="{StaticResource StrokePath}"/>
+                <Ellipse x:Name="PART_Lense_Fill" Width="11" Height="11" Canvas.Left="6.5" Canvas.Top="8.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="{StaticResource PathFill}" Opacity="0"/>
+                <Path Width="23" Height="17" Canvas.Left="0.499999" Canvas.Top="5.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource StrokePath}" Data="F1 M 3,6L 21,6C 22.1046,6 23,6.89543 23,8L 23,20C 23,21.1046 22.1046,22 21,22L 3,22C 1.89543,22 0.999999,21.1046 0.999999,20L 0.999999,8C 0.999999,6.89543 1.89543,6 3,6 Z "/>
+                <Path Width="7" Height="4" Canvas.Left="14.5" Canvas.Top="2" Stretch="Fill" StrokeLineJoin="Round" Stroke="{StaticResource StrokePath}" Data="F1 M 16.5,2.5L 19.5,2.5C 20.3284,2.5 21,3.17157 21,4L 21,4C 21,4.82843 20.3284,5.5 19.5,5.5L 16.5,5.5C 15.6716,5.5 15,4.82843 15,4L 15,4C 15,3.17157 15.6716,2.5 16.5,2.5 Z "/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="{ComponentResourceKey ResourceId=TemplateEditVBDesignGip, TypeInTargetAssembly={x:Type local:VBControlSelectionIcon}}" TargetType="{x:Type local:VBControlSelectionIcon}">
+        <Viewbox SnapsToDevicePixels="True" Stretch="Uniform" Height="23">
+            <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_113" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                <Path x:Name="PART_Lense" Width="21" Height="21" Canvas.Left="1.5" Canvas.Top="1.5" Stretch="Fill" StrokeLineJoin="Round" 
+                                  Stroke="{StaticResource StrokePath}" 
+                                  Data="M 2,2L 2,22L 22,22L 2,2 Z M 5,9L 5,19L 15,19L 5,9 Z"/>
+                <Path x:Name="PART_Lense_Fill" Width="21" Height="21" Canvas.Left="1.5" Canvas.Top="1.5" Stretch="Fill" StrokeLineJoin="Round" 
+                                  Stroke="{StaticResource StrokePath}" 
+                                  Data="M 2,2L 2,22L 22,22L 2,2 Z M 5,9L 5,19L 15,19L 5,9 Z" Fill="{StaticResource PathFill}" Opacity="0"/>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <Style x:Key="ControlSelectionStyleGip" TargetType="{x:Type local:VBControlSelectionIcon}">
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TemplateFreezeScreenGip, TypeInTargetAssembly={x:Type local:VBControlSelectionIcon}}}"/>
+        <Style.Triggers>
+            <Trigger Property="IconType" Value="1">
+                <Setter Property="Template" Value="{StaticResource {ComponentResourceKey ResourceId=TemplateEditVBDesignGip, TypeInTargetAssembly={x:Type local:VBControlSelectionIcon}}}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

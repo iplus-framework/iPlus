@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <Style x:Key="IconDesignLineStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas x:Name="Ebene_1_22" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="Back" Width="21.1421" Height="20.9999" Canvas.Left="2" Canvas.Top="2.00008" Stretch="Fill" 
+                                  StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                                  Stroke="#FF000000" Data="M 3,22L 22.1421,3.00008"/>
+                            <Path x:Name="Line_23" Width="22.1421" Height="21.9999" Canvas.Left="0.500002" Canvas.Top="0.500082" 
+                                  Stretch="Fill" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" 
+                                  StrokeLineJoin="Round" 
+                                  Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                                  Data="M 2,21L 21.1421,2.00008"/>
+                        </Canvas>                        
+                    </Viewbox>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="IconDesignLineStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconDesignLineStyleGip}">
+    </Style>
+</ResourceDictionary>
+
+

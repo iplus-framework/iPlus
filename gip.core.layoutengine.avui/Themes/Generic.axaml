@@ -1,0 +1,225 @@
+<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    xmlns:gantt="clr-namespace:gip.core.layoutengine.avui.ganttchart"
+    xmlns:timeline="clr-namespace:gip.core.layoutengine.avui.timeline"
+    xmlns:controls="clr-namespace:System.Windows.Controls;assembly=PresentationFramework"
+    >
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBContentControl/Themes/ContentControlStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBButton/Themes/ButtonStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBScrollViewer/Themes/ScrollViewerStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonButtonStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonButtonMobileStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonBarStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonBarMobileStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonTrayStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBMenu/Themes/MenuStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBMenuItem/Themes/MenuItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBMenuItemMobile/Themes/MenuItemMobileStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBMenuSeparator/Themes/MenuSeparatorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBContextMenu/Themes/ContextMenuStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTabControl/Themes/TabControlStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTabItem/Themes/TabItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDockPanel/Themes/DockPanelStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBStatusBar/Themes/StatusBarStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBStatusBarItem/Themes/StatusBarItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBCheckBox/Themes/CheckBoxStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTextBlock/Themes/TextBlockStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBComboBox/Themes/ComboBoxStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBComboBoxItem/Themes/ComboBoxItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBPasswordBox/Themes/PasswordBoxStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDataGrid/Themes/DataGridStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDatePicker/Themes/DatePickerStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBListBox/Themes/ListBoxStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBListBoxItem/Themes/ListBoxItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBProgressBar/Themes/ProgressBarStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonGroupStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTreeView/Themes/TreeViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTreeViewItem/Themes/TreeViewItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBSlider/Themes/SliderStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTextEditor/Themes/TextEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBScriptEditor/Themes/ScriptEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTextEditor/Themes/TextAreaStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingManagerStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBConnectionState/Themes/ConnectionStateStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBControlSelectionIcon/Themes/VBControlSelectionIconStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBChartPlotter/Themes/ChartPlotterStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBButtonChrome/Themes/ButtonChromeStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBButtonSpinner/Themes/ButtonSpinnerStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDateTimePicker/Themes/DateTimePickerStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBNumericUpDown/Themes/NumericUpDownStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/PropertyGridViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/DesignItemTreeViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/SettersCollectionEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/TriggersCollectionEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/DataTriggerEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/PropertyTriggerEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/EventTriggerEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/BindingEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/ConditionEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/MultiBindingEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/MultiTriggerEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/ActionCollectionEditorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDesign/Themes/VBDesignStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBVisual/Themes/VBVisualStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBVisualGroup/Themes/VBVisualGroupStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBConnector/Themes/VBConnectorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBCanvas/VBSelectedThumb/Themes/SelectedThumbStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Themes/DialogStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBFrame/Themes/FrameStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBPage/Themes/PageStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBHeader/Themes/HeaderStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTreeListView/Themes/TreeListViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTreeListView/Themes/TreeListViewItemStyleGip.xaml"/>
+        
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectionsPresenterStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectionStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectorStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/GanttChartStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineGanttItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineGanttItemsPresenterStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/GanttChartViewStyleGip.xaml"/>
+
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/RulerBlockItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineChartStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineItemsPresenterStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineRulerControlStyleGip.xaml"/>
+        
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTranslationText/Themes/TranslationTextStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBExpander/Themes/ExpanderStyleGip.xaml"/>
+
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBProgramLogView/Themes/ProgramLogViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBProgramLogView/Themes/ProgramLogViewItemStyleGip.xaml"/>
+
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBMultiSelectComboBox/Themes/VBMultiSelectComboBoxStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBMultiSelectComboBox/Themes/VBMultiSelectComboBoxItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBCarousel/Themes/CarouselStyleGip.xaml"/>
+        
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBFlipView/Themes/FlipViewStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBTileGrid/Themes/TileStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBGraph/Themes/VBGraphItemStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBAutoCompleteBox/Themes/AutoCompleteBoxStyleGip.xaml"/>
+
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBXMLEditor/Themes/XMLEditorStyleGip.xaml"/>
+
+    </ResourceDictionary.MergedDictionaries>
+
+    <Style TargetType="{x:Type local:VBContentControlIcon}" BasedOn="{StaticResource ContentControlStyleGip}" />
+    <Style TargetType="{x:Type local:VBButton}" BasedOn="{StaticResource ButtonStyleGip}" />
+    <Style TargetType="{x:Type local:VBScrollBar}" BasedOn="{StaticResource VBScrollBarStyleGip}" />
+    <Style TargetType="{x:Type local:VBScrollViewer}" BasedOn="{StaticResource VBScrollViewerStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonButton}" BasedOn="{StaticResource RibbonButtonStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonButtonMobile}" BasedOn="{StaticResource RibbonButtonMobileStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonBar}" BasedOn="{StaticResource RibbonBarStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonBarMobile}" BasedOn="{StaticResource RibbonBarMobileStyleGip}" />
+    <Style TargetType="{x:Type local:VBRibbonTray}" BasedOn="{StaticResource RibbonTrayStyleGip}" />
+    <Style TargetType="{x:Type local:VBMenu}" BasedOn="{StaticResource MenuStyleGip}" />
+    <Style TargetType="{x:Type local:VBMenuItem}" BasedOn="{StaticResource MenuItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBMenuItemMobile}" BasedOn="{StaticResource MenuItemMobileStyleGip}" />
+    <Style x:Key="{x:Static local:VBMenuItem.SeparatorStyleKey}" TargetType="{x:Type local:VBMenuSeparator}" BasedOn="{StaticResource MenuSeparatorStyleGip}" />
+    <Style TargetType="{x:Type local:VBContextMenu}" BasedOn="{StaticResource ContextMenuStyleGip}" />
+    <Style TargetType="{x:Type local:VBTabControl}" BasedOn="{StaticResource TabControlStyleGip}" />
+    <Style TargetType="{x:Type local:VBTabItem}" BasedOn="{StaticResource TabItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBDockPanel}" BasedOn="{StaticResource DockPanelStyleGip}" />
+    <Style TargetType="{x:Type local:VBStatusBar}" BasedOn="{StaticResource StatusBarStyleGip}" />
+    <Style TargetType="{x:Type local:VBStatusBarItem}" BasedOn="{StaticResource StatusBarItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBCheckBox}" BasedOn="{StaticResource CheckBoxStyleGip}" />
+    <Style TargetType="{x:Type local:VBTextBlock}" BasedOn="{StaticResource TextBlockStyleGip}" />
+    <Style TargetType="{x:Type local:VBComboBox}" BasedOn="{StaticResource ComboBoxStyleGip}" />
+    <Style TargetType="{x:Type local:VBComboBox2}" BasedOn="{StaticResource ComboBox2StyleGip}" />
+    <Style TargetType="{x:Type local:VBComboBoxItem}" BasedOn="{StaticResource ComboBoxItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBTextBox}" BasedOn="{StaticResource TextBoxStyleGip}" />
+    <Style TargetType="{x:Type local:VBTextBox2}" BasedOn="{StaticResource TextBox2StyleGip}" />
+    <Style TargetType="{x:Type local:VBTextBox3}" BasedOn="{StaticResource TextBox3StyleGip}" />
+    <Style TargetType="{x:Type PasswordBox}" BasedOn="{StaticResource PasswordBoxStyleGip}" />
+    <Style TargetType="{x:Type local:VBDataGrid}" BasedOn="{StaticResource DataGridStyleGip}" />
+    <Style TargetType="{x:Type local:VBDatePicker}" BasedOn="{StaticResource DatePickerStyleGip}" />
+    <Style TargetType="{x:Type local:VBListBox}" BasedOn="{StaticResource ListBoxStyleGip}" />
+    <Style TargetType="{x:Type local:VBListBoxItem}" BasedOn="{StaticResource ListBoxItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBProgressBar}" BasedOn="{StaticResource ProgressBarStyleGip}" />
+    <Style TargetType="{x:Type local:VBRadioButton}" BasedOn="{StaticResource RadioButtonStyleGip}" />
+    <Style TargetType="{x:Type local:VBRadioButtonGroup}" BasedOn="{StaticResource RadioButtonGroupStyleGip}" />
+    <Style TargetType="{x:Type local:VBRadioButtonGroupItem}" BasedOn="{StaticResource RadioButtonItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBTreeView}" BasedOn="{StaticResource TreeViewStyleGip}" />
+    <Style TargetType="{x:Type local:VBTreeViewItem}" BasedOn="{StaticResource TreeViewItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBSlider}" BasedOn="{StaticResource SliderStyleGip}" />
+    <Style TargetType="{x:Type local:VBTextEditor}" BasedOn="{StaticResource TextEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBScriptEditor}" BasedOn="{StaticResource ScriptEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBTextArea}" BasedOn="{StaticResource TextAreaStyleGip}" />
+    <Style TargetType="{x:Type local:VBWindowDockingUndocked}" BasedOn="{StaticResource DockFloatingWindowStyleGip}" />
+    <Style TargetType="{x:Type local:VBDockingPanelToolWindow}" BasedOn="{StaticResource DockingPanelToolWindowStyleGip}" />
+    <Style TargetType="{x:Type local:VBDockingManager}" BasedOn="{StaticResource DockingManagerStyleGip}" />
+    <Style TargetType="{x:Type local:VBConnectionState}" BasedOn="{StaticResource ConnectionStateStyleGip}" />
+    <Style TargetType="{x:Type local:VBControlSelectionIcon}" BasedOn="{StaticResource ControlSelectionStyleGip}" />
+    <Style TargetType="{x:Type local:VBVisual}" BasedOn="{StaticResource VBVisualStyleGip}" />
+    <Style TargetType="{x:Type local:VBVisualGroup}" BasedOn="{StaticResource VBVisualGroupStyleGip}" />
+    <Style TargetType="{x:Type local:VBConnector}" BasedOn="{StaticResource VBConnectorStyleGip}" />
+    <Style TargetType="{x:Type local:VBSelectedThumb}" BasedOn="{StaticResource SelectedThumbStyleGip}" />
+    <Style TargetType="{x:Type local:VBWindowDialog}" BasedOn="{StaticResource DialogStyleGip}" />
+    <Style TargetType="{x:Type local:VBChartPlotter}" BasedOn="{StaticResource ChartPlotterStyleGip}" />
+    <Style TargetType="{x:Type local:VBButtonChrome}" BasedOn="{StaticResource ButtonChromeStyleGip}" />
+    <Style TargetType="{x:Type local:VBButtonSpinner}" BasedOn="{StaticResource ButtonSpinnerStyleGip}" />
+    <Style TargetType="{x:Type local:VBDateTimeUpDown}" BasedOn="{StaticResource DateTimeUpDownStyleGip}" />
+    <Style TargetType="{x:Type local:VBDateTimePicker}" BasedOn="{StaticResource DateTimePickerStyleGip}" />
+    <Style TargetType="{x:Type local:VBNumericUpDown}" BasedOn="{StaticResource NumericUpDownStyleGip}" />
+    <Style TargetType="{x:Type local:VBFrame}" BasedOn="{StaticResource FrameStyleGip}" />
+    <Style TargetType="{x:Type local:VBPage}" BasedOn="{StaticResource PageStyleGip}" />
+    <Style TargetType="{x:Type local:VBHeader}" BasedOn="{StaticResource HeaderStyleGip}" />
+    <Style TargetType="{x:Type local:VBPropertyGridView}" BasedOn="{StaticResource PropertyGridViewStyleGip}" />
+    <Style TargetType="{x:Type local:VBDesignItemTreeView}" BasedOn="{StaticResource DesignItemTreeViewStyleGip}" />
+    <Style TargetType="{x:Type local:VBSettersCollectionEditor}" BasedOn="{StaticResource SettersCollectionEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBTriggersCollectionEditor}" BasedOn="{StaticResource TriggersCollectionEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBDataTriggerEditor}" BasedOn="{StaticResource DataTriggerEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBPropertyTriggerEditor}" BasedOn="{StaticResource PropertyTriggerEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBEventTriggerEditor}" BasedOn="{StaticResource EventTriggerEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBBindingEditor}" BasedOn="{StaticResource BindingEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBMultiBindingEditor}" BasedOn="{StaticResource MultiBindingEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBConditionEditor}" BasedOn="{StaticResource ConditionEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBMultiTriggerEditor}" BasedOn="{StaticResource MultiTriggerEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBActionCollectionEditor}" BasedOn="{StaticResource ActionCollectionEditorStyleGip}" />
+    <Style TargetType="{x:Type local:VBDesign}" BasedOn="{StaticResource VBDesignStyleGip}" />
+    <Style TargetType="{x:Type local:VBTreeListView}" BasedOn="{StaticResource TreeListViewStyleGip}" />
+    <Style TargetType="{x:Type local:VBTreeListViewItem}" BasedOn="{StaticResource TreeListViewItemStyleGip}" />
+    
+    <Style TargetType="{x:Type gantt:ConnectionsPresenter}" BasedOn="{StaticResource ConnectionsPresenterStyleGip}" />
+    <Style TargetType="{x:Type gantt:Connection}" BasedOn="{StaticResource ConnectionStyleGip}" />
+    <Style TargetType="{x:Type gantt:Connector}" BasedOn="{StaticResource ConnectorStyleGip}" />
+    <Style TargetType="{x:Type local:VBGanttChart}" BasedOn="{StaticResource GanttChartStyleGip}" />
+    <Style TargetType="{x:Type gantt:TimelineGanttItem}" BasedOn="{StaticResource TimelineGanttItemStyleGip}" />
+    <Style TargetType="{x:Type gantt:TimelineGanttItemsPresenter}" BasedOn="{StaticResource TimelineGanttItemsPresenterStyleGip}" />
+    <Style TargetType="{x:Type local:VBGanttChartView}" BasedOn="{StaticResource GanttChartViewStyleGip}" />
+    
+    <Style TargetType="{x:Type local:VBTimelineView}" BasedOn="{StaticResource TimelineViewStyleGip}" />
+    <Style TargetType="{x:Type timeline:TimelineRulerControl}" BasedOn="{StaticResource TimelineRulerControlStyleGip}" />
+    <Style TargetType="{x:Type timeline:TimelineItemsPresenter}" BasedOn="{StaticResource TimelineItemsPresenterStyleGip}" />
+    <Style TargetType="{x:Type timeline:TimelineItem}" BasedOn="{StaticResource TimelineItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBTimelineChart}" BasedOn="{StaticResource TimelineChartStyleGip}" />
+
+    
+    <Style TargetType="{x:Type local:VBTranslationText}" BasedOn="{StaticResource TranslationTextStyleGip}" />
+    <Style TargetType="{x:Type local:VBExpander}" BasedOn="{StaticResource ExpanderStyleGip}" />
+    
+    <Style TargetType="{x:Type local:VBProgramLogView}" BasedOn="{StaticResource ProgramLogViewStyleGip}" />
+    <Style TargetType="{x:Type local:VBProgramLogViewItem}" BasedOn="{StaticResource ProgramLogViewItemStyleGip}" />
+
+    <Style TargetType="{x:Type local:VBMultiSelectComboBox}" BasedOn="{StaticResource VBMultiSelectComboBoxStyleGip}" />
+    <Style TargetType="{x:Type local:VBMultiSelectComboBoxItem}" BasedOn="{StaticResource VBMultiSelectComboBoxItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBCarousel}" BasedOn="{StaticResource CarouselStyleGip}" />
+    <Style TargetType="{x:Type controls:DataGridRow}" BasedOn="{StaticResource RowStyleGip}" />
+    <Style TargetType="{x:Type local:VBFlipView}" BasedOn="{StaticResource FlipViewStyleGip}" />
+    
+
+    <Style TargetType="{x:Type local:VBTile}" BasedOn="{StaticResource TileStyleGip}" />
+    <Style TargetType="{x:Type local:VBGraphItem}" BasedOn="{StaticResource VBGraphItemStyleGip}" />
+    <Style TargetType="{x:Type local:VBAutoCompleteBox}" BasedOn="{StaticResource AutoCompleteBoxStyleGip}" />
+
+    <Style TargetType="{x:Type local:VBXMLEditor}" BasedOn="{StaticResource XMLEditorStyleGip}" />
+</ResourceDictionary>

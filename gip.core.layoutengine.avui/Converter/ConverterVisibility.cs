@@ -1,31 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
+﻿using Avalonia.Data.Converters;
 using gip.core.datamodel;
 using gip.ext.design.avui.PropertyGrid;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
+    /// <summary>
+    /// Old WPF Complatibility Enum for Visibility
+    /// </summary>
+    public enum Visibility : byte
+    {
+        Visible = 0,
+        Hidden,
+        Collapsed
+    }
+
     [ConverterAttribute(typeof(object), typeof(Visibility))]
     public class ConverterVisibilitySingle : ConverterBase, IValueConverter
     {
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            bool isVisible = false;
             Visibility visRes = (Visibility) ConverterVisibilityMulti.Convert(this, new object[] { value }, targetType, parameter, culture);
             if (Negate)
             {
                 if (visRes == Visibility.Visible)
-                    visRes = Visibility.Hidden;
+                    isVisible = false;
                 else if (visRes == Visibility.Hidden)
-                    visRes = Visibility.Visible;
+                    isVisible = true;
             }
             if (UseCollapsed && (visRes == Visibility.Hidden))
-                visRes = Visibility.Collapsed;
-            return visRes;
+                isVisible = false;
+            return isVisible;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
@@ -55,19 +64,20 @@ namespace gip.core.layoutengine.avui
     public class ConverterVisibilityMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
+            bool isVisible = false;
             Visibility visRes = (Visibility)Convert(this, values, targetType, parameter, culture);
             if (Negate)
             {
                 if (visRes == Visibility.Visible)
-                    visRes = Visibility.Hidden;
+                    isVisible = false;
                 else if (visRes == Visibility.Hidden)
-                    visRes = Visibility.Visible;
+                    isVisible = true;
             }
             if (UseCollapsed && (visRes == Visibility.Hidden))
-                visRes = Visibility.Collapsed;
-            return visRes;
+                isVisible = false;
+            return isVisible;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
@@ -76,7 +86,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             byte val = 0;
@@ -87,8 +97,8 @@ namespace gip.core.layoutengine.avui
                     ICalculatorResult calcResult = converter.Calculator.Calculate(values, targetType, parameter, culture, out result);
                     if (calcResult == ICalculatorResult.FromScriptEngine)
                     {
-                        if (result is Visibility)
-                            return result;
+                        if (result is Visibility visibility)
+                            return visibility == Visibility.Visible ? true : false;
                     }
                     else if (calcResult == ICalculatorResult.FromExpression)
                     {
@@ -96,10 +106,10 @@ namespace gip.core.layoutengine.avui
                         {
                             String text = result as String;
                             if (text == "Visible")
-                                return Visibility.Visible;
+                                return true;
                             else if (text == "Collapsed")
-                                return Visibility.Collapsed;
-                            return Visibility.Hidden;
+                                return false;
+                            return false;
                         }
                         else if (result is IConvertible)
                             val = System.Convert.ToByte(result);
@@ -130,10 +140,10 @@ namespace gip.core.layoutengine.avui
                     datamodel.Database.Root.Messages.LogException("ConverterVisibiltyMulti", "Convert", msg);
             }
             if (val == 0)
-                return Visibility.Visible;
+                return true;
             else if (val == 1)
-                return Visibility.Hidden;
-            return Visibility.Collapsed;
+                return false;
+            return false;
         }
 
         internal static object[] ConvertBack(ConverterBase converter, object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)

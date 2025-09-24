@@ -1,0 +1,350 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <SolidColorBrush x:Key="RadioButtonBgEnabledGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="RadioButtonFgEnabledGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RadioButtonFgEnabledGipFocus" Color="#FFFFFFFF"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderEnabledGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonEnabledCheckBorderGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonEnabledCheckFillGip" Color="#FF770000"/>
+
+    <SolidColorBrush x:Key="RadioButtonBgDisabledGip" Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+    <SolidColorBrush x:Key="RadioButtonFgDisabledGip" Color="Silver"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderDisabledGip" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonDisabledCheckBorderGip" Color="Silver"/>
+    <SolidColorBrush x:Key="RadioButtonDisabledCheckFillGip" Color="#FF999999"/>
+
+    <SolidColorBrush x:Key="RadioButtonBgRequiredGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="RadioButtonFgRequiredGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RadioButtonFgRequiredGipFocus" Color="Yellow"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderRequiredGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFFEA00" Offset="0.116"/>
+        <GradientStop Color="#FFD1D261" Offset="0.3"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonRequiredCheckBorderGip" Color="Yellow"/>
+    <SolidColorBrush x:Key="RadioButtonRequiredCheckFillGip" Color="#FFADAD00"/>
+
+    <SolidColorBrush x:Key="RadioButtonBgWrongGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="RadioButtonFgWrongGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RadioButtonFgWrongGipFocus" Color="#FFFF0000"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderWrongGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFF0004" Offset="0.1116"/>
+        <GradientStop Color="#FFE43D3D" Offset="0.3"/>
+        <GradientStop Color="#FF020101" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonWrongCheckBorderGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonWrongCheckFillGip" Color="#FF770000"/>
+
+    <SolidColorBrush x:Key="RadioButtonFillNormal" Color="#F4F4F4"/>
+    <SolidColorBrush x:Key="RadioButtonStroke" Color="#8E8F8F"/>
+    <Style x:Key="EmptyRadioButtonFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="1" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="CheckRadioFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="14,0,0,0" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="TemplateRadioButtonStyleGip" TargetType="{x:Type local:VBRadioButton}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="16"></ColumnDefinition>
+                <ColumnDefinition Width="1"></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{TemplateBinding Height}"></RowDefinition>
+            </Grid.RowDefinitions>
+                <Canvas x:Name="CanvasCheck" Width="16" Height="16">
+                    <Ellipse x:Name="BoxBorder"
+												Stroke="{TemplateBinding BorderBrush}" 
+												StrokeThickness="{TemplateBinding BorderThickness}" 
+												Fill="{TemplateBinding Background}" 
+												  Canvas.Left="0" 
+												  Canvas.Top="0" 
+												Width="16"
+												Height="16"/>
+                    <Ellipse x:Name="CheckPath"
+												Visibility="Hidden"
+												Stroke="{StaticResource RadioButtonEnabledCheckBorderGip}" 
+												StrokeThickness="1" 
+												Fill="{StaticResource RadioButtonEnabledCheckFillGip}" 
+												  Canvas.Left="2" 
+												  Canvas.Top="2" 
+												Width="12"
+												Height="12"/>
+                </Canvas>
+            <ContentPresenter Grid.Column="2" 
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+								Margin="{TemplateBinding Padding}" 
+								RecognizesAccessKey="True" 
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="HasContent" Value="true">
+                <Setter Property="FocusVisualStyle" Value="{StaticResource CheckRadioFocusVisual}"/>
+                <Setter Property="Padding" Value="4,0,0,0"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderDisabledGip}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="true">
+                <Setter TargetName="BoxBorder" Property="StrokeThickness" Value="2"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter TargetName="CheckPath" Property="Visibility" Value="Visible"/>
+                <Setter TargetName="BoxBorder" Property="Visibility" Value="Visible"/>
+            </Trigger>
+
+            <!--<MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgEnabledGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource RadioButtonEnabledCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource RadioButtonEnabledCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderEnabledGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource RadioButtonEnabledCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource RadioButtonEnabledCheckFillGip}" />
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgRequiredGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource RadioButtonRequiredCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource RadioButtonRequiredCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderRequiredGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource RadioButtonRequiredCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource RadioButtonRequiredCheckFillGip}" />
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgWrongGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource RadioButtonWrongCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource RadioButtonWrongCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderWrongGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource RadioButtonWrongCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource RadioButtonWrongCheckFillGip}" />
+            </MultiTrigger>-->
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource RadioButtonBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource RadioButtonFgWrongGipFocus}" />
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="RadioButtonPressFocusVisualGip">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}" 
+						StrokeThickness="1" StrokeDashArray="1 2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <LinearGradientBrush x:Key="RadioButtonPressNormalBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF424242" Offset="0"/>
+        <GradientStop Color="#FE828282" Offset="0.2"/>
+        <GradientStop Color="#FF929292" Offset="0.8"/>
+        <GradientStop Color="#FFB2B2B2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressNormalContentStrokeGip" Color="#202020"/>
+    <SolidColorBrush x:Key="RadioButtonPressNormalContentFillGip" Color="#404040"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressDisabledBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF131313" Offset="0"/>
+        <GradientStop Color="#FE333333" Offset="0.2"/>
+        <GradientStop Color="#FF333333" Offset="0.8"/>
+        <GradientStop Color="#FF535353" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressDisabledContentStrokeGip" Color="#404040"/>
+    <SolidColorBrush x:Key="RadioButtonPressDisabledContentFillGip" Color="#404040"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressFocusBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
+        <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+        <GradientStop Color="#FFF2F2F2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressFocusContentStrokeGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonPressFocusContentFillGip" Color="#FF700000"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressPressedBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
+        <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+        <GradientStop Color="#FFF2F2F2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressPressedContentStrokeGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonPressPressedContentFillGip" Color="#FFA00000"/>
+    <SolidColorBrush x:Key="RadioButtonFocusBorder" Color="#FF939393"/>
+    
+    <!--<Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressNormalContentStrokeGip}"/>
+    <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressNormalContentFillGip}"/>-->
+    <ControlTemplate x:Key="TemplateRadioButtonPressStyleGip" TargetType="{x:Type local:VBRadioButton}">
+        <Grid Background="Transparent">
+                <Rectangle x:Name="BdButtonBack" Stretch="Fill" 
+					Stroke="{StaticResource RadioButtonPressDisabledBgGip}"
+					Fill="{StaticResource RadioButtonPressDisabledBgGip}"
+                       RadiusY="3" RadiusX="3"/>
+                <Rectangle x:Name="BdButtonFront" Stretch="Fill" 
+					Stroke="{StaticResource RadioButtonPressNormalBgGip}"
+					Fill="{StaticResource RadioButtonPressNormalBgGip}"
+                       RadiusY="3" RadiusX="3"/>
+                <Border x:Name="BorderFocus" Margin="3,3,3,3" BorderThickness="1" CornerRadius="4">
+                    <ContentPresenter x:Name="ContentPresenter"
+                            RecognizesAccessKey="True"/>
+                <!--HorizontalAlignment="Center"
+                            VerticalAlignment="Center"-->
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="true"/>
+                    <Condition Property="IsMouseOver" Value="false"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="BorderFocus" Property="BorderBrush" Value="{StaticResource RadioButtonFocusBorder}" />
+            </MultiTrigger>
+            <Trigger Property="IsMouseOver" Value="true">
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource RadioButtonPressFocusBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource RadioButtonPressFocusBgGip}" />
+                <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressFocusContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressFocusContentFillGip}"/>
+            </Trigger>
+            <Trigger Property="IsMouseOverParent" Value="true">
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource RadioButtonPressFocusBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource RadioButtonPressFocusBgGip}" />
+                <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressFocusContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressFocusContentFillGip}"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource RadioButtonPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource RadioButtonPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Margin" Value="1,1,-1,-1"/>
+                <Setter TargetName="BorderFocus" Property="Margin" Value="4,4,2,2"/>
+                <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressPressedContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressPressedContentFillGip}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource RadioButtonPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource RadioButtonPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Margin" Value="1,1,-1,-1"/>
+                <Setter TargetName="BorderFocus" Property="Margin" Value="4,4,2,2"/>
+                <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressPressedContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressPressedContentFillGip}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter TargetName="BdButtonFront" Property="Visibility" Value="Hidden" />
+                <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressDisabledContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressDisabledContentFillGip}"/>
+            </Trigger>           
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="RadioButtonStyleGip" TargetType="{x:Type local:VBRadioButton}">
+        <Setter Property="Foreground" Value="{StaticResource RadioButtonFgEnabledGip}"/>
+        <Setter Property="Background" Value="{StaticResource RadioButtonBgEnabledGip}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderEnabledGip}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressNormalContentStrokeGip}"/>
+        <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressNormalContentFillGip}"/>
+        <!--<Setter Property="Height" Value="20"/>-->
+        <Setter Property="FocusVisualStyle" Value="{StaticResource EmptyRadioButtonFocusVisual}"/>
+        <Setter Property="Template" Value="{StaticResource TemplateRadioButtonStyleGip}" />
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <AdornedElementPlaceholder/>
+                        <!-- TODO <TextBlock Text="!"/>-->
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+            </Trigger>
+            <Trigger Property="PushButtonStyle" Value="True">
+                <Setter Property="Template" Value="{StaticResource TemplateRadioButtonPressStyleGip}" />
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+
+
+</ResourceDictionary>

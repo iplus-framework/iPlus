@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Avalonia.Data.Converters;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.ext.design.avui.PropertyGrid;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Media;
-using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.core.layoutengine.avui
 {
@@ -35,7 +33,7 @@ namespace gip.core.layoutengine.avui
     public class ConverterFontFamilyMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return Convert(this, values, targetType, parameter, culture);
         }
@@ -46,7 +44,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             if ((converter.ConversionBy != ConvType.Direct) && (converter.Calculator != null))
@@ -57,7 +55,7 @@ namespace gip.core.layoutengine.avui
                     if (result is FontFamily)
                         return result;
                     else
-                        return Fonts.SystemFontFamilies.First();
+                        return FontManager.Current.SystemFonts.FirstOrDefault();
                 }
                 else if (calcResult == ICalculatorResult.FromExpression)
                 {
@@ -66,11 +64,10 @@ namespace gip.core.layoutengine.avui
                         String familiyName = result as String;
                         if (!String.IsNullOrEmpty(familiyName))
                         {
-                            FontFamilyConverter typeConverter = new FontFamilyConverter();
-                            return typeConverter.ConvertFromString(familiyName);
+                            return FontFamily.Parse(familiyName);
                         }
                     }
-                    return Fonts.SystemFontFamilies.First();
+                    return FontManager.Current.SystemFonts.FirstOrDefault();
                 }
             }
             if ((values != null) && (values.Any()))
@@ -82,8 +79,7 @@ namespace gip.core.layoutengine.avui
                         String familiyName = values[0] as String;
                         if (!String.IsNullOrEmpty(familiyName))
                         {
-                            FontFamilyConverter typeConverter = new FontFamilyConverter();
-                            return typeConverter.ConvertFromString(familiyName);
+                            return FontFamily.Parse(familiyName);
                         }
                     }
                     else if (values[0] is IConvertible)
@@ -91,10 +87,10 @@ namespace gip.core.layoutengine.avui
                         int fontIndex = System.Convert.ToInt32(values[0]);
                         if (fontIndex < 0)
                             fontIndex = 0;
-                        if (Fonts.SystemFontFamilies.Count >= (fontIndex + 1))
-                            return Fonts.SystemFontFamilies.ElementAt(fontIndex);
+                        if (FontManager.Current.SystemFonts.Count >= (fontIndex + 1))
+                            return FontManager.Current.SystemFonts.ElementAt(fontIndex);
                         else
-                            return Fonts.SystemFontFamilies.Last();
+                            return FontManager.Current.SystemFonts.Last();
                     }
                 }
                 catch (Exception e)
@@ -107,7 +103,7 @@ namespace gip.core.layoutengine.avui
                         datamodel.Database.Root.Messages.LogException("ConverterFontFamilyMulti", "Convert", msg);
                 }
             }
-            return Fonts.SystemFontFamilies.First();
+            return FontManager.Current.SystemFonts.FirstOrDefault();
         }
 
         internal static object[] ConvertBack(ConverterBase converter, object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)

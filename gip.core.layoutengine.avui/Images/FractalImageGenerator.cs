@@ -1,18 +1,12 @@
 ﻿using System;
 using System.Net;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
 using System.Collections.Generic;
-using System.Windows.Media.Imaging;
 using System.ComponentModel;
 using System.Threading;
+using System.Windows.Media;
+using Avalonia.Controls;
+using Avalonia.Media.Imaging;
 
 namespace gip.core.layoutengine.avui
 {
@@ -41,14 +35,14 @@ namespace gip.core.layoutengine.avui
         /// Gets or sets the UI element.
         /// </summary>
         /// <value>The UI element.</value>
-        public UIElement UIElement { get; set; }
+        public Control Control { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="FractalImageGenerator"/> class.
         /// </summary>
-        public FractalImageGenerator(UIElement uiElement, int width, int height)
+        public FractalImageGenerator(Control Control, int width, int height)
         {
-            this.UIElement = uiElement;
+            this.Control = Control;
             this.Width = width;
             this.Height = height;
             this.Palette = GeneratePalette();
@@ -119,34 +113,34 @@ namespace gip.core.layoutengine.avui
                 x += intigralX;
             }
 
-            this.UIElement.Dispatcher.BeginInvoke(
-                new Action<byte[,,]>(
-                    data =>
-                    {
-                        WriteableBitmap output = new WriteableBitmap(this.Width, this.Height, 150, 150, PixelFormats.Bgra32, null);
+            //this.Control.Dispatcher.BeginInvoke(
+            //    new Action<byte[,,]>(
+            //        data =>
+            //        {
+            //            WriteableBitmap output = new WriteableBitmap(this.Width, this.Height, 150, 150, PixelFormats.Bgra32, null);
 
-                        try
-                        {
-                            output.Lock();
-                            for (int a = 0; a < this.Width; a++)
-                            {
-                                for (int b = 0; b < this.Height; b++)
-                                {
-                                    Int32Rect rect = new Int32Rect(a, b, 1, 1);
-                                    int stride = output.PixelWidth * output.Format.BitsPerPixel / 8;
-                                    byte[] colordata = { data[a, b, 0], data[a, b, 1], data[a, b, 2], data[a, b, 3] };
-                                    output.WritePixels(rect, colordata, stride, 0);
-                                }
-                            }
+            //            try
+            //            {
+            //                output.Lock();
+            //                for (int a = 0; a < this.Width; a++)
+            //                {
+            //                    for (int b = 0; b < this.Height; b++)
+            //                    {
+            //                        Int32Rect rect = new Int32Rect(a, b, 1, 1);
+            //                        int stride = output.PixelWidth * output.Format.BitsPerPixel / 8;
+            //                        byte[] colordata = { data[a, b, 0], data[a, b, 1], data[a, b, 2], data[a, b, 3] };
+            //                        output.WritePixels(rect, colordata, stride, 0);
+            //                    }
+            //                }
 
-                            this.OnCompleted(new FractalImageCompletedEventArgs(output));
-                        }
-                        finally
-                        {
-                            output.Unlock();
-                        }
+            //                this.OnCompleted(new FractalImageCompletedEventArgs(output));
+            //            }
+            //            finally
+            //            {
+            //                output.Unlock();
+            //            }
 
-                    }), pixels);
+            //        }), pixels);
         }
 
         /// <summary>

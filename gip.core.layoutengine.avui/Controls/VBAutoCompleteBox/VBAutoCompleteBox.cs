@@ -12,16 +12,9 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
-using System.Windows;
-using System.Windows.Automation.Peers;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Threading;
+using Avalonia.Controls.Metadata;
 using gip.core.datamodel;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 { 
@@ -2709,11 +2702,7 @@ namespace gip.core.layoutengine.avui
         public override void DeInitVBControl(IACComponent bso)
         {
             SelectionChanged -= VBAutoCompleteBox_SelectionChanged;
-            BindingOperations.ClearBinding(this, SelectedIACObjectProperty);
-            BindingOperations.ClearBinding(this, SelectedItemProperty);
-            BindingOperations.ClearBinding(this, ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, SourceItemsProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         #endregion

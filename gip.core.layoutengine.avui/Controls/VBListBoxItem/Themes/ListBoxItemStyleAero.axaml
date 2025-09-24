@@ -1,0 +1,69 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <LinearGradientBrush x:Key="ListBoxItemSelectionFillAero" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#4CFF6565" Offset="0"/>
+        <GradientStop Color="#7FFF0018" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="ListBoxItemSelectionNotActiveFillAero" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#4CFF6565" Offset="0"/>
+        <GradientStop Color="#7FFF0018" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="ListBoxItemSelectionFgAero" Color="#FF000000"/>
+    <SolidColorBrush x:Key="ListBoxItemFgAero" Color="#FF000000"/>
+
+    <Style x:Key="ListBoxItemStyleAero" TargetType="{x:Type local:VBListBoxItem}">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+        <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+        <Setter Property="Padding" Value="2,0,0,0"/>
+        <Setter Property="Foreground" Value="{StaticResource ListBoxItemFgAero}"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VBListBoxItem}">
+                    <Border x:Name="Bd" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" 
+                            Padding="{TemplateBinding Padding}" 
+							CornerRadius="2"
+							SnapsToDevicePixels="True">
+                        <ContentPresenter 
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Border>
+
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsSelected" Value="true">
+                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource ListBoxItemSelectionFillAero}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="#FF0000"/>
+                            <Setter Property="Foreground" Value="{StaticResource ListBoxItemSelectionFgAero}"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </Trigger>
+                        <MultiTrigger>
+                            <MultiTrigger.Conditions>
+                                <Condition Property="IsSelected" Value="true"/>
+                                <Condition Property="Selector.IsSelectionActive" Value="false"/>
+                            </MultiTrigger.Conditions>
+                            <Setter Property="Background" TargetName="Bd" Value="{StaticResource ListBoxItemSelectionNotActiveFillAero}"/>
+                            <Setter Property="BorderBrush" TargetName="Bd" Value="#FF0000"/>
+                            <Setter Property="Foreground" Value="{StaticResource ListBoxItemSelectionFgAero}"/>
+                            <Setter Property="FontWeight" Value="Bold"/>
+                        </MultiTrigger>
+                        <Trigger Property="IsEnabled" Value="false">
+                            <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

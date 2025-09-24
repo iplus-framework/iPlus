@@ -238,7 +238,7 @@ namespace gip.core.layoutengine.avui
             }
             BindingOperations.ClearBinding(this, VBDockPanel.ACUpdateControlModeProperty);
             BindingOperations.ClearBinding(this, VBDockPanel.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         void VBDockPanel_Loaded(object sender, RoutedEventArgs e)

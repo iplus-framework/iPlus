@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
-using System.Windows.Markup;
+﻿using Avalonia.Markup.Xaml;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 namespace gip.core.layoutengine.avui
 {

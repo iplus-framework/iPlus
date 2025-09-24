@@ -133,7 +133,7 @@ namespace gip.core.layoutengine.avui
         public override void DeInitVBControl(IACComponent bso)
         {
             IsVisibleChanged -= VBTreeListViewItem_IsVisibleChanged;
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             TimelineItemMap = null;
             _IsInitialized = false;
         }

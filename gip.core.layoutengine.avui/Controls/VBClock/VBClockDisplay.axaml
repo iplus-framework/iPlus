@@ -1,0 +1,91 @@
+﻿<UserControl x:Class="gip.core.layoutengine.avui.VBClockDisplay"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:wc="clr-namespace:gip.core.layoutengine.avui"
+    >
+    <Border Padding="5">
+		<!--<Border.Background>
+			<LinearGradientBrush StartPoint="0.0,0.0" EndPoint="0.0,1.0">
+				<LinearGradientBrush.GradientStops>
+					<GradientStop Offset="0.0" Color="#888888" />
+					<GradientStop Offset="1.0" Color="#111111" />
+				</LinearGradientBrush.GradientStops>
+			</LinearGradientBrush>
+		</Border.Background>-->
+		<DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="_panel">
+			<!--<DockPanel Height="30" DockPanel.Dock="Bottom">
+				<TextBlock
+						Foreground="White"
+						DockPanel.Dock="Bottom"
+						TextWrapping="Wrap"
+						TextAlignment="Center"
+						VerticalAlignment="Center"
+						TextTrimming="WordEllipsis"
+						Text="{Binding TimeInfo.DisplayName}" />
+			</DockPanel>-->
+			<TextBlock
+					Foreground="White"
+					DockPanel.Dock="Top"
+					TextWrapping="Wrap"
+					TextAlignment="Center"
+					TextTrimming="WordEllipsis"
+					FontSize="24"
+					RenderTransformOrigin="0.5,1.0">
+				<TextBlock.Resources>
+					<wc:FormattedMultiTextConverter x:Key="FormattedMultiTextConverter" />
+				</TextBlock.Resources>
+				<TextBlock.Text>
+					<MultiBinding Converter="{StaticResource FormattedMultiTextConverter}" ConverterParameter="{}{0:t}">
+						<Binding Path="Now" />
+					</MultiBinding>
+				</TextBlock.Text>
+				<TextBlock.RenderTransform>
+					<ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
+				</TextBlock.RenderTransform>
+			</TextBlock>
+            <TextBlock
+					Foreground="White"
+					DockPanel.Dock="Top"
+					TextWrapping="Wrap"
+					TextAlignment="Center"
+					TextTrimming="WordEllipsis"
+					FontSize="24"
+					RenderTransformOrigin="0.5,1.0">
+				<TextBlock.Resources>
+					<wc:FormattedMultiTextConverter x:Key="FormattedMultiTextConverter" />
+				</TextBlock.Resources>
+				<TextBlock.Text>
+					<MultiBinding Converter="{StaticResource FormattedMultiTextConverter}" ConverterParameter="{}{0:d}">
+						<Binding Path="Now" />
+					</MultiBinding>
+				</TextBlock.Text>
+				<TextBlock.RenderTransform>
+					<ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
+				</TextBlock.RenderTransform>
+            </TextBlock>
+            <wc:VBClock DockPanel.Dock="Bottom" TimeInfo="{Binding Path=TimeInfo}" Margin="5" x:Name="_clock" RenderTransformOrigin="0.5,0.2">
+				<wc:VBClock.RenderTransform>
+					<ScaleTransform ScaleX="{Binding ClockZoom}" ScaleY="{Binding ClockZoom}" />
+				</wc:VBClock.RenderTransform>
+			</wc:VBClock>
+		</DockPanel>
+	</Border>
+	<UserControl.Triggers>
+		<EventTrigger RoutedEvent="Control.MouseEnter">
+			<BeginStoryboard>
+				<Storyboard>
+					<DoubleAnimation Storyboard.TargetProperty="ClockZoom" To="2" Duration="0:0:0.5" FillBehavior="HoldEnd" />
+                    <DoubleAnimation Storyboard.TargetProperty="TextZoom" To="1.5" Duration="0:0:0.5" FillBehavior="HoldEnd" />
+                </Storyboard>
+            </BeginStoryboard>
+		</EventTrigger>
+		<EventTrigger RoutedEvent="Control.MouseLeave">
+			<BeginStoryboard>
+				<Storyboard>
+					<DoubleAnimation Storyboard.TargetProperty="ClockZoom" To="1" Duration="0:0:0.5" FillBehavior="HoldEnd" />
+                    <DoubleAnimation Storyboard.TargetProperty="TextZoom" To="1" Duration="0:0:0.5" FillBehavior="HoldEnd" />
+                </Storyboard>
+            </BeginStoryboard>
+		</EventTrigger>
+	</UserControl.Triggers>
+</UserControl>

@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Avalonia;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Threading;
 using gip.core.datamodel;
-using System.Windows.Markup;
-using System.Collections;
-using System.Windows.Data;
-using System.Reflection;
-using System.Windows.Threading;
-using System.Windows;
+using System;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
@@ -140,10 +136,10 @@ namespace gip.core.layoutengine.avui
         {
             Binding bindingIACProp = new Binding();
             bindingIACProp.Source = dcSource;
-            bindingIACProp.Path = new PropertyPath(Const.ValueT);
+            bindingIACProp.Path = Const.ValueT;
             bindingIACProp.Mode = BindingMode.OneWay;
-            bindingIACProp.NotifyOnSourceUpdated = true;
-            bindingIACProp.NotifyOnTargetUpdated = true;
+            //bindingIACProp.NotifyOnSourceUpdated = true;
+            //bindingIACProp.NotifyOnTargetUpdated = true;
 
             dcRightControlMode = Global.ControlModes.Enabled;
             _currentACRef = dcSource.GetValue(Const.ValueT) as IACContainerRef;
@@ -285,10 +281,10 @@ namespace gip.core.layoutengine.avui
                 PropertyInfo pi = ParentBinding.GetType().GetProperty("Target");
                 if (pi != null)
                 {
-                    DependencyObject dispObj = pi.GetValue(ParentBinding, null) as DependencyObject;
+                    AvaloniaObject dispObj = pi.GetValue(ParentBinding, null) as AvaloniaObject;
                     if (dispObj != null)
                     {
-                        dispObj.Dispatcher.BeginInvoke((Action)(() => ParentBinding.UpdateTarget()));
+                        Dispatcher.UIThread.Invoke((Action)(() => ParentBinding.UpdateTarget()));
                     }
                 }
             }

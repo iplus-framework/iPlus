@@ -2,22 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.Transactions;
 using System.Reflection;
 using System.Diagnostics;
+using Avalonia.Controls;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
@@ -1004,13 +996,7 @@ namespace gip.core.layoutengine.avui
             _ACTypeInfo = null;
             ACAccess = null;
 
-            BindingOperations.ClearBinding(this, ComboBox.SelectedValueProperty);
-            BindingOperations.ClearBinding(this, ComboBox.SelectedItemProperty);
-            BindingOperations.ClearBinding(this, ComboBox.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, ComboBox.TextProperty);
-            BindingOperations.ClearBinding(this, VBComboBox.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBComboBox.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             this.ItemsSource = null;
             ACAccessComposite = null;
         }

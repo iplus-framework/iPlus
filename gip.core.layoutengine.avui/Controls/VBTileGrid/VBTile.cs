@@ -441,7 +441,7 @@ namespace gip.core.layoutengine.avui
                     CorrectElementsPosition(_ParentGrid, tileRow, false);
                 }
                 ContextACObject.ACUrlCommand(_VBTileGrid.OnTileDeleted, this as IVBTileGrid);
-                BindingOperations.ClearAllBindings(this);
+                this.ClearAllBindings();
                 _ParentGrid.Children.Remove(this);
             }
         }

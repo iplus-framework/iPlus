@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using AvaloniaEdit.Editing;
 using gip.core.datamodel;
-using System.Runtime.InteropServices;
-using ICSharpCode.AvalonEdit.Editing;
+using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace gip.core.layoutengine.avui
 {

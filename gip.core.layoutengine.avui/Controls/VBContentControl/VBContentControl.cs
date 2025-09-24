@@ -64,7 +64,7 @@ namespace gip.core.layoutengine.avui
         {
             VBContent = null;
             BindingOperations.ClearBinding(this, ContentDataContextProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         /// <summary>

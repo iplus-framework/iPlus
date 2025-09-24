@@ -1,0 +1,25 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <Style x:Key="IconDataExportStyleGip" TargetType="{x:Type ContentControl}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ContentControl}">
+                    <Viewbox Stretch="Uniform">
+                        <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_50" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                            <Path Width="24" Height="24" Stretch="Uniform" Fill="Black" Data="F1 M 40.972,77.2199C 39.5052,75.4609 40.3575,72.5611 42.8998,72.5611L 52.8718,72.5611L 52.8718,29.3802C 52.8718,27.8918 54.1134,26.6503 55.6016,26.6503L 77.7318,26.6503C 79.22,26.6503 80.461,27.8918 80.461,29.3802L 80.461,72.5611L 90.4336,72.5611C 92.9765,72.5611 93.8281,75.4609 92.362,77.2199L 68.5964,105.772C 68.0156,106.471 67.3281,106.725 66.6667,106.68C 66.0052,106.725 65.3216,106.471 64.7376,105.772L 40.972,77.2199 Z M 66.6667,133.333C 29.8483,133.333 0,103.486 0,66.6666C 0,29.8476 29.8483,-3.05176e-005 66.6667,-3.05176e-005C 103.484,-3.05176e-005 133.333,29.8476 133.333,66.6666C 133.333,103.486 103.484,133.333 66.6667,133.333 Z M 66.6667,10.6667C 35.7403,10.6667 10.6667,35.7389 10.6667,66.6666C 10.6667,97.5937 35.7403,122.667 66.6667,122.667C 97.5937,122.667 122.667,97.5937 122.667,66.6666C 122.667,35.7389 97.5937,10.6667 66.6667,10.6667 Z "/>
+                            <!--<Path x:Name="Path_Add" Width="15" Height="15" Canvas.Left="8.5" Canvas.Top="0.499998" Stretch="Fill" StrokeLineJoin="Round" 
+				                    Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+				                    Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
+                                  Data="F1 M 14.25,0.999998L 17.75,0.999998L 17.75,6.25L 23,6.25L 23,9.75L 17.75,9.75L 17.75,15L 14.25,15L 14.25,9.75L 9,9.75L 9,6.25L 14.25,6.25L 14.25,0.999998 Z "/>-->
+                        </Canvas>
+                    </Viewbox>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="IconDataExportStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconDataExportStyleGip}">
+    </Style>
+</ResourceDictionary>
+
+

@@ -145,10 +145,9 @@ namespace gip.ext.xamldom.avui
         PropertyDescriptor _propertyDescriptor;
         AvaloniaProperty dependencyProperty;
 
-        public XamlNormalPropertyInfo(PropertyDescriptor propertyDescriptor)
+        public XamlNormalPropertyInfo(AvaloniaProperty propertyDescriptor)
         {
-            this._propertyDescriptor = propertyDescriptor;
-            dependencyProperty = AvaloniaPropertyRegistry.Instance.FindRegistered(_propertyDescriptor.ComponentType, _propertyDescriptor.Name);
+            dependencyProperty = propertyDescriptor;
             //var dpd = AvaloniaPropertyDescriptor.FromProperty(propertyDescriptor);
             //if (dpd != null)
             //{

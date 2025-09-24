@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Avalonia.Data.Converters;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.ext.design.avui.PropertyGrid;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Media;
-using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.core.layoutengine.avui
 {
@@ -35,7 +34,7 @@ namespace gip.core.layoutengine.avui
     public class ConverterBrushMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return Convert(this, values, targetType, parameter, culture);
         }
@@ -46,7 +45,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             if ((converter.ConversionBy != ConvType.Direct) && (converter.Calculator != null))
@@ -135,16 +134,18 @@ namespace gip.core.layoutengine.avui
             return result;
         }
 
-        private static Brush _ErrorBrush;
-        private static Brush ErrorBrush
+        private static IImmutableSolidColorBrush _ErrorBrush;
+        private static IBrush ErrorBrush
         {
             get
             {
                 if (_ErrorBrush == null)
                 {
-                    ResourceDictionary dict = new ResourceDictionary();
-                    dict.Source = new Uri("/gip.core.layoutengine.avui;Component/Controls/Shared.xaml", UriKind.Relative);
-                    _ErrorBrush = (DrawingBrush)dict["ConverterErrorBrush"];
+                    ResourceInclude dict = new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/Shared.xaml", UriKind.Relative));
+                    object res;
+                    if (!dict.TryGetResource("ConverterErrorBrush", null, out res))
+                        return null;
+                    return res as IBrush;
                 }
                 if (_ErrorBrush == null)
                     _ErrorBrush = Brushes.Red;

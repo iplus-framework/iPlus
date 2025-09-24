@@ -1,34 +1,33 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Media;
+using Avalonia;
+using Avalonia.VisualTree;
+using gip.ext.design.avui;
 
 namespace LinqToVisualTree
 {
   /// <summary>
-  /// Adapts a DependencyObject to provide methods required for generate
+  /// Adapts a AvaloniaObject to provide methods required for generate
   /// a Linq To Tree API
   /// </summary>
-  public class VisualTreeAdapter : ILinqTree<DependencyObject>
+  public class VisualTreeAdapter : ILinqTree<AvaloniaObject>
   {
-    private DependencyObject _item;
+    private AvaloniaObject _item;
 
-    public VisualTreeAdapter(DependencyObject item)
+    public VisualTreeAdapter(AvaloniaObject item)
     {
       _item = item;
     }
 
-    public IEnumerable<DependencyObject> Children()
+    public IEnumerable<AvaloniaObject> Children()
     {
-      int childrenCount = VisualTreeHelper.GetChildrenCount(_item);
-      for (int i = 0; i < childrenCount; i++)
-      {
-        yield return VisualTreeHelper.GetChild(_item, i);
-      }
+        if (_item is Visual vs)
+            return vs.GetVisualChildren().OfType<AvaloniaObject>();
+        return null;
     }
 
-    public DependencyObject Parent
+    public AvaloniaObject Parent
     {
       get
       {
@@ -56,9 +55,9 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of descendant elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> Descendants(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> Descendants(this AvaloniaObject item)
         {
-            ILinqTree<DependencyObject> adapter = new VisualTreeAdapter(item);
+            ILinqTree<AvaloniaObject> adapter = new VisualTreeAdapter(item);
             foreach (var child in adapter.Children())
             {
                 yield return child;
@@ -73,7 +72,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection containing this element and all descendant elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> DescendantsAndSelf(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> DescendantsAndSelf(this AvaloniaObject item)
         {
             yield return item;
 
@@ -86,9 +85,9 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of ancestor elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> Ancestors(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> Ancestors(this AvaloniaObject item)
         {
-            ILinqTree<DependencyObject> adapter = new VisualTreeAdapter(item);
+            ILinqTree<AvaloniaObject> adapter = new VisualTreeAdapter(item);
 
             var parent = adapter.Parent;
             while (parent != null)
@@ -102,7 +101,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection containing this element and all ancestor elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> AncestorsAndSelf(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> AncestorsAndSelf(this AvaloniaObject item)
         {
             yield return item;
 
@@ -115,9 +114,9 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of child elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> Elements(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> Elements(this AvaloniaObject item)
         {
-            ILinqTree<DependencyObject> adapter = new VisualTreeAdapter(item);
+            ILinqTree<AvaloniaObject> adapter = new VisualTreeAdapter(item);
             foreach (var child in adapter.Children())
             {
                 yield return child;
@@ -127,7 +126,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of the sibling elements before this node, in document order.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsBeforeSelf(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> ElementsBeforeSelf(this AvaloniaObject item)
         {
             if (item.Ancestors().FirstOrDefault() == null)
                 yield break;
@@ -142,7 +141,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of the after elements after this node, in document order.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsAfterSelf(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> ElementsAfterSelf(this AvaloniaObject item)
         {
             if (item.Ancestors().FirstOrDefault() == null)
                 yield break;
@@ -160,7 +159,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection containing this element and all child elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsAndSelf(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> ElementsAndSelf(this AvaloniaObject item)
         {
             yield return item;
 
@@ -173,70 +172,70 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of descendant elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Descendants<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> Descendants<T>(this AvaloniaObject item)
         {
-            return item.Descendants().Where(i => i is T).Cast<DependencyObject>();
+            return item.Descendants().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection of the sibling elements before this node, in document order
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsBeforeSelf<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> ElementsBeforeSelf<T>(this AvaloniaObject item)
         {
-            return item.ElementsBeforeSelf().Where(i => i is T).Cast<DependencyObject>();
+            return item.ElementsBeforeSelf().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection of the after elements after this node, in document order
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsAfterSelf<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> ElementsAfterSelf<T>(this AvaloniaObject item)
         {
-            return item.ElementsAfterSelf().Where(i => i is T).Cast<DependencyObject>();
+            return item.ElementsAfterSelf().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection containing this element and all descendant elements
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> DescendantsAndSelf<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> DescendantsAndSelf<T>(this AvaloniaObject item)
         {
-            return item.DescendantsAndSelf().Where(i => i is T).Cast<DependencyObject>();
+            return item.DescendantsAndSelf().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection of ancestor elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Ancestors<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> Ancestors<T>(this AvaloniaObject item)
         {
-            return item.Ancestors().Where(i => i is T).Cast<DependencyObject>();
+            return item.Ancestors().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection containing this element and all ancestor elements
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> AncestorsAndSelf<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> AncestorsAndSelf<T>(this AvaloniaObject item)
         {
-            return item.AncestorsAndSelf().Where(i => i is T).Cast<DependencyObject>();
+            return item.AncestorsAndSelf().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection of child elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Elements<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> Elements<T>(this AvaloniaObject item)
         {
-            return item.Elements().Where(i => i is T).Cast<DependencyObject>();
+            return item.Elements().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
         /// <summary>
         /// Returns a collection containing this element and all child elements.
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsAndSelf<T>(this DependencyObject item)
+        public static IEnumerable<AvaloniaObject> ElementsAndSelf<T>(this AvaloniaObject item)
         {
-            return item.ElementsAndSelf().Where(i => i is T).Cast<DependencyObject>();
+            return item.ElementsAndSelf().Where(i => i is T).Cast<AvaloniaObject>();
         }
 
     }
@@ -247,8 +246,8 @@ namespace LinqToVisualTree
         /// Applies the given function to each of the items in the supplied
         /// IEnumerable.
         /// </summary>
-        private static IEnumerable<DependencyObject> DrillDown(this IEnumerable<DependencyObject> items,
-            Func<DependencyObject, IEnumerable<DependencyObject>> function)
+        private static IEnumerable<AvaloniaObject> DrillDown(this IEnumerable<AvaloniaObject> items,
+            Func<AvaloniaObject, IEnumerable<AvaloniaObject>> function)
         {
             foreach (var item in items)
             {
@@ -263,9 +262,9 @@ namespace LinqToVisualTree
         /// Applies the given function to each of the items in the supplied
         /// IEnumerable, which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> DrillDown<T>(this IEnumerable<DependencyObject> items,
-            Func<DependencyObject, IEnumerable<DependencyObject>> function)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> DrillDown<T>(this IEnumerable<AvaloniaObject> items,
+            Func<AvaloniaObject, IEnumerable<AvaloniaObject>> function)
+            where T : AvaloniaObject
         {
             foreach (var item in items)
             {
@@ -282,7 +281,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of descendant elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> Descendants(this IEnumerable<DependencyObject> items)
+        public static IEnumerable<AvaloniaObject> Descendants(this IEnumerable<AvaloniaObject> items)
         {
             return items.DrillDown(i => i.Descendants());
         }
@@ -290,7 +289,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection containing this element and all descendant elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> DescendantsAndSelf(this IEnumerable<DependencyObject> items)
+        public static IEnumerable<AvaloniaObject> DescendantsAndSelf(this IEnumerable<AvaloniaObject> items)
         {
             return items.DrillDown(i => i.DescendantsAndSelf());
         }
@@ -298,7 +297,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of ancestor elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> Ancestors(this IEnumerable<DependencyObject> items)
+        public static IEnumerable<AvaloniaObject> Ancestors(this IEnumerable<AvaloniaObject> items)
         {
             return items.DrillDown(i => i.Ancestors());
         }
@@ -306,7 +305,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection containing this element and all ancestor elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> AncestorsAndSelf(this IEnumerable<DependencyObject> items)
+        public static IEnumerable<AvaloniaObject> AncestorsAndSelf(this IEnumerable<AvaloniaObject> items)
         {
             return items.DrillDown(i => i.AncestorsAndSelf());
         }
@@ -314,7 +313,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of child elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> Elements(this IEnumerable<DependencyObject> items)
+        public static IEnumerable<AvaloniaObject> Elements(this IEnumerable<AvaloniaObject> items)
         {
             return items.DrillDown(i => i.Elements());
         }
@@ -322,7 +321,7 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection containing this element and all child elements.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsAndSelf(this IEnumerable<DependencyObject> items)
+        public static IEnumerable<AvaloniaObject> ElementsAndSelf(this IEnumerable<AvaloniaObject> items)
         {
             return items.DrillDown(i => i.ElementsAndSelf());
         }
@@ -330,8 +329,8 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of descendant elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Descendants<T>(this IEnumerable<DependencyObject> items)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> Descendants<T>(this IEnumerable<AvaloniaObject> items)
+            where T : AvaloniaObject
         {
             return items.DrillDown<T>(i => i.Descendants());
         }
@@ -340,8 +339,8 @@ namespace LinqToVisualTree
         /// Returns a collection containing this element and all descendant elements.
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> DescendantsAndSelf<T>(this IEnumerable<DependencyObject> items)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> DescendantsAndSelf<T>(this IEnumerable<AvaloniaObject> items)
+            where T : AvaloniaObject
         {
             return items.DrillDown<T>(i => i.DescendantsAndSelf());
         }
@@ -349,8 +348,8 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of ancestor elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Ancestors<T>(this IEnumerable<DependencyObject> items)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> Ancestors<T>(this IEnumerable<AvaloniaObject> items)
+            where T : AvaloniaObject
         {
             return items.DrillDown<T>(i => i.Ancestors());
         }
@@ -359,8 +358,8 @@ namespace LinqToVisualTree
         /// Returns a collection containing this element and all ancestor elements.
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> AncestorsAndSelf<T>(this IEnumerable<DependencyObject> items)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> AncestorsAndSelf<T>(this IEnumerable<AvaloniaObject> items)
+            where T : AvaloniaObject
         {
             return items.DrillDown<T>(i => i.AncestorsAndSelf());
         }
@@ -368,8 +367,8 @@ namespace LinqToVisualTree
         /// <summary>
         /// Returns a collection of child elements which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> Elements<T>(this IEnumerable<DependencyObject> items)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> Elements<T>(this IEnumerable<AvaloniaObject> items)
+            where T : AvaloniaObject
         {
             return items.DrillDown<T>(i => i.Elements());
         }
@@ -378,8 +377,8 @@ namespace LinqToVisualTree
         /// Returns a collection containing this element and all child elements.
         /// which match the given type.
         /// </summary>
-        public static IEnumerable<DependencyObject> ElementsAndSelf<T>(this IEnumerable<DependencyObject> items)
-            where T : DependencyObject
+        public static IEnumerable<AvaloniaObject> ElementsAndSelf<T>(this IEnumerable<AvaloniaObject> items)
+            where T : AvaloniaObject
         {
             return items.DrillDown<T>(i => i.ElementsAndSelf());
         }

@@ -1,0 +1,71 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <local:ConverterDoubleOffset x:Key="LineOffset" Offset="6" />
+
+    <ControlTemplate x:Key="StopWatchGip" TargetType="{x:Type local:VBProgressBar}">
+        <Grid x:Name="LayoutRoot" MinHeight="40" MinWidth="40">
+            <!-- attach the view model -->
+            <local:VBProgressBarCircularViewModel.Attach>
+                <local:VBProgressBarCircularViewModel HoleSizeFactor="0"/>
+            </local:VBProgressBarCircularViewModel.Attach>
+
+            <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Fill="LightGray" Stroke="DarkGray">
+                <Ellipse.Effect>
+                    <DropShadowEffect Color="DarkGray" ShadowDepth="2"/>
+                </Ellipse.Effect>
+            </Ellipse>
+
+            <local:VBPiePiece CentreX="{Binding CentreX}" CentreY="{Binding CentreY}"
+                              RotationAngle="0" WedgeAngle="{Binding Angle}"
+                              Radius="{Binding Radius}"
+                              InnerRadius="{Binding InnerRadius}" Fill="{TemplateBinding PieFill}" Stroke="{TemplateBinding PieStroke}"  />
+
+            <Rectangle Width="2" Height="{Binding Radius}" HorizontalAlignment="Center" VerticalAlignment="Top" Stroke="Black" StrokeThickness="1" RenderTransformOrigin="0.5 1">
+                <Rectangle.RenderTransform>
+                    <RotateTransform Angle="{Binding Angle}" />
+                </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Width="4" Height="12" HorizontalAlignment="Center" VerticalAlignment="Center" Stroke="Black" StrokeThickness="2" RenderTransformOrigin="0.5 0.5">
+                <Rectangle.RenderTransform>
+                    <RotateTransform Angle="{Binding Angle}" />
+                </Rectangle.RenderTransform>
+            </Rectangle>
+            <Ellipse Width="8" Height="8" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="Black" />
+            <Ellipse Width="4" Height="4" HorizontalAlignment="Center" VerticalAlignment="Center" Fill="White" />
+
+            <!-- soft glow -->
+            <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Ellipse.Fill>
+                    <RadialGradientBrush Center=".5,.4" GradientOrigin=".3,.3">
+                        <!-- White Highlight -->
+                        <GradientStop Offset="0" Color="#99ffffff" />
+                        <GradientStop Offset=".5" Color="#66ffffff" />
+                        <GradientStop Offset="1" Color="#00ffffff" />
+                    </RadialGradientBrush>
+                </Ellipse.Fill>
+            </Ellipse>
+
+            <!-- specular highlight -->
+            <Grid Width="{Binding Diameter}" Height="{Binding Diameter}"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    local:GridUtils.RowDefinitions="0.8*,*">
+                <Ellipse Stretch="Fill"
+                         Opacity=".75">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush Center=".45,0" GradientOrigin=".45,0"
+                                         RadiusX="2" RadiusY="1">
+                            <GradientStop Offset="0.0" Color="#EEFFFFFF" />
+                            <GradientStop Offset="1" Color="#11FFFFFF" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+            </Grid>
+
+        </Grid>
+    </ControlTemplate>
+</ResourceDictionary>

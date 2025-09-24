@@ -1042,7 +1042,7 @@ namespace gip.core.layoutengine.avui.timeline
             PART_AxesPanel.DeInitControl();
             BindingOperations.ClearBinding(this, ItemsSourceProperty);
             BindingOperations.ClearBinding(this, SelectedItemProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             container.Children.Clear();
             container = null;
             _IsInitialized = false;

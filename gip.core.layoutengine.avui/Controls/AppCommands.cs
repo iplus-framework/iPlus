@@ -5,14 +5,24 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
+using Avalonia.Input;
+using Avalonia.Labs.Input;
 using gip.core.datamodel;
+using RoutedCommand = Avalonia.Labs.Input.RoutedCommand;
+using KeyGesture = Avalonia.Input.KeyGesture;
+using Key = Avalonia.Input.Key;
 
 namespace gip.core.layoutengine.avui
 {
-    public class RoutedUICommandEx : RoutedUICommand
+    public class RoutedUICommandEx : RoutedCommand
     {
-        public RoutedUICommandEx(ACCommand acCommand) :
-            base(acCommand.GetACUrl(), "Command", typeof(AppCommands))
+        public RoutedUICommandEx(ACCommand acCommand, Avalonia.Input.KeyGesture keyGesture) :
+            base(acCommand.GetACUrl(), keyGesture)
+        {
+            ACCommand = acCommand;
+        }
+
+        public RoutedUICommandEx(ACCommand acCommand) : base(acCommand.GetACUrl())
         {
             ACCommand = acCommand;
         }
@@ -47,28 +57,28 @@ namespace gip.core.layoutengine.avui
         static AppCommands()
         {
             _CommandList = new List<RoutedUICommandEx>();
-            cmdNew = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNew, null), new KeyGesture(Key.N, ModifierKeys.Control));
+            cmdNew = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNew, null), new KeyGesture(Key.N, KeyModifiers.Control));
             ACValueList parameterListLoad = new ACValueList();
             parameterListLoad.Add(new ACValue("requery", true));
-            cmdLoad = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdLoad, parameterListLoad), new KeyGesture(Key.L, ModifierKeys.Control));
-            cmdDelete = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdDelete, null), new KeyGesture(Key.D, ModifierKeys.Control));
-            cmdRestore = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdRestore, null), new KeyGesture(Key.D, ModifierKeys.Control | ModifierKeys.Shift));
-            cmdSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSave, null), new KeyGesture(Key.S, ModifierKeys.Control));
-            cmdUndoSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdUndoSave, null), new KeyGesture(Key.S, ModifierKeys.Alt));
-            cmdSearch = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSearch, null), new KeyGesture(Key.F, ModifierKeys.Control));
-            cmdNavigateFirst = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateFirstPrimary, null), new KeyGesture(Key.Home, ModifierKeys.Control));
-            cmdNavigatePrev = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigatePrevPrimary, null), new KeyGesture(Key.PageUp, ModifierKeys.Control));
-            cmdNavigateNext = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateNextPrimary, null), new KeyGesture(Key.PageDown, ModifierKeys.Control));
-            cmdNavigateLast = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateLastPrimary, null), new KeyGesture(Key.End, ModifierKeys.Control));
-            cmdQueryPrintDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPrintDlg, null), new KeyGesture(Key.P, ModifierKeys.Control));
-            cmdQueryPreviewDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPreviewDlg, null), new KeyGesture(Key.F2, ModifierKeys.Control));
-            cmdQueryDesignDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryDesignDlg, null), new KeyGesture(Key.F2, ModifierKeys.Alt));
-            cmdFindAndReplace = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdFindAndReplace, null), new KeyGesture(Key.F, ModifierKeys.Control));
-            cmdNavigate = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdExport, null), new KeyGesture(Key.E, ModifierKeys.Control));
+            cmdLoad = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdLoad, parameterListLoad), new KeyGesture(Key.L, KeyModifiers.Control));
+            cmdDelete = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdDelete, null), new KeyGesture(Key.D, KeyModifiers.Control));
+            cmdRestore = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdRestore, null), new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Shift));
+            cmdSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSave, null), new KeyGesture(Key.S, KeyModifiers.Control));
+            cmdUndoSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdUndoSave, null), new KeyGesture(Key.S, KeyModifiers.Alt));
+            cmdSearch = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSearch, null), new KeyGesture(Key.F, KeyModifiers.Control));
+            cmdNavigateFirst = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateFirstPrimary, null), new KeyGesture(Key.Home, KeyModifiers.Control));
+            cmdNavigatePrev = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigatePrevPrimary, null), new KeyGesture(Key.PageUp, KeyModifiers.Control));
+            cmdNavigateNext = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateNextPrimary, null), new KeyGesture(Key.PageDown, KeyModifiers.Control));
+            cmdNavigateLast = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateLastPrimary, null), new KeyGesture(Key.End, KeyModifiers.Control));
+            cmdQueryPrintDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPrintDlg, null), new KeyGesture(Key.P, KeyModifiers.Control));
+            cmdQueryPreviewDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPreviewDlg, null), new KeyGesture(Key.F2, KeyModifiers.Control));
+            cmdQueryDesignDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryDesignDlg, null), new KeyGesture(Key.F2, KeyModifiers.Alt));
+            cmdFindAndReplace = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdFindAndReplace, null), new KeyGesture(Key.F, KeyModifiers.Control));
+            cmdNavigate = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdExport, null), new KeyGesture(Key.E, KeyModifiers.Control));
         }
 
         #region public Methods
-        public static ICommand AddApplicationCommand(ACCommand acCommand, KeyGesture keyGesture = null)
+        public static ICommand AddApplicationCommand(ACCommand acCommand, Avalonia.Input.KeyGesture keyGesture = null)
         {
             ICommand appCmd = null;
             if (keyGesture != null || !acCommand.ParameterList.Any())
@@ -77,9 +87,10 @@ namespace gip.core.layoutengine.avui
                 return appCmd;
 
             RoutedUICommandEx appCmd2;
-            appCmd2 = new RoutedUICommandEx(acCommand);
-            if (keyGesture != null)
-                appCmd2.InputGestures.Add(keyGesture);
+            if (keyGesture == null)
+                appCmd2 = new RoutedUICommandEx(acCommand);
+            else
+                appCmd2 = new RoutedUICommandEx(acCommand, keyGesture);
             if (keyGesture != null || !acCommand.ParameterList.Any())
                 _CommandList.Add(appCmd2);
             return appCmd2;
@@ -95,7 +106,7 @@ namespace gip.core.layoutengine.avui
                 if (appCmd != null)
                     return appCmd;
 
-                appCmd = _CommandList.Where(c=> c.Text == acUrl).FirstOrDefault();
+                appCmd = _CommandList.Where(c=> c.Name == acUrl).FirstOrDefault();
                 return appCmd;
             }
             catch (Exception e)

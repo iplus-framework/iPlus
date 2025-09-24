@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -28,6 +25,6 @@ namespace gip.core.layoutengine.avui
 
     public interface ICalculator
     {
-        ICalculatorResult Calculate(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture, out object result);
+        ICalculatorResult Calculate(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture, out object result);
     }
 }

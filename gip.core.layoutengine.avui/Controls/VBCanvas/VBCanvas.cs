@@ -2,25 +2,19 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
 using System.ComponentModel;
 using System.Xml;
-using System.Windows.Media;
 using System.Collections;
 using gip.core.layoutengine.avui.VisualControlAnalyser;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.Transactions;
-using System.Windows.Threading;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
 using gip.ext.design.avui;
-using System.Windows.Data;
+using Avalonia.Controls;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
@@ -290,8 +284,7 @@ namespace gip.core.layoutengine.avui
                 _dispTimer.Tick -= dispatcherTimer_CanExecute;
                 _dispTimer = null;
             }
-            BindingOperations.ClearBinding(this, VBCanvas.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);        
+            this.ClearAllBindings();        
         }
 
         #endregion

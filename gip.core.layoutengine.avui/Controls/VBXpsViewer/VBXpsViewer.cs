@@ -142,7 +142,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBXpsViewer.ContentFileProperty);
             BindingOperations.ClearBinding(this, VBXpsViewer.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBXpsViewer.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             ContentFile = null;
             _Initialized = false;
         }

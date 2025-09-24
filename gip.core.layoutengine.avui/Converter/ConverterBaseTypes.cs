@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
+﻿using Avalonia.Data.Converters;
 using gip.core.datamodel;
 using gip.ext.design.avui.PropertyGrid;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace gip.core.layoutengine.avui
@@ -46,7 +45,7 @@ namespace gip.core.layoutengine.avui
     public abstract class ConverterBaseTypesBaseMulti : ConverterBaseTypesBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return Convert(this, values, targetType, parameter, culture);
         }
@@ -69,7 +68,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBaseTypesBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBaseTypesBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             if ((converter.ConversionBy != ConvType.Direct) && (converter.Calculator != null))

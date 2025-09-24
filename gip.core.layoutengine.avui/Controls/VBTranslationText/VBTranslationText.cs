@@ -650,7 +650,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBTranslationText.ShowTextACUrlProperty);
             //BindingOperations.ClearBinding(this, VBTranslationText.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBTranslationText.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

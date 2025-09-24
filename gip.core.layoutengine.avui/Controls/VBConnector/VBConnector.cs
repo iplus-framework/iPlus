@@ -1,15 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.core.layoutengine.avui.VisualControlAnalyser;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.Linq;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui
 {
@@ -20,7 +16,7 @@ namespace gip.core.layoutengine.avui
     /// Steuerelement für Platzierung von Verbindungslinien
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBConnector'}de{'VBConnector'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBConnector : Control, IVBConnector
+    public class VBConnector : TemplatedControl, IVBConnector
     {
         #region c'tors
         private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 

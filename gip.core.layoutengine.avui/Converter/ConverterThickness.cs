@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
+﻿using Avalonia;
+using Avalonia.Data.Converters;
 using gip.core.datamodel;
 using gip.ext.design.avui.PropertyGrid;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -34,7 +33,7 @@ namespace gip.core.layoutengine.avui
     public class ConverterThicknessMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return Convert(this, values, targetType, parameter, culture);
         }
@@ -45,7 +44,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             double dThickness = 1;
@@ -63,8 +62,7 @@ namespace gip.core.layoutengine.avui
                     {
                         if (result is String)
                         {
-                            ThicknessConverter typeConverter = new ThicknessConverter();
-                            return typeConverter.ConvertFromString(result as String);
+                            return Thickness.Parse(result as String);
                         }
                         else if (result is IConvertible)
                             return new Thickness(System.Convert.ToDouble(result));

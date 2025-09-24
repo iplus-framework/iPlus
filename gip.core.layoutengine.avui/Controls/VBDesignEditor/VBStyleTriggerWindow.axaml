@@ -1,0 +1,9 @@
+﻿<local:VBDockingContainerToolWindow x:Class="gip.core.layoutengine.avui.VBStyleTriggerWindow"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Height="500" Width="750" Background="Black"
+        xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+        Icon="/gip.core.layoutengine.avui;component/Images/iPlusIconDesktop.ico"
+        Title="Style-Triggers">
+    <local:VBTriggersCollectionEditor x:Name="TriggerEditor"></local:VBTriggersCollectionEditor>
+</local:VBDockingContainerToolWindow>

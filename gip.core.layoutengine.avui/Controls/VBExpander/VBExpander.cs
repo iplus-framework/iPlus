@@ -470,7 +470,7 @@ namespace gip.core.layoutengine.avui
 
             BindingOperations.ClearBinding(this, Expander.HeaderProperty);
             BindingOperations.ClearBinding(this, VBExpander.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

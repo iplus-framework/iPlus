@@ -3,6 +3,7 @@
 
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Labs.Input;
 using gip.ext.design.avui;
 using System;
@@ -47,8 +48,8 @@ namespace gip.ext.designer.avui
 				}
 			}
 		}
-		
-		public static void AddCommandHandler(this Control element, ICommand command, Action execute)
+
+        public static void AddCommandHandler(this Control element, ICommand command, Action execute)
 		{
 			AddCommandHandler(element, command, execute, null);
 		}

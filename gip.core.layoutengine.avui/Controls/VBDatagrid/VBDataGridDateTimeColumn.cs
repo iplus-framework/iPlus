@@ -531,7 +531,7 @@ namespace gip.core.layoutengine.avui
         {
             _ACColumnItem = null;
             _ColACTypeInfo = null;
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             this.Binding = null;
         }
     }

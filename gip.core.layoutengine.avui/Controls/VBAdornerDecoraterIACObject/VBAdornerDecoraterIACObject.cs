@@ -1,17 +1,13 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using System;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Avalonia.Controls;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Windows.Controls;
-
 
 namespace gip.core.layoutengine.avui
 {
@@ -22,7 +18,7 @@ namespace gip.core.layoutengine.avui
     /// Bietet eine Adorner-Schicht mit Verbindungslinie zwischen zwei IACO-Objekten.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBAdornerDecoratorIACObject'}de{'VBAdornerDecoratorIACObject'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBAdornerDecoratorIACObject : AdornerDecorator
+    public class VBAdornerDecoratorIACObject : Decorator
     {
         /// <summary>
         /// Creates a new instance of VBAdornerDecoratorIACObject.

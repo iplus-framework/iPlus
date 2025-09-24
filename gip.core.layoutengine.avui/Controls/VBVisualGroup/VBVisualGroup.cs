@@ -235,7 +235,7 @@ namespace gip.core.layoutengine.avui
             _ACObject = null;
             _VBContentPropertyInfo = null;
             BindingOperations.ClearBinding(this, VBVisualGroup.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             _PART_Canvas = null;
             DataContext = null;

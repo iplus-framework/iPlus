@@ -1,24 +1,21 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.VisualTree;
+using gip.core.datamodel;
+using gip.ext.designer.avui;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Media;
-using gip.core.datamodel;
-using System.Runtime.InteropServices;
 using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Controls;
-using DocumentFormat.OpenXml.Presentation;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
 
     public static class VBVisualTreeHelper
     {
-        public static DependencyObject FindObjectInVisualTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindObjectInVisualTree(AvaloniaObject obj, string PART_Name)
         {
-            DependencyObject partObj = VBVisualTreeHelper.FindParentObjectInVisualTree(obj, PART_Name);
+            AvaloniaObject partObj = VBVisualTreeHelper.FindParentObjectInVisualTree(obj, PART_Name);
             if (partObj != null)
                 return partObj;
             partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(obj, PART_Name);
@@ -27,9 +24,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        public static DependencyObject FindObjectInVisualTree(DependencyObject obj, Type type)
+        public static AvaloniaObject FindObjectInVisualTree(AvaloniaObject obj, Type type)
         {
-            DependencyObject partObj = VBVisualTreeHelper.FindParentObjectInVisualTree(obj, type);
+            AvaloniaObject partObj = VBVisualTreeHelper.FindParentObjectInVisualTree(obj, type);
             if (partObj != null)
                 return partObj;
             partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(obj, type);
@@ -38,38 +35,47 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        public static DependencyObject FindChildObjectInVisualTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindChildObjectInVisualTree(AvaloniaObject obj, string PART_Name)
         {
             if (obj == null)
                 return null;
-            if (obj is FrameworkElement)
+            if (obj is StyledElement)
             {
-                FrameworkElement partObj = obj as FrameworkElement;
+                StyledElement partObj = obj as StyledElement;
                 if (partObj.Name == PART_Name)
                     return partObj;
             }
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return null;
+
+            foreach (var child in visual.GetVisualChildren())
             {
-                DependencyObject found = FindChildObjectInVisualTree(VisualTreeHelper.GetChild(obj, i), PART_Name);
+                AvaloniaObject found = FindChildObjectInVisualTree(child, PART_Name);
                 if (found != null)
                     return found;
             }
             return null;
         }
 
-        public static DependencyObject FindChildObjectInVisualTree(DependencyObject obj, Type type)
+        public static AvaloniaObject FindChildObjectInVisualTree(AvaloniaObject obj, Type type)
         {
             if (obj == null)
                 return null;
-            if (obj is FrameworkElement)
+            if (obj is StyledElement)
             {
-                FrameworkElement partObj = obj as FrameworkElement;
+                StyledElement partObj = obj as StyledElement;
                 if (type.IsAssignableFrom(partObj.GetType()))
                     return partObj;
             }
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return null;
+
+            foreach (var child in visual.GetVisualChildren())
             {
-                DependencyObject found = FindChildObjectInVisualTree(VisualTreeHelper.GetChild(obj, i), type);
+                AvaloniaObject found = FindChildObjectInVisualTree(child, type);
                 if (found != null)
                     return found;
             }
@@ -83,13 +89,13 @@ namespace gip.core.layoutengine.avui.Helperclasses
         /// <param name="attributeName"></param>
         /// <param name="value"></param>
         /// <returns></returns>
-        public static DependencyObject FindChildObjectInVisualTree<T>(DependencyObject obj, string attributeName, object value) 
+        public static AvaloniaObject FindChildObjectInVisualTree<T>(AvaloniaObject obj, string attributeName, object value) 
         {
             if (obj == null)
                 return null;
-            if (obj is FrameworkElement)
+            if (obj is StyledElement)
             {
-                FrameworkElement partObj = obj as FrameworkElement;
+                StyledElement partObj = obj as StyledElement;
                 Type t = partObj.GetType();
                 PropertyInfo pi = t.GetProperty(attributeName);
                 if (pi != null)
@@ -101,9 +107,14 @@ namespace gip.core.layoutengine.avui.Helperclasses
                         return partObj;
                 }
             }
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return null;
+
+            foreach (var child in visual.GetVisualChildren())
             {
-                DependencyObject found = FindChildObjectInVisualTree<T>(VisualTreeHelper.GetChild(obj, i), attributeName, value);
+                AvaloniaObject found = FindChildObjectInVisualTree<T>(child, attributeName, value);
                 if (found != null)
                     return found;
             }
@@ -111,7 +122,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
         }
 
 
-        public static IEnumerable<T> FindChildObjects<T>(DependencyObject obj) where T : class
+        public static IEnumerable<T> FindChildObjects<T>(AvaloniaObject obj) where T : class
         {
             List<T> result = new List<T>();
 
@@ -120,7 +131,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return result;
         }
 
-        private static void FindChildObjects<T>(DependencyObject obj, List<T> resultList) where T : class
+        private static void FindChildObjects<T>(AvaloniaObject obj, List<T> resultList) where T : class
         {
             if (obj == null)
                 return;
@@ -136,28 +147,35 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 resultList.Add(obj as T);
             }
 
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return;
+
+            foreach (var child in visual.GetVisualChildren())
             {
-                DependencyObject found = VisualTreeHelper.GetChild(obj, i);
-                FindChildObjects<T>(found as DependencyObject, resultList);
+                FindChildObjects<T>(child, resultList);
             }
         }
 
 
-        public static DependencyObject FindParentObjectInVisualTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindParentObjectInVisualTree(AvaloniaObject obj, string PART_Name)
         {
             if (obj == null)
                 return null;
-            if (obj is FrameworkElement)
+            if (obj is StyledElement)
             {
-                FrameworkElement partObj = obj as FrameworkElement;
+                StyledElement partObj = obj as StyledElement;
                 if (partObj.Name == PART_Name)
                     return partObj;
             }
-            return FindParentObjectInVisualTree(VisualTreeHelper.GetParent(obj), PART_Name);
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return null;
+
+            return FindParentObjectInVisualTree(visual.GetVisualParent(), PART_Name);
         }
 
-        public static DependencyObject FindParentObjectInVisualTree(DependencyObject obj, Type[] types)
+        public static AvaloniaObject FindParentObjectInVisualTree(AvaloniaObject obj, Type[] types)
         {
             if (obj == null)
                 return null;
@@ -172,10 +190,14 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 if (type.IsAssignableFrom(obj.GetType()))
                     return obj;
             }
-            return FindParentObjectInVisualTree(VisualTreeHelper.GetParent(obj), types);
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return null;
+
+            return FindParentObjectInVisualTree(visual.GetVisualParent(), types);
         }
 
-        public static DependencyObject FindParentObjectInVisualTree(DependencyObject obj, Type type)
+        public static AvaloniaObject FindParentObjectInVisualTree(AvaloniaObject obj, Type type)
         {
             if (obj == null)
                 return null;
@@ -183,12 +205,15 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return obj;
             else if (type.IsAssignableFrom(obj.GetType()))
                 return obj;
-            return FindParentObjectInVisualTree(VisualTreeHelper.GetParent(obj), type);
+            Visual visual = obj as Visual;
+            if (visual == null)
+                return null;
+            return FindParentObjectInVisualTree(visual.GetVisualParent(), type);
         }
 
-        public static DependencyObject FindObjectInLogicalAndVisualTree(DependencyObject obj, string PART_Name)
+        public static AvaloniaObject FindObjectInLogicalAndVisualTree(AvaloniaObject obj, string PART_Name)
         {
-            DependencyObject objFound = VBLogicalTreeHelper.FindObjectInLogicalTree(obj, PART_Name);
+            AvaloniaObject objFound = VBLogicalTreeHelper.FindObjectInLogicalTree(obj, PART_Name);
             if (objFound != null)
                 return objFound;
             objFound = VBVisualTreeHelper.FindObjectInVisualTree(obj, PART_Name);
@@ -197,7 +222,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return null;
         }
 
-        //public static VBDesign GetVBDesign(this DependencyObject obj)
+        //public static VBDesign GetVBDesign(this AvaloniaObject obj)
         //{
 
         //    return FindParentObjectInVisualTree(obj, typeof(VBDesign)) as VBDesign;
@@ -220,32 +245,35 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return result.Replace("_", "");
         }
 
-        public static string GetVBContentsAsXName(DependencyObject fromChildObj, DependencyObject toParentObj)
+        public static string GetVBContentsAsXName(AvaloniaObject fromChildObj, AvaloniaObject toParentObj)
         {
             if ((fromChildObj == null) || (fromChildObj == toParentObj))
                 return "";
-            string xName = GetVBContentsAsXName(VisualTreeHelper.GetParent(fromChildObj),toParentObj);
-            if ((fromChildObj is IVBContent) && (fromChildObj is FrameworkElement))
+            Visual visual = fromChildObj as Visual;
+            if (visual == null)
+                return "";
+            string xName = GetVBContentsAsXName(visual.GetVisualParent(), toParentObj);
+            if ((fromChildObj is IVBContent) && (fromChildObj is Control))
             {
                 if (String.IsNullOrEmpty(xName))
-                    xName = (fromChildObj as FrameworkElement).Name;
+                    xName = (fromChildObj as Control).Name;
                 else
-                    xName += "\\" + (fromChildObj as FrameworkElement).Name;
+                    xName += "\\" + (fromChildObj as Control).Name;
             }
             return xName;
         }
 
-        public static FrameworkElement FindChildVBContentObjectInVisualTree(FrameworkElement startObj, string vbContentXName)
+        public static Control FindChildVBContentObjectInVisualTree(Control startObj, string vbContentXName)
         {
             string[] result = vbContentXName.Split(new String[]{"\\"}, StringSplitOptions.RemoveEmptyEntries);
             if (result == null || !result.Any())
                 return null;
 
-            FrameworkElement nextStartSearchElement = startObj;
-            FrameworkElement foundSearchElement = null;
+            Control nextStartSearchElement = startObj;
+            Control foundSearchElement = null;
             foreach (string nextVBContentXName in result)
             {
-                foundSearchElement = SearchFrameworkElement(nextStartSearchElement, nextVBContentXName);
+                foundSearchElement = SearchControl(nextStartSearchElement, nextVBContentXName);
                 if (foundSearchElement == null)
                     return null;
                 nextStartSearchElement = foundSearchElement;
@@ -255,107 +283,104 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
 
         /// <summary>
-        /// Get the child FrameworkElement with a given name
-        /// from the visual tree of a parent FrameworkElement.
+        /// Get the child Control with a given name
+        /// from the visual tree of a parent Control.
         /// </summary>
-        /// <param name="parentFrameworkElement">Parent FrameworkElement</param>
-        /// <param name="childFrameworkElementNameToSearch">Child FrameworkElement name</param>
-        /// <returns>Child FrameworkElement with a given name</returns>
-        public static FrameworkElement SearchFrameworkElement(FrameworkElement parentFrameworkElement, string childFrameworkElementNameToSearch)
+        /// <param name="parentControl">Parent Control</param>
+        /// <param name="childControlNameToSearch">Child Control name</param>
+        /// <returns>Child Control with a given name</returns>
+        public static Control SearchControl(Control parentControl, string childControlNameToSearch)
         {
-            FrameworkElement childFrameworkElementFound = null;
-            SearchFrameworkElement(parentFrameworkElement, ref childFrameworkElementFound, childFrameworkElementNameToSearch);
-            return childFrameworkElementFound;
+            Control childControlFound = null;
+            SearchControl(parentControl, ref childControlFound, childControlNameToSearch);
+            return childControlFound;
         }
         /// <summary>
-        /// Get All Child FrameworkElement of given FrameworkElement
+        /// Get All Child Control of given Control
         ///</summary>
-        /// <param name="parentElement">Parent FrameworkElement whose child FrameworkElement's will be searched</param>
-        /// <returns>List of Child FrameworkElement</returns>
-        public static List<FrameworkElement> GetAllChildFrameworkElement(FrameworkElement parentElement)
+        /// <param name="parentElement">Parent Control whose child Control's will be searched</param>
+        /// <returns>List of Child Control</returns>
+        public static List<Control> GetAllChildControl(Control parentElement)
         {
-            List<FrameworkElement> childFrameworkElementFound = new List<FrameworkElement>();
-            SearchAllChildFrameworkElement(parentElement, childFrameworkElementFound);
-            return childFrameworkElementFound;
+            List<Control> childControlFound = new List<Control>();
+            SearchAllChildControl(parentElement, childControlFound);
+            return childControlFound;
         }
-        //SearchFrameworkElement helper
-        private static void SearchFrameworkElement(FrameworkElement parentFrameworkElement, ref FrameworkElement childFrameworkElementToFind, string childFrameworkElementName)
+        //SearchControl helper
+        private static void SearchControl(Control parentControl, ref Control childControlToFind, string childControlName)
         {
-            int childrenCount = VisualTreeHelper.GetChildrenCount(parentFrameworkElement);
-            if (childrenCount > 0)
+            Visual visual = parentControl as Visual;
+            if (visual == null)
+                return;
+
+            foreach (var childControl in visual.GetVisualChildren())
             {
-                DependencyObject childFrameworkElement = null;
-                for (int i = 0; i < childrenCount; i++)
+                if (childControlToFind != null)
+                    return;
+                if (childControl is Control)
                 {
-                    if (childFrameworkElementToFind != null)
+                    if (childControl != null)
+                    {
+                        //if (childControl is VBVisual || childControl is VBVisualGroup)                           
+                        if (childControl is IVBContent)
+                        {
+                            if ((childControl as Control).Name.Equals(childControlName))
+                            {
+                                childControlToFind = (childControl as Control);
+                                return;
+                            }
+                            continue;
+                        }
+                        if (childControl is VBConnector)
+                        {
+                            if ((childControl as VBConnector).VBContent.Equals(childControlName))
+                            {
+                                childControlToFind = (childControl as Control);
+                                return;
+                            }
+                            continue;
+                        }
+                    }
+                    SearchControl((childControl as Control), ref childControlToFind, childControlName);
+                    if (childControlToFind != null)
                         return;
-                    childFrameworkElement = VisualTreeHelper.GetChild(parentFrameworkElement, i);
-                    if (childFrameworkElement is FrameworkElement)
-                    {
-                        if (childFrameworkElement != null)
-                        {
-                            //if (childFrameworkElement is VBVisual || childFrameworkElement is VBVisualGroup)                           
-                            if (childFrameworkElement is IVBContent)
-                            {
-                                if ((childFrameworkElement as FrameworkElement).Name.Equals(childFrameworkElementName))
-                                {
-                                    childFrameworkElementToFind = (childFrameworkElement as FrameworkElement);
-                                    return;
-                                }
-                                continue;
-                            }
-                            if (childFrameworkElement is VBConnector)
-                            {
-                                if ((childFrameworkElement as VBConnector).VBContent.Equals(childFrameworkElementName))
-                                {
-                                    childFrameworkElementToFind = (childFrameworkElement as FrameworkElement);
-                                    return;
-                                }
-                                continue;
-                            }
-                        }
-                        SearchFrameworkElement((childFrameworkElement as FrameworkElement), ref childFrameworkElementToFind, childFrameworkElementName);
-                        if (childFrameworkElementToFind != null)
-                            return;
-                    }
-                    else if (childFrameworkElement is ContainerVisual)
-                    {
-                        ContainerVisual visualContainer = childFrameworkElement as ContainerVisual;
-                        foreach (Visual visualChild in visualContainer.Children)
-                        {
-                            if (visualChild is FrameworkElement)
-                            {
-                                if (visualChild != null && visualChild is IVBContent)
-                                {
-                                    if ((visualChild as FrameworkElement).Name.Equals(childFrameworkElementName))
-                                    {
-                                        childFrameworkElementToFind = (visualChild as FrameworkElement);
-                                        return;
-                                    }
-                                    continue;
-                                }
-                                SearchFrameworkElement((visualChild as FrameworkElement), ref childFrameworkElementToFind, childFrameworkElementName);
-                                break;
-                            }
-                        }
-                    }
                 }
+                //else if (childControl is CompositionVisual)
+                //{
+                //    CompositionVisual visualContainer = childControl as CompositionVisual;
+                //    foreach (Visual visualChild in visualContainer.Children)
+                //    {
+                //        if (visualChild is Control)
+                //        {
+                //            if (visualChild != null && visualChild is IVBContent)
+                //            {
+                //                if ((visualChild as Control).Name.Equals(childControlName))
+                //                {
+                //                    childControlToFind = (visualChild as Control);
+                //                    return;
+                //                }
+                //                continue;
+                //            }
+                //            SearchControl((visualChild as Control), ref childControlToFind, childControlName);
+                //            break;
+                //        }
+                //    }
+                //}
             }
         }
-        //GetAllChildFrameworkElement helper
-        private static void SearchAllChildFrameworkElement(FrameworkElement parentFrameworkElement, List<FrameworkElement> allChildFrameworkElement)
+        //GetAllChildControl helper
+        private static void SearchAllChildControl(Control parentControl, List<Control> allChildControl)
         {
-            int childrenCount = VisualTreeHelper.GetChildrenCount(parentFrameworkElement);
-            if (childrenCount > 0)
+            Visual visual = parentControl as Visual;
+            if (visual == null)
+                return;
+
+            foreach (var childControl in visual.GetVisualChildren())
             {
-                for (int i = 0; i < childrenCount; i++)
+                if (childControl is Control)
                 {
-                    DependencyObject childFrameworkElement = (FrameworkElement)VisualTreeHelper.GetChild(parentFrameworkElement, i);
-                    if (childFrameworkElement is FrameworkElement)
-                    {
-                        allChildFrameworkElement.Add((childFrameworkElement as FrameworkElement));
-                        SearchAllChildFrameworkElement((childFrameworkElement as FrameworkElement), allChildFrameworkElement);
-                    }
+                    allChildControl.Add((childControl as Control));
+                    SearchAllChildControl((childControl as Control), allChildControl);
                 }
             }
         }
@@ -364,8 +389,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
         {
             if (guiObject == null)
                 return;
-            DependencyObject depObject = guiObject as DependencyObject;
-            if (depObject == null)
+            Visual visual = guiObject as Visual;
+            if (visual == null)
                 return;
 
             //foreach (object o in LogicalTreeHelper.GetChildren(depObject))
@@ -373,40 +398,33 @@ namespace gip.core.layoutengine.avui.Helperclasses
             //    DeInitVBControls(acObject, o);
             //}
 
-            int childrenCount = VisualTreeHelper.GetChildrenCount(depObject);
-            if (childrenCount > 0)
+            foreach (var childControl in visual.GetVisualChildren())
             {
-                DependencyObject childFrameworkElement = null;
-                for (int i = 0; i < childrenCount; i++)
+                if (childControl is Control)
                 {
-                    childFrameworkElement = VisualTreeHelper.GetChild(depObject, i);
-                    if (childFrameworkElement is FrameworkElement)
-                    {
-                        DeInitVBControls(acObject, childFrameworkElement);
-                    }
-                    else if (childFrameworkElement is ContainerVisual)
-                    {
-                        ContainerVisual visualContainer = childFrameworkElement as ContainerVisual;
-                        foreach (Visual visualChild in visualContainer.Children)
-                        {
-                            DeInitVBControls(acObject, visualChild);
-                        }
-                    }
-                    else
-                    {
-                        DeInitVBControls(acObject, childFrameworkElement);
-                    }
+                    DeInitVBControls(acObject, childControl);
+                }
+                //else if (childControl is ContainerVisual)
+                //{
+                //    ContainerVisual visualContainer = childControl as ContainerVisual;
+                //    foreach (Visual visualChild in visualContainer.Children)
+                //    {
+                //        DeInitVBControls(acObject, visualChild);
+                //    }
+                //}
+                else
+                {
+                    DeInitVBControls(acObject, childControl);
                 }
             }
-            if (depObject is IVBContent)
+            if (visual is IVBContent)
             {
-                IVBContent vbContentObj = depObject as IVBContent;
+                IVBContent vbContentObj = visual as IVBContent;
                 if (vbContentObj != null)
                     vbContentObj.DeInitVBControl(null);
             }
-            BindingOperations.ClearAllBindings(guiObject as DependencyObject);
+            visual.ClearAllBindings();
         }
-
     }
 
     /*public class MouseUtilities

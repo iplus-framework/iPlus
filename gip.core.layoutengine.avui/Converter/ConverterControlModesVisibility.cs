@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Reflection;
-using System.Windows;
-using System.Globalization;
+﻿using Avalonia.Data.Converters;
 using gip.core.datamodel;
+using System;
+using System.Globalization;
 
 namespace gip.core.layoutengine.avui
 {
@@ -19,11 +14,10 @@ namespace gip.core.layoutengine.avui
                 switch ((Global.ControlModes)value)
                 {
                     case Global.ControlModes.Collapsed:
-                        return Visibility.Collapsed;
                     case Global.ControlModes.Hidden:
-                        return Visibility.Hidden;
+                        return false;
                     default:
-                        return Visibility.Visible;
+                        return true;
                 }
             }
             catch  (Exception e)

@@ -1,0 +1,38 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <!-- =============================================================================== -->
+    <!-- NumericUpDown                                                                  -->
+    <!-- =============================================================================== -->
+
+    <Style x:Key="NumericUpDownStyleGip" TargetType="{x:Type local:VBNumericUpDown}">
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Focusable" Value="False" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VBNumericUpDown}">
+                    <local:VBButtonSpinner x:Name="Spinner" IsTabStop="False" BorderThickness="{TemplateBinding BorderThickness}">
+                        <local:VBTextBox x:Name="TextBox" 
+                                 ShowCaption="{TemplateBinding ShowCaption}"
+                                 VBContent="{TemplateBinding VBContent}"
+                                 RightControlMode="{TemplateBinding RightControlMode}"
+                                 ACCaption="{TemplateBinding ACCaption}"
+                                 ACCaptionTrans="{TemplateBinding ACCaptionTrans}"
+                                 WidthCaption="{TemplateBinding WidthCaption}"
+                                 WidthCaptionMax="{TemplateBinding WidthCaptionMax}"
+                                 WidthContent="{TemplateBinding WidthContent}"
+                                 WidthContentMax="{TemplateBinding WidthContentMax}"
+                                 WidthPadding="{TemplateBinding WidthPadding}"                                        
+                                 DisabledModes="{TemplateBinding DisabledModes}"                                        
+                                 MinWidth="20" AcceptsReturn="False" 
+                                 TextAlignment="Right" 
+                                 TextWrapping="NoWrap" 
+                                 TabIndex="{TemplateBinding TabIndex}"/>
+                    </local:VBButtonSpinner>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

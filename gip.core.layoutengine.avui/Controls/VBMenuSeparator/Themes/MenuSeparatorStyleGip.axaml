@@ -1,0 +1,25 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <Style x:Key="MenuSeparatorStyleGip" TargetType="{x:Type local:VBMenuSeparator}">
+        <Setter Property="Height" Value="4" />
+        <Setter Property="Margin" Value="0,2,0,2" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type local:VBMenuSeparator}">
+                    <Grid Margin="0,0,0,0" SnapsToDevicePixels="true">
+                        <Rectangle Fill="#E0E0E0" Height="1" Margin="30,0,1,1" Stroke="DarkRed"/>
+                        <!--<Rectangle Fill="White" Height="1" Margin="30,1,1,0" Stroke="DarkRed"/>-->
+                        <!--<Rectangle Margin="5,0,5,0" Fill="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Height="1.5"></Rectangle>-->
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

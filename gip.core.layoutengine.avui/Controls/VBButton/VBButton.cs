@@ -4,20 +4,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.Transactions;
-using System.Windows.Threading;
 using System.ComponentModel;
+using Avalonia.Controls;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
@@ -304,9 +296,7 @@ namespace gip.core.layoutengine.avui
             _ACContentList = null;
             _TypeMemberMouseDown = null;
             _TypeMemberMouseUp = null;
-            BindingOperations.ClearBinding(this, VBButton.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBButton.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         /// <summary>

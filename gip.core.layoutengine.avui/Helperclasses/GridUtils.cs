@@ -1,5 +1,7 @@
-﻿using System.Windows;
-using System.Windows.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Reactive;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
@@ -10,50 +12,59 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Identified the RowDefinitions attached property
         /// </summary>
-        public static readonly DependencyProperty RowDefinitionsProperty =
-            DependencyProperty.RegisterAttached("RowDefinitions", typeof(string), typeof(GridUtils),
-                new PropertyMetadata("", new PropertyChangedCallback(OnRowDefinitionsPropertyChanged)));
+        public static readonly AttachedProperty<string> RowDefinitionsProperty =
+            AvaloniaProperty.RegisterAttached<GridUtils, Control, string>("RowDefinitions", "");
 
         /// <summary>
         /// Gets the value of the RowDefinitions property
         /// </summary>
-        public static string GetRowDefinitions(DependencyObject d)
+        public static string GetRowDefinitions(AvaloniaObject d)
         {
-            return (string)d.GetValue(RowDefinitionsProperty);
+            return d.GetValue(RowDefinitionsProperty);
         }
 
         /// <summary>
         /// Sets the value of the RowDefinitions property
         /// </summary>
-        public static void SetRowDefinitions(DependencyObject d, string value)
+        public static void SetRowDefinitions(AvaloniaObject d, string value)
         {
             d.SetValue(RowDefinitionsProperty, value);
+        }
+
+        static GridUtils()
+        {
+            RowDefinitionsProperty.Changed.Subscribe(OnRowDefinitionsPropertyChanged);
+            ColumnDefinitionsProperty.Changed.Subscribe(OnColumnDefinitionsPropertyChanged);
         }
 
         /// <summary>
         /// Handles property changed event for the RowDefinitions property, constructing
         /// the required RowDefinitions elements on the grid which this property is attached to.
         /// </summary>
-        private static void OnRowDefinitionsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnRowDefinitionsPropertyChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            Grid targetGrid = d as Grid;
-
-            // construct the required row definitions
-            targetGrid.RowDefinitions.Clear();
-            string rowDefs = e.NewValue as string;
-            var rowDefArray = rowDefs.Split(',');
-            foreach (string rowDefinition in rowDefArray)
+            if (e.Sender is Grid targetGrid)
             {
-                if (rowDefinition.Trim() == "")
+                // construct the required row definitions
+                targetGrid.RowDefinitions.Clear();
+                string rowDefs = e.NewValue as string;
+                if (!string.IsNullOrEmpty(rowDefs))
                 {
-                    targetGrid.RowDefinitions.Add(new RowDefinition());
-                }
-                else
-                {
-                    targetGrid.RowDefinitions.Add(new RowDefinition()
+                    var rowDefArray = rowDefs.Split(',');
+                    foreach (string rowDefinition in rowDefArray)
                     {
-                        Height = ParseLength(rowDefinition)
-                    });
+                        if (rowDefinition.Trim() == "")
+                        {
+                            targetGrid.RowDefinitions.Add(new RowDefinition());
+                        }
+                        else
+                        {
+                            targetGrid.RowDefinitions.Add(new RowDefinition()
+                            {
+                                Height = ParseLength(rowDefinition)
+                            });
+                        }
+                    }
                 }
             }
         }
@@ -66,22 +77,21 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Identifies the ColumnDefinitions attached property
         /// </summary>
-        public static readonly DependencyProperty ColumnDefinitionsProperty =
-            DependencyProperty.RegisterAttached("ColumnDefinitions", typeof(string), typeof(GridUtils),
-                new PropertyMetadata("", new PropertyChangedCallback(OnColumnDefinitionsPropertyChanged)));
+        public static readonly AttachedProperty<string> ColumnDefinitionsProperty =
+            AvaloniaProperty.RegisterAttached<GridUtils, Control, string>("ColumnDefinitions", "");
 
         /// <summary>
         /// Gets the value of the ColumnDefinitions property
         /// </summary>
-        public static string GetColumnDefinitions(DependencyObject d)
+        public static string GetColumnDefinitions(AvaloniaObject d)
         {
-            return (string)d.GetValue(ColumnDefinitionsProperty);
+            return d.GetValue(ColumnDefinitionsProperty);
         }
 
         /// <summary>
         /// Sets the value of the ColumnDefinitions property
         /// </summary>
-        public static void SetColumnDefinitions(DependencyObject d, string value)
+        public static void SetColumnDefinitions(AvaloniaObject d, string value)
         {
             d.SetValue(ColumnDefinitionsProperty, value);
         }
@@ -90,26 +100,30 @@ namespace gip.core.layoutengine.avui
         /// Handles property changed event for the ColumnDefinitions property, constructing
         /// the required ColumnDefinitions elements on the grid which this property is attached to.
         /// </summary>
-        private static void OnColumnDefinitionsPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnColumnDefinitionsPropertyChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            Grid targetGrid = d as Grid;
-
-            // construct the required column definitions
-            targetGrid.ColumnDefinitions.Clear();
-            string columnDefs = e.NewValue as string;
-            var columnDefArray = columnDefs.Split(',');
-            foreach (string columnDefinition in columnDefArray)
+            if (e.Sender is Grid targetGrid)
             {
-                if (columnDefinition.Trim() == "")
+                // construct the required column definitions
+                targetGrid.ColumnDefinitions.Clear();
+                string columnDefs = e.NewValue as string;
+                if (!string.IsNullOrEmpty(columnDefs))
                 {
-                    targetGrid.ColumnDefinitions.Add(new ColumnDefinition());
-                }
-                else
-                {
-                    targetGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                    var columnDefArray = columnDefs.Split(',');
+                    foreach (string columnDefinition in columnDefArray)
                     {
-                        Width = ParseLength(columnDefinition)
-                    });
+                        if (columnDefinition.Trim() == "")
+                        {
+                            targetGrid.ColumnDefinitions.Add(new ColumnDefinition());
+                        }
+                        else
+                        {
+                            targetGrid.ColumnDefinitions.Add(new ColumnDefinition()
+                            {
+                                Width = ParseLength(columnDefinition)
+                            });
+                        }
+                    }
                 }
             }
         }

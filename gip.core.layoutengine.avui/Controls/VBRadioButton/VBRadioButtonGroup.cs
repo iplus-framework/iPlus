@@ -649,7 +649,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, ListBox.SelectedValueProperty);
             //BindingOperations.ClearBinding(this, VBRadioButtonGroup.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBRadioButtonGroup.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

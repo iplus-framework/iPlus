@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 using gip.core.datamodel;
-//using gip.core.autocomponent;
-using System.Xml.Linq;
-using gip.core.layoutengine.avui;
+using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Services;
-using System.Collections;
-using System.Windows;
-using System.Windows.Input;
-using gip.core.layoutengine.avui.Helperclasses;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -177,14 +173,14 @@ namespace gip.core.layoutengine.avui
                 newInstance = context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(ComponentType, null);
 
             DesignItem item = context.Services.Component.RegisterComponentForDesigner(newInstance);
-            changeGroup = item.OpenGroup("Drop Control");
+            ChangeGroup = item.OpenGroup("Drop Control");
 
             if (item.View != null)
             {
-                if (item.View is System.Windows.Controls.ContentControl)
+                if (item.View is ContentControl)
                 {
-                    if ((item.View as System.Windows.Controls.ContentControl).Content != null)
-                        (item.View as System.Windows.Controls.ContentControl).Content = null;
+                    if ((item.View as ContentControl).Content != null)
+                        (item.View as ContentControl).Content = null;
                 }
 
                 if ((item.View is VBImage) && (ACObject is ACClassDesign))
@@ -219,7 +215,7 @@ namespace gip.core.layoutengine.avui
                         try
                         {
                             vbXName = String.Format("{0}_{1}", vbXName, context.Services.Component.DesignItems.Where(c => (c.Component != null)
-                                && (c.Component is FrameworkElement)
+                                && (c.Component is Control)
                                 && !String.IsNullOrEmpty(c.Name)
                                 && c.Name.StartsWith(vbXName)).Count());
                             item.Name = vbXName;
@@ -274,13 +270,13 @@ namespace gip.core.layoutengine.avui
 
                     if (!isEnabled)
                     {
-                        e.Effects = DragDropEffects.None;
+                        e.DragEffects = DragDropEffects.None;
                         e.Handled = true;
                         return;
                     }
                     if (acActionArgs.Handled)
                     {
-                        e.Effects = acActionArgs.ElementAction == Global.ElementActionType.Drop ? DragDropEffects.Copy : DragDropEffects.None;
+                        e.DragEffects = acActionArgs.ElementAction == Global.ElementActionType.Drop ? DragDropEffects.Copy : DragDropEffects.None;
                         e.Handled = true;
                         return;
                     }
@@ -306,7 +302,7 @@ namespace gip.core.layoutengine.avui
 
                     if (acActionArgs.Handled)
                     {
-                        e.Effects = DragDropEffects.None;
+                        e.DragEffects = DragDropEffects.None;
                         e.Handled = true;
                         base.designPanel_DragLeave(sender, e);
                         return;
@@ -322,7 +318,7 @@ namespace gip.core.layoutengine.avui
             base.designPanel_DragLeave(sender, e);
         }
 
-        protected override void MouseDown(object sender, MouseButtonEventArgs e)
+        protected override void MouseDown(object sender, PointerPressedEventArgs e)
         {
             if (VBDesigner.CurrentDesign is ACClassDesign)
             {
@@ -336,7 +332,7 @@ namespace gip.core.layoutengine.avui
 
         protected bool HitTestACElement(IDesignPanel designPanel, DragEventArgs e, out Point pModel, out DesignPanelHitTestResult result)
         {
-            Point p = e.GetPosition(designPanel);
+            Point p = e.GetPosition(designPanel as Visual);
             designPanel.IsAdornerLayerHitTestVisible = false;
             result = designPanel.HitTest(p, false, true);
             designPanel.IsAdornerLayerHitTestVisible = true;

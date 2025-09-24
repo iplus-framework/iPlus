@@ -434,7 +434,7 @@ namespace gip.core.layoutengine.avui
             }
             RemoveSelectionChangedHandler();
             BindingOperations.ClearBinding(this, VBDockingManager.MasterPageFreezeProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             _dockingBtnGroups = null;
             _overlayWindow = null;
 

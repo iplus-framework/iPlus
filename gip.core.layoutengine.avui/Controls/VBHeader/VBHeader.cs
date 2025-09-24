@@ -518,7 +518,7 @@ namespace gip.core.layoutengine.avui
 
             BindingOperations.ClearBinding(this, VBHeader.ACCaptionTransProperty);
             BindingOperations.ClearBinding(this, VBHeader.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

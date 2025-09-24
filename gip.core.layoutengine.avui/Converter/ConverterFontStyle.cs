@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
-using System.Windows;
+﻿using Avalonia.Data.Converters;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.ext.design.avui.PropertyGrid;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -34,7 +33,7 @@ namespace gip.core.layoutengine.avui
     public class ConverterFontStyleMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             return Convert(this, values, targetType, parameter, culture);
         }
@@ -45,7 +44,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        internal static object Convert(ConverterBase converter, object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             object result = null;
             byte val = 0;
@@ -64,8 +63,7 @@ namespace gip.core.layoutengine.avui
                     {
                         if (result is String)
                         {
-                            FontStyleConverter fontConv = new FontStyleConverter();
-                            return fontConv.ConvertFromString(result as String);
+                            return Enum.Parse<FontStyle>(result as String);
                         }
                         else if (result is IConvertible)
                             val = System.Convert.ToByte(result);
@@ -77,8 +75,7 @@ namespace gip.core.layoutengine.avui
                 {
                     if (values[0] is String)
                     {
-                        FontStyleConverter fontConv = new FontStyleConverter();
-                        return fontConv.ConvertFromString(values[0] as String);
+                        return Enum.Parse<FontStyle>(values[0] as String);
                     }
                     else if (values[0] is IConvertible)
                         val = System.Convert.ToByte(values[0]);
@@ -94,10 +91,10 @@ namespace gip.core.layoutengine.avui
                     datamodel.Database.Root.Messages.LogException("ConverterFontStyleMulti", "Convert", msg);
             }
             if (val <= 0)
-                return FontStyles.Normal;
+                return FontStyle.Normal;
             else if (val == 1)
-                return FontStyles.Italic;
-            return FontStyles.Oblique;
+                return FontStyle.Italic;
+            return FontStyle.Oblique;
         }
 
         internal static object[] ConvertBack(ConverterBase converter, object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)

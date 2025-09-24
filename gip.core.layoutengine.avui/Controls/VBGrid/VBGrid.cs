@@ -327,7 +327,7 @@ namespace gip.core.layoutengine.avui
 
             BindingOperations.ClearBinding(this, VBGrid.ACUpdateControlModeProperty);
             BindingOperations.ClearBinding(this, VBGrid.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         /// <summary>

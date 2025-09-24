@@ -1,0 +1,236 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <SolidColorBrush x:Key="DialogVBDialogHeaderNormalBorderBrushAero" Color="{StaticResource {ComponentResourceKey ResourceId=TabItemSelectedBorderColorAero, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+    <LinearGradientBrush x:Key="DialogVBDialogHeaderSelectedBackgroundAero" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#F2F2F2" Offset="0.15"/>
+        <GradientStop Color="#E2E2E2" Offset=".5"/>
+        <GradientStop Color="#D2D2D2" Offset=".5"/>
+        <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    </LinearGradientBrush>
+
+    <RadialGradientBrush x:Key="DialogVBDialogCloseButtonBrushStyleAero">
+        <GradientStop Color="#ADADAD" Offset="0"/>
+        <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="DialogVBDialogCloseButtonBorderBrushAero" Color="#2D2D2D"/>
+    <SolidColorBrush x:Key="CloseButtonFillBrushAero" Color="#9D9D9D"/>
+
+    <RadialGradientBrush x:Key="DialogVBDialogCloseButtonBrushHotStyleAero">
+        <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="0"/>
+        <GradientStop Color="#626262" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="DialogVBDialogCloseButtonBorderBrushHotAero" Color="Red"/>
+    <SolidColorBrush x:Key="DialogVBDialogCloseButtonFillBrushHotAero" Color="#FF770000"/>
+
+    <Style TargetType="{x:Type Button}" x:Key="DialogVBDialogCloseButtonStyleAero">
+        <Setter Property="Background" Value="Yellow"></Setter>
+        <Setter Property="BorderBrush" Value="Blue"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Canvas Height="16" Width="16">
+                        <Rectangle x:Name="Kreis" Height="16" Width="16" RadiusX="4" RadiusY="4" Fill="{StaticResource DialogVBDialogCloseButtonBrushStyleAero}"/>
+                        <Path x:Name="CheckPath"
+											      Width="10" 
+												  Height="8" 
+												  Canvas.Left="3" 
+												  Canvas.Top="4" 
+												  Stretch="Fill" 
+												  StrokeStartLineCap="Round" 
+												  StrokeEndLineCap="Round" 
+												  StrokeLineJoin="Round" 
+												  Stroke="{StaticResource DialogVBDialogCloseButtonBorderBrushAero}" 
+												  Fill="{StaticResource CloseButtonFillBrushAero}" 
+												  Data="F1 M 0,9L 4.5,16L 16,2L 4.5,12L 0,9.0 Z "/>
+                    </Canvas>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="Kreis" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonBrushHotStyleAero}" />
+                            <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource DialogVBDialogCloseButtonBorderBrushHotAero}"/>
+                            <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonFillBrushHotAero}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <LinearGradientBrush x:Key="DialogVBDialogPinButtonFillAero" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#FF464646" Offset="0"/>
+            <GradientStop Color="#FF727272" Offset="0.146553"/>
+            <GradientStop Color="#FF9E9E9E" Offset="0.344828"/>
+            <GradientStop Color="#FF2E2E2E" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="DialogVBDialogPinButtonHotFillAero" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+        <LinearGradientBrush.GradientStops>
+            <GradientStop Color="#FF4D0000" Offset="0"/>
+            <GradientStop Color="#FF760000" Offset="0.146553"/>
+            <GradientStop Color="Red" Offset="0.344828"/>
+            <GradientStop Color="#FF390000" Offset="1"/>
+        </LinearGradientBrush.GradientStops>
+    </LinearGradientBrush>
+
+    <Style TargetType="{x:Type Button}" x:Key="DialogVBDialogPinButtonStyleAero">
+        <Setter Property="Background" Value="Yellow"></Setter>
+        <Setter Property="BorderBrush" Value="Blue"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+
+                    <Canvas Width="16" Height="16">
+                        <Rectangle x:Name="Kreis" Height="16" Width="16" RadiusX="4" RadiusY="4" Fill="{StaticResource DialogVBDialogCloseButtonBrushStyleAero}"/>
+                        <Path x:Name="CheckPath" Width="13" Height="3" Canvas.Left="2" Canvas.Top="8" Stretch="Fill" StrokeLineJoin="Round" 
+												  Stroke="{StaticResource DialogVBDialogCloseButtonBorderBrushAero}" 
+												  Fill="{StaticResource CloseButtonFillBrushAero}" 
+											Data="F1 M 2,11L 14,11L 12,9L 4,9L 2,11 Z ">
+                        </Path>
+                        <Rectangle x:Name="Rectangle" Width="9" Height="8" Canvas.Left="4" Canvas.Top="1" 
+												Stretch="Fill" StrokeLineJoin="Round" 
+												Fill="{StaticResource DialogVBDialogPinButtonFillAero}" 
+												  Stroke="{StaticResource DialogVBDialogCloseButtonBorderBrushAero}" >
+                        </Rectangle>
+                        <Path x:Name="Needle" Width="2" Height="5" Canvas.Left="7" Canvas.Top="10" Stretch="Fill" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeLineJoin="Bevel" 
+												  Stroke="{StaticResource DialogVBDialogCloseButtonBorderBrushAero}" 
+												  Fill="{StaticResource CloseButtonFillBrushAero}" 
+													Data="F1 M 7,10.5L 8,15.5L 9,10.5L 7,10.5 Z ">
+                        </Path>
+                    </Canvas>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="Kreis" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonBrushHotStyleAero}" />
+                            <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource DialogVBDialogCloseButtonBorderBrushHotAero}"/>
+                            <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonFillBrushHotAero}"/>
+                            <Setter TargetName="Rectangle" Property="Stroke" Value="{StaticResource DialogVBDialogCloseButtonBorderBrushHotAero}"/>
+                            <Setter TargetName="Rectangle" Property="Fill" Value="{StaticResource DialogVBDialogPinButtonHotFillAero}"/>
+                            <Setter TargetName="Needle" Property="Stroke" Value="{StaticResource DialogVBDialogCloseButtonBorderBrushHotAero}"/>
+                            <Setter TargetName="Needle" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonFillBrushHotAero}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type Button}" x:Key="DialogVBDialogMenuButtonStyleAero">
+        <Setter Property="Background" Value="Yellow"></Setter>
+        <Setter Property="BorderBrush" Value="Blue"></Setter>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Canvas Height="16" Width="16">
+                        <Rectangle x:Name="Kreis" Height="16" Width="16" RadiusX="4" RadiusY="4" Fill="{StaticResource DialogVBDialogCloseButtonBrushStyleAero}"/>
+                        <Path x:Name="CheckPath" 
+									  Stroke="{StaticResource DialogVBDialogCloseButtonBorderBrushAero}" 
+									  Fill="{StaticResource CloseButtonFillBrushAero}" 
+									StrokeEndLineCap="Square" 
+									StrokeLineJoin="Round" 
+									StrokeThickness="1" 
+											      Width="9" 
+												  Height="7" 
+												  Canvas.Left="3" 
+												  Canvas.Top="5" 
+												  Stretch="Fill" 
+									Data="F1 M 4.00001,6L 8,12L 12,6L 4.00001,6 Z " >
+                        </Path>
+                    </Canvas>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="true">
+                            <Setter TargetName="Kreis" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonBrushHotStyleAero}" />
+                            <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource DialogVBDialogCloseButtonBorderBrushHotAero}"/>
+                            <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource DialogVBDialogCloseButtonFillBrushHotAero}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="DialogVBDialogTemplateAero" TargetType="{x:Type local:VBWindowDialog}">
+        <DockPanel>
+            <DockPanel.LayoutTransform>
+                <ScaleTransform>
+                    <ScaleTransform.ScaleX>
+                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ScaleX" Mode="OneWay"/>
+                    </ScaleTransform.ScaleX>
+                    <ScaleTransform.ScaleY>
+                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="ScaleY" Mode="OneWay"/>
+                    </ScaleTransform.ScaleY>
+                </ScaleTransform>
+            </DockPanel.LayoutTransform>
+            <Grid DockPanel.Dock="Top">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="5"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Thumb x:Name="PART_CornerTopLeftThumb" Grid.Column="0" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNWSE"/>
+                <Thumb x:Name="PART_TopThumb" Grid.Column="1" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNS"/>
+                <Thumb x:Name="PART_CornerTopRightThumb" Grid.Column="2" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNESW"/>
+            </Grid>
+            <Grid DockPanel.Dock="Bottom">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="5"></ColumnDefinition>
+                    <ColumnDefinition Width="*"></ColumnDefinition>
+                    <ColumnDefinition Width="5"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="5"></RowDefinition>
+                </Grid.RowDefinitions>
+                <Thumb x:Name="PART_CornerBottomLeftThumb" Grid.Column="0" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNESW"/>
+                <Thumb x:Name="PART_BottomThumb" Grid.Column="1" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNS"/>
+                <Thumb x:Name="PART_CornerBottomRightThumb" Grid.Column="2" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNWSE"/>
+            </Grid>
+            <Thumb x:Name="PART_LeftThumb" DockPanel.Dock="Left" Height="Auto" Width="5" Opacity="0.01" Cursor="SizeWE"/>
+            <Thumb x:Name="PART_RightThumb" DockPanel.Dock="Right" Height="Auto" Width="5" Opacity="0.01" Cursor="SizeWE"/>
+            <!--<ContentControl DockPanel.Dock="Top" x:Name="PART_HeaderContainer" Style="{StaticResource DialogVBDialogWindowHeaderAero}"/>-->
+            <Border x:Name="PART_PanelHeader" Height="22" Width="Auto" 
+					                DockPanel.Dock="Top" 
+									Background="{StaticResource DialogVBDialogHeaderSelectedBackgroundAero}" 
+									BorderBrush="{StaticResource DialogVBDialogHeaderNormalBorderBrushAero}" 
+									BorderThickness="1,1,1,0"
+									CornerRadius="6,6,0,0">
+                <DockPanel Width="Auto" Height="Auto" LastChildFill="True">
+                    <Grid x:Name="btnClose" DockPanel.Dock="Right" Margin="0,1,1,1">
+                        <Button x:Name="PART_CloseButton" Style="{StaticResource DialogVBDialogCloseButtonStyleAero}" 
+											Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16" 
+											VerticalAlignment="Center" HorizontalAlignment="Left">
+                        </Button>
+                    </Grid>
+                    <TextBlock Margin="2,0,0,0" Width="Auto" Height="Auto" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12" 
+                                   x:Name="PART_tbTitle">
+										<TextBlock.Foreground>
+											<SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlTextColorKey}}"/>
+										</TextBlock.Foreground>
+                    </TextBlock>
+                </DockPanel>
+            </Border>
+            <!--<ContentControl DockPanel.Dock="Top" x:Name="PART_ContentContainer" Style="{StaticResource DialogVBDialogWindowContentAero}"/>-->
+            <Border Width="Auto" Height="Auto" 
+									BorderBrush="{StaticResource DialogVBDialogHeaderNormalBorderBrushAero}"
+									Background="{StaticResource {ComponentResourceKey ResourceId=AppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"  
+									BorderThickness="1,1,1,2"
+					                CornerRadius="0,0,6,6">
+                <Grid Background="Transparent" Margin="6,0,2,2">
+                    <ContentPresenter x:Name="PART_cpClientWindowContent" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"/>
+                </Grid>
+            </Border>
+        </DockPanel>
+    </ControlTemplate>
+
+    <Style x:Key="DialogStyleAero" TargetType="{x:Type local:VBWindowDialog}">
+        <Setter Property="Template" Value="{StaticResource DialogVBDialogTemplateAero}"/>
+        <Setter Property="WindowStyle" Value="None"/>
+        <Setter Property="AllowsTransparency" Value="True"/>
+    </Style>
+</ResourceDictionary>

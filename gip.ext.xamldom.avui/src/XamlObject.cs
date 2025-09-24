@@ -578,15 +578,21 @@ namespace gip.ext.xamldom.avui
                 if (!p.IsAttached && p.PropertyName == propertyName)
                     return p;
             }
-            PropertyDescriptorCollection propertyDescriptors = TypeDescriptor.GetProperties(instance);
-            PropertyDescriptor propertyInfo = propertyDescriptors[propertyName];
+
+            // Replace this line:
+            // IReadOnlyList<AvaloniaProperty> propertyDescriptors = AvaloniaPropertyRegistry.GetRegistered(instance.GetType());
+
+            // With this line:
+            //IReadOnlyList<AvaloniaProperty> propertyDescriptors = AvaloniaPropertyRegistry.Instance.GetRegistered(instance.GetType());
+            //PropertyDescriptor propertyInfo = propertyDescriptors[propertyName];
+            var propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(instance as AvaloniaObject, propertyName);
             XamlProperty newProperty;
 
-            if (propertyInfo == null)
-            {
-                propertyDescriptors = TypeDescriptor.GetProperties(this.elementType);
-                propertyInfo = propertyDescriptors[propertyName];
-            }
+            //if (propertyInfo == null)
+            //{
+            //    propertyDescriptors = TypeDescriptor.GetProperties(this.elementType);
+            //    propertyInfo = propertyDescriptors[propertyName];
+            //}
             if (propertyInfo != null)
             {
                 newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo));

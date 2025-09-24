@@ -424,5 +424,12 @@ namespace gip.ext.design.avui
                 return IntersectionDetail.Empty;
             }
         }
+
+        public static int GetChildrenCount(AvaloniaObject reference)
+        {
+            if (reference is Visual vs)
+                return vs.GetVisualChildren().Count();
+            return 0;
+        }
     }
 }

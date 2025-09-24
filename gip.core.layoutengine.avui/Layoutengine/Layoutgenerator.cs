@@ -1,17 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml;
-using System.Linq;
-using System.Xml.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.IO;
-using System.Windows.Media;
-using System.Windows;
-using System.Windows.Markup;
-using System.Xml.Schema;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using gip.core.datamodel;
+using MsBox.Avalonia.Enums;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Xml;
+using System.Xml.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -63,30 +62,30 @@ namespace gip.core.layoutengine.avui
         {
             CurrentDataContext = dataContext;
             CurrentBSO = bso;
-            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
-            {
-                if (memoryStream == null)
-                    return null;
+            //using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            //{
+            //    if (memoryStream == null)
+            //        return null;
 
                 try
                 {
-                    ResourceDictionary sp = (ResourceDictionary)XamlReader.Load(memoryStream);
+                    ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(xmlLayout);
                     return sp;
                 }
-                catch (XamlParseException e)
+                catch (XmlException e)
                 {
                     AsyncMessageBox.BeginMessageBoxAsync(
                         e.Message,
                         "XAML Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        ButtonEnum.Ok,
+                        Icon.Error);
                     return null;
                 }
-            }
+            //}
         }
 
         static private bool _WPFAssembliesLoaded = false;
-        static public UIElement LoadLayout(string xmlLayout)
+        static public Visual LoadLayout(string xmlLayout)
         {
             if (!_WPFAssembliesLoaded)
             {
@@ -102,29 +101,29 @@ namespace gip.core.layoutengine.avui
             }
             _CurrentDataContext = null;
             _CurrentBSO = null;
-            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
-            {
-                if (memoryStream == null)
-                    return null;
+            //using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            //{
+            //    if (memoryStream == null)
+            //        return null;
 
                 try
                 {
-                    UIElement sp = (UIElement)XamlReader.Load(memoryStream);
+                    Visual sp = (Visual)AvaloniaRuntimeXamlLoader.Load(xmlLayout);
                     return sp;
                 }
-                catch (XamlParseException e)
+                catch (XmlException e)
                 {
                     AsyncMessageBox.BeginMessageBoxAsync(
                         e.Message,
                         "XAML Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        ButtonEnum.Ok,
+                        Icon.Error);
                     return null;
                 }
-            }
+            //}
         }
 
-        static public DependencyObject LoadXAMLResource(string xmlLayout)
+        static public AvaloniaObject LoadXAMLResource(string xmlLayout)
         {
             if (!_WPFAssembliesLoaded)
             {
@@ -138,26 +137,26 @@ namespace gip.core.layoutengine.avui
                 }
                 _WPFAssembliesLoaded = true;
             }
-            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
-            {
-                if (memoryStream == null)
-                    return null;
+            //using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            //{
+            //    if (memoryStream == null)
+            //        return null;
 
                 try
                 {
-                    DependencyObject sp = (DependencyObject)XamlReader.Load(memoryStream);
+                    AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(xmlLayout);
                     return sp;
                 }
-                catch (XamlParseException e)
+                catch (XmlException e)
                 {
                     AsyncMessageBox.BeginMessageBoxAsync(
                         e.Message,
                         "XAML Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        ButtonEnum.Ok,
+                        Icon.Error);
                     return null;
                 }
-            }
+            //}
         }
 
 
@@ -220,20 +219,20 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        static public UIElement LoadLayout(string xmlLayout, IACObject dataContext, IACBSO bso, string layoutName)
+        static public Visual LoadLayout(string xmlLayout, IACObject dataContext, IACBSO bso, string layoutName)
         {
-           return LoadXAML(xmlLayout, dataContext, bso, layoutName) as UIElement;
+           return LoadXAML(xmlLayout, dataContext, bso, layoutName) as Visual;
         }
 
-        static public UIElement LoadLayout(ACClassDesign acClassDesign, IACObject dataContext, IACBSO bso, string layoutName)
+        static public Visual LoadLayout(ACClassDesign acClassDesign, IACObject dataContext, IACBSO bso, string layoutName)
         {
             if (acClassDesign != null && acClassDesign.BAMLDesign != null && acClassDesign.IsDesignCompiled)
             {
-                return LoadBAML(acClassDesign, dataContext, bso) as UIElement;
+                return LoadBAML(acClassDesign, dataContext, bso) as Visual;
             }
             else
             {
-                return LoadXAML(acClassDesign.XMLDesign, dataContext, bso, layoutName) as UIElement;
+                return LoadXAML(acClassDesign.XMLDesign, dataContext, bso, layoutName) as Visual;
             }
         }
 
@@ -253,13 +252,13 @@ namespace gip.core.layoutengine.avui
                 }
                 _WPFAssembliesLoaded = true;
             }
-            using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
-            {
-                if (memoryStream == null)
-                    return null;
+            //using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
+            //{
+            //    if (memoryStream == null)
+            //        return null;
                 try
                 {
-                    return XamlReader.Load(memoryStream);
+                    return AvaloniaRuntimeXamlLoader.Load(xmlLayout);
                 }
                 catch (Exception e)
                 {
@@ -277,11 +276,11 @@ namespace gip.core.layoutengine.avui
                     AsyncMessageBox.BeginMessageBoxAsync(
                         errorMessage,
                         "XAML Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        ButtonEnum.Ok,
+                        Icon.Error);
                     return null;
                 }
-            }
+            //}
         }
 
         public static object LoadBAML(ACClassDesign acClassDesign, IACObject dataContext, IACBSO bso)
@@ -334,8 +333,8 @@ namespace gip.core.layoutengine.avui
                     AsyncMessageBox.BeginMessageBoxAsync(
                         e.Message,
                         "XAML Error",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Error);
+                        ButtonEnum.Ok,
+                        Icon.Error);
                     return null;
                 }
             }
@@ -356,11 +355,11 @@ namespace gip.core.layoutengine.avui
             return new MemoryStream(aEncoding.GetBytes(xmlLayout));
         }
 
-        static public KeyValuePair<string, ACxmlnsInfo> GetNamespaceInfo(UIElement uiElement)
+        static public KeyValuePair<string, ACxmlnsInfo> GetNamespaceInfo(StyledElement Visual)
         {
-            if (uiElement == null)
+            if (Visual == null)
                 return new KeyValuePair<string, ACxmlnsInfo>();
-            return ACxmlnsResolver.GetNamespaceInfo(uiElement.GetType());
+            return ACxmlnsResolver.GetNamespaceInfo(Visual.GetType());
         }
     }
 }

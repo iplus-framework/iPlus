@@ -1,0 +1,539 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <!-- Check-Style -->
+    <SolidColorBrush x:Key="CheckBoxBgEnabledGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="CheckBoxFgEnabledGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="CheckBoxFgEnabledGipFocus" Color="#FFFFFFFF"/>
+    <RadialGradientBrush x:Key="CheckBoxBorderEnabledGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxEnabledCheckBorderGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="CheckBoxEnabledCheckFillGip" Color="#FF770000"/>
+
+    <SolidColorBrush x:Key="CheckBoxBgDisabledGip" Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+    <SolidColorBrush x:Key="CheckBoxFgDisabledGip" Color="Silver"/>
+    <RadialGradientBrush x:Key="CheckBoxBorderDisabledGip" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxDisabledCheckBorderGip" Color="Silver"/>
+    <SolidColorBrush x:Key="CheckBoxDisabledCheckFillGip" Color="#FF999999"/>
+
+    <SolidColorBrush x:Key="CheckBoxBgRequiredGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="CheckBoxFgRequiredGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="CheckBoxFgRequiredGipFocus" Color="Yellow"/>
+    <RadialGradientBrush x:Key="CheckBoxBorderRequiredGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFFEA00" Offset="0.116"/>
+        <GradientStop Color="#FFD1D261" Offset="0.3"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxRequiredCheckBorderGip" Color="Yellow"/>
+    <SolidColorBrush x:Key="CheckBoxRequiredCheckFillGip" Color="#FFADAD00"/>
+
+    <SolidColorBrush x:Key="CheckBoxBgWrongGip" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="CheckBoxFgWrongGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="CheckBoxFgWrongGipFocus" Color="#FFFF0000"/>
+    <RadialGradientBrush x:Key="CheckBoxBorderWrongGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFF0004" Offset="0.1116"/>
+        <GradientStop Color="#FFE43D3D" Offset="0.3"/>
+        <GradientStop Color="#FF020101" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxWrongCheckBorderGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="CheckBoxWrongCheckFillGip" Color="#FF770000"/>
+
+    <SolidColorBrush x:Key="CheckBoxFillNormal" Color="#F4F4F4"/>
+    <SolidColorBrush x:Key="CheckBoxStroke" Color="#8E8F8F"/>
+    <Style x:Key="EmptyCheckBoxFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="1" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style x:Key="CheckRadioFocusVisual">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="14,0,0,0" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}" StrokeThickness="1" StrokeDashArray="1 2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <ControlTemplate x:Key="TemplateCheckBoxStyleGip" TargetType="{x:Type local:VBCheckBox}">
+        <Grid Background="Transparent" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MaxWidth="20"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaptionSpace" Width="5"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaption" Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{TemplateBinding Height}"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Border x:Name="BoxBorder" Grid.Column="0" 
+									BorderBrush="{TemplateBinding BorderBrush}" 
+									BorderThickness="{TemplateBinding BorderThickness}" 
+									Background="{TemplateBinding Background}" 
+									CornerRadius="2"
+                                    Width="{TemplateBinding Height}"
+                                    MaxHeight="20"
+                                    MaxWidth="20"
+                                    HorizontalAlignment="Left">
+                <Grid>
+                    <Viewbox x:Name="ViewboxCheck" Margin="1,1,1,2" Stretch="Uniform" Visibility="Hidden">
+                        <Canvas x:Name="CanvasCheck" Width="16" Height="16" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="CheckPath"
+											          Width="17" 
+												      Height="15" 
+												      Canvas.Left="-0.5" 
+												      Canvas.Top="1.5" 
+												      Stretch="Fill" 
+												      StrokeStartLineCap="Round" 
+												      StrokeEndLineCap="Round" 
+												      StrokeLineJoin="Round" 
+												      Stroke="{StaticResource CheckBoxEnabledCheckBorderGip}" 
+												      Fill="{StaticResource CheckBoxEnabledCheckFillGip}" 
+												      Data="F1 M 0,9L 4.5,16L 16,2L 4.5,12L 0,9.0 Z "/>
+                        </Canvas>
+                    </Viewbox>
+                    <Viewbox x:Name="ViewboxCheckNull" Margin="1,1,1,2" Stretch="Uniform" Visibility="Hidden">
+                        <Canvas x:Name="CanvasCheckNull" Width="16" Height="16" Canvas.Left="0" Canvas.Top="0" >
+                            <Ellipse Height="15" Name="ellipse1" Stroke="Red" Width="15" />
+                            <Line X1="2.8" Y1="2.8" X2="12.2" Y2="12.2" Stroke="Red"></Line>
+                        </Canvas>
+                    </Viewbox>
+                </Grid>
+            </Border>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="2" 
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+								RecognizesAccessKey="True" 
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="ShowCaption" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="ColCaptionSpace" Property="Width" Value="0"/>
+                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Collapsed"/>
+            </Trigger>
+            <Trigger Property="HasContent" Value="true">
+                <Setter Property="FocusVisualStyle" Value="{StaticResource CheckRadioFocusVisual}"/>
+                <Setter Property="Padding" Value="4,0,0,0"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderDisabledGip}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="true">
+                <Setter TargetName="BoxBorder" Property="BorderThickness" Value="2,2,2,2"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter TargetName="ViewboxCheck" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="{x:Null}">
+                <Setter TargetName="ViewboxCheckNull" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="FlowDirection" Value="RightToLeft">
+                <Setter TargetName="CheckPath" Property="Data" Value="F1 M 16,9L 14,16L 10,2L 14,12L 16,9.0 Z " />
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgEnabledGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxEnabledCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxEnabledCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderEnabledGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxEnabledCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxEnabledCheckFillGip}" />
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgRequiredGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxRequiredCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxRequiredCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderRequiredGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxRequiredCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxRequiredCheckFillGip}" />
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrongGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxWrongCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxWrongCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrongGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxWrongCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxWrongCheckFillGip}" />
+            </MultiTrigger>
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrongGipFocus}" />
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="TemplateCheckBoxRightStyleGip" TargetType="{x:Type local:VBCheckBox}">
+        <Grid Background="Transparent" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition MaxWidth="20"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaptionSpace" Width="5"></ColumnDefinition>
+                <ColumnDefinition x:Name="ColCaption" Width="*"></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{TemplateBinding Height}"></RowDefinition>
+            </Grid.RowDefinitions>
+            <Border x:Name="BoxBorder" Grid.Column="0" 
+									BorderBrush="{TemplateBinding BorderBrush}" 
+									BorderThickness="{TemplateBinding BorderThickness}" 
+									Background="{TemplateBinding Background}" 
+									CornerRadius="2"
+                                    Width="{TemplateBinding Height}"
+                                    MaxHeight="20"
+                                    MaxWidth="20"
+                                    HorizontalAlignment="Left">
+                <Grid>
+                    <Viewbox x:Name="ViewboxCheck" Margin="1,1,1,2" Stretch="Uniform" Visibility="Hidden">
+                        <Canvas x:Name="CanvasCheck" Width="16" Height="16" Canvas.Left="0" Canvas.Top="0">
+                            <Path x:Name="CheckPath"
+											          Width="17" 
+												      Height="15" 
+												      Canvas.Left="-0.5" 
+												      Canvas.Top="1.5" 
+												      Stretch="Fill" 
+												      StrokeStartLineCap="Round" 
+												      StrokeEndLineCap="Round" 
+												      StrokeLineJoin="Round" 
+												      Stroke="{StaticResource CheckBoxEnabledCheckBorderGip}" 
+												      Fill="{StaticResource CheckBoxEnabledCheckFillGip}" 
+												      Data="F1 M 16,9L 16,16L 0,2L 16,12L 16,9.0 Z "/>
+                        </Canvas>
+                    </Viewbox>
+                    <Viewbox x:Name="ViewboxCheckNull" Margin="1,1,1,2" Stretch="Uniform" Visibility="Hidden">
+                        <Canvas x:Name="CanvasCheckNull" Width="16" Height="16" Canvas.Left="0" Canvas.Top="0" >
+                            <Ellipse Height="15" Name="ellipse1" Stroke="Red" Width="15" />
+                            <Line X1="2.8" Y1="2.8" X2="12.2" Y2="12.2" Stroke="Red"></Line>
+                        </Canvas>
+                    </Viewbox>
+                </Grid>
+            </Border>
+            <ContentPresenter x:Name="ContentPresenter" Grid.Column="2" 
+								HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+								RecognizesAccessKey="True" 
+								SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+								VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <Trigger Property="ShowCaption" Value="False">
+                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
+                <Setter TargetName="ColCaptionSpace" Property="Width" Value="0"/>
+                <Setter TargetName="ContentPresenter" Property="Visibility" Value="Collapsed"/>
+            </Trigger>
+            <Trigger Property="HasContent" Value="true">
+                <Setter Property="FocusVisualStyle" Value="{StaticResource CheckRadioFocusVisual}"/>
+                <Setter Property="Padding" Value="4,0,0,0"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgDisabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgDisabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderDisabledGip}"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="true">
+                <Setter TargetName="BoxBorder" Property="BorderThickness" Value="2,2,2,2"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter TargetName="ViewboxCheck" Property="Visibility" Value="Visible"/>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="{x:Null}">
+                <Setter TargetName="ViewboxCheckNull" Property="Visibility" Value="Visible"/>
+            </Trigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgEnabledGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxEnabledCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxEnabledCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="Enabled"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgEnabledGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgEnabledGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderEnabledGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxEnabledCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxEnabledCheckFillGip}" />
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgRequiredGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxRequiredCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxRequiredCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledRequired"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgRequiredGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgRequiredGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderRequiredGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxRequiredCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxRequiredCheckFillGip}" />
+            </MultiTrigger>
+
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="True"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrongGipFocus}" />
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxWrongCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxWrongCheckFillGip}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="False"/>
+                    <Condition Property="ControlMode" Value="EnabledWrong"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrongGip}"/>
+                <Setter TargetName="CheckPath" Property="Stroke" Value="{StaticResource CheckBoxWrongCheckBorderGip}" />
+                <Setter TargetName="CheckPath" Property="Fill" Value="{StaticResource CheckBoxWrongCheckFillGip}" />
+            </MultiTrigger>
+
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="Background" Value="{StaticResource CheckBoxBgWrongGip}"/>
+                <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrongGip}"/>
+                <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrongGipFocus}" />
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <!-- Pushbutton-Style -->
+    <Style x:Key="CheckBoxPressFocusVisualGip">
+        <Setter Property="Control.Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Rectangle Margin="2" SnapsToDevicePixels="true" Stroke="{DynamicResource {x:Static ThemeForegroundBrush}}" 
+						StrokeThickness="1" StrokeDashArray="1 2"/>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <LinearGradientBrush x:Key="CheckBoxPressNormalBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF424242" Offset="0"/>
+        <GradientStop Color="#FE828282" Offset="0.2"/>
+        <GradientStop Color="#FF929292" Offset="0.8"/>
+        <GradientStop Color="#FFB2B2B2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxPressNormalContentStrokeGip" Color="#202020"/>
+    <SolidColorBrush x:Key="CheckBoxPressNormalContentFillGip" Color="#404040"/>
+
+    <LinearGradientBrush x:Key="CheckBoxPressDisabledBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF131313" Offset="0"/>
+        <GradientStop Color="#FE333333" Offset="0.2"/>
+        <GradientStop Color="#FF333333" Offset="0.8"/>
+        <GradientStop Color="#FF535353" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxPressDisabledContentStrokeGip" Color="#404040"/>
+    <SolidColorBrush x:Key="CheckBoxPressDisabledContentFillGip" Color="#404040"/>
+
+    <LinearGradientBrush x:Key="CheckBoxPressFocusBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
+        <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+        <GradientStop Color="#FFF2F2F2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxPressFocusContentStrokeGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="CheckBoxPressFocusContentFillGip" Color="#FF700000"/>
+
+    <LinearGradientBrush x:Key="CheckBoxPressPressedBgGip" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
+        <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+        <GradientStop Color="#FFF2F2F2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="CheckBoxPressPressedContentStrokeGip" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="CheckBoxPressPressedContentFillGip" Color="#FFA00000"/>
+    <SolidColorBrush x:Key="CheckBoxFocusBorder" Color="#FF939393"/>
+
+    <!--<Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressNormalContentStrokeGip}"/>
+    <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressNormalContentFillGip}"/>-->
+    <ControlTemplate x:Key="TemplateCheckBoxPressStyleGip" TargetType="{x:Type local:VBCheckBox}">
+        <Grid Background="Transparent">
+            <Rectangle x:Name="BdButtonBack" Stretch="Fill" 
+					Stroke="{StaticResource CheckBoxPressDisabledBgGip}"
+					Fill="{StaticResource CheckBoxPressDisabledBgGip}"
+                       RadiusY="3" RadiusX="3"/>
+            <Rectangle x:Name="BdButtonFront" Stretch="Fill" 
+					Stroke="{StaticResource CheckBoxPressNormalBgGip}"
+					Fill="{StaticResource CheckBoxPressNormalBgGip}"
+                       RadiusY="3" RadiusX="3"/>
+            <Border x:Name="BorderFocus" Margin="3,3,3,3" BorderThickness="0" CornerRadius="4">
+                <ContentPresenter x:Name="ContentPresenter"
+                            RecognizesAccessKey="True"/>
+                <!--HorizontalAlignment="Center"
+                            VerticalAlignment="Center"-->
+            </Border>
+        </Grid>
+        <ControlTemplate.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsKeyboardFocused" Value="true"/>
+                    <Condition Property="IsMouseOver" Value="false"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="BorderFocus" Property="BorderBrush" Value="{StaticResource CheckBoxFocusBorder}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="HasTouchDevices" Value="false" />
+                    <Condition Property="IsMouseOver" Value="true"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource CheckBoxPressFocusBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource CheckBoxPressFocusBgGip}" />
+                <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressFocusContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressFocusContentFillGip}"/>
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="HasTouchDevices" Value="false" />
+                    <Condition Property="IsMouseOverParent" Value="true"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource CheckBoxPressFocusBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource CheckBoxPressFocusBgGip}" />
+                <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressFocusContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressFocusContentFillGip}"/>
+            </MultiTrigger>
+            <Trigger Property="IsChecked" Value="true">
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource CheckBoxPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource CheckBoxPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Margin" Value="2,2,-1,-1"/>
+                <Setter TargetName="BorderFocus" Property="Margin" Value="4,4,2,2"/>
+                <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressPressedContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressPressedContentFillGip}"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="true">
+                <Setter TargetName="BdButtonFront" Property="Stroke" Value="{StaticResource CheckBoxPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Fill" Value="{StaticResource CheckBoxPressPressedBgGip}" />
+                <Setter TargetName="BdButtonFront" Property="Margin" Value="1,1,-1,-1"/>
+                <Setter TargetName="BorderFocus" Property="Margin" Value="4,4,2,2"/>
+                <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressPressedContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressPressedContentFillGip}"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="false">
+                <Setter TargetName="BdButtonFront" Property="Visibility" Value="Hidden" />
+                <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressDisabledContentStrokeGip}"/>
+                <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressDisabledContentFillGip}"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="CheckBoxStyleGip" TargetType="{x:Type local:VBCheckBox}">
+        <Setter Property="Foreground" Value="{StaticResource CheckBoxFgEnabledGip}"/>
+        <Setter Property="Background" Value="{StaticResource CheckBoxBgEnabledGip}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderEnabledGip}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="ContentStroke" Value="{StaticResource CheckBoxPressNormalContentStrokeGip}"/>
+        <Setter Property="ContentFill" Value="{StaticResource CheckBoxPressNormalContentFillGip}"/>
+        <!--<Setter Property="Height" Value="20"/>-->
+        <Setter Property="FocusVisualStyle" Value="{StaticResource EmptyCheckBoxFocusVisual}"/>
+        <Setter Property="Template" Value="{StaticResource TemplateCheckBoxStyleGip}" />
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <AdornedElementPlaceholder/>
+                        <!-- TODO <TextBlock Text="!"/>-->
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <Trigger Property="Validation.HasError" Value="True">
+                <Setter Property="ToolTip" Value="{Binding RelativeSource={RelativeSource Mode=Self}, Path=(Validation.Errors)[0].ErrorContent}"/>
+            </Trigger>
+            <Trigger Property="PushButtonStyle" Value="True">
+                <Setter Property="Template" Value="{StaticResource TemplateCheckBoxPressStyleGip}" />
+            </Trigger>
+            <!--<Trigger Property="FlowDirection" Value="RightToLeft">
+                <Setter Property="Template" Value="{StaticResource TemplateCheckBoxRightStyleGip}" />
+            </Trigger>-->
+        </Style.Triggers>
+    </Style>
+</ResourceDictionary>

@@ -1,0 +1,9 @@
+﻿<local:VBTextBox 
+    x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBTextBoxEditor"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    
+    Text="{Binding ValueString}"
+    ShowCaption="False"
+    >	
+</local:VBTextBox>

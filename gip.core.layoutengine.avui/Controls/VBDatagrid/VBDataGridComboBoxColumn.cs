@@ -703,7 +703,7 @@ namespace gip.core.layoutengine.avui
         {
             BindingOperations.ClearBinding(this, DataGridComboBoxColumn.ItemsSourceProperty);
             BindingOperations.ClearBinding(this, DataGridComboBoxColumn.SelectedValuePathProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             this.SelectedValueBinding = null;
             this.SelectedItemBinding = null;
             _ACColumnItem = null;

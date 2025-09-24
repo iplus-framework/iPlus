@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections;
+﻿using gip.core.datamodel;
+using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Linq;
-using System.Text;
-using System.Reflection;
-using gip.core.datamodel;
 using System.Linq.Expressions;
 
 namespace gip.core.layoutengine.avui
@@ -79,7 +75,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public ICalculatorResult Calculate(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture, out object result)
+        public ICalculatorResult Calculate(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture, out object result)
         {
             if (_Converter.ConversionBy == ConverterBase.ConvType.ScriptEngine)
             {

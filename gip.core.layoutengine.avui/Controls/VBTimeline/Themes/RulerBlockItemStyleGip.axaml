@@ -1,0 +1,64 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.timeline">
+
+    <SolidColorBrush x:Key="NormalBrushGip" Color="#FF535353" />
+    <SolidColorBrush x:Key="NormalBorderBrushGip" Color="#FF9B9999" />
+    <SolidColorBrush x:Key="DataGridLineBrushGip" Color="#FF3D3D3D" />
+    <LinearGradientBrush x:Key="ShineBrushGip" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+        <GradientStop Color="#59FFFFFF" Offset="0" />
+        <GradientStop Color="#00FFFFFF" Offset="1" />
+        <GradientStop Color="#26FFFFFF" Offset="0.467" />
+        <GradientStop Color="#00FFFFFF" Offset="0.475" />
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="HoverShineBrushGip" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+        <GradientStop Color="#4CFF2020" Offset="0" />
+        <GradientStop Color="#26FF2020" Offset="1" />
+        <GradientStop Color="#26FF2020" Offset="0.467" />
+        <GradientStop Color="#00FF2020" Offset="0.475" />
+        <GradientStop Color="#00FF2020" Offset="0.856" />
+    </LinearGradientBrush>
+
+    <local:RulerBlockSizeConverter x:Key="RulerBlockSizeConverter" />
+
+    <DataTemplate DataType="{x:Type local:RulerBlockItem}">
+        <Border BorderThickness="0,0,1,1">
+            <Border.Width>
+                <MultiBinding Converter="{StaticResource RulerBlockSizeConverter}">
+
+                    <Binding Path="TickTimeSpan">
+                        <Binding.RelativeSource>
+                            <RelativeSource AncestorType="{x:Type local:TimelineRulerControl}" />
+                        </Binding.RelativeSource>
+                    </Binding>
+
+                    <Binding Path="Span" />
+
+                </MultiBinding>
+            </Border.Width>
+            <Grid>
+                <!--<Rectangle x:Name="BackgroundRectangle"  Fill="{StaticResource NormalBrushGip}" 
+                                                        Stretch="Fill" Stroke="{StaticResource NormalBorderBrushGip}" StrokeThickness="1" />
+                <Rectangle x:Name="HoverRectangle" Stretch="Fill" 
+                                                        Fill="{StaticResource HoverShineBrushGip}" Opacity="0" />
+
+
+                <Rectangle x:Name="ShineRectangle" 
+                                                       Fill="{StaticResource ShineBrushGip}" 
+                                                       Stretch="Fill" 
+                                                       Stroke="{StaticResource NormalBorderBrushGip}" 
+                                                       StrokeThickness="1" />-->
+
+                <Line Y2="600" Fill="White" Stroke="White" Stretch="Fill" />
+
+                <!--<Viewbox  Width="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Grid}}, Path=ActualWidth}">-->
+                    <!--<StackPanel Orientation="Vertical" MaxHeight="27" VerticalAlignment="Top">
+                        <TextBlock Text="{Binding HeaderText}" MaxHeight="12" Foreground="Beige" FontSize="11" VerticalAlignment="Top" HorizontalAlignment="Center" />
+                    <local:RulerBlockTimeItems Height="11" Margin="0,0,0,1" StartDateTime="{Binding Start}" Span="{Binding Span}" RulerBlockIndex="{Binding RulerBlockItemIndex}" />
+                    </StackPanel>-->
+                <!--</Viewbox>-->
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

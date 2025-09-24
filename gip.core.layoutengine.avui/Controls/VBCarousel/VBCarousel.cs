@@ -3,20 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Controls.Primitives;
 using gip.core.datamodel;
 using System.Reflection;
 using System.ComponentModel;
 using System.IO;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Metadata;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
@@ -28,7 +21,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     [TemplatePart(Name = "PART_VBCarouselControl", Type = typeof(VBCarouselControl))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBCarousel'}de{'VBCarousel'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBCarousel : Selector, IVBContent, IVBSource, IACObject
+    public class VBCarousel : SelectingItemsControl, IVBContent, IVBSource, IACObject
     {
         #region c'tors
         string _DataSource;
@@ -280,10 +273,7 @@ namespace gip.core.layoutengine.avui
             this.TargetUpdated -= VBCarousel_TargetUpdated;
             _ACTypeInfo = null;
 
-            BindingOperations.ClearBinding(this, VBCarousel.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, VBCarousel.SelectedItemProperty);
-            BindingOperations.ClearBinding(this, VBCarousel.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
 
             if (_PART_VBCarouselControl != null)
                 _PART_VBCarouselControl.OnElementSelected -= _PART_VBCarouselControl_OnElementSelected;

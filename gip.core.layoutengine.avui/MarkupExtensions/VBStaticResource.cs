@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Markup;
-using System.Reflection;
-using System.Xaml;
-using System.Windows.Media;
-using System.IO;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using Avalonia.Markup.Xaml.MarkupExtensions;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Styling;
 using gip.core.datamodel;
-using System.Windows.Media.Imaging;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
-    public class VBStaticResourceExtension : StaticResourceExtension
+    public class VBStaticResourceExtension : MarkupExtension
     {
         public static object DataTemplateContext
         {
@@ -27,16 +30,18 @@ namespace gip.core.layoutengine.avui
         }
 
         public VBStaticResourceExtension(object resourceKey)
-            : base(resourceKey)
         {
+            ResourceKey = resourceKey;
         }
+
+        public object ResourceKey { get; set; }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
         {
             object result = null;
             if (serviceProvider is IRootObjectProvider)
             {
-                // Parent Object <DockPanel><vbTextbox Style={VBCurrentThemeExtension ...>
+                // Parent Object <DockPanel><vbTextbox ControlTheme={VBCurrentThemeExtension ...>
                 object rootObject = (serviceProvider as IRootObjectProvider).RootObject;
                 if (rootObject != null)
                 {
@@ -55,11 +60,12 @@ namespace gip.core.layoutengine.avui
                         CustomControlStyleInfo CustomControlStyleInfo = (from o in styleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
                         if (CustomControlStyleInfo != null)
                         {
-                            ResourceDictionary resDict = new ResourceDictionary();
-                            resDict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-                            Style style = resDict[CustomControlStyleInfo.styleName] as Style;
-                            if (style != null)
-                                return style;
+                            ResourceInclude dict = new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative));
+                            object res;
+                            if (!dict.TryGetResource(CustomControlStyleInfo.styleName, null, out res))
+                                return null;
+                            return res as ControlTheme;
+
                         }
                     }
                 }
@@ -69,8 +75,8 @@ namespace gip.core.layoutengine.avui
                 IProvideValueTarget targetProvider = serviceProvider.GetService(typeof(IProvideValueTarget)) as IProvideValueTarget;
 
                 Type targetType;
-                if (targetProvider.TargetProperty is DependencyProperty)
-                    targetType = (targetProvider.TargetProperty as DependencyProperty).PropertyType;
+                if (targetProvider.TargetProperty is AvaloniaProperty)
+                    targetType = (targetProvider.TargetProperty as AvaloniaProperty).PropertyType;
                 else if (targetProvider.TargetProperty is PropertyInfo)
                     targetType = (targetProvider.TargetProperty as PropertyInfo).PropertyType;
                 else
@@ -81,7 +87,7 @@ namespace gip.core.layoutengine.avui
 
                 ACClassDesign acClassDesign = null;
 
-                Type typeImageSource = typeof(ImageSource);
+                Type typeImageSource = typeof(Bitmap);
                 Type typeImageStream = typeof(Stream);
                 Type typeBrush = typeof(Brush);
                 bool needBitmap = typeImageSource.IsAssignableFrom(targetType);
@@ -91,15 +97,17 @@ namespace gip.core.layoutengine.avui
 
                 if (ResourceKey == null)
                 {
-                    if ((targetProvider.TargetObject != null) && (targetProvider.TargetObject is FrameworkElement) && (targetProvider.TargetProperty != null))
+                    if ((targetProvider.TargetObject != null) && (targetProvider.TargetObject is Control) && (targetProvider.TargetProperty != null))
                     {
                         if ((AssemblyResource != null) && (AssemblyResourceKey != null))
                         {
                             try
                             {
-                                ResourceDictionary dict = new ResourceDictionary();
-                                dict.Source = AssemblyResource;
-                                object resource = dict[AssemblyResourceKey];
+                                ResourceInclude dict = new ResourceInclude(AssemblyResource);
+                                object resource;
+                                if (!dict.TryGetResource(AssemblyResourceKey, null, out resource))
+                                    return null;
+
                                 if (resource == null)
                                     return null;
                                 if (targetType.IsAssignableFrom(resource.GetType()))
@@ -118,7 +126,7 @@ namespace gip.core.layoutengine.avui
                             }
                         }
 
-                        FrameworkElement fwElement = targetProvider.TargetObject as FrameworkElement;
+                        Control fwElement = targetProvider.TargetObject as Control;
                         object dtCntxt = DataTemplateContext;
                         if (fwElement.DataContext != null)
                             dtCntxt = fwElement.DataContext;
@@ -153,9 +161,11 @@ namespace gip.core.layoutengine.avui
                                 try
                                 {
                                     DesignManagerToolItem iconProvider = dataContext as DesignManagerToolItem;
-                                    ResourceDictionary dict = new ResourceDictionary();
-                                    dict.Source = iconProvider.IconResourceDictUri;
-                                    object resource = dict[iconProvider.ResourceKey];
+
+                                    ResourceInclude dict = new ResourceInclude(iconProvider.IconResourceDictUri);
+                                    object resource;
+                                    if (!dict.TryGetResource(iconProvider.ResourceKey, null, out resource))
+                                        return null;
                                     if (resource == null)
                                         return null;
                                     if (targetType.IsAssignableFrom(resource.GetType()))
@@ -233,12 +243,12 @@ namespace gip.core.layoutengine.avui
                                 result = wpfApplication.Resources[strResKey];
                             if (result != null)
                             {
-                                if ((needBrush && (result is Brush)) || (needBitmap && (result is ImageSource)) || (needStream && (result is Stream)))
+                                if ((needBrush && (result is Brush)) || (needBitmap && (result is Bitmap)) || (needStream && (result is Stream)))
                                     return result;
                                 else
                                 {
                                     if (needBitmap)
-                                        return new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine.avui;component/Images/QuestionMark.JPG", UriKind.Absolute));
+                                        return new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/QuestionMark.JPG")));
                                     else if (needBrush)
                                         return Brushes.Transparent;
                                     else
@@ -272,11 +282,7 @@ namespace gip.core.layoutengine.avui
                                 {
                                     try
                                     {
-                                        BitmapImage bitmapImage = new BitmapImage();
-                                        bitmapImage.BeginInit();
-                                        bitmapImage.StreamSource = new MemoryStream(acClassDesign.DesignBinary);
-                                        bitmapImage.EndInit();
-
+                                        Bitmap bitmapImage = new Bitmap(new MemoryStream(acClassDesign.DesignBinary));
                                         if (wpfApplication != null)
                                             wpfApplication.Resources.Add(strResKey, bitmapImage);
                                         return bitmapImage;
@@ -288,7 +294,7 @@ namespace gip.core.layoutengine.avui
                                             datamodel.Database.Root.Messages.LogException("VBStaticResourceExtension", "ProvideValue(20)", e);
                                             datamodel.Database.Root.Messages.LogException("VBStaticResourceExtension", "ProvideValue(21)", String.Format("Can't create icon for {0}. Invalid Binary", acClassDesign.GetACUrl()));
                                         }
-                                        return new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine.avui;component/Images/QuestionMark.JPG", UriKind.Absolute));
+                                        return new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/QuestionMark.JPG")));
                                     }
                                 }
                                 else if (needBrush && !String.IsNullOrEmpty(acClassDesign.XMLDesign))
@@ -304,7 +310,7 @@ namespace gip.core.layoutengine.avui
                             }
 
                             if (needBitmap)
-                                return new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine.avui;component/Images/QuestionMark.JPG", UriKind.Absolute));
+                                return new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/QuestionMark.JPG")));
                             else if (needBrush)
                                 return Brushes.Transparent;
                             else
@@ -377,11 +383,10 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            
-
-            result = base.ProvideValue(serviceProvider);
+            result = new StaticResourceExtension(ResourceKey).ProvideValue(serviceProvider);
             return result;
         }
+
 
         private string _VBContent;
         public string VBContent

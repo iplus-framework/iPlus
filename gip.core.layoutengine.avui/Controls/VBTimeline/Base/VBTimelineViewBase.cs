@@ -462,8 +462,13 @@ namespace gip.core.layoutengine.avui.timeline
         {
             VBTimelineViewBase thisControl = o as VBTimelineViewBase;
             if ((bool)e.NewValue)
+            {
+                // TODO Avalonia:
                 using (new WaitCursor())
+                {
                     VBTreeListView.ExpandAll(thisControl.PART_TreeListView);
+                }
+            }
             else
                 VBTreeListView.CollapseAll(thisControl.PART_TreeListView);
         }
@@ -548,7 +553,7 @@ namespace gip.core.layoutengine.avui.timeline
         public virtual void DeInitVBControl(IACComponent bso)
         {
             TreeListViewColumns.Clear();
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             syncer?.DeInitControl();
             _IsInitialized = false;
         }

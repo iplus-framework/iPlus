@@ -415,7 +415,7 @@ namespace gip.core.layoutengine.avui
             BindingOperations.ClearBinding(this, VBFlipView.SelectedValueProperty);
             //BindingOperations.ClearBinding(this, VBFlipView.ACUrlCmdMessageProperty);
             BindingOperations.ClearBinding(this, VBFlipView.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
             this.ItemsSource = null;
         }
 

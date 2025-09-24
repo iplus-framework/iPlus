@@ -2,19 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.Transactions;
 using System.ComponentModel;
+using Avalonia.Controls;
+using gip.ext.designer.avui;
 
 
 namespace gip.core.layoutengine.avui
@@ -68,7 +61,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         protected override void OnInitialized(EventArgs e)
         {
-            HasTouchDevices = VBUtils.HasTouchDevices;
+            //HasTouchDevices = VBUtils.HasTouchDevices;
             base.OnInitialized(e);
             ActualizeTheme(true);
             SourceUpdated += new EventHandler<DataTransferEventArgs>(VBCheckBox_SourceUpdated);
@@ -416,9 +409,7 @@ namespace gip.core.layoutengine.avui
             if (BSOACComponent != null)
                 BSOACComponent.RemoveWPFRef(this.GetHashCode());
 
-            BindingOperations.ClearBinding(this, CheckBox.IsCheckedProperty);
-            BindingOperations.ClearBinding(this, VBCheckBox.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
 

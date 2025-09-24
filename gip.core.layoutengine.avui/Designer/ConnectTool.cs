@@ -1,20 +1,11 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Xml.Linq;
-using System.Collections;
 using Avalonia;
 using Avalonia.Input;
-//using gip.core.datamodel;
-//using gip.core.autocomponent;
-//using gip.core.layoutengine.avui;
+using gip.core.datamodel;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Services;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -32,11 +23,11 @@ namespace gip.core.layoutengine.avui
             DesignManager = designManager;
         }
 
-        public override void OnMouseDown(object sender, PointerEventArgs e)
+        public override void OnMouseDown(object sender, PointerPressedEventArgs e)
         {
             DrawVBEdgeAdorner._DesignManager = DesignManager;
             IDesignPanel designPanel = (IDesignPanel)sender;
-            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel), true, true);
+            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), true, true);
             if ((result.AdornerHit != null) && (result.AdornerHit.AdornedDesignItem != null) && (result.AdornerHit.AdornedElement != null))
             {
                 IHandleDrawToolMouseDown b = result.AdornerHit.AdornedDesignItem.GetBehavior<ConnectToolDrawingHandler>();

@@ -1,0 +1,55 @@
+﻿<UserControl x:Class="gip.core.layoutengine.avui.VBRibbonMobile"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavPrev.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavNext.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavFirst.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavLast.xaml"/>
+
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Editcut.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Editcopy.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Editpaste.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Undo.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Redo.xaml"/>
+
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/AddNew.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/LoadRefresh.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Filesave.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Filesaveundo.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Delete.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Restore.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Print.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Preview.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Design.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/DataExport.xaml"/>
+
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Find.xaml"/>
+                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonTrayBorderStyle.xaml"/>
+
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <!--<Border 
+        Background="{StaticResource {ComponentResourceKey ResourceId=AppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" 
+        CornerRadius="4"
+        >-->
+    <Border x:Name="_BorderRibbonPanel" Margin="0,0,5,6">
+        <WrapPanel x:Name="_RibbonWrapPanel" VerticalAlignment="Center" MinHeight="10" Orientation="Horizontal">
+            <!--<local:VBRibbonBar Band="1" BandIndex="1">
+                <local:VBRibbonButton></local:VBRibbonButton>
+                <local:VBRibbonButton></local:VBRibbonButton>
+            </local:VBRibbonBar>
+            <local:VBRibbonBar Band="1" BandIndex="2">
+                <local:VBRibbonButton></local:VBRibbonButton>
+                <local:VBRibbonButton></local:VBRibbonButton>
+            </local:VBRibbonBar>-->
+        </WrapPanel>
+        <!--<DockPanel x:Name="_LayoutRoot" MinHeight="10" Margin="4,4,0,0">
+        </DockPanel>-->
+    </Border>
+</UserControl>

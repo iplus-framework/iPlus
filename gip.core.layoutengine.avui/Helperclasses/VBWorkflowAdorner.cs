@@ -1,38 +1,37 @@
-﻿using System;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Controls;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.design.avui;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
     public class VBWorkflowAdorner : Adorner
     {
-        public VBWorkflowAdorner(UIElement uiElement) : base(uiElement)
+        public VBWorkflowAdorner(Control Control) : base(Control)
         {
         }
 
-        protected override void OnRender(System.Windows.Media.DrawingContext drawingContext)
+        public override void Render(DrawingContext context)
         {
             if (RelationsVisual == null || !RelationsVisual.Any())
                 return;
             VBAdornerDecoratorIACObject VBAdornerDecorator = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBAdornerDecoratorIACObject)) as VBAdornerDecoratorIACObject;
             foreach (Tuple<VBVisualAdorner, VBVisualAdorner> visuals in RelationsVisual)
             {
-                if (VBAdornerDecorator.IsAncestorOf(visuals.Item1) && VBAdornerDecorator.IsAncestorOf(visuals.Item2))
+                if (visuals.Item1.IsDescendantOf(VBAdornerDecorator) && visuals.Item2.IsDescendantOf(VBAdornerDecorator))
                 {
-                    Point from = visuals.Item1.TransformToVisual(VBAdornerDecorator).Transform(new Point(visuals.Item1.ActualWidth-1, visuals.Item1.ActualHeight / 2));
-                    Point to = visuals.Item2.TransformToVisual(VBAdornerDecorator).Transform(new Point(0, visuals.Item2.ActualHeight / 2));
-                    drawingContext.DrawLine(new Pen(VBAdornerDecorator.ConnectionColor, VBAdornerDecorator.ConnectionThickness), from, to);
+                    Point from = visuals.Item1.TransformToVisual(VBAdornerDecorator)?.Transform(new Point(visuals.Item1.Bounds.Width - 1, visuals.Item1.Bounds.Height / 2)) ?? new Point();
+                    Point to = visuals.Item2.TransformToVisual(VBAdornerDecorator)?.Transform(new Point(0, visuals.Item2.Bounds.Height / 2)) ?? new Point();
+                    context.DrawLine(new Pen(VBAdornerDecorator.ConnectionColor, VBAdornerDecorator.ConnectionThickness), from, to);
                 }
             }
-            base.OnRender(drawingContext); 
+            base.Render(context);
         }
 
         private List<Tuple<VBVisualAdorner, VBVisualAdorner>> _RelationsVisual;
@@ -52,11 +51,11 @@ namespace gip.core.layoutengine.avui
             {
                 AdornerLayer al1 = AdornerLayer.GetAdornerLayer(item.Item1.AdornedElement);
                 if (al1 != null)
-                    al1.Remove(item.Item1);
+                    al1.Children.Remove(item.Item1);
 
                 AdornerLayer al2 = AdornerLayer.GetAdornerLayer(item.Item2.AdornedElement);
-                if(al2 != null)
-                    al2.Remove(item.Item2);
+                if (al2 != null)
+                    al2.Children.Remove(item.Item2);
             }
         }
 
@@ -82,12 +81,11 @@ namespace gip.core.layoutengine.avui
 
                 AdornerLayer adornerLayerFrom = AdornerLayer.GetAdornerLayer(visualFrom);
                 VBVisualAdorner adornerFrom = new VBVisualAdorner(visualFrom);
-                adornerLayerFrom.Add(adornerFrom);
-                adornerLayerFrom.Update();
+                AdornerLayer.SetAdornedElement(adornerFrom, visualFrom);
 
                 AdornerLayer adornerLayerTo = AdornerLayer.GetAdornerLayer(visualTo);
                 VBVisualAdorner adornerTo = new VBVisualAdorner(visualTo);
-                adornerLayerTo.Add(adornerTo);
+                AdornerLayer.SetAdornedElement(adornerTo, visualTo);
 
                 RelationsVisual.Add(new Tuple<VBVisualAdorner, VBVisualAdorner>(adornerFrom, adornerTo));
             }
@@ -96,7 +94,7 @@ namespace gip.core.layoutengine.avui
 
     public class VBVisualAdorner : Adorner
     {
-        public VBVisualAdorner(UIElement uiElement) : base(uiElement)
+        public VBVisualAdorner(Control Control) : base(Control)
         {
         }
 

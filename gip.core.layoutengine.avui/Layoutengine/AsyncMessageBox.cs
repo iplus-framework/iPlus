@@ -1,14 +1,15 @@
-﻿using System;
+﻿using MsBox.Avalonia;
+using MsBox.Avalonia.Base;
+using MsBox.Avalonia.Enums;
+using System;
 using System.Threading.Tasks;
-using System.Windows;
-//using System.Runtime.Remoting.Messaging;
 
 namespace gip.core.layoutengine.avui
 {
     public static class AsyncMessageBox
     {
         // Shows a message box from a separate worker thread.
-        public static async void BeginMessageBoxAsync(string strMessage, string strCaption, MessageBoxButton enmButton, MessageBoxImage enmImage)
+        public static async void BeginMessageBoxAsync(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
         {
             ShowMessageBoxDelegate caller = new ShowMessageBoxDelegate(ShowMessageBox);
             var workTask = Task.Run(() => caller.Invoke(strMessage, strCaption, enmButton, enmImage));
@@ -22,8 +23,8 @@ namespace gip.core.layoutengine.avui
         public static void BeginMessageBoxAsync(
             string strMessage,
             string strCaption,
-            MessageBoxButton enmButton,
-            MessageBoxImage enmImage,
+            ButtonEnum enmButton,
+            Icon enmImage,
             ref IAsyncResult asyncResult)
         {
             BeginMessageBoxAsync(strMessage, strCaption, enmButton, enmImage, ref asyncResult, null);
@@ -36,8 +37,8 @@ namespace gip.core.layoutengine.avui
         public static void BeginMessageBoxAsync(
             string strMessage,
             string strCaption,
-            MessageBoxButton enmButton,
-            MessageBoxImage enmImage,
+            ButtonEnum enmButton,
+            Icon enmImage,
             ref IAsyncResult asyncResult,
             AsyncCallback callBack)
         {
@@ -48,12 +49,12 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private delegate MessageBoxResult ShowMessageBoxDelegate(string strMessage, string strCaption, MessageBoxButton enmButton, MessageBoxImage enmImage);
+        private delegate IMsBox<ButtonResult> ShowMessageBoxDelegate(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage);
 
         // Method invoked on a separate thread that shows the message box.
-        private static MessageBoxResult ShowMessageBox(string strMessage, string strCaption, MessageBoxButton enmButton, MessageBoxImage enmImage)
+        private static IMsBox<ButtonResult> ShowMessageBox(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
         {
-            return MessageBox.Show(strMessage, strCaption, enmButton, enmImage);
+            return MessageBoxManager.GetMessageBoxStandard(strCaption, strMessage, enmButton, enmImage);
         }
 
         //public static MessageBoxResult EndMessageBoxAsync(IAsyncResult result)

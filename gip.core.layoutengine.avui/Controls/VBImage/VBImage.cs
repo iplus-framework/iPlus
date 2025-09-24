@@ -1,17 +1,8 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
+using Avalonia.Controls;
 using gip.core.datamodel;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Data;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq.Expressions;
-using System.Transactions;
-using System.Windows.Media.Imaging;
 using System.IO;
 
 namespace gip.core.layoutengine.avui
@@ -154,7 +145,7 @@ namespace gip.core.layoutengine.avui
             
             BindingOperations.ClearBinding(this, VBImage.ACClassDesignProperty);
             //BindingOperations.ClearBinding(this, VBImage.ACCompInitStateProperty);
-            BindingOperations.ClearAllBindings(this);
+            this.ClearAllBindings();
         }
 
         /// <summary>
