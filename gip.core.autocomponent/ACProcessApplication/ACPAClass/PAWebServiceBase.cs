@@ -359,12 +359,16 @@ namespace gip.core.autocomponent
         public bool HandleError(Exception error)
         {
             ReportServiceAlarm(error.Message);
+            if (error.InnerException != null)
+                ReportServiceAlarm(error.InnerException.Message);
             return false;
         }
 
         public void ProvideFault(Exception error, System.ServiceModel.Channels.MessageVersion version, ref System.ServiceModel.Channels.Message fault)
         {
             ReportServiceAlarm(error.Message);
+            if (error.InnerException != null)
+                ReportServiceAlarm(error.InnerException.Message);
         }
 
         public void ReportServiceAlarm(string message)

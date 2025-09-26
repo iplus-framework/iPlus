@@ -42,7 +42,7 @@ namespace gip.core.datamodel
         /// <param name="acClassID">The ID of ACClass related to the property log.</param>
         /// <param name="acClassPropertyID">The ID of ACClassProperty related to the log.</param>
         /// <returns>Aggregate values of property logs.</returns>
-        public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(DateTime from, DateTime to, Guid acClassID, Guid acClassPropertyID)
+        public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(DateTime from, DateTime to, Guid acClassID, Guid acClassPropertyID, bool sortByEventTime = false)
         {
             List<ACPropertyLogInfo> result = null;
 
@@ -61,6 +61,11 @@ namespace gip.core.datamodel
                                                              .GroupBy(c => c.propLog.ACPropertyLog)
                                                              .Select(c => new ACPropertyLog_ACProgramLog() { PropertyLog = c.Key, ProgramLog = c.SelectMany(x => x.programLog) })
                                                              .ToArray();
+
+                if (sortByEventTime)
+                {
+                    propertyLogs = propertyLogs.OrderBy(c => c.PropertyLog.EventTime).ToArray();
+                }
 
                 result = BuildACPropertyLogInfo(from, to, acClassID, db, propertyLogs);
             }

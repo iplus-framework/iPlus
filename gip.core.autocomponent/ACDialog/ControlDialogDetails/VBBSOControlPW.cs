@@ -1286,7 +1286,7 @@ namespace gip.core.autocomponent
         }
         #endregion
 
-        #region Callback mehtods, override
+        #region Callback methods, override
 
         void ParentACComponent_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
