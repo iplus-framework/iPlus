@@ -1,0 +1,28 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="gip.core.layoutengine.avui.IPlusTheme">
+  <FluentTheme DensityStyle="Compact" />
+  <Styles.Resources>
+    <ResourceDictionary>
+      <!--<ResourceDictionary.MergedDictionaries>
+      </ResourceDictionary.MergedDictionaries>-->
+      
+      <!-- No dynamic resources. Is done via ControlManager in Method RegisterImplicitStyles -->
+      <!--<ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Default">
+          <ResourceDictionary.MergedDictionaries>
+            <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/LightThemeColors.axaml" />
+          </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <ResourceDictionary.MergedDictionaries>
+            <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml" />
+          </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+      </ResourceDictionary.ThemeDictionaries>-->
+    </ResourceDictionary>
+  </Styles.Resources>
+  <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/Controls.axaml" />
+</Styles>

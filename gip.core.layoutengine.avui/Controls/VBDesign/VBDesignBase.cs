@@ -23,7 +23,6 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Basisklasse für Inhaltssteuerelemente
     /// </summary>
-    [ContentProperty("InstanceInfoList")]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesignBase'}de{'VBDesignBase'}", Global.ACKinds.TACVBControl)]
     public abstract class VBDesignBase : ContentControl, IVBContent, IACObject, IACMenuBuilderWPFTree
     {
@@ -227,6 +226,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Gets or sets the list of instance infos.
         /// </summary>
+        [Content]
         public VBInstanceInfoList InstanceInfoList
         {
             get

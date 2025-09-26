@@ -1,11 +1,11 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -17,14 +17,14 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDesignSelectionAdorner : Adorner
     {
-        private System.Windows.Media.Color _color;
+        private Color _color;
 
         /// <summary>
         /// Creates a new instance of VBDesignSelectionAdorner.
         /// </summary>
         /// <param name="adornedElement"></param>
         /// <param name="color"></param>
-        public VBDesignSelectionAdorner(UIElement adornedElement, System.Windows.Media.Color color)
+        public VBDesignSelectionAdorner(Control adornedElement, Color color)
             : base(adornedElement)
         {
             IsHitTestVisible = false;
@@ -36,21 +36,16 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnRender.
         /// </summary>
         /// <param name="drawingContext">The drawing context parameter.</param>
-        protected override void OnRender(DrawingContext drawingContext)
+        public override void Render(DrawingContext drawingContext)
         {
-            System.Windows.Size desiredSize = this.AdornedElement.DesiredSize;
-            desiredSize.Width += 4;
-            desiredSize.Height += 4;
-
-            Rect adornedElementRect = new Rect(desiredSize);
-            adornedElementRect.X -= 2;
-            adornedElementRect.Y -= 2;
-
+            Size desiredSize = this.AdornedElement.DesiredSize;
+            Rect adornedElementRect = new Rect(-2, -2, desiredSize.Width + 4, desiredSize.Height + 4);
             SolidColorBrush renderBrush = new SolidColorBrush(Colors.White);
             renderBrush.Opacity = 0.05;
-            System.Windows.Media.Pen renderPen = new System.Windows.Media.Pen(new SolidColorBrush(_color), 1.5d);
-            renderPen.DashStyle = DashStyles.Dot;
-            drawingContext.DrawRoundedRectangle(renderBrush, renderPen, adornedElementRect, 3, 3);
+            Pen renderPen = new Pen(new SolidColorBrush(_color), 1.5d);
+            renderPen.DashStyle = DashStyle.Dot;
+            drawingContext.DrawRectangle(renderBrush, renderPen, adornedElementRect, 3, 3);
+            base.Render(drawingContext);
         }
     }
 

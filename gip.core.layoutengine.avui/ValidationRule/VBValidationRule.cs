@@ -1,4 +1,5 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia.Controls;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 
@@ -90,42 +91,60 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        //public override ValidationResult Validate(object value, System.Globalization.CultureInfo cultureInfo)
-        //{
-        //    if (ACComponent == null)
-        //        return new ValidationResult(false, "ACComponent == null");
-        //    else if (String.IsNullOrEmpty(ACUrlCmd))
-        //        return new ValidationResult(false, "ACUrlCommand is Empty");
+        public void Validate(Control control, object value, System.Globalization.CultureInfo cultureInfo)
+        {
+            if (ACComponent == null)
+            {
+                DataValidationErrors.SetErrors(control, new object[] { "Error" });
+                return;
+            }
+            else if (String.IsNullOrEmpty(ACUrlCmd))
+            {
+                DataValidationErrors.SetErrors(control, new object[] { "ACUrlCommand is Empty" });
+                return;
+            }
 
-        //    object result = ACComponent.ACUrlCommand(ACUrlCmd, VBContent, value, cultureInfo);
-        //    if (result == null)
-        //        return ValidationResult.ValidResult;
-        //    else if (result is Boolean)
-        //    {
-        //        bool valid = (bool)result;
-        //        if (valid)
-        //            return ValidationResult.ValidResult;
-        //        else
-        //            return new ValidationResult(false, "");
-        //    }
-        //    else if (result is Msg)
-        //    {
-        //        Msg msg = result as Msg;
-        //        string message = msg.Message;
-        //        if (String.IsNullOrEmpty(message) && msg is MsgWithDetails)
-        //            message = (msg as MsgWithDetails).InnerMessage;
-        //        if (msg.MessageLevel == eMsgLevel.Failure
-        //            || msg.MessageLevel == eMsgLevel.Error
-        //            || msg.MessageLevel == eMsgLevel.Exception
-        //            || msg.MessageLevel == eMsgLevel.Warning)
-        //        {
-        //            return new ValidationResult(false, message);
-        //        }
-        //        else
-        //            return new ValidationResult(true, message);
-        //    }
-        //    return ValidationResult.ValidResult;
-        //}
+            object result = ACComponent.ACUrlCommand(ACUrlCmd, VBContent, value, cultureInfo);
+            if (result == null)
+            {
+                DataValidationErrors.ClearErrors(control);
+                return;
+            }
+            else if (result is Boolean)
+            {
+                bool valid = (bool)result;
+                if (valid)
+                {
+                    DataValidationErrors.ClearErrors(control);
+                    return;
+                }
+                else
+                {
+                    DataValidationErrors.SetErrors(control, new object[] { "Error" });
+                    return;
+                }
+            }
+            else if (result is Msg)
+            {
+                Msg msg = result as Msg;
+                string message = msg.Message;
+                if (String.IsNullOrEmpty(message) && msg is MsgWithDetails)
+                    message = (msg as MsgWithDetails).InnerMessage;
+                if (msg.MessageLevel == eMsgLevel.Failure
+                    || msg.MessageLevel == eMsgLevel.Error
+                    || msg.MessageLevel == eMsgLevel.Exception
+                    || msg.MessageLevel == eMsgLevel.Warning)
+                {
+                    {
+                        DataValidationErrors.SetErrors(control, new object[] { message });
+                        return;
+                    }
+                }
+                //else
+                //    return new ValidationResult(true, message);
+            }
+            DataValidationErrors.ClearErrors(control);
+        }
 
         #region public member
         private ACRef<IACObject> _ACComponentRef;

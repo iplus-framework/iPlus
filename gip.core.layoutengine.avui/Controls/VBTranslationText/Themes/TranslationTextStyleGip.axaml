@@ -3,7 +3,7 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <ControlTemplate TargetType="{x:Type local:VBTranslationText}" x:Key="{ComponentResourceKey ResourceId=TranslationTextHiddenGipTemplate, TypeInTargetAssembly={x:Type local:VBTranslationText}}">

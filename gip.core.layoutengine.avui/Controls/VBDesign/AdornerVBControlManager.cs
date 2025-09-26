@@ -1,12 +1,13 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Media;
+using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.layoutengine.avui
 {
@@ -61,7 +62,7 @@ namespace gip.core.layoutengine.avui
 
         #region methods
 
-        private void RemoveAdornerFromChildElements(AdornerLayer adornerLayer, UIElement vbUiControlToAdorn)
+        private void RemoveAdornerFromChildElements(AdornerLayer adornerLayer, Control vbUiControlToAdorn)
         {
             var childs2 = adornerLayer.GetAdorners(vbUiControlToAdorn);
             if (childs2 != null)
@@ -69,7 +70,7 @@ namespace gip.core.layoutengine.avui
                 foreach (var childAdorner in childs2)
                 {
                     if (childAdorner is VBDesignSelectionAdorner)
-                        AdornerLayerOfDesign.Remove(childAdorner);
+                        AdornerLayerOfDesign.Children.Remove(childAdorner);
                 }
             }
         }
@@ -81,7 +82,7 @@ namespace gip.core.layoutengine.avui
         public void AddAdornerToElement(Color color)
         {
             lastUsedColor = color;
-            UIElement vbUiControlToAdorn = ControlToAdorn as UIElement;
+            Control vbUiControlToAdorn = ControlToAdorn as Control;
 
             if (vbUiControlToAdorn == null)
                 return;
@@ -94,7 +95,8 @@ namespace gip.core.layoutengine.avui
             RemoveAdornerFromChildElements(AdornerLayerOfDesign, vbUiControlToAdorn);
 
             AdornerOfControl = new VBDesignSelectionAdorner(vbUiControlToAdorn, color);
-            AdornerLayerOfDesign.Add(AdornerOfControl);
+            AdornerLayerOfDesign.Children.Add(AdornerOfControl);
+            AdornerLayer.SetAdornedElement(AdornerOfControl, vbUiControlToAdorn);
         }
 
         /// <summary>
@@ -112,15 +114,17 @@ namespace gip.core.layoutengine.avui
                     {
                         foreach (var childAdorner in childs)
                         {
-                            if(childAdorner is VBDesignSelectionAdorner)
-                                layerOfLast.Remove(childAdorner);
+                            if (childAdorner is VBDesignSelectionAdorner)
+                            {
+                                layerOfLast.Children.Remove(childAdorner);
+                            }
                         }
                     }
                     if (AdornerOfControl is VBDesignSelectionAdorner)
-                        layerOfLast.Remove(AdornerOfControl);
+                        layerOfLast.Children.Remove(AdornerOfControl);
                 }
                 if (AdornerOfControl is VBDesignSelectionAdorner)
-                    AdornerLayerOfDesign.Remove(AdornerOfControl);
+                    AdornerLayerOfDesign.Children.Remove(AdornerOfControl);
             }
             AdornerOfControl = null;
             AdornerLayerOfDesign = null;

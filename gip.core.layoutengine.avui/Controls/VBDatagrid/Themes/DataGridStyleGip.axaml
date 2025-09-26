@@ -7,7 +7,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <SolidColorBrush x:Key="DataGridLineBrushGip" Color="#FF3D3D3D" />

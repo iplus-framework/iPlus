@@ -6,7 +6,7 @@
    xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
    xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <Style x:Key="ActionCollectionEditorStyleGip" TargetType="{x:Type local:VBActionCollectionEditor}">

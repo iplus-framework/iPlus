@@ -7,7 +7,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+        <ResourceDictionary Source="/Controls/LightThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <SolidColorBrush x:Key="DataGridLineBrushAero" Color="#FF5D5D5D" />

@@ -4,8 +4,10 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Labs.Input;
 using Avalonia.Media;
 using Avalonia.Styling;
+using AvaloniaEdit;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
@@ -25,44 +27,11 @@ namespace gip.core.layoutengine.avui
     public class VBTextBox : TextBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TextBoxStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TextBoxStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-
         static VBTextBox()
         {
             StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBTextBox>();
         }
 
-        protected bool _themeApplied = false;
         public VBTextBox()
         {
             this.Focusable = true;
@@ -75,14 +44,19 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            ActualizeTheme(true, StyleInfoList);
             GotFocus += VBTextBox_GotFocus;
             this.TextInput += TextBox_PreviewTextInput;
             this.KeyDown += TextBox_PreviewKeyDown;
             Loaded += VBTextBox_Loaded;
             Unloaded += VBTextBox_Unloaded;
 
-            // In Avalonia, commands are handled differently
+            CmdBindingPaste = new CommandBinding();
+            CmdBindingPaste.Command = ApplicationCommands.Paste;
+            CmdBindingPaste.Executed += TextBox_Paste;
+            CmdBindingCut = new CommandBinding();
+            CmdBindingCut.Command = ApplicationCommands.Cut;
+            CmdBindingCut.CanExecute += TextBox_CanCut;
+            CommandManager.SetCommandBindings(this, new List<CommandBinding> { CmdBindingPaste, CmdBindingCut });
             ResolveMaskProvider(Mask);
         }
 
@@ -92,19 +66,15 @@ namespace gip.core.layoutengine.avui
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
-            if (!_themeApplied)
-                ActualizeTheme(false, MyStyleInfoList);
             InitVBControl();
-        }
-
-        public void ActualizeTheme(bool bInitializingCall, List<CustomControlStyleInfo> CustomControlStyleInfoList)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, CustomControlStyleInfoList, bInitializingCall);
         }
 
         #endregion
 
         #region Loaded-Event
+        private CommandBinding CmdBindingPaste;
+        private CommandBinding CmdBindingCut;
+
         /// <summary>
         /// Determines is control initialized or not.
         /// </summary>
@@ -161,7 +131,8 @@ namespace gip.core.layoutengine.avui
             }
 
             // Check if RightControlMode is locally set
-            if (RightControlMode < dcRightControlMode)
+            if (   !this.IsSet(VBTextBox.RightControlModeProperty)
+                || RightControlMode < dcRightControlMode)
             {
                 RightControlMode = dcRightControlMode;
             }
@@ -171,7 +142,7 @@ namespace gip.core.layoutengine.avui
                 isNumericValueBound = TypeAnalyser.IsNumericType(dcACTypeInfo.ObjectType);
 
             // Check if TextAlignment is locally set
-            if (isNumericValueBound)
+            if (isNumericValueBound && !this.IsSet(TextBox.TextAlignmentProperty))
                 TextAlignment = TextAlignment.Right;
 
             // VBContent muß im XAML gestettet sein
@@ -201,11 +172,8 @@ namespace gip.core.layoutengine.avui
                 };
                 
                 if (!String.IsNullOrEmpty(VBValidation))
-                {
-                    // Note: Avalonia validation is handled differently
-                    // This would need to be implemented using INotifyDataErrorInfo or custom validation
-                }
-                
+                    _ValidationRule = new VBValidationRule(null, true, ContextACObject, VBContent, VBValidation);
+
                 if (!String.IsNullOrEmpty(StringFormat))
                     concreteBinding.StringFormat = StringFormat;
                 
@@ -269,6 +237,12 @@ namespace gip.core.layoutengine.avui
             }
 
             // Set tooltip if needed
+            string tooltip = ToolTip.GetTip(this) as string;
+            //if (!this.IsSet(TextBox.TextAlignmentProperty))
+            if (!String.IsNullOrEmpty(tooltip))
+            {
+                ToolTip.SetTip(this, this.Root().Environment.TranslateText(ContextACObject, tooltip));
+            }
             if (isNumericValueBound && !String.IsNullOrEmpty(this.StringFormat))
             {
                 var tooltipBinding = new Binding
@@ -307,11 +281,19 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                // Note: Avalonia handles binding differently than WPF
-                var boundedValue = this.GetBindingObservable(TextBox.TextProperty);
-                if (boundedValue != null)
+                var bindingexp = BindingOperations.GetBindingExpressionBase(this, TextBox.TextProperty);
+                if (bindingexp != null)
                 {
-                    // TODO: Implement WPF reference tracking for Avalonia
+                    IACObject boundToObject = bindingexp.GetSource() as IACObject;
+                    try
+                    {
+                        if (boundToObject != null)
+                            BSOACComponent.AddWPFRef(this.GetHashCode(), boundToObject);
+                    }
+                    catch (Exception exw)
+                    {
+                        this.Root().Messages.LogDebug("VBTextBox", "AddWPFRef", exw.Message);
+                    }
                 }
             }
             _Loaded = true;
@@ -348,9 +330,15 @@ namespace gip.core.layoutengine.avui
             this.KeyDown -= TextBox_PreviewKeyDown;
             this.Loaded -= VBTextBox_Loaded;
             this.Unloaded -= VBTextBox_Unloaded;
+
+            // TODO:
+            //this.CommandBindings.Remove(CmdBindingPaste); //handle paste
+            //this.CommandBindings.Remove(CmdBindingCut); //surpress cut
+
             _VBContentPropertyInfo = null;
 
             MaskProvider = null;
+            _ValidationRule = null;
             this.ClearAllBindings();
         }
 
@@ -703,6 +691,26 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
+        private bool _isHandlingTextInput = false;
+        protected override void OnTextInput(TextInputEventArgs e)
+        {
+            try
+            {
+                _isHandlingTextInput = true;
+                base.OnTextInput(e);
+            }
+            finally
+            {
+                _isHandlingTextInput = false;
+            }
+            _isHandlingTextInput = true;
+        }
+
+        protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception error)
+        {
+
+        }
+
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
@@ -752,6 +760,20 @@ namespace gip.core.layoutengine.avui
                         return;
                     ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
                 }
+            }
+            else if (change.Property == TextProperty)
+            {
+                // From Target to Source
+                if (_isHandlingTextInput)
+                {
+                    VBTextBox_TargetUpdated(change.Sender, change);
+                }
+                // From Source to Target
+                else
+                {
+                    VBTextBox_SourceUpdated(change.Sender, change);
+                }
+                //change.NewValue
             }
         }
 
@@ -808,6 +830,7 @@ namespace gip.core.layoutengine.avui
             get { return GetValue(VBValidationProperty); }
             set { SetValue(VBValidationProperty, value); }
         }
+        private VBValidationRule _ValidationRule = null;
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
@@ -909,8 +932,8 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            // RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
             // TODO: Convert this to Avalonia equivalent when available
+            // RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
             IsValueNull = controlModeInfo.IsNull;
         }
 
@@ -1265,6 +1288,9 @@ namespace gip.core.layoutengine.avui
                     this.Text = null;
                     // In Avalonia, we need to update the binding differently
                     // This would need to be implemented
+                    var b = BindingOperations.GetBindingExpressionBase(this, TextProperty);
+                    if (b != null)
+                        b.UpdateSource();
                 }
                 else
                 {
@@ -1273,6 +1299,9 @@ namespace gip.core.layoutengine.avui
                         this.Text = "0";
                     else
                         base.Clear();
+                    var b = BindingOperations.GetBindingExpressionBase(this, TextProperty);
+                    if (b != null)
+                        b.UpdateSource();
                 }
             }
             else
@@ -1316,12 +1345,12 @@ namespace gip.core.layoutengine.avui
                     BSOACComponent.ACAction(actionArgs);
                     if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
                     {
-                        // VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                        // ContextMenu = vbContextMenu;
-                        // TODO: Implement context menu handling for Avalonia
-                        // if (vbContextMenu.PlacementTarget == null)
-                        //     vbContextMenu.PlacementTarget = this;
-                        // ContextMenu.Open();
+                        VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                        ContextMenu = vbContextMenu;
+                        //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                        if (vbContextMenu.PlacementTarget == null)
+                             vbContextMenu.PlacementTarget = this;
+                        ContextMenu.Open();
                     }
                     e.Handled = true;
                 }
@@ -1329,13 +1358,21 @@ namespace gip.core.layoutengine.avui
             base.OnPointerReleased(e);
         }
 
-        void VBTextBox_SourceUpdated(object sender, EventArgs e)
+        protected override void OnAccessKey(RoutedEventArgs e)
+        {
+            base.OnAccessKey(e);
+            this.Focus();
+        }
+
+        void VBTextBox_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
         }
 
-        void VBTextBox_TargetUpdated(object sender, EventArgs e)
+        void VBTextBox_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
+            if (_ValidationRule != null)
+                _ValidationRule.Validate(this, e.NewValue, System.Globalization.CultureInfo.CurrentUICulture);
             UpdateControlMode();
             ConvertValueToText(this.Text);
         }
@@ -1490,7 +1527,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        private void TextBox_Paste(object sender, RoutedEventArgs e)
+        private void TextBox_Paste(object sender, Avalonia.Labs.Input.ExecutedRoutedEventArgs e)
         {
             MaskedTextProvider provider = MaskProvider;
             if (provider != null)
@@ -1527,6 +1564,17 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+
+        private void TextBox_CanCut(object sender, Avalonia.Labs.Input.CanExecuteRoutedEventArgs e)
+        {
+            MaskedTextProvider provider = MaskProvider;
+            if (provider != null)
+            {
+                e.CanExecute = false;
+                e.Handled = true;
+            }
+        }
+
         #endregion
 
         #region WPF-Design
@@ -1534,14 +1582,20 @@ namespace gip.core.layoutengine.avui
         {
             if (e.Key == Key.Enter)
             {
-                // In Avalonia, we need to handle binding updates differently
-                // This would need custom implementation
+                var b = BindingOperations.GetBindingExpressionBase(this, TextProperty);
+                if (b != null)
+                {
+                    b.UpdateSource();
+                }
                 SelectAll();
             }
             else if (e.Key == Key.Escape)
             {
-                // Handle escape key
-                // This would need custom implementation for Avalonia
+                var b = BindingOperations.GetBindingExpressionBase(this, TextProperty);
+                if (b != null)
+                {
+                    b.UpdateTarget();
+                }
             }
         }
 

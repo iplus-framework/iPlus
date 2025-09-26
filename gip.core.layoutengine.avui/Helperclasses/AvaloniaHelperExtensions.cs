@@ -3,6 +3,9 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using System.Reflection;
+using System.Collections.Generic;
+using Avalonia.Controls.Primitives;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
@@ -50,6 +53,51 @@ namespace gip.core.layoutengine.avui.Helperclasses
             
             // Move caret to end
             textBox.CaretIndex = textBox.Text?.Length ?? 0;
+        }
+    }
+
+    public static class BindingExpressionExtensions
+    {
+        private static readonly FieldInfo SourceField = typeof(BindingExpressionBase)
+            .Assembly
+            .GetType("Avalonia.Data.Core.BindingExpression")?
+            .GetField("_source", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        /// <summary>
+        /// Gets the source object from a BindingExpressionBase using reflection.
+        /// </summary>
+        /// <param name="bindingExpression">The BindingExpressionBase instance.</param>
+        /// <returns>The source object if available, otherwise null.</returns>
+        public static object GetSource(this BindingExpressionBase bindingExpression)
+        {
+            if (bindingExpression == null)
+                throw new ArgumentNullException(nameof(bindingExpression));
+
+            // Check if this is actually a BindingExpression instance
+            var bindingExpressionType = bindingExpression.GetType();
+            if (bindingExpressionType.Name != "BindingExpression")
+                return null;
+
+            if (SourceField == null)
+                throw new InvalidOperationException("Unable to find _source field via reflection.");
+
+            var sourceWeakRef = SourceField.GetValue(bindingExpression) as WeakReference<object>;
+
+            if (sourceWeakRef != null && sourceWeakRef.TryGetTarget(out var target))
+                return target;
+
+            return null;
+        }
+    }
+
+    public static class AdornerLayerExtensions
+    {
+
+        public static IEnumerable<Adorner> GetAdorners(this AdornerLayer adornerLayer, Visual element)
+        {
+            if (adornerLayer == null || element == null) 
+                return null;
+            return adornerLayer.Children.OfType<Adorner>().Where(c => c.AdornedElement == element);
         }
     }
 }

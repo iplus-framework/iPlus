@@ -8,7 +8,7 @@
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+                <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
                 <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgExclamation.xaml"/>
                 <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgQuestion.xaml"/>
                 <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgInfo.xaml"/>

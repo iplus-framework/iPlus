@@ -1,14 +1,14 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Metadata;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,20 +25,20 @@ namespace gip.core.layoutengine.avui
 
     public class VBDesignVBContentAdorner : Adorner
     {
-        public VBDesignVBContentAdorner(UIElement adornedElement, VBDesignVBContentInfo adornerInfo) : base(adornedElement)
+        public VBDesignVBContentAdorner(Control adornedElement, VBDesignVBContentInfo adornerInfo) : base(adornedElement)
         {
             _AdornerInfo = adornerInfo;
         }
 
         VBDesignVBContentInfo _AdornerInfo;
 
-        protected override void OnRender(DrawingContext drawingContext)
+        public override void Render(DrawingContext drawingContext)
         {
             IVBContent contentControl = AdornedElement as IVBContent;
             if (contentControl != null && contentControl.VBContent != null)
             {
-                SolidColorBrush background = Brushes.Black;
-                SolidColorBrush foreground = Brushes.White;
+                IBrush background = Brushes.Black;
+                IBrush foreground = Brushes.White;
                 double fontSize = 15;
 
                 if (_AdornerInfo != null)
@@ -56,7 +56,7 @@ namespace gip.core.layoutengine.avui
 
                 if (!string.IsNullOrEmpty(contentControl.VBContent) && (_AdornerInfo == null || !_AdornerInfo.TextCollection.Any()))
                 {
-                    FormattedText text = new FormattedText(contentControl.VBContent, System.Globalization.CultureInfo.CurrentCulture, FlowDirection, new Typeface("Arial"), fontSize, foreground, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                    FormattedText text = new FormattedText(contentControl.VBContent, System.Globalization.CultureInfo.CurrentCulture, FlowDirection, new Typeface("Arial"), fontSize, foreground);//, VisualTreeHelper.GetDpi(this).PixelsPerDip);
 
                     drawingContext.DrawRectangle(background, new Pen(foreground, 1), new Rect(new Size(text.Width + 2, fontSize + 2)));
                     drawingContext.DrawText(text, new Point(1,1));
@@ -83,7 +83,7 @@ namespace gip.core.layoutengine.avui
 
                         height += fontSize;
 
-                        FormattedText text = new FormattedText(val.ToString(), System.Globalization.CultureInfo.CurrentCulture, FlowDirection, new Typeface("Arial"), fontSize, foreground, VisualTreeHelper.GetDpi(this).PixelsPerDip);
+                        FormattedText text = new FormattedText(val.ToString(), System.Globalization.CultureInfo.CurrentCulture, FlowDirection, new Typeface("Arial"), fontSize, foreground); //, VisualTreeHelper.GetDpi(this).PixelsPerDip);
                         textList.Add(text);
                     }
 
@@ -102,11 +102,10 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            base.OnRender(drawingContext);
+            base.Render(drawingContext);
         }
     }
 
-    [ContentProperty(nameof(TextCollection))]
     public class VBDesignVBContentInfo
     {
         public VBDesignVBContentInfo()
@@ -114,6 +113,7 @@ namespace gip.core.layoutengine.avui
             TextCollection = new VBDesignVBContentTextCollection(); 
         }
 
+        [Content]
         [Category("VBControl")]
         public VBDesignVBContentTextCollection TextCollection
         {

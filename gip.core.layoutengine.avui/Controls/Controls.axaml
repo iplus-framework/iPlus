@@ -1,0 +1,114 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:ClassModifier="Internal">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBContentControl/Themes/ContentControlStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ButtonStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonMobileStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonBarStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonBarMobileStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonTrayStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenu/Themes/MenuStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuItem/Themes/MenuItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuItemMobile/Themes/MenuItemMobileStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuSeparator/Themes/MenuSeparatorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBContextMenu/Themes/ContextMenuStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTabControl/Themes/TabControlStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTabItem/Themes/TabItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDockPanel/Themes/DockPanelStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBStatusBar/Themes/StatusBarStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBStatusBarItem/Themes/StatusBarItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBCheckBox/Themes/CheckBoxStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextBlock/Themes/TextBlockStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBComboBox/Themes/ComboBoxStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBComboBoxItem/Themes/ComboBoxItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextBox/Themes/TextBoxStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBPasswordBox/Themes/PasswordBoxStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDataGrid/Themes/DataGridStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatePicker/Themes/DatePickerStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBListBox/Themes/ListBoxStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBListBoxItem/Themes/ListBoxItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBProgressBar/Themes/ProgressBarStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRadioButton/Themes/RadioButtonStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRadioButton/Themes/RadioButtonGroupStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeView/Themes/TreeViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeViewItem/Themes/TreeViewItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBSlider/Themes/SliderStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScriptEditor/Themes/ScriptEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextAreaStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingWindowStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingManagerStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBConnectionState/Themes/ConnectionStateStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBControlSelectionIcon/Themes/VBControlSelectionIconStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBChartPlotter/Themes/ChartPlotterStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButtonChrome/Themes/ButtonChromeStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButtonSpinner/Themes/ButtonSpinnerStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimePicker/Themes/DateTimePickerStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBNumericUpDown/Themes/NumericUpDownStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/PropertyGridViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/DesignItemTreeViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/SettersCollectionEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/TriggersCollectionEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/DataTriggerEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/PropertyTriggerEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/EventTriggerEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/BindingEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/ConditionEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/MultiBindingEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/MultiTriggerEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/ActionCollectionEditorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesign/Themes/VBDesignStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBVisual/Themes/VBVisualStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBVisualGroup/Themes/VBVisualGroupStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBConnector/Themes/VBConnectorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBCanvas/VBSelectedThumb/Themes/SelectedThumbStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBFrame/Themes/FrameStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBPage/Themes/PageStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBHeader/Themes/HeaderStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeListView/Themes/TreeListViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeListView/Themes/TreeListViewItemStyle.axaml"/>
+        
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/ConnectionsPresenterStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/ConnectionStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/ConnectorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/GanttChartStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/TimelineGanttItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/TimelineGanttItemsPresenterStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/GanttChartViewStyle.axaml"/>
+
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/RulerBlockItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineChartStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineItemsPresenterStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineRulerControlStyle.axaml"/>
+        
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTranslationText/Themes/TranslationTextStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBExpander/Themes/ExpanderStyle.axaml"/>
+
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBProgramLogView/Themes/ProgramLogViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBProgramLogView/Themes/ProgramLogViewItemStyle.axaml"/>
+
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMultiSelectComboBox/Themes/VBMultiSelectComboBoxStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMultiSelectComboBox/Themes/VBMultiSelectComboBoxItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBCarousel/Themes/CarouselStyle.axaml"/>
+        
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBFlipView/Themes/FlipViewStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTileGrid/Themes/TileStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGraph/Themes/VBGraphItemStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBAutoCompleteBox/Themes/AutoCompleteBoxStyle.axaml"/>
+
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBXMLEditor/Themes/XMLEditorStyle.axaml"/>
+
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+</Styles>
+

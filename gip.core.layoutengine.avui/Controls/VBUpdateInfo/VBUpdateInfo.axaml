@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     Background="Transparent" >
     <UserControl.Resources>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
     </UserControl.Resources>
     <Grid x:Name="LayoutRoot" Margin="5,5,0,0" >
         <Grid.ColumnDefinitions>

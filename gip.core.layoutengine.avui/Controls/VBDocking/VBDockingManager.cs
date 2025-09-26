@@ -36,7 +36,6 @@ namespace gip.core.layoutengine.avui
     [TemplatePart(Name = "PART_btnPanelBottom", Type = typeof(StackPanel))]
     [TemplatePart(Name = "PART_gridDocking", Type = typeof(VBDockingGrid))]
     [TemplatePart(Name = "PART_panelFront", Type = typeof(DockPanel))]
-    [ContentProperty("VBDesignList")]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDockingManager'}de{'VBDockingManager'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
     public class VBDockingManager : ContentControl, IVBDockDropSurface, IACInteractiveObject, IACObject, IVBGui
     {
@@ -308,6 +307,7 @@ namespace gip.core.layoutengine.avui
         }
 
         public List<UIElement> _VBDesignList = new List<UIElement>();
+        [Content]
         public List<UIElement> VBDesignList
         {
             get

@@ -11,7 +11,14 @@ namespace gip.core.layoutengine.avui
 {
     public enum eWpfTheme : short
     {
+        /// <summary>
+        /// Dark Theme
+        /// </summary>
         Gip,
+
+        /// <summary>
+        /// Light Theme
+        /// </summary>
         Aero,
     };
 
@@ -156,19 +163,8 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        static public void RegisterImplicitStyles(Control oneElementInTree)
-        {
-            if (oneElementInTree == null)
-                return;
-            foreach (List<CustomControlStyleInfo> styleInfoList in ControlManager._listOfImplicitStyles)
-            {
-                RegisterImplicitStyle(oneElementInTree, styleInfoList, false);
-            }
-        }
-
         static public void RegisterImplicitStyles(Application app)
         {
-            //BamlWriter.Save(app);
             if (app == null)
                 return;
             App = app;
@@ -182,101 +178,14 @@ namespace gip.core.layoutengine.avui
 
             if (WpfTheme == eWpfTheme.Aero)
             {
-                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Themes/AeroStyles.xaml", UriKind.Relative)));
+                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/LightThemeColors.axaml", UriKind.Relative)));
                 //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Silver.xaml", UriKind.Relative)));
             }
             else if (WpfTheme == eWpfTheme.Gip)
             {
-                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Themes/Generic.xaml", UriKind.Relative)));
+                app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Relative)));
                 //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Black.xaml", UriKind.Relative)));
             }
-        }
-
-        static public bool RegisterImplicitStyle(Control guiObject, List<CustomControlStyleInfo> CustomControlStyleInfoList, bool isInInitializing, bool setGipDefaultStyleIntoLogicalTree = false)
-        {
-            return true;
-
-            //if ((guiObject == null) || (CustomControlStyleInfoList == null))
-            //    return false;
-
-            //// Falls gip = default, dann werden Templates aus SystemResource geholt, weil sie mit DefaultStyleKeyProperty.OverrideMetadata registriert worden sind
-            //if (ControlManager.WpfTheme == eWpfTheme.Gip && !setGipDefaultStyleIntoLogicalTree)
-            //{
-            //    return true;
-            //}
-
-            //CustomControlStyleInfo CustomControlStyleInfo = (from o in CustomControlStyleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
-            //if (CustomControlStyleInfo == null)
-            //    return false;
-            //// Falls anderer Style schon im Logical-Tree als impliziter Style in der Resource-Dictionary eingetragen worden ist, springe zurück
-            ////if (CustomControlStyleInfo.IsRegisteredAsImplicitStyle)
-            ////return true;
-
-            ////AvaloniaObject elementOnTopInLogicalTree = GetHighestControlInLogicalTree(guiObject);
-            ////if (elementOnTopInLogicalTree == null)
-            ////    return false;
-
-            ////ResourceDictionary dict = new ResourceDictionary();
-            ////dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-            ////// Falls kein ParentObjekt gefunden, dann trage RessourceDictionary in lokales Objekt ein
-            ////(elementOnTopInLogicalTree as Control).Resources.MergedDictionaries.Add(dict);
-
-            //// Falls anderer Style, dann soll dieser auf eine möglichst hohe Ebene im Logical Tress gesetzt werden,
-            //// damit nicht unnötige Kopien lokal herrschen
-            //if (App != null)
-            //{
-            //    object resource = App.TryFindResource(CustomControlStyleInfo.styleName);
-            //    if (resource == null)
-            //    {
-            //        ResourceDictionary dict = new ResourceDictionary();
-            //        dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-            //        App.Resources.MergedDictionaries.Add(dict);
-            //    }
-            //}
-            //else
-            //{
-            //    object resource = guiObject.TryFindResource(CustomControlStyleInfo.styleName);
-            //    if (resource == null)
-            //    {
-            //        AvaloniaObject parentLogicalObject = GetHighestControlInLogicalTree(guiObject);
-            //        if (parentLogicalObject != null)
-            //        {
-            //            if (!(parentLogicalObject is Control))
-            //                parentLogicalObject = null;
-            //            else if (isInInitializing && (parentLogicalObject is UserControl))
-            //            {
-            //                parentLogicalObject = null;
-            //            }
-            //        }
-
-            //        if ((parentLogicalObject == null) || (parentLogicalObject == guiObject))
-            //        {
-            //            // Falls Aufruf von Konstruktor der ohne Parent übergeben worden ist und auch nicht von ApplyTemplate, 
-            //            // dann warte, weil im OnApplyTemplate der Aufruf nochmals kommt
-            //            if (isInInitializing)
-            //                return false;
-            //            if (parentLogicalObject == null && isInInitializing)
-            //                return false;
-            //        }
-
-            //        ResourceDictionary dict = new ResourceDictionary();
-            //        dict.Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative);
-            //        // Falls kein ParentObjekt gefunden, dann trage RessourceDictionary in lokales Objekt ein
-            //        if (parentLogicalObject == null)
-            //            guiObject.Resources.MergedDictionaries.Add(dict);
-            //        else
-            //        {
-            //            if (parentLogicalObject is Control)
-            //                (parentLogicalObject as Control).Resources.MergedDictionaries.Add(dict);
-            //            else
-            //                guiObject.Resources.MergedDictionaries.Add(dict);
-            //        }
-
-            //        CustomControlStyleInfo.WasRegisteredAsImplicitStyle();
-            //    }
-            //}
-
-            //return true;
         }
 
         static public ResourceInclude GetResourceDict(List<CustomControlStyleInfo> CustomControlStyleInfoList)

@@ -8,13 +8,13 @@ namespace gip.core.layoutengine.avui
 {
     public interface IVBDynamicIcon
     {
-        Brush ContentStroke
+        IBrush ContentStroke
         {
             get;
             set;
         }
 
-        Brush ContentFill
+        IBrush ContentFill
         {
             get;
             set;

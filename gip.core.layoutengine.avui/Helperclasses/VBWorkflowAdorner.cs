@@ -81,10 +81,12 @@ namespace gip.core.layoutengine.avui
 
                 AdornerLayer adornerLayerFrom = AdornerLayer.GetAdornerLayer(visualFrom);
                 VBVisualAdorner adornerFrom = new VBVisualAdorner(visualFrom);
+                adornerLayerFrom.Children.Add(adornerFrom);
                 AdornerLayer.SetAdornedElement(adornerFrom, visualFrom);
 
                 AdornerLayer adornerLayerTo = AdornerLayer.GetAdornerLayer(visualTo);
                 VBVisualAdorner adornerTo = new VBVisualAdorner(visualTo);
+                adornerLayerTo.Children.Add(adornerTo);
                 AdornerLayer.SetAdornedElement(adornerTo, visualTo);
 
                 RelationsVisual.Add(new Tuple<VBVisualAdorner, VBVisualAdorner>(adornerFrom, adornerTo));

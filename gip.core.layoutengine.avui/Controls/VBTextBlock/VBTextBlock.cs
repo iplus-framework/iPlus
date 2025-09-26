@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui
@@ -50,8 +43,7 @@ namespace gip.core.layoutengine.avui
 
         static VBTextBlock()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTextBlock), new FrameworkPropertyMetadata(typeof(VBTextBlock)));
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBTextBlock), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits)); //, new PropertyChangedCallback(OnDepPropChanged)));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBTextBlock>();
         }
 
         bool _themeApplied = false;
@@ -62,36 +54,22 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             ActualizeTheme(true);
             Loaded += VBTextBlock_Loaded;
             Unloaded += VBTextBlock_Unloaded;
-            this.SourceUpdated += VBTextBlock_SourceUpdated;
-            this.TargetUpdated += VBTextBlock_TargetUpdated;
         }
 
-        void VBTextBlock_SourceUpdated(object sender, DataTransferEventArgs e)
+        void VBTextBlock_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
         }
 
-        void VBTextBlock_TargetUpdated(object sender, DataTransferEventArgs e)
+        void VBTextBlock_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            InitVBControl();
         }
 
         /// <summary>
@@ -100,7 +78,34 @@ namespace gip.core.layoutengine.avui
         /// <param name="bInitializingCall">Determines is initializing call or not.</param>
         public void ActualizeTheme(bool bInitializingCall)
         {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            // _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            _themeApplied = true; // Simplified for now
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            VBTextBlock thisControl = this;
+            if (change.Property == ACCompInitStateProperty)
+                thisControl.InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        thisControl.DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == StringFormatProperty)
+            {
+                // Note: Avalonia handles binding updates differently
+                // This would need to be implemented differently in Avalonia
+            }
+            else if (change.Property == TextProperty)
+            {
+                VBTextBlock_SourceUpdated(change.Sender, change);
+            }
         }
         #endregion
 
@@ -109,8 +114,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBTextBlock));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBTextBlock, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -119,7 +124,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -136,6 +141,12 @@ namespace gip.core.layoutengine.avui
                 Name = value;
             }
         }
+
+        /// <summary>
+        /// Represents the dependency property for ACCaption.
+        /// </summary>
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBTextBlock, string>(Const.ACCaptionPrefix);
 
         private string _Caption;
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
@@ -192,75 +203,30 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTextBlock), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTextBlock>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
-
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBTextBlock),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBTextBlock),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBTextBlock, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBTextBlock thisControl = dependencyObject as VBTextBlock;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
-            //else if (args.Property == StringFormatProperty)
-            //{
-            //    Binding boundedValue = BindingOperations.GetBinding(thisControl, TextBlock.TextProperty);
-            //    if (boundedValue != null && boundedValue.StringFormat != thisControl.StringFormat)
-            //    {
-            //        boundedValue.StringFormat = thisControl.StringFormat;
-            //    }
-            //}
         }
 
         /// <summary>
@@ -293,24 +259,12 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ucTextblock.ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ucTextblock.ToolTip = value;
-        //    }
-        //}
-
 
         private bool Visible
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -318,12 +272,12 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
@@ -384,22 +338,22 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected virtual void InitVBControl()
         {
-            if (_Initialized)
+            if (_Initialized || DataContext == null)
                 return;
             _Initialized = true;
 
-            Binding binding = null;
+            IBinding binding = null;
             if (ContextACObject == null)
             {
                 if (!string.IsNullOrEmpty(ACCaption))
                     this.Text = Translator.GetTranslation(ACIdentifier, ACCaption, this.Root().Environment.VBLanguageCode);
                 else if (!String.IsNullOrEmpty(VBContent))
                 {
-                    binding = new Binding();
-                    binding.Path = new PropertyPath(VBContent);
-                    binding.NotifyOnSourceUpdated = true;
-                    binding.NotifyOnTargetUpdated = true;
-                    SetBinding(TextBlock.TextProperty, binding);
+                    binding = new Binding
+                    {
+                        Path = VBContent
+                    };
+                    this.Bind(TextBlock.TextProperty, binding);
                 }
                 return;
             }
@@ -419,7 +373,7 @@ namespace gip.core.layoutengine.avui
 
             if (RightControlMode < Global.ControlModes.Disabled)
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
 
             IACType dcACTypeInfo = null;
@@ -436,36 +390,33 @@ namespace gip.core.layoutengine.avui
             if (dcACTypeInfo != null)
                 isNumericValueBound = TypeAnalyser.IsNumericType(dcACTypeInfo.ObjectType);
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBTextBlock.TextAlignmentProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-            {
-                if (isNumericValueBound)
-                    TextAlignment = TextAlignment.Right;
-            }
+            // Check if TextAlignment is locally set
+            if (isNumericValueBound && !this.IsSet(TextBlock.TextAlignmentProperty))
+                TextAlignment = TextAlignment.Right;
 
             binding = null;
             if (dcSource is INotifyPropertyChanged)
             {
-                ProxyACRefConverter refConverter = ProxyACRefConverter.IfACRefGenerateConverter(out binding, ref dcACTypeInfo, ref dcPath, ref dcSource, ref dcRightControlMode);
+                ProxyACRefConverter refConverter = ProxyACRefConverter.IfACRefGenerateConverter(out var tempBinding, ref dcACTypeInfo, ref dcPath, ref dcSource, ref dcRightControlMode);
+                binding = tempBinding;
+
                 if (refConverter == null)
                 {
-                    binding = new Binding();
-                    binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    binding.Mode = BindingMode.OneWay;
-                    binding.NotifyOnSourceUpdated = true;
-                    binding.NotifyOnTargetUpdated = true;
+                    var concreteBinding = new Binding
+                    {
+                        Source = dcSource,
+                        Path = dcPath,
+                        Mode = BindingMode.OneWay
+                    };
+                    binding = concreteBinding;
                 }
                 else
                     isNumericValueBound = false;
 
                 if (!String.IsNullOrEmpty(StringFormat))
-                    binding.StringFormat = StringFormat;
-                binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture; //System.Globalization.CultureInfo.CurrentUICulture;
-                BindingExpressionBase bExp = SetBinding(TextBlock.TextProperty, binding);
-                if (refConverter != null)
-                    refConverter.ParentBinding = bExp;
+                    ((Binding)binding).StringFormat = StringFormat;
+                
+                this.Bind(TextBlock.TextProperty, binding);
             }
             else
             {
@@ -474,34 +425,31 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null)
             {
-                binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBTextBlock.ACCompInitStateProperty, binding);
+                var initStateBinding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBTextBlock.ACCompInitStateProperty, initStateBinding);
             }
 
-            valueSource = DependencyPropertyHelper.GetValueSource(this, FrameworkElement.ToolTipProperty);
-            if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            // Set tooltip if needed
+            string tooltip = ToolTip.GetTip(this) as string;
+            if (!String.IsNullOrEmpty(tooltip))
             {
-                if (ToolTip != null && ToolTip is string)
-                {
-                    string toolTip = ToolTip as string;
-                    if (!string.IsNullOrEmpty(toolTip))
-                    {
-                        ToolTip = this.Root().Environment.TranslateText(ContextACObject, toolTip);
-                    }
-                }
-                else if (isNumericValueBound && !String.IsNullOrEmpty(this.StringFormat))
-                {
-                    binding = new Binding();
-                    binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(FrameworkElement.ToolTipProperty, binding);
-                }
+                ToolTip.SetTip(this, this.Root().Environment.TranslateText(ContextACObject, tooltip));
             }
-
+            else if (isNumericValueBound && !String.IsNullOrEmpty(this.StringFormat))
+            {
+                var tooltipBinding = new Binding
+                {
+                    Source = dcSource,
+                    Path = dcPath,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(ToolTip.TipProperty, tooltipBinding);
+            }
         }
 
         bool _Loaded = false;
@@ -513,10 +461,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, TextBlock.TextProperty);
-                if (boundedValue != null)
+                var bindingexp = BindingOperations.GetBindingExpressionBase(this, TextBlock.TextProperty);
+                if (bindingexp != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = bindingexp.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -559,13 +507,8 @@ namespace gip.core.layoutengine.avui
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
             Loaded -= VBTextBlock_Loaded;
             Unloaded -= VBTextBlock_Unloaded;
-            this.SourceUpdated -= VBTextBlock_SourceUpdated;
-            this.TargetUpdated -= VBTextBlock_TargetUpdated;
             _VBContentPropertyInfo = null;
 
-            BindingOperations.ClearBinding(this, TextBlock.TextProperty);
-            //BindingOperations.ClearBinding(this, VBTextBlock.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBTextBlock.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -596,7 +539,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
+        public static readonly AttachedProperty<string> StringFormatProperty;
         /// <summary>
         /// Gets or sets the string format for the control.
         /// </summary>
@@ -608,7 +551,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string StringFormat
         {
-            get { return (string)GetValue(StringFormatProperty); }
+            get { return GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
 
@@ -640,18 +583,18 @@ namespace gip.core.layoutengine.avui
 
             if (controlMode == Global.ControlModes.Collapsed)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (IsVisible)
+                    IsVisible = false;
             }
             else if (controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (IsVisible)
+                    IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!IsVisible)
+                    IsVisible = true;
             }
         }
 

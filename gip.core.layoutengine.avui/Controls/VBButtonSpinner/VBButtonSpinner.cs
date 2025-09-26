@@ -14,7 +14,6 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Stellt ein Spinner-Control dar, das zwei Buttons enthält.
     /// </summary>
-    [ContentProperty("Content")]
     public class VBButtonSpinner : Spinner
     {
         private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
@@ -51,6 +50,7 @@ namespace gip.core.layoutengine.avui
         /// <summary xml:lang="de">
         /// Liest oder setzt den Inhalt des Buttonspinners.
         /// </summary>
+        [Content]
         [Category("VBControl")]
         public object Content
         {

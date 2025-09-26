@@ -1,0 +1,133 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/VBTextBox/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBTextBlock/DarkThemeColors.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <Color x:Key="ColorCtrlTxtDisabled" A="#FF" B="#B0" G="#B0" R="#B0"/>
+  <SolidColorBrush x:Key="CtrlTxtDisabled" Color="{StaticResource ColorCtrlTxtDisabled}"/>
+
+  <Color x:Key="ColorCtrlTxtEnabled"  A="#FF" B="#FF" G="#FF" R="#FF"/>
+  <SolidColorBrush x:Key="CtrlTxtEnabled" Color="{StaticResource ColorCtrlTxtEnabled}"/>
+
+  <Color x:Key="ColorCtrlTxtWrong" A="#FF" B="#FF" G="#FF" R="#FF"/>
+  <SolidColorBrush x:Key="CtrlTxtWrong" Color="{StaticResource ColorCtrlTxtWrong}"/>
+
+  <Color x:Key="ColorCtrlTxtRequired" A="#FF" B="#FF" G="#FF" R="#FF"/>
+  <SolidColorBrush x:Key="CtrlTxtRequired" Color="{StaticResource ColorCtrlTxtRequired}"/>
+
+  <Color x:Key="ColorCtrlBackDisabled" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="CtrlBackDisabled" Color="{StaticResource ColorCtrlBackDisabled}"/>
+
+  <Color x:Key="ColorCtrlBackEnabled" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="CtrlBackEnabled" Color="{StaticResource ColorCtrlBackEnabled}" />
+
+  <Color x:Key="ColorCtrlBackWrong" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="CtrlBackWrong" Color="{StaticResource ColorCtrlBackWrong}" />
+
+  <Color x:Key="ColorCtrlBackRequired" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="CtrlBackRequired" Color="{StaticResource ColorCtrlBackRequired}" />
+
+  <Color x:Key="ColorCtrlFrmDisabled" A="#FF" B="#33" G="#33" R="#33"/>
+  <SolidColorBrush x:Key="CtrlFrmDisabled" Color="{StaticResource ColorCtrlFrmDisabled}" />
+
+  <Color x:Key="ColorCtrlFrmEnabled" A="#FF" B="#FF" G="#FF" R="#FF"/>
+  <SolidColorBrush x:Key="CtrlFrmEnabled" Color="{StaticResource ColorCtrlFrmEnabled}" />
+
+  <Color x:Key="ColorCtrlFrmWrong" A="#FF" B="#7D" G="#5F" R="50"/>
+  <SolidColorBrush x:Key="CtrlFrmWrong" Color="{StaticResource ColorCtrlFrmWrong}" />
+
+  <Color x:Key="ColorCtrlFrmRequired" A="#FF" B="0" G="0" R="#FF"/>
+  <SolidColorBrush x:Key="CtrlFrmRequired" Color="{StaticResource ColorCtrlFrmRequired}" />
+
+  <Color x:Key="ColorFrmDark" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="FrmDark" Color="{StaticResource ColorFrmDark}" />
+
+  <Color x:Key="ColorFrmLight" A="#FF" R="#AD" G="#AD" B="#AD"/>
+  <SolidColorBrush x:Key="FrmLight" Color="{StaticResource ColorFrmLight}" />
+
+  <Color x:Key="ColorAppBack" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="AppBack" Color="{StaticResource ColorAppBack}" />
+
+  <Color x:Key="ColorAppDark" A="#FF" R="#33" G="#33" B="#33"/>
+  <SolidColorBrush x:Key="AppDark" Color="{StaticResource ColorAppDark}" />
+
+  <Color x:Key="ColorAppLight" A="#FF" R="#82" G="#82" B="#82"/>
+  <SolidColorBrush x:Key="AppLight" Color="{StaticResource ColorAppLight}" />
+
+  <SolidColorBrush x:Key="TabItemSelectedBorderBrushGip" Color="#B2B2B2"/>
+
+  <DrawingBrush x:Key="ConverterErrorBrush" Viewport="0,0,0.25,0.25" TileMode="Tile">
+    <DrawingBrush.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing>
+          <GeometryDrawing.Brush>
+            <SolidColorBrush Color="#88FFFFFF"/>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Geometry>
+            <RectangleGeometry Rect="0,0,20,20" />
+          </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <GeometryDrawing>
+          <GeometryDrawing.Geometry>
+            <GeometryGroup>
+              <RectangleGeometry Rect="0,0,10,10" />
+              <RectangleGeometry Rect="10,10,10,10" />
+            </GeometryGroup>
+          </GeometryDrawing.Geometry>
+          <GeometryDrawing.Brush>
+            <SolidColorBrush Color="#88FF0000"/>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingBrush.Drawing>
+  </DrawingBrush>
+
+  <!-- Timeline item brushes-->
+  <LinearGradientBrush x:Key="GreenBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF5B5749" Offset="0"/>
+      <GradientStop Color="#FF849F50" Offset="0.370726"/>
+      <GradientStop Color="#FFAEE757" Offset="0.49569"/>
+      <GradientStop Color="#FF849F50" Offset="0.660818"/>
+      <GradientStop Color="#FF5B5749" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="OrangeBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#967706" Offset="0"/>
+      <GradientStop Color="#F1BF09" Offset="0.370726"/>
+      <GradientStop Color="#F1D77A" Offset="0.49569"/>
+      <GradientStop Color="#F1BF09" Offset="0.660818"/>
+      <GradientStop Color="#967706" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="BlueBrush" StartPoint="0.5,-2" EndPoint="0.5,3">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF41A9FF" Offset="0"/>
+      <GradientStop Color="#FF62B7FF" Offset="0.422414"/>
+      <GradientStop Color="#FF83C5FF" Offset="0.5"/>
+      <GradientStop Color="#FF66B5F8" Offset="0.594828"/>
+      <GradientStop Color="#FF49A5F1" Offset="0.99569"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="RedBrush"  StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF5B4A49" Offset="0"/>
+      <GradientStop Color="#FFE66457" Offset="0.335"/>
+      <GradientStop Color="Red" Offset="0.49569"/>
+      <GradientStop Color="#FFCD6960" Offset="0.660818"/>
+      <GradientStop Color="#FF5B4949" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="DarkGreenBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+    <GradientStop Color="#FF115B00" Offset="0.059"/>
+    <GradientStop Color="#FF115B00" Offset="0.933"/>
+    <GradientStop Color="#FF29E400" Offset="0.494"/>
+  </LinearGradientBrush>
+
+</ResourceDictionary>
+
+

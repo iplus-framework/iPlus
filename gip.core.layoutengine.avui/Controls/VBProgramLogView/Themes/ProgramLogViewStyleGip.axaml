@@ -3,7 +3,7 @@
                     xmlns:me="clr-namespace:gip.core.layoutengine.avui" >
 
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
         <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBScrollViewer/Themes/ScrollViewerStyleGip.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 

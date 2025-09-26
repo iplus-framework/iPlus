@@ -3,7 +3,7 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+        <ResourceDictionary Source="/Controls/LightThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <LinearGradientBrush x:Key="RibbonBarHorizontalBackgroundAero" EndPoint="0,1" StartPoint="0,0">

@@ -5,9 +5,16 @@ using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.Reflection;
 using System.ComponentModel;
-using System.Windows.Threading;
 using Avalonia.Input;
 using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using System.Collections;
+using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,91 +32,49 @@ namespace gip.core.layoutengine.avui
         string _DataChilds;
         private DispatcherTimer _cyclickDataRefreshDispTimer;
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ListBoxStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBListBox/Themes/ListBoxStyleGip.xaml",
-                                        hasImplicitStyles = false},
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ListBoxStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBListBox/Themes/ListBoxStyleAero.xaml",
-                                        hasImplicitStyles = false},
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBListBox()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBListBox), new FrameworkPropertyMetadata(typeof(VBListBox)));
-        }
-
-        bool _themeApplied = false;
         public VBListBox()
         {
+            // Set up drag and drop event handlers for Avalonia
+            if (DragEnabled == DragMode.Enabled)
+            {
+                DragDrop.SetAllowDrop(this, true);
+                AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+                AddHandler(DragDrop.DragOverEvent, OnDragOver);
+                AddHandler(DragDrop.DropEvent, OnDrop);
+                AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+            }
         }
 
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            this.SourceUpdated += VB_SourceUpdated;
-            this.TargetUpdated += VB_TargetUpdated;
+            base.OnInitialized();
             this.Loaded += VBListBox_Loaded;
             this.Unloaded += VBListBox_Unloaded;
-            ActualizeTheme(true);
-            this.AddHandler(ListBox.MouseDownEvent, new MouseButtonEventHandler(VBListBox_MouseButtonDown), true);
+            this.PointerPressed += new EventHandler<PointerPressedEventArgs>(VBListBox_PointerPressed);
+            this.DoubleTapped += VBListBox_DoubleTapped;
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region Additional Dependenc-Properties
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBListBox));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBListBox, Global.ControlModes>(nameof(ControlMode));
         /// <summary>
         /// Gets or sets the Control mode.
         /// </summary>
@@ -117,7 +82,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -125,18 +90,16 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            if (ItemContainerStyle != null && ItemContainerStyle.TargetType != typeof(VBListBoxItem))
-                return base.GetContainerForItemOverride();
             return new VBListBoxItem();
         }
 
         /// <summary>
         /// Represents the dependency property for RightControlMode.
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty
-            = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBListBox), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty =
+            AvaloniaProperty.Register<VBListBox, Global.ControlModes>(nameof(RightControlMode));
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -149,15 +112,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
+            get { return GetValue(RightControlModeProperty); }
             set { SetValue(RightControlModeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBListBox), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBListBox, string>(Const.ACCaptionPrefix);
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
@@ -165,30 +128,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBListBox control = d as VBListBox;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-
-                    (control as VBListBox).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBListBox));
+        public static readonly StyledProperty<string> ACCaptionTransProperty =
+            AvaloniaProperty.Register<VBListBox, string>(nameof(ACCaptionTrans));
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -200,7 +148,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
+            get { return GetValue(ACCaptionTransProperty); }
             set { SetValue(ACCaptionTransProperty, value); }
         }
 
@@ -208,8 +156,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBListBox), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaptionProperty =
+            AvaloniaProperty.Register<VBListBox, bool>(nameof(ShowCaption), true);
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -221,7 +169,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool ShowCaption
         {
-            get { return (bool)GetValue(ShowCaptionProperty); }
+            get { return GetValue(ShowCaptionProperty); }
             set { SetValue(ShowCaptionProperty, value); }
         }
 
@@ -229,12 +177,12 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(999)]
         public bool IsEnabledScrollIntoView
         {
-            get { return (bool)GetValue(IsEnabledScrollIntoViewProperty); }
+            get { return GetValue(IsEnabledScrollIntoViewProperty); }
             set { SetValue(IsEnabledScrollIntoViewProperty, value); }
         }
 
-        public static readonly DependencyProperty IsEnabledScrollIntoViewProperty =
-            DependencyProperty.Register("IsEnabledScrollIntoView", typeof(bool), typeof(VBListBox), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsEnabledScrollIntoViewProperty =
+            AvaloniaProperty.Register<VBListBox, bool>(nameof(IsEnabledScrollIntoView), false);
 
 
         #region xx = > CyclicDataRefresh
@@ -248,14 +196,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int CyclicDataRefresh
         {
-            get { return (int)GetValue(CyclicDataRefreshProperty); }
+            get { return GetValue(CyclicDataRefreshProperty); }
             set { SetValue(CyclicDataRefreshProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for CyclicDataRefresh.
         /// </summary>
-        public static readonly DependencyProperty CyclicDataRefreshProperty = DependencyProperty.Register(nameof(CyclicDataRefresh), typeof(int), typeof(VBListBox));
+        public static readonly StyledProperty<int> CyclicDataRefreshProperty = 
+            AvaloniaProperty.Register<VBListBox, int>(nameof(CyclicDataRefresh));
 
         #endregion
 
@@ -263,8 +212,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for WidthCaption.
         /// </summary>
-        public static readonly DependencyProperty WidthCaptionProperty
-            = DependencyProperty.Register("WidthCaption", typeof(GridLength), typeof(VBListBox), new PropertyMetadata(new GridLength(15, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthCaptionProperty =
+            AvaloniaProperty.Register<VBListBox, GridLength>(nameof(WidthCaption), new GridLength(15, GridUnitType.Star));
         /// <summary>
         /// Gets or sets the width of caption.
         /// </summary>
@@ -276,15 +225,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthCaption
         {
-            get { return (GridLength)GetValue(WidthCaptionProperty); }
+            get { return GetValue(WidthCaptionProperty); }
             set { SetValue(WidthCaptionProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for WidthCaptionMax.
         /// </summary>
-        public static readonly DependencyProperty WidthCaptionMaxProperty
-            = DependencyProperty.Register("WidthCaptionMax", typeof(double), typeof(VBListBox), new PropertyMetadata((double)150));
+        public static readonly StyledProperty<double> WidthCaptionMaxProperty =
+            AvaloniaProperty.Register<VBListBox, double>(nameof(WidthCaptionMax), 150.0);
         /// <summary>
         /// Gets or sets the maximum width of caption.
         /// </summary>
@@ -296,15 +245,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthCaptionMax
         {
-            get { return (double)GetValue(WidthCaptionMaxProperty); }
+            get { return GetValue(WidthCaptionMaxProperty); }
             set { SetValue(WidthCaptionMaxProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for WidthContent.
         /// </summary>
-        public static readonly DependencyProperty WidthContentProperty
-            = DependencyProperty.Register("WidthContent", typeof(GridLength), typeof(VBListBox), new PropertyMetadata(new GridLength(20, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthContentProperty =
+            AvaloniaProperty.Register<VBListBox, GridLength>(nameof(WidthContent), new GridLength(20, GridUnitType.Star));
         /// <summary>
         /// Gets or sets the width of content.
         /// </summary>
@@ -316,15 +265,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthContent
         {
-            get { return (GridLength)GetValue(WidthContentProperty); }
+            get { return GetValue(WidthContentProperty); }
             set { SetValue(WidthContentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for WidthContentMax.
         /// </summary>
-        public static readonly DependencyProperty WidthContentMaxProperty
-            = DependencyProperty.Register("WidthContentMax", typeof(double), typeof(VBListBox), new PropertyMetadata(Double.PositiveInfinity));
+        public static readonly StyledProperty<double> WidthContentMaxProperty =
+            AvaloniaProperty.Register<VBListBox, double>(nameof(WidthContentMax), Double.PositiveInfinity);
         /// <summary>
         /// Gets or sets the maximum width of content.
         /// </summary>
@@ -333,7 +282,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthContentMax
         {
-            get { return (double)GetValue(WidthContentMaxProperty); }
+            get { return GetValue(WidthContentMaxProperty); }
             set { SetValue(WidthContentMaxProperty, value); }
         }
 
@@ -341,8 +290,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for WidthPadding.
         /// </summary>
-        public static readonly DependencyProperty WidthPaddingProperty
-            = DependencyProperty.Register("WidthPadding", typeof(GridLength), typeof(VBListBox), new PropertyMetadata(new GridLength(0)));
+        public static readonly StyledProperty<GridLength> WidthPaddingProperty =
+            AvaloniaProperty.Register<VBListBox, GridLength>(nameof(WidthPadding), new GridLength(0));
         /// <summary>
         /// Gets or sets the width of padding.
         /// </summary>
@@ -351,7 +300,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthPadding
         {
-            get { return (GridLength)GetValue(WidthPaddingProperty); }
+            get { return GetValue(WidthPaddingProperty); }
             set { SetValue(WidthPaddingProperty, value); }
         }
         #endregion
@@ -387,24 +336,24 @@ namespace gip.core.layoutengine.avui
             }
             _ACTypeInfo = dcACTypeInfo;
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBListBox.RightControlModeProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
-                || (dcRightControlMode < RightControlMode))
+            // Check if RightControlMode is locally set
+            if (!this.IsSet(VBListBox.RightControlModeProperty) || dcRightControlMode < RightControlMode)
             {
                 RightControlMode = dcRightControlMode;
             }
 
             if (BSOACComponent != null)
             {
-                Binding binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBListBox.ACCompInitStateProperty, binding);
+                var binding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBListBox.ACCompInitStateProperty, binding);
             }
 
-            // VBContent muß im XAML gestetzt sein
+            // VBContent muß im XAML gestettet sein
             System.Diagnostics.Debug.Assert(VBContent != "");
 
             if (_ACTypeInfo == null)
@@ -465,7 +414,7 @@ namespace gip.core.layoutengine.avui
 
             if ((vbShowColumns == null || !vbShowColumns.Any()) 
                 && (dsACTypeInfo == null || dsACTypeInfo.ObjectType != typeof(string)) 
-                && ItemTemplate == null && ItemTemplateSelector == null)
+                && ItemTemplate == null)
             {
                 this.Root().Messages.LogDebug("Error00005", "VBListBox", VBShowColumns + " " + VBContent);
                 //this.Root().Messages.Error(ContextACObject, "Error00005", "VBListBox", VBShowColumns, VBContent);
@@ -510,20 +459,24 @@ namespace gip.core.layoutengine.avui
                 //this.ItemsSource = result;
                 if (NavSearchOnACAccess())
                 {
-                    Binding binding = new Binding();
-                    binding.Source = ACAccess;
-                    binding.Path = new PropertyPath("NavObjectList");
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(ComboBox.ItemsSourceProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = ACAccess,
+                        Path = "NavObjectList",
+                        Mode = BindingMode.OneWay
+                    };
+                    this.Bind(ItemsSourceProperty, binding);
                 }
                 else
                 {
                     if (dsSource != null && dsSource is IACEntityObjectContext)
                     {
                         var result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
-                        Binding binding = new Binding();
-                        binding.Source = result.AsArrayList();
-                        SetBinding(ComboBox.ItemsSourceProperty, binding);
+                        var binding = new Binding
+                        {
+                            Source = result.AsArrayList()
+                        };
+                        this.Bind(ItemsSourceProperty, binding);
                     }
                     else
                     {
@@ -539,28 +492,28 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                Binding binding = new Binding();
-                binding.Source = dsSource;
+                var binding = new Binding
+                {
+                    Source = dsSource
+                };
                 if (!string.IsNullOrEmpty(dsPath))
                 {
-                    binding.Path = new PropertyPath(dsPath);
+                    binding.Path = dsPath;
                 }
-                SetBinding(ListBox.ItemsSourceProperty, binding);
+                this.Bind(ItemsSourceProperty, binding);
             }
-            // TODO: Unterstützt bisher nur eine Spalte
+            // TODO: Supported bisher nur eine Spalte
             if (ItemTemplate == null)
-                DisplayMemberPath = dsColPath;
+                DisplayMemberBinding = new Binding(dsColPath);
 
             // Gebundene Spalte setzen (VBContent)
-            Binding binding2 = new Binding();
-            binding2.Source = dcSource;
-            binding2.Path = new PropertyPath(dcPath);
-            if (VBContentPropertyInfo != null)
-                binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
-            binding2.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-            binding2.NotifyOnSourceUpdated = true;
-            binding2.NotifyOnTargetUpdated = true;
-            SetBinding(ListBox.SelectedValueProperty, binding2);
+            var binding2 = new Binding
+            {
+                Source = dcSource,
+                Path = dcPath,
+                Mode = VBContentPropertyInfo != null && VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay
+            };
+            this.Bind(SelectedValueProperty, binding2);
 
             // So siehts direkt im XAML aus...
             //            SelectedValue="{Binding Path=CurrentUserInfo.UserArtID, 
@@ -583,7 +536,7 @@ namespace gip.core.layoutengine.avui
 
         private void LoadCyclicDataRefreshProperty()
         {
-            if (ReadLocalValue(CyclicDataRefreshProperty) != DependencyProperty.UnsetValue)
+            if (this.IsSet(CyclicDataRefreshProperty))
             {
                 if (CyclicDataRefresh > 0)
                 {
@@ -612,10 +565,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, ListBox.ItemsSourceProperty);
+                var boundedValue = BindingOperations.GetBindingExpressionBase(this, ItemsSourceProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -658,17 +611,11 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.SourceUpdated -= VB_SourceUpdated;
-            this.TargetUpdated -= VB_TargetUpdated;
             this.Loaded -= VBListBox_Loaded;
             this.Unloaded -= VBListBox_Unloaded;
             _ACTypeInfo = null;
             _ACAccess = null;
 
-            BindingOperations.ClearBinding(this, ListBox.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, ListBox.SelectedValueProperty);
-            //BindingOperations.ClearBinding(this, VBListBox.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBListBox.ACCompInitStateProperty);
             this.ClearAllBindings();
             this.ItemsSource = null;
         }
@@ -683,66 +630,50 @@ namespace gip.core.layoutengine.avui
                 DeInitVBControl(BSOACComponent);
         }
 
-        void VB_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            e.Handled = true;
-            UpdateControlMode();
-        }
-
-        void VB_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
-            UpdateControlMode();
-        }
         #endregion
 
         #region Event-Handling
         /// <summary>
-        /// Handles the OnContextMenuOpening event.
+        /// Handles the OnPointerReleased event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (DisableContextMenu)
+            if (e.InitialPressMouseButton == MouseButton.Right)
             {
-                e.Handled = true;
-                return;
-            }
-            base.OnContextMenuOpening(e);
-        }
-
-        /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            if (DisableContextMenu)
-            {
-                e.Handled = true;
-                return;
-            }
-            UIElement uiElement = e.OriginalSource as UIElement;
-            if ((ContextACObject != null) && (uiElement != null))
-            {
-                UpdateACContentList(GetNearestContainer(uiElement));
-                Point point = e.GetPosition(this);
-                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                BSOACComponent.ACAction(actionArgs);
-                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                if (DisableContextMenu)
                 {
-                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                    if (vbContextMenu.PlacementTarget == null)
-                        vbContextMenu.PlacementTarget = this;
-                    ContextMenu.IsOpen = true;
+                    e.Handled = true;
+                    return;
                 }
-                e.Handled = true;
+                var uiElement = e.Source as Visual;
+                if ((ContextACObject != null) && (uiElement != null))
+                {
+                    UpdateACContentList(GetNearestContainer(uiElement));
+                    Point point = e.GetPosition(this);
+                    ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                    BSOACComponent.ACAction(actionArgs);
+                    if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                    {
+                        VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                        this.ContextMenu = vbContextMenu;
+                        //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                        if (vbContextMenu.PlacementTarget == null)
+                            vbContextMenu.PlacementTarget = this;
+                        ContextMenu.Open();
+                    }
+                    e.Handled = true;
+                }
             }
-            base.OnMouseRightButtonDown(e);
+            base.OnPointerReleased(e);
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        void VBListBox_DoubleTapped(object sender, TappedEventArgs e)
+        {
+            OnDoubleTapped(e);
+        }
+
+        protected virtual void OnDoubleTapped(TappedEventArgs e)
         {
             if (DblClick != null && DblClick != "")
             {
@@ -755,12 +686,11 @@ namespace gip.core.layoutengine.avui
 
                 ContextACObject.ACUrlCommand(DblClick);
             }
-            base.OnMouseDoubleClick(e);
         }
 
         protected override void OnKeyUp(KeyEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.RightCtrl))
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
             {
                 if (e.Key == Key.Delete)
                 {
@@ -776,17 +706,102 @@ namespace gip.core.layoutengine.avui
             base.OnKeyUp(e);
         }
 
-        protected override void OnSelectionChanged(SelectionChangedEventArgs e)
+        protected virtual void OnSelectionChanged(SelectionChangedEventArgs e)
         {
-            base.OnSelectionChanged(e);
             if (IsEnabledScrollIntoView && SelectionMode == SelectionMode.Single && e.AddedItems != null && e.AddedItems.Count > 0)
-                ScrollIntoView(e.AddedItems[0]);
+            {
+                var item = e.AddedItems[0];
+                if (item != null)
+                {
+                    // In Avalonia, we can try to scroll the item into view
+                    try
+                    {
+                        // Get the index of the item and scroll to it
+                        var index = Items.IndexOf(item);
+                        if (index >= 0)
+                        {
+                            // Try to bring the item into view using ScrollViewer
+                            var scrollViewer = this.FindDescendantOfType<ScrollViewer>();
+                            if (scrollViewer != null)
+                            {
+                                // Calculate the position to scroll to based on item index
+                                var itemHeight = 25; // Approximate item height
+                                var targetOffset = index * itemHeight;
+                                scrollViewer.Offset = new Vector(scrollViewer.Offset.X, targetOffset);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // If scrolling fails, just ignore
+                    }
+                }
+            }
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == RightControlModeProperty)
+                UpdateControlMode();
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (ContextACObject != null)
+                {
+                    if (!_Initialized)
+                        return;
+                    ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+                }
+            }
+            else if (change.Property == DragEnabledProperty)
+            {
+                // Update drag and drop handlers when DragEnabled property changes
+                UpdateDragDropHandlers();
+            }
+            else if (change.Property == SelectionProperty || change.Property == SelectedItemProperty)
+            {
+                // Handle selection changes manually since Avalonia doesn't have OnSelectionChanged
+                var oldItems = change.OldValue as IList ?? new List<object>();
+                var newItems = change.NewValue as IList ?? (change.NewValue != null ? new List<object> { change.NewValue } : new List<object>());
+                var selectionChangedArgs = new SelectionChangedEventArgs(SelectionChangedEvent, oldItems, newItems);
+                OnSelectionChanged(selectionChangedArgs);
+            }
+        }
+        private void UpdateDragDropHandlers()
+        {
+            if (DragEnabled == DragMode.Enabled)
+            {
+                DragDrop.SetAllowDrop(this, true);
+                AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+                AddHandler(DragDrop.DragOverEvent, OnDragOver);
+                AddHandler(DragDrop.DropEvent, OnDrop);
+                AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+            }
+            else
+            {
+                DragDrop.SetAllowDrop(this, false);
+                RemoveHandler(DragDrop.DragEnterEvent, OnDragEnter);
+                RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
+                RemoveHandler(DragDrop.DropEvent, OnDrop);
+                RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
+            }
         }
 
         #endregion
 
         #region Methods
-        private IACObject GetNearestContainer(UIElement element)
+        private IACObject GetNearestContainer(Visual element)
         {
             if (element == null)
                 return null;
@@ -801,7 +816,7 @@ namespace gip.core.layoutengine.avui
                 int count = 0;
                 while (element != null && count < 10)
                 {
-                    element = VisualTreeHelper.GetParent(element) as UIElement;
+                    element = element.GetVisualParent();
 
                     if ((element != null) && (element is VBListBoxItem))
                     {
@@ -820,8 +835,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBListBox));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBListBox, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of BSO's Selected property. Selected property must be marked with [ACPropertySelected(...)] attribute.
@@ -834,7 +849,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -859,8 +874,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBSource.
         /// </summary>
-        public static readonly DependencyProperty VBSourceProperty
-            = DependencyProperty.Register("VBSource", typeof(string), typeof(VBListBox));
+        public static readonly StyledProperty<string> VBSourceProperty =
+            AvaloniaProperty.Register<VBListBox, string>(nameof(VBSource));
 
         /// <summary>
         /// Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
@@ -869,7 +884,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBSource
         {
-            get { return (string)GetValue(VBSourceProperty); }
+            get { return GetValue(VBSourceProperty); }
             set { SetValue(VBSourceProperty, value); }
         }
 
@@ -917,8 +932,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBAccess.
         /// </summary>
-        public static readonly DependencyProperty VBAccessProperty
-            = DependencyProperty.Register("VBAccess", typeof(string), typeof(VBListBox));
+        public static readonly StyledProperty<string> VBAccessProperty =
+            AvaloniaProperty.Register<VBListBox, string>(nameof(VBAccess));
 
         /// <summary>
         /// Represents the property in which you enter the name of BSO's list property marked with [ACPropertyList(...)] attribute. In usage with ACPropertySelected with same ACGroup,
@@ -927,7 +942,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBAccess
         {
-            get { return (string)GetValue(VBAccessProperty); }
+            get { return GetValue(VBAccessProperty); }
             set { SetValue(VBAccessProperty, value); }
         }
 
@@ -976,69 +991,30 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBListBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBListBox>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
-
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBListBox),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBListBox),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBListBox, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBListBox thisControl = dependencyObject as VBListBox;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
-            else if (args.Property == RightControlModeProperty)
-                thisControl.UpdateControlMode();
         }
 
         List<IACObject> _ACContentList = new List<IACObject>();
@@ -1125,7 +1101,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBValidation.
         /// </summary>
-        public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBListBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> VBValidationProperty = 
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBListBox>();
         /// <summary>
         /// Name of the VBValidation property.
         /// </summary>
@@ -1135,14 +1112,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBValidation
         {
-            get { return (string)GetValue(VBValidationProperty); }
+            get { return GetValue(VBValidationProperty); }
             set { SetValue(VBValidationProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBListBox), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBListBox>();
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -1153,7 +1131,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
@@ -1178,18 +1156,18 @@ namespace gip.core.layoutengine.avui
 
             if (controlMode == Global.ControlModes.Collapsed)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else if (controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!this.IsVisible)
+                    this.IsVisible = true;
                 if (controlMode == Global.ControlModes.Disabled)
                 {
                     if (IsEnabled)
@@ -1201,7 +1179,8 @@ namespace gip.core.layoutengine.avui
                         IsEnabled = true;
                 }
             }
-            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
+            // TODO: Convert this to Avalonia equivalent when available
+            // RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
         }
 
         /// <summary>
@@ -1219,6 +1198,12 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public DragMode DragEnabled { get; set; }
 
+        /// <summary>
+        /// Represents the dependency property for DragEnabled.
+        /// </summary>
+        public static readonly StyledProperty<DragMode> DragEnabledProperty =
+            AvaloniaProperty.Register<VBListBox, DragMode>(nameof(DragEnabled));
+
         IACType _ACTypeInfo = null;
         /// <summary>
         /// Gets the ACClassProperty which describes a bounded property by VBContent.
@@ -1234,8 +1219,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBListBox));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBListBox, string>(nameof(DisabledModes));
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -1247,41 +1232,94 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
         #endregion
 
         #region DragAndDrop
 
-        void VBListBox_MouseButtonDown(object sender, PointerEventArgs e)
+        void VBListBox_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             if (DragEnabled == DragMode.Enabled)
             {
                 object dragItem = SelectedItem;
                 if (dragItem != null)
                 {
-                    VBDragDrop.VBDoDragDrop(e, this/*, acObject, ACComponent, new Point()*/);
+                    // Create a data object for the drag operation
+                    var dataObject = new DataObject();
+                    dataObject.Set("VBListBox", this);
+                    
+                    // Start the drag operation using Avalonia's DragDrop
+                    var task = DragDrop.DoDragDrop(e, dataObject, DragDropEffects.Move | DragDropEffects.Copy);
                 }
             }
         }
 
-        protected override void OnDrop(DragEventArgs e)
+        void OnDragEnter(object sender, DragEventArgs e)
+        {
+            ProcessDrag(e);
+        }
+
+        void OnDragOver(object sender, DragEventArgs e)
+        {
+            ProcessDrag(e);
+        }
+
+        void OnDrop(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
             {
-                base.OnDragOver(e);
                 return;
             }
 
             IACInteractiveObject item = VBDragDrop.GetDropObject(e);
-            if(item != null && BSOACComponent != null && e.Source != null && e.Source is IACInteractiveObject)
+            if (item != null && BSOACComponent != null && e.Source != null && e.Source is IACInteractiveObject)
             {
                 ACActionArgs args = new ACActionArgs(item, 0, 0, Global.ElementActionType.Drop);
                 BSOACComponent.ACActionToTarget(e.Source as IACInteractiveObject, args);
             }
+        }
 
-            base.OnDrop(e);
+        void OnDragLeave(object sender, DragEventArgs e)
+        {
+            // Handle drag leave if needed
+        }
+
+        void ProcessDrag(DragEventArgs e)
+        {
+            e.DragEffects = DragDropEffects.None;
+            
+            if (this.GetVBDesign().IsDesignerActive)
+            {
+                return;
+            }
+
+            // Check if we can accept the drag data
+            if (e.Data.Contains("VBListBox"))
+            {
+                e.DragEffects = e.KeyModifiers.HasFlag(KeyModifiers.Control) 
+                    ? DragDropEffects.Copy 
+                    : DragDropEffects.Move;
+            }
+            else
+            {
+                // Try to get drop object from VBDragDrop
+                try
+                {
+                    var dropObject = VBDragDrop.GetDropObject(e);
+                    if (dropObject != null)
+                    {
+                        e.DragEffects = e.KeyModifiers.HasFlag(KeyModifiers.Control) 
+                            ? DragDropEffects.Copy 
+                            : DragDropEffects.Move;
+                    }
+                }
+                catch
+                {
+                    // If VBDragDrop.GetDropObject fails, just leave DragEffects as None
+                }
+            }
         }
 
         #endregion

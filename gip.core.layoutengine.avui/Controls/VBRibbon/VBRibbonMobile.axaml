@@ -5,7 +5,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/Shared.xaml"/>
+                <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
                 <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavPrev.xaml"/>
                 <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavNext.xaml"/>
                 <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/NavFirst.xaml"/>

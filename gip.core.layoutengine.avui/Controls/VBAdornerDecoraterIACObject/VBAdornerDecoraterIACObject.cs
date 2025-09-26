@@ -1,24 +1,24 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
-    /// Provides a adorner layer with connection line between two IACObjects.
+    /// Provides a adorner layer to draw connection line between two IACObjects.
     /// </summary>
     /// <summary xml:lang="de">
     /// Bietet eine Adorner-Schicht mit Verbindungslinie zwischen zwei IACO-Objekten.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBAdornerDecoratorIACObject'}de{'VBAdornerDecoratorIACObject'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBAdornerDecoratorIACObject : Decorator
+    public class VBAdornerDecoratorIACObject : AdornerDecorator
     {
         /// <summary>
         /// Creates a new instance of VBAdornerDecoratorIACObject.
@@ -29,49 +29,50 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for Relations.
+        /// Represents the styled property for Relations.
         /// </summary>
-        public static readonly DependencyProperty RelationsProperty 
-            = DependencyProperty.Register("Relations", typeof(List<ConnectionIACObject>), typeof(VBAdornerDecoratorIACObject), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<List<ConnectionIACObject>> RelationsProperty 
+            = AvaloniaProperty.Register<VBAdornerDecoratorIACObject, List<ConnectionIACObject>>(nameof(Relations));
 
         /// <summary>
         /// Gets or sets the Relations.
         /// </summary>
         public List<ConnectionIACObject> Relations
         {
-            get { return (List<ConnectionIACObject>)GetValue(RelationsProperty); }
-            set{ SetValue(RelationsProperty, value); }
+            get { return GetValue(RelationsProperty); }
+            set { SetValue(RelationsProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ConnectionColor.
+        /// Represents the styled property for ConnectionColor.
         /// </summary>
-        public static readonly DependencyProperty ConnectionColorProperty
-            = DependencyProperty.Register("ConnectionColor", typeof(SolidColorBrush), typeof(VBAdornerDecoratorIACObject), new PropertyMetadata(Brushes.Red));
+        public static readonly StyledProperty<IBrush> ConnectionColorProperty
+            = AvaloniaProperty.Register<VBAdornerDecoratorIACObject, IBrush>(nameof(ConnectionColor), Brushes.Red);
 
         /// <summary>
         /// Gets or sets the ConnectionColor.
         /// </summary>
-        public SolidColorBrush ConnectionColor
+        public IBrush ConnectionColor
         {
-            get { return (SolidColorBrush)GetValue(ConnectionColorProperty); }
+            get { return GetValue(ConnectionColorProperty); }
             set { SetValue(ConnectionColorProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ConnctionThickness.
+        /// Represents the styled property for ConnectionThickness.
         /// </summary>
-        public static readonly DependencyProperty ConnectionThicknessProperty
-            = DependencyProperty.Register("ConnectionThickness", typeof(double), typeof(VBAdornerDecoratorIACObject), new PropertyMetadata(1.5));
+        public static readonly StyledProperty<double> ConnectionThicknessProperty
+            = AvaloniaProperty.Register<VBAdornerDecoratorIACObject, double>(nameof(ConnectionThickness), 1.5);
 
         /// <summary>
         /// Gets or sets ConnectionThickness.
         /// </summary>
         public double ConnectionThickness
         {
-            get { return (double)GetValue(ConnectionThicknessProperty); }
+            get { return GetValue(ConnectionThicknessProperty); }
             set { SetValue(ConnectionThicknessProperty, value); }
         }
+
 
         private List<VBVisual> _VBVisualList;
         /// <summary>
@@ -115,24 +116,23 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            VBAdornerDecoratorIACObject vbAdornerDecorator = dependencyObject as VBAdornerDecoratorIACObject;
-            if (vbAdornerDecorator.Child != null)
+            if (e.Property == RelationsProperty && this.Child != null)
             {
-                vbAdornerDecorator.InsertAdorner();
-                vbAdornerDecorator.vbWorkflowAdorner.FillUpdateRelationsVisual(args.NewValue as List<ConnectionIACObject>, vbAdornerDecorator.VBVisualList);
-                if (args.NewValue != null && ((List<ConnectionIACObject>)args.NewValue).Any())
-                    vbAdornerDecorator.RefreshAdorner();
+                InsertAdorner();
+                vbWorkflowAdorner.FillUpdateRelationsVisual(e.NewValue as List<ConnectionIACObject>, VBVisualList);
+                if (e.NewValue != null && ((List<ConnectionIACObject>)e.NewValue).Any())
+                    RefreshAdorner();
                 else
-                    vbAdornerDecorator.RemoveAdorner();
+                    RemoveAdorner();
             }
         }
 
         private void InsertAdorner()
         {
             if (AdornerLayer.GetAdornerLayer(this.Child) == null)
-                AdornerLayer.Add(vbWorkflowAdorner);
+                AdornerLayer.Children.Add(vbWorkflowAdorner);
             this.Child.UpdateLayout();
         }
 
@@ -141,11 +141,11 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public void RefreshAdorner()
         {
-            var adoners = AdornerLayer.GetAdorners(this.Child);
-            if (adoners == null)
-                AdornerLayer.Add(vbWorkflowAdorner);
-            else if (adoners != null && !adoners.Contains(vbWorkflowAdorner))
-                AdornerLayer.Add(vbWorkflowAdorner);
+            var adorners = this.AdornerLayer.GetAdorners(this.Child);
+            if (adorners == null || !adorners.Any())
+                AdornerLayer.Children.Add(vbWorkflowAdorner);
+            else if (adorners != null && !adorners.Contains(vbWorkflowAdorner))
+                AdornerLayer.Children.Add(vbWorkflowAdorner);
             vbWorkflowAdorner.InvalidateVisual();
         }
 
@@ -155,8 +155,7 @@ namespace gip.core.layoutengine.avui
         public void RemoveAdorner()
         {
             if (AdornerLayer.GetAdorners(this.Child) != null)
-                AdornerLayer.Remove(vbWorkflowAdorner);
+                AdornerLayer.Children.Remove(vbWorkflowAdorner);
         }
-
     }
 }

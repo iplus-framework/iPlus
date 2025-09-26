@@ -1,0 +1,141 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/VBTextBox/LightThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBTextBlock/LightThemeColors.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+  
+  <Color x:Key="ColorCtrlTxtDisabled"
+         A="#FF" B="#30" G="#30" R="#30"/>
+  <SolidColorBrush x:Key="CtrlTxtDisabled"
+                   Color="{StaticResource ColorCtrlTxtDisabled}"/>
+
+  <Color x:Key="ColorCtrlTxtEnabled"
+         A="#FF" B="#00" G="#00" R="#00"/>
+  <SolidColorBrush x:Key="CtrlTxtEnabled"
+                   Color="{StaticResource ColorCtrlTxtEnabled}"/>
+
+  <Color x:Key="ColorCtrlTxtWrong"
+         A="#FF" B="#00" G="#00" R="#00"/>
+  <SolidColorBrush x:Key="CtrlTxtWrong"
+                   Color="{StaticResource ColorCtrlTxtWrong}"/>
+
+  <Color x:Key="ColorCtrlTxtRequired"
+         A="#FF" B="#00" G="#00" R="#00"/>
+  <SolidColorBrush x:Key="CtrlTxtRequired"
+                   Color="{StaticResource ColorCtrlTxtRequired}"/>
+
+
+
+  <Color x:Key="ColorCtrlBackDisabled"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="CtrlBackDisabled"
+                   Color="{StaticResource ColorCtrlBackDisabled}"/>
+
+  <Color x:Key="ColorCtrlBackEnabled"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="CtrlBackEnabled"
+                   Color="{StaticResource ColorCtrlBackEnabled}" />
+
+  <Color x:Key="ColorCtrlBackWrong"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="CtrlBackWrong"
+                   Color="{StaticResource ColorCtrlBackWrong}" />
+
+  <Color x:Key="ColorCtrlBackRequired"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="CtrlBackRequired"
+                   Color="{StaticResource ColorCtrlBackRequired}" />
+
+  <Color x:Key="ColorCtrlFrmDisabled"
+         A="#FF" B="#B3" G="#B3" R="#B3"/>
+  <SolidColorBrush x:Key="CtrlFrmDisabled"
+                   Color="{StaticResource ColorCtrlFrmDisabled}" />
+
+  <Color x:Key="ColorCtrlFrmEnabled"
+         A="#FF" B="#00" G="#00" R="#00"/>
+  <SolidColorBrush x:Key="CtrlFrmEnabled"
+                   Color="{StaticResource ColorCtrlFrmEnabled}" />
+
+  <Color x:Key="ColorCtrlFrmRequired"
+         A="#FF" B="0" G="0" R="#FF"/>
+  <SolidColorBrush x:Key="CtrlFrmRequired"
+                   Color="{StaticResource ColorCtrlFrmRequired}" />
+
+
+
+  <Color x:Key="ColorFrmDark"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="FrmDark"
+                   Color="{StaticResource ColorFrmDark}" />
+
+  <Color x:Key="ColorFrmLight"
+         A="#FF" R="#F3" G="#F3" B="#F3"/>
+  <SolidColorBrush x:Key="FrmLight"
+                   Color="{StaticResource ColorFrmLight}" />
+
+
+
+  <Color x:Key="ColorAppBack"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="AppBack"
+                   Color="{StaticResource ColorAppBack}" />
+
+
+
+  <Color x:Key="ColorAppDark"
+         A="#FF" R="#B3" G="#B3" B="#B3"/>
+  <SolidColorBrush x:Key="AppDark"
+                   Color="{StaticResource ColorAppDark}" />
+
+  <Color x:Key="ColorAppLight"
+         A="#FF" R="#D3" G="#D3" B="#D3"/>
+  <SolidColorBrush x:Key="AppLight"
+                   Color="{StaticResource ColorAppLight}" />
+
+
+  <Color x:Key="TabItemSelectedBorderColorAero"
+         A="#FF" R="#92" G="#92" B="#92"/>
+  <SolidColorBrush x:Key="TabItemSelectedBorderBrushAero" Color="{StaticResource TabItemSelectedBorderColorAero}"/>
+
+  <!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFillAero" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#4CFF6565" Offset="0"/>
+        <GradientStop Color="#7FFF0018" Offset="1"/>
+    </LinearGradientBrush>
+    <Border x:Key="ComboBoxSelectedItemTemplate" CornerRadius="2" Background="{StaticResource ComboBoxItemSelectionFillAero}" BorderBrush="#FF0000">
+        <StackPanel x:Name="ComboBoxSelectedItemPanel" Orientation="Horizontal"></StackPanel>
+    </Border>-->
+
+  <DrawingBrush x:Key="ConverterErrorBrush" Viewport="0,0,0.25,0.25" TileMode="Tile">
+    <DrawingBrush.Drawing>
+      <DrawingGroup>
+        <GeometryDrawing>
+          <GeometryDrawing.Brush>
+            <SolidColorBrush Color="#88FFFFFF"/>
+          </GeometryDrawing.Brush>
+          <GeometryDrawing.Geometry>
+            <RectangleGeometry Rect="0,0,20,20" />
+          </GeometryDrawing.Geometry>
+        </GeometryDrawing>
+
+        <GeometryDrawing>
+          <GeometryDrawing.Geometry>
+            <GeometryGroup>
+              <RectangleGeometry Rect="0,0,10,10" />
+              <RectangleGeometry Rect="10,10,10,10" />
+            </GeometryGroup>
+          </GeometryDrawing.Geometry>
+          <GeometryDrawing.Brush>
+            <SolidColorBrush Color="#88FF0000"/>
+          </GeometryDrawing.Brush>
+        </GeometryDrawing>
+      </DrawingGroup>
+    </DrawingBrush.Drawing>
+  </DrawingBrush>
+
+</ResourceDictionary>
+
+
+
+
+

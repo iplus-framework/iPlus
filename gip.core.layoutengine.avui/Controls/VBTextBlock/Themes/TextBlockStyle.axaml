@@ -1,0 +1,17 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    
+    <!-- VBTextBlock ControlTheme -->
+    <ControlTheme x:Key="{x:Type local:VBTextBlock}" TargetType="local:VBTextBlock">
+        <Setter Property="TextWrapping" Value="NoWrap"/>
+        <Setter Property="TextTrimming" Value="None"/>
+        <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
+        
+        <!-- Disabled State -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

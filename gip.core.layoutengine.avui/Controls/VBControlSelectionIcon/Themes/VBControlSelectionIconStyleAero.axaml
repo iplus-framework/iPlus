@@ -4,7 +4,7 @@
 	xmlns:Microsoft_Windows_Themes="clr-namespace:Microsoft.Windows.Themes;assembly=PresentationFramework.Aero"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+        <ResourceDictionary Source="/Controls/LightThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <SolidColorBrush x:Key="StrokePath" Color="#FF000000"/>

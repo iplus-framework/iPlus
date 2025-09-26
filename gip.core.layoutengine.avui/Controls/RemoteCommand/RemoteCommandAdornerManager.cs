@@ -1,16 +1,17 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Media;
+using Avalonia.Threading;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows.Input;
-using gip.core.datamodel;
-using System.Windows.Threading;
-using System.Windows.Documents;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -41,7 +42,7 @@ namespace gip.core.layoutengine.avui
 
         private RemoteCommandAdornerManager()
         {
-            _activePopups = new Dictionary<FrameworkElement, PopupInfo>();
+            _activePopups = new Dictionary<Control, PopupInfo>();
             LoadTemplateResources();
         }
 
@@ -51,10 +52,8 @@ namespace gip.core.layoutengine.avui
             {
                 try
                 {
-                    _templateResources = new ResourceDictionary
-                    {
-                        Source = new Uri("/gip.core.layoutengine.avui;Component/Controls/RemoteCommand/RemoteCommandPopupTemplate.xaml", UriKind.Relative)
-                    };
+                    _templateResources = new ResourceDictionary();
+                    _templateResources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/RemoteCommand/RemoteCommandPopupTemplate.xaml", UriKind.Relative)));
                 }
                 catch (Exception ex)
                 {
@@ -66,7 +65,7 @@ namespace gip.core.layoutengine.avui
         }
 
         // Track multiple popups for different elements
-        private Dictionary<FrameworkElement, PopupInfo> _activePopups;
+        private Dictionary<Control, PopupInfo> _activePopups;
 
         private class PopupInfo
         {
@@ -77,39 +76,37 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Shows a custom popup for the specified duration using a separate adorner layer
         /// </summary>
-        /// <param name="frameworkElement">The framework element to adorn</param>
+        /// <param name="Control">The framework element to adorn</param>
         /// <param name="content">The content to display in the popup</param>
         /// <param name="durationSeconds">Duration in seconds to show the popup</param>
-        public void ShowCustomTimedPopup(FrameworkElement frameworkElement, UIElement content, double durationSeconds = 3.0)
+        public void ShowCustomTimedPopup(Control Control, Control content, double durationSeconds = 3.0)
         {
             // Hide any existing popup for this element first
-            HideCustomPopup(frameworkElement);
+            HideCustomPopup(Control);
 
             try
             {
                 // Get the adorner layer
-                AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(frameworkElement);
+                AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(Control);
                 if (adornerLayer == null)
                     return;
 
                 // Create and add the popup adorner
-                VBContentRemoteControlAdorner currentPopupAdorner = new VBContentRemoteControlAdorner(frameworkElement, content);
-                adornerLayer.Add(currentPopupAdorner);
+                VBContentRemoteControlAdorner currentPopupAdorner = new VBContentRemoteControlAdorner(Control, content);
+                adornerLayer.Children.Add(currentPopupAdorner);
 
                 // Set up timer to hide popup after specified duration
-                DispatcherTimer popupTimer = new DispatcherTimer(DispatcherPriority.Normal, frameworkElement.Dispatcher)
-                {
-                    Interval = TimeSpan.FromSeconds(durationSeconds)
-                };
+                DispatcherTimer popupTimer = new DispatcherTimer(DispatcherPriority.Normal);//, Control.Dispatcher)
+                popupTimer.Interval = TimeSpan.FromSeconds(durationSeconds);
 
                 // Store popup info
-                _activePopups[frameworkElement] = new PopupInfo
+                _activePopups[Control] = new PopupInfo
                 {
                     Adorner = currentPopupAdorner,
                     Timer = popupTimer
                 };
 
-                popupTimer.Tick += (sender, e) => PopupTimer_Tick(frameworkElement);
+                popupTimer.Tick += (sender, e) => PopupTimer_Tick(Control);
                 popupTimer.Start();
             }
             catch (Exception ex)
@@ -123,11 +120,11 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Shows a templated text popup for the specified duration
         /// </summary>
-        /// <param name="frameworkElement">The framework element to adorn</param>
+        /// <param name="Control">The framework element to adorn</param>
         /// <param name="text">The text to display</param>
         /// <param name="popupType">The type of popup template to use</param>
         /// <param name="durationSeconds">Duration in seconds to show the popup</param>
-        public void ShowCustomTimedPopup(FrameworkElement frameworkElement, string text, RemoteCommandPopupType popupType = RemoteCommandPopupType.Default, double durationSeconds = 3.0)
+        public void ShowCustomTimedPopup(Control Control, string text, RemoteCommandPopupType popupType = RemoteCommandPopupType.Default, double durationSeconds = 3.0)
         {
             try
             {
@@ -136,7 +133,7 @@ namespace gip.core.layoutengine.avui
                 if (template == null)
                 {
                     // Fallback to hardcoded version if template not found
-                    ShowCustomTimedPopupFallback(frameworkElement, text, durationSeconds);
+                    ShowCustomTimedPopupFallback(Control, text, durationSeconds);
                     return;
                 }
 
@@ -147,7 +144,7 @@ namespace gip.core.layoutengine.avui
                     ContentTemplate = template
                 };
 
-                ShowCustomTimedPopup(frameworkElement, contentPresenter, durationSeconds);
+                ShowCustomTimedPopup(Control, contentPresenter, durationSeconds);
             }
             catch (Exception ex)
             {
@@ -155,7 +152,7 @@ namespace gip.core.layoutengine.avui
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null)
                     datamodel.Database.Root.Messages.LogException("RemoteCommandAdornerManager", "ShowCustomTimedPopup", ex.Message);
                 
-                ShowCustomTimedPopupFallback(frameworkElement, text, durationSeconds);
+                ShowCustomTimedPopupFallback(Control, text, durationSeconds);
             }
         }
 
@@ -180,7 +177,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Fallback method using hardcoded styling (original implementation)
         /// </summary>
-        private void ShowCustomTimedPopupFallback(FrameworkElement frameworkElement, string text, double durationSeconds = 3.0)
+        private void ShowCustomTimedPopupFallback(Control Control, string text, double durationSeconds = 3.0)
         {
             var textBlock = new TextBlock
             {
@@ -199,27 +196,27 @@ namespace gip.core.layoutengine.avui
                 BorderThickness = new Thickness(1),
                 CornerRadius = new CornerRadius(3),
                 Child = textBlock,
-                Effect = new System.Windows.Media.Effects.DropShadowEffect
+                Effect = new DropShadowEffect
                 {
                     Color = Colors.Black,
-                    Direction = 315,
-                    ShadowDepth = 3,
+                    //Direction = 315,
+                    BlurRadius = 3,
                     Opacity = 0.5
                 }
             };
 
-            ShowCustomTimedPopup(frameworkElement, border, durationSeconds);
+            ShowCustomTimedPopup(Control, border, durationSeconds);
         }
 
         /// <summary>
         /// Hides the current popup if visible for the specified element
         /// </summary>
-        /// <param name="frameworkElement">The framework element whose popup should be hidden</param>
-        public void HideCustomPopup(FrameworkElement frameworkElement)
+        /// <param name="Control">The framework element whose popup should be hidden</param>
+        public void HideCustomPopup(Control Control)
         {
             try
             {
-                if (_activePopups.TryGetValue(frameworkElement, out PopupInfo popupInfo))
+                if (_activePopups.TryGetValue(Control, out PopupInfo popupInfo))
                 {
                     // Stop and dispose timer
                     if (popupInfo.Timer != null)
@@ -231,16 +228,16 @@ namespace gip.core.layoutengine.avui
                     // Remove adorner
                     if (popupInfo.Adorner != null)
                     {
-                        AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(frameworkElement);
+                        AdornerLayer adornerLayer = AdornerLayer.GetAdornerLayer(Control);
                         if (adornerLayer != null)
                         {
-                            adornerLayer.Remove(popupInfo.Adorner);
+                            adornerLayer.Children.Remove(popupInfo.Adorner);
                         }
                         popupInfo.Adorner = null;
                     }
 
                     // Remove from tracking dictionary
-                    _activePopups.Remove(frameworkElement);
+                    _activePopups.Remove(Control);
                 }
             }
             catch (Exception ex)
@@ -263,12 +260,12 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void PopupTimer_Tick(FrameworkElement frameworkElement)
+        private void PopupTimer_Tick(Control Control)
         {
-            HideCustomPopup(frameworkElement);
+            HideCustomPopup(Control);
         }
 
-        public void VisualizeIfRemoteControlled(string acUrl, FrameworkElement uiElement, IACComponent acComponent, bool isCommand, RemoteCommandPopupType commandPopupType = RemoteCommandPopupType.Default)
+        public void VisualizeIfRemoteControlled(string acUrl, Control uiElement, IACComponent acComponent, bool isCommand, RemoteCommandPopupType commandPopupType = RemoteCommandPopupType.Default)
         {
             if (string.IsNullOrEmpty(acUrl) || uiElement == null)
                 return;
@@ -277,7 +274,7 @@ namespace gip.core.layoutengine.avui
             ShowCustomTimedPopup(uiElement, "", RemoteCommandPopupType.Default, 6.0);
         }
 
-        public void VisualizeIfRemoteControlled(FrameworkElement uiElement, IACComponent acComponent, bool isCommand, RemoteCommandPopupType commandPopupType = RemoteCommandPopupType.Default)
+        public void VisualizeIfRemoteControlled(Control uiElement, IACComponent acComponent, bool isCommand, RemoteCommandPopupType commandPopupType = RemoteCommandPopupType.Default)
         {
             IVBContent vbContent = uiElement as IVBContent;
             if (vbContent == null)

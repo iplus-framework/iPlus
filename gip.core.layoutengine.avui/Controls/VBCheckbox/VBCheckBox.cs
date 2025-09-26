@@ -7,6 +7,12 @@ using gip.core.layoutengine.avui.Helperclasses;
 using System.Transactions;
 using System.ComponentModel;
 using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
 using gip.ext.designer.avui;
 
 
@@ -22,32 +28,6 @@ namespace gip.core.layoutengine.avui
     public class VBCheckBox : CheckBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IVBDynamicIcon
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "CheckBoxStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBCheckBox/Themes/CheckBoxStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "CheckBoxStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBCheckBox/Themes/CheckBoxStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBCheckBox()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBCheckBox), new FrameworkPropertyMetadata(typeof(VBCheckBox)));
-        }
-
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBCheckBox.
         /// </summary>
@@ -59,45 +39,32 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
             //HasTouchDevices = VBUtils.HasTouchDevices;
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-            SourceUpdated += new EventHandler<DataTransferEventArgs>(VBCheckBox_SourceUpdated);
-            TargetUpdated += new EventHandler<DataTransferEventArgs>(VBCheckBox_TargetUpdated);
+            base.OnInitialized();
             Loaded += VBCheckBox_Loaded;
             Unloaded += VBCheckBox_Unloaded;
-            GotFocus += new RoutedEventHandler(VBCheckBox_GotFocus);
+            GotFocus += VBCheckBox_GotFocus;
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region Additional Dependcy-Properties
         /// <summary>
         /// Represents the dependency property for RightControlMode.
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty
-            = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBCheckBox));
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty =
+            AvaloniaProperty.Register<VBCheckBox, Global.ControlModes>(nameof(RightControlMode));
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -110,15 +77,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
+            get { return GetValue(RightControlModeProperty); }
             set { SetValue(RightControlModeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBCheckBox));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBCheckBox, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -127,7 +94,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -138,8 +105,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for PushButtonStyle.
         /// </summary>
-        public static readonly DependencyProperty PushButtonStyleProperty
-            = DependencyProperty.Register("PushButtonStyle", typeof(Boolean), typeof(VBCheckBox));
+        public static readonly StyledProperty<Boolean> PushButtonStyleProperty =
+            AvaloniaProperty.Register<VBCheckBox, Boolean>(nameof(PushButtonStyle));
 
         /// <summary>
         /// Determines is push button style or not.
@@ -150,15 +117,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public Boolean PushButtonStyle
         {
-            get { return (Boolean)GetValue(PushButtonStyleProperty); }
+            get { return GetValue(PushButtonStyleProperty); }
             set { SetValue(PushButtonStyleProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ContentStroke.
         /// </summary>
-        public static readonly DependencyProperty ContentStrokeProperty
-            = DependencyProperty.Register("ContentStroke", typeof(Brush), typeof(VBCheckBox));
+        public static readonly StyledProperty<IBrush> ContentStrokeProperty =
+            AvaloniaProperty.Register<VBCheckBox, IBrush>(nameof(ContentStroke));
 
         /// <summary>
         /// Gets or sets the stroke of content.
@@ -167,17 +134,17 @@ namespace gip.core.layoutengine.avui
         /// Liest oder setzt den Strich des Inhalts.
         /// </summary>
         [Category("VBControl")]
-        public Brush ContentStroke
+        public IBrush ContentStroke
         {
-            get { return (Brush)GetValue(ContentStrokeProperty); }
+            get { return GetValue(ContentStrokeProperty); }
             set { SetValue(ContentStrokeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ContentFill.
         /// </summary>
-        public static readonly DependencyProperty ContentFillProperty
-            = DependencyProperty.Register("ContentFill", typeof(Brush), typeof(VBCheckBox));
+        public static readonly StyledProperty<IBrush> ContentFillProperty =
+            AvaloniaProperty.Register<VBCheckBox, IBrush>(nameof(ContentFill));
 
         /// <summary>
         /// Gets or sets the fill of content.
@@ -186,17 +153,17 @@ namespace gip.core.layoutengine.avui
         /// Liest oder setzt die Füllung des Inhalts.
         /// </summary>
         [Category("VBControl")]
-        public Brush ContentFill
+        public IBrush ContentFill
         {
-            get { return (Brush)GetValue(ContentFillProperty); }
+            get { return GetValue(ContentFillProperty); }
             set { SetValue(ContentFillProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for IsMouseOverParent.
         /// </summary>
-        public static readonly DependencyProperty IsMouseOverParentProperty
-            = DependencyProperty.Register("IsMouseOverParent", typeof(Boolean), typeof(VBCheckBox));
+        public static readonly StyledProperty<Boolean> IsMouseOverParentProperty =
+            AvaloniaProperty.Register<VBCheckBox, Boolean>(nameof(IsMouseOverParent));
 
         /// <summary>
         /// Determines is mouse over parent or not.
@@ -207,15 +174,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public Boolean IsMouseOverParent
         {
-            get { return (Boolean)GetValue(IsMouseOverParentProperty); }
+            get { return GetValue(IsMouseOverParentProperty); }
             set { SetValue(IsMouseOverParentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for HasTouchDevices.
         /// </summary>
-        public static readonly DependencyProperty HasTouchDevicesProperty
-            = DependencyProperty.Register("HasTouchDevices", typeof(Boolean), typeof(VBCheckBox));
+        public static readonly StyledProperty<Boolean> HasTouchDevicesProperty =
+            AvaloniaProperty.Register<VBCheckBox, Boolean>(nameof(HasTouchDevices));
 
         /// <summary>
         /// Determines has touch devices or hasn't.
@@ -226,14 +193,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public Boolean HasTouchDevices
         {
-            get { return (Boolean)GetValue(HasTouchDevicesProperty); }
+            get { return GetValue(HasTouchDevicesProperty); }
             set { SetValue(HasTouchDevicesProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBCheckBox), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBCheckBox>();
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -244,7 +212,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
@@ -267,7 +235,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (!string.IsNullOrEmpty(ACCaption) && ContextACObject != null)
                 {
-                    //ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+                    //ACaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
                     Content = Translator.GetTranslation(ACIdentifier, ACCaption, this.Root().Environment.VBLanguageCode);
                 }
                 return;
@@ -290,9 +258,8 @@ namespace gip.core.layoutengine.avui
                 this.IsThreeState = true;
             }
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBCheckBox.RightControlModeProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
+            // Check if RightControlMode is locally set
+            if (!this.IsSet(VBCheckBox.RightControlModeProperty)
                 || (dcRightControlMode < RightControlMode))
             {
                 RightControlMode = dcRightControlMode;
@@ -309,24 +276,27 @@ namespace gip.core.layoutengine.avui
             else if (Content == null && ContextACObject != null && !string.IsNullOrEmpty(ACCaption))
                 Content = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
 
-            Binding binding = new Binding();
-            binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
-            if (dcACTypeInfo is ACClassProperty)
-                binding.Mode = (dcACTypeInfo as ACClassProperty).IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
-            binding.NotifyOnTargetUpdated = true;
-            binding.NotifyOnSourceUpdated = true;
+            var binding = new Binding
+            {
+                Source = dcSource,
+                Path = dcPath,
+                Mode = (dcACTypeInfo as ACClassProperty)?.IsInput == true ? BindingMode.TwoWay : BindingMode.OneWay
+            };
+
             if (!String.IsNullOrEmpty(VBValidation))
-                binding.ValidationRules.Add(new VBValidationRule(ValidationStep.ConvertedProposedValue, true, ContextACObject, VBContent, VBValidation));
-            SetBinding(CheckBox.IsCheckedProperty, binding);
+                _ValidationRule = new VBValidationRule(null, true, ContextACObject, VBContent, VBValidation);
+
+            this.Bind(CheckBox.IsCheckedProperty, binding);
 
             if (BSOACComponent != null)
             {
-                binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBCheckBox.ACCompInitStateProperty, binding);
+                var initStateBinding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBCheckBox.ACCompInitStateProperty, initStateBinding);
             }
 
             if (AutoFocus)
@@ -356,10 +326,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, CheckBox.IsCheckedProperty);
+                var boundedValue = BindingOperations.GetBindingExpressionBase(this, CheckBox.IsCheckedProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -401,11 +371,10 @@ namespace gip.core.layoutengine.avui
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
             this.GotFocus -= VBCheckBox_GotFocus;
-            this.SourceUpdated -= VBCheckBox_SourceUpdated;
-            TargetUpdated -= VBCheckBox_TargetUpdated;
             Loaded -= VBCheckBox_Loaded;
             Unloaded -= VBCheckBox_Unloaded;
             _VBContentPropertyInfo = null;
+            _ValidationRule = null;
             if (BSOACComponent != null)
                 BSOACComponent.RemoveWPFRef(this.GetHashCode());
 
@@ -427,60 +396,85 @@ namespace gip.core.layoutengine.avui
 
         #region Event-Handling
         /// <summary>
-        /// Handles the OnContextMenuOpening event.
+        /// Handles the OnPointerReleased event for context menu.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (DisableContextMenu)
+            if (e.InitialPressMouseButton == MouseButton.Right)
             {
+                if (ContextACObject == null)
+                    return;
+                if (DisableContextMenu)
+                {
+                    e.Handled = true;
+                    return;
+                }
+                Point point = e.GetPosition(this);
+                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                BSOACComponent.ACAction(actionArgs);
+                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                {
+                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                    this.ContextMenu = vbContextMenu;
+                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                    if (vbContextMenu.PlacementTarget == null)
+                        vbContextMenu.PlacementTarget = this;
+                    ContextMenu.Open();
+                }
                 e.Handled = true;
-                return;
             }
-            base.OnContextMenuOpening(e);
+            base.OnPointerReleased(e);
         }
 
-        /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            if (ContextACObject == null)
-                return;
-            if (DisableContextMenu)
-            {
-                e.Handled = true;
-                return;
-            }
-            Point point = e.GetPosition(this);
-            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            BSOACComponent.ACAction(actionArgs);
-            if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
-            {
-                VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                this.ContextMenu = vbContextMenu;
-                //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                if (vbContextMenu.PlacementTarget == null)
-                    vbContextMenu.PlacementTarget = this;
-                ContextMenu.IsOpen = true;
-            }
-            e.Handled = true;
-            base.OnMouseRightButtonDown(e);
-        }
-
-        void VBCheckBox_TargetUpdated(object sender, DataTransferEventArgs e)
+        void VBCheckBox_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
         }
 
-        private void VBCheckBox_SourceUpdated(object sender, DataTransferEventArgs e)
+        private void VBCheckBox_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
         }
 
-        private void VBCheckBox_GotFocus(object sender, RoutedEventArgs e)
+        private void VBCheckBox_GotFocus(object sender, GotFocusEventArgs e)
         {
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (ContextACObject != null)
+                {
+                    if (!_Initialized)
+                        return;
+                    Content = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+                }
+            }
+            else if (change.Property == IsCheckedProperty)
+            {
+                // From Target to Source
+                VBCheckBox_TargetUpdated(change.Sender, change);
+                // From Source to Target  
+                VBCheckBox_SourceUpdated(change.Sender, change);
+                
+                if (_ValidationRule != null)
+                    _ValidationRule.Validate(this, change.NewValue, System.Globalization.CultureInfo.CurrentUICulture);
+            }
         }
 
         #endregion
@@ -490,8 +484,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBCheckBox));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBCheckBox, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enters the name of BSO's property that is the boolean type and marked with the [ACPropertyInfo(...)] attribute.
@@ -502,7 +496,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -524,8 +518,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBCheckBox), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBCheckBox, string>(Const.ACCaptionPrefix);
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
@@ -533,64 +527,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
         }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBCheckBox control = d as VBCheckBox;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBCheckBox).Content = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
-        }
-
-        //public string ACCaption
-        //{
-        //    get
-        //    {
-        //        if (Content != null && Content is String)
-        //            return (string)Content;
-        //        return null;
-        //    }
-        //    set
-        //    {
-        //        Content = value;
-        //    }
-        //}
-
-        ///// <summary>
-        ///// Represents the dependency property for ACCaptionTrans.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACCaptionTransProperty
-        ////    = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBCheckBox));
-        ////[Category("VBControl")]
-        ////[Bindable(true)]
-        ////[ACPropertyInfo(9999)]
-        ///// <summary>
-        ///// Gets or sets the ACCaption translation.
-        ///// </summary>
-        ///// <summary xml:lang="de">
-        ///// Liest oder setzt die ACCaption-Übersetzung.
-        ///// </summary>
-        ////public string ACCaptionTrans
-        ////{
-        ////    get { return (string)GetValue(ACCaptionTransProperty); }
-        ////    set { SetValue(ACCaptionTransProperty, value); }
-        ////}
-
 
         /// <summary>
         /// Represents the dependency property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBCheckBox), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaptionProperty =
+            AvaloniaProperty.Register<VBCheckBox, bool>(nameof(ShowCaption), true);
 
         /// <summary>
         /// Determines is control caption shown or not.
@@ -601,7 +546,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool ShowCaption
         {
-            get { return (bool)GetValue(ShowCaptionProperty); }
+            get { return GetValue(ShowCaptionProperty); }
             set { SetValue(ShowCaptionProperty, value); }
         }
         #endregion
@@ -624,64 +569,31 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBCheckBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBCheckBox>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
-
-        //public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        //    DependencyProperty.Register("ACUrlCmdMessage",
-        //        typeof(ACUrlCmdMessage), typeof(VBCheckBox),
-        //        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-
-        //public ACUrlCmdMessage ACUrlCmdMessage
-        //{
-        //    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        //    set { SetValue(ACUrlCmdMessageProperty, value); }
-        //}
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBCheckBox),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBCheckBox, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBCheckBox thisControl = dependencyObject as VBCheckBox;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
-        }
-
 
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
@@ -752,7 +664,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBValidation.
         /// </summary>
-        public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBCheckBox), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> VBValidationProperty = 
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBCheckBox>();
 
         /// <summary>
         /// Name of the VBValidation property.
@@ -763,27 +676,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBValidation
         {
-            get { return (string)GetValue(VBValidationProperty); }
+            get { return GetValue(VBValidationProperty); }
             set { SetValue(VBValidationProperty, value); }
         }
-
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ToolTip = value;
-        //    }
-        //}
+        private VBValidationRule _ValidationRule = null;
 
         private bool Visible
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -791,54 +693,21 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
-
-        //private bool Enabled
-        //{
-        //    get
-        //    {
-        //        return IsEnabled;
-        //    }
-        //    set
-        //    {
-        //        if (value == true)
-        //        {
-        //            if (ContextACObject == null)
-        //            {
-        //                IsEnabled = true;
-        //            }
-        //            else
-        //            {
-        //                IsEnabled = RightControlMode >= Global.ControlModes.Enabled;
-        //            }
-        //        }
-        //        else
-        //        {
-        //            IsEnabled = false;
-        //        }
-        //        ControlModeChanged();
-        //    }
-        //}
 
         /// <summary>
         /// Updates a control mode.
         /// </summary>
         public void UpdateControlMode()
         {
-            //IACComponent elementACComponent = ContextACObject as IACComponent;
-            //if (elementACComponent == null)
-            //    return;
-            //Global.ControlModes controlMode = elementACComponent.GetControlModes(this);
-            //Enabled = controlMode >= Global.ControlModes.Enabled;
-            //Visible = controlMode >= Global.ControlModes.Disabled;
             IACComponent elementACComponent = ContextACObject as IACComponent;
             if (elementACComponent == null)
                 return;
@@ -854,18 +723,18 @@ namespace gip.core.layoutengine.avui
 
             if (controlMode == Global.ControlModes.Collapsed)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else if (controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!this.IsVisible)
+                    this.IsVisible = true;
                 if (controlMode == Global.ControlModes.Disabled)
                 {
                     if (IsEnabled)
@@ -877,7 +746,8 @@ namespace gip.core.layoutengine.avui
                         IsEnabled = true;
                 }
             }
-            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
+            // TODO: Convert this to Avalonia equivalent when available
+            // RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
         }
 
         /// <summary>
@@ -904,8 +774,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBCheckBox));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBCheckBox, string>(nameof(DisabledModes));
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -917,7 +787,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
         #endregion

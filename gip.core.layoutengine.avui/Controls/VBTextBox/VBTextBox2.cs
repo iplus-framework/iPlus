@@ -2,20 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using System.Collections;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -48,25 +42,26 @@ namespace gip.core.layoutengine.avui
 
         static VBTextBox2()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTextBox2), new FrameworkPropertyMetadata(typeof(VBTextBox2)));
-            VBTextBox.WidthContentProperty.OverrideMetadata(typeof(VBTextBox2), new PropertyMetadata(new GridLength(16, GridUnitType.Star)));
+            WidthContentProperty.OverrideDefaultValue<VBTextBox2>(new GridLength(16, GridUnitType.Star));
         }
         #endregion
 
         #region Additional Dependency Properties
-        public static readonly DependencyProperty VBContent2Property
-            = DependencyProperty.Register("VBContent2", typeof(string), typeof(VBTextBox2));
+        public static readonly StyledProperty<string> VBContent2Property =
+            AvaloniaProperty.Register<VBTextBox2, string>(nameof(VBContent2));
+        
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string VBContent2
         {
-            get { return (string)GetValue(VBContent2Property); }
+            get { return GetValue(VBContent2Property); }
             set { SetValue(VBContent2Property, value); }
         }
 
-        public static readonly DependencyProperty ShowCaption2Property
-            = DependencyProperty.Register("ShowCaption2", typeof(bool), typeof(VBTextBox2), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaption2Property =
+            AvaloniaProperty.Register<VBTextBox2, bool>(nameof(ShowCaption2), true);
+        
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -78,37 +73,25 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool ShowCaption2
         {
-            get { return (bool)GetValue(ShowCaption2Property); }
+            get { return GetValue(ShowCaption2Property); }
             set { SetValue(ShowCaption2Property, value); }
         }
 
-        public static readonly DependencyProperty Caption2Property
-            = DependencyProperty.Register("Caption2", typeof(string), typeof(VBTextBox2), new PropertyMetadata(new PropertyChangedCallback(OnACCaption2Changed)));
+        public static readonly StyledProperty<string> Caption2Property =
+            AvaloniaProperty.Register<VBTextBox2, string>(nameof(Caption2));
+        
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string Caption2
         {
-            get { return (string)GetValue(Caption2Property); }
+            get { return GetValue(Caption2Property); }
             set { SetValue(Caption2Property, value); }
         }
 
-        private static void OnACCaption2Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBTextBox2)
-            {
-                VBTextBox2 control = d as VBTextBox2;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBTextBox2).ACCaption2Trans = control.Root().Environment.TranslateText(control.ContextACObject, control.Caption2);
-                }
-            }
-        }
-
-        public static readonly DependencyProperty ACCaption2TransProperty
-            = DependencyProperty.Register("ACCaption2Trans", typeof(string), typeof(VBTextBox2));
+        public static readonly StyledProperty<string> ACCaption2TransProperty =
+            AvaloniaProperty.Register<VBTextBox2, string>(nameof(ACCaption2Trans));
+        
         /// <summary>
         /// Gets or sets the ACCaption.
         /// </summary>
@@ -120,13 +103,14 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption2Trans
         {
-            get { return (string)GetValue(ACCaption2TransProperty); }
+            get { return GetValue(ACCaption2TransProperty); }
             set { SetValue(ACCaption2TransProperty, value); }
         }
 
         #region Layout
-        public static readonly DependencyProperty WidthCaption2Property
-            = DependencyProperty.Register("WidthCaption2", typeof(GridLength), typeof(VBTextBox2), new PropertyMetadata(new GridLength(4, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthCaption2Property =
+            AvaloniaProperty.Register<VBTextBox2, GridLength>(nameof(WidthCaption2), new GridLength(4, GridUnitType.Star));
+        
         /// <summary>
         /// Gets or sets the width of caption.
         /// </summary>
@@ -138,29 +122,31 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthCaption2
         {
-            get { return (GridLength)GetValue(WidthCaption2Property); }
+            get { return GetValue(WidthCaption2Property); }
             set { SetValue(WidthCaption2Property, value); }
         }
 
-        public static readonly DependencyProperty WidthCaption2MaxProperty
-            = DependencyProperty.Register("WidthCaption2Max", typeof(double), typeof(VBTextBox2), new PropertyMetadata(Double.PositiveInfinity));
+        public static readonly StyledProperty<double> WidthCaption2MaxProperty =
+            AvaloniaProperty.Register<VBTextBox2, double>(nameof(WidthCaption2Max), Double.PositiveInfinity);
+        
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public double WidthCaption2Max
         {
-            get { return (double)GetValue(WidthCaption2MaxProperty); }
+            get { return GetValue(WidthCaption2MaxProperty); }
             set { SetValue(WidthCaption2MaxProperty, value); }
         }
 
-        public static readonly DependencyProperty TextAlignmentCaption2Property
-            = DependencyProperty.Register("TextAlignmentCaption2", typeof(TextAlignment), typeof(VBTextBox2), new PropertyMetadata(TextAlignment.Left));
+        public static readonly StyledProperty<TextAlignment> TextAlignmentCaption2Property =
+            AvaloniaProperty.Register<VBTextBox2, TextAlignment>(nameof(TextAlignmentCaption2), TextAlignment.Left);
+        
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public TextAlignment TextAlignmentCaption2
         {
-            get { return (TextAlignment)GetValue(TextAlignmentCaption2Property); }
+            get { return GetValue(TextAlignmentCaption2Property); }
             set { SetValue(TextAlignmentCaption2Property, value); }
         }
         #endregion
@@ -168,6 +154,7 @@ namespace gip.core.layoutengine.avui
 
         #region Loaded-Event
         protected bool _Loaded2 = false;
+        
         protected override void InitVBControl()
         {
             base.InitVBControl();
@@ -187,13 +174,13 @@ namespace gip.core.layoutengine.avui
                     return;
                 }
 
-                Binding binding2 = new Binding();
-                binding2.Source = dcSource2;
-                binding2.Path = new PropertyPath(dcPath2);
-                binding2.Mode = BindingMode.OneWay;
-                binding2.NotifyOnSourceUpdated = true;
-                binding2.NotifyOnTargetUpdated = true;
-                SetBinding(VBTextBox2.ACCaption2TransProperty, binding2);
+                var binding2 = new Binding
+                {
+                    Source = dcSource2,
+                    Path = dcPath2,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBTextBox2.ACCaption2TransProperty, binding2);
             }
             else if (!string.IsNullOrEmpty(Caption2))
                 ACCaption2Trans = this.Root().Environment.TranslateText(ContextACObject, Caption2);
@@ -208,14 +195,33 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            if (_Initialized)
-            {
-                BindingOperations.ClearBinding(this, VBTextBox2.ACCaption2TransProperty);
-            }
             base.DeInitVBControl(bso);
         }
 
+        #endregion
 
+        #region Property Changed Handling
+        
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == Caption2Property)
+            {
+                OnACCaption2Changed();
+            }
+        }
+
+        private void OnACCaption2Changed()
+        {
+            if (ContextACObject != null)
+            {
+                if (!_Initialized)
+                    return;
+                ACCaption2Trans = this.Root().Environment.TranslateText(ContextACObject, Caption2);
+            }
+        }
+        
         #endregion
     }
 }

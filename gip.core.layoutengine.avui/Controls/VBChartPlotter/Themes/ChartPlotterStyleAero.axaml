@@ -6,7 +6,7 @@
    xmlns:ddd="clr-namespace:gip.ext.chart.avui;assembly=gip.ext.chart.avui"
    xmlns:dddc="clr-namespace:gip.ext.chart.avui.Common;assembly=gip.ext.chart.avui">
     <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/SharedAero.xaml"/>
+        <ResourceDictionary Source="/Controls/LightThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
     <ControlTemplate TargetType="{x:Type local:VBChartPlotter}" x:Key="defaultPlotterTemplate">
