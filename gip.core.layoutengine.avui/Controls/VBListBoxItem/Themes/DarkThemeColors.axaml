@@ -1,0 +1,17 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <LinearGradientBrush x:Key="ListBoxItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#FF828282" Offset="0"/>
+    <GradientStop Color="#FF825555" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ListBoxItemSelectionNotActiveFill" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#FF828282" Offset="0"/>
+    <GradientStop Color="#FF825555" Offset="1"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="ListBoxItemSelectionFg" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="ListBoxItemFg" Color="#FFFFFFFF"/>
+  
+</ResourceDictionary>

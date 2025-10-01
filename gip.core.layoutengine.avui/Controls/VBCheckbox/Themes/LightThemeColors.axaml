@@ -1,0 +1,90 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <!-- Check-Style -->
+  <SolidColorBrush x:Key="CheckBoxBgEnabled" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="CheckBoxFgEnabled" Color="#FF000000"/>
+  <SolidColorBrush x:Key="CheckBoxFgEnabledFocus" Color="#FF000000"/>
+  <RadialGradientBrush x:Key="CheckBoxBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
+    <GradientStop Color="#FF666666" Offset="0.8"/>
+    <GradientStop Color="#FF000000" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxEnabledCheckBorder" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="CheckBoxEnabledCheckFill" Color="#FF770000"/>
+
+  <SolidColorBrush x:Key="CheckBoxBgDisabled" Color="#FFC3C3C3"/>
+  <SolidColorBrush x:Key="CheckBoxFgDisabled" Color="#FF404040"/>
+  <RadialGradientBrush x:Key="CheckBoxBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
+    <GradientStop Color="#FF666666" Offset="0.5"/>
+    <GradientStop Color="#FF000000" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxDisabledCheckBorder" Color="#FF404040"/>
+  <SolidColorBrush x:Key="CheckBoxDisabledCheckFill" Color="#FF191919"/>
+
+  <SolidColorBrush x:Key="CheckBoxBgRequired" Color="#FFFFFFE0"/>
+  <SolidColorBrush x:Key="CheckBoxFgRequired" Color="#FF000000"/>
+  <SolidColorBrush x:Key="CheckBoxFgRequiredFocus" Color="Yellow"/>
+  <RadialGradientBrush x:Key="CheckBoxBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFFFEA00" Offset="0.2"/>
+    <GradientStop Color="#FFD1D261" Offset="0.8"/>
+    <GradientStop Color="Black" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxRequiredCheckBorder" Color="Yellow"/>
+  <SolidColorBrush x:Key="CheckBoxRequiredCheckFill" Color="#FFADAD00"/>
+
+  <SolidColorBrush x:Key="CheckBoxBgWrong" Color="#FFFFE0E0"/>
+  <SolidColorBrush x:Key="CheckBoxFgWrong" Color="#FF000000"/>
+  <SolidColorBrush x:Key="CheckBoxFgWrongFocus" Color="Red"/>
+  <RadialGradientBrush x:Key="CheckBoxBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFFF0004" Offset="0.2"/>
+    <GradientStop Color="#FFE43D3D" Offset="0.8"/>
+    <GradientStop Color="#FF020101" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxWrongCheckBorder" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="CheckBoxWrongCheckFill" Color="#FF770000"/>
+
+  <SolidColorBrush x:Key="CheckBoxFillNormal" Color="#F4F4F4"/>
+  <SolidColorBrush x:Key="CheckBoxStroke" Color="#8E8F8F"/>
+
+  <LinearGradientBrush x:Key="CheckBoxPressNormalBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+    <GradientStop Color="#FF828282" Offset="0"/>
+    <GradientStop Color="#FFC2C2C2" Offset="0.2"/>
+    <GradientStop Color="#FFD2D2D2" Offset="0.8"/>
+    <GradientStop Color="#FFF2F2F2" Offset="1"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxPressNormalContentStroke" Color="#606060"/>
+  <SolidColorBrush x:Key="CheckBoxPressNormalContentFill" Color="#808080"/>
+
+  <LinearGradientBrush x:Key="CheckBoxPressDisabledBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+    <GradientStop Color="#FF535353" Offset="0"/>
+    <GradientStop Color="#FF737373" Offset="0.2"/>
+    <GradientStop Color="#FF737373" Offset="0.8"/>
+    <GradientStop Color="#FF939393" Offset="1"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxPressDisabledContentStroke" Color="#808080"/>
+  <SolidColorBrush x:Key="CheckBoxPressDisabledContentFill" Color="#808080"/>
+
+  <LinearGradientBrush x:Key="CheckBoxPressFocusBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+    <GradientStop Color="#FF727272" Offset="0"/>
+    <GradientStop Color="#FFB2B2B2" Offset="0.2"/>
+    <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+    <GradientStop Color="#FFE2E2E2" Offset="1"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxPressFocusContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="CheckBoxPressFocusContentFill" Color="#FF700000"/>
+
+  <LinearGradientBrush x:Key="CheckBoxPressPressedBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+    <GradientStop Color="#444444" Offset="0"/>
+    <GradientStop Color="#FFB2B2B2" Offset="0.2"/>
+    <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+    <GradientStop Color="#FFE2E2E2" Offset="1"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="CheckBoxPressPressedContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="CheckBoxPressPressedContentFill" Color="#FFA00000"/>
+  <SolidColorBrush x:Key="CheckBoxFocusBorder" Color="#FF939393"/>
+  
+</ResourceDictionary>

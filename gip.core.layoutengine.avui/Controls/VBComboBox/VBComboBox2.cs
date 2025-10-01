@@ -2,20 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using System.Collections;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
+using Avalonia;
+using Avalonia.Data;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,39 +22,20 @@ namespace gip.core.layoutengine.avui
     public class VBComboBox2 : VBComboBox
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList3 = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ComboBox2StyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBComboBox/Themes/ComboBoxStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ComboBox2StyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBComboBox/Themes/ComboBoxStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public override List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList3;
-            }
-        }
-
         static VBComboBox2()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBComboBox2), new FrameworkPropertyMetadata(typeof(VBComboBox2)));
-            VBComboBox.WidthContentProperty.OverrideMetadata(typeof(VBComboBox2), new PropertyMetadata(new GridLength(10, GridUnitType.Star)));
+            VBComboBox.WidthContentProperty.OverrideMetadata(typeof(VBComboBox2), new StyledPropertyMetadata<GridLength>(new GridLength(10, GridUnitType.Star)));
+            // Set the default WidthContent to 10 Star instead of the base class default of 20 Star
+            //WidthContent = new GridLength(10, GridUnitType.Star);
         }
         #endregion
 
-        #region Additional Dependency Properties
+        #region Additional Styled Properties
         /// <summary>
-        /// Represents the dependency property for VBContent2
+        /// Represents the styled property for VBContent2
         /// </summary>
-        public static readonly DependencyProperty VBContent2Property
-            = DependencyProperty.Register("VBContent2", typeof(string), typeof(VBComboBox2));
+        public static readonly StyledProperty<string> VBContent2Property
+            = AvaloniaProperty.Register<VBComboBox2, string>(nameof(VBContent2));
 
         /// <summary>
         /// Gets or sets the VBContent2.
@@ -71,15 +45,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string VBContent2
         {
-            get { return (string)GetValue(VBContent2Property); }
+            get { return GetValue(VBContent2Property); }
             set { SetValue(VBContent2Property, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ShowCaption2.
+        /// Represents the styled property for ShowCaption2.
         /// </summary>
-        public static readonly DependencyProperty ShowCaption2Property
-            = DependencyProperty.Register("ShowCaption2", typeof(bool), typeof(VBComboBox2), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaption2Property
+            = AvaloniaProperty.Register<VBComboBox2, bool>(nameof(ShowCaption2), true);
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -91,15 +65,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool ShowCaption2
         {
-            get { return (bool)GetValue(ShowCaption2Property); }
+            get { return GetValue(ShowCaption2Property); }
             set { SetValue(ShowCaption2Property, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Caption2.
+        /// Represents the styled property for Caption2.
         /// </summary>
-        public static readonly DependencyProperty Caption2Property
-            = DependencyProperty.Register("Caption2", typeof(string), typeof(VBComboBox2), new PropertyMetadata(new PropertyChangedCallback(OnACCaption2Changed)));
+        public static readonly StyledProperty<string> Caption2Property
+            = AvaloniaProperty.Register<VBComboBox2, string>(nameof(Caption2));
 
         /// <summary>
         /// Gets or sets the Caption 2.
@@ -109,30 +83,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string Caption2
         {
-            get { return (string)GetValue(Caption2Property); }
+            get { return GetValue(Caption2Property); }
             set { SetValue(Caption2Property, value); }
         }
 
-        private static void OnACCaption2Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBComboBox2)
-            {
-                VBComboBox2 control = d as VBComboBox2;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-
-                    (control as VBComboBox2).ACCaption2Trans = control.Root().Environment.TranslateText(control.ContextACObject, control.Caption2);
-                }
-            }
-        }
-
         /// <summary>
-        /// Represents the dependency property for ACCaption2Trans.
+        /// Represents the styled property for ACCaption2Trans.
         /// </summary>
-        public static readonly DependencyProperty ACCaption2TransProperty
-            = DependencyProperty.Register("ACCaption2Trans", typeof(string), typeof(VBComboBox2));
+        public static readonly StyledProperty<string> ACCaption2TransProperty
+            = AvaloniaProperty.Register<VBComboBox2, string>(nameof(ACCaption2Trans));
         /// <summary>
         /// Gets or sets the ACCaption2Trans.
         /// </summary>
@@ -144,17 +103,17 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption2Trans
         {
-            get { return (string)GetValue(ACCaption2TransProperty); }
+            get { return GetValue(ACCaption2TransProperty); }
             set { SetValue(ACCaption2TransProperty, value); }
         }
 
         #region Layout
 
         /// <summary>
-        /// Represents the dependency property for WidthCaption2.
+        /// Represents the styled property for WidthCaption2.
         /// </summary>
-        public static readonly DependencyProperty WidthCaption2Property
-            = DependencyProperty.Register("WidthCaption2", typeof(GridLength), typeof(VBComboBox2), new PropertyMetadata(new GridLength(10, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthCaption2Property
+            = AvaloniaProperty.Register<VBComboBox2, GridLength>(nameof(WidthCaption2), new GridLength(10, GridUnitType.Star));
         /// <summary>
         /// Gets or sets the width of caption2.
         /// </summary>
@@ -163,15 +122,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthCaption2
         {
-            get { return (GridLength)GetValue(WidthCaption2Property); }
+            get { return GetValue(WidthCaption2Property); }
             set { SetValue(WidthCaption2Property, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for WidthCaption2Max.
+        /// Represents the styled property for WidthCaption2Max.
         /// </summary>
-        public static readonly DependencyProperty WidthCaption2MaxProperty
-            = DependencyProperty.Register("WidthCaption2Max", typeof(double), typeof(VBComboBox2), new PropertyMetadata(Double.PositiveInfinity));
+        public static readonly StyledProperty<double> WidthCaption2MaxProperty
+            = AvaloniaProperty.Register<VBComboBox2, double>(nameof(WidthCaption2Max), Double.PositiveInfinity);
 
         /// <summary>
         /// Gets or sets the WidthCaption2Max.
@@ -181,10 +140,33 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthCaption2Max
         {
-            get { return (double)GetValue(WidthCaption2MaxProperty); }
+            get { return GetValue(WidthCaption2MaxProperty); }
             set { SetValue(WidthCaption2MaxProperty, value); }
         }
         #endregion
+        #endregion
+
+        #region Property Change Handling
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == Caption2Property)
+            {
+                OnACCaption2Changed(change.OldValue as string, change.NewValue as string);
+            }
+        }
+
+        private void OnACCaption2Changed(string oldValue, string newValue)
+        {
+            if (ContextACObject != null)
+            {
+                if (!_Initialized)
+                    return;
+
+                ACCaption2Trans = this.Root().Environment.TranslateText(ContextACObject, Caption2);
+            }
+        }
         #endregion
 
         #region Loaded-Event
@@ -214,16 +196,18 @@ namespace gip.core.layoutengine.avui
                     return;
                 }
 
-                Binding binding2 = new Binding();
-                binding2.Source = dcSource2;
-                binding2.Path = new PropertyPath(dcPath2);
-                binding2.Mode = BindingMode.OneWay;
-                binding2.NotifyOnSourceUpdated = true;
-                binding2.NotifyOnTargetUpdated = true;
-                SetBinding(VBComboBox2.ACCaption2TransProperty, binding2);
+                var binding2 = new Binding
+                {
+                    Source = dcSource2,
+                    Path = dcPath2,
+                    Mode = BindingMode.OneWay
+                };
+                // Note: In Avalonia, NotifyOnSourceUpdated and NotifyOnTargetUpdated are not available
+                // These were WPF-specific properties for debugging bindings
+                this.Bind(VBComboBox2.ACCaption2TransProperty, binding2);
             }
             else if (!string.IsNullOrEmpty(Caption2))
-                ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+                ACCaption2Trans = this.Root().Environment.TranslateText(ContextACObject, Caption2);
         }
 
         /// <summary>
@@ -236,7 +220,10 @@ namespace gip.core.layoutengine.avui
         public override void DeInitVBControl(IACComponent bso)
         {
             if (_Initialized)
-                BindingOperations.ClearBinding(this, VBComboBox2.ACCaption2TransProperty);
+            {
+                // In Avalonia, we use ClearValue instead of BindingOperations.ClearBinding
+                this.ClearValue(VBComboBox2.ACCaption2TransProperty);
+            }
             base.DeInitVBControl(bso);
         }
 

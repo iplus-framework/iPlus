@@ -1,15 +1,19 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using Avalonia.Controls;
-using gip.ext.designer.avui;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -23,84 +27,28 @@ namespace gip.core.layoutengine.avui
     public class VBButton : Button, IVBDynamicIcon, IVBContent, IACObject
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> {
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip,
-                                         styleName = "ButtonStyleGip",
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBButton/Themes/ButtonStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero,
-                                         styleName = "ButtonStyleAero",
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBButton/Themes/ButtonStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBButton()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBButton), new FrameworkPropertyMetadata(typeof(VBButton)));
-        }
-
-        bool _themeApplied = false;
-        /// <summary>
-        /// Creates a new instance of VBButton.
-        /// </summary>
-        public VBButton()
-        {
-        }
-
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-            Loaded += new RoutedEventHandler(CustomVBButton_Loaded);
-            Unloaded += new RoutedEventHandler(CustomVBButton_Unloaded);
+            base.OnInitialized();
+            Loaded += CustomVBButton_Loaded;
+            Unloaded += CustomVBButton_Unloaded;
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
-
         bool _Initialized = false;
-        private CommandBinding _CmdBindingExecute;
+        private Avalonia.Labs.Input.CommandBinding _CmdBindingExecute;
 
         /// <summary>
         /// Initializes the VB control.
@@ -140,7 +88,7 @@ namespace gip.core.layoutengine.avui
 #if DEBUG
                         System.Diagnostics.Debug.WriteLine("VBButton ACUrlBinding failed. VBContent: " + this.VBContent);
 #endif
-                        //Visibility = Visibility.Collapsed;
+                        //IsVisible = false;
                         return;
                     }
                     else
@@ -155,7 +103,7 @@ namespace gip.core.layoutengine.avui
 
                 if (RightControlMode < Global.ControlModes.Disabled)
                 {
-                    Visibility = Visibility.Collapsed;
+                    IsVisible = false;
                 }
                 else
                 {
@@ -179,58 +127,62 @@ namespace gip.core.layoutengine.avui
                             _RemoveACCommand = true;
 
                         this.Command = AppCommands.AddApplicationCommand(ACCommand);
-                        _CmdBindingExecute = new CommandBinding(this.Command, ucButton_Click, ucButton_IsEnabled);
-                        CommandBindings.Add(_CmdBindingExecute);
+                        _CmdBindingExecute = new Avalonia.Labs.Input.CommandBinding();
+                        _CmdBindingExecute.Command = this.Command;
+                        _CmdBindingExecute.Executed += ucButton_Click;
+                        _CmdBindingExecute.CanExecute += ucButton_IsEnabled;
+                        Avalonia.Labs.Input.CommandManager.SetCommandBindings(this, new List<Avalonia.Labs.Input.CommandBinding> { _CmdBindingExecute });
 
                         // Falls Binding im XAML, dann keine Caption setzen
-                        if (!BindingOperations.IsDataBound(this, ContentProperty))
+                        // TODO: Check if there's an Avalonia equivalent for IsDataBound
+                        if (this.Content == null)
                         {
-                            if (this.Content == null)
+                            if (menuItem != null)
                             {
-                                if (menuItem != null)
-                                {
-                                    this.Content = menuItem.ACCaption;
-                                }
+                                this.Content = menuItem.ACCaption;
+                            }
+                            else
+                            {
+                                if (string.IsNullOrEmpty(ACCaption))
+                                    this.Content = VBContentMethodInfo.ACCaption;
                                 else
-                                {
-                                    if (string.IsNullOrEmpty(ACCaption))
-                                        this.Content = VBContentMethodInfo.ACCaption;
-                                    else
-                                        this.Content = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
-                                }
+                                    this.Content = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
                             }
                         }
                     }
 
-                    if (ReadLocalValue(CanExecuteCyclicProperty) != DependencyProperty.UnsetValue)
+                    if (this.IsSet(CanExecuteCyclicProperty))
                     {
                         _dispTimer = new DispatcherTimer();
-                        _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
+                        _dispTimer.Tick += dispatcherTimer_CanExecute;
                         _dispTimer.Interval = new TimeSpan(0, 0, 0, 0, CanExecuteCyclic < 500 ? 500 : CanExecuteCyclic);
                         _dispTimer.Start();
                     }
 
                     if (BSOACComponent != null)
                     {
-                        Binding binding = new Binding();
-                        binding.Source = BSOACComponent;
-                        binding.Path = new PropertyPath(Const.InitState);
-                        binding.Mode = BindingMode.OneWay;
-                        SetBinding(VBButton.ACCompInitStateProperty, binding);
+                        var binding = new Binding
+                        {
+                            Source = BSOACComponent,
+                            Path = Const.InitState,
+                            Mode = BindingMode.OneWay
+                        };
+                        this.Bind(VBButton.ACCompInitStateProperty, binding);
                     }
                     if (ContextACObject != null && ContextACObject is IACComponent)
                     {
-                        Binding binding = new Binding();
-                        binding.Source = ContextACObject;
-                        binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
-                        binding.Mode = BindingMode.OneWay;
-                        SetBinding(VBButton.ACUrlCmdMessageProperty, binding);
+                        var binding = new Binding
+                        {
+                            Source = ContextACObject,
+                            Path = Const.ACUrlCmdMessage,
+                            Mode = BindingMode.OneWay
+                        };
+                        this.Bind(VBButton.ACUrlCmdMessageProperty, binding);
                     }
 
                     if (AutoFocus)
                     {
                         Focus();
-                        //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
                     }
                 }
             }
@@ -244,7 +196,7 @@ namespace gip.core.layoutengine.avui
 
             if (!string.IsNullOrEmpty(VBToolTip) && ContextACObject != null)
             {
-                ToolTip = this.Root().Environment.TranslateText(ContextACObject, VBToolTip);
+                ToolTip.SetTip(this, this.Root().Environment.TranslateText(ContextACObject, VBToolTip));
             }
 
         }
@@ -279,17 +231,16 @@ namespace gip.core.layoutengine.avui
             {
                 if (ACCommand != null)
                 {
-                    ICommand command = AppCommands.FindVBApplicationCommand(ACCommand.ACUrl);
+                    System.Windows.Input.ICommand command = AppCommands.FindVBApplicationCommand(ACCommand.ACUrl);
                     if (command != null)
                     {
                         AppCommands.RemoveVBApplicationCommand(command);
-                        CommandBindings.RemoveCommandBinding(command as RoutedUICommandEx);
+                        // TODO: CommandBindings.RemoveCommandBinding for Avalonia
                     }
                 }
             }
 
-            if (_CmdBindingExecute != null)
-                this.CommandBindings.Remove(_CmdBindingExecute); //handle paste
+            // TODO: CommandBindings.Remove for Avalonia
             this.Command = null;
             _ParameterList = null;
             ACCommand = null;
@@ -311,12 +262,12 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        #region Dependcy-Properties
+        #region Dependency-Properties
         /// <summary>
         /// Represents the dependency property for ContentStroke.
         /// </summary>
-        public static readonly DependencyProperty ContentStrokeProperty
-            = DependencyProperty.Register("ContentStroke", typeof(Brush), typeof(VBButton));
+        public static readonly StyledProperty<IBrush> ContentStrokeProperty =
+            AvaloniaProperty.Register<VBButton, IBrush>(nameof(ContentStroke));
 
         /// <summary>
         /// Gets or sets the stroke of content.
@@ -325,17 +276,17 @@ namespace gip.core.layoutengine.avui
         /// Liest oder setzt den Strich des Inhalts.
         /// </summary>
         [Category("VBControl")]
-        public Brush ContentStroke
+        public IBrush ContentStroke
         {
-            get { return (Brush)GetValue(ContentStrokeProperty); }
+            get { return GetValue(ContentStrokeProperty); }
             set { SetValue(ContentStrokeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ContentFill.
         /// </summary>
-        public static readonly DependencyProperty ContentFillProperty
-            = DependencyProperty.Register("ContentFill", typeof(Brush), typeof(VBButton));
+        public static readonly StyledProperty<IBrush> ContentFillProperty =
+            AvaloniaProperty.Register<VBButton, IBrush>(nameof(ContentFill));
 
         /// <summary>
         /// Gets or sets the fill of content.
@@ -344,76 +295,70 @@ namespace gip.core.layoutengine.avui
         /// Liest oder setzt die Füllung des Inhalts.
         /// </summary>
         [Category("VBControl")]
-        public Brush ContentFill
+        public IBrush ContentFill
         {
-            get { return (Brush)GetValue(ContentFillProperty); }
+            get { return GetValue(ContentFillProperty); }
             set { SetValue(ContentFillProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBButton));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBButton, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
         /// </summary>
         public Global.ControlModes ControlMode
         {
-            get { return (Global.ControlModes)GetValue(ControlModeProperty); }
+            get { return GetValue(ControlModeProperty); }
             set { SetValue(ControlModeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBButton),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBButton, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBButton),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBButton, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBButton thisControl = dependencyObject as VBButton;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACUrlCmdMessageProperty)
+            base.OnPropertyChanged(change);
+            VBButton thisControl = this;
+            if (change.Property == ACUrlCmdMessageProperty)
                 thisControl.OnACUrlMessageReceived();
-            else if (args.Property == ACCompInitStateProperty)
+            else if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null && thisControl.CommandParameter == null)
                         thisControl.DeInitVBControl(bso);
                 }
@@ -438,15 +383,12 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public bool IsTouchLeave
         {
-            get { return (bool)GetValue(IsTouchLeaveProperty); }
+            get { return GetValue(IsTouchLeaveProperty); }
             private set { SetValue(IsTouchLeaveProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for IsTouchActive.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsTouchLeaveProperty =
-            DependencyProperty.Register("IsTouchLeave", typeof(bool), typeof(VBButton), new PropertyMetadata(false));
-
-
+        public static readonly StyledProperty<bool> IsTouchLeaveProperty =
+            AvaloniaProperty.Register<VBButton, bool>(nameof(IsTouchLeave), false);
 
         #endregion
 
@@ -530,48 +472,105 @@ namespace gip.core.layoutengine.avui
         #region Event-Handling
 
         /// <summary>
-        /// Handles the OnContextMenuOpening event.
+        /// Handles the OnPointerReleased event for context menu and mouse up.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (DisableContextMenu)
+            if (e.InitialPressMouseButton == Avalonia.Input.MouseButton.Right)
             {
+                if (BSOACComponent == null)
+                    return;
+                if (DisableContextMenu)
+                {
+                    e.Handled = true;
+                    return;
+                }
+                Point point = e.GetPosition(this);
+                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                BSOACComponent.ACAction(actionArgs);
+                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                {
+                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                    this.ContextMenu = vbContextMenu;
+                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                    if (vbContextMenu.PlacementTarget == null)
+                        vbContextMenu.PlacementTarget = this;
+                    ContextMenu.Open();
+                }
                 e.Handled = true;
-                return;
             }
-            base.OnContextMenuOpening(e);
+            else if (e.InitialPressMouseButton == Avalonia.Input.MouseButton.Left)
+            {
+                // Handle mouse up for VBContentMouseUp
+                if (!String.IsNullOrEmpty(VBContentMemberMouseUp) && ContextACObject != null)
+                {
+                    if (!String.IsNullOrEmpty(VBContentAssignedValueMouseUp) && TypeMemberMouseUp != null)
+                    {
+                        try
+                        {
+                            object value = Convert.ChangeType(VBContentAssignedValueMouseUp, TypeMemberMouseUp.ObjectType);
+                            ContextACObject.ACUrlCommand(VBContentMemberMouseUp, value);
+                        }
+                        catch (Exception ec)
+                        {
+                            string msg = ec.Message;
+                            if (ec.InnerException != null && ec.InnerException.Message != null)
+                                msg += " Inner:" + ec.InnerException.Message;
+
+                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                datamodel.Database.Root.Messages.LogException("VBButton", "OnPointerReleased", msg);
+                        }
+                    }
+                    else if (String.IsNullOrEmpty(VBContentAssignedValueMouseUp))
+                    {
+                        ContextACObject.ACUrlCommand(VBContentMemberMouseUp);
+                    }
+                }
+            }
+            IsTouchLeave = true;
+            base.OnPointerReleased(e);
         }
 
         /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
+        /// Handles the OnPointerPressed event for mouse down.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+        /// <param name="e">The PointerPressed arguments.</param>
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (BSOACComponent == null)
-                return;
-            if (DisableContextMenu)
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
-                e.Handled = true;
-                return;
+                if (!String.IsNullOrEmpty(VBContentMemberMouseDown) && ContextACObject != null)
+                {
+                    if (!String.IsNullOrEmpty(VBContentAssignedValueMouseDown) && TypeMemberMouseDown != null)
+                    {
+                        try
+                        {
+                            object value = Convert.ChangeType(VBContentAssignedValueMouseDown, TypeMemberMouseDown.ObjectType);
+                            ContextACObject.ACUrlCommand(VBContentMemberMouseDown, value);
+                        }
+                        catch (Exception ec)
+                        {
+                            string msg = ec.Message;
+                            if (ec.InnerException != null && ec.InnerException.Message != null)
+                                msg += " Inner:" + ec.InnerException.Message;
+
+                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                datamodel.Database.Root.Messages.LogException("VBButton", "OnPointerPressed", msg);
+                        }
+                    }
+                    else if (String.IsNullOrEmpty(VBContentAssignedValueMouseDown))
+                    {
+                        ContextACObject.ACUrlCommand(VBContentMemberMouseDown);
+                    }
+                }
             }
-            Point point = e.GetPosition(this);
-            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            BSOACComponent.ACAction(actionArgs);
-            if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
-            {
-                VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                this.ContextMenu = vbContextMenu;
-                //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                if (vbContextMenu.PlacementTarget == null)
-                    vbContextMenu.PlacementTarget = this;
-                ContextMenu.IsOpen = true;
-            }
-            e.Handled = true;
-            base.OnMouseRightButtonDown(e);
+            IsTouchLeave = false;
+            base.OnPointerPressed(e);
         }
 
+        // TODO: Touch events for Avalonia if needed
+        /*
         protected override void OnTouchEnter(TouchEventArgs e)
         {
             IsTouchLeave = false;
@@ -583,6 +582,7 @@ namespace gip.core.layoutengine.avui
             IsTouchLeave = true;
             base.OnTouchLeave(e);
         }
+        */
 
         #endregion
 
@@ -635,8 +635,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for CanExecuteCyclic.
         /// </summary>
-        public static readonly DependencyProperty CanExecuteCyclicProperty =
-            ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner(typeof(VBButton), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<int> CanExecuteCyclicProperty =
+            ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner<VBButton>();
 
         /// <summary>
         /// Determines is cyclic execution enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.   
@@ -647,7 +647,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int CanExecuteCyclic
         {
-            get { return (int)GetValue(CanExecuteCyclicProperty); }
+            get { return GetValue(CanExecuteCyclicProperty); }
             set { SetValue(CanExecuteCyclicProperty, value); }
         }
 
@@ -655,8 +655,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty =
-            ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBButton), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty =
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBButton>();
 
         /// <summary>
         /// Determines is context menu disabled or enabled.
@@ -668,7 +668,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
@@ -697,18 +697,18 @@ namespace gip.core.layoutengine.avui
 
             if (controlMode == Global.ControlModes.Collapsed)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else if (controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!this.IsVisible)
+                    this.IsVisible = true;
                 if (controlMode == Global.ControlModes.Disabled)
                 {
                     if (IsEnabled)
@@ -737,7 +737,7 @@ namespace gip.core.layoutengine.avui
                    || this.VBContent.Contains(ACUrlCmdMessage.TargetVBContent)))
             {
                 UpdateControlMode();
-                CommandManager.InvalidateRequerySuggested();
+                // TODO: CommandManager.InvalidateRequerySuggested equivalent for Avalonia
             }
         }
 
@@ -787,22 +787,22 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the dependency property for DisabledModes.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBButton));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBButton, string>(nameof(DisabledModes));
         /// <summary>
-        /// Gets or sets the ACCaption translation.
+        /// Gets or sets the disabled modes.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die deaktivierten Modi.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
 
@@ -812,8 +812,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBButton));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBButton, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of method which will be invoked on button click. In front of method name must be an exclamation mark.
@@ -825,28 +825,28 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
 
-        public static readonly DependencyProperty BindToBSOProperty
-            = DependencyProperty.Register("BindToBSO", typeof(bool), typeof(VBButton));
+        public static readonly StyledProperty<bool> BindToBSOProperty =
+            AvaloniaProperty.Register<VBButton, bool>(nameof(BindToBSO));
 
         [Category("VBControl")]
         public bool BindToBSO
         {
-            get { return (bool)GetValue(BindToBSOProperty); }
+            get { return GetValue(BindToBSOProperty); }
             set { SetValue(BindToBSOProperty, value); }
         }
 
-        public static readonly DependencyProperty BindOnLoadEventProperty
-            = DependencyProperty.Register("BindOnLoadEvent", typeof(bool), typeof(VBButton));
+        public static readonly StyledProperty<bool> BindOnLoadEventProperty =
+            AvaloniaProperty.Register<VBButton, bool>(nameof(BindOnLoadEvent));
 
         [Category("VBControl")]
         public bool BindOnLoadEvent
         {
-            get { return (bool)GetValue(BindOnLoadEventProperty); }
+            get { return GetValue(BindOnLoadEventProperty); }
             set { SetValue(BindOnLoadEventProperty, value); }
         }
 
@@ -866,13 +866,14 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBButton), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBButton>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
@@ -1010,12 +1011,11 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The RoutedEvent agruments.</param>
-        protected virtual void ucButton_Click(object sender, RoutedEventArgs e)
+        protected virtual void ucButton_Click(object sender, Avalonia.Labs.Input.ExecutedRoutedEventArgs e)
         {
             RoutedUICommandEx vbCommand = null;
-            ExecutedRoutedEventArgs eEx = e as ExecutedRoutedEventArgs;
-            if (eEx != null)
-                vbCommand = eEx.Command as RoutedUICommandEx;
+            if (e != null)
+                vbCommand = e.Command as RoutedUICommandEx;
             ACActionArgs actionArgs = null;
             if (vbCommand != null)
             {
@@ -1052,10 +1052,9 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void ucButton_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
+        private void ucButton_IsEnabled(object sender, Avalonia.Labs.Input.CanExecuteRoutedEventArgs e)
         {
-            if (this.Visibility == System.Windows.Visibility.Collapsed
-                || this.Visibility == System.Windows.Visibility.Hidden
+            if (!this.IsVisible
                 || this.RightControlMode <= Global.ControlModes.Disabled)
             {
                 e.CanExecute = false;
@@ -1103,8 +1102,7 @@ namespace gip.core.layoutengine.avui
                     if (this.IsLoaded)
                         e.CanExecute = IsEnabledACAction(actionArgs);
 
-                    //if (e.CanExecute)
-                        RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, acComponent, true);
+                    RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, acComponent, true);
                 }
             }
             else
@@ -1116,15 +1114,7 @@ namespace gip.core.layoutengine.avui
         private DispatcherTimer _dispTimer = null;
         private void dispatcherTimer_CanExecute(object sender, EventArgs e)
         {
-            //this.CommandBindings[0].Command.Execute("test");
-            //ApplicationCommands.New.Execute("test", this);
-            //ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, ElementActionType.ACCommand);
-            //this.IsEnabled = IsEnabledACAction(actionArgs);
-            //(Command as RoutedCommand).CanExecute(null,this);
-            CommandManager.InvalidateRequerySuggested();
-            //InvalidateVisual();
-            //this.Command.CanExecute
-
+            // TODO: CommandManager.InvalidateRequerySuggested equivalent for Avalonia
         }
 
 
@@ -1167,8 +1157,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContentMouseDown.
         /// </summary>
-        public static readonly DependencyProperty VBContentMouseDownProperty
-            = DependencyProperty.Register("VBContentMouseDown", typeof(string), typeof(VBButton));
+        public static readonly StyledProperty<string> VBContentMouseDownProperty =
+            AvaloniaProperty.Register<VBButton, string>(nameof(VBContentMouseDown));
 
         /// <summary>
         /// Gets or sets VBContent for mouse down.
@@ -1176,7 +1166,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContentMouseDown
         {
-            get { return (string)GetValue(VBContentMouseDownProperty); }
+            get { return GetValue(VBContentMouseDownProperty); }
             set { SetValue(VBContentMouseDownProperty, value); }
         }
 
@@ -1225,8 +1215,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContentMouseUp.
         /// </summary>
-        public static readonly DependencyProperty VBContentMouseUpProperty
-            = DependencyProperty.Register("VBContentMouseUp", typeof(string), typeof(VBButton));
+        public static readonly StyledProperty<string> VBContentMouseUpProperty =
+            AvaloniaProperty.Register<VBButton, string>(nameof(VBContentMouseUp));
 
         /// <summary>
         /// Gets or sets the VBContent for mouse up.
@@ -1234,7 +1224,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContentMouseUp
         {
-            get { return (string)GetValue(VBContentMouseUpProperty); }
+            get { return GetValue(VBContentMouseUpProperty); }
             set { SetValue(VBContentMouseUpProperty, value); }
         }
 
@@ -1278,73 +1268,6 @@ namespace gip.core.layoutengine.avui
             {
                 return _TypeMemberMouseUp;
             }
-        }
-
-
-        /// <summary>
-        /// Handles the OnMouseLeftButtonDown event.
-        /// </summary>
-        /// <param name="e">The MouseButtonEvent arguments.</param>
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            if (!String.IsNullOrEmpty(VBContentMemberMouseDown) && ContextACObject != null)
-            {
-                if (!String.IsNullOrEmpty(VBContentAssignedValueMouseDown) && TypeMemberMouseDown != null)
-                {
-                    try
-                    {
-                        object value = Convert.ChangeType(VBContentAssignedValueMouseDown, TypeMemberMouseDown.ObjectType);
-                        ContextACObject.ACUrlCommand(VBContentMemberMouseDown, value);
-                    }
-                    catch (Exception ec)
-                    {
-                        string msg = ec.Message;
-                        if (ec.InnerException != null && ec.InnerException.Message != null)
-                            msg += " Inner:" + ec.InnerException.Message;
-
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                            datamodel.Database.Root.Messages.LogException("VBButton", "OnMouseLeftButtonDown", msg);
-                    }
-                }
-                else if (String.IsNullOrEmpty(VBContentAssignedValueMouseDown))
-                {
-                    ContextACObject.ACUrlCommand(VBContentMemberMouseDown);
-                }
-            }
-            base.OnMouseLeftButtonDown(e);
-        }
-
-        /// <summary>
-        /// Handles the OnMouseLeftButtonUp event.
-        /// </summary>
-        /// <param name="e">The MouseButtonEvent arguments.</param>
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            if (!String.IsNullOrEmpty(VBContentMemberMouseUp) && ContextACObject != null)
-            {
-                if (!String.IsNullOrEmpty(VBContentAssignedValueMouseUp) && TypeMemberMouseUp != null)
-                {
-                    try
-                    {
-                        object value = Convert.ChangeType(VBContentAssignedValueMouseUp, TypeMemberMouseUp.ObjectType);
-                        ContextACObject.ACUrlCommand(VBContentMemberMouseUp, value);
-                    }
-                    catch (Exception ec)
-                    {
-                        string msg = ec.Message;
-                        if (ec.InnerException != null && ec.InnerException.Message != null)
-                            msg += " Inner:" + ec.InnerException.Message;
-
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                            datamodel.Database.Root.Messages.LogException("VBButton", "OnMouseLeftButtonUp", msg);
-                    }
-                }
-                else if (String.IsNullOrEmpty(VBContentAssignedValueMouseUp))
-                {
-                    ContextACObject.ACUrlCommand(VBContentMemberMouseUp);
-                }
-            }
-            base.OnMouseLeftButtonUp(e);
         }
 
         #endregion

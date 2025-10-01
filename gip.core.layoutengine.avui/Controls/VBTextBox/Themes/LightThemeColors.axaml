@@ -5,7 +5,7 @@
   <!-- Color Resources -->
   <SolidColorBrush x:Key="TextBoxBgEnabled" Color="#FFFFFFFF"/>
   <SolidColorBrush x:Key="TextBoxFgEnabled" Color="#FF000000"/>
-  <SolidColorBrush x:Key="TextBoxFgEnabledAeroFocus" Color="#FF000000"/>  
+  <SolidColorBrush x:Key="TextBoxFgEnabledFocus" Color="#FF000000"/>  
   <RadialGradientBrush x:Key="TextBoxBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
     <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
     <GradientStop Color="#FF666666" Offset="0.8"/>
@@ -22,7 +22,7 @@
   
   <SolidColorBrush x:Key="TextBoxBgRequired" Color="#FFFFFFE0"/>
   <SolidColorBrush x:Key="TextBoxFgRequired" Color="#FF000000"/>
-  <SolidColorBrush x:Key="TextBoxFgRequiredAeroFocus" Color="Yellow"/>
+  <SolidColorBrush x:Key="TextBoxFgRequiredFocus" Color="Yellow"/>
   <RadialGradientBrush x:Key="TextBoxBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
     <GradientStop Color="#FFFFEA00" Offset="0.2"/>
     <GradientStop Color="#FFD1D261" Offset="0.8"/>
@@ -31,7 +31,7 @@
   
   <SolidColorBrush x:Key="TextBoxBgWrong" Color="#FFFFE0E0"/>
   <SolidColorBrush x:Key="TextBoxFgWrong" Color="#FF000000"/>
-  <SolidColorBrush x:Key="TextBoxFgWrongAeroFocus" Color="Red"/>
+  <SolidColorBrush x:Key="TextBoxFgWrongFocus" Color="Red"/>
   <RadialGradientBrush x:Key="TextBoxBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
     <GradientStop Color="#FFFF0004" Offset="0.2"/>
     <GradientStop Color="#FFE43D3D" Offset="0.8"/>

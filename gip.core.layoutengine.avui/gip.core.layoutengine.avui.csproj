@@ -193,9 +193,12 @@
     <Compile Remove="Controls\VBButton.xaml.cs" />
     <Compile Remove="Controls\VBDatagrid\VBDataGridColumnHeadersPresenter2.cs" />
     <Compile Remove="Controls\VBDocking\VBDockableContent.cs" />
+    <Compile Remove="Controls\VBListBox\VBListBoxOld.cs" />
     <Compile Remove="Controls\VBTabitemRoot.cs" />
+    <Compile Remove="Controls\VBTextBox\VBTextBoxOldWPF.cs" />
     <Page Remove="Controls\VBButton.xaml" />
     <Page Remove="Controls\VBButton\Themes\buttontestxaml.xaml" />
+    <Page Remove="Controls\VBComboBox\Themes\ComboBoxStyleOldWPF.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">
@@ -207,6 +210,9 @@
       <PackagePath>\</PackagePath>
     </None>
     <Content Include="appsettings.json" />
+    <Content Include="Controls\VBComboBox\Themes\ComboBoxStyleOldWPF.xaml" />
+    <Content Include="Controls\VBListBox\VBListBoxOld.cs" />
+    <Content Include="Controls\VBTextBox\VBTextBoxOldWPF.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Themes\IPlusTheme.axaml.cs">

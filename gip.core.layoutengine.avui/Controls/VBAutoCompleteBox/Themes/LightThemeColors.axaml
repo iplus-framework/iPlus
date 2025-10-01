@@ -1,0 +1,40 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+  <!-- Color Resources -->
+  <SolidColorBrush x:Key="AutoCompleteBoxBgEnabled" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgEnabled" Color="#FF000000"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgEnabledFocus" Color="#FF000000"/>  
+  <RadialGradientBrush x:Key="AutoCompleteBoxBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
+    <GradientStop Color="#FF666666" Offset="0.8"/>
+    <GradientStop Color="#FF000000" Offset="1"/>
+  </RadialGradientBrush>
+  
+  <SolidColorBrush x:Key="AutoCompleteBoxBgDisabled" Color="#FFC3C3C3"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgDisabled" Color="#FF404040"/>
+  <RadialGradientBrush x:Key="AutoCompleteBoxBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
+    <GradientStop Color="#FF666666" Offset="0.5"/>
+    <GradientStop Color="#FF000000" Offset="1"/>
+  </RadialGradientBrush>
+  
+  <SolidColorBrush x:Key="AutoCompleteBoxBgRequired" Color="#FFFFFFE0"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgRequired" Color="#FF000000"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgRequiredFocus" Color="Yellow"/>
+  <RadialGradientBrush x:Key="AutoCompleteBoxBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFFFEA00" Offset="0.2"/>
+    <GradientStop Color="#FFD1D261" Offset="0.8"/>
+    <GradientStop Color="#FF000000" Offset="1"/>
+  </RadialGradientBrush>
+  
+  <SolidColorBrush x:Key="AutoCompleteBoxBgWrong" Color="#FFFFE0E0"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgWrong" Color="#FF000000"/>
+  <SolidColorBrush x:Key="AutoCompleteBoxFgWrongFocus" Color="Red"/>
+  <RadialGradientBrush x:Key="AutoCompleteBoxBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <GradientStop Color="#FFFF0004" Offset="0.2"/>
+    <GradientStop Color="#FFE43D3D" Offset="0.8"/>
+    <GradientStop Color="#FF020101" Offset="1"/>
+  </RadialGradientBrush>
+</ResourceDictionary>

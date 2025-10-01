@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     
     <!-- VBTextBlock ControlTheme -->
-    <ControlTheme x:Key="{x:Type local:VBTextBlock}" TargetType="local:VBTextBlock">
+    <ControlTheme x:Key="{x:Type local:VBTextBlock}" TargetType="{x:Type local:VBTextBlock}">
         <Setter Property="TextWrapping" Value="NoWrap"/>
         <Setter Property="TextTrimming" Value="None"/>
         <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>

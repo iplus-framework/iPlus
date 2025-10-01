@@ -1,0 +1,66 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   x:ClassModifier="internal">
+
+	<ControlTheme x:Key="{x:Type local:VBComboBoxItem}" TargetType="{x:Type local:VBComboBoxItem}">
+		<Setter Property="Foreground" Value="{DynamicResource ComboBoxItemFg}"/>
+		<Setter Property="FontWeight" Value="Normal"/>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Grid x:Name="ItemGrid">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="2"></RowDefinition>
+						<RowDefinition></RowDefinition>
+						<RowDefinition Height="2"></RowDefinition>
+					</Grid.RowDefinitions>
+					<Line Grid.Row="0" 
+						Stroke="#FF888888" 
+						StrokeThickness="1"
+						StrokeDashArray="1 2" 
+						StartPoint="0,0"
+						EndPoint="1,0"
+						HorizontalAlignment="Stretch" 
+						Stretch="Fill"/>
+					<Border Grid.Row="1" x:Name="Bd" 
+							BorderBrush="Transparent" 
+							BorderThickness="1" 
+							CornerRadius="2"
+							Background="{TemplateBinding Background}" 
+							Padding="{TemplateBinding Padding}">
+						<ContentPresenter 
+							Content="{TemplateBinding Content}"
+							ContentTemplate="{TemplateBinding ContentTemplate}"/>
+					</Border>
+				</Grid>
+			</ControlTemplate>
+		</Setter>
+
+		<!-- Highlighted State (equivalent to IsHighlighted in WPF) -->
+		<Style Selector="^:pointerover">
+			<Style Selector="^ /template/ Border#Bd">
+				<Setter Property="Background" Value="{DynamicResource ComboBoxItemSelectionFill}"/>
+				<Setter Property="BorderBrush" Value="#FF0000"/>
+			</Style>
+			<Setter Property="Foreground" Value="{DynamicResource ComboBoxItemSelectionFg}"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<!-- Selected State -->
+		<Style Selector="^:selected">
+			<Style Selector="^ /template/ Border#Bd">
+				<Setter Property="Background" Value="{DynamicResource ComboBoxItemSelectionFill}"/>
+				<Setter Property="BorderBrush" Value="#FF0000"/>
+			</Style>
+			<Setter Property="Foreground" Value="{DynamicResource ComboBoxItemSelectionFg}"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<!-- Disabled State -->
+		<Style Selector="^:disabled">
+			<Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}"/>
+		</Style>
+	</ControlTheme>
+
+</ResourceDictionary>

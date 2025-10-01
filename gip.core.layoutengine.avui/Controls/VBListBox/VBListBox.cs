@@ -1,20 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Reflection;
-using System.ComponentModel;
-using Avalonia.Input;
-using Avalonia.Controls;
-using Avalonia;
-using Avalonia.Data;
-using Avalonia.Interactivity;
+using System;
 using System.Collections;
-using Avalonia.Media;
-using Avalonia.Threading;
-using Avalonia.Controls.Primitives;
-using Avalonia.VisualTree;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
@@ -515,16 +514,9 @@ namespace gip.core.layoutengine.avui
             };
             this.Bind(SelectedValueProperty, binding2);
 
-            // So siehts direkt im XAML aus...
-            //            SelectedValue="{Binding Path=CurrentUserInfo.UserArtID, 
-            //               Mode=TwoWay, 
-            //               UpdateSourceTrigger=PropertyChanged}"
-            //SelectedValuePath="UserArtID"
-
             if (AutoFocus)
             {
                 Focus();
-                //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
         }
 
@@ -1179,8 +1171,7 @@ namespace gip.core.layoutengine.avui
                         IsEnabled = true;
                 }
             }
-            // TODO: Convert this to Avalonia equivalent when available
-            // RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
+            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
         }
 
         /// <summary>
@@ -1288,38 +1279,38 @@ namespace gip.core.layoutengine.avui
 
         void ProcessDrag(DragEventArgs e)
         {
-            e.DragEffects = DragDropEffects.None;
+            //e.DragEffects = DragDropEffects.None;
             
-            if (this.GetVBDesign().IsDesignerActive)
-            {
-                return;
-            }
+            //if (this.GetVBDesign().IsDesignerActive)
+            //{
+            //    return;
+            //}
 
-            // Check if we can accept the drag data
-            if (e.Data.Contains("VBListBox"))
-            {
-                e.DragEffects = e.KeyModifiers.HasFlag(KeyModifiers.Control) 
-                    ? DragDropEffects.Copy 
-                    : DragDropEffects.Move;
-            }
-            else
-            {
-                // Try to get drop object from VBDragDrop
-                try
-                {
-                    var dropObject = VBDragDrop.GetDropObject(e);
-                    if (dropObject != null)
-                    {
-                        e.DragEffects = e.KeyModifiers.HasFlag(KeyModifiers.Control) 
-                            ? DragDropEffects.Copy 
-                            : DragDropEffects.Move;
-                    }
-                }
-                catch
-                {
-                    // If VBDragDrop.GetDropObject fails, just leave DragEffects as None
-                }
-            }
+            //// Check if we can accept the drag data
+            //if (e.Data.Contains("VBListBox"))
+            //{
+            //    e.DragEffects = e.KeyModifiers.HasFlag(KeyModifiers.Control) 
+            //        ? DragDropEffects.Copy 
+            //        : DragDropEffects.Move;
+            //}
+            //else
+            //{
+            //    // Try to get drop object from VBDragDrop
+            //    try
+            //    {
+            //        var dropObject = VBDragDrop.GetDropObject(e);
+            //        if (dropObject != null)
+            //        {
+            //            e.DragEffects = e.KeyModifiers.HasFlag(KeyModifiers.Control) 
+            //                ? DragDropEffects.Copy 
+            //                : DragDropEffects.Move;
+            //        }
+            //    }
+            //    catch
+            //    {
+            //        // If VBDragDrop.GetDropObject fails, just leave DragEffects as None
+            //    }
+            //}
         }
 
         #endregion

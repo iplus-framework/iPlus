@@ -3,6 +3,12 @@
   <ResourceDictionary.MergedDictionaries>
     <ResourceInclude Source="/Controls/VBTextBox/DarkThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBTextBlock/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBListBoxItem/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBListBox/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBComboBoxItem/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBComboBox/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBAutoCompleteBox/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBButton/DarkThemeColors.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
   <Color x:Key="ColorCtrlTxtDisabled" A="#FF" B="#B0" G="#B0" R="#B0"/>

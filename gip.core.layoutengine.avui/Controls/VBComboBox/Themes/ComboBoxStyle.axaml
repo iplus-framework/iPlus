@@ -1,0 +1,567 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <local:ConverterAbbreviateNum x:Key="AbbreviateNumConverter" />
+
+  <Geometry x:Key="DownArrowGeometry">M 0 0 L 3.5 4 L 7 0 Z</Geometry>
+
+  <!-- VBComboBox Template (Read-only Style) -->
+  <ControlTemplate x:Key="ComboBoxReadonlyTemplate" TargetType="local:VBComboBox">
+    <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+      </Grid.ColumnDefinitions>
+      <local:VBTextBlock x:Name="PART_Caption" 
+                         Grid.Column="0" 
+                         VerticalAlignment="Center" 
+                         Text="{TemplateBinding ACCaptionTrans}"/>
+      <Border x:Name="ComboBoxBorderEdit" 
+              Grid.Column="1" 
+              Margin="5,0,0,0"
+              CornerRadius="3"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="{TemplateBinding Background}">
+        <Grid x:Name="MainGrid">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Popup x:Name="PART_Popup" 
+                 Grid.ColumnSpan="2" 
+                 IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" 
+                 Placement="Bottom"
+                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                 MinWidth="{Binding Bounds.Width, ElementName=MainGrid}">
+            <Border x:Name="DropDownBorder"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1"
+                    Background="{StaticResource PopupBackgroundBrush}"
+                    CornerRadius="0,0,8,8"
+                    BoxShadow="2 5 10 0 #71000000">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border x:Name="FilterRowBorder" 
+                        Grid.Row="0" 
+                        Margin="0,1,0,1" 
+                        BorderBrush="Black" 
+                        BorderThickness="0" 
+                        IsVisible="{TemplateBinding VisibilityFilterRow}" 
+                        Height="25"/>
+                <ScrollViewer x:Name="DropDownScrollViewer" 
+                              Grid.Row="1" 
+                              Margin="4,0,4,5">
+                  <ItemsPresenter x:Name="ItemsPresenter"/>
+                </ScrollViewer>
+              </Grid>
+            </Border>
+          </Popup>
+          <ToggleButton x:Name="ToggleButton"
+                        Grid.ColumnSpan="2"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        Background="{TemplateBinding Background}"
+                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        Focusable="False">
+            <ToggleButton.Template>
+              <ControlTemplate TargetType="ToggleButton">
+                <Border x:Name="BorderToggleButton"
+                        Margin="0,1,1,1"
+                        CornerRadius="2"
+                        BorderThickness="1,1,1,1"
+                        Background="{StaticResource ButtonComboReadonlyBackground}"
+                        BorderBrush="{StaticResource ButtonComboReadonlyBorder}">
+                  <Path x:Name="Arrow" 
+                        Data="{StaticResource DownArrowGeometry}" 
+                        Fill="White" 
+                        HorizontalAlignment="Right" 
+                        Margin="0,1,5,0" 
+                        VerticalAlignment="Center"/>
+                </Border>
+              </ControlTemplate>
+            </ToggleButton.Template>
+          </ToggleButton>
+          <ContentPresenter x:Name="DropContentPresenter"
+                            Grid.ColumnSpan="2"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            Content="{TemplateBinding SelectionBoxItem}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            IsHitTestVisible="False"
+                            Margin="{TemplateBinding Padding}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Grid>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- VBComboBox Template (Editable Style) -->
+  <ControlTemplate x:Key="ComboBoxEditableTemplate" TargetType="local:VBComboBox">
+    <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+      </Grid.ColumnDefinitions>
+      <local:VBTextBlock x:Name="PART_Caption" 
+                         Grid.Column="0" 
+                         VerticalAlignment="Center" 
+                         Text="{TemplateBinding ACCaptionTrans}"/>
+      <Border x:Name="ComboBoxBorderEdit" 
+              Grid.Column="1" 
+              Margin="5,0,0,0"
+              CornerRadius="3"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="{TemplateBinding Background}">
+        <Grid x:Name="Placement">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Popup x:Name="PART_Popup" 
+                 Grid.ColumnSpan="2"
+                 IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                 Placement="Bottom"
+                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                 MinWidth="{Binding Bounds.Width, ElementName=Placement}">
+            <Border x:Name="DropDownBorder"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="0,0,8,8"
+                    Background="{StaticResource PopupBackgroundBrush}"
+                    BoxShadow="2 5 10 0 #71000000">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border x:Name="FilterRowBorder" 
+                        Grid.Row="0" 
+                        Margin="0,1,0,1" 
+                        BorderBrush="Black" 
+                        BorderThickness="0" 
+                        IsVisible="{TemplateBinding VisibilityFilterRow}" 
+                        Height="25"/>
+                <ScrollViewer x:Name="DropDownScrollViewer" 
+                              Grid.Row="1" 
+                              Margin="4,0,4,5">
+                  <ItemsPresenter x:Name="ItemsPresenter"/>
+                </ScrollViewer>
+              </Grid>
+            </Border>
+          </Popup>
+          <TextBox x:Name="PART_EditableTextBox"
+                   Grid.Column="0"
+                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                   IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource TemplatedParent}}"
+                   Margin="{TemplateBinding Padding}"
+                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                   Foreground="{TemplateBinding Foreground}"
+                   Background="Transparent"
+                   BorderThickness="0"/>
+          <TextBlock x:Name="PART_TakeCount" 
+                     Grid.Column="1" 
+                     TextAlignment="Center" 
+                     FontSize="8"
+                     Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay, Path=ACQueryDefinition.TakeCount, Converter={StaticResource AbbreviateNumConverter}}"
+                     Foreground="{StaticResource ComboBoxBgDisabled}">
+            <TextBlock.RenderTransform>
+              <RotateTransform Angle="90"/>
+            </TextBlock.RenderTransform>
+          </TextBlock>
+          <ToggleButton x:Name="ToggleButton" 
+                        Grid.Column="2"
+                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        Focusable="False">
+            <ToggleButton.Template>
+              <ControlTemplate TargetType="ToggleButton">
+                <Border x:Name="BorderToggleButton"
+                        Margin="0,1,1,1"
+                        CornerRadius="2"
+                        BorderThickness="1,1,1,1"
+                        Background="{StaticResource ButtonComboReadonlyBackground}"
+                        BorderBrush="{StaticResource ButtonComboReadonlyBorder}"
+                        Width="20">
+                  <Path x:Name="Arrow" 
+                        Data="{StaticResource DownArrowGeometry}" 
+                        Fill="White" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,1,0,0" 
+                        VerticalAlignment="Center"/>
+                </Border>
+              </ControlTemplate>
+            </ToggleButton.Template>
+          </ToggleButton>
+        </Grid>
+      </Border>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- VBComboBox2 Template (Read-only Style) -->
+  <ControlTemplate x:Key="ComboBox2ReadonlyTemplate" TargetType="local:VBComboBox2">
+    <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+      </Grid.ColumnDefinitions>
+      <local:VBTextBlock x:Name="PART_Caption" 
+                         Grid.Column="0" 
+                         VerticalAlignment="Center" 
+                         Text="{TemplateBinding ACCaptionTrans}"/>
+      <Border x:Name="ComboBoxBorderEdit" 
+              Grid.Column="1" 
+              Margin="5,0,0,0"
+              CornerRadius="3"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="{TemplateBinding Background}">
+        <Grid x:Name="MainGrid">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Popup x:Name="PART_Popup" 
+                 Grid.ColumnSpan="2" 
+                 IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}" 
+                 Placement="Bottom"
+                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                 MinWidth="{Binding Bounds.Width, ElementName=MainGrid}">
+            <Border x:Name="DropDownBorder"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1"
+                    Background="{StaticResource PopupBackgroundBrush}"
+                    CornerRadius="0,0,8,8"
+                    BoxShadow="2 5 10 0 #71000000">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border x:Name="FilterRowBorder" 
+                        Grid.Row="0" 
+                        Margin="0,1,0,1" 
+                        BorderBrush="Black" 
+                        BorderThickness="0" 
+                        IsVisible="{TemplateBinding VisibilityFilterRow}" 
+                        Height="25"/>
+                <ScrollViewer x:Name="DropDownScrollViewer" 
+                              Grid.Row="1" 
+                              Margin="4,0,4,5">
+                  <ItemsPresenter x:Name="ItemsPresenter"/>
+                </ScrollViewer>
+              </Grid>
+            </Border>
+          </Popup>
+          <ToggleButton x:Name="ToggleButton"
+                        Grid.ColumnSpan="2"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        Background="{TemplateBinding Background}"
+                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        Focusable="False">
+            <ToggleButton.Template>
+              <ControlTemplate TargetType="ToggleButton">
+                <Border x:Name="BorderToggleButton"
+                        Margin="0,1,1,1"
+                        CornerRadius="2"
+                        BorderThickness="1,1,1,1"
+                        Background="{StaticResource ButtonComboReadonlyBackground}"
+                        BorderBrush="{StaticResource ButtonComboReadonlyBorder}">
+                  <Path x:Name="Arrow" 
+                        Data="{StaticResource DownArrowGeometry}" 
+                        Fill="White" 
+                        HorizontalAlignment="Right" 
+                        Margin="0,1,5,0" 
+                        VerticalAlignment="Center"/>
+                </Border>
+              </ControlTemplate>
+            </ToggleButton.Template>
+          </ToggleButton>
+          <ContentPresenter x:Name="DropContentPresenter"
+                            Grid.ColumnSpan="2"
+                            ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                            Content="{TemplateBinding SelectionBoxItem}"
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            IsHitTestVisible="False"
+                            Margin="{TemplateBinding Padding}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Grid>
+      </Border>
+      <local:VBTextBlock x:Name="PART_Caption2" 
+                         Grid.Column="2" 
+                         Margin="5,0,0,0" 
+                         VerticalAlignment="Center" 
+                         Text="{TemplateBinding ACCaption2Trans}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- VBComboBox2 Template (Editable Style) -->
+  <ControlTemplate x:Key="ComboBox2EditableTemplate" TargetType="local:VBComboBox2">
+    <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+      </Grid.ColumnDefinitions>
+      <local:VBTextBlock x:Name="PART_Caption" 
+                         Grid.Column="0" 
+                         VerticalAlignment="Center" 
+                         Text="{TemplateBinding ACCaptionTrans}"/>
+      <Border x:Name="ComboBoxBorderEdit" 
+              Grid.Column="1" 
+              Margin="5,0,0,0"
+              CornerRadius="3"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="{TemplateBinding Background}">
+        <Grid x:Name="Placement">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Popup x:Name="PART_Popup" 
+                 Grid.ColumnSpan="2"
+                 IsOpen="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                 Placement="Bottom"
+                 MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                 MinWidth="{Binding Bounds.Width, ElementName=Placement}">
+            <Border x:Name="DropDownBorder"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="0,0,8,8"
+                    Background="{StaticResource PopupBackgroundBrush}"
+                    BoxShadow="2 5 10 0 #71000000">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Border x:Name="FilterRowBorder" 
+                        Grid.Row="0" 
+                        Margin="0,1,0,1" 
+                        BorderBrush="Black" 
+                        BorderThickness="0" 
+                        IsVisible="{TemplateBinding VisibilityFilterRow}" 
+                        Height="25"/>
+                <ScrollViewer x:Name="DropDownScrollViewer" 
+                              Grid.Row="1" 
+                              Margin="4,0,4,5">
+                  <ItemsPresenter x:Name="ItemsPresenter"/>
+                </ScrollViewer>
+              </Grid>
+            </Border>
+          </Popup>
+          <TextBox x:Name="PART_EditableTextBox"
+                   Grid.Column="0"
+                   HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                   IsReadOnly="{Binding IsReadOnly, RelativeSource={RelativeSource TemplatedParent}}"
+                   Margin="{TemplateBinding Padding}"
+                   VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                   Foreground="{TemplateBinding Foreground}"
+                   Background="Transparent"
+                   BorderThickness="0"/>
+          <TextBlock x:Name="PART_TakeCount" 
+                     Grid.Column="1" 
+                     TextAlignment="Center" 
+                     FontSize="8"
+                     Text="{Binding RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay, Path=ACQueryDefinition.TakeCount, Converter={StaticResource AbbreviateNumConverter}}"
+                     Foreground="{StaticResource ComboBoxBgDisabled}">
+            <TextBlock.RenderTransform>
+              <RotateTransform Angle="90"/>
+            </TextBlock.RenderTransform>
+          </TextBlock>
+          <ToggleButton x:Name="ToggleButton" 
+                        Grid.Column="2"
+                        IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        Focusable="False">
+            <ToggleButton.Template>
+              <ControlTemplate TargetType="ToggleButton">
+                <Border x:Name="BorderToggleButton"
+                        Margin="0,1,1,1"
+                        CornerRadius="2"
+                        BorderThickness="1,1,1,1"
+                        Background="{StaticResource ButtonComboReadonlyBackground}"
+                        BorderBrush="{StaticResource ButtonComboReadonlyBorder}"
+                        Width="20">
+                  <Path x:Name="Arrow" 
+                        Data="{StaticResource DownArrowGeometry}" 
+                        Fill="White" 
+                        HorizontalAlignment="Center" 
+                        Margin="0,1,0,0" 
+                        VerticalAlignment="Center"/>
+                </Border>
+              </ControlTemplate>
+            </ToggleButton.Template>
+          </ToggleButton>
+        </Grid>
+      </Border>
+      <local:VBTextBlock x:Name="PART_Caption2" 
+                         Grid.Column="2" 
+                         Margin="5,0,0,0" 
+                         VerticalAlignment="Center" 
+                         Text="{TemplateBinding ACCaption2Trans}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- VBComboBox ControlTheme -->
+  <ControlTheme x:Key="{x:Type local:VBComboBox}" TargetType="local:VBComboBox">
+    <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabled}"/>
+    <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="Padding" Value="4,3"/>
+    <Setter Property="IsEditable" Value="True"/>
+    <Setter Property="Template" Value="{StaticResource ComboBoxReadonlyTemplate}"/>
+
+    <!-- ShowCaption = False -->
+    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
+      <Setter Property="Width" Value="0"/>
+    </Style>
+    <Style Selector="^[ShowCaption=False] /template/ Border#ComboBoxBorderEdit">
+      <Setter Property="Margin" Value="0,0,0,0"/>
+    </Style>
+
+    <!-- HasItems = false -->
+    <Style Selector="^:not(:has-items) /template/ Border#DropDownBorder">
+      <Setter Property="Height" Value="95"/>
+    </Style>
+
+    <!-- Disabled State -->
+    <Style Selector="^:disabled">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
+    </Style>
+
+    <!-- Focus State -->
+    <Style Selector="^:focus-within /template/ Border#ComboBoxBorderEdit">
+      <Setter Property="BorderThickness" Value="2,2,2,2"/>
+    </Style>
+    <Style Selector="^:focus-within">
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- Control Mode States -->
+    <!-- Disabled -->
+    <Style Selector="^:focus[ControlMode=Disabled]">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
+    </Style>
+    <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
+    </Style>
+
+    <!-- Enabled + Focus -->
+    <Style Selector="^:focus[ControlMode=Enabled]">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabledFocus}"/>
+    </Style>
+    <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabled}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
+    </Style>
+
+    <!-- EnabledRequired + Focus -->
+    <Style Selector="^:focus-within[ControlMode=EnabledRequired]:not([SelectedValue=x:Null])">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequiredFocus}"/>
+    </Style>
+    <Style Selector="^:not(:focus-within)[ControlMode=EnabledRequired]:not([SelectedValue=x:Null])">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequired}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
+    </Style>
+
+    <!-- EnabledWrong + Focus -->
+    <Style Selector="^:focus-within[ControlMode=EnabledWrong]">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrongFocus}"/>
+    </Style>
+    <Style Selector="^:not(:focus-within)[ControlMode=EnabledWrong]">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrong}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
+    </Style>
+
+    <!-- Validation Error -->
+    <Style Selector="^:error">
+      <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
+      <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrongFocus}"/>
+    </Style>
+
+    <!-- Editable Style -->
+    <Style Selector="^[IsEditable=True]">
+      <Setter Property="IsTabStop" Value="False"/>
+      <Setter Property="Padding" Value="3"/>
+      <Setter Property="Template" Value="{StaticResource ComboBoxEditableTemplate}"/>
+    </Style>
+    <Style Selector="^[IsEditable=True]:focus-within /template/ TextBox#PART_EditableTextBox">
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- ToggleButton States for Readonly -->
+    <Style Selector="^:disabled /template/ ToggleButton /template/ Path#Arrow">
+      <Setter Property="Fill" Value="#AFAFAF"/>
+    </Style>
+    <Style Selector="^:pointerover /template/ ToggleButton /template/ Border#BorderToggleButton">
+      <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBackground}"/>
+    </Style>
+    <Style Selector="^:pressed /template/ ToggleButton /template/ Border#BorderToggleButton">
+      <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBackground}"/>
+    </Style>
+
+    <!-- ToggleButton States for Editable -->
+    <Style Selector="^[IsEditable=True]:pointerover /template/ ToggleButton /template/ Border#BorderToggleButton">
+      <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBorder}"/>
+    </Style>
+    <Style Selector="^[IsEditable=True]:pressed /template/ ToggleButton /template/ Border#BorderToggleButton">
+      <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBorder}"/>
+    </Style>
+  </ControlTheme>
+
+  <!-- VBComboBox2 ControlTheme -->
+  <ControlTheme x:Key="{x:Type local:VBComboBox2}" TargetType="local:VBComboBox2" BasedOn="{StaticResource {x:Type local:VBComboBox}}">
+    <Setter Property="WidthContent" Value="10*"/>
+    <Setter Property="IsEditable" Value="True"/>
+    <Setter Property="Template" Value="{StaticResource ComboBox2ReadonlyTemplate}"/>
+
+    <!-- ShowCaption2 = False -->
+    <Style Selector="^[ShowCaption2=False] /template/ ColumnDefinition#ColCaption2">
+      <Setter Property="Width" Value="0"/>
+    </Style>
+    <Style Selector="^[ShowCaption2=False] /template/ local|VBTextBlock#PART_Caption2">
+      <Setter Property="Margin" Value="0,0,0,0"/>
+    </Style>
+
+    <!-- Editable Style -->
+    <Style Selector="^[IsEditable=True]">
+      <Setter Property="IsTabStop" Value="False"/>
+      <Setter Property="Padding" Value="3"/>
+      <Setter Property="Template" Value="{StaticResource ComboBox2EditableTemplate}"/>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

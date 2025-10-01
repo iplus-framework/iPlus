@@ -1,0 +1,214 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   x:ClassModifier="internal">
+
+    <ControlTheme x:Key="{x:Type local:VBAutoCompleteBox}" TargetType="{x:Type local:VBAutoCompleteBox}">
+        <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgEnabled}"/>
+        <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgEnabled}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderEnabled}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="MinWidth" Value="45"/>
+        <Setter Property="IsTabStop" Value="False"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+                        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+                        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <local:VBTextBlock x:Name="PART_Caption" 
+                                       Margin="0,0,0,0" 
+                                       Grid.Column="0" 
+                                       VerticalAlignment="Center" 
+                                       Text="{TemplateBinding ACCaptionTrans}"/>
+                    
+                    <Panel x:Name="PART_Root" Grid.Column="1" Margin="5,0,0,0">
+                      <local:VBTextBox Name="PART_TextBox"
+                                 Padding="{TemplateBinding Padding}"
+                                 Background="{TemplateBinding Background}"
+                                 BorderBrush="{TemplateBinding BorderBrush}"
+                                 BorderThickness="{TemplateBinding BorderThickness}"
+                                 CornerRadius="{TemplateBinding CornerRadius}"
+                                 CaretIndex="{TemplateBinding CaretIndex, Mode=TwoWay}"
+                                 ClearSelectionOnLostFocus="{TemplateBinding ClearSelectionOnLostFocus}"
+                                 DataValidationErrors.Errors="{TemplateBinding (DataValidationErrors.Errors)}"
+                                 Watermark="{TemplateBinding Watermark}"
+                                 MaxLength="{TemplateBinding MaxLength}"                   
+                                 InnerLeftContent="{TemplateBinding InnerLeftContent}"
+                                 InnerRightContent="{TemplateBinding InnerRightContent}"
+                                 IsTabStop="True"/>
+
+                        <Popup Name="PART_Popup"
+                               MinWidth="{Binding Bounds.Width, RelativeSource={RelativeSource TemplatedParent}}"
+                               MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                               IsLightDismissEnabled="True"
+                               PlacementTarget="{TemplateBinding}">
+                            <Border Background="{StaticResource AutoCompleteBoxBgEnabled}"
+                                    BorderBrush="{StaticResource AutoCompleteBoxBorderEnabled}"
+                                    BorderThickness="1"
+                                    CornerRadius="3"
+                                    BoxShadow="0 4 8 0 #40000000">
+                                <ListBox Name="PART_SelectingItemsControl"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Foreground="{TemplateBinding Foreground}"
+                                         ItemTemplate="{TemplateBinding ItemTemplate}"
+                                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                                         ScrollViewer.VerticalScrollBarVisibility="Auto">
+                                    <ListBox.ItemContainerTheme>
+                                        <ControlTheme TargetType="ListBoxItem">
+                                            <Setter Property="Padding" Value="8,4"/>
+                                            <Setter Property="Template">
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Grid x:Name="ItemGrid">
+                                                        <Grid.RowDefinitions>
+                                                            <RowDefinition Height="2" />
+                                                            <RowDefinition />
+                                                            <RowDefinition Height="2" />
+                                                        </Grid.RowDefinitions>
+                                                        
+                                                        <Line Grid.Row="0" 
+                                                              Stroke="#FF888888" 
+                                                              StrokeThickness="1" 
+                                                              StrokeDashArray="1,2" 
+                                                              StartPoint="0,0" 
+                                                              EndPoint="{Binding Bounds.Width, ElementName=ItemGrid},0"
+                                                              HorizontalAlignment="Stretch" 
+                                                              ClipToBounds="True"/>
+                                                        
+                                                        <Border x:Name="BD" 
+                                                                Grid.Row="1" 
+                                                                BorderBrush="Transparent" 
+                                                                BorderThickness="1" 
+                                                                CornerRadius="2"
+                                                                Background="Transparent">
+                                                            <Grid>
+                                                                <Grid.ColumnDefinitions>
+                                                                    <ColumnDefinition Width="Auto"/>
+                                                                    <ColumnDefinition Width="3"/>
+                                                                    <ColumnDefinition />
+                                                                </Grid.ColumnDefinitions>
+                                                                <Image DataContext="{Binding SourceItem}" Source="{local:VBStaticResource VBContent=IconACUrl}" />
+                                                                <TextBlock x:Name="TB" 
+                                                                           Grid.Column="2" 
+                                                                           Foreground="{StaticResource TextControlForeground}" 
+                                                                           Text="{Binding CurrentItemCaption}" 
+                                                                           VerticalAlignment="Center"/>
+                                                            </Grid>
+                                                        </Border>
+                                                    </Grid>
+                                                </ControlTemplate>
+                                            </Setter>
+                                            
+                                            <!-- Selected State -->
+                                            <Style Selector="^:selected">
+                                                <Style Selector="^ /template/ Border#BD">
+                                                    <Setter Property="Background">
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#4CFF6565" Offset="0"/>
+                                                            <GradientStop Color="#7FFF0018" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Setter>
+                                                </Style>
+                                                <Style Selector="^ /template/ TextBlock#TB">
+                                                    <Setter Property="Foreground" Value="#444444" />
+                                                    <Setter Property="FontWeight" Value="Bold" />
+                                                </Style>
+                                            </Style>
+                                            
+                                            <!-- PointerOver State -->
+                                            <Style Selector="^:pointerover">
+                                                <Style Selector="^ /template/ Border#BD">
+                                                    <Setter Property="Background">
+                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                            <GradientStop Color="#4CFF6565" Offset="0"/>
+                                                            <GradientStop Color="#7FFF0018" Offset="1"/>
+                                                        </LinearGradientBrush>
+                                                    </Setter>
+                                                </Style>
+                                                <Style Selector="^ /template/ TextBlock#TB">
+                                                    <Setter Property="Foreground" Value="#444444" />
+                                                </Style>
+                                                <Setter Property="Opacity" Value="0.75" />
+                                            </Style>
+                                        </ControlTheme>
+                                    </ListBox.ItemContainerTheme>
+                                </ListBox>
+                            </Border>
+                        </Popup>
+                    </Panel>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- ShowCaption = False -->
+        <Style Selector="^[ShowCaption=False] /template/ Grid#LayoutRoot ColumnDefinition#ColCaption">
+            <Setter Property="Width" Value="0"/>
+        </Style>
+        <Style Selector="^[ShowCaption=False] /template/ Panel#PART_Root">
+            <Setter Property="Margin" Value="0,0,0,0"/>
+        </Style>
+
+        <!-- Disabled State -->
+        <Style Selector="^:disabled">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgDisabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgDisabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderDisabled}"/>
+        </Style>
+
+        <!-- Enabled States -->
+        <Style Selector="^[ControlMode=Enabled]:focus">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgEnabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderEnabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgEnabledFocus}"/>
+        </Style>
+        <Style Selector="^[ControlMode=Enabled]:not(:focus)">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgEnabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgEnabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderEnabled}"/>
+        </Style>
+
+        <!-- EnabledRequired States (when SelectedValue is null) -->
+        <Style Selector="^[ControlMode=EnabledRequired][SelectedIACObject=null]:focus">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgRequired}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderRequired}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgRequiredFocus}"/>
+        </Style>
+        <Style Selector="^[ControlMode=EnabledRequired][SelectedIACObject=null]:not(:focus)">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgRequired}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgRequired}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderRequired}"/>
+        </Style>
+
+        <!-- EnabledWrong States -->
+        <Style Selector="^[ControlMode=EnabledWrong]:focus">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgWrongFocus}"/>
+        </Style>
+        <Style Selector="^[ControlMode=EnabledWrong]:not(:focus)">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderWrong}"/>
+        </Style>
+
+        <!-- Validation Error State -->
+        <Style Selector="^:error">
+            <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgWrongFocus}"/>
+        </Style>
+
+        <!-- Popup Open State -->
+        <Style Selector="^:dropdownopen /template/ Popup#PART_Popup">
+            <Setter Property="IsOpen" Value="True"/>
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

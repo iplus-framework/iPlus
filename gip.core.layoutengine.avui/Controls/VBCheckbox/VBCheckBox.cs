@@ -746,8 +746,7 @@ namespace gip.core.layoutengine.avui
                         IsEnabled = true;
                 }
             }
-            // TODO: Convert this to Avalonia equivalent when available
-            // RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
+            RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
         }
 
         /// <summary>

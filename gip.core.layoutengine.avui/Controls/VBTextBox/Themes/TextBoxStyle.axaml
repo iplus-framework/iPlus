@@ -44,6 +44,62 @@
             InputGesture="{x:Static TextBox.PasteGesture}" />
   </MenuFlyout>
 
+  <ControlTheme x:Key="AeroTextBoxButton"
+              TargetType="{x:Type Button}">
+    <Setter Property="Background" Value="{DynamicResource TextControlButtonBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrush}" />
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="MinWidth" Value="34" />
+    <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
+    <Setter Property="Width" Value="{Binding $self.Bounds.Height}"/>
+    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextControlButtonForeground}"/>
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Button">
+        <ContentPresenter x:Name="PART_ContentPresenter"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Content="{TemplateBinding Content}"
+                        Padding="{TemplateBinding Padding}" />
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPointerOver}" />
+    </Style>
+
+    <Style Selector="^:pressed /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPressed}" />
+    </Style>
+
+    <Style Selector="^:disabled /template/ ContentPresenter">
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+  </ControlTheme>
+  
+  <ControlTheme x:Key="AeroTextBoxToggleButton"
+            TargetType="{x:Type ToggleButton}"
+            BasedOn="{StaticResource AeroTextBoxButton}">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="ToggleButton">
+        <ContentPresenter x:Name="PART_ContentPresenter"
+                        Background="{TemplateBinding Background}"
+                        Content="{TemplateBinding Content}"
+                        Padding="{TemplateBinding Padding}" />
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:checked /template/ ContentPresenter, ^:indeterminate /template/ ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPressed}" />
+    </Style>
+  </ControlTheme>
+
   <!-- VBTextBox Template (No Triggers) -->
   <ControlTemplate x:Key="TextBoxTemplateNoTrigger" TargetType="local:VBTextBox">
     <DataValidationErrors>
@@ -567,7 +623,7 @@
   </ControlTemplate>
 
   <!-- VBTextBox ControlTheme -->
-  <ControlTheme x:Key="{x:Type local:VBTextBox}" TargetType="local:VBTextBox">
+  <ControlTheme x:Key="{x:Type local:VBTextBox}" TargetType="{x:Type local:VBTextBox}">
     <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
     <Setter Property="Background" Value="{StaticResource TextBoxBgEnabled}"/>
     <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>
@@ -730,7 +786,7 @@
   </ControlTheme>
 
   <!-- VBTextBox2 ControlTheme -->
-  <ControlTheme x:Key="{x:Type local:VBTextBox2}" TargetType="local:VBTextBox2">
+  <ControlTheme x:Key="{x:Type local:VBTextBox2}" TargetType="{x:Type local:VBTextBox2}">
     <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
     <Setter Property="Background" Value="{StaticResource TextBoxBgEnabled}"/>
     <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>
@@ -882,7 +938,7 @@
   </ControlTheme>
 
   <!-- VBTextBox3 ControlTheme -->
-  <ControlTheme x:Key="{x:Type local:VBTextBox3}" TargetType="local:VBTextBox3">
+  <ControlTheme x:Key="{x:Type local:VBTextBox3}" TargetType="{x:Type local:VBTextBox3}">
     <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
     <Setter Property="Background" Value="{StaticResource TextBoxBgEnabled}"/>
     <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>

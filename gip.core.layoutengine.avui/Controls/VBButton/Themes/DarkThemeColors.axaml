@@ -1,0 +1,48 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+  
+  <LinearGradientBrush x:Key="ButtonNormalBackground" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#B2B2B2" Offset="0.15"/>
+    <GradientStop Color="#A2A2A2" Offset=".5"/>
+    <GradientStop Color="#929292" Offset=".5"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ButtonDisabledBackground" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#88B2B2B2" Offset="0.15"/>
+    <GradientStop Color="#88A2A2A2" Offset=".5"/>
+    <GradientStop Color="#88929292" Offset=".5"/>
+    <GradientStop Color="#88828282" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ButtonFocusBackground" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#FFFFF3F3" Offset="0"/>
+    <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
+    <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
+    <GradientStop Color="#FFFFCDCD" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ButtonPressedBackground" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#FFFFD3D3" Offset="0"/>
+    <GradientStop Color="#FFFFCBCB" Offset="0.5"/>
+    <GradientStop Color="#FFFFBDBD" Offset="0.5"/>
+    <GradientStop Color="#FFFFADAD" Offset="1"/>
+  </LinearGradientBrush>
+
+  <SolidColorBrush x:Key="ButtonNormalBorder" Color="#FF707070"/>
+  <SolidColorBrush x:Key="ButtonMouseOverBorder" Color="#FFFF7070"/>
+  <SolidColorBrush x:Key="ButtonFocusForeground" Color="#FF000000"/>
+  <SolidColorBrush x:Key="ButtonFocusBorder" Color="#FF939393"/>
+
+  <SolidColorBrush x:Key="ButtonNormalContentStroke" Color="#101010"/>
+  <SolidColorBrush x:Key="ButtonNormalContentFill" Color="#303030"/>
+  <SolidColorBrush x:Key="ButtonDisabledContentStroke" Color="#505050"/>
+  <SolidColorBrush x:Key="ButtonDisabledContentFill" Color="#505050"/>
+  <SolidColorBrush x:Key="ButtonFocusContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="ButtonFocusContentFill" Color="#FF700000"/>
+  <SolidColorBrush x:Key="ButtonPressedContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="ButtonPressedContentFill" Color="#FFA00000"/>
+
+</ResourceDictionary>

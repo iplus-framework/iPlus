@@ -1,0 +1,82 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    
+    <!-- ToggleButton ControlTheme -->
+    <ControlTheme x:Key="ToggleButtonStyle" TargetType="ToggleButton">
+        <Setter Property="Background" Value="{StaticResource ButtonNormalBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalBorder}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="ToggleButton">
+                <Border x:Name="BorderButton"  
+                        CornerRadius="4" 
+                        BorderThickness="1,1,1,1"
+                        Background="{StaticResource ButtonNormalBackground}"
+                        BorderBrush="{StaticResource ButtonNormalBorder}"
+                        BoxShadow="2 2 5 0 #71000000"
+                        Margin="{TemplateBinding Margin}">
+                    <Border x:Name="BorderFocus" 
+                            Margin="2" 
+                            BorderThickness="1" 
+                            CornerRadius="4">
+                        <ContentPresenter Margin="1"
+                                          HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Focus State (Keyboard focus without mouse over) -->
+        <Style Selector="^:focus:not(:pointerover) /template/ Border#BorderFocus">
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonFocusBorder}"/>
+        </Style>
+
+        <!-- Mouse Over State -->
+        <Style Selector="^:pointerover /template/ Border#BorderButton">
+            <Setter Property="Background" Value="{StaticResource ButtonFocusBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOverBorder}"/>
+        </Style>
+        <Style Selector="^:pointerover">
+            <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
+        </Style>
+
+        <!-- Pressed State -->
+        <Style Selector="^:pressed /template/ Border#BorderButton">
+            <Setter Property="Background" Value="{StaticResource ButtonPressedBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOverBorder}"/>
+            <Setter Property="Margin" Value="2,2,-2,-2"/>
+        </Style>
+        <Style Selector="^:pressed">
+            <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
+        </Style>
+
+        <!-- Checked State -->
+        <Style Selector="^:checked /template/ Border#BorderButton">
+            <Setter Property="Background" Value="{StaticResource ButtonPressedBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOverBorder}"/>
+            <Setter Property="Margin" Value="2,2,-2,-2"/>
+        </Style>
+        <Style Selector="^:checked">
+            <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
+        </Style>
+
+        <!-- Disabled State -->
+        <Style Selector="^:disabled /template/ Border#BorderButton">
+            <Setter Property="Background" Value="{StaticResource ButtonDisabledBackground}"/>
+        </Style>
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
+        </Style>
+    </ControlTheme>
+
+    <!-- Default ToggleButton ControlTheme -->
+    <ControlTheme x:Key="{x:Type ToggleButton}" TargetType="ToggleButton" BasedOn="{StaticResource ToggleButtonStyle}"/>
+
+</ResourceDictionary>

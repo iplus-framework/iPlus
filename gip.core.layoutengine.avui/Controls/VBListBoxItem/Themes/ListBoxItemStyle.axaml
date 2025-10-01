@@ -1,0 +1,58 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   x:ClassModifier="internal">
+
+	<ControlTheme x:Key="{x:Type local:VBListBoxItem}" TargetType="{x:Type local:VBListBoxItem}">
+		<Setter Property="Background" Value="Transparent"/>
+		<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+		<Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
+		<Setter Property="Padding" Value="2,0,0,0"/>
+		<Setter Property="Foreground" Value="{DynamicResource ListBoxItemFg}"/>
+		<Setter Property="BorderThickness" Value="1"/>
+		<Setter Property="CornerRadius" Value="2"/>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border x:Name="Bd" 
+						BorderBrush="{TemplateBinding BorderBrush}" 
+						BorderThickness="{TemplateBinding BorderThickness}" 
+						Background="{TemplateBinding Background}" 
+						Padding="{TemplateBinding Padding}" 
+						CornerRadius="{TemplateBinding CornerRadius}">
+					<ContentPresenter 
+						HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+						VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+						Content="{TemplateBinding Content}"
+						ContentTemplate="{TemplateBinding ContentTemplate}"/>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+
+		<!-- Selected State -->
+		<Style Selector="^:selected">
+			<Style Selector="^ /template/ Border#Bd">
+				<Setter Property="Background" Value="{DynamicResource ListBoxItemSelectionFill}"/>
+				<Setter Property="BorderBrush" Value="#FF0000"/>
+			</Style>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectionFg}"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<!-- Selected but not focused State -->
+		<Style Selector="^:selected:not(:focus)">
+			<Style Selector="^ /template/ Border#Bd">
+				<Setter Property="Background" Value="{DynamicResource ListBoxItemSelectionNotActiveFill}"/>
+				<Setter Property="BorderBrush" Value="#FF0000"/>
+			</Style>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectionFg}"/>
+			<Setter Property="FontWeight" Value="Bold"/>
+		</Style>
+
+		<!-- Disabled State -->
+		<Style Selector="^:disabled">
+			<Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}"/>
+		</Style>
+	</ControlTheme>
+
+</ResourceDictionary>
