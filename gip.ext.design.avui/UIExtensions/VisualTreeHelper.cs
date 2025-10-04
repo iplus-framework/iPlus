@@ -431,5 +431,74 @@ namespace gip.ext.design.avui
                 return vs.GetVisualChildren().Count();
             return 0;
         }
+
+        internal class TopMostHitResult
+        {
+            internal HitTestResult _hitResult = null;
+
+            internal HitTestResultBehavior HitTestResult(HitTestResult result)
+            {
+                _hitResult = result;
+
+                return HitTestResultBehavior.Stop;
+            }
+        }
+
+        public static HitTestResult HitTest(Visual reference, Point point)
+        {
+            TopMostHitResult result = new TopMostHitResult();
+
+            VisualTreeHelper.HitTest(
+                reference,
+                null,
+                new HitTestResultCallback(result.HitTestResult),
+                new PointHitTestParameters(point));
+
+            return result._hitResult;
+        }
+
+        public static PointHitTestResult AsNearestPointHitTestResult(HitTestResult result)
+        {
+            if (result == null)
+            {
+                return null;
+            }
+
+            PointHitTestResult resultAsPointHitTestResult = result as PointHitTestResult;
+
+            if (resultAsPointHitTestResult != null)
+            {
+                return resultAsPointHitTestResult;
+            }
+
+            //RayHitTestResult resultAsRayHitTestResult = result as RayHitTestResult;
+
+            //if (resultAsRayHitTestResult != null)
+            //{
+            //    Visual3D current = (Visual3D)resultAsRayHitTestResult.VisualHit;
+            //    Matrix3D worldTransform = Matrix3D.Identity;
+
+            //    while (true)
+            //    {
+            //        if (current.Transform != null)
+            //        {
+            //            worldTransform.Append(current.Transform.Value);
+            //        }
+
+            //        Visual3D parent3D = current.InternalVisualParent as Visual3D;
+
+            //        if (parent3D == null)
+            //        {
+            //            break;
+            //        }
+
+            //        current = parent3D;
+            //    }
+
+            //    return null;
+            //}
+
+            return null;
+        }
     }
 }

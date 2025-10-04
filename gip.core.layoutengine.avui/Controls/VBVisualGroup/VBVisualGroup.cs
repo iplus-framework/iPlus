@@ -2,17 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Windows.Media;
-using System.Windows.Input;
-using System.Windows.Data;
 using System.Transactions;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui
 {
@@ -46,7 +43,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     [TemplatePart(Name = "PART_SelectedDecorator", Type = typeof(Control))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBVisualGroup'}de{'VBVisualGroup'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBVisualGroup : GroupBox, IVBContent, IACMenuBuilderWPFTree, IACObject
+    public class VBVisualGroup : HeaderedContentControl, IVBContent, IACMenuBuilderWPFTree, IACObject
     {
         #region c'tors
         private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 

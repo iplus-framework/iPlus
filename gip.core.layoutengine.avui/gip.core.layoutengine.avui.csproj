@@ -169,7 +169,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia.AvaloniaEdit" Version="11.3.0" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="MdXaml" Version="1.27.0" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
@@ -180,9 +179,9 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="QuickGraphCore" Version="1.0.0" />
-    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.12.1" />
-    <PackageReference Include="RoslynPad.Roslyn" Version="4.12.1" />
-    <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.12.1" />
+    <PackageReference Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
+    <PackageReference Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
+    <PackageReference Include="StatusBar.Avalonia" Version="0.0.2" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />

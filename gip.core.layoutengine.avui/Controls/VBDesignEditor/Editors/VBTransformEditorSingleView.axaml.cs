@@ -1,36 +1,20 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.ext.design.avui.PropertyGrid;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
 using gip.ext.design.avui;
-using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-using System.Windows.Controls.Primitives;
-using System.Windows.Threading;
+using gip.ext.design.avui.PropertyGrid;
+using System.Collections.Generic;
 using System.ComponentModel;
-using gip.core.datamodel;
-using gip.ext.designer.avui.OutlineView;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {
     /// <summary>
     /// Represents a editor for signle view transformation.
     /// </summary>
-    public partial class VBTransformEditorSingleView : INotifyPropertyChanged //: ITypeEditorInitItem
+    public partial class VBTransformEditorSingleView : UserControl
 	{
 		/// <summary>
         /// Create a new VBTransformEditorSingleView instance.
@@ -39,38 +23,43 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 		{
             InitializeComponent();
             DataContext = this;
-            //TransformProperties.DataContext = Property;
         }
 
+        /// <summary>
+        /// Defines the Property styled property.
+        /// </summary>
+        public static readonly StyledProperty<IPropertyNode> PropertyProperty =
+            AvaloniaProperty.Register<VBTransformEditorSingleView, IPropertyNode>(nameof(Property));
 
-        IPropertyNode property;
+        /// <summary>
+        /// Gets or sets the property node.
+        /// </summary>
         public IPropertyNode Property
         {
-            get
-            {
-                return property;
-            }
-            set
-            {
-                property = value;
-                RefreshView();
-                RaisePropertyChanged("Property");
-            }
+            get => GetValue(PropertyProperty);
+            set => SetValue(PropertyProperty, value);
         }
 
-        TransformOutlineNode _OutlineNode;
+        /// <summary>
+        /// Defines the OutlineNode styled property.
+        /// </summary>
+        public static readonly StyledProperty<TransformOutlineNode> OutlineNodeProperty =
+            AvaloniaProperty.Register<VBTransformEditorSingleView, TransformOutlineNode>(nameof(OutlineNode));
+
+        /// <summary>
+        /// Gets or sets the outline node.
+        /// </summary>
         public TransformOutlineNode OutlineNode
         {
-            get
-            {
-                return _OutlineNode;
-            }
-            set
-            {
-                _OutlineNode = value;
-                RefreshView();
-                RaisePropertyChanged("OutlineNode");
-            }
+            get => GetValue(OutlineNodeProperty);
+            set => SetValue(OutlineNodeProperty, value);
+        }
+
+        static VBTransformEditorSingleView()
+        {
+            // Register property changed handlers to call RefreshView
+            PropertyProperty.Changed.AddClassHandler<VBTransformEditorSingleView>((sender, e) => sender.RefreshView());
+            OutlineNodeProperty.Changed.AddClassHandler<VBTransformEditorSingleView>((sender, e) => sender.RefreshView());
         }
 
         public VBTransformEditorGroupView ParentGroupEditor
@@ -78,7 +67,6 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             get;
             set;
         }
-
 
         protected DesignItem DesignObject
         {
@@ -125,15 +113,6 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
         }
 
         List<DesignItem> _Selection = new List<DesignItem>();
-
-        private void ButtonReset_Click(object sender, RoutedEventArgs e)
-        {
-            if (Property != null)
-            {
-                Property.Reset();
-                RefreshView();
-            }            
-        }
 
         private bool _InSelectionUpdate = false;
         void ComboTransform_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -222,15 +201,6 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                 }
             }
             RefreshView();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
         }
 
     }

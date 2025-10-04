@@ -1,84 +1,135 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Templates;
+using Avalonia.Markup.Xaml.Templates;
+using StatusBar.Avalonia.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace gip.core.layoutengine.avui
 {
-    /// <summary>
-    /// Represents a control that displays items and information in a horizontal bar in an application window.
-    /// </summary>
-    /// <summary xml:lang="de">
-    /// Stellt ein Steuerelement dar, das Elemente und Informationen in einer horizontalen Leiste in einem Anwendungsfenster anzeigt.
-    /// </summary>
+
+    //[StyleTypedProperty(Property = "ItemContainerStyle", StyleTargetType = typeof(StatusBarItem))]
+    public class StatusBar : ItemsControl
+    {
+        //-------------------------------------------------------------------
+        //
+        //  Constructors
+        //
+        //-------------------------------------------------------------------
+
+        #region Constructors
+
+        static StatusBar()
+        {
+            ItemsPanelTemplate template = new ItemsPanelTemplate() { Content = new DockPanel() };
+            //template.Build();
+            ItemsPanelProperty.OverrideMetadata(typeof(StatusBar), new StyledPropertyMetadata<ITemplate<Panel>>(template));
+        }
+
+        #endregion
+
+        //-------------------------------------------------------------------
+        //
+        //  Protected Methods
+        //
+        //-------------------------------------------------------------------
+
+        #region Protected Methods
+
+        //private object _currentItem;
+
+        ///// <summary>
+        ///// Return true if the item is (or is eligible to be) its own ItemUI
+        ///// </summary>
+        //protected override bool IsItemItsOwnContainerOverride(object item)
+        //{
+        //    bool ret = (item is StatusBarItem) || (item is Separator);
+        //    if (!ret)
+        //    {
+        //        _currentItem = item;
+        //    }
+
+        //    return ret;
+        //}
+
+        ////protected override void ContainerForItemPreparedOverride(Control container, object item, int index)
+        ////{
+        ////    base.ContainerForItemPreparedOverride(container, item, index);
+        ////}
+
+        //protected override Control CreateContainerForItemOverride()
+        //{
+        //    object currentItem = _currentItem;
+        //    _currentItem = null;
+
+        //    if (UsesItemContainerTemplate)
+        //    {
+        //        DataTemplate itemContainerTemplate = ItemContainerTemplateSelector.SelectTemplate(currentItem, this);
+        //        if (itemContainerTemplate != null)
+        //        {
+        //            object itemContainer = itemContainerTemplate.LoadContent();
+        //            if (itemContainer is StatusBarItem || itemContainer is Separator)
+        //            {
+        //                return itemContainer as AvaloniaObject;
+        //            }
+        //            else
+        //            {
+        //                throw new InvalidOperationException(SR.Format(SR.InvalidItemContainer, this.GetType().Name, nameof(StatusBarItem), nameof(Separator), itemContainer));
+        //            }
+        //        }
+        //    }
+
+        //    return new StatusBarItem();
+        //}
+
+        ///// <summary>
+        ///// Prepare the element to display the item.  This may involve
+        ///// applying styles, setting bindings, etc.
+        ///// </summary>
+        //protected override void PrepareContainerForItemOverride(AvaloniaObject element, object item)
+        //{
+        //    base.PrepareContainerForItemOverride(element, item);
+
+        //    Separator separator = element as Separator;
+        //    if (separator != null)
+        //    {
+        //        bool hasModifiers;
+        //        BaseValueSourceInternal vs = separator.GetValueSource(StyleProperty, null, out hasModifiers);
+        //        if (vs <= BaseValueSourceInternal.ImplicitReference)
+        //            separator.SetResourceReference(StyleProperty, SeparatorStyleKey);
+        //        separator.DefaultStyleKey = SeparatorStyleKey;
+        //    }
+        //}
+
+        ///// <summary>
+        ///// Determine whether the ItemContainerStyle/StyleSelector should apply to the container
+        ///// </summary>
+        ///// <returns>false if item is a Separator, otherwise return true</returns>
+        //protected override bool ShouldApplyItemContainerStyle(AvaloniaObject container, object item)
+        //{
+        //    if (item is Separator)
+        //    {
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        return base.ShouldApplyItemContainerStyle(container, item);
+        //    }
+        //}
+
+        #endregion
+
+    }
+
+
     public class VBStatusBar : StatusBar
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "StatusBarStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBStatusBar/Themes/StatusBarStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "StatusBarStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBStatusBar/Themes/StatusBarStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBStatusBar()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBStatusBar), new FrameworkPropertyMetadata(typeof(VBStatusBar)));
-        }
-
         bool _themeApplied = false;
-        public VBStatusBar()
+        public VBStatusBar() : base()
         {
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
         }
     }
 }

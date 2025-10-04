@@ -1,9 +1,15 @@
 using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using Avalonia.Interactivity;
+using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.layoutengine.avui
 {
@@ -17,6 +23,49 @@ namespace gip.core.layoutengine.avui
     public class VBImage : Image, IVBContent, IACObject
     {
         /// <summary>
+        /// Represents the dependecy property for ACClassDesign.
+        /// </summary>
+        public static readonly StyledProperty<ACClassDesign> ACClassDesignProperty;
+
+        /// <summary>
+        /// Represents the DesignBinary.
+        /// </summary>
+        public static readonly StyledProperty<object> DesignBinaryProperty;
+
+        /// <summary>
+        /// Represents the dependency property for VBContent.
+        /// </summary>
+        public static readonly StyledProperty<string> VBContentProperty;
+
+        /// <summary>
+        /// Represents the dependency property for BSOACComponent.
+        /// </summary>
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty;
+
+        /// <summary>
+        /// Represents the dependency property for control mode.
+        /// </summary>
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty;
+
+        /// <summary>
+        /// Represents the dependency property for DisabledModes.
+        /// </summary>
+        public static readonly StyledProperty<string> DisabledModesProperty;
+
+        static VBImage()
+        {
+            ACClassDesignProperty = AvaloniaProperty.Register<VBImage, ACClassDesign>(nameof(ACClassDesign));
+            DesignBinaryProperty = AvaloniaProperty.Register<VBImage, object>(nameof(DesignBinary));
+            VBContentProperty = AvaloniaProperty.Register<VBImage, string>(nameof(VBContent));
+            BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBImage>();
+            ControlModeProperty = AvaloniaProperty.Register<VBImage, Global.ControlModes>(nameof(ControlMode));
+            DisabledModesProperty = AvaloniaProperty.Register<VBImage, string>(nameof(DisabledModes));
+
+            ACClassDesignProperty.Changed.AddClassHandler<VBImage>((x, e) => x.UpdateDesign());
+            DesignBinaryProperty.Changed.AddClassHandler<VBImage>((x, e) => x.UpdateDesign());
+        }
+
+        /// <summary>
         /// Creates a new instance of VBImage.
         /// </summary>
         public VBImage()
@@ -26,20 +75,10 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            this.Loaded += new RoutedEventHandler(OnLoaded);
-            base.OnInitialized(e);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            InitVBControl();
+            this.Loaded += OnLoaded;
+            base.OnInitialized();
         }
 
         #region Loaded Event
@@ -85,34 +124,22 @@ namespace gip.core.layoutengine.avui
 
             if (RightControlMode < Global.ControlModes.Disabled)
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
             Binding binding = new Binding();
             binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
+            binding.Path = dcPath;
+            // Note: NotifyOnSourceUpdated and NotifyOnTargetUpdated don't exist in Avalonia
             binding.Mode = BindingMode.OneWay;
-            SetBinding(VBImage.ACClassDesignProperty, binding);
+            this.Bind(VBImage.ACClassDesignProperty, binding);
 
             binding = new Binding();
             binding.Source = dcSource;
             dcPath += ".DesignBinary";
-            binding.Path = new PropertyPath(dcPath);
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
+            binding.Path = dcPath;
+            // Note: NotifyOnSourceUpdated and NotifyOnTargetUpdated don't exist in Avalonia
             binding.Mode = BindingMode.OneWay;
-            SetBinding(VBImage.DesignBinaryProperty, binding);
-
-
-            //if (BSOACComponent != null)
-            //{
-            //    binding = new Binding();
-            //    binding.Source = BSOACComponent;
-            //    binding.Path = new PropertyPath(Const.InitState);
-            //    binding.Mode = BindingMode.OneWay;
-            //    SetBinding(VBImage.ACCompInitStateProperty, binding);
-            //}
+            this.Bind(VBImage.DesignBinaryProperty, binding);
 
             if (IsEnabled)
             {
@@ -143,20 +170,10 @@ namespace gip.core.layoutengine.avui
             this.Loaded -= OnLoaded;
             Source = null;
             
-            BindingOperations.ClearBinding(this, VBImage.ACClassDesignProperty);
-            //BindingOperations.ClearBinding(this, VBImage.ACCompInitStateProperty);
+            this.ClearValue(VBImage.ACClassDesignProperty);
             this.ClearAllBindings();
         }
 
-        /// <summary>
-        /// Calls on when initialization state is changed.
-        /// </summary>
-        //protected void InitStateChanged()
-        //{
-        //    if (BSOACComponent != null &&
-        //        (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-        //        DeInitVBControl(BSOACComponent);
-        //}
         #endregion
 
         #region IACInteractiveObject Member
@@ -173,45 +190,21 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependecy property for ACClassDesign.
-        /// </summary>
-        public static readonly DependencyProperty ACClassDesignProperty
-            = DependencyProperty.Register("ACClassDesign", typeof(ACClassDesign), typeof(VBImage), new PropertyMetadata(new PropertyChangedCallback(OnACClassDesignChanged)));
-
-        //private ACClassDesign _LastACClassDesign;
-        /// <summary>
         /// Gets or sets the ACClassDesign.
         /// </summary>
         public ACClassDesign ACClassDesign
         {
-            get { return (ACClassDesign)GetValue(ACClassDesignProperty); }
+            get { return GetValue(ACClassDesignProperty); }
             set { SetValue(ACClassDesignProperty, value); }
         }
-
-        /// <summary>
-        /// Represents the DesignBinary.
-        /// </summary>
-        public static readonly DependencyProperty DesignBinaryProperty
-            = DependencyProperty.Register("DesignBinary", typeof(object), typeof(VBImage), new PropertyMetadata(new PropertyChangedCallback(OnACClassDesignChanged)));
 
         /// <summary>
         /// Gets or sets the DesignBinary.
         /// </summary>
         public object DesignBinary
         {
-            get { return (object)GetValue(DesignBinaryProperty); }
+            get { return GetValue(DesignBinaryProperty); }
             set { SetValue(DesignBinaryProperty, value); }
-        }
-
-
-        private static void OnACClassDesignChanged(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBImage)
-            {
-                VBImage vbImage = d as VBImage;
-                vbImage.UpdateDesign();
-            }
         }
 
         /// <summary>
@@ -233,31 +226,26 @@ namespace gip.core.layoutengine.avui
                 return;
             if ((ACClassDesign.ACKind == Global.ACKinds.DSBitmapResource) && (ACClassDesign.DesignBinary != null))
             {
-                BitmapImage bitmapImage = null;
+                Bitmap bitmapImage = null;
                 try
                 {
-                    bitmapImage = new BitmapImage();
-                    bitmapImage.BeginInit();
-                    bitmapImage.StreamSource = new MemoryStream(ACClassDesign.DesignBinary);
-                    bitmapImage.EndInit();
+                    using (var stream = new MemoryStream(ACClassDesign.DesignBinary))
+                    {
+                        bitmapImage = new Bitmap(stream);
+                        this.Source = bitmapImage;
+                    }
                 }
                 catch (Exception e)
                 {
                     this.Root().Messages.LogException("VBImage", "UpdateImage()", e);
                     this.Root().Messages.LogException("VBImage", "UpdateImage()", String.Format("Can't create icon for {0} at VBContent {1}. Invalid Binary", ACClassDesign.GetACUrl(), VBContent));
-                    bitmapImage = new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine.avui;component/Images/QuestionMark.JPG", UriKind.Absolute));
+                    bitmapImage = new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/QuestionMark.JPG")));
+                    this.Source = bitmapImage;
                 }
-                this.Source = bitmapImage;
             }
             else
                 this.Source = null;
         }
-
-        /// <summary>
-        /// Represents the dependency property for VBContent.
-        /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBImage));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -266,7 +254,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -293,42 +281,13 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
-        /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBImage), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
-
-        ///// <summary>
-        ///// Represents the dependency property for ACCompInitState.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACCompInitStateProperty =
-        ////    DependencyProperty.Register("ACCompInitState",
-        ////        typeof(ACInitState), typeof(VBImage),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACCompInitState.
-        ///// </summary>
-        ////public ACInitState ACCompInitState
-        ////{
-        ////    get { return (ACInitState)GetValue(ACCompInitStateProperty); }
-        ////    set { SetValue(ACCompInitStateProperty, value); }
-        ////}
-
-        ////private static void OnDepPropChanged(DependencyObject dependencyObject,
-        ////       DependencyPropertyChangedEventArgs args)
-        ////{
-        ////    VBImage thisControl = dependencyObject as VBImage;
-        ////    if (args.Property == ACCompInitStateProperty)
-        ////        thisControl.InitStateChanged();
-        ////}
 
         /// <summary>
         /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
@@ -464,17 +423,11 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         /// <summary>
-        /// Represents the dependency property for control mode.
-        /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBImage));
-
-        /// <summary>
         /// Gets or sets the Control mode.
         /// </summary>
         public Global.ControlModes ControlMode
         {
-            get { return (Global.ControlModes)GetValue(ControlModeProperty); }
+            get { return GetValue(ControlModeProperty); }
             set { SetValue(ControlModeProperty, value); }
         }
 
@@ -503,28 +456,6 @@ namespace gip.core.layoutengine.avui
             else
             {
                 ControlMode = Global.ControlModes.Disabled;
-            }
-        }
-
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
             }
         }
 
@@ -566,26 +497,21 @@ namespace gip.core.layoutengine.avui
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
             Enabled = controlMode >= Global.ControlModes.Enabled;
-            Visible = controlMode >= Global.ControlModes.Disabled;
+            IsVisible = controlMode >= Global.ControlModes.Disabled;
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
-        /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBImage));
-        /// <summary>
-        /// Gets or sets the ACCaption translation.
+        /// Gets or sets the DisabledModes.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die DisabledModes.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
     }

@@ -1,26 +1,18 @@
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
+using Avalonia.Styling;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.PropertyGrid.Editors;
+using gip.ext.design.avui;
+using gip.ext.design.avui.PropertyGrid;
+using gip.ext.designer.avui.PropertyGrid;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.core.datamodel;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.ext.designer.avui.PropertyGrid;
-using gip.ext.design.avui.PropertyGrid;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui.PropertyGrid.Editors;
 using System.ComponentModel;
-using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reflection;
-using System.Transactions;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,7 +21,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public static class VBEditorManager
     {
-        public static FrameworkElement CreateEditor(DesignItemProperty property)
+        public static Control CreateEditor(DesignItemProperty property)
         {
             Type editorType;
             if ((property.Name == "VBDesignName") && (typeof(VBVisual).IsAssignableFrom(property.DesignItem.ComponentType)))
@@ -76,7 +68,7 @@ namespace gip.core.layoutengine.avui
                     return new VBTextBoxEditor();
                 }
             }
-            FrameworkElement result = (FrameworkElement)Activator.CreateInstance(editorType);
+            Control result = (Control)Activator.CreateInstance(editorType);
             if (result is VBComboBoxEditor)
             {
                 var standardValues = Metadata.GetStandardValues(property.ReturnType);
@@ -98,7 +90,7 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBPropertyNode'}de{'VBPropertyNode'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class VBPropertyNode : PropertyNode, IACInteractiveObject, IBindingDropHandler, IACObject
     {
-        protected override FrameworkElement OnCreateEditor(DesignItemProperty property)
+        protected override Control OnCreateEditor(DesignItemProperty property)
         {
             if ((TypeOfTriggerValue != null) && (TypeOfTriggerValue.IsEnum) && ((Editor == null) || !(Editor is VBComboBoxEditor)))
             {
@@ -508,7 +500,8 @@ namespace gip.core.layoutengine.avui
                 {
                     if ((subNode.Editor != null) && (subNode.Editor is ItemsControl))
                     {
-                        (subNode.Editor as ItemsControl).Items.Refresh();
+                        // TODO: How to solve in Avalonia ?
+                        //(subNode.Editor as ItemsControl).Items.Refresh();
                     }
                 }
             }
@@ -652,7 +645,7 @@ namespace gip.core.layoutengine.avui
                 if (ValueItem != null)
                 {
                     bool withReadonlyProperties = false;
-                    if ((ValueItem.Component is MultiBinding) || (ValueItem.Component is Style))
+                    if ((ValueItem.Component is MultiBinding) || (ValueItem.Component is ControlTheme))
                         withReadonlyProperties = true;
 
                     var list = TypeHelper.GetAvailableProperties(ValueItem.Component, withReadonlyProperties)
@@ -692,7 +685,7 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -866,23 +859,22 @@ namespace gip.core.layoutengine.avui
         public VBPropertyGrid()
             : base()
         {
-            Categories = new ObservableCollection<Category>(new[] {
-                CategoryVBControl,
-                CategoryVBContent,
-                CategoryVBSource,
-                CategoryLayout,
-                CategoryBrushes,
-                CategoryText,
-                CategoryAppearance,
-                CategoryStyle,
-                CategoryTransform,
-                CategoryCommonProperties,
-                CategoryWindow,
-                CategoryUIAutomation,
-				popularCategory, 				
-				attachedCategory,
-				CategoryMisc
-			});
+            Categories = new CategoriesCollection();
+            Categories.Add(CategoryVBControl);
+            Categories.Add(CategoryVBContent);
+            Categories.Add(CategoryVBSource);
+            Categories.Add(CategoryLayout);
+            Categories.Add(CategoryBrushes);
+            Categories.Add(CategoryText);
+            Categories.Add(CategoryAppearance);
+            Categories.Add(CategoryStyle);
+            Categories.Add(CategoryTransform);
+            Categories.Add(CategoryCommonProperties);
+            Categories.Add(CategoryWindow);
+            Categories.Add(CategoryUIAutomation);
+            Categories.Add(popularCategory);
+            Categories.Add(attachedCategory);
+            Categories.Add(CategoryMisc);
         }
 
         protected Category CategoryVBControl = new Category(CN_VBControl);

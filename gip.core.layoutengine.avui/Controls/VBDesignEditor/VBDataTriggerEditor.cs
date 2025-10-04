@@ -1,22 +1,11 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using gip.ext.designer.avui.OutlineView;
-using gip.ext.designer.avui;
-using System.Windows.Markup;
 using gip.core.layoutengine.avui.PropertyGrid.Editors;
+using gip.ext.designer.avui.OutlineView;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,76 +14,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDataTriggerEditor : DataTriggerEditor
     {
-        #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DataTriggerEditorStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/DataTriggerEditorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DataTriggerEditorStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/DataTriggerEditorStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBDataTriggerEditor()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDataTriggerEditor), new FrameworkPropertyMetadata(typeof(VBDataTriggerEditor)));
-        }
-
-        bool _themeApplied = false;
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
-        #endregion
-
-        public override FrameworkElement TriggerBindingEditor
+        public override Control TriggerBindingEditor
         {
             get
             {
@@ -119,40 +39,26 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public override MarkupExtension CreateNewBinding()
+        public override Binding CreateNewBinding()
         {
             return new VBBinding();
         }
 
-        public override MarkupExtension CreateNewMultiBinding()
+        public override MultiBinding CreateNewMultiBinding()
         {
             return new MultiBinding();
         }
 
-        public override FrameworkElement TriggerValueEditor
+        public override Control TriggerValueEditor
         {
             get
             {
                 _LockValueEditorRefresh = true;
 
-                // TODO: Provide Value um Type heruaszufinden => Editor-Generieren für Type
-                //if (_NodeDataTrigger.BindingProperty.ValueOnInstance is MultiBinding)
-                //{
-                //}
-                //else if (_NodeDataTrigger.BindingProperty.ValueOnInstance is Binding)
-                //{
-                //}
-                //return new VBComboBoxEditor() { ItemsSource = query.Select(c => c.ACIdentifier).ToList() };
-
-                //Database.ConvertACUrlComponentToDBUrl(acUrlComponent, acIdentifierProperty);
-                //IACObjectEntityWithCheckTrans entityObj = Database.GlobalDatabase.ACUrlCommand(acDBUrl, Const.ParamInheritedMember) as IACObjectEntityWithCheckTrans;
-                //if (entityObj == null)
-                //    return acIdentifierProperty;
-
                 IACComponentDesignManager designManager = DesignManager;
                 if (designManager != null && !String.IsNullOrEmpty(TriggerInfoText) && (TriggerBindingEditor is VBBindingEditor))
                 {
-                    FrameworkElement editor;
+                    Control editor;
                     String acUrl = TriggerInfoText;
                     acUrl = acUrl.Replace("\\\\", "\\");
                     IACType typeInfo = designManager.GetTypeFromDBACUrl(acUrl);
@@ -185,7 +91,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_DesignObject == null)
                     return null;
-                VBDesignEditor editor = VBVisualTreeHelper.FindParentObjectInVisualTree(_DesignObject.Context.Services.DesignPanel as DependencyObject, typeof(VBDesignEditor)) as VBDesignEditor;
+                VBDesignEditor editor = VBVisualTreeHelper.FindParentObjectInVisualTree(_DesignObject.Context.Services.DesignPanel as AvaloniaObject, typeof(VBDesignEditor)) as VBDesignEditor;
                 if (editor == null)
                     return null;
                 IACComponentDesignManager designManager = editor.GetDesignManager();

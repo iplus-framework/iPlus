@@ -1,0 +1,56 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <CornerRadius x:Key="ControlOuterBorderCornerRadius">2.75</CornerRadius>
+
+  <ControlTheme x:Key="{x:Type local:VBRepeatButton}" TargetType="local:VBRepeatButton">
+    <Setter Property="IsTabStop" Value="False" />
+    <Setter Property="Background" Value="{StaticResource ControlBackground_Normal}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ControlOuterBorder_Normal}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="{StaticResource ControlOuterBorderCornerRadius}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="OuterBorder" 
+                BorderThickness="{TemplateBinding BorderThickness}" 
+                CornerRadius="{TemplateBinding CornerRadius}" 
+                BorderBrush="{TemplateBinding BorderBrush}" 
+                Background="{TemplateBinding Background}">
+          <ContentPresenter x:Name="PART_ContentPresenter"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Margin="{TemplateBinding Padding}"/>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Disabled State -->
+    <Style Selector="^:disabled /template/ Border#OuterBorder">
+      <Setter Property="BorderBrush" Value="{StaticResource ControlOuterBorder_Disabled}" />
+      <Setter Property="Background" Value="{StaticResource ControlBackground_Disabled}" />
+    </Style>
+
+    <!-- Pressed State -->
+    <Style Selector="^:pressed /template/ Border#OuterBorder">
+      <Setter Property="BorderBrush" Value="{StaticResource ControlOuterBorder_Pressed}" />
+      <Setter Property="Background" Value="{StaticResource ControlBackground_Pressed}" />
+    </Style>
+
+    <!-- Mouse Over State (not pressed) -->
+    <Style Selector="^:pointerover:not(:pressed) /template/ Border#OuterBorder">
+      <Setter Property="BorderBrush" Value="{StaticResource ControlOuterBorder_MouseOver}" />
+      <Setter Property="Background" Value="{StaticResource ControlBackground_MouseOver}" />
+    </Style>
+
+    <!-- Focus State (not pressed and not mouse over) -->
+    <Style Selector="^:focus:not(:pressed):not(:pointerover) /template/ Border#OuterBorder">
+      <Setter Property="BorderBrush" Value="{StaticResource ControlOuterBorder_Focused}" />
+      <Setter Property="Background" Value="{StaticResource ControlBackground_Focused}" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

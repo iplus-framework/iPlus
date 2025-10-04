@@ -1,11 +1,11 @@
 ﻿<UserControl
     x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBTransformEditorSingleView"
-    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     >
     <StackPanel Width="300" Margin="6">
-        <local:VBComboBox Grid.Column="1" Height="24" ShowCaption="False" x:Name="ComboTransform" SelectionChanged="ComboTransform_SelectionChanged">
+        <local:VBComboBox Height="24" ShowCaption="False" x:Name="ComboTransform" SelectionChanged="ComboTransform_SelectionChanged">
             <local:VBComboBoxItem x:Name="RotateTransform">RotateTransform</local:VBComboBoxItem>
             <local:VBComboBoxItem x:Name="ScaleTransform">ScaleTransform</local:VBComboBoxItem>
             <local:VBComboBoxItem x:Name="SkewTransform">SkewTransform</local:VBComboBoxItem>

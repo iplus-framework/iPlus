@@ -1,4 +1,6 @@
-﻿using AvaloniaEdit.Editing;
+﻿using AvaloniaEdit;
+using AvaloniaEdit.Document;
+using AvaloniaEdit.Editing;
 using gip.core.datamodel;
 using System;
 using System.Linq;
@@ -11,7 +13,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class FindAndReplaceHandler : IVBFindAndReplace
     {
-        private ICSharpCode.AvalonEdit.Editing.TextArea _TextArea;
+        private TextArea _TextArea;
         private Regex regex;
         private Match match;
         private bool newStartOfFind = true;
@@ -20,7 +22,7 @@ namespace gip.core.layoutengine.avui
         /// Default-Contructor
         /// </summary>
         /// <param name="area"></param>
-        public FindAndReplaceHandler(ICSharpCode.AvalonEdit.Editing.TextArea area)
+        public FindAndReplaceHandler(TextArea area)
         {
             _TextArea = area;
             _TextArea.Caret.PositionChanged += textArea_Caret_PositionChanged;
@@ -45,7 +47,7 @@ namespace gip.core.layoutengine.avui
                 _TextArea.Caret.PositionChanged -= textArea_Caret_PositionChanged;
         }
 
-        public ICSharpCode.AvalonEdit.Editing.TextArea TextArea
+        public TextArea TextArea
         {
             get
             {
@@ -86,11 +88,11 @@ namespace gip.core.layoutengine.avui
             if (match.Success)
             {
                 //SimpleSegment selection = new SimpleSegment(match.Index, match.Length);
-                ICSharpCode.AvalonEdit.Document.TextLocation location = _TextArea.Document.GetLocation(match.Index + match.Length);
-                _TextArea.Caret.Position = new ICSharpCode.AvalonEdit.TextViewPosition(location, -1);
+                TextLocation location = _TextArea.Document.GetLocation(match.Index + match.Length);
+                _TextArea.Caret.Position = new TextViewPosition(location, -1);
                 _TextArea.Caret.DesiredXPos = double.NaN;
 
-                _TextArea.Selection = ICSharpCode.AvalonEdit.Editing.Selection.Create(TextArea, match.Index, match.Index + match.Length);
+                _TextArea.Selection = Selection.Create(TextArea, match.Index, match.Index + match.Length);
                 //_TextArea.Selection = new ICSharpCode.AvalonEdit.Editing.SimpleSelection(_TextArea, match.Index, match.Index + match.Length);
 
                 _TextArea.Caret.BringCaretToView();

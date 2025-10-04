@@ -1,23 +1,11 @@
-﻿using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using gip.ext.designer.avui.OutlineView;
+﻿using Avalonia.Data;
+using gip.core.datamodel;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
-using gip.ext.designer.avui.PropertyGrid;
+using gip.ext.designer.avui.OutlineView;
+using System;
+using System.ComponentModel;
 using System.Linq;
-using System.Windows.Markup;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -94,7 +82,7 @@ namespace gip.core.layoutengine.avui
             return null;
         }
 
-        public override MarkupExtension CreateNewBinding()
+        public override Binding CreateNewBinding()
         {
             return new VBBinding();
         }

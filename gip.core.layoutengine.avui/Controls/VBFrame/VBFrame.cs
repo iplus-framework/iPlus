@@ -2,18 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using System.Transactions;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,37 +19,10 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFrame'}de{'VBFrame'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public partial class VBFrame : Border, IACInteractiveObject, IACObject
     {
-
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "FrameStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBFrame/Themes/FrameStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "FrameStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBFrame/Themes/FrameStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBFrame()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBFrame), new FrameworkPropertyMetadata(typeof(VBFrame)));
-        }
-
-        bool _themeApplied = false;
-
         /// <summary>
         /// Creates a new instance of VBFrame.
         /// </summary>
-        public VBFrame()
+        public VBFrame() : base()
         {
         }
 
@@ -64,29 +30,9 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            base.OnInitialized();
         }
 
         /// <summary>
@@ -154,7 +100,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBFrame), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBFrame>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>

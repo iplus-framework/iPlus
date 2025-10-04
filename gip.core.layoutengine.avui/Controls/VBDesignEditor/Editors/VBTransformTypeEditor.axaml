@@ -1,5 +1,5 @@
 ﻿<UserControl x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBTransformTypeEditor"
-             xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+             xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:gip.core.layoutengine.avui"
              >
@@ -11,28 +11,24 @@
         <local:VBTextBox Grid.Column="0" Text="{Binding Path=ValueString}" IsEnabled="False" ShowCaption="False" />
         <Canvas Grid.Column="1" HorizontalAlignment="Right" x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
         <Path x:Name="TriangleRight" Width="21.7071" Height="21.7071" Canvas.Left="1.29289" Canvas.Top="1.2929" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="#FF000000" Data="F1 M 22,21L 22,3.00001C 22,2.72386 21.8881,2.47386 21.7071,2.2929L 2.29289,21.7071C 2.47386,21.8881 2.72386,22 3,22L 21,22C 21.5523,22 22,21.5523 22,21 Z ">
-            <Path.Style>
-                <Style TargetType="{x:Type Path}">
+            <Path.Styles>
+                <Style Selector="Path">
                     <Setter Property="Stroke" Value="#FFFF0000"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsSet}" Value="False">
-                            <Setter Property="Stroke" Value="Gray"/>
-                        </DataTrigger>
-                    </Style.Triggers>
                 </Style>
-            </Path.Style>
+                <Style Selector="UserControl:notset Path">
+                    <Setter Property="Stroke" Value="Gray"/>
+                </Style>
+            </Path.Styles>
         </Path>   
         <Path x:Name="TriangleLeft" Width="21.7071" Height="21.7071" Canvas.Left="1" Canvas.Top="1.00001" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Fill="#FFFFFFFF" Data="F1 M 21,2.00001L 3,2.00001C 2.44772,2.00001 2,2.44772 2,3.00001L 2,21C 2,21.2761 2.11193,21.5261 2.29289,21.7071L 21.7071,2.2929C 21.5261,2.11193 21.2761,2.00001 21,2.00001 Z ">
-            <Path.Style>
-                <Style TargetType="{x:Type Path}">
+            <Path.Styles>
+                <Style Selector="Path">
                     <Setter Property="Stroke" Value="#FFFF0000"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Path=IsSet}" Value="False">
-                            <Setter Property="Stroke" Value="Gray"/>
-                        </DataTrigger>
-                    </Style.Triggers>
                 </Style>
-            </Path.Style>
+                <Style Selector="UserControl:notset Path">
+                    <Setter Property="Stroke" Value="Gray"/>
+                </Style>
+            </Path.Styles>
         </Path>
         <Path x:Name="ArrowLeft" Width="5.46161" Height="5.46161" Canvas.Left="6.03839" Canvas.Top="6.03839" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FF000000" Fill="#FFFFFFFF" Data="M 6.53839,6.53839L 11,7.73387L 7.73388,11L 6.53839,6.53839 Z "/>
         <Path x:Name="ArrowRight" Width="5.46161" Height="5.46161" Canvas.Left="12.5" Canvas.Top="12.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFFFFFF" Fill="#FF000000" Data="M 17.4616,17.4616L 16.2661,13L 13,16.2661L 17.4616,17.4616 Z "/>

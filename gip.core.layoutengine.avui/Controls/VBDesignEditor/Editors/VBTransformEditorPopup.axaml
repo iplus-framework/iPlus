@@ -3,8 +3,6 @@
        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
        xmlns:local="clr-namespace:gip.core.layoutengine.avui.PropertyGrid.Editors"
        Placement="Bottom"
-       AllowsTransparency="True"
-       SnapsToDevicePixels="True"
        StaysOpen="False">
     <local:VBTransformEditorView x:Name="VBTransformEditorView"
                                  x:FieldModifier="public" />

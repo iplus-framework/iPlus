@@ -1,6 +1,8 @@
 using System;
-using System.Windows.Controls;
-using System.Windows;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
@@ -8,7 +10,7 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Represents a input base control.
     /// </summary>
-    public abstract class InputBase : Control
+    public abstract class InputBase : TemplatedControl
     {
         #region Members
 
@@ -26,10 +28,12 @@ namespace gip.core.layoutengine.avui
 
         #region IsEditable
 
-        public static readonly DependencyProperty IsEditableProperty = DependencyProperty.Register("IsEditable", typeof(bool), typeof(InputBase), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> IsEditableProperty = 
+            AvaloniaProperty.Register<InputBase, bool>(nameof(IsEditable), true);
+        
         public bool IsEditable
         {
-            get { return (bool)GetValue(IsEditableProperty); }
+            get { return GetValue(IsEditableProperty); }
             set { SetValue(IsEditableProperty, value); }
         }
 
@@ -37,19 +41,43 @@ namespace gip.core.layoutengine.avui
 
         #region Text
 
-        public static readonly DependencyProperty TextProperty = DependencyProperty.Register("Text", typeof(string), typeof(InputBase), new FrameworkPropertyMetadata(default(String), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnTextPropertyChanged));
+        public static readonly StyledProperty<string> TextProperty = 
+            AvaloniaProperty.Register<InputBase, string>(nameof(Text), defaultBindingMode: Avalonia.Data.BindingMode.TwoWay);
+        
         public string Text
         {
-            get { return (string)this.GetValue(TextProperty); }
-            set { this.SetValue(TextProperty, value); }
+            get { return GetValue(TextProperty); }
+            set { SetValue(TextProperty, value); }
         }
 
-        private static void OnTextPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            InputBase input = (InputBase)d;
-            input.OnTextChanged((string)e.OldValue, (string)e.NewValue);
-            if (input._isInitialized)
-                input.SyncTextAndValueProperties(e.Property, e.NewValue);
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == TextProperty)
+            {
+                OnTextChanged(change.GetOldValue<string>(), change.GetNewValue<string>());
+                if (_isInitialized)
+                    SyncTextAndValueProperties(change.Property, change.NewValue);
+            }
+            else if (change.Property == ValueProperty)
+            {
+                var oldValue = change.OldValue;
+                var newValue = change.NewValue;
+                
+                if (!Equals(oldValue, newValue))
+                {
+                    PreviousValue = oldValue;
+                    OnValueChanged(oldValue, newValue);
+
+                    if (_isInitialized)
+                        SyncTextAndValueProperties(change.Property, newValue);
+                }
+            }
+            else if (change.Property == ValueTypeProperty)
+            {
+                OnValueTypeChanged(change.GetOldValue<Type>(), change.GetNewValue<Type>());
+            }
         }
 
         protected virtual void OnTextChanged(string previousValue, string currentValue)
@@ -61,38 +89,25 @@ namespace gip.core.layoutengine.avui
 
         #region Value
 
-        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(Const.Value, typeof(object), typeof(InputBase), new FrameworkPropertyMetadata(default(object), FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, OnValuePropertyChanged, OnCoerceValuePropertyCallback));
+        public static readonly StyledProperty<object> ValueProperty = 
+            AvaloniaProperty.Register<InputBase, object>(Const.Value, defaultBindingMode: Avalonia.Data.BindingMode.TwoWay, 
+                coerce: OnCoerceValuePropertyCallback);
+        
         public virtual object Value
         {
-            get { return (object)GetValue(ValueProperty); }
+            get { return GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
-        }
-
-        private static void OnValuePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            InputBase input = (InputBase)d;
-
-            if (e.OldValue != e.NewValue)
-            {
-                input.PreviousValue = e.OldValue;
-                input.OnValueChanged(e.OldValue, e.NewValue);
-
-                if (input._isInitialized)
-                    input.SyncTextAndValueProperties(e.Property, e.NewValue);
-            }
         }
 
         protected virtual void OnValueChanged(object oldValue, object newValue)
         {
-            RoutedPropertyChangedEventArgs<object> args = new RoutedPropertyChangedEventArgs<object>(oldValue, newValue);
-            args.RoutedEvent = InputBase.ValueChangedEvent;
+            var args = new RoutedEventArgs<object>(ValueChangedEvent, this, oldValue, newValue);
             RaiseEvent(args);
         }
 
-        private static object OnCoerceValuePropertyCallback(DependencyObject d, object baseValue)
+        private static object OnCoerceValuePropertyCallback(AvaloniaObject d, object baseValue)
         {
-            InputBase inputBase = d as InputBase;
-            if (inputBase != null)
+            if (d is InputBase inputBase)
                 return inputBase.OnCoerceValue(baseValue);
             else
                 return baseValue;
@@ -107,17 +122,13 @@ namespace gip.core.layoutengine.avui
 
         #region ValueType
 
-        public static readonly DependencyProperty ValueTypeProperty = DependencyProperty.Register("ValueType", typeof(Type), typeof(InputBase), new FrameworkPropertyMetadata(typeof(String), FrameworkPropertyMetadataOptions.None, new PropertyChangedCallback(OnValueTypePropertyChanged)));
+        public static readonly StyledProperty<Type> ValueTypeProperty = 
+            AvaloniaProperty.Register<InputBase, Type>(nameof(ValueType), typeof(String));
+        
         public Type ValueType
         {
-            get { return (Type)GetValue(ValueTypeProperty); }
+            get { return GetValue(ValueTypeProperty); }
             set { SetValue(ValueTypeProperty, value); }
-        }
-
-        private static void OnValueTypePropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            InputBase input = (InputBase)d;
-            input.OnValueTypeChanged((Type)e.OldValue, (Type)e.NewValue);
         }
 
         protected virtual void OnValueTypeChanged(Type oldValue, Type newType)
@@ -133,12 +144,11 @@ namespace gip.core.layoutengine.avui
         #region Base Class Overrides
 
         /// <summary>
-        /// The event hander for Initialized event.
+        /// The event handler for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnInitialized(e);
+            base.OnApplyTemplate(e);
 
             if (!_isInitialized)
             {
@@ -151,8 +161,10 @@ namespace gip.core.layoutengine.avui
 
         #region Events
 
-        public static readonly RoutedEvent ValueChangedEvent = EventManager.RegisterRoutedEvent("ValueChanged", RoutingStrategy.Bubble, typeof(RoutedPropertyChangedEventHandler<object>), typeof(InputBase));
-        public event RoutedPropertyChangedEventHandler<object> ValueChanged
+        public static readonly RoutedEvent<RoutedEventArgs<object>> ValueChangedEvent = 
+            RoutedEvent.Register<InputBase, RoutedEventArgs<object>>(nameof(ValueChanged), RoutingStrategies.Bubble);
+        
+        public event EventHandler<RoutedEventArgs<object>> ValueChanged
         {
             add { AddHandler(ValueChangedEvent, value); }
             remove { RemoveHandler(ValueChangedEvent, value); }
@@ -162,7 +174,7 @@ namespace gip.core.layoutengine.avui
 
         #region Methods
 
-        protected void SyncTextAndValueProperties(DependencyProperty p, object newValue)
+        protected void SyncTextAndValueProperties(AvaloniaProperty p, object newValue)
         {
             //prevents recursive syncing properties
             if (_isSyncingTextAndValueProperties)
@@ -170,10 +182,10 @@ namespace gip.core.layoutengine.avui
 
             _isSyncingTextAndValueProperties = true;
 
-            //this only occures when the user typed in the value
+            //this only occurs when the user typed in the value
             if (InputBase.TextProperty == p)
             {
-                SetValue(InputBase.ValueProperty, ConvertTextToValue(newValue.ToString()));
+                SetValue(InputBase.ValueProperty, ConvertTextToValue(newValue?.ToString()));
             }
 
             SetValue(InputBase.TextProperty, ConvertValueToText(newValue));
@@ -190,5 +202,22 @@ namespace gip.core.layoutengine.avui
         protected abstract string ConvertValueToText(object value);
 
         #endregion //Abstract
+    }
+
+    /// <summary>
+    /// Custom RoutedEventArgs for value changed events that includes old and new values
+    /// </summary>
+    /// <typeparam name="T">The type of the value</typeparam>
+    public class RoutedEventArgs<T> : RoutedEventArgs
+    {
+        public T OldValue { get; }
+        public T NewValue { get; }
+
+        public RoutedEventArgs(RoutedEvent routedEvent, Interactive source, T oldValue, T newValue) 
+            : base(routedEvent, source)
+        {
+            OldValue = oldValue;
+            NewValue = newValue;
+        }
     }
 }

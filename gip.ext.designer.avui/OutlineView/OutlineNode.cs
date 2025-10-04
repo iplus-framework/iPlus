@@ -272,7 +272,10 @@ namespace gip.ext.designer.avui.OutlineView
             if (_menu == null || _menu.MainHeader == null)
                 return;
             if (_menu.MainHeader != null)
+            {
                 _menu.MainHeader.Click += MainHeaderClick;
+                _menu.MainHeader.PointerPressed += MainHeader_PointerPressed;
+            }
 
             //if (_menu.MainHeader.Items.Count <= 0)
             //{
@@ -292,7 +295,10 @@ namespace gip.ext.designer.avui.OutlineView
             if (_menu == null || _menu.MainHeader == null || _menu.MainHeader.Items.Count > 0)
                 return;
             if (_menu.MainHeader != null)
+            {
                 _menu.MainHeader.Click -= MainHeaderClick;
+                _menu.MainHeader.PointerPressed -= MainHeader_PointerPressed;
+            }
         }
 
         public virtual int BuildMenu()
@@ -306,7 +312,7 @@ namespace gip.ext.designer.avui.OutlineView
             QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, this.DesignItem, _menu);
         }
 
-        public void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
+        public virtual void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, this.DesignItem, _menu);
         }

@@ -1,38 +1,33 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Interactivity;
+using Avalonia.Threading;
+using AvaloniaEdit.Folding;
+using AvaloniaEdit.Highlighting;
+using AvaloniaEdit.Highlighting.Xshd;
+using AvaloniaEdit.Indentation;
+using AvaloniaEdit.Indentation.CSharp;
+using gip.core.datamodel;
+using gip.ext.design.avui;
+using gip.ext.design.avui.PropertyGrid;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using System.ComponentModel;
 using System.IO;
 using System.Xml;
-using System.Xml.Linq;
-using System.ComponentModel;
-using System.Windows.Controls.Primitives;
-using System.Windows.Threading;
-using gip.core.datamodel;
-using gip.ext.design.avui.PropertyGrid;
-using gip.ext.design.avui;
-using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Folding;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {
     /// <summary>
     /// Represents a view editor for convertes.
     /// </summary>
-    public partial class VBConverterEditorView : INotifyPropertyChanged //: ITypeEditorInitItem
-	{
+    public partial class VBConverterEditorView : UserControl, INotifyPropertyChanged //: ITypeEditorInitItem
+    {
 		/// <summary>
         /// Create a new VBConverterEditorView instance.
 		/// </summary>
@@ -50,8 +45,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                     throw new InvalidOperationException("Could not find embedded resource");
                 using (XmlReader reader = new XmlTextReader(s))
                 {
-                    customHighlighting = ICSharpCode.AvalonEdit.Highlighting.Xshd.
-                        HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                    customHighlighting = HighlightingLoader.Load(reader, HighlightingManager.Instance);
                 }
             }
             HighlightingManager.Instance.RegisterHighlighting("C#", new string[] { ".cs" }, customHighlighting);
@@ -65,8 +59,8 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             foldingUpdateTimer.Start();
 
             ComboConverter.ItemsSource = ConverterList;
-            ComboConverter.DisplayMemberPath = "ConverterName";
-            ComboConverter.SelectionChanged += new SelectionChangedEventHandler(ComboConverter_SelectionChanged);
+            ComboConverter.DisplayMemberBinding = new Avalonia.Data.Binding("ConverterName");
+            ComboConverter.SelectionChanged += ComboConverter_SelectionChanged;
 
             List<ConverterBase.ConvType> convTypes = new List<ConverterBase.ConvType>();
             foreach (ConverterBase.ConvType value in Enum.GetValues(typeof(ConverterBase.ConvType)))
@@ -75,34 +69,165 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             }
             ComboConversionBy.ItemsSource = convTypes;
 
-            ucAvalonTextEditor.LostKeyboardFocus += new KeyboardFocusChangedEventHandler(ucAvalonTextEditor_LostKeyboardFocus);
+            ucAvalonTextEditor.LostFocus += ucAvalonTextEditor_LostKeyboardFocus;
         }
 
+        private void UcAvalonTextEditor_LostFocus(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
-        IPropertyNode property;
+        /// <summary>
+        /// Defines the Property styled property.
+        /// </summary>
+        public static readonly StyledProperty<IPropertyNode> PropertyProperty =
+            AvaloniaProperty.Register<VBConverterEditorView, IPropertyNode>(nameof(Property));
+
+        /// <summary>
+        /// Gets or sets the property node.
+        /// </summary>
         public IPropertyNode Property
         {
-            get
+            get => GetValue(PropertyProperty);
+            set => SetValue(PropertyProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the GlobalFunction styled property.
+        /// </summary>
+        public static readonly StyledProperty<bool> GlobalFunctionProperty =
+            AvaloniaProperty.Register<VBConverterEditorView, bool>(nameof(GlobalFunction));
+
+        /// <summary>
+        /// Gets or sets the global function value.
+        /// </summary>
+        public bool GlobalFunction
+        {
+            get => GetValue(GlobalFunctionProperty);
+            set => SetValue(GlobalFunctionProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the ACUrlCommand styled property.
+        /// </summary>
+        public static readonly StyledProperty<string> ACUrlCommandProperty =
+            AvaloniaProperty.Register<VBConverterEditorView, string>(nameof(ACUrlCommand), "");
+
+        /// <summary>
+        /// Gets or sets the AC URL command.
+        /// </summary>
+        public string ACUrlCommand
+        {
+            get => GetValue(ACUrlCommandProperty);
+            set => SetValue(ACUrlCommandProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the Expression styled property.
+        /// </summary>
+        public static readonly StyledProperty<string> ExpressionProperty =
+            AvaloniaProperty.Register<VBConverterEditorView, string>(nameof(Expression), "");
+
+        /// <summary>
+        /// Gets or sets the expression.
+        /// </summary>
+        public string Expression
+        {
+            get => GetValue(ExpressionProperty);
+            set => SetValue(ExpressionProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the ConversionBy styled property.
+        /// </summary>
+        public static readonly StyledProperty<ConverterBase.ConvType> ConversionByProperty =
+            AvaloniaProperty.Register<VBConverterEditorView, ConverterBase.ConvType>(nameof(ConversionBy), ConverterBase.ConvType.Direct);
+
+        /// <summary>
+        /// Gets or sets the conversion type.
+        /// </summary>
+        public ConverterBase.ConvType ConversionBy
+        {
+            get => GetValue(ConversionByProperty);
+            set => SetValue(ConversionByProperty, value);
+        }
+
+        static VBConverterEditorView()
+        {
+            // Register property changed handlers
+            PropertyProperty.Changed.AddClassHandler<VBConverterEditorView>((sender, e) => sender.OnPropertyChanged(e.NewValue as IPropertyNode));
+            GlobalFunctionProperty.Changed.AddClassHandler<VBConverterEditorView>((sender, e) => sender.OnGlobalFunctionChanged((bool)e.NewValue));
+            ACUrlCommandProperty.Changed.AddClassHandler<VBConverterEditorView>((sender, e) => sender.OnACUrlCommandChanged((string)e.NewValue));
+            ExpressionProperty.Changed.AddClassHandler<VBConverterEditorView>((sender, e) => sender.OnExpressionChanged((string)e.NewValue));
+            ConversionByProperty.Changed.AddClassHandler<VBConverterEditorView>((sender, e) => sender.OnConversionByChanged((ConverterBase.ConvType)e.NewValue));
+        }
+
+        private void OnPropertyChanged(IPropertyNode newProperty)
+        {
+            ComboConverter.ItemsSource = ConverterList;
+            if (DesignObject != null && DesignObject.Component != null)
+                ConversionBy = (DesignObject.Component as ConverterBase).ConversionBy;
+            else
+                ConversionBy = ConverterBase.ConvType.Direct;
+            if (ucAvalonTextEditor != null)
             {
-                return property;
+                _OnTargetUpdated = true;
+                ucAvalonTextEditor.Text = Expression;
+                _OnTargetUpdated = false;
             }
-            set
+            RefreshView();
+            UpdateVisibility();
+        }
+
+        private void OnGlobalFunctionChanged(bool value)
+        {
+            if (DesignObject != null)
+                DesignObject.Properties["GlobalFunction"].SetValue(value);
+        }
+
+        private void OnACUrlCommandChanged(string value)
+        {
+            if (DesignObject != null)
+                DesignObject.Properties["ACUrlCommand"].SetValue(value);
+        }
+
+        private void OnExpressionChanged(string value)
+        {
+            if (DesignObject != null)
+                DesignObject.Properties["Expression"].SetValue(value);
+        }
+
+        private void OnConversionByChanged(ConverterBase.ConvType value)
+        {
+            if (DesignObject != null)
             {
-                property = value;
-                ComboConverter.ItemsSource = ConverterList;
-                if (DesignObject != null && DesignObject.Component != null)
-                    _ConversionBy = (DesignObject.Component as ConverterBase).ConversionBy;
-                else
-                    _ConversionBy = ConverterBase.ConvType.Direct;
-                if (ucAvalonTextEditor != null)
+                if (value == ConverterBase.ConvType.ScriptEngine)
                 {
+                    DesignObject.Properties["Expression"].Reset();
+                    _OnTargetUpdated = true;
+                    ucAvalonTextEditor.Text = "";
+                    _OnTargetUpdated = false;
+                }
+                else if (value == ConverterBase.ConvType.Expression)
+                {
+                    DesignObject.Properties["ACUrlCommand"].Reset();
+                    DesignObject.Properties["GlobalFunction"].Reset();
                     _OnTargetUpdated = true;
                     ucAvalonTextEditor.Text = Expression;
                     _OnTargetUpdated = false;
                 }
-                RefreshView();
-                UpdateVisibility();
+                else
+                {
+                    DesignObject.Properties["Expression"].Reset();
+                    _OnTargetUpdated = true;
+                    ucAvalonTextEditor.Text = "";
+                    _OnTargetUpdated = false;
+                    DesignObject.Properties["ACUrlCommand"].Reset();
+                    DesignObject.Properties["GlobalFunction"].Reset();
+                }
             }
+            RefreshView();
+            UpdateVisibility();
         }
 
         public IEnumerable<ConverterManager.ConverterEntry> ConverterList
@@ -136,140 +261,39 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             }
         }
 
-        //public void InitEditor(DesignItem designObject)
-        //{
-        //    DesignObject = designObject;
-        //}
-
-        public bool GlobalFunction
-        {
-            get
-            {
-                if (DesignObject == null)
-                    return false;
-                object result = DesignObject.Properties["GlobalFunction"].ValueOnInstance;
-                if (result == null)
-                    return false;
-                return (bool)result;
-            }
-            set
-            {
-                if (DesignObject != null)
-                    DesignObject.Properties["GlobalFunction"].SetValue(value);
-            }
-        }
-
-        public string ACUrlCommand
-        {
-            get
-            {
-                if (DesignObject == null)
-                    return "";
-                object result = DesignObject.Properties["ACUrlCommand"].ValueOnInstance;
-                if (result == null)
-                    return "";
-                return (string)result;
-            }
-            set
-            {
-                if (DesignObject != null)
-                    DesignObject.Properties["ACUrlCommand"].SetValue(value);
-            }
-        }
-
-        public string Expression
-        {
-            get
-            {
-                if (DesignObject == null)
-                    return "";
-                object result = DesignObject.Properties["Expression"].ValueOnInstance;
-                if (result == null)
-                    return "";
-                return (string)result;
-            }
-            set
-            {
-                if (DesignObject != null)
-                    DesignObject.Properties["Expression"].SetValue(value);
-            }
-        }
-
-        private ConverterBase.ConvType _ConversionBy;
-        public ConverterBase.ConvType ConversionBy
-        {
-            get
-            {
-                return _ConversionBy;
-            }
-            set
-            {
-                _ConversionBy = value;
-                if (DesignObject != null)
-                {
-                    if (value == ConverterBase.ConvType.ScriptEngine)
-                    {
-                        DesignObject.Properties["Expression"].Reset();
-                        _OnTargetUpdated = true;
-                        ucAvalonTextEditor.Text = "";
-                        _OnTargetUpdated = false;
-                    }
-                    else if (value == ConverterBase.ConvType.Expression)
-                    {
-                        DesignObject.Properties["ACUrlCommand"].Reset();
-                        DesignObject.Properties["GlobalFunction"].Reset();
-                        _OnTargetUpdated = true;
-                        ucAvalonTextEditor.Text = Expression;
-                        _OnTargetUpdated = false;
-                    }
-                    else
-                    {
-                        DesignObject.Properties["Expression"].Reset();
-                        _OnTargetUpdated = true;
-                        ucAvalonTextEditor.Text = "";
-                        _OnTargetUpdated = false;
-                        DesignObject.Properties["ACUrlCommand"].Reset();
-                        DesignObject.Properties["GlobalFunction"].Reset();
-                    }
-                }
-                RefreshView();
-                UpdateVisibility();
-            }
-        }
-
         private void UpdateVisibility()
         {
             if (ConversionBy == ConverterBase.ConvType.ScriptEngine)
             {
-                ucAvalonTextEditor.Visibility = System.Windows.Visibility.Collapsed;
-                tbACUrlCmd.Visibility = System.Windows.Visibility.Visible;
-                cbGlobal.Visibility = System.Windows.Visibility.Visible;
+                ucAvalonTextEditor.IsVisible = false;
+                tbACUrlCmd.IsVisible = true;
+                cbGlobal.IsVisible = true;
             }
             else if (ConversionBy == ConverterBase.ConvType.Expression)
             {
-                ucAvalonTextEditor.Visibility = System.Windows.Visibility.Visible;
-                tbACUrlCmd.Visibility = System.Windows.Visibility.Collapsed;
-                cbGlobal.Visibility = System.Windows.Visibility.Collapsed;
+                ucAvalonTextEditor.IsVisible = true;
+                tbACUrlCmd.IsVisible = false;
+                cbGlobal.IsVisible = false;
             }
             else
             {
-                ucAvalonTextEditor.Visibility = System.Windows.Visibility.Collapsed;
-                tbACUrlCmd.Visibility = System.Windows.Visibility.Collapsed;
-                cbGlobal.Visibility = System.Windows.Visibility.Collapsed;
+                ucAvalonTextEditor.IsVisible = false;
+                tbACUrlCmd.IsVisible = false;
+                cbGlobal.IsVisible = false;
             }
             if (Property != null)
             {
                 _InSelectionUpdate = true;
                 if (DesignObject == null)
                 {
-                    ComboConversionBy.Visibility = System.Windows.Visibility.Collapsed;
+                    ComboConversionBy.IsVisible = false;
                     ButtonReset.IsEnabled = false;
                     ComboConverter.IsEnabled = true;
                     ComboConverter.SelectedValue = null;
                 }
                 else
                 {
-                    ComboConversionBy.Visibility = System.Windows.Visibility.Visible;
+                    ComboConversionBy.IsVisible = true;
                     ButtonReset.IsEnabled = true;
                     ComboConverter.SelectedIndex = ConverterList.IndexWhere(c => c.ConverterType == DesignObject.ComponentType);
                     ComboConverter.IsEnabled = false;
@@ -280,10 +304,27 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 
         private void RefreshView()
         {
-            RaisePropertyChanged("GlobalFunction");
-            RaisePropertyChanged("ACUrlCommand");
-            RaisePropertyChanged("Expression");
-            RaisePropertyChanged("ConversionBy");
+            // Update properties from DesignObject
+            if (DesignObject != null)
+            {
+                // Update GlobalFunction
+                object globalFunctionResult = DesignObject.Properties["GlobalFunction"].ValueOnInstance;
+                GlobalFunction = globalFunctionResult != null ? (bool)globalFunctionResult : false;
+
+                // Update ACUrlCommand
+                object acUrlCommandResult = DesignObject.Properties["ACUrlCommand"].ValueOnInstance;
+                ACUrlCommand = acUrlCommandResult != null ? (string)acUrlCommandResult : "";
+
+                // Update Expression
+                object expressionResult = DesignObject.Properties["Expression"].ValueOnInstance;
+                Expression = expressionResult != null ? (string)expressionResult : "";
+            }
+            else
+            {
+                GlobalFunction = false;
+                ACUrlCommand = "";
+                Expression = "";
+            }
         }
 
         private bool _OnTargetUpdated = false;
@@ -295,7 +336,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             _EditorTextChanged = true;
         }
 
-        void ucAvalonTextEditor_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        void ucAvalonTextEditor_LostKeyboardFocus(object sender, RoutedEventArgs e)
         {
             if (_EditorTextChanged)
             {
@@ -328,10 +369,10 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                 {
                     case "C#":
                         foldingStrategy = new VBScriptEditorBraceFoldingStrategy();
-                        ucAvalonTextEditor.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.CSharp.CSharpIndentationStrategy(ucAvalonTextEditor.Options);
+                        ucAvalonTextEditor.TextArea.IndentationStrategy = new CSharpIndentationStrategy(ucAvalonTextEditor.Options);
                         break;
                     default:
-                        ucAvalonTextEditor.TextArea.IndentationStrategy = new ICSharpCode.AvalonEdit.Indentation.DefaultIndentationStrategy();
+                        ucAvalonTextEditor.TextArea.IndentationStrategy = new DefaultIndentationStrategy();
                         foldingStrategy = null;
                         break;
                 }
@@ -370,13 +411,14 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             if (Property == null)
                 return;
             Property.Reset();
-            _ConversionBy = ConverterBase.ConvType.Direct;
+            ConversionBy = ConverterBase.ConvType.Direct;
             _OnTargetUpdated = true;
             ucAvalonTextEditor.Text = "";
             _OnTargetUpdated = false;
             RefreshView();
             UpdateVisibility();
         }
+
 
         private bool _InSelectionUpdate = false;
         void ComboConverter_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -404,7 +446,8 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             UpdateVisibility();
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        // Keep INotifyPropertyChanged for compatibility, but it's now handled by StyledProperties
+        public new event PropertyChangedEventHandler PropertyChanged;
         protected void RaisePropertyChanged(string name)
         {
             if (PropertyChanged != null)

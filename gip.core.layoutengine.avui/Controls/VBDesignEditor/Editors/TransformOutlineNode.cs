@@ -1,24 +1,10 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
 using gip.ext.design.avui;
-using System.Collections.ObjectModel;
-using System.Collections;
-using gip.ext.designer.avui;
-using gip.ext.xamldom.avui;
-using gip.ext.design.avui.PropertyGrid;
-using System.Windows;
-using System.Windows.Controls;
-using System.Reflection;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Markup;
 using gip.ext.designer.avui.OutlineView;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {

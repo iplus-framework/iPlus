@@ -1,35 +1,35 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Labs.Input;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.designer.avui;
+using SkiaSharp;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
-using gip.ext.designer.avui;
-using gip.core.layoutengine.avui.Helperclasses;
-using System.Windows.Markup;
-using System.Windows.Threading;
 using System.ComponentModel;
 using System.IO;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
-using System.Windows.Controls.Primitives;
-using Avalonia.Controls;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
-    /// <summary>
-    /// Basis class for Content Controls
-    /// </summary>
-    /// <summary>
-    /// Basisklasse für Inhaltssteuerelemente
-    /// </summary>
+
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesignBase'}de{'VBDesignBase'}", Global.ACKinds.TACVBControl)]
     public abstract class VBDesignBase : ContentControl, IVBContent, IACObject, IACMenuBuilderWPFTree
     {
         #region c'tors
         static VBDesignBase()
         {
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBDesignBase>();
         }
 
         public VBDesignBase()
@@ -37,30 +37,20 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            this.Loaded += new RoutedEventHandler(VBDesignBase_Loaded);
-            this.Unloaded += new RoutedEventHandler(VBDesignBase_Unloaded);
+            base.OnInitialized();
+            this.Loaded += VBDesignBase_Loaded;
+            this.Unloaded += VBDesignBase_Unloaded;
         }
 
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
         protected bool _LoadedBase = false;
-        /// <summary>
-        /// Initializes the VB control.
-        /// </summary>
         internal virtual void InitVBControl()
         {
             if (!_LoadedBase && BSOACComponent != null)
@@ -84,15 +74,19 @@ namespace gip.core.layoutengine.avui
                     {
                         if (instanceInfo.SetAsDataContext)
                         {
-                            Binding binding = new Binding();
-                            binding.Source = subACComponent;
-                            this.SetBinding(FrameworkElement.DataContextProperty, binding);
+                            var binding = new Binding
+                            {
+                                Source = subACComponent
+                            };
+                            this.Bind(Control.DataContextProperty, binding);
                         }
                         if (instanceInfo.SetAsBSOACComponet)
                         {
-                            Binding binding = new Binding();
-                            binding.Source = subACComponent;
-                            this.SetBinding(VBDesignBase.BSOACComponentProperty, binding);
+                            var binding = new Binding
+                            {
+                                Source = subACComponent
+                            };
+                            this.Bind(VBDesignBase.BSOACComponentProperty, binding);
                         }
                     }
                     else
@@ -106,37 +100,36 @@ namespace gip.core.layoutengine.avui
 
                 if (!string.IsNullOrEmpty(BSOIsActivated))
                 {
-                    Binding binding = new Binding();
-                    binding.Path = new PropertyPath(BSOIsActivated);
-                    binding.Converter = new ConverterVisibilityBool();
-                    SetBinding(VisibilityProperty, binding);
+                    var binding = new Binding
+                    {
+                        Path = BSOIsActivated,
+                        Converter = new ConverterVisibilityBool()
+                    };
+                    this.Bind(IsVisibleProperty, binding);
                 }
 
                 if (BSOACComponent != null)
                 {
-                    Binding binding = new Binding();
-                    binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.InitState);
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBDesignBase.ACCompInitStateProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = BSOACComponent,
+                        Path = Const.InitState,
+                        Mode = BindingMode.OneWay
+                    };
+                    this.Bind(VBDesignBase.ACCompInitStateProperty, binding);
 
-                    binding = new Binding();
-                    binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBDesignBase.ACUrlCmdMessageProperty, binding);
+                    binding = new Binding
+                    {
+                        Source = BSOACComponent,
+                        Path = Const.ACUrlCmdMessage,
+                        Mode = BindingMode.OneWay
+                    };
+                    this.Bind(VBDesignBase.ACUrlCmdMessageProperty, binding);
                 }
                 _LoadedBase = true;
             }
         }
 
-        /// <summary>
-        /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
-        /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
-        /// Controls that implement this interface should bind itself to the InitState of the BSOACComponent.
-        /// When the BSOACComponent stops and the property changes to Destructed- or DisposedToPool-State than this method should be called.
-        /// </summary>
-        /// <param name="bso">The bound BSOACComponent</param>
         public virtual void DeInitVBControl(IACComponent bso)
         {
             if (!_LoadedBase)
@@ -152,9 +145,6 @@ namespace gip.core.layoutengine.avui
                 _dispTimer = null;
             }
 
-            BindingOperations.ClearBinding(this, VBDesignBase.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBDesignBase.ACCompInitStateProperty);
-            BindingOperations.ClearBinding(this, VBDesignBase.MsgFromSelMngrProperty);
             this.ClearAllBindings();
 
             _SelectionManager = null;
@@ -177,6 +167,10 @@ namespace gip.core.layoutengine.avui
 
         protected virtual void VBDesignBase_Unloaded(object sender, RoutedEventArgs e)
         {
+            this.KeyUp -= DesignPanel_KeyUp;
+            this.KeyDown -= DesignPanel_KeyDown;
+            _pressedKeys.Clear();
+
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -189,6 +183,9 @@ namespace gip.core.layoutengine.avui
 
         protected virtual void VBDesignBase_Loaded(object sender, RoutedEventArgs e)
         {
+            this.KeyUp += DesignPanel_KeyUp;
+            this.KeyDown += DesignPanel_KeyDown;
+
             InitVBControl(); // Aufruf leider notwendig, weil im VBDockingPanelTabbedDoc.container_VBDesignLoaded erst bei Loaded-Event der TabItem-Name refreshed wird
             //InstanceSelectionManager();
 
@@ -199,7 +196,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                if (ReadLocalValue(CanExecuteCyclicProperty) != DependencyProperty.UnsetValue)
+                if (this.IsSet(CanExecuteCyclicProperty))
                 {
                     _dispTimer = new DispatcherTimer();
                     _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
@@ -208,25 +205,15 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            if(!string.IsNullOrEmpty(VBContent) && ContextACObject != null && ContextACObject is IACComponent)
-                (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.VBDesignLoaded));
-        }
-
-        protected override void OnContentChanged(object oldContent, object newContent)
-        {
-            base.OnContentChanged(oldContent, newContent);
             if (!string.IsNullOrEmpty(VBContent) && ContextACObject != null && ContextACObject is IACComponent)
-                (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.VBDesignChanged));
+                (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.VBDesignLoaded));
         }
 
         #endregion
 
         #region InstanceInfo
         public VBInstanceInfoList _InstanceInfoList = new VBInstanceInfoList();
-        /// <summary>
-        /// Gets or sets the list of instance infos.
-        /// </summary>
-        [Content]
+
         public VBInstanceInfoList InstanceInfoList
         {
             get
@@ -239,11 +226,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Checks if is instance info with associated key exists in InstaceInfoList.
-        /// </summary>
-        /// <param name="key">The instance info key parameter.</param>
-        /// <returns>True if is exist, otherwise false.</returns>
         public bool ContainsInstanceInfoForKey(string key)
         {
             if (this.InstanceInfoList.Count <= 0)
@@ -251,11 +233,6 @@ namespace gip.core.layoutengine.avui
             return (this.InstanceInfoList.Where(c => c.Key == key).Any());
         }
 
-        /// <summary>
-        /// Checks if is instance info with associated acIdentifier exists in InstaceInfoList.
-        /// </summary>
-        /// <param name="acIdentifier">The instance info acIdentifier parameter.</param>
-        /// <returns>True if is exist, otherwise false.</returns>
         public bool ContainsInstanceInfoForACIdentifier(string acIdentifier)
         {
             if (this.InstanceInfoList.Count <= 0)
@@ -263,12 +240,6 @@ namespace gip.core.layoutengine.avui
             return (this.InstanceInfoList.Where(c => c.ACIdentifier == acIdentifier).Any());
         }
 
-        /// <summary>
-        /// Finds VBDesign with instance info by key.
-        /// </summary>
-        /// <param name="bsoACComponent">The bsoACComponent parameter.</param>
-        /// <param name="key">The instance info key parameter.</param>
-        /// <returns>The VBDesignBase object if is found, otherwise null.</returns>
         protected VBDesignBase FindVBDesignWithInstanceInfoByKey(IACComponent bsoACComponent, string key)
         {
             if (bsoACComponent == null)
@@ -296,12 +267,6 @@ namespace gip.core.layoutengine.avui
             return null;
         }
 
-        /// <summary>
-        /// Find VBDesign with instance info by ACIdentifier.
-        /// </summary>
-        /// <param name="bsoACComponent">The bsoACComponent parameter.</param>
-        /// <param name="acIdentifier">The instance info acIdentifier parameter.</param>
-        /// <returns>The VBDesignBase object if is found, otherwise null.</returns>
         protected VBDesignBase FindVBDesignWithInstanceInfoByACIdentifier(IACComponent bsoACComponent, string acIdentifier)
         {
             if (bsoACComponent == null)
@@ -329,14 +294,6 @@ namespace gip.core.layoutengine.avui
             return null;
         }
 
-        /// <summary>
-        /// Gets the ACComponent by key.
-        /// </summary>
-        /// <param name="bsoACComponent">The bsoACComponent parameter.</param>
-        /// <param name="key">The instance info key.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="findOnly">The findOnly parameter.</param>
-        /// <returns>The ACComponent object if is found or started, otherwise null.</returns>
         public IACComponent GetACComponentByKey(IACComponent bsoACComponent, string key, object[] parameter = null, bool findOnly = false)
         {
             if (bsoACComponent == null)
@@ -360,14 +317,6 @@ namespace gip.core.layoutengine.avui
             return subACComponent;
         }
 
-        /// <summary>
-        /// Gets the ACComponent by ACIdentifier.
-        /// </summary>
-        /// <param name="bsoACComponent">The bsoACComponent parameter.</param>
-        /// <param name="acIdentifier">The instance info acIdentifier parameter.</param>
-        /// <param name="parameter">The parameter.</param>
-        /// <param name="findOnly">The findOnly parameter.</param>
-        /// <returns>The ACComponent object if is found or started, otherwise null.</returns>
         public IACComponent GetACComponentByACIdentifier(IACComponent bsoACComponent, string acIdentifier, object[] parameter = null, bool findOnly = false)
         {
             if (bsoACComponent == null)
@@ -394,87 +343,56 @@ namespace gip.core.layoutengine.avui
 
         #region IVBContent Member
 
-        /// <summary>
-        /// Represents the dependency property for BSOACComponent.
-        /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
-        /// <summary>
-        /// Gets or sets the BSOACComponent.
-        /// </summary>
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty =
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDesignBase>();
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for ACUrlCmdMessage.
-        /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBDesignBase),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBDesignBase, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
-        /// <summary>
-        /// Gets or sets the ACUrlCmdMessage.
-        /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependeny property for MsgFromSelMngr.
-        /// </summary>
-        public static readonly DependencyProperty MsgFromSelMngrProperty =
-            DependencyProperty.Register("MsgFromSelMngr",
-                typeof(ACUrlCmdMessage), typeof(VBDesignBase),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> MsgFromSelMngrProperty =
+            AvaloniaProperty.Register<VBDesignBase, ACUrlCmdMessage>(nameof(MsgFromSelMngr));
 
-        /// <summary>
-        /// Gets or sets the ACUrlCmdMessage from selection manager.
-        /// </summary>
         public ACUrlCmdMessage MsgFromSelMngr
         {
-            get { return (ACUrlCmdMessage)GetValue(MsgFromSelMngrProperty); }
+            get { return GetValue(MsgFromSelMngrProperty); }
             set { SetValue(MsgFromSelMngrProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for ACCompInitState.
-        /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBDesignBase),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBDesignBase, ACInitState>(nameof(ACCompInitState));
 
-        /// <summary>
-        /// Gets or sets the ACCompInitState.
-        /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBDesignBase thisControl = dependencyObject as VBDesignBase;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACUrlCmdMessageProperty)
+            base.OnPropertyChanged(change);
+            VBDesignBase thisControl = this;
+            if (change.Property == ACUrlCmdMessageProperty)
                 thisControl.OnACUrlMessageReceived();
-            else if (args.Property == MsgFromSelMngrProperty)
+            else if (change.Property == MsgFromSelMngrProperty)
                 thisControl.OnMsgFromSelMngrReceived();
-            else if (args.Property == ACCompInitStateProperty)
+            else if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
                         thisControl.DeInitVBControl(bso);
                 }
@@ -483,9 +401,6 @@ namespace gip.core.layoutengine.avui
 
 
         private IACComponent _SelectionManager;
-        /// <summary>
-        /// Gets the selection manager.
-        /// </summary>
         public IACComponent VBBSOSelectionManager
         {
             get
@@ -503,19 +418,19 @@ namespace gip.core.layoutengine.avui
 
             if (_SelectionManager != null)
             {
-                if (BindingOperations.GetBindingExpression(this, VBDesignBase.MsgFromSelMngrProperty) == null)
+                if (BindingOperations.GetBindingExpressionBase(this, VBDesignBase.MsgFromSelMngrProperty) == null)
                 {
-                    Binding binding = new Binding();
-                    binding.Source = _SelectionManager;
-                    binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBDesignBase.MsgFromSelMngrProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = _SelectionManager,
+                        Path = Const.ACUrlCmdMessage,
+                        Mode = BindingMode.OneWay
+                    };
+                    this.Bind(VBDesignBase.MsgFromSelMngrProperty, binding);
                 }
             }
         }
 
-        /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
-        /// <value>The Unique Identifier as string</value>
         public string ACIdentifier
         {
             get
@@ -529,89 +444,56 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Represents the dependency property for CanExecuteCyclic.
-        /// </summary>
-        public static readonly DependencyProperty CanExecuteCyclicProperty = ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.Inherits));
-        /// <summary>
-        /// Determines is cyclic execution enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Bestimmt, ob die zyklische Ausführung aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausführung in Millisekunden.
-        /// </summary>
+        public static readonly AttachedProperty<int> CanExecuteCyclicProperty =
+            ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner<VBDesignBase>();
         public int CanExecuteCyclic
         {
-            get { return (int)GetValue(CanExecuteCyclicProperty); }
+            get { return GetValue(CanExecuteCyclicProperty); }
             set { SetValue(CanExecuteCyclicProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for DisableContextMenu.
-        /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
-        /// <summary>
-        /// Determines is context menu disabled or enabled.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Ermittelt ist das Kontextmenü deaktiviert oder aktiviert
-        /// </summary>
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty =
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBDesignBase>();
         [Category("VBControl")]
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
 
-        /// <summary>
-        /// Property to Enable Drag and Drop Behaviour.
-        /// </summary>
-        public static readonly DependencyProperty DragEnabledProperty = ContentPropertyHandler.DragEnabledProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(DragMode.Disabled, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<DragMode> DragEnabledProperty =
+            ContentPropertyHandler.DragEnabledProperty.AddOwner<VBDesignBase>();
         public DragMode DragEnabled
         {
-            get { return (DragMode)GetValue(DragEnabledProperty); }
+            get { return GetValue(DragEnabledProperty); }
             set { SetValue(DragEnabledProperty, value); }
         }
 
-
-        /// <summary>
-        /// Represents the dependency property for StringFormat.
-        /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
-        /// <summary>
-        /// Gets or sets the string format for the control.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt das Stringformat für das Steuerelement.
-        /// </summary>
+        public static readonly AttachedProperty<string> StringFormatProperty;
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string StringFormat
         {
-            get { return (string)GetValue(StringFormatProperty); }
+            get { return GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
 
 
-        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
-        /// <summary>
-        /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
-        /// </summary>
+        public static readonly AttachedProperty<bool> AnimationOffProperty =
+            ContentPropertyHandler.AnimationOffProperty.AddOwner<VBDesignBase>();
         [Category("VBControl")]
         public bool AnimationOff
         {
-            get { return (bool)GetValue(AnimationOffProperty); }
+            get { return GetValue(AnimationOffProperty); }
             set { SetValue(AnimationOffProperty, value); }
         }
 
 
 
         protected IACType _VBContentPropertyInfo = null;
-        /// <summary>
-        /// Gets the ACClassProperty which describes a bounded property by VBContent.
-        /// </summary>
         public ACClassProperty VBContentPropertyInfo
         {
             get
@@ -620,12 +502,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Gets or sets the right control mode.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt den richtigen Kontrollmodus.
-        /// </summary>
         [Category("VBControl")]
         public Global.ControlModes RightControlMode
         {
@@ -633,37 +509,20 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        /// <summary>
-        /// Checks and corrects the control modes.
-        /// </summary>
         public void ControlModeChanged()
         {
         }
 
-        /// <summary>
-        /// Represents the dependency property for VBContent.
-        /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDesignBase));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBDesignBase, string>(nameof(VBContent));
 
-        /// <summary>
-        /// Represents the property in which you enter the name of VBDesign.
-        /// By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
-        /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
-        /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
-        /// <value>Relative or absolute ACUrl</value>
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
-        /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
-        /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
-        /// </summary>
-        /// <value>The Data-Context as IACObject</value>
         public IACObject ContextACObject
         {
             get
@@ -672,36 +531,21 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// ACAction is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event.
-        /// </summary>
-        /// <param name="actionArgs">Information about the type of interaction and the source</param>
         public virtual void ACAction(ACActionArgs actionArgs)
         {
         }
 
-        /// <summary>
-        /// It's called at the Target-IACInteractiveObject to inform the Source-IACInteractiveObject that ACAction ist allowed to be invoked.
-        /// </summary>
-        /// <param name="actionArgs">Information about the type of interaction and the source</param>
-        /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
         public virtual bool IsEnabledACAction(ACActionArgs actionArgs)
         {
             return false;
         }
 
-        /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
-        /// <value>  Translated description</value>
         public virtual string ACCaption
         {
             get;
             set;
         }
 
-        /// <summary>
-        /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
-        /// </summary>
-        /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
         public IACType ACType
         {
             get
@@ -710,10 +554,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
-        /// </summary>
-        /// <value> A nullable list ob IACObjects.</value>
         public virtual IEnumerable<IACObject> ACContentList
         {
             get
@@ -722,107 +562,115 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
-        /// 1. get references to components,
-        /// 2. query property values,
-        /// 3. execute method calls,
-        /// 4. start and stop Components,
-        /// 5. and send messages to other components.
-        /// </summary>
-        /// <param name="acUrl">String that adresses a command</param>
-        /// <param name="acParameter">Parameters if a method should be invoked</param>
-        /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
             return this.ReflectACUrlCommand(acUrl, acParameter);
         }
 
-        /// <summary>
-        /// Determines is ACUrlCommand is enabled or disabled.
-        /// </summary>
-        /// <param name="acUrl">The acUrl of command.</param>
-        /// <param name="acParameter">The command parameters.</param>
-        ///<returns>Returns true if is ACUrlCommand is enabled, otherwise false.</returns>
         public bool IsEnabledACUrlCommand(string acUrl, params Object[] acParameter)
         {
             return true;
         }
 
-        /// <summary>
-        /// Handles the ACUrl message when it is received.
-        /// </summary>
         public virtual void OnACUrlMessageReceived()
+        {
+            if (!this.IsLoaded)
+                return;
+            var acUrlMessage = ACUrlCmdMessage;
+            if (acUrlMessage == null
+                || acUrlMessage.ACParameter == null
+                || !acUrlMessage.ACParameter.Any()
+                || !(acUrlMessage.ACParameter[0] is IACComponent)
+                || acUrlMessage.TargetVBContent != this.VBContent)
+                return;
+            byte[] result = null;
+            switch (acUrlMessage.ACUrl)
             {
-                if (!this.IsLoaded)
-                    return;
-                var acUrlMessage = ACUrlCmdMessage;
-                if (acUrlMessage == null
-                    || acUrlMessage.ACParameter == null
-                    || !acUrlMessage.ACParameter.Any()
-                    || !(acUrlMessage.ACParameter[0] is IACComponent)
-                    || acUrlMessage.TargetVBContent != this.VBContent)
-                    return;
-                byte[] result = null;
-                switch (acUrlMessage.ACUrl)
-                {
-                    case Const.CmdPrintScreenToImage:
-                        result = PrintScreenToImage(acUrlMessage.ACParameter);
-                        if (result != null)
-                        {
-                            (acUrlMessage.ACParameter[0] as IACComponent).ACUrlCommand(Const.CmdPrintScreenToImage, result);
-                        }
-                        break;
-                    case Const.CmdPrintScreenToIcon:
-                        result = PrintScreenToIcon(acUrlMessage.ACParameter);
-                        if (result != null)
-                        {
-                            (acUrlMessage.ACParameter[0] as IACComponent).ACUrlCommand(Const.CmdPrintScreenToIcon, result);
-                        }
-                        break;
-                    case Const.CmdPrintScreenToClipboard:
-                        PrintScreenToClipboard(CurrentScreenToBitmap());
-                        break;
-                    case Const.CmdExportDesignToFile:
-                        Bitmap bmp = CurrentScreenToBitmap();
-                        string fileName = acUrlMessage.ACParameter[1].ToString();
-                        if (File.Exists(fileName))
-                            File.Delete(fileName);
-
-                        Graphics g = Graphics.FromImage(bmp);
-                        Bitmap bmpNew = new Bitmap(bmp);
-                        g.DrawImage(bmpNew, new System.Drawing.Point(0, 0));
-                        g.Dispose();
-                        bmp.Dispose();
-
-                        //code to manipulate bmpNew goes here.
-
-                        bmpNew.Save(fileName);
-                        break;
-                    case Const.CmdCopyTextToClipboard:
-                        string text = acUrlMessage.ACParameter[1].ToString();
-                        Clipboard.SetText(text);
-                        break;
-                    case Const.CmdInitSelectionManager:
+                case Const.CmdPrintScreenToImage:
+                    result = PrintScreenToImage(acUrlMessage.ACParameter);
+                    if (result != null)
                     {
-                        _= VBBSOSelectionManager;
+                        (acUrlMessage.ACParameter[0] as IACComponent).ACUrlCommand(Const.CmdPrintScreenToImage, result);
                     }
-                        break;
-                    case Const.CmdDesignModeOff:
-                        if(this is VBDesign)
-                        {
-                            VBDesign vbDesign = this as VBDesign;
-                            vbDesign.DesignModeOff();
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
+                    break;
+                case Const.CmdPrintScreenToIcon:
+                    result = PrintScreenToIcon(acUrlMessage.ACParameter);
+                    if (result != null)
+                    {
+                        (acUrlMessage.ACParameter[0] as IACComponent).ACUrlCommand(Const.CmdPrintScreenToIcon, result);
+                    }
+                    break;
+                case Const.CmdPrintScreenToClipboard:
+                    PrintScreenToClipboard(CurrentScreenToBitmap());
+                    break;
+                case Const.CmdExportDesignToFile:
+                    Bitmap bmp = CurrentScreenToBitmap();
+                    string fileName = acUrlMessage.ACParameter[1].ToString();
+                    if (File.Exists(fileName))
+                        File.Delete(fileName);
 
-        /// <summary>
-        /// Handles the OnMsgFromSelMngrReceived callback.
-        /// </summary>
+                    WriteableBitmap wbmp = WriteableFromBitmap(bmp);
+                    byte[] bytes = EncodeToJpeg(wbmp);
+                    File.WriteAllBytes(fileName, bytes);
+
+                    break;
+                case Const.CmdCopyTextToClipboard:
+                    string text = acUrlMessage.ACParameter[1].ToString();
+                    var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+                    clipboard?.SetTextAsync(text);
+                    break;
+                case Const.CmdInitSelectionManager:
+                    {
+                        _ = VBBSOSelectionManager;
+                    }
+                    break;
+                case Const.CmdDesignModeOff:
+                    if (this is VBDesign)
+                    {
+                        VBDesign vbDesign = this as VBDesign;
+                        vbDesign.DesignModeOff();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        public static WriteableBitmap WriteableFromBitmap(Bitmap bitmap)
+        {
+            var writeableBitmap = new WriteableBitmap(
+                bitmap.PixelSize,
+                bitmap.Dpi,
+                bitmap.Format
+            );
+            using (var fb = writeableBitmap.Lock())
+            {
+                bitmap.CopyPixels(fb, AlphaFormat.Opaque);
+            }
+            return writeableBitmap;
+        }
+
+        public static byte[] EncodeToJpeg(Bitmap bitmap, int quality = 80)
+        {
+            WriteableBitmap wb = bitmap as WriteableBitmap;
+            WriteableBitmap tempWb = (wb == null) ? WriteableFromBitmap(bitmap) : null;
+            wb ??= tempWb;
+            try
+            {
+                using var pi = wb!.Lock();
+                SKColorType colorType = SKColorType.RgbaF32;
+                var skImageInfo = new SKImageInfo(pi.Size.Width, pi.Size.Height, colorType);
+                using var skBitmap = new SKBitmap(skImageInfo);
+                skBitmap.InstallPixels(skImageInfo, pi.Address, pi.RowBytes);
+                using var skImage = SKImage.FromBitmap(skBitmap);
+                return skImage.Encode(SKEncodedImageFormat.Jpeg, quality).ToArray();
+            }
+            finally
+            {
+                tempWb.Dispose();
+            }
+        }
+
         public void OnMsgFromSelMngrReceived()
         {
             if (!this.IsLoaded)
@@ -848,10 +696,6 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        /// <summary>
-        /// Returns the parent object
-        /// </summary>
-        /// <value>Reference to the parent object</value>
         public IACObject ParentACObject
         {
             get
@@ -864,26 +708,11 @@ namespace gip.core.layoutengine.avui
 
         #region IACObject Member
 
-        /// <summary>
-        /// Returns a ACUrl relatively to the passed object.
-        /// If the passed object is null then the absolute path is returned
-        /// </summary>
-        /// <param name="rootACObject">Object for creating a realtive path to it</param>
-        /// <returns>ACUrl as string</returns>
         public string GetACUrl(IACObject rootACObject = null)
         {
             return ACIdentifier;
         }
 
-        /// <summary>
-        /// Method that returns a source and path for WPF-Bindings by passing a ACUrl.
-        /// </summary>
-        /// <param name="acUrl">ACUrl of the Component, Property or Method</param>
-        /// <param name="acTypeInfo">Reference to the iPlus-Type (ACClass)</param>
-        /// <param name="source">The Source for WPF-Databinding</param>
-        /// <param name="path">Relative path from the returned source for WPF-Databinding</param>
-        /// <param name="rightControlMode">Information about access rights for the requested object</param>
-        /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
             return false;
@@ -899,53 +728,36 @@ namespace gip.core.layoutengine.avui
 
         #region Dependency-Properties
 
-        /// <summary>
-        /// Represents the dependency property for ShowAdornerLayer.
-        /// </summary>
-        public static readonly DependencyProperty ShowAdornerLayerProperty
-            = DependencyProperty.Register("ShowAdornerLayer", typeof(bool), typeof(VBDesignBase), new FrameworkPropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowAdornerLayerProperty =
+            AvaloniaProperty.Register<VBDesignBase, bool>(nameof(ShowAdornerLayer), true);
 
-        /// <summary>
-        /// Determines is adorner layer shown or hidden.
-        /// </summary>
         [Category("VBControl")]
         public bool ShowAdornerLayer
         {
-            get { return (bool)GetValue(ShowAdornerLayerProperty); }
+            get { return GetValue(ShowAdornerLayerProperty); }
             set { SetValue(ShowAdornerLayerProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for IsDesignerActive.
-        /// </summary>
-        public static readonly DependencyProperty IsDesignerActiveProperty
-            = DependencyProperty.Register("IsDesignerActive", typeof(bool), typeof(VBDesignBase), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> IsDesignerActiveProperty =
+            AvaloniaProperty.RegisterAttached<VBDesignBase, bool>("IsDesignerActive", typeof(VBDesignBase), false, true);
 
-        /// <summary>
-        /// Determines is designer active.
-        /// </summary>
         public bool IsDesignerActive
         {
-            get { return (bool)GetValue(IsDesignerActiveProperty); }
+            get { return GetValue(IsDesignerActiveProperty); }
             set { SetValue(IsDesignerActiveProperty, value); }
         }
 
         #endregion
 
-      #region Mouse-Event
-        //private static VBDesignBase _LastVBDesignBaseWithInfo = null;
+        #region Mouse-Event
         IVBContent _LastClickedControl;
 
-        /// <summary>
-        /// Handles the OnPreviewMouseDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (!IsDesignerActive && e.OriginalSource is DependencyObject)
+            if (!IsDesignerActive && e.Source is Visual)
             {
-                DependencyObject clickedElement = e.OriginalSource as DependencyObject;
-                if (e.OriginalSource is Adorner)
+                Visual clickedElement = e.Source as Visual;
+                if (e.Source is Adorner)
                 {
                     if (AdornVBControlManagerList != null)
                     {
@@ -956,10 +768,10 @@ namespace gip.core.layoutengine.avui
                                 clickedElement = adornerHitResult.VisualHit;
                         }
                     }
-                    clickedElement = (e.OriginalSource as Adorner).AdornedElement;
-                    HitTestResult hitResult = VisualTreeHelper.HitTest(clickedElement as UIElement, e.GetPosition(clickedElement as UIElement));
-                    if (hitResult != null)
-                        clickedElement = hitResult.VisualHit;
+                    clickedElement = (e.Source as Adorner).AdornedElement;
+                    var hitResult = this.InputHitTest(e.GetPosition(clickedElement));
+                    if (hitResult != null && hitResult is Visual)
+                        clickedElement = hitResult as Visual;
                 }
                 var ancestors = clickedElement.GetVisualAncestors();
                 VBDesignBase vbDesign = ancestors.OfType<VBDesignBase>().FirstOrDefault();
@@ -975,9 +787,9 @@ namespace gip.core.layoutengine.avui
                     {
                         if (elementInVisualTree == this)
                             break;
-                        if (elementInVisualTree is UIElement)
+                        if (elementInVisualTree is Visual)
                         {
-                            if (GetIsSelectable(elementInVisualTree as UIElement) == IsSelectableEnum.True)
+                            if (GetIsSelectable(elementInVisualTree as Visual) == IsSelectableEnum.True)
                             {
                                 selectableElement = elementInVisualTree;
                                 break;
@@ -1005,7 +817,7 @@ namespace gip.core.layoutengine.avui
                     //_LastVBDesignBaseWithInfo = this;
                 }
             }
-            base.OnPreviewMouseDown(e);
+            base.OnPointerPressed(e);
         }
 
         private void SetSelectionAtManager(IVBContent controlToSelect)
@@ -1014,15 +826,31 @@ namespace gip.core.layoutengine.avui
             if ((controlToSelect is VBVisual || controlToSelect is VBVisualGroup || controlToSelect is VBGraphItem) && _SelectionManager == null)
                 InstanceSelectionManager();
             if (_SelectionManager != null)
-                _SelectionManager.ACUrlCommand("!OnVBControlClicked", _LastClickedControl, Keyboard.IsKeyDown(Key.LeftCtrl));
+                _SelectionManager.ACUrlCommand("!OnVBControlClicked", _LastClickedControl, IsKeyDown(Key.LeftCtrl));
         }
+
+        private readonly Dictionary<Key, bool> _pressedKeys = new Dictionary<Key, bool>();
+
+        public bool IsKeyDown(Key key)
+        {
+            return _pressedKeys.TryGetValue(key, out bool isPressed) && isPressed;
+        }
+
+        private void DesignPanel_KeyUp(object sender, KeyEventArgs e)
+        {
+            _pressedKeys[e.Key] = false;
+        }
+
+        void DesignPanel_KeyDown(object sender, KeyEventArgs e)
+        {
+            _pressedKeys[e.Key] = true;
+        }
+
+
         #endregion
 
         #region Attached-Property IsSelectableProperty
 
-        /// <summary>
-        /// Represents the enumeration for IsSelectable.
-        /// </summary>
         public enum IsSelectableEnum : short
         {
             Unset = 0,
@@ -1030,78 +858,39 @@ namespace gip.core.layoutengine.avui
             False = 2,
         }
 
-        /// <summary>
-        /// Represents the dependency property for IsSelectable.
-        /// </summary>
-        public static readonly DependencyProperty IsSelectableProperty = DependencyProperty.RegisterAttached("IsSelectable",
-                                                                    typeof(IsSelectableEnum),
-                                                                    typeof(VBDesignBase),
-                                                                    new FrameworkPropertyMetadata(IsSelectableEnum.Unset,
-                                                                                                  FrameworkPropertyMetadataOptions.None));
+        public static readonly AttachedProperty<IsSelectableEnum> IsSelectableProperty =
+            AvaloniaProperty.RegisterAttached<VBDesignBase, IsSelectableEnum>("IsSelectable", typeof(VBDesignBase), IsSelectableEnum.Unset);
 
-        /// <summary>
-        /// Sets the IsSelectable.
-        /// </summary>
-        /// <param name="element">The element parameter.</param>
-        /// <param name="value">The value parameter.</param>
-        [AttachedPropertyBrowsableForChildren]
-        public static void SetIsSelectable(UIElement element, IsSelectableEnum value)
+        public static void SetIsSelectable(Visual element, IsSelectableEnum value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
             element.SetValue(VBDesignBase.IsSelectableProperty, value);
         }
 
-        /// <summary>
-        /// Gets the IsSelectable.
-        /// </summary>
-        /// <param name="element">The element parameter.</param>
-        /// <returns>The IsSelectable enumeration item.</returns>
-        [AttachedPropertyBrowsableForChildren]
-        public static IsSelectableEnum GetIsSelectable(UIElement element)
+        public static IsSelectableEnum GetIsSelectable(Visual element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return (IsSelectableEnum)element.GetValue(VBDesignBase.IsSelectableProperty);
+            return element.GetValue(VBDesignBase.IsSelectableProperty);
         }
         #endregion
 
         #region Dependency-Property SelectedVBControl
-        /// <summary>
-        /// Gets or sets the SelectedVBControl.
-        /// </summary>
+
         public IVBContent SelectedVBControl
         {
-            get { return (IVBContent)GetValue(SelectedVBControlProperty); }
+            get { return GetValue(SelectedVBControlProperty); }
             set { SetValue(SelectedVBControlProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for SelectedVBControl.
-        /// </summary>
-        public static readonly DependencyProperty SelectedVBControlProperty =
-          DependencyProperty.Register("SelectedVBControl",
-                                       typeof(IVBContent),
-                                       typeof(VBDesignBase),
-                                       new PropertyMetadata(new PropertyChangedCallback(OnSelectedVBControlChanged)));
+        public static readonly StyledProperty<IVBContent> SelectedVBControlProperty =
+            AvaloniaProperty.Register<VBDesignBase, IVBContent>(nameof(SelectedVBControl));
 
-        private static void OnSelectedVBControlChanged(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBDesignBase)
-            {
-                VBDesignBase vbDesign = d as VBDesignBase;
-                vbDesign.OnSelectedVBControlChanged();
-            }
-        }
         #endregion
 
         #region Selection-Methods
-        /// <summary>
-        /// Highlights the VBControl.
-        /// </summary>
-        /// <param name="vbControlToSelect">The vbControl to select(highlight).</param>
-        /// <param name="isMultiSelect">Determines is multi selection or single selection.</param>
+
         [ACMethodInfo("", "en{'HighlightVBControl'}de{'HighlightVBControl'}", 9999)]
         public void HighlightVBControl(IVBContent vbControlToSelect, bool isMultiSelect)
         {
@@ -1119,9 +908,9 @@ namespace gip.core.layoutengine.avui
             // Sonst suche im Tree nach Control
             else
             {
-                if (vbControlToSelect is DependencyObject)
+                if (vbControlToSelect is Visual)
                 {
-                    if (VBLogicalTreeHelper.IsChildObjectInLogicalTree(this, vbControlToSelect as DependencyObject, typeof(VBDesignBase)))
+                    if (VBLogicalTreeHelper.IsChildObjectInLogicalTree(this, vbControlToSelect as Visual, typeof(VBDesignBase)))
                     {
                         AdornVBControl(vbControlToSelect, isMultiSelect);
                         return;
@@ -1132,10 +921,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Method to Select Visual-Control over ACComponent
-        /// </summary>
-        /// <param name="acObjectToSelect">The acObject to select(highlight).</param>
         [ACMethodInfo("", "en{'HighlightContentACObject'}de{'HighlightContentACObject'}", 9999)]
         public void HighlightContentACObject(IACObject acObjectToSelect, bool highlightParentIfNotFound)
         {
@@ -1175,39 +960,8 @@ namespace gip.core.layoutengine.avui
                 AdornVBControl(null, false);
         }
 
-        //private static IVBContent FindContentACObjectInLogicalTree(IVBContent vbControlStart, IACObject acObjectContent)
-        //{
-        //    if ((vbControlStart == null) || (acObjectContent == null))
-        //        return null;
-        //    if (HasVBControlContent(vbControlStart, acObjectContent))
-        //        return vbControlStart;
-        //    if (!(vbControlStart is DependencyObject))
-        //        return null;
-        //    foreach (object childObj in LogicalTreeHelper.GetChildren(vbControlStart as DependencyObject))
-        //    {
-        //        if (childObj is IVBContent)
-        //        {
-        //            IVBContent found = FindContentACObjectInLogicalTree(childObj as IVBContent, acObjectContent);
-        //            if (found != null)
-        //                return found;
-        //        }
-        //        else if (childObj is DependencyObject)
-        //        {
-        //            DependencyObject foundDepObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(childObj as DependencyObject, typeof(IVBContent));
-        //            if (foundDepObj != null)
-        //            {
-        //                IVBContent found = FindContentACObjectInLogicalTree(foundDepObj as IVBContent, acObjectContent);
-        //                if (found != null)
-        //                    return found;
-        //            }
-        //        }
-        //        else
-        //            continue;
-        //    }
-        //    return null;
-        //}
 
-        private static IVBContent FindContentACObjectInLogicalTree(DependencyObject depObjStart, IACObject acObjectContent)
+        private static IVBContent FindContentACObjectInLogicalTree(Visual depObjStart, IACObject acObjectContent)
         {
             if ((depObjStart == null) || (acObjectContent == null))
                 return null;
@@ -1217,33 +971,16 @@ namespace gip.core.layoutengine.avui
                 if (HasVBControlContent(vbControlStart, acObjectContent))
                     return vbControlStart;
             }
-            if (!(depObjStart is DependencyObject))
+            if (!(depObjStart is Visual))
                 return null;
-            foreach (object childObj in LogicalTreeHelper.GetChildren(depObjStart as DependencyObject))
+            foreach (Visual childObj in depObjStart.GetVisualChildren())
             {
-                DependencyObject childDepObj = childObj as DependencyObject;
-                if (childDepObj != null)
+                if (childObj != null)
                 {
-                    IVBContent found = FindContentACObjectInLogicalTree(childDepObj, acObjectContent);
+                    IVBContent found = FindContentACObjectInLogicalTree(childObj, acObjectContent);
                     if (found != null)
                         return found;
                 }
-                //if (childObj is IVBContent)
-                //{
-                //    IVBContent found = FindContentACObjectInLogicalTree(childObj as IVBContent, acObjectContent);
-                //    if (found != null)
-                //        return found;
-                //}
-                //else if (childObj is DependencyObject)
-                //{
-                //    DependencyObject foundDepObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(childObj as DependencyObject, typeof(IVBContent));
-                //    if (foundDepObj != null)
-                //    {
-                //        IVBContent found = FindContentACObjectInLogicalTree(foundDepObj as IVBContent, acObjectContent);
-                //        if (found != null)
-                //            return found;
-                //    }
-                //}
                 else
                     continue;
             }
@@ -1261,10 +998,6 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-        /// <summary>
-        /// Create screen shot and resize image to 370x250
-        /// </summary>
-        /// <returns>Image in byte array</returns>
         public byte[] PrintScreenToImage(object[] parameters)
         {
             return PrintScreenAndRezize(370, 250, parameters);
@@ -1281,13 +1014,13 @@ namespace gip.core.layoutengine.avui
             string vbContentChild = null;
             if (parameters != null && parameters.Count() > 1)
                 vbContentChild = parameters[1] as string;
-            UIElement uiElement = this.Content as UIElement;
+            Control uiElement = this.Content as Control;
 
             Canvas canvas = null;
             byte[] arr = new byte[] { 0 };
             if (!String.IsNullOrEmpty(vbContentChild))
             {
-                UIElement childFound = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(uiElement, vbContentChild) as UIElement;
+                Control childFound = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(uiElement, vbContentChild) as Control;
                 if (childFound == null)
                     return arr;
                 uiElement = childFound;
@@ -1304,43 +1037,35 @@ namespace gip.core.layoutengine.avui
             else if (uiElement is VBVisual)
             {
                 VBVisual vbVisual = uiElement as VBVisual;
-                canvas = VBVisualTreeHelper.FindChildObjectInVisualTree(vbVisual.Content as UIElement, typeof(Canvas)) as Canvas;
+                canvas = VBVisualTreeHelper.FindChildObjectInVisualTree(vbVisual.Content as Control, typeof(Canvas)) as Canvas;
             }
 
-
+            // Bitmap handling - keeping original code as requested since it needs special handling in Avalonia
+            // TODO: This section needs platform-specific bitmap handling - commenting out problematic parts
             if (canvas != null && !Double.IsNaN(canvas.Width) && !Double.IsNaN(canvas.Height))
             {
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    canvas.Arrange(new Rect(canvas.RenderSize));
-                    RenderTargetBitmap rtb = new RenderTargetBitmap((int)canvas.Width, (int)canvas.Height, 96, 96, PixelFormats.Pbgra32);
-                    rtb.Render(canvas);
-                    PngBitmapEncoder encoder = new PngBitmapEncoder();
-                    TransformedBitmap targetBitmap = new TransformedBitmap(rtb, new ScaleTransform(width / canvas.Width, height / canvas.Height));
-                    encoder.Frames.Add(BitmapFrame.Create(targetBitmap));
-                    encoder.Save(stream);
-                    arr = stream.ToArray();
-                    double widthPoint = (((FrameworkElement)canvas.Parent).ActualWidth - canvas.Width) / 2;
-                    double heighPoint = (((FrameworkElement)canvas.Parent).ActualHeight - canvas.Height) / 2;
-                    if (widthPoint > 0 && heighPoint > 0)
-                        canvas.Arrange(new Rect(new System.Windows.Point(widthPoint, heighPoint), canvas.RenderSize));
-                }
+                canvas.Arrange(new Rect(canvas.Bounds.Size));
+                RenderTargetBitmap rtb = new RenderTargetBitmap(PixelSize.FromSize(new Size((int)canvas.Width, (int)canvas.Height), new Vector(96, 96)));
+                rtb.Render(canvas);
+                WriteableBitmap wbmp = WriteableFromBitmap(rtb);
+                arr = EncodeToJpeg(wbmp);
+
+                double widthPoint = (((Control)canvas.Parent).Bounds.Width - canvas.Width) / 2;
+                double heighPoint = (((Control)canvas.Parent).Bounds.Height - canvas.Height) / 2;
+                if (widthPoint > 0 && heighPoint > 0)
+                    canvas.Arrange(new Rect(new Point(widthPoint, heighPoint), canvas.Bounds.Size));
             }
+
             return arr;
         }
 
-        /// <summary>
-        /// Create screen shot and resize image to 370x250
-        /// </summary>
-        /// <returns>Image in byte array</returns>
         private Bitmap CurrentScreenToBitmap()
         {
             Bitmap bitmap = null;
 
-            UIElement uiElement = this.Content as UIElement;
+            Control uiElement = this.Content as Control;
             ScrollViewer scrollViewer = null;
             VBCanvas vbCanvas = null;
-            byte[] arr = new byte[] { 0 };
 
             if (uiElement is VBCanvas)
                 vbCanvas = uiElement as VBCanvas;
@@ -1354,37 +1079,43 @@ namespace gip.core.layoutengine.avui
             if (vbCanvas != null && !Double.IsNaN(vbCanvas.Width) && !Double.IsNaN(vbCanvas.Height))
             {
 
-                vbCanvas.Arrange(new Rect(vbCanvas.RenderSize));
-                RenderTargetBitmap rtb = new RenderTargetBitmap((int)vbCanvas.Width, (int)vbCanvas.Height, 96, 96, PixelFormats.Pbgra32);
+                vbCanvas.Arrange(new Rect(vbCanvas.Bounds.Size));
+                RenderTargetBitmap rtb = new RenderTargetBitmap(PixelSize.FromSize(new Size((int)vbCanvas.Width, (int)vbCanvas.Height), new Vector(96, 96)));
                 rtb.Render(vbCanvas);
-                using (MemoryStream stream = new MemoryStream())
-                {
-                    BitmapEncoder encoder = new BmpBitmapEncoder();
-                    encoder.Frames.Add(BitmapFrame.Create(rtb));
-                    encoder.Save(stream);
-                    bitmap = new Bitmap(stream);
-                }
+                return rtb;
+                //using (MemoryStream stream = new MemoryStream())
+                //{
+                //    BitmapEncoder encoder = new BmpBitmapEncoder();
+                //    encoder.Frames.Add(BitmapFrame.Create(rtb));
+                //    encoder.Save(stream);
+                //    bitmap = new Bitmap(stream);
+                //}
             }
+
             return bitmap;
         }
 
-        /// <summary>
-        /// Prints screen to the clipboard.
-        /// </summary>
-        /// <param name="bitmap">The bitmap parameter.</param>
         public void PrintScreenToClipboard(Bitmap bitmap)
         {
-            BitmapSource bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-            System.Windows.Clipboard.SetImage(bitmapSource);
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel != null)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    bitmap.Save(ms);
+                    var dataObject = new DataObject();
+                    dataObject.Set("image/png", ms.ToArray());
+                    topLevel.Clipboard.SetDataObjectAsync(dataObject);
+                }
+            }
+            //BitmapSource bitmapSource = Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+            //Clipboard.SetImage(bitmapSource);
         }
 
         #endregion
 
         #region Adorner-Layer
         protected List<AdornerVBControlManager> adornVBControlManagerList;
-        /// <summary>
-        /// Gets the list of AdornVBControlManager.
-        /// </summary>
         public List<AdornerVBControlManager> AdornVBControlManagerList
         {
             get
@@ -1395,63 +1126,18 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public System.Windows.Media.Color Invert(System.Windows.Media.Color color)
+        public Color Invert(Color color)
         {
-            return System.Windows.Media.Color.FromRgb((byte)(255 - color.R), (byte)(255 - color.G), (byte)(255 - color.B));
+            return Color.FromRgb((byte)(255 - color.R), (byte)(255 - color.G), (byte)(255 - color.B));
         }
 
-        /// <summary>
-        /// Adorns the VBControl.
-        /// </summary>
-        /// <param name="vbControlToAdorn">The vbControl to adorn.</param>
-        /// <param name="isMultiSelect">Determines is multi selection or single selection.</param>
         protected void AdornVBControl(IVBContent vbControlToAdorn, bool isMultiSelect)
         {
             //this.Background
             if (ShowAdornerLayer && !IsDesignerActive)
             {
-                System.Windows.Media.Color selectionColor = System.Windows.Media.Colors.Red;
-                System.Windows.Media.Color selectionColor2 = System.Windows.Media.Colors.White;
-                //DependencyObject controlAsVisual = vbControlToAdorn as DependencyObject;
-                //if (controlAsVisual != null)
-                //{
-                //    DependencyObject depObj = VisualTreeHelper.GetParent(controlAsVisual);
-                //    Panel panel = depObj as Panel;
-                //    if (panel != null)
-                //    {
-                //        //GradientBrush brush2;
-                //        System.Windows.Media.Color bgColor = System.Windows.Media.Colors.Red;
-                //        SolidColorBrush brush = panel.Background as SolidColorBrush;
-                //        if (brush != null)
-                //            selectionColor = Invert(brush.Color);
-                //        else
-                //        {
-                //            GradientBrush brush2 = panel.Background as GradientBrush;
-                //            if (brush2 != null)
-                //                selectionColor = Invert(brush2.GradientStops.FirstOrDefault().Color);
-                //        }
-                //    }
-                //    else
-                //    {
-                //        Control parentControl = depObj as Control;
-                //        //VBVisualTreeHelper.FindParentObjectInVisualTree(VisualTreeHelper.GetParent(controlAsVisual), typeof(Control)) as Control;
-                //        if (parentControl != null)
-                //        {
-                //            //GradientBrush brush2;
-                //            System.Windows.Media.Color bgColor = System.Windows.Media.Colors.Red;
-                //            SolidColorBrush brush = parentControl.Background as SolidColorBrush;
-                //            if (brush != null)
-                //                selectionColor = Invert(brush.Color);
-                //            else
-                //            {
-                //                GradientBrush brush2 = parentControl.Background as GradientBrush;
-                //                if (brush2 != null)
-                //                    selectionColor = Invert(brush2.GradientStops.FirstOrDefault().Color);
-                //            }
-                //        }
-                //    }
-                //}
-
+                Color selectionColor = Colors.Red;
+                Color selectionColor2 = Colors.White;
                 if (!isMultiSelect)
                 {
                     foreach (var item in AdornVBControlManagerList)
@@ -1491,23 +1177,11 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region IACMenuBuilder Member
-        /// <summary>
-        /// Gets the context menu.
-        /// </summary>
-        /// <param name="vbContent">The vbContent parameter.</param>
-        /// <param name="vbControl">The vbControl parameter.</param>
-        ///<returns>Returns the list of ACMenu items.</returns>
         public virtual ACMenuItemList GetMenu(string vbContent, string vbControl)
         {
             return this.ReflectGetMenu(this);
         }
 
-        /// <summary>
-        /// Appends the context menu.
-        /// </summary>
-        /// <param name="vbContent">The vbContent parameter.</param>
-        /// <param name="vbControl">The vbControl parameter.</param>
-        ///<param name="acMenuItemList">The acMenuItemList parameter.</param>
         public virtual void AppendMenu(string vbContent, string vbControl, ref ACMenuItemList acMenuItemList)
         {
             // Ende der WPF-GetMenu-Rekursion, wenn hier angelagt
@@ -1531,48 +1205,29 @@ namespace gip.core.layoutengine.avui
 
         #region Additional Dependency Prop
 
-        /// <summary>
-        /// Represents the dependency property for RegisterVBDecorator.
-        /// </summary>
-        public static DependencyProperty RegisterVBDecoratorProperty
-            = ContentPropertyHandler.RegisterVBDecoratorProperty.AddOwner(typeof(VBDesignBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static AttachedProperty<string> RegisterVBDecoratorProperty =
+            ContentPropertyHandler.RegisterVBDecoratorProperty.AddOwner<VBDesignBase>();
 
-        /// <summary>
-        /// Gets or sets the RegisterVBDecorator.
-        /// </summary>
         [Category("VBControl")]
         public string RegisterVBDecorator
         {
-            get { return (string)GetValue(RegisterVBDecoratorProperty); }
+            get { return GetValue(RegisterVBDecoratorProperty); }
             set { SetValue(RegisterVBDecoratorProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for BSOIsActivated.
-        /// </summary>
-        public static readonly DependencyProperty BSOIsActivatedProperty =
-            DependencyProperty.Register("BSOIsActivated", typeof(string), typeof(VBDesignBase));
+        public static readonly StyledProperty<string> BSOIsActivatedProperty =
+            AvaloniaProperty.Register<VBDesignBase, string>(nameof(BSOIsActivated));
 
 
-        /// <summary>
-        /// This property is used for VBDesign dynamic visibility. In this property we set name of bool property defined in BSO which is responsible for visibility BSO and VBDesign.
-        /// If bool property in BSO is true, BSO and VBDesign are visible, otherwise BSO and VBDesign are hidden.
-        /// </summary>
         [Category("VBControl")]
         public string BSOIsActivated
         {
-            get { return (string)GetValue(BSOIsActivatedProperty); }
+            get { return GetValue(BSOIsActivatedProperty); }
             set { SetValue(BSOIsActivatedProperty, value); }
         }
 
         #endregion
 
-        /// <summary>
-        /// Disables the control. XAML sample: DisabledModes="Disabled"
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Deaktiviert die Steuerung. XAML-Probe: DisabledModes="Disabled"
-        /// </summary>
         [Category("VBControl")]
         public string DisabledModes
         {

@@ -4,7 +4,6 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
     ItemsSource="{Binding Value}"
-    DisplayMemberPath="VBContent"
-    ShowCaption="False"
-    >	
+    DisplayMemberBinding="{Binding VBContent}"
+    ShowCaption="False">	
 </local:VBListBox>

@@ -18,7 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.AvalonEdit.Folding;
+using AvaloniaEdit.Document;
+using AvaloniaEdit.Folding;
 
 namespace gip.core.layoutengine.avui
 {
@@ -49,7 +50,7 @@ namespace gip.core.layoutengine.avui
 		/// <summary>
 		/// Create <see cref="NewFolding"/>s for the specified document.
 		/// </summary>
-		public IEnumerable<NewFolding> CreateNewFoldings(ICSharpCode.AvalonEdit.Document.TextDocument document, out int firstErrorOffset)
+		public IEnumerable<NewFolding> CreateNewFoldings(TextDocument document, out int firstErrorOffset)
 		{
 			firstErrorOffset = -1;
 			return CreateNewFoldings(document);
@@ -58,7 +59,7 @@ namespace gip.core.layoutengine.avui
 		/// <summary>
 		/// Create <see cref="NewFolding"/>s for the specified document.
 		/// </summary>
-		public IEnumerable<NewFolding> CreateNewFoldings(ICSharpCode.AvalonEdit.Document.TextDocument document)
+		public IEnumerable<NewFolding> CreateNewFoldings(TextDocument document)
 		{
 			List<NewFolding> newFoldings = new List<NewFolding>();
 			

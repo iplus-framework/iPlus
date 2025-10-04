@@ -569,8 +569,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
-            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBCheckBox>();
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBCheckBox>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>

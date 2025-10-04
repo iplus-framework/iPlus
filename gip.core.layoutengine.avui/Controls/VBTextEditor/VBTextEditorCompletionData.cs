@@ -16,10 +16,11 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using Avalonia.Media;
+using AvaloniaEdit.CodeCompletion;
+using AvaloniaEdit.Document;
+using AvaloniaEdit.Editing;
 using System;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.CodeCompletion;
 
 namespace gip.core.layoutengine.avui
 {
@@ -49,8 +50,10 @@ namespace gip.core.layoutengine.avui
 		}
 		
 		public double Priority { get { return 0; } }
-		
-		public void Complete(TextArea textArea, ISegment completionSegment, EventArgs insertionRequestEventArgs)
+
+        IImage ICompletionData.Image => throw new NotImplementedException();
+
+        public void Complete(TextArea textArea, ISegment completionSegment, EventArgs insertionRequestEventArgs)
 		{
 			textArea.Document.Replace(completionSegment, this.Text);
 		}

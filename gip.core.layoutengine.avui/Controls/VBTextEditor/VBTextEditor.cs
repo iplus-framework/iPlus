@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
-using System.Windows.Threading;
+using Avalonia.Threading;
 using AvaloniaEdit;
+using Avalonia.Labs.Input;
+using Avalonia.Input;
+using Avalonia.Data;
+using Avalonia;
+using Avalonia.Interactivity;
+using AvaloniaEdit.Folding;
+using AvaloniaEdit.Highlighting;
+using Avalonia.Controls.Primitives;
+using AvaloniaEdit.CodeCompletion;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,33 +25,7 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTextEditor'}de{'VBTextEditor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTextEditor : TextEditor, IVBContent, IACObject, IACMenuBuilderWPFTree
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TextEditorStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextEditor/Themes/TextEditorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TextEditorStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextEditor/Themes/TextEditorStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of the custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBTextEditor()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTextEditor), new FrameworkPropertyMetadata(typeof(VBTextEditor)));
-        }
-
-        bool _themeApplied = false;
-
-        /// <summary>
+         /// <summary>
         /// Creates a new instance of the VBTextEditor.
         /// </summary>
         public VBTextEditor()
@@ -63,8 +36,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles the OnInitialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
             ShowLineNumbers = true;
             TextChanged += ucAvalonTextEditor_ContentChanged;
@@ -76,38 +48,23 @@ namespace gip.core.layoutengine.avui
             _FoldingUpdateTimer.Tick += foldingUpdateTimer_Tick;
             _FoldingUpdateTimer.Start();
 
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            base.OnInitialized();
         }
+
 
         /// <summary>
         /// Overrides the OnApplyTemplate method and runs the VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            if (this.Style == null) 
-            {
-                if (ControlManager.WpfTheme == eWpfTheme.Aero)
-                    Style = ControlManager.GetStyleOfTheme(StyleInfoList);
-            }
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes the theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
 
         protected DispatcherTimer _FoldingUpdateTimer;
         protected CommandBinding _CmdBindingFind;
-        protected InputBinding _ibFind;
+        protected KeyBinding _ibFind;
         protected bool _Loaded = false;
         protected short _BSOACComponentSubscr = 0;
         private bool _isOneWayBindingVBTextDP = false;
@@ -138,46 +95,44 @@ namespace gip.core.layoutengine.avui
             // VBContent muß im XAML gestetzt sein
             System.Diagnostics.Debug.Assert(VBContent != "");
 
-            if (Visibility == Visibility.Visible)
+            if (IsVisible)
             {
                 if (RightControlMode < Global.ControlModes.Disabled)
                 {
-                    Visibility = Visibility.Collapsed;
+                    IsVisible = false;
                 }
                 else
                 {
-                    Binding binding = new Binding();
-                    binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    binding.NotifyOnSourceUpdated = true;
-                    binding.NotifyOnTargetUpdated = true;
-                    if (VBContentPropertyInfo != null)
-                        binding.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
+                    var binding = new Binding
+                    {
+                        Source = dcSource,
+                        Path = dcPath,
+                        Mode = VBContentPropertyInfo != null && VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay
+                    };
 
                     if (binding.Mode == BindingMode.OneWay)
                         _isOneWayBindingVBTextDP = true;
 
-                    this.SetBinding(VBTextEditor.VBTextProperty, binding);
-
-                    this.TargetUpdated += OnTargetUpdatedOfBinding;
-                    this.SourceUpdated += OnSourceUpdatedOfBinding;
+                    this.Bind(VBTextEditor.VBTextProperty, binding);
 
                     ChangeSyntaxHighlighting();
 
-                    _ibFind = new InputBinding(ApplicationCommands.Find, new KeyGesture(Key.F, ModifierKeys.Control));
-                    this.InputBindings.Add(_ibFind);
-                    _CmdBindingFind = new CommandBinding(ApplicationCommands.Find);
+                    _ibFind = new KeyBinding { Command = ApplicationCommands.Find, Gesture = new KeyGesture(Key.F, KeyModifiers.Control) };
+                    this.KeyBindings.Add(_ibFind);
+                    _CmdBindingFind = new CommandBinding() { Command = ApplicationCommands.Find };
                     _CmdBindingFind.Executed += OpenFindAndReplace;
                     _CmdBindingFind.CanExecute += CanOpenFindAndReplace;
-                    this.CommandBindings.Add(_CmdBindingFind);
+                    CommandManager.SetCommandBindings(this, new List<CommandBinding> { _CmdBindingFind });
 
                     if (BSOACComponent != null)
                     {
-                        binding = new Binding();
-                        binding.Source = BSOACComponent;
-                        binding.Path = new PropertyPath(Const.InitState);
-                        binding.Mode = BindingMode.OneWay;
-                        SetBinding(VBTextEditor.ACCompInitStateProperty, binding);
+                        var initStateBinding = new Binding
+                        {
+                            Source = BSOACComponent,
+                            Path = Const.InitState,
+                            Mode = BindingMode.OneWay
+                        };
+                        this.Bind(VBTextEditor.ACCompInitStateProperty, initStateBinding);
                     }
                 }
             }
@@ -196,7 +151,6 @@ namespace gip.core.layoutengine.avui
             if (AutoFocus)
             {
                 Focus();
-                //MoveFocus(new TraversalRequest(FocusNavigationDirection.Next));
             }
         }
 
@@ -224,14 +178,10 @@ namespace gip.core.layoutengine.avui
             {
                 _CmdBindingFind.Executed -= OpenFindAndReplace;
                 _CmdBindingFind.CanExecute -= CanOpenFindAndReplace;
-                this.CommandBindings.Remove(_CmdBindingFind); //handle paste
             }
             if (_ibFind != null)
-                this.InputBindings.Remove(_ibFind);
+                this.KeyBindings.Remove(_ibFind);
 
-            BindingOperations.ClearBinding(this, VBTextEditor.VBTextProperty);
-            //BindingOperations.ClearBinding(this, VBTextEditor.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBTextEditor.ACCompInitStateProperty);
             this.ClearAllBindings();
             _VBContentPropertyInfo = null;
 
@@ -254,11 +204,11 @@ namespace gip.core.layoutengine.avui
 
         protected CompletionWindow completionWindow;
 
-        protected virtual void ucAvalonTextEditor_TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        protected virtual void ucAvalonTextEditor_TextArea_TextEntered(object sender, TextInputEventArgs e)
         {
         }
 
-        protected virtual void ucAvalonTextEditor_TextArea_TextEntering(object sender, TextCompositionEventArgs e)
+        protected virtual void ucAvalonTextEditor_TextArea_TextEntering(object sender, TextInputEventArgs e)
         {
         }
 
@@ -317,14 +267,14 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly DependencyProperty VBTextProperty
-            = DependencyProperty.Register("VBText", typeof(string), typeof(VBTextEditor));
+        public static readonly StyledProperty<string> VBTextProperty =
+            AvaloniaProperty.Register<VBTextEditor, string>(nameof(VBText));
 
         public string VBText
         {
             get
             {
-                return (string)GetValue(VBTextProperty);
+                return GetValue(VBTextProperty);
             }
             set
             {
@@ -349,25 +299,6 @@ namespace gip.core.layoutengine.avui
 
             this.VBText = Text;
             //ACObject.ValueChanged(VBContent);
-        }
-
-
-        public void OnTargetUpdatedOfBinding(Object sender, DataTransferEventArgs args)
-        {
-            // Falls BSO-Content geändert durch Navigation
-            if (args.Property == VBTextEditor.VBTextProperty)
-            {
-                // Aktualisiere AvalonText-Editor
-                _OnTargetUpdated = true;
-                Text = this.VBText;
-            }
-        }
-
-        public void OnSourceUpdatedOfBinding(Object sender, DataTransferEventArgs args)
-        {
-            if (args.Property == VBTextEditor.VBTextProperty)
-            {
-            }
         }
 
         protected IACComponent _VBFindAndReplace;
@@ -443,7 +374,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void CanOpenFindAndReplace(object sender, CanExecuteRoutedEventArgs e)
+        private void CanOpenFindAndReplace(object sender, Avalonia.Labs.Input.CanExecuteRoutedEventArgs e)
         {
             if (_VBFindAndReplace != null &&_VBFindAndReplace.InitState == ACInitState.Destructed)
                 _VBFindAndReplace = null;
@@ -458,7 +389,7 @@ namespace gip.core.layoutengine.avui
             e.Handled = true;
         }
 
-        private void OpenFindAndReplace(object sender, ExecutedRoutedEventArgs e)
+        private void OpenFindAndReplace(object sender, Avalonia.Labs.Input.ExecutedRoutedEventArgs e)
         {
             InstanceVBFindAndReplace();
         }
@@ -476,7 +407,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -484,12 +415,12 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
@@ -558,14 +489,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBTextEditor));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBTextEditor, Global.ControlModes>(nameof(ControlMode));
 
         public Global.ControlModes ControlMode
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -594,8 +525,8 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBTextEditor));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBTextEditor, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -604,7 +535,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -622,54 +553,56 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTextEditor), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTextEditor>();
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBTextEditor),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBTextEditor, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBTextEditor),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBTextEditor, ACInitState>(nameof(ACCompInitState));
 
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBTextEditor thisControl = dependencyObject as VBTextEditor;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
+            base.OnPropertyChanged(change);
+            VBTextEditor thisControl = this;
+            if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
                         thisControl.DeInitVBControl(bso);
                 }
             }
-            //else if (args.Property == ACUrlCmdMessageProperty)
-            //    thisControl.OnACUrlMessageReceived();
+            else if (change.Property == VBTextProperty)
+            {
+                // Update Text when VBText changes
+                if (!_OnTargetUpdated)
+                {
+                    _OnTargetUpdated = true;
+                    Text = this.VBText;
+                }
+            }
         }
 
         /// <summary>
@@ -850,10 +783,11 @@ namespace gip.core.layoutengine.avui
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
 
-        public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBTextEditor), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> VBValidationProperty = 
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBTextEditor>();
         public string VBValidation
         {
-            get { return (string)GetValue(VBValidationProperty); }
+            get { return GetValue(VBValidationProperty); }
             set { SetValue(VBValidationProperty, value); }
         }
 

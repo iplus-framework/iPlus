@@ -1,22 +1,15 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Input;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.core.layoutengine.avui.PropertyGrid.Editors;
+using gip.ext.design.avui;
+using gip.ext.designer.avui.OutlineView;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.core.datamodel;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.ext.designer.avui.OutlineView;
-using gip.ext.designer.avui;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui.PropertyGrid.Editors;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,77 +19,20 @@ namespace gip.core.layoutengine.avui
     public class VBMultiBindingEditor : MultiBindingEditor, IBindingDropHandler, IACInteractiveObject
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "MultiBindingEditorStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/MultiBindingEditorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "MultiBindingEditorStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/MultiBindingEditorStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBMultiBindingEditor()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBMultiBindingEditor), new FrameworkPropertyMetadata(typeof(VBMultiBindingEditor)));
-        }
-
-        bool _themeApplied = false;
-
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-            AllowDrop = true;
-            PreviewDragEnter += new DragEventHandler(OnDragEnter);
-            PreviewDragLeave += new DragEventHandler(OnDragLeave);
-            PreviewDrop += new DragEventHandler(OnDrop);
-            PreviewDragOver += new DragEventHandler(OnDragOver);
+            base.OnInitialized();
+            DragDrop.SetAllowDrop(this, true);
+            AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+            AddHandler(DragDrop.DragOverEvent, OnDragOver);
+            AddHandler(DragDrop.DropEvent, OnDrop);
+            AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
 
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
         #endregion
 
         protected override void CreateWrapper()
@@ -338,7 +274,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_DesignObjectBinding == null)
                     return null;
-                VBDesignEditor editor = VBVisualTreeHelper.FindParentObjectInVisualTree(_DesignObjectBinding.Context.Services.DesignPanel as DependencyObject, typeof(VBDesignEditor)) as VBDesignEditor;
+                VBDesignEditor editor = VBVisualTreeHelper.FindParentObjectInVisualTree(_DesignObjectBinding.Context.Services.DesignPanel as Visual, typeof(VBDesignEditor)) as VBDesignEditor;
                 if (editor == null)
                     return null;
                 return editor.GetDesignManager();
@@ -386,16 +322,16 @@ namespace gip.core.layoutengine.avui
 
         public void HandleDragOver(object sender, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
 
-            switch (e.AllowedEffects)
+            switch (e.DragEffects)
             {
                 case DragDropEffects.Move: // Vorhandene Elemente verschieben
                     e.Handled = true;
@@ -406,7 +342,7 @@ namespace gip.core.layoutengine.avui
                     HandleDragOver_Copy(sender, 0, 0, e);
                     return;
                 default:
-                    e.Effects = DragDropEffects.None;
+                    e.DragEffects = DragDropEffects.None;
                     e.Handled = true;
                     return;
             }
@@ -414,11 +350,11 @@ namespace gip.core.layoutengine.avui
 
         private void HandleDragOver_Copy(object sender, double x, double y, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -426,7 +362,7 @@ namespace gip.core.layoutengine.avui
             IACInteractiveObject dropObject = VBDragDrop.GetDropObject(e);
             if (dropObject == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -436,11 +372,11 @@ namespace gip.core.layoutengine.avui
             ACActionArgs actionArgs = new ACActionArgs(dropObject, x, y, Global.ElementActionType.Drop);
             if (IsEnabledACAction(actionArgs))
             {
-                e.Effects = DragDropEffects.Copy;
+                e.DragEffects = DragDropEffects.Copy;
             }
             else
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
             }
             // Drag und Drop auf Unterelement nicht erlauben!!
             e.Handled = true;
@@ -448,11 +384,11 @@ namespace gip.core.layoutengine.avui
 
         public void HandleDrop(object sender, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -460,12 +396,12 @@ namespace gip.core.layoutengine.avui
             IACInteractiveObject dropObject = VBDragDrop.GetDropObject(e);
             if (dropObject == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
 
-            switch (e.AllowedEffects)
+            switch (e.DragEffects)
             {
                 case DragDropEffects.Copy: // Neue Elemente einfügen
                 case DragDropEffects.Copy | DragDropEffects.Move: // Neue Elemente einfügen
@@ -477,7 +413,7 @@ namespace gip.core.layoutengine.avui
                     }
                     return;
                 default:
-                    e.Effects = DragDropEffects.None;
+                    e.DragEffects = DragDropEffects.None;
                     return;
             }
         }

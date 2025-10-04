@@ -1,30 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using gip.ext.designer.avui.PropertyGrid;
-using gip.ext.design.avui.PropertyGrid;
 using gip.ext.design.avui;
-using gip.core.layoutengine.avui.PropertyGrid.Editors;
-using System.ComponentModel;
-using System.Collections.ObjectModel;
-using System.Reflection;
-using System.Transactions;
-using gip.ext.designer.avui.Extensions;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Controls;
-
+using gip.ext.designer.avui.Extensions;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
@@ -36,7 +20,7 @@ namespace gip.core.layoutengine.avui
         }
     }
 
-    [ExtensionFor(typeof(FrameworkElement), OverrideExtension = typeof(QuickOperationMenuExtension))]
+    [ExtensionFor(typeof(Control), OverrideExtension = typeof(QuickOperationMenuExtension))]
     class VBQuickOperationMenuExtension : QuickOperationMenuExtension
     {
         public override QuickOperationMenu CreateMainMenu()
@@ -54,7 +38,7 @@ namespace gip.core.layoutengine.avui
             return new VBMenuSeparator();
         }
 
-        public static void MainHeaderClick(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
+        public static void MainHeaderClick(object sender, PointerPressedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
         {
             var clickedOn = e.Source as MenuItem;
             if (clickedOn != null)
@@ -70,7 +54,7 @@ namespace gip.core.layoutengine.avui
                             editor.LoadItemsCollection(extendedItem);
                             editor.Title = "Style Setter: " + WindowTitle;
                             editor.Show();
-                            Rect wndRect = new Rect(DockingManager.PointToScreen(Mouse.GetPosition(DockingManager)), new Size(750, 400));
+                            Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 400));
                             (editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
                         }
                         return;
@@ -83,7 +67,7 @@ namespace gip.core.layoutengine.avui
                             editor.LoadItemsCollection(extendedItem);
                             editor.Title = "Style Trigger: " + WindowTitle;
                             editor.Show();
-                            Rect wndRect = new Rect(DockingManager.PointToScreen(Mouse.GetPosition(DockingManager)), new Size(750, 500));
+                            Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 500));
                             (editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
                         }
                         return;
@@ -114,10 +98,10 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            QuickOperationMenuExtension.MainHeaderClick(sender, e, extendedItem, _menu);
+            QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, extendedItem, _menu);
         }
 
-        public override void MainHeaderClick(object sender, RoutedEventArgs e)
+        public override void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             VBQuickOperationMenuExtension.MainHeaderClick(sender, e, this.ExtendedItem, _menu, DockingManager, WindowTitle);
         }
@@ -146,7 +130,7 @@ namespace gip.core.layoutengine.avui
         public static VBDockingManager GetDockingManager(DesignItem extendedItem)
         {
             var panel = extendedItem.Services.GetService(typeof(IDesignPanel)) as IDesignPanel;
-            return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as DependencyObject, typeof(VBDockingManager)) as VBDockingManager;
+            return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as AvaloniaObject, typeof(VBDockingManager)) as VBDockingManager;
         }
 
         private VBDockingManager _DockingManager;

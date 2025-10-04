@@ -1,12 +1,16 @@
 using System;
-using System.Windows.Controls;
-using System.Windows.Input;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
 
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
     /// Represents a Up or Down base control.
     /// </summary>
+    [TemplatePart("PART_Spinner", typeof(Spinner))]
+    [TemplatePart("PART_TextBox", typeof(TextBox), IsRequired = true)]
     public abstract class UpDownBase : InputBase
     {
         #region Members
@@ -14,12 +18,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Name constant for Text template part.
         /// </summary>
-        internal const string ElementTextName = "TextBox";
+        internal const string ElementTextName = "PART_TextBox";
 
         /// <summary>
         /// Name constant for Spinner template part.
         /// </summary>
-        internal const string ElementSpinnerName = "Spinner";
+        internal const string ElementSpinnerName = "PART_Spinner";
 
         #endregion //Members
 
@@ -33,8 +37,13 @@ namespace gip.core.layoutengine.avui
             get { return _spinner; }
             private set
             {
+                if (_spinner != null)
+                    _spinner.Spin -= OnSpinnerSpin;
+                    
                 _spinner = value;
-                _spinner.Spin += OnSpinnerSpin;
+                
+                if (_spinner != null)
+                    _spinner.Spin += OnSpinnerSpin;
             }
         }
 
@@ -42,24 +51,26 @@ namespace gip.core.layoutengine.avui
 
         #region Constructors
 
-        internal UpDownBase() { }
+        public UpDownBase() : base()
+        {
+        }
 
         #endregion //Constructors
 
         #region Base Class Overrides
 
         /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
+        /// Overrides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            TextBox = GetTemplateChild(ElementTextName) as TextBox;
-            Spinner = GetTemplateChild(ElementSpinnerName) as Spinner;
+            TextBox = e.NameScope.Find<TextBox>(ElementTextName);
+            Spinner = e.NameScope.Find<Spinner>(ElementSpinnerName);
         }
 
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.Key)
             {
@@ -77,23 +88,26 @@ namespace gip.core.layoutengine.avui
                     }
                 case Key.Enter:
                     {
-                        SyncTextAndValueProperties(UpDownBase.TextProperty, TextBox.Text);
+                        SyncTextAndValueProperties(UpDownBase.TextProperty, TextBox?.Text);
                         break;
                     }
             }
+            
+            if (!e.Handled)
+                base.OnKeyDown(e);
         }
 
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            base.OnMouseWheel(e);
+            base.OnPointerWheelChanged(e);
 
             if (!e.Handled)
             {
-                if (e.Delta < 0)
+                if (e.Delta.Y < 0)
                 {
                     DoDecrement();
                 }
-                else if (0 < e.Delta)
+                else if (0 < e.Delta.Y)
                 {
                     DoIncrement();
                 }
@@ -118,7 +132,7 @@ namespace gip.core.layoutengine.avui
         protected virtual void OnSpin(SpinEventArgs e)
         {
             if (e == null)
-                throw new ArgumentNullException("e");
+                throw new ArgumentNullException(nameof(e));
 
             if (e.Direction == SpinDirection.Increase)
                 DoIncrement();
@@ -127,7 +141,7 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Performs an increment if conditions allow it.
+        /// Performs a decrement if conditions allow it.
         /// </summary>
         private void DoDecrement()
         {
@@ -138,7 +152,7 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Performs a decrement if conditions allow it.
+        /// Performs an increment if conditions allow it.
         /// </summary>
         private void DoIncrement()
         {
@@ -156,7 +170,7 @@ namespace gip.core.layoutengine.avui
         protected abstract void OnIncrement();
 
         /// <summary>
-        /// Called by OnSpin when the spin direction is SpinDirection.Descrease.
+        /// Called by OnSpin when the spin direction is SpinDirection.Decrease.
         /// </summary>
         protected abstract void OnDecrement();
 

@@ -1,27 +1,27 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Shapes;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Media;
+using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Collections;
-using gip.ext.designer.avui;
 using gip.ext.design.avui;
-using gip.ext.designer.avui.Services;
-using System.Reflection;
 using gip.ext.designer.avui.Controls;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
+using Avalonia.Interactivity;
+using Avalonia.Input;
+using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
+using Avalonia.Data;
+using gip.ext.design.avui.UIExtensions;
+using Avalonia.Collections;
 
 namespace gip.core.layoutengine.avui
 {
@@ -45,50 +45,11 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Das VBDesign dient zur Darstellung von beliebigen Klasse, welche <see cref="IACObjectDesign"/> implementiert (z.B. Partslist, ACClassDesign)
     /// </summary>
-    [TemplatePart(Name = "PART_BorderFreeze", Type = typeof(FrameworkElement))]
+    [TemplatePart(Name = "PART_BorderFreeze", Type = typeof(Control))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesign'}de{'VBDesign'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBDesign : VBDesignBase, IVBContent, IVBSerialize, IACMenuBuilderWPFTree
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> {
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip,
-                                         styleName = "VBDesignStyleGip",
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesign/Themes/VBDesignStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero,
-                                         styleName = "VBDesignStyleAero",
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesign/Themes/VBDesignStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-
-        static VBDesign()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDesign), new FrameworkPropertyMetadata(typeof(VBDesign)));
-        }
-
-        protected bool _themeApplied = false;
-
         /// <summary>
         /// Creates a new instance of VBDesign.
         /// </summary>
@@ -101,10 +62,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             //// Businessobjects-Root must me bound later, because at this time this first VBDesign is not loaded in the logical tree.
             //// Therefore the Datacontext could not be determinde from child VBDesigns, when the application starts
             //if (this.ContextACObject == null 
@@ -113,25 +73,6 @@ namespace gip.core.layoutengine.avui
                 InitBinding();
             //this.MouseDown += new MouseButtonEventHandler(VBDesign_MouseDown);
             //this.AddHandler(VBDesign.MouseDownEvent, new MouseButtonEventHandler(VBDesign_MouseDown), true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
         }
 
 
@@ -149,9 +90,9 @@ namespace gip.core.layoutengine.avui
         protected override void VBDesignBase_Loaded(object sender, RoutedEventArgs e)
         {
             base.VBDesignBase_Loaded(sender, e);
-            if (this.Content is DependencyObject)
+            if (this.Content is Visual)
             {
-                var control = VBVisualTreeHelper.FindChildObjectInVisualTree<Boolean>(this.Content as DependencyObject, "AutoFocus", true);
+                var control = VBVisualTreeHelper.FindChildObjectInVisualTree<Boolean>(this.Content as Visual, "AutoFocus", true);
                 if (control != null)
                 {
                     MethodInfo pi = control.GetType().GetMethod("Focus");
@@ -175,7 +116,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
         /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
-        /// Controls that implement this interface should bind itself to the InitState of the BSOACComponent.
+        /// Controls that implement this interface should bind themselves to the InitState of the BSOACComponent.
         /// When the BSOACComponent stops and the property changes to Destructed- or DisposedToPool-State than this method should be called.
         /// </summary>
         /// <param name="bso">The bound BSOACComponent</param>
@@ -183,13 +124,9 @@ namespace gip.core.layoutengine.avui
         {
             if (_Loaded)
             {
-                if (ReadLocalValue(DataContextProperty) != DependencyProperty.UnsetValue)
-                    BindingOperations.ClearBinding(this, FrameworkElement.DataContextProperty);
-                //if (ReadLocalValue(ContentACObjectProperty) != DependencyProperty.UnsetValue)
-                //    BindingOperations.ClearBinding(this, VBDesign.ContentACObjectProperty);
-                //ContentACObject = null;
-                BindingOperations.ClearBinding(this, VBDesign.ContentACObjectProperty);
-                BindingOperations.ClearBinding(this, VBDesign.MasterPageSelProperty);
+                this.ClearValue(DataContextProperty);
+                this.ClearValue(VBDesign.ContentACObjectProperty);
+                this.ClearValue(VBDesign.MasterPageSelProperty);
 
                 _DesignManager = null;
                 CurrentTargetVBDataObject = null;
@@ -207,21 +144,27 @@ namespace gip.core.layoutengine.avui
             {
                 if (AutoStartParameter == null || !AutoStartParameter.Any())
                 {
-                    Binding binding = new Binding();
-                    binding.Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, null);
-                    this.SetBinding(FrameworkElement.DataContextProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, null)
+                    };
+                    this.Bind(DataContextProperty, binding);
                 }
                 else
                 {
-                    Binding binding = new Binding();
-                    binding.Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter);//.ToValueArray());
-                    this.SetBinding(FrameworkElement.DataContextProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = BSOACComponent.ACUrlCommand(AutoStartACComponent, this.AutoStartParameter)
+                    };
+                    this.Bind(DataContextProperty, binding);
                 }
                 if (BSOACComponent.ACType.ACKind == Global.ACKinds.TACBusinessobjects)
                 {
-                    Binding binding = new Binding();
-                    binding.Source = DataContext;
-                    this.SetBinding(VBDesign.BSOACComponentProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = DataContext
+                    };
+                    this.Bind(VBDesign.BSOACComponentProperty, binding);
                 }
             }
 
@@ -232,16 +175,18 @@ namespace gip.core.layoutengine.avui
             if (OnContextACObjectChanged != null)
                 OnContextACObjectChanged(this, new EventArgs());
 
-            Binding bindingVarioWPF = new Binding();
-            bindingVarioWPF.Source = this.Root().RootPageWPF;
-            bindingVarioWPF.Path = new PropertyPath("VBDesignEditing");
-            bindingVarioWPF.Mode = BindingMode.OneWay;
-            this.SetBinding(VBDesign.MasterPageSelProperty, bindingVarioWPF);
+            var bindingVarioWPF = new Binding
+            {
+                Source = this.Root().RootPageWPF,
+                Path = "VBDesignEditing",
+                Mode = BindingMode.OneWay
+            };
+            this.Bind(VBDesign.MasterPageSelProperty, bindingVarioWPF);
 
             if (string.IsNullOrEmpty(VBContent))
             {
                 _LoadDesignLocked = true;
-                if (Parent is System.Windows.Controls.Grid ParentGrid && ParentGrid.Name == "MainGridMobile")
+                if (Parent is Grid ParentGrid && ParentGrid.Name == "MainGridMobile")
                     ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMainMobile);
                 else
                     ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
@@ -267,13 +212,13 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                Binding binding = new Binding();
-                binding.Source = DataContext;
-                binding.Path = new PropertyPath(VBContent);
-                binding.Mode = BindingMode.OneWay;
-                binding.NotifyOnSourceUpdated = true;
-                binding.NotifyOnTargetUpdated = true;
-                this.SetBinding(VBDesign.ContentACObjectProperty, binding);
+                var binding = new Binding
+                {
+                    Source = DataContext,
+                    Path = VBContent,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBDesign.ContentACObjectProperty, binding);
                 LoadDesign();
             }
 
@@ -377,31 +322,22 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ContentACObject.
         /// </summary>
-        public static readonly DependencyProperty ContentACObjectProperty
-            = DependencyProperty.Register("ContentACObject", typeof(IACObjectDesign), typeof(VBDesign), new PropertyMetadata(null, new PropertyChangedCallback(ContentACObjectChanged), new CoerceValueCallback(ContentACObjectChangedCoerce)));
+        public static readonly StyledProperty<IACObjectDesign> ContentACObjectProperty =
+            AvaloniaProperty.Register<VBDesign, IACObjectDesign>(nameof(ContentACObject));
 
-        private static void ContentACObjectChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (d is VBDesign)
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == ContentACObjectProperty)
             {
-                VBDesign vbContentControl = d as VBDesign;
-                if (vbContentControl._LoadDesignLocked)
-                    return;
-                vbContentControl.LoadDesign();
+                if (!_LoadDesignLocked)
+                    LoadDesign();
             }
-        }
-
-        private static object ContentACObjectChangedCoerce(DependencyObject d, object baseValue)
-        {
-            if (d is VBDesign)
+            else if (change.Property == MasterPageSelProperty)
             {
-                VBDesign vbContentControl = d as VBDesign;
-                if (vbContentControl._LoadDesignLocked || !vbContentControl.CoerceRefreshDesign)
-                    return baseValue;
-                if (baseValue == vbContentControl.ContentACObject)
-                    vbContentControl.LoadDesign();
+                RootPageWPF_VBDesignEditingEvent();
             }
-            return baseValue;
         }
 
         public bool CoerceRefreshDesign
@@ -434,7 +370,7 @@ namespace gip.core.layoutengine.avui
         {
             string xaml = "";
 
-            DependencyObject parentObj = VisualTreeHelper.GetParent(this);
+            Visual parentObj = this.GetVisualParent();
             if (parentObj != null)
             {
                 VBDesign parentDesign = parentObj.GetVBDesign();
@@ -446,8 +382,8 @@ namespace gip.core.layoutengine.avui
                         {
                             ContentControl contentControl = new ContentControl();
                             ResourceDictionary dict = new ResourceDictionary();
-                            dict.Source = new Uri("/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative);
-                            contentControl.Style = (Style)dict["IconDesignStyleGip"];
+                            dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative)));
+                            contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
                             Content = contentControl;
                         }
                         catch (Exception e)
@@ -485,13 +421,13 @@ namespace gip.core.layoutengine.avui
             }
 
             Content = null;
-            UIElement uiElement = null;
+            Visual uiElement = null;
             if (string.IsNullOrEmpty(xaml))
             {
                 ContentControl contentControl = new ContentControl();
                 ResourceDictionary dict = new ResourceDictionary();
-                dict.Source = new Uri("/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative);
-                contentControl.Style = (Style)dict["IconDesignStyleGip"];
+                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative)));
+                contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
                 uiElement = contentControl;
             }
             else if (ACClassDesign != null && ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)
@@ -698,8 +634,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-                = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBDesign), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> ShowCaptionProperty =
+            AvaloniaProperty.Register<VBDesign, bool>(nameof(ShowCaption), false);
 
         /// <summary>
         /// Determines is control caption shown or not.
@@ -710,7 +646,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool ShowCaption
         {
-            get { return (bool)GetValue(ShowCaptionProperty); }
+            get { return GetValue(ShowCaptionProperty); }
             set { SetValue(ShowCaptionProperty, value); }
         }
 
@@ -836,50 +772,31 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ControlSelectionState.
         /// </summary>
-        public static readonly DependencyProperty ControlSelectionStateProperty
-            = DependencyProperty.Register("ControlSelectionState", typeof(ControlSelectionState), typeof(VBDesign), new PropertyMetadata(ControlSelectionState.Off));
+        public static readonly StyledProperty<ControlSelectionState> ControlSelectionStateProperty =
+            AvaloniaProperty.Register<VBDesign, ControlSelectionState>(nameof(ControlSelectionState), ControlSelectionState.Off);
 
         /// <summary>
         /// Gets or sets the control selection state.
         /// </summary>
         public ControlSelectionState ControlSelectionState
         {
-            get { return (ControlSelectionState)GetValue(ControlSelectionStateProperty); }
+            get { return GetValue(ControlSelectionStateProperty); }
             set { SetValue(ControlSelectionStateProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for MasterPageSel.
         /// </summary>
-        public static readonly DependencyProperty MasterPageSelProperty = DependencyProperty.Register("MasterPageSel",
-        typeof(WPFControlSelectionEventArgs), typeof(VBDesign), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<WPFControlSelectionEventArgs> MasterPageSelProperty = 
+            AvaloniaProperty.Register<VBDesign, WPFControlSelectionEventArgs>(nameof(MasterPageSel));
 
         /// <summary>
         /// Gets or sets the master page selection.
         /// </summary>
         public WPFControlSelectionEventArgs MasterPageSel
         {
-            get { return (WPFControlSelectionEventArgs)GetValue(MasterPageSelProperty); }
+            get { return GetValue(MasterPageSelProperty); }
             set { SetValue(MasterPageSelProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBDesign thisControl = dependencyObject as VBDesign;
-            if (thisControl == null)
-                return;
-            if (args.Property == MasterPageSelProperty)
-                thisControl.RootPageWPF_VBDesignEditingEvent();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
         }
 
         void RootPageWPF_VBDesignEditingEvent()
@@ -923,10 +840,10 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Handles the OnMouseDown event.
+        /// Handles the OnPointerPressed event.
         /// </summary>
         /// <param name="e">The event arguments parameter.</param>
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
             if (ControlSelectionState == ControlSelectionState.FrameSearch)
             {
@@ -950,78 +867,51 @@ namespace gip.core.layoutengine.avui
                 }
             }
             else
-                base.OnMouseDown(e);
+                base.OnPointerPressed(e);
         }
 
         /// <summary>
-        /// Handles the OnContextMenuOpening event.
+        /// Handles the OnPointerReleased event for right-click context menu.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (DisableContextMenu)
+            if (e.InitialPressMouseButton == MouseButton.Right)
             {
-                e.Handled = true;
-                return;
-            }
-            base.OnContextMenuOpening(e);
-        }
-
-        /// <summary>
-        /// Handles the OnPreviewMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnPreviewMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            if (DisableContextMenu)
-            {
-                e.Handled = true;
-                return;
-            }
-            base.OnPreviewMouseRightButtonDown(e);
-        }
-
-        /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            if (ContextACObject == null || BSOACComponent == null)
-                return;
-            if (DisableContextMenu)
-            {
-                e.Handled = true;
-                return;
-            }
-
-            if (DesignEditor != null && DesignEditor.DesignSurface.DesignContext != null && DesignEditor.DesignSurface.DesignContext.Services.Selection.PrimarySelection != null)
-            {
-                UIElement uiElement = DesignEditor.DesignSurface.DesignContext.Services.Selection.PrimarySelection.Component as UIElement;
-                if (uiElement is VBVisual || uiElement is VBVisualGroup || uiElement is VBEdge)
+                if (ContextACObject == null || BSOACComponent == null)
+                    return;
+                if (DisableContextMenu)
                 {
-                    uiElement.RaiseEvent(e);
-                    if (e.Handled)
-                        return;
+                    e.Handled = true;
+                    return;
+                }
+
+                if (DesignEditor != null && DesignEditor.DesignSurface.DesignContext != null && DesignEditor.DesignSurface.DesignContext.Services.Selection.PrimarySelection != null)
+                {
+                    Control uiElement = DesignEditor.DesignSurface.DesignContext.Services.Selection.PrimarySelection.Component as Control;
+                    if (uiElement is VBVisual || uiElement is VBVisualGroup || uiElement is VBEdge)
+                    {
+                        uiElement.RaiseEvent(e);
+                        if (e.Handled)
+                            return;
+                    }
+                }
+
+                Point point = e.GetPosition(this);
+                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this as IACInteractiveObject, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                BSOACComponent.ACAction(actionArgs);
+                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                {
+
+                    VBContextMenu vbContextMenu = new VBContextMenu(this as IACInteractiveObject, actionArgs.ACMenuItemList);
+                    this.ContextMenu = vbContextMenu;
+                    if (vbContextMenu.PlacementTarget == null)
+                        vbContextMenu.PlacementTarget = this;
+                    ContextMenu.Open();
+                    e.Handled = true;
                 }
             }
-
-            Point point = e.GetPosition(this);
-            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this as IACInteractiveObject, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            BSOACComponent.ACAction(actionArgs);
-            if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
-            {
-
-                VBContextMenu vbContextMenu = new VBContextMenu(this as IACInteractiveObject, actionArgs.ACMenuItemList);
-                this.ContextMenu = vbContextMenu;
-                //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                if (vbContextMenu.PlacementTarget == null)
-                    vbContextMenu.PlacementTarget = this;
-                ContextMenu.IsOpen = true;
-                e.Handled = true;
-            }
-
-            base.OnMouseRightButtonDown(e);
+            base.OnPointerReleased(e);
         }
 
         IACComponentDesignManager _DesignManager = null;
@@ -1062,16 +952,19 @@ namespace gip.core.layoutengine.avui
                 return;
             Shape shape = DesignEditor.DesignSurface.DesignContext.Services.Selection.PrimarySelection.View as Shape;
 
-            DrawShapesAdornerBase.s_ShapeStroke = shape.Stroke;
+            DrawShapesAdornerBase.s_ShapeStroke = shape.Stroke.Clone();
             DrawShapesAdornerBase.s_ShapeStrokeThickness = shape.StrokeThickness;
-            DrawShapesAdornerBase.s_ShapeFill = shape.Fill;
-            DrawShapesAdornerBase.s_ShapeStrokeDashArray = shape.StrokeDashArray;
-            DrawShapesAdornerBase.s_ShapeStrokeDashCap = shape.StrokeDashCap;
+            DrawShapesAdornerBase.s_ShapeFill = shape.Fill.Clone();
+            DrawShapesAdornerBase.s_ShapeStrokeDashArray = shape.StrokeDashArray.ToList();
             DrawShapesAdornerBase.s_ShapeStrokeDashOffset = shape.StrokeDashOffset;
-            DrawShapesAdornerBase.s_ShapeStrokeEndLineCap = shape.StrokeEndLineCap;
-            DrawShapesAdornerBase.s_ShapeStrokeLineJoin = shape.StrokeLineJoin;
-            DrawShapesAdornerBase.s_ShapeStrokeMiterLimit = shape.StrokeMiterLimit;
-            DrawShapesAdornerBase.s_ShapeStrokeStartLineCap = shape.StrokeStartLineCap;
+            DrawShapesAdornerBase.s_ShapeStrokeLineJoin = shape.StrokeJoin;
+            DrawShapesAdornerBase.s_ShapeStretch = shape.Stretch;
+            IPen pen = shape.GetPen();
+            if (pen != null)
+            {
+                DrawShapesAdornerBase.s_ShapeStrokeMiterLimit = pen.MiterLimit;
+                DrawShapesAdornerBase.s_ShapeStrokeStartLineCap = pen.LineCap;
+            }
         }
 
         /// <summary>
@@ -1101,10 +994,9 @@ namespace gip.core.layoutengine.avui
             DrawShapesAdornerBase.s_ShapeStroke = Brushes.LightSlateGray;
             DrawShapesAdornerBase.s_ShapeStrokeThickness = 1;
             DrawShapesAdornerBase.s_ShapeFill = null;
+            // Note: Reset to default Avalonia values
             DrawShapesAdornerBase.s_ShapeStrokeDashArray = null;
-            DrawShapesAdornerBase.s_ShapeStrokeDashCap = PenLineCap.Flat;
             DrawShapesAdornerBase.s_ShapeStrokeDashOffset = 0;
-            DrawShapesAdornerBase.s_ShapeStrokeEndLineCap = PenLineCap.Flat;
             DrawShapesAdornerBase.s_ShapeStrokeLineJoin = PenLineJoin.Miter;
             DrawShapesAdornerBase.s_ShapeStrokeMiterLimit = 10;
             DrawShapesAdornerBase.s_ShapeStrokeStartLineCap = PenLineCap.Flat;
@@ -1112,19 +1004,18 @@ namespace gip.core.layoutengine.avui
             shape.Stroke = DrawShapesAdornerBase.s_ShapeStroke;
             shape.StrokeThickness = DrawShapesAdornerBase.s_ShapeStrokeThickness;
             shape.Fill = DrawShapesAdornerBase.s_ShapeFill;
-            shape.StrokeDashArray = DrawShapesAdornerBase.s_ShapeStrokeDashArray;
-            if (DrawShapesAdornerBase.s_ShapeStrokeDashCap.HasValue)
-                shape.StrokeDashCap = DrawShapesAdornerBase.s_ShapeStrokeDashCap.Value;
+            shape.StrokeDashArray = new AvaloniaList<double>(DrawShapesAdornerBase.s_ShapeStrokeDashArray);
             if (DrawShapesAdornerBase.s_ShapeStrokeDashOffset.HasValue)
                 shape.StrokeDashOffset = DrawShapesAdornerBase.s_ShapeStrokeDashOffset.Value;
-            if (DrawShapesAdornerBase.s_ShapeStrokeEndLineCap.HasValue)
-                shape.StrokeEndLineCap = DrawShapesAdornerBase.s_ShapeStrokeEndLineCap.Value;
             if (DrawShapesAdornerBase.s_ShapeStrokeLineJoin.HasValue)
-                shape.StrokeLineJoin = DrawShapesAdornerBase.s_ShapeStrokeLineJoin.Value;
-            if (DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.HasValue)
-                shape.StrokeMiterLimit = DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.Value;
-            if (DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.HasValue)
-                shape.StrokeStartLineCap = DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.Value;
+                shape.StrokeJoin = DrawShapesAdornerBase.s_ShapeStrokeLineJoin.Value;
+            // TODO: Not converted from WPF:
+            //Pen pen = new Pen();
+            //if (DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.HasValue)
+            //    pen.MiterLimit = DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.Value;
+            //if (DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.HasValue)
+            //    pen.LineCap = DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.Value;
+
         }
 
         /// <summary>
@@ -1154,19 +1045,17 @@ namespace gip.core.layoutengine.avui
             shape.Stroke = DrawShapesAdornerBase.s_ShapeStroke;
             shape.StrokeThickness = DrawShapesAdornerBase.s_ShapeStrokeThickness;
             shape.Fill = DrawShapesAdornerBase.s_ShapeFill;
-            shape.StrokeDashArray = DrawShapesAdornerBase.s_ShapeStrokeDashArray;
-            if (DrawShapesAdornerBase.s_ShapeStrokeDashCap.HasValue)
-                shape.StrokeDashCap = DrawShapesAdornerBase.s_ShapeStrokeDashCap.Value;
+            shape.StrokeDashArray = new AvaloniaList<double>(DrawShapesAdornerBase.s_ShapeStrokeDashArray);
             if (DrawShapesAdornerBase.s_ShapeStrokeDashOffset.HasValue)
                 shape.StrokeDashOffset = DrawShapesAdornerBase.s_ShapeStrokeDashOffset.Value;
-            if (DrawShapesAdornerBase.s_ShapeStrokeEndLineCap.HasValue)
-                shape.StrokeEndLineCap = DrawShapesAdornerBase.s_ShapeStrokeEndLineCap.Value;
             if (DrawShapesAdornerBase.s_ShapeStrokeLineJoin.HasValue)
-                shape.StrokeLineJoin = DrawShapesAdornerBase.s_ShapeStrokeLineJoin.Value;
-            if (DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.HasValue)
-                shape.StrokeMiterLimit = DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.Value;
-            if (DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.HasValue)
-                shape.StrokeStartLineCap = DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.Value;
+                shape.StrokeJoin = DrawShapesAdornerBase.s_ShapeStrokeLineJoin.Value;
+            // TODO: Not converted from WPF:
+            //Pen pen = new Pen();
+            //if (DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.HasValue)
+            //    pen.MiterLimit = DrawShapesAdornerBase.s_ShapeStrokeMiterLimit.Value;
+            //if (DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.HasValue)
+            //    pen.LineCap = DrawShapesAdornerBase.s_ShapeStrokeStartLineCap.Value;
         }
 
         /// <summary>
@@ -1227,9 +1116,9 @@ namespace gip.core.layoutengine.avui
                 if (propertyWindow is VBDockingContainerBase)
                 {
                     VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is FrameworkElement)
+                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
                     {
-                        (container.VBDesignContent as FrameworkElement).Loaded += new RoutedEventHandler(VBPropertyWindowContent_Loaded);
+                        (container.VBDesignContent as Control).Loaded += VBPropertyWindowContent_Loaded;
                     }
                 }
             }
@@ -1240,9 +1129,9 @@ namespace gip.core.layoutengine.avui
                 if (logicalTreeWindow is VBDockingContainerBase)
                 {
                     VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is FrameworkElement)
+                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
                     {
-                        (container.VBDesignContent as FrameworkElement).Loaded += new RoutedEventHandler(VBLogicalTreeWindowContent_Loaded);
+                        (container.VBDesignContent as Control).Loaded += VBLogicalTreeWindowContent_Loaded;
                     }
                 }
             }
@@ -1283,11 +1172,11 @@ namespace gip.core.layoutengine.avui
         {
             if (IsDesignerActive && (DesignEditor != null))
             {
-                DependencyObject vbPropertyWindowContent = sender as DependencyObject;
-                DependencyObject depObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(vbPropertyWindowContent, typeof(VBPropertyGridView));
+                Visual vbPropertyWindowContent = sender as Visual;
+                var depObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(vbPropertyWindowContent, typeof(VBPropertyGridView)) as Visual;
                 if (depObj != null)
                 {
-                    VBPropertyGridView propertyGridView = (VBPropertyGridView)depObj;
+                    VBPropertyGridView propertyGridView = depObj as VBPropertyGridView;
                     if ((propertyGridView != null) && (DesignEditor.PropertyGridView == null))
                     {
                         DesignEditor.PropertyGridView = propertyGridView;
@@ -1300,12 +1189,12 @@ namespace gip.core.layoutengine.avui
         {
             if (IsDesignerActive && (DesignEditor != null))
             {
-                DependencyObject vbPropertyWindowContent = sender as DependencyObject;
-                DependencyObject depObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(vbPropertyWindowContent, typeof(VBDesignItemTreeView));
+                Visual vbPropertyWindowContent = sender as Visual;
+                var depObj = VBLogicalTreeHelper.FindChildObjectInLogicalTree(vbPropertyWindowContent, typeof(VBDesignItemTreeView)) as Visual;
                 if (depObj != null)
                 {
-                    VBDesignItemTreeView logicalTreeView = (VBDesignItemTreeView)depObj;
-                    if ((logicalTreeView != null) && (DesignEditor.PropertyGridView == null))
+                    VBDesignItemTreeView logicalTreeView = depObj as VBDesignItemTreeView;
+                    if ((logicalTreeView != null) && (DesignEditor.DesignItemTreeView == null))
                     {
                         DesignEditor.DesignItemTreeView = logicalTreeView;
                     }
@@ -1329,9 +1218,9 @@ namespace gip.core.layoutengine.avui
                 if (propertyWindow is VBDockingContainerBase)
                 {
                     VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is FrameworkElement)
+                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
                     {
-                        (container.VBDesignContent as FrameworkElement).Loaded -= VBPropertyWindowContent_Loaded;
+                        (container.VBDesignContent as Control).Loaded -= VBPropertyWindowContent_Loaded;
                     }
                 }
             }
@@ -1342,9 +1231,9 @@ namespace gip.core.layoutengine.avui
                 if (logicalTreeWindow is VBDockingContainerBase)
                 {
                     VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is FrameworkElement)
+                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
                     {
-                        (container.VBDesignContent as FrameworkElement).Loaded -= VBLogicalTreeWindowContent_Loaded;
+                        (container.VBDesignContent as Control).Loaded -= VBLogicalTreeWindowContent_Loaded;
                     }
                 }
             }
@@ -1419,13 +1308,13 @@ namespace gip.core.layoutengine.avui
 
         #region Behavior -> FocusNames
 
-        public static readonly DependencyProperty FocusNamesProperty =
-            DependencyProperty.Register("FocusNames", typeof(string), typeof(VBDesign));
+        public static readonly StyledProperty<string> FocusNamesProperty =
+            AvaloniaProperty.Register<VBDesign, string>(nameof(FocusNames));
 
         [Category("VBControl")]
         public string FocusNames
         {
-            get { return (string)GetValue(FocusNamesProperty); }
+            get { return GetValue(FocusNamesProperty); }
             set { SetValue(FocusNamesProperty, value); }
         }
 
@@ -1441,19 +1330,19 @@ namespace gip.core.layoutengine.avui
         {
             if (!_AdornedVBContentInfo)
             {
-                FrameworkElement fe = this.Content as FrameworkElement;
+                Control fe = this.Content as Control;
                 IEnumerable<IVBContent> controls = VBVisualTreeHelper.FindChildObjects<IVBContent>(fe);
 
                 if (controls != null && controls.Any())
                 {
-                    AdornerLayer layer = AdornerLayer.GetAdornerLayer(this);
+                    Avalonia.Controls.Primitives.AdornerLayer layer = Avalonia.Controls.Primitives.AdornerLayer.GetAdornerLayer(this);
                     VBDesignVBContentInfo contentInfo = fe.Resources.Values.OfType<VBDesignVBContentInfo>().FirstOrDefault();
 
                     if (layer != null)
                     {
                         foreach (IVBContent control in controls)
                         {
-                            UIElement element = control as UIElement;
+                            Control element = control as Control;
                             if (element == null || string.IsNullOrEmpty(control.VBContent) || element is VBConnector)
                                 continue;
 
@@ -1461,7 +1350,7 @@ namespace gip.core.layoutengine.avui
                                 continue;
 
                             VBDesignVBContentAdorner adorner = new VBDesignVBContentAdorner(element, contentInfo);
-                            layer.Add(adorner);
+                            layer.Children.Add(adorner);
                             element.UpdateLayout();
                         }
                         _AdornedVBContentInfo = true;
@@ -1470,20 +1359,21 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                DependencyObject depObj = this.Content as DependencyObject;
+                Visual depObj = this.Content as Visual;
                 IEnumerable<IVBContent> controls = VBVisualTreeHelper.FindChildObjects<IVBContent>(depObj);
 
                 if (controls != null && controls.Any())
                 {
-                    AdornerLayer layer = AdornerLayer.GetAdornerLayer(this);
+                    // Note: Avalonia doesn't have AdornerLayer like WPF
+                    Avalonia.Controls.Primitives.AdornerLayer layer = Avalonia.Controls.Primitives.AdornerLayer.GetAdornerLayer(this);
 
                     foreach (IVBContent control in controls)
                     {
-                        UIElement element = control as UIElement;
+                        Control element = control as Control;
                         if (element == null)
                             continue;
 
-                        Adorner[] adorners = layer.GetAdorners(element);
+                        IEnumerable<Adorner> adorners = layer.GetAdorners(element);
                         if (adorners != null && adorners.Any())
                         {
                             foreach (Adorner adorner in adorners)
@@ -1492,12 +1382,12 @@ namespace gip.core.layoutengine.avui
                                 if (contentAdorner == null)
                                     continue;
 
-                                layer.Remove(contentAdorner);
+                                layer.Children.Remove(contentAdorner);
                             }
                         }
                     }
 
-                    layer.Update();
+                    //layer.UpdateLayout();
                     _AdornedVBContentInfo = false;
                 }
             }

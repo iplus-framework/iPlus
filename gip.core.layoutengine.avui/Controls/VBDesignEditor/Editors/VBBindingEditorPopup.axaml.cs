@@ -1,36 +1,28 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Diagnostics;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
 using gip.ext.design.avui.PropertyGrid;
-
+using System;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {
     /// <summary>
     /// Represents a popup editor for binding.
     /// </summary>
-	public partial class VBBindingEditorPopup
-	{
+	public partial class VBBindingEditorPopup : Popup
+    {
 		public VBBindingEditorPopup()
 		{
 			InitializeComponent();
-		}
+            Opened += VBBindingEditorPopup_Opened;
+            Closed += VBBindingEditorPopup_Closed;
+            KeyDown += VBBindingEditorPopup_KeyDown;
+        }
 
-        protected override void OnOpened(EventArgs e)
+        private void VBBindingEditorPopup_Opened(object sender, EventArgs e)
         {
             //this.Child;
             if (Property != null)
@@ -92,12 +84,12 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             {
                 PopupContent.Content = null;
             }
-            base.OnOpened(e);
+            //base.OnOpened(e);
         }
 
-		protected override void OnClosed(EventArgs e)
-		{
-		    base.OnClosed(e);
+        private void VBBindingEditorPopup_Closed(object sender, EventArgs e)
+        {
+		    //base.OnClosed(e);
 		    //VBBindingEditorView.VBBindingEditor.Commit();
 		}
 
@@ -113,9 +105,10 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             }
         }
 
-		protected override void OnKeyDown(KeyEventArgs e)
-		{
-			if (e.Key == Key.Escape) IsOpen = false;
+        private void VBBindingEditorPopup_KeyDown(object sender, Avalonia.Input.KeyEventArgs e)
+        {
+			if (e.Key == Key.Escape) 
+                IsOpen = false;
 		}
 	}
 }

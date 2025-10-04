@@ -1,0 +1,187 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+    <local:InverseBoolConverter x:Key="InverseBoolConverter" />
+
+    <Geometry x:Key="DownArrowGeometry">M 0 0 L 3.5 4 L 7 0 Z</Geometry>
+
+    <!-- DateTimePicker ToggleButton Template -->
+    <ControlTemplate x:Key="DateTimePickerToggleButtonTemplate" TargetType="ToggleButton">
+        <Grid>
+            <local:VBRepeatButton x:Name="RepeatButton"
+                                   CornerRadius="0,2.75,2.75,0"
+                                   RenderMouseOver="{TemplateBinding IsPointerOver}"
+                                   RenderPressed="{TemplateBinding IsPressed}" />
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <ContentPresenter HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+
+                <Grid x:Name="arrowGlyph" IsHitTestVisible="False" Grid.Column="1" Margin="5">
+                    <Path Width="7" Height="4" Data="M 0,1 C0,1 0,0 0,0 0,0 3,0 3,0 3,0 3,1 3,1 3,1 4,1 4,1 4,1 4,0 4,0 4,0 7,0 7,0 7,0 7,1 7,1 7,1 6,1 6,1 6,1 6,2 6,2 6,2 5,2 5,2 5,2 5,3 5,3 5,3 4,3 4,3 4,3 4,4 4,4 4,4 3,4 3,4 3,4 3,3 3,3 3,3 2,3 2,3 2,3 2,2 2,2 2,2 1,2 1,2 1,2 1,1 1,1 1,1 0,1 0,1 z" Fill="{StaticResource DateTimePickerFillArrowGlyph}"/>
+                </Grid>
+            </Grid>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- DateTimePicker Main Template -->
+    <ControlTemplate x:Key="DateTimePickerTemplate" TargetType="local:VBDateTimePicker">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+            </Grid.ColumnDefinitions>
+            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}"/>
+            <Border Margin="4,0,0,0" Grid.Column="1" x:Name="Border">
+                <Grid>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <local:VBDateTimeUpDown BorderThickness="1,1,0,1" 
+                                                Format="{TemplateBinding Format}" 
+                                                FormatString="{TemplateBinding FormatString}" 
+                                                Value="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}}"
+                                                ControlMode="{Binding ControlMode, RelativeSource={RelativeSource TemplatedParent}}"/>
+                        <ToggleButton x:Name="_calendarToggleButton" 
+                                      Grid.Column="1"
+                                      IsChecked="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}}"
+                                      Template="{StaticResource DateTimePickerToggleButtonTemplate}"
+                                      IsHitTestVisible="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource InverseBoolConverter}}"/>
+                    </Grid>
+                    <Popup IsOpen="{Binding IsChecked, ElementName=_calendarToggleButton}" 
+                           PlacementMode="Bottom"
+                           StaysOpen="False">
+                        <Border BorderThickness="1" 
+                                Background="{StaticResource DateTimePickerPopupBackgroundBrush}" 
+                                BorderBrush="{StaticResource DateTimePickerPopupDarkBorderBrush}" 
+                                Padding="3"
+                                CornerRadius="0,0,8,8"
+                                BoxShadow="2 5 10 0 #71000000">
+                            <StackPanel>
+                                <Calendar x:Name="PART_Calendar"    
+                                          DisplayDate="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}, Mode=OneWay}" 
+                                          DisplayDateStart="{TemplateBinding DisplayDateStart}"/>
+                                <local:VBDateTimeUpDown x:Name="PART_TimeUpDown" 
+                                                        Format="ShortTime" 
+                                                        Value="{Binding SelectedDate, RelativeSource={RelativeSource TemplatedParent}}" 
+                                                        Background="White" />
+                            </StackPanel>
+                        </Border>
+                    </Popup>
+                </Grid>
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <!-- =============================================================================== -->
+    <!-- VBDateTimePicker ControlTheme                                                  -->
+    <!-- =============================================================================== -->
+
+    <ControlTheme x:Key="{x:Type local:VBDateTimePicker}" TargetType="{x:Type local:VBDateTimePicker}">
+        <Setter Property="Template" Value="{StaticResource DateTimePickerTemplate}" />
+        <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabled}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="4,3"/>
+        
+        <!-- ShowCaption = False -->
+        <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
+            <Setter Property="Width" Value="0"/>
+        </Style>
+        <Style Selector="^[ShowCaption=False] /template/ Border#Border">
+            <Setter Property="Margin" Value="0,0,0,0"/>
+        </Style>
+
+        <!-- Disabled State -->
+        <Style Selector="^:disabled">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
+        </Style>
+
+        <!-- Focus State -->
+        <Style Selector="^:focus-within /template/ Border#Border">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+        </Style>
+        <Style Selector="^:focus-within">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <!-- Control Mode States -->
+        <!-- Disabled -->
+        <Style Selector="^:focus[ControlMode=Disabled]">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
+        </Style>
+        <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
+        </Style>
+
+        <!-- Enabled + Focus -->
+        <Style Selector="^:focus[ControlMode=Enabled]">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabledFocus}"/>
+        </Style>
+        <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
+        </Style>
+
+        <!-- EnabledRequired + Focus -->
+        <Style Selector="^:focus-within[ControlMode=EnabledRequired]:not([SelectedDate=x:Null])">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequiredFocus}"/>
+        </Style>
+        <Style Selector="^:not(:focus-within)[ControlMode=EnabledRequired]:not([SelectedDate=x:Null])">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequired}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
+        </Style>
+
+        <!-- EnabledWrong + Focus -->
+        <Style Selector="^:focus-within[ControlMode=EnabledWrong]">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrongFocus}"/>
+        </Style>
+        <Style Selector="^:not(:focus-within)[ControlMode=EnabledWrong]">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
+        </Style>
+
+        <!-- Validation Error -->
+        <Style Selector="^:error">
+            <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrongFocus}"/>
+        </Style>
+
+        <!-- ToggleButton States -->
+        <Style Selector="^:disabled /template/ ToggleButton /template/ Path">
+            <Setter Property="Fill" Value="#AFAFAF"/>
+        </Style>
+        <Style Selector="^:pointerover /template/ ToggleButton /template/ local|VBButtonChrome">
+            <Setter Property="RenderMouseOver" Value="True"/>
+        </Style>
+        <Style Selector="^:pressed /template/ ToggleButton /template/ local|VBButtonChrome">
+            <Setter Property="RenderPressed" Value="True"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

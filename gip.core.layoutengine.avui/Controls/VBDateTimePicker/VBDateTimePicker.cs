@@ -1,21 +1,16 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using System.Transactions;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,97 +21,48 @@ namespace gip.core.layoutengine.avui
     /// Steuerelemet für Datum- und Zeitsauswahl.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDateTimePicker'}de{'VBDateTimePicker'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBDateTimePicker : Control, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
+    public class VBDateTimePicker : TemplatedControl, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DateTimePickerStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDateTimePicker/Themes/DateTimePickerStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DateTimePickerStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDateTimePicker/Themes/DateTimePickerStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         #region c'tors
-        static VBDateTimePicker()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDateTimePicker), new FrameworkPropertyMetadata(typeof(VBDateTimePicker)));
-            //DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBDateTimePicker));
-        }
-
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBDateTimePicker.
         /// </summary>
-        public VBDateTimePicker()
+        public VBDateTimePicker() : base()
         {
-            Keyboard.AddKeyDownHandler(this, OnKeyDown);
-            Mouse.AddPreviewMouseDownOutsideCapturedElementHandler(this, OnMouseDownOutsideCapturedElement);
+            AddHandler(KeyDownEvent, OnKeyDown, RoutingStrategies.Tunnel);
+            AddHandler(PointerReleasedEvent, OnMouseDownOutsideCapturedElement, RoutingStrategies.Tunnel);
         }
 
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            this.SourceUpdated += VB_SourceUpdated;
-            this.TargetUpdated += VB_TargetUpdated;
+            base.OnInitialized();
             Loaded += VBDateTimePicker_Loaded;
             Unloaded += VBDateTimePicker_Unloaded;
-            ActualizeTheme(true);
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            _calendar = (System.Windows.Controls.Calendar)GetTemplateChild("Part_Calendar");
-            _calendar.SelectedDatesChanged += Calendar_SelectedDatesChanged;
-            _calendar.SelectedDate = SelectedDate;
+            base.OnApplyTemplate(e);
+            _calendar = e.NameScope.Find<Calendar>("PART_Calendar");
+            if (_calendar != null)
+            {
+                _calendar.SelectedDatesChanged += Calendar_SelectedDatesChanged;
+                _calendar.SelectedDate = SelectedDate;
+            }
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region Members
 
-        private System.Windows.Controls.Calendar _calendar;
+        private Calendar _calendar;
 
         #endregion //Members
 
@@ -127,22 +73,16 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for Format.
         /// </summary>
-        public static readonly DependencyProperty FormatProperty = DependencyProperty.Register("Format", typeof(DateTimeFormat), typeof(VBDateTimePicker), new UIPropertyMetadata(DateTimeFormat.FullDateTime, OnFormatChanged));
+        public static readonly StyledProperty<DateTimeFormat> FormatProperty = 
+            AvaloniaProperty.Register<VBDateTimePicker, DateTimeFormat>(nameof(Format), DateTimeFormat.FullDateTime);
         /// <summary>
         /// Gets or sets the DateTime format according DateTimeFormat enumeration.
         /// </summary>
         [Category("VBControl")]
         public DateTimeFormat Format
         {
-            get { return (DateTimeFormat)GetValue(FormatProperty); }
+            get { return GetValue(FormatProperty); }
             set { SetValue(FormatProperty, value); }
-        }
-
-        private static void OnFormatChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            VBDateTimePicker VBDateTimePicker = o as VBDateTimePicker;
-            if (VBDateTimePicker != null)
-                VBDateTimePicker.OnFormatChanged((DateTimeFormat)e.OldValue, (DateTimeFormat)e.NewValue);
         }
 
         protected virtual void OnFormatChanged(DateTimeFormat oldValue, DateTimeFormat newValue)
@@ -157,7 +97,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for FormatString.
         /// </summary>
-        public static readonly DependencyProperty FormatStringProperty = DependencyProperty.Register("FormatString", typeof(string), typeof(VBDateTimePicker), new UIPropertyMetadata(default(String), OnFormatStringChanged));
+        public static readonly StyledProperty<string> FormatStringProperty = 
+            AvaloniaProperty.Register<VBDateTimePicker, string>(nameof(FormatString), default(String));
 
         /// <summary>
         /// Gets or sets the format string.
@@ -165,15 +106,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string FormatString
         {
-            get { return (string)GetValue(FormatStringProperty); }
+            get { return GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
-        }
-
-        private static void OnFormatStringChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            VBDateTimePicker VBDateTimePicker = o as VBDateTimePicker;
-            if (VBDateTimePicker != null)
-                VBDateTimePicker.OnFormatStringChanged((string)e.OldValue, (string)e.NewValue);
         }
 
         protected virtual void OnFormatStringChanged(string oldValue, string newValue)
@@ -189,7 +123,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for IsOpen.
         /// </summary>
-        public static readonly DependencyProperty IsOpenProperty = DependencyProperty.Register("IsOpen", typeof(bool), typeof(VBDateTimePicker), new UIPropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsOpenProperty = 
+            AvaloniaProperty.Register<VBDateTimePicker, bool>(nameof(IsOpen), false);
 
         /// <summary>
         /// Determines is automatically opens the date and time selector dialog or not.
@@ -197,7 +132,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool IsOpen
         {
-            get { return (bool)GetValue(IsOpenProperty); }
+            get { return GetValue(IsOpenProperty); }
             set { SetValue(IsOpenProperty, value); }
         }
 
@@ -208,31 +143,26 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for SelectedDate.
         /// </summary>
-        public static readonly DependencyProperty SelectedDateProperty = DependencyProperty.Register("SelectedDate", typeof(DateTime?), typeof(VBDateTimePicker), new UIPropertyMetadata(DateTime.Now, new PropertyChangedCallback(OnSelectedDateChanged), new CoerceValueCallback(OnCoerceSelectedDate)));
+        public static readonly StyledProperty<DateTime?> SelectedDateProperty = 
+            AvaloniaProperty.Register<VBDateTimePicker, DateTime?>(nameof(SelectedDate), DateTime.Now, 
+                coerce: OnCoerceSelectedDate);
 
         /// <summary>
         /// Gets or sets the selected date.
         /// </summary>
         public DateTime? SelectedDate
         {
-            get { return (DateTime?)GetValue(SelectedDateProperty); }
+            get { return GetValue(SelectedDateProperty); }
             set { SetValue(SelectedDateProperty, value); }
         }
 
-        private static object OnCoerceSelectedDate(DependencyObject o, object value)
+        private static DateTime? OnCoerceSelectedDate(AvaloniaObject o, DateTime? value)
         {
             VBDateTimePicker dateTimePicker = o as VBDateTimePicker;
             if (dateTimePicker != null)
-                return dateTimePicker.OnCoerceSelectedDate((DateTime?)value);
+                return dateTimePicker.OnCoerceSelectedDate(value);
             else
                 return value;
-        }
-
-        private static void OnSelectedDateChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            VBDateTimePicker dateTimePicker = o as VBDateTimePicker;
-            if (dateTimePicker != null)
-                dateTimePicker.OnSelectedDateChanged((DateTime?)e.OldValue, (DateTime?)e.NewValue);
         }
 
         protected virtual DateTime? OnCoerceSelectedDate(DateTime? value)
@@ -255,14 +185,15 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for DisplayDateStart.
         /// </summary>
-        public static readonly DependencyProperty DisplayDateStartProperty = DependencyProperty.Register("DisplayDateStart", typeof(DateTime?), typeof(VBDateTimePicker), new UIPropertyMetadata(new DateTime(2000, 1, 1)));
+        public static readonly StyledProperty<DateTime?> DisplayDateStartProperty = 
+            AvaloniaProperty.Register<VBDateTimePicker, DateTime?>(nameof(DisplayDateStart), new DateTime(2000, 1, 1));
 
         /// <summary>
         /// Gets or sets the initial date and time.
         /// </summary>
         public DateTime? DisplayDateStart
         {
-            get { return (DateTime?)GetValue(DisplayDateStartProperty); }
+            get { return GetValue(DisplayDateStartProperty); }
             set { SetValue(DisplayDateStartProperty, value); }
         }
         #endregion
@@ -273,8 +204,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for RightControlMode.
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty
-            = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBDateTimePicker), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, Global.ControlModes>(nameof(RightControlMode));
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -287,15 +218,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
+            get { return GetValue(RightControlModeProperty); }
             set { SetValue(RightControlModeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBDateTimePicker), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, string>(Const.ACCaptionPrefix);
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
@@ -303,29 +234,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBDateTimePicker control = d as VBDateTimePicker;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBDateTimePicker).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBDateTimePicker));
+        public static readonly StyledProperty<string> ACCaptionTransProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, string>(nameof(ACCaptionTrans));
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -337,15 +254,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
+            get { return GetValue(ACCaptionTransProperty); }
             set { SetValue(ACCaptionTransProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBDateTimePicker), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaptionProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, bool>(nameof(ShowCaption), true);
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -357,22 +274,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool ShowCaption
         {
-            get
-            {
-                return (bool)GetValue(ShowCaptionProperty);
-            }
-            set
-            {
-                SetValue(ShowCaptionProperty, value);
-            }
+            get { return GetValue(ShowCaptionProperty); }
+            set { SetValue(ShowCaptionProperty, value); }
         }
 
         #region Layout
         /// <summary>
         /// Represents the dependency property for WidthCaption.
         /// </summary>
-        public static readonly DependencyProperty WidthCaptionProperty
-            = DependencyProperty.Register("WidthCaption", typeof(GridLength), typeof(VBDateTimePicker), new PropertyMetadata(new GridLength(15, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthCaptionProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, GridLength>(nameof(WidthCaption), new GridLength(15, GridUnitType.Star));
         /// <summary>
         /// Gets or sets the width of caption.
         /// </summary>
@@ -384,15 +295,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthCaption
         {
-            get { return (GridLength)GetValue(WidthCaptionProperty); }
+            get { return GetValue(WidthCaptionProperty); }
             set { SetValue(WidthCaptionProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for WidthCaptionMax.
         /// </summary>
-        public static readonly DependencyProperty WidthCaptionMaxProperty
-            = DependencyProperty.Register("WidthCaptionMax", typeof(double), typeof(VBDateTimePicker), new PropertyMetadata((double)150));
+        public static readonly StyledProperty<double> WidthCaptionMaxProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, double>(nameof(WidthCaptionMax), 150.0);
         /// <summary>
         /// Gets or sets the maximum width of caption.
         /// </summary>
@@ -404,15 +315,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthCaptionMax
         {
-            get { return (double)GetValue(WidthCaptionMaxProperty); }
+            get { return GetValue(WidthCaptionMaxProperty); }
             set { SetValue(WidthCaptionMaxProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for WidthContent.
         /// </summary>
-        public static readonly DependencyProperty WidthContentProperty
-            = DependencyProperty.Register("WidthContent", typeof(GridLength), typeof(VBDateTimePicker), new PropertyMetadata(new GridLength(20, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthContentProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, GridLength>(nameof(WidthContent), new GridLength(20, GridUnitType.Star));
         /// <summary>
         /// Gets or sets the width of content.
         /// </summary>
@@ -424,15 +335,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthContent
         {
-            get { return (GridLength)GetValue(WidthContentProperty); }
+            get { return GetValue(WidthContentProperty); }
             set { SetValue(WidthContentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for WidthContentMax.
         /// </summary>
-        public static readonly DependencyProperty WidthContentMaxProperty
-            = DependencyProperty.Register("WidthContentMax", typeof(double), typeof(VBDateTimePicker), new PropertyMetadata(Double.PositiveInfinity));
+        public static readonly StyledProperty<double> WidthContentMaxProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, double>(nameof(WidthContentMax), Double.PositiveInfinity);
         /// <summary>
         /// Gets or sets the maximum width of content.
         /// </summary>
@@ -441,7 +352,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthContentMax
         {
-            get { return (double)GetValue(WidthContentMaxProperty); }
+            get { return GetValue(WidthContentMaxProperty); }
             set { SetValue(WidthContentMaxProperty, value); }
         }
 
@@ -449,8 +360,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for WidthPadding.
         /// </summary>
-        public static readonly DependencyProperty WidthPaddingProperty
-            = DependencyProperty.Register("WidthPadding", typeof(GridLength), typeof(VBDateTimePicker), new PropertyMetadata(new GridLength(0)));
+        public static readonly StyledProperty<GridLength> WidthPaddingProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, GridLength>(nameof(WidthPadding), new GridLength(0));
         /// <summary>
         /// Gets or sets the width of padding.
         /// </summary>
@@ -459,7 +370,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthPadding
         {
-            get { return (GridLength)GetValue(WidthPaddingProperty); }
+            get { return GetValue(WidthPaddingProperty); }
             set { SetValue(WidthPaddingProperty, value); }
         }
 
@@ -490,12 +401,12 @@ namespace gip.core.layoutengine.avui
             }
             else if (ContextACObject == null)
             {
-                Binding binding = new Binding();
-                binding.Path = new PropertyPath(VBContent);
-                binding.NotifyOnSourceUpdated = true;
-                binding.NotifyOnTargetUpdated = true;
+                var binding = new Binding
+                {
+                    Path = VBContent
+                };
                 _InitBinding = true;
-                SetBinding(VBDateTimePicker.SelectedDateProperty, binding);
+                this.Bind(VBDateTimePicker.SelectedDateProperty, binding);
                 _InitBinding = false;
                 return;
             }
@@ -512,10 +423,8 @@ namespace gip.core.layoutengine.avui
             }
             _VBContentPropertyInfo = dcACTypeInfo;
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBDateTimePicker.RightControlModeProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
-                || (dcRightControlMode < RightControlMode))
+            // Check if RightControlMode is locally set
+            if (!this.IsSet(VBDateTimePicker.RightControlModeProperty) || (dcRightControlMode < RightControlMode))
             {
                 RightControlMode = dcRightControlMode;
             }
@@ -530,28 +439,33 @@ namespace gip.core.layoutengine.avui
                 else
                     ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
 
-                Binding binding2 = new Binding();
-                binding2.Source = dcSource;
-                binding2.Path = new PropertyPath(dcPath);
+                var binding2 = new Binding
+                {
+                    Source = dcSource,
+                    Path = dcPath,
+                    Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay
+                };
+                
                 if (dcPath.IndexOf('[') >= 0)
                     UpdateSourceIfIndexer = true;
-                binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
-                binding2.NotifyOnSourceUpdated = true;
-                binding2.NotifyOnTargetUpdated = true;
+                
                 if (!String.IsNullOrEmpty(VBValidation))
-                    binding2.ValidationRules.Add(new VBValidationRule(ValidationStep.ConvertedProposedValue, true, ContextACObject, VBContent, VBValidation));
+                    _ValidationRule = new VBValidationRule(null, true, ContextACObject, VBContent, VBValidation);
+
                 _InitBinding = true;
-                SetBinding(VBDateTimePicker.SelectedDateProperty, binding2);
+                this.Bind(VBDateTimePicker.SelectedDateProperty, binding2);
                 _InitBinding = false;
             }
 
             if (BSOACComponent != null)
             {
-                Binding binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBDateTimePicker.ACCompInitStateProperty, binding);
+                var binding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBDateTimePicker.ACCompInitStateProperty, binding);
             }
 
             if (AutoFocus)
@@ -569,10 +483,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null)
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, VBDateTimePicker.SelectedDateProperty);
+                var boundedValue = BindingOperations.GetBindingExpressionBase(this, VBDateTimePicker.SelectedDateProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -613,14 +527,12 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.SourceUpdated -= VB_SourceUpdated;
-            this.TargetUpdated -= VB_TargetUpdated;
+            
             Loaded -= VBDateTimePicker_Loaded;
             Unloaded -= VBDateTimePicker_Unloaded;
             _VBContentPropertyInfo = null;
+            _ValidationRule = null;
 
-            BindingOperations.ClearBinding(this, VBDateTimePicker.SelectedDateProperty);
-            BindingOperations.ClearBinding(this, VBDateTimePicker.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -635,15 +547,58 @@ namespace gip.core.layoutengine.avui
                 DeInitVBControl(BSOACComponent);
         }
 
-        void VB_SourceUpdated(object sender, DataTransferEventArgs e)
+        void VB_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
-            e.Handled = true;
             UpdateControlMode();
         }
 
-        void VB_TargetUpdated(object sender, DataTransferEventArgs e)
+        void VB_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
+            if (_ValidationRule != null)
+                _ValidationRule.Validate(this, e.NewValue, System.Globalization.CultureInfo.CurrentUICulture);
             UpdateControlMode();
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == RightControlModeProperty)
+            {
+                UpdateControlMode();
+            }
+            else if (change.Property == FormatProperty)
+            {
+                OnFormatChanged((DateTimeFormat)change.OldValue, (DateTimeFormat)change.NewValue);
+            }
+            else if (change.Property == FormatStringProperty)
+            {
+                OnFormatStringChanged(change.OldValue as string, change.NewValue as string);
+            }
+            else if (change.Property == SelectedDateProperty)
+            {
+                OnSelectedDateChanged(change.OldValue as DateTime?, change.NewValue as DateTime?);
+            }
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (ContextACObject != null)
+                {
+                    if (!_Initialized)
+                        return;
+                    ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+                }
+            }
         }
         #endregion
 
@@ -662,7 +617,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void OnMouseDownOutsideCapturedElement(object sender, MouseButtonEventArgs e)
+        private void OnMouseDownOutsideCapturedElement(object sender, PointerReleasedEventArgs e)
         {
             CloseDateTimePicker();
         }
@@ -678,7 +633,7 @@ namespace gip.core.layoutengine.avui
                     SelectedDate = newDate.Value;
                 if (UpdateSourceIfIndexer)
                 {
-                    BindingExpression expression = BindingOperations.GetBindingExpression(this, VBDateTimePicker.SelectedDateProperty);
+                    var expression = BindingOperations.GetBindingExpressionBase(this, VBDateTimePicker.SelectedDateProperty);
                     if (expression != null)
                     {
                         expression.UpdateSource();
@@ -688,61 +643,55 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Handles the OnContextMenuOpening event.
+        /// Handles the OnPointerReleased event for context menu.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (DisableContextMenu)
+            if (e.InitialPressMouseButton == MouseButton.Right)
             {
-                e.Handled = true;
-                return;
-            }
-            base.OnContextMenuOpening(e);
-        }
-
-        /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            if (DisableContextMenu)
-            {
-                e.Handled = true;
-                return;
-            }
-            if (ContextACObject != null)
-            {
-                Point point = e.GetPosition(this);
-                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                BSOACComponent.ACAction(actionArgs);
-                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                if (DisableContextMenu)
                 {
-                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    ContextMenu.IsOpen = true;
+                    e.Handled = true;
+                    return;
                 }
-                e.Handled = true;
+                if (ContextACObject != null)
+                {
+                    Point point = e.GetPosition(this);
+                    ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                    BSOACComponent.ACAction(actionArgs);
+                    if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                    {
+                        VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                        ContextMenu = vbContextMenu;
+                        if (vbContextMenu.PlacementTarget == null)
+                            vbContextMenu.PlacementTarget = this;
+                        ContextMenu.Open();
+                    }
+                    e.Handled = true;
+                }
             }
-            base.OnMouseRightButtonDown(e);
+            base.OnPointerReleased(e);
         }
 
         /// <summary>
-        /// Handles the OnMouseDoubleClick event.
+        /// Handles the OnPointerPressed event for double click.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (e.ClickCount == 2)
             {
-                this.SelectedDate = null;
+                if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                {
+                    this.SelectedDate = null;
+                }
+                else
+                {
+                    this.SelectedDate = DateTime.Now;
+                }
             }
-            else
-            {
-                this.SelectedDate = DateTime.Now;
-            }
-            base.OnMouseDoubleClick(e);
+            base.OnPointerPressed(e);
         }
 
         #endregion //Event Handlers
@@ -753,7 +702,7 @@ namespace gip.core.layoutengine.avui
         {
             if (IsOpen)
                 IsOpen = false;
-            ReleaseMouseCapture();
+            // Note: ReleaseMouseCapture doesn't exist in Avalonia - handled differently
         }
 
 
@@ -778,8 +727,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDateTimePicker));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -788,7 +737,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -825,13 +774,14 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBDateTimePicker), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDateTimePicker>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
@@ -839,41 +789,16 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBDateTimePicker),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBDateTimePicker thisControl = dependencyObject as VBDateTimePicker;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
-            else if(args.Property == RightControlModeProperty)
-            {
-                thisControl.UpdateControlMode();
-            }
         }
 
 
@@ -904,7 +829,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBValidation.
         /// </summary>
-        public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBDateTimePicker), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> VBValidationProperty = 
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBDateTimePicker>();
         /// <summary>
         /// Name of the VBValidation property.
         /// </summary>
@@ -913,14 +839,16 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public string VBValidation
         {
-            get { return (string)GetValue(VBValidationProperty); }
+            get { return GetValue(VBValidationProperty); }
             set { SetValue(VBValidationProperty, value); }
         }
+        private VBValidationRule _ValidationRule = null;
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBDateTimePicker), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBDateTimePicker>();
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -931,7 +859,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
@@ -956,18 +884,18 @@ namespace gip.core.layoutengine.avui
 
             if (controlMode == Global.ControlModes.Collapsed)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else if (controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!this.IsVisible)
+                    this.IsVisible = true;
                 if (controlMode == Global.ControlModes.Disabled)
                 {
                     if (IsEnabled)
@@ -1005,8 +933,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBDateTimePicker));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -1015,7 +943,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -1026,8 +954,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBDateTimePicker));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, string>(nameof(DisabledModes));
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -1039,7 +967,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
         #endregion

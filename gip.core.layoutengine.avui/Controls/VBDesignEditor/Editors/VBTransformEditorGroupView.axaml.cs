@@ -1,37 +1,22 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.ext.design.avui.PropertyGrid;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using gip.ext.design.avui;
-using System.IO;
-using System.Xml;
-using System.Xml.Linq;
-using System.Windows.Controls.Primitives;
-using System.Windows.Threading;
-using System.ComponentModel;
-using gip.core.datamodel;
+using gip.ext.design.avui.PropertyGrid;
+using System;
 using System.Collections.ObjectModel;
-using gip.ext.designer.avui.OutlineView;
+using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {
     /// <summary>
     /// Represents a group view editor for transformations.
     /// </summary>
-    public partial class VBTransformEditorGroupView : INotifyPropertyChanged //: ITypeEditorInitItem
+    public partial class VBTransformEditorGroupView : UserControl
 	{
 		/// <summary>
         /// Create a new VBTransformEditorGroupView instance.
@@ -44,40 +29,49 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             //TransformProperties.DataContext = null;
         }
 
+        /// <summary>
+        /// Defines the Property styled property.
+        /// </summary>
+        public static readonly StyledProperty<IPropertyNode> PropertyProperty =
+            AvaloniaProperty.Register<VBTransformEditorGroupView, IPropertyNode>(nameof(Property));
 
-        IPropertyNode property;
+        /// <summary>
+        /// Gets or sets the property node.
+        /// </summary>
         public IPropertyNode Property
         {
-            get
-            {
-                return property;
-            }
-            set
-            {
-                if (property != null)
-                {
-                    TransformCollection.Clear();
-                }
-
-                property = value;
-                if (property != null)
-                {
-                    if (property.ValueItem != null)
-                    {
-                        foreach (DesignItem item in property.ValueItem.Properties["Children"].CollectionElements)
-                        {
-                            TransformCollection.Add(new TransformOutlineNode(item));
-                        }
-                    }
-                    else
-                        TransformCollection.Clear();
-                }
-
-                RefreshView();
-                RaisePropertyChanged("Property");
-            }
+            get => GetValue(PropertyProperty);
+            set => SetValue(PropertyProperty, value);
         }
 
+        static VBTransformEditorGroupView()
+        {
+            // Register property changed handler to update transform collection when Property changes
+            PropertyProperty.Changed.AddClassHandler<VBTransformEditorGroupView>((sender, e) => sender.OnPropertyChanged(e.NewValue as IPropertyNode));
+        }
+
+        private void OnPropertyChanged(IPropertyNode newProperty)
+        {
+            if (newProperty != null)
+            {
+                TransformCollection.Clear();
+            }
+
+            if (newProperty != null)
+            {
+                if (newProperty.ValueItem != null)
+                {
+                    foreach (DesignItem item in newProperty.ValueItem.Properties["Children"].CollectionElements)
+                    {
+                        TransformCollection.Add(new TransformOutlineNode(item));
+                    }
+                }
+                else
+                    TransformCollection.Clear();
+            }
+
+            RefreshView();
+        }
 
         protected DesignItem DesignObject
         {
@@ -89,20 +83,17 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             }
         }
 
-        private void RefreshView()
-        {
-            //RaisePropertyChanged("GlobalFunction");
-            //RaisePropertyChanged("ACUrlCommand");
-            //RaisePropertyChanged("Expression");
-            //RaisePropertyChanged("ConversionBy");
-        }
-
         ObservableCollection<TransformOutlineNode> _TransformCollection = new ObservableCollection<TransformOutlineNode>();
         public ObservableCollection<TransformOutlineNode> TransformCollection
         {
             get { return _TransformCollection; }
         }
 
+        private void RefreshView()
+        {
+            // Method to refresh the UI state after property changes
+            // This can be extended with additional logic as needed
+        }
 
         private void ButtonReset_Click(object sender, RoutedEventArgs e)
         {
@@ -122,15 +113,6 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             if (selectedOutlineNode != null)
                 PART_TransformEditor.OutlineNode = selectedOutlineNode;
             RefreshView();
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
         }
 
         private void PART_AddItem_Click(object sender, RoutedEventArgs e)
@@ -182,7 +164,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
         {
             if (Property == null)
             {
-                PART_AddItem.ContextMenu.IsOpen = false;
+                PART_AddItem.ContextMenu.Close();
                 return;
             }
             MenuItem itemClicked = sender as MenuItem;
@@ -205,7 +187,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                     newTransformObject = new MatrixTransform();
                     break;
             }
-            PART_AddItem.ContextMenu.IsOpen = false;
+            PART_AddItem.ContextMenu.Close();
             AddNewTransformObject(newTransformObject);
         }
     }

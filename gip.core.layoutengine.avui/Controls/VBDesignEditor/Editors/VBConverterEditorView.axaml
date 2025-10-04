@@ -1,10 +1,10 @@
 ﻿<UserControl
     x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBConverterEditorView"
-    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     >
-    <Border BorderThickness="2" BorderBrush="#80FF0000" CornerRadius="6" Background="{StaticResource {ComponentResourceKey ResourceId=AppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}">
+    <Border BorderThickness="2" BorderBrush="#80FF0000" CornerRadius="6" Background="{StaticResource AppLight}">
         <StackPanel Width="250" Margin="6">
             <local:VBGrid>
                 <Grid.ColumnDefinitions>

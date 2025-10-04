@@ -3,16 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Linq;
 using gip.core.datamodel;
@@ -26,6 +16,9 @@ using gip.ext.designer.avui.Services;
 using System.Reflection;
 using System.Transactions;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Data.Core;
 
 namespace gip.core.layoutengine.avui
 {
@@ -723,7 +716,7 @@ namespace gip.core.layoutengine.avui
                         if (!String.IsNullOrEmpty(vbXName))
                         {
                             vbXName = String.Format("{0}_{1}", vbXName, DesignSurface.DesignContext.Services.Component.DesignItems.Where(c => (c.Component != null) 
-                                && (c.Component is FrameworkElement) 
+                                && (c.Component is Control) 
                                 && !String.IsNullOrEmpty(c.Name) 
                                 && c.Name.StartsWith(vbXName)).Count());
                             itemToCheck.Name = vbXName;

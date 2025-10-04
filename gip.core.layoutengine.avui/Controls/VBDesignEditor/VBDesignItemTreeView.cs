@@ -2,15 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.designer.avui.PropertyGrid;
@@ -20,6 +11,10 @@ using gip.ext.design.avui;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Controls;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Input;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -33,79 +28,10 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesignItemTreeView'}de{'VBDesignItemTreeView'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBDesignItemTreeView : DesignItemTreeView
     {
-        #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DesignItemTreeViewStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/DesignItemTreeViewStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DesignItemTreeViewStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDesignEditor/Themes/DesignItemTreeViewStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBDesignItemTreeView()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDesignItemTreeView), new FrameworkPropertyMetadata(typeof(VBDesignItemTreeView)));
-        }
-
-        bool _themeApplied = false;
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
-        #endregion
-
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBDesignItemTreeView), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDesignItemTreeView>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -169,7 +95,7 @@ namespace gip.core.layoutengine.avui
             return new VBMenuSeparator();
         }
 
-        public override void MainHeaderClick(object sender, RoutedEventArgs e)
+        public override void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             VBQuickOperationMenuExtension.MainHeaderClick(sender, e, this.DesignItem, _menu, DockingManager, WindowTitle);
         }

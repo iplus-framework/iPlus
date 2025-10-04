@@ -1,6 +1,6 @@
 ﻿<UserControl
     x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBTransformEditorGroupView"
-    xmlns="http://schemas.microsoft.com/netfx/2007/xaml/presentation"
+    xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     xmlns:editor="clr-namespace:gip.core.layoutengine.avui.PropertyGrid.Editors"

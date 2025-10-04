@@ -46,7 +46,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBConnectionState/Themes/ConnectionStateStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBControlSelectionIcon/Themes/VBControlSelectionIconStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBChartPlotter/Themes/ChartPlotterStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButtonChrome/Themes/ButtonChromeStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRepeatButton/Themes/RepeatButtonStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButtonSpinner/Themes/ButtonSpinnerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimePicker/Themes/DateTimePickerStyle.axaml"/>

@@ -1,95 +1,50 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using System.Globalization;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
-    /// <summary>
-    /// Represents a <see cref="DateTime"/> up or down switch control.
-    /// </summary>
-    /// <summary xml:lang="de">
-    /// Stellt ein <see cref="DateTime"/> Up- oder Down-Steuerelement dar.
-    /// </summary>
     public class VBDateTimeUpDown : UpDownBase, IClearVBContent
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DateTimeUpDownStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DateTimeUpDownStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
 
         static VBDateTimeUpDown()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDateTimeUpDown), new FrameworkPropertyMetadata(typeof(VBDateTimeUpDown)));
-            ValueTypeProperty.OverrideMetadata(typeof(VBDateTimeUpDown), new FrameworkPropertyMetadata(typeof(Nullable<DateTime>)));
+            ValueTypeProperty.OverrideDefaultValue<VBDateTimeUpDown>(typeof(Nullable<DateTime>));
         }
 
         bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBDateTimeUpDown.
         /// </summary>
-        public VBDateTimeUpDown()
+        public VBDateTimeUpDown() : base()
         {
             DateTimeFormatInfo = DateTimeFormatInfo.GetInstance(CultureInfo.CurrentCulture);
             InitializeDateTimeInfoList();
         }
 
         /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            TextBox.SelectionChanged += TextBox_SelectionChanged;
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            base.OnApplyTemplate(e);
+            if (TextBox != null)
+            {
+                // In Avalonia, we monitor property changes for selection
+                TextBox.PropertyChanged += TextBox_PropertyChanged;
+            }
+            
+            // Subscribe to DoubleTapped event instead of overriding
+            this.DoubleTapped += VBDateTimeUpDown_DoubleTapped;
         }
 
         #region Members
@@ -124,9 +79,10 @@ namespace gip.core.layoutengine.avui
         #region Format
 
         /// <summary>
-        /// Represents the dependency property for Format.
+        /// Represents the styled property for Format.
         /// </summary>
-        public static readonly DependencyProperty FormatProperty = DependencyProperty.Register("Format", typeof(DateTimeFormat), typeof(VBDateTimeUpDown), new UIPropertyMetadata(DateTimeFormat.FullDateTime, OnFormatChanged));
+        public static readonly StyledProperty<DateTimeFormat> FormatProperty = 
+            AvaloniaProperty.Register<VBDateTimeUpDown, DateTimeFormat>(nameof(Format), DateTimeFormat.FullDateTime);
 
         /// <summary>
         /// Gets or sets the DateTime format according DateTimeFormat enumeration.
@@ -134,22 +90,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public DateTimeFormat Format
         {
-            get { return (DateTimeFormat)GetValue(FormatProperty); }
+            get { return GetValue(FormatProperty); }
             set { SetValue(FormatProperty, value); }
-        }
-
-        private static void OnFormatChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            VBDateTimeUpDown dateTimeUpDown = o as VBDateTimeUpDown;
-            if (dateTimeUpDown != null)
-                dateTimeUpDown.OnFormatChanged((DateTimeFormat)e.OldValue, (DateTimeFormat)e.NewValue);
-        }
-
-        protected virtual void OnFormatChanged(DateTimeFormat oldValue, DateTimeFormat newValue)
-        {
-            //if using a CustomFormat then the initialization occurs on the CustomFormatString property
-            if (newValue != DateTimeFormat.Custom)
-                InitializeDateTimeInfoListAndParseValue();
         }
 
         #endregion //Format
@@ -157,9 +99,10 @@ namespace gip.core.layoutengine.avui
         #region FormatString
 
         /// <summary>
-        /// Represents the dependency property for FormatString.
+        /// Represents the styled property for FormatString.
         /// </summary>
-        public static readonly DependencyProperty FormatStringProperty = DependencyProperty.Register("FormatString", typeof(string), typeof(VBDateTimeUpDown), new UIPropertyMetadata(default(String), OnFormatStringChanged));
+        public static readonly StyledProperty<string> FormatStringProperty = 
+            AvaloniaProperty.Register<VBDateTimeUpDown, string>(nameof(FormatString), string.Empty);
 
         /// <summary>
         /// Gets or sets the format string.
@@ -167,33 +110,18 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string FormatString
         {
-            get { return (string)GetValue(FormatStringProperty); }
+            get { return GetValue(FormatStringProperty); }
             set { SetValue(FormatStringProperty, value); }
-        }
-
-        private static void OnFormatStringChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            VBDateTimeUpDown dateTimeUpDown = o as VBDateTimeUpDown;
-            if (dateTimeUpDown != null)
-                dateTimeUpDown.OnFormatStringChanged((string)e.OldValue, (string)e.NewValue);
-        }
-
-        protected virtual void OnFormatStringChanged(string oldValue, string newValue)
-        {
-            if (string.IsNullOrEmpty(newValue))
-                throw new ArgumentException("CustomFormat should be specified.", FormatString);
-
-            InitializeDateTimeInfoListAndParseValue();
         }
 
         #endregion //FormatString
 
         #region controlmode
         /// <summary>
-        /// Represents the dependency property for control mode.
+        /// Represents the styled property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBDateTimeUpDown));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBDateTimeUpDown, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -202,7 +130,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -215,11 +143,41 @@ namespace gip.core.layoutengine.avui
 
         #region Base Class Overrides
 
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == FormatProperty)
+            {
+                OnFormatChanged(change.GetOldValue<DateTimeFormat>(), change.GetNewValue<DateTimeFormat>());
+            }
+            else if (change.Property == FormatStringProperty)
+            {
+                OnFormatStringChanged(change.GetOldValue<string>(), change.GetNewValue<string>());
+            }
+        }
+
+        protected virtual void OnFormatChanged(DateTimeFormat oldValue, DateTimeFormat newValue)
+        {
+            //if using a CustomFormat then the initialization occurs on the CustomFormatString property
+            if (newValue != DateTimeFormat.Custom)
+                InitializeDateTimeInfoListAndParseValue();
+        }
+
+        protected virtual void OnFormatStringChanged(string oldValue, string newValue)
+        {
+            if (string.IsNullOrEmpty(newValue) && Format == DateTimeFormat.Custom)
+                throw new ArgumentException("CustomFormat should be specified.", nameof(FormatString));
+
+            if (Format == DateTimeFormat.Custom)
+                InitializeDateTimeInfoListAndParseValue();
+        }
+
         /// <summary>
-        /// Handles the OnPreviewKeyDown event.
+        /// Handles the OnKeyDown event.
         /// </summary>
         /// <param name="e">The event parameters.</param>
-        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
             switch (e.Key)
             {
@@ -230,16 +188,19 @@ namespace gip.core.layoutengine.avui
                 case Key.Delete:
                     {
                         Value = null;
+                        e.Handled = true;
                         break;
                     }
                 case Key.Left:
                     {
                         PerformKeyboardSelection(-1);
+                        e.Handled = true;
                         break;
                     }
                 case Key.Right:
                     {
                         PerformKeyboardSelection(1);
+                        e.Handled = true;
                         break;
                     }
                 default:
@@ -247,23 +208,27 @@ namespace gip.core.layoutengine.avui
                         if (e.Key >= Key.D0 && e.Key <= Key.D9)
                         {
                             DigitEntered((int)(e.Key - Key.D0));
+                            e.Handled = true;
                         }
                         else if (e.Key >= Key.NumPad0 && e.Key <= Key.NumPad9)
                         {
                             DigitEntered((int)(e.Key - Key.NumPad0));
+                            e.Handled = true;
                         }
                         break;
                     }
             }
 
-            base.OnPreviewKeyDown(e);
+            if (!e.Handled)
+                base.OnKeyDown(e);
         }
 
         /// <summary>
-        /// Handles the OnMouseDoubleClick event.
+        /// Handles the DoubleTapped event.
         /// </summary>
+        /// <param name="sender"></param>
         /// <param name="e"></param>
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        private void VBDateTimeUpDown_DoubleTapped(object sender, TappedEventArgs e)
         {
             if (Value == null)
                 Value = DateTime.Now;
@@ -282,10 +247,9 @@ namespace gip.core.layoutengine.avui
                         msg += " Inner:" + ec.InnerException.Message;
 
                     if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("VBDateTimeUpDown", "OnMouseDubleClick", msg);
+                        datamodel.Database.Root.Messages.LogException("VBDateTimeUpDown", "OnDoubleTapped", msg);
                 }
             }
-            base.OnMouseDoubleClick(e);
         }
 
         /// <summary>
@@ -311,9 +275,12 @@ namespace gip.core.layoutengine.avui
         protected override object OnCoerceValue(object value)
         {
             //if the user entered a string value to represent a date or time, we need to parse that string into a valid DatTime value
-            if (value != null && !(value is DateTime))
+            if (value != null && !(value is DateTime) && !(value is DateTime?))
             {
-                return DateTime.Parse(value.ToString(), DateTimeFormatInfo);
+                if (DateTime.TryParse(value.ToString(), DateTimeFormatInfo, DateTimeStyles.None, out DateTime result))
+                {
+                    return result;
+                }
             }
 
             return base.OnCoerceValue(value);
@@ -323,12 +290,16 @@ namespace gip.core.layoutengine.avui
 
         #region Event Hanlders
 
-        void TextBox_SelectionChanged(object sender, RoutedEventArgs e)
+        void TextBox_PropertyChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
-            if (_fireSelectionChangedEvent)
-                PerformMouseSelection();
-            else
-                _fireSelectionChangedEvent = true;
+            // Monitor selection changes in Avalonia TextBox
+            if (e.Property == TextBox.SelectionStartProperty || e.Property == TextBox.SelectionEndProperty)
+            {
+                if (_fireSelectionChangedEvent)
+                    PerformMouseSelection();
+                else
+                    _fireSelectionChangedEvent = true;
+            }
         }
 
         #endregion //Event Hanlders
@@ -352,11 +323,14 @@ namespace gip.core.layoutengine.avui
         protected override object ConvertTextToValue(string text)
         {
             if (String.IsNullOrEmpty(text))
-                return DateTime.MinValue;
+                return null;
             try
             {
-                DateTime dt = DateTime.Parse(text, CultureInfo.CurrentCulture);
-                return dt;
+                if (DateTime.TryParse(text, CultureInfo.CurrentCulture, DateTimeStyles.None, out DateTime dt))
+                {
+                    return dt;
+                }
+                return null;
             }
             catch (Exception e)
             {
@@ -367,7 +341,7 @@ namespace gip.core.layoutengine.avui
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("VBDateTimeUpDown", "ConvertTextToValue", msg);
 
-                return DateTime.MinValue;
+                return null;
             }
         }
 
@@ -378,8 +352,17 @@ namespace gip.core.layoutengine.avui
             if (value is string)
                 return value as string;
 
-            DateTime dt = DateTime.Parse(value.ToString(), CultureInfo.CurrentCulture);
-            return dt.ToString(GetFormatString(Format), CultureInfo.CurrentCulture);
+            if (value is DateTime dt)
+            {
+                return dt.ToString(GetFormatString(Format), CultureInfo.CurrentCulture);
+            }
+
+            if (DateTime.TryParse(value.ToString(), CultureInfo.CurrentCulture, DateTimeStyles.None, out DateTime parsedDt))
+            {
+                return parsedDt.ToString(GetFormatString(Format), CultureInfo.CurrentCulture);
+            }
+
+            return string.Empty;
         }
 
         #endregion //Abstract
@@ -571,7 +554,14 @@ namespace gip.core.layoutengine.avui
                 }
                 else
                 {
-                    DateTime date = DateTime.Parse(Value.ToString());
+                    DateTime date;
+                    if (Value is DateTime dt)
+                        date = dt;
+                    else if (DateTime.TryParse(Value.ToString(), out DateTime parsedDate))
+                        date = parsedDate;
+                    else
+                        date = DateTime.Now;
+
                     info.StartPosition = text.Length;
                     info.Content = date.ToString(info.Format, DateTimeFormatInfo);
                     info.Length = info.Content.Length;
@@ -582,6 +572,8 @@ namespace gip.core.layoutengine.avui
 
         private void PerformMouseSelection()
         {
+            if (TextBox == null) return;
+
             _dateTimeInfoList.ForEach(info =>
             {
                 if ((info.StartPosition <= TextBox.SelectionStart) && (TextBox.SelectionStart < (info.StartPosition + info.Length)))
@@ -622,8 +614,11 @@ namespace gip.core.layoutengine.avui
 
         private void Select(DateTimeInfo info)
         {
+            if (TextBox == null) return;
+
             _fireSelectionChangedEvent = false;
-            TextBox.Select(info.StartPosition, info.Length);
+            TextBox.SelectionStart = info.StartPosition;
+            TextBox.SelectionEnd = info.StartPosition + info.Length;
             _fireSelectionChangedEvent = true;
             SelectedDateTimeInfo = info;
         }
@@ -667,15 +662,17 @@ namespace gip.core.layoutengine.avui
             bool goToNextSel = false;
 
             //this only occurs when the user manually type in a value for the Value Property
-            if (info == null)
+            if (info == null && _dateTimeInfoList.Count > 0)
                 info = _dateTimeInfoList[0];
             if (info == null)
                 return;
 
             int digitPosition = _keyPressedCounterInSel;
             DateTime dtValue = DateTime.Now;
-            if (Value != null)
-                dtValue = (DateTime)Value;
+            if (Value is DateTime dt)
+                dtValue = dt;
+            else if (Value != null && DateTime.TryParse(Value.ToString(), out DateTime parsedDt))
+                dtValue = parsedDt;
 
             try
             {
@@ -846,7 +843,11 @@ namespace gip.core.layoutengine.avui
 
             _lastEnteredDigit = digit;
             //we loose our selection when the Value is set so we need to reselect it without firing the selection changed event
-            TextBox?.Select(info.StartPosition, info.Length);
+            if (TextBox != null)
+            {
+                TextBox.SelectionStart = info.StartPosition;
+                TextBox.SelectionEnd = info.StartPosition + info.Length;
+            }
             _fireSelectionChangedEvent = true;
             if (goToNextSel)
                 PerformKeyboardSelection(1);
@@ -858,63 +859,95 @@ namespace gip.core.layoutengine.avui
             DateTimeInfo info = SelectedDateTimeInfo;
 
             //this only occurs when the user manually type in a value for the Value Property
-            if (info == null)
+            if (info == null && _dateTimeInfoList.Count > 0)
                 info = _dateTimeInfoList[0];
 
-
-            switch (info.Type)
+            if (info == null || Value == null)
             {
-                case DateTimePart.Year:
-                    {
-                        Value = ((DateTime)Value).AddYears(value);
-                        break;
-                    }
-                case DateTimePart.Month:
-                case DateTimePart.MonthName:
-                    {
-                        Value = ((DateTime)Value).AddMonths(value);
-                        break;
-                    }
-                case DateTimePart.Day:
-                case DateTimePart.DayName:
-                    {
-                        Value = ((DateTime)Value).AddDays(value);
-                        break;
-                    }
-                case DateTimePart.Hour12:
-                case DateTimePart.Hour24:
-                    {
-                        Value = ((DateTime)Value).AddHours(value);
-                        break;
-                    }
-                case DateTimePart.Minute:
-                    {
-                        Value = ((DateTime)Value).AddMinutes(value);
-                        break;
-                    }
-                case DateTimePart.Second:
-                    {
-                        Value = ((DateTime)Value).AddSeconds(value);
-                        break;
-                    }
-                case DateTimePart.Millisecond:
-                    {
-                        Value = ((DateTime)Value).AddMilliseconds(value);
-                        break;
-                    }
-                case DateTimePart.AmPmDesignator:
-                    {
-                        Value = ((DateTime)Value).AddHours(value * 12);
-                        break;
-                    }
-                default:
-                    {
-                        break;
-                    }
+                _fireSelectionChangedEvent = true;
+                return;
+            }
+
+            DateTime currentValue;
+            if (Value is DateTime dt)
+                currentValue = dt;
+            else if (DateTime.TryParse(Value.ToString(), out DateTime parsedDt))
+                currentValue = parsedDt;
+            else
+            {
+                _fireSelectionChangedEvent = true;
+                return;
+            }
+
+            try
+            {
+                switch (info.Type)
+                {
+                    case DateTimePart.Year:
+                        {
+                            Value = currentValue.AddYears(value);
+                            break;
+                        }
+                    case DateTimePart.Month:
+                    case DateTimePart.MonthName:
+                        {
+                            Value = currentValue.AddMonths(value);
+                            break;
+                        }
+                    case DateTimePart.Day:
+                    case DateTimePart.DayName:
+                        {
+                            Value = currentValue.AddDays(value);
+                            break;
+                        }
+                    case DateTimePart.Hour12:
+                    case DateTimePart.Hour24:
+                        {
+                            Value = currentValue.AddHours(value);
+                            break;
+                        }
+                    case DateTimePart.Minute:
+                        {
+                            Value = currentValue.AddMinutes(value);
+                            break;
+                        }
+                    case DateTimePart.Second:
+                        {
+                            Value = currentValue.AddSeconds(value);
+                            break;
+                        }
+                    case DateTimePart.Millisecond:
+                        {
+                            Value = currentValue.AddMilliseconds(value);
+                            break;
+                        }
+                    case DateTimePart.AmPmDesignator:
+                        {
+                            Value = currentValue.AddHours(value * 12);
+                            break;
+                        }
+                    default:
+                        {
+                            break;
+                        }
+                }
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+
+                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                    datamodel.Database.Root.Messages.LogException("VBDateTimeUpDown", "UpdateDateTime", msg);
             }
 
             //we loose our selection when the Value is set so we need to reselect it without firing the selection changed event
-            TextBox.Select(info.StartPosition, info.Length);
+            if (TextBox != null)
+            {
+                TextBox.SelectionStart = info.StartPosition;
+                TextBox.SelectionEnd = info.StartPosition + info.Length;
+            }
             _fireSelectionChangedEvent = true;
         }
 
@@ -925,7 +958,7 @@ namespace gip.core.layoutengine.avui
             else if (Value != null && Value is DateTime?)
                 Value = null;
             else if (Value != null && Value is DateTime)
-                Value = DateTime.MinValue;
+                Value = null;
         }
         #endregion //Private
 

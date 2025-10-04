@@ -1,22 +1,11 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Media;
 using gip.ext.design.avui.PropertyGrid;
-using System.Windows.Controls.Primitives;
-using gip.ext.design.avui;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {
@@ -24,15 +13,38 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
     /// Represents a editor for tranformation of <see cref="Transform"/> type.
     /// </summary>
     [TypeEditor(typeof(Transform))]
-    public partial class VBTransformTypeEditor
-	{
+    public partial class VBTransformTypeEditor : UserControl
+    {
 		public VBTransformTypeEditor()
 		{
 			InitializeComponent();
-            DataContextChanged += new DependencyPropertyChangedEventHandler(VBTransformTypeEditor_DataContextChanged);
+            UpdatePseudoClasses();
 		}
 
-        void VBTransformTypeEditor_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == DataContextProperty)
+            {
+                VBTransformTypeEditor_DataContextChanged(this, change);
+            }
+            else if (change.Property == IsTransformSetProperty)
+            {
+                UpdatePseudoClasses();
+            }
+        }
+
+        private void UpdatePseudoClasses()
+        {
+            bool isSet = IsTransformSet;
+            
+            // Set pseudo-classes on this control for styling
+            PseudoClasses.Set(":notset", !isSet);
+            PseudoClasses.Set(":isset", isSet);
+        }
+
+        void VBTransformTypeEditor_DataContextChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             _Property = DataContext as IPropertyNode;
             if (_Property == null)
@@ -50,26 +62,26 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 		VBTransformEditorPopup TransformEditorPopup = new VBTransformEditorPopup();
         IPropertyNode _Property;
 
-        public static readonly DependencyProperty IsTransformSetProperty
-            = DependencyProperty.Register("IsTransformSet", typeof(bool), typeof(VBTransformTypeEditor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> IsTransformSetProperty = AvaloniaProperty.Register<VBTransformTypeEditor, bool>(nameof(IsTransformSet), false);        
         public bool IsTransformSet
         {
-            get { return (bool)GetValue(IsTransformSetProperty); }
+            get { return GetValue(IsTransformSetProperty); }
             set { SetValue(IsTransformSetProperty, value); }
         }
 
-        protected override void OnMouseRightButtonUp(MouseButtonEventArgs e)
+        /// <summary>
+        /// Handles the OnPointerReleased event.
+        /// </summary>
+        /// <param name="e">The event arguments.</param>
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-        }
-
-
-		protected override void OnMouseUp(MouseButtonEventArgs e)
-		{
             if (_Property == null)
                 return;
             TransformEditorPopup.VBTransformEditorView.Property = _Property;
 			TransformEditorPopup.PlacementTarget = this;
 			TransformEditorPopup.IsOpen = true;
+            
+            base.OnPointerReleased(e);
 		}
 
         public VBTransformEditorView TransformEditorView

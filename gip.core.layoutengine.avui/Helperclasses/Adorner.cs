@@ -4,6 +4,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.VisualTree;
+using gip.ext.design.avui;
 using System;
 using System.Linq;
 
@@ -178,5 +179,33 @@ namespace gip.core.layoutengine.avui
         private bool _isClipEnabled;
 
         #endregion Private Fields
+    }
+
+
+    public class AdornerHitTestResult : PointHitTestResult
+    {
+        private readonly Adorner _adorner;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="visual">Visual that was hit</param>
+        /// <param name="pt">Point that was hit, in visual's coordinate space</param>
+        /// <param name="adorner">Adorner that was hit</param>
+        internal AdornerHitTestResult(Visual visual, Point pt, Adorner adorner) : base(visual, pt)
+        {
+            _adorner = adorner;
+        }
+
+        /// <summary>
+        /// Returns the visual that was hit.
+        /// </summary>
+        public Adorner Adorner
+        {
+            get
+            {
+                return _adorner;
+            }
+        }
     }
 }

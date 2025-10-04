@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using Avalonia.Controls.Primitives;
 using System.Linq;
+using gip.ext.design.avui;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
@@ -92,12 +93,37 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
     public static class AdornerLayerExtensions
     {
-
         public static IEnumerable<Adorner> GetAdorners(this AdornerLayer adornerLayer, Visual element)
         {
             if (adornerLayer == null || element == null) 
                 return null;
             return adornerLayer.Children.OfType<Adorner>().Where(c => c.AdornedElement == element);
+        }
+
+        public static AdornerHitTestResult AdornerHitTest(this AdornerLayer adornerLayer, Point point)
+        {
+            PointHitTestResult result = VisualTreeHelper.AsNearestPointHitTestResult(VisualTreeHelper.HitTest(adornerLayer, point));
+
+            if (result != null && result.VisualHit != null)
+            {
+                Visual visual = result.VisualHit;
+
+                while (visual != adornerLayer)
+                {
+                    if (visual is Adorner)
+                        return new AdornerHitTestResult(result.VisualHit, result.PointHit, visual as Adorner);
+
+                    // we intentionally separate adorners from spanning 3D boundaries
+                    // and if the parent is ever 3D there was a mistake
+                    visual = (Visual)VisualTreeHelper.GetParent(visual);
+                }
+
+                return null;
+            }
+            else
+            {
+                return null;
+            }
         }
     }
 }

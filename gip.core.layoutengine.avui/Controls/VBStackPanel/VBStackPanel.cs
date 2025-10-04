@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
 using gip.core.datamodel;
-using System.Windows;
 using System.Transactions;
-using System.Windows.Threading;
-using System.Windows.Input;
 using System.ComponentModel;
-using System.Windows.Data;
+using Avalonia.Controls;
+using Avalonia.Threading;
+using Avalonia.Data;
+using Avalonia;
+using Avalonia.Interactivity;
+using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.layoutengine.avui
 {
@@ -22,24 +23,24 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBStackPanel'}de{'VBStackPanel'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBStackPanel : StackPanel, IACInteractiveObject, IACObject, IVBContent
     {
+        /// <summary>
+        /// Represents the dependency property for StringFormat.
+        /// </summary>
+        public static readonly StyledProperty<string> StringFormatProperty;
+
         static VBStackPanel()
         {
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBStackPanel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBStackPanel>();
+            
+            ACCompInitStateProperty.Changed.AddClassHandler<VBStackPanel>((x, e) => x.InitStateChanged());
+            ACUpdateControlModeProperty.Changed.AddClassHandler<VBStackPanel>((x, e) => x.UpdateControlMode());
+            BSOACComponentProperty.Changed.AddClassHandler<VBStackPanel>((x, e) => x.OnBSOACComponentChanged(e));
         }
 
         public VBStackPanel() : base()
         {
-            this.Loaded += new RoutedEventHandler(VBStackPanel_Loaded);
-            this.Unloaded += new RoutedEventHandler(VBStackPanel_Unloaded);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            InitVBControl();
+            this.Loaded += VBStackPanel_Loaded;
+            this.Unloaded += VBStackPanel_Unloaded;
         }
 
         /// <summary>
@@ -64,18 +65,18 @@ namespace gip.core.layoutengine.avui
                     {
                         Binding binding = new Binding();
                         binding.Source = dcSource;
-                        binding.Path = new PropertyPath(dcPath);
+                        binding.Path = dcPath;
                         binding.Mode = BindingMode.OneWay;
-                        SetBinding(VBStackPanel.ACUpdateControlModeProperty, binding);
+                        this.Bind(VBStackPanel.ACUpdateControlModeProperty, binding);
                     }
                 }
                 if (BSOACComponent != null)
                 {
                     Binding binding = new Binding();
                     binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.InitState);
+                    binding.Path = Const.InitState;
                     binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBStackPanel.ACCompInitStateProperty, binding);
+                    this.Bind(VBStackPanel.ACCompInitStateProperty, binding);
                 }
             }
             _Initialized = true;
@@ -83,6 +84,8 @@ namespace gip.core.layoutengine.avui
 
         void VBStackPanel_Loaded(object sender, RoutedEventArgs e)
         {
+            InitVBControl();
+            
             if (_dispTimer != null)
             {
                 if (!_dispTimer.IsEnabled)
@@ -90,7 +93,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                if (ReadLocalValue(CanExecuteCyclicProperty) != DependencyProperty.UnsetValue)
+                if (this.IsSet(CanExecuteCyclicProperty))
                 {
                     _dispTimer = new DispatcherTimer();
                     _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
@@ -98,6 +101,7 @@ namespace gip.core.layoutengine.avui
                     _dispTimer.Start();
                 }
             }
+            UpdateControlMode();
         }
 
         void VBStackPanel_Unloaded(object sender, RoutedEventArgs e)
@@ -131,11 +135,9 @@ namespace gip.core.layoutengine.avui
                 _dispTimer.Tick -= dispatcherTimer_CanExecute;
                 _dispTimer = null;
             }
-            BindingOperations.ClearBinding(this, VBDockPanel.ACUpdateControlModeProperty);
-            //BindingOperations.ClearBinding(this, VBStackPanel.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBStackPanel.ACCompInitStateProperty);
+            this.ClearValue(VBStackPanel.ACUpdateControlModeProperty);
+            this.ClearValue(VBStackPanel.ACCompInitStateProperty);
             this.ClearAllBindings();
-            
         }
 
         /// <summary>
@@ -158,7 +160,7 @@ namespace gip.core.layoutengine.avui
                 return;
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
-            Visibility = controlMode >= Global.ControlModes.Disabled ? Visibility.Visible : Visibility.Collapsed;
+            IsVisible = controlMode >= Global.ControlModes.Disabled;
         }
 
         #region IACInteractiveObject Member
@@ -171,8 +173,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBStackPanel));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBStackPanel, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -181,7 +183,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -210,23 +212,21 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBStackPanel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBStackPanel>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACUpdateControlMode.
         /// </summary>
-        public static readonly DependencyProperty ACUpdateControlModeProperty =
-            DependencyProperty.Register("ACUpdateControlMode",
-                typeof(object), typeof(VBStackPanel),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<object> ACUpdateControlModeProperty =
+            AvaloniaProperty.Register<VBStackPanel, object>(nameof(ACUpdateControlMode));
 
         /// <summary>
         /// Gets or sets the AC update control mode.
@@ -237,65 +237,35 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACUpdateControlModeProperty, value); }
         }
 
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBStackPanel),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
-
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBStackPanel),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBStackPanel, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        private void OnBSOACComponentChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            VBStackPanel thisControl = dependencyObject as VBStackPanel;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == ACUpdateControlModeProperty)
-                thisControl.UpdateControlMode();
-            else if (args.Property == BSOACComponentProperty)
+            if (e.NewValue == null && e.OldValue != null && !String.IsNullOrEmpty(this.VBContent))
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
+                IACBSO bso = e.OldValue as IACBSO;
+                if (bso != null)
+                    this.DeInitVBControl(bso);
             }
         }
 
         /// <summary>
         /// Represents the dependency property for CanExecuteCyclic.
         /// </summary>
-        public static readonly DependencyProperty CanExecuteCyclicProperty = ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner(typeof(VBStackPanel), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<int> CanExecuteCyclicProperty = ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner<VBStackPanel>();
         /// <summary>
         /// Determines is cyclic execution enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.
         /// </summary>
@@ -305,14 +275,14 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int CanExecuteCyclic
         {
-            get { return (int)GetValue(CanExecuteCyclicProperty); }
+            get { return GetValue(CanExecuteCyclicProperty); }
             set { SetValue(CanExecuteCyclicProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBStackPanel), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<bool> DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBStackPanel>();
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -323,15 +293,10 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
-
-        /// <summary>
-        /// Represents the dependency property for StringFormat.
-        /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
         /// <summary>
         /// Gets or sets the string format for the control.
         /// </summary>
@@ -343,20 +308,18 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string StringFormat
         {
-            get { return (string)GetValue(StringFormatProperty); }
+            get { return GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
 
-
-
-        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBStackPanel), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<bool> AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner<VBStackPanel>();
         /// <summary>
         /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
         /// </summary>
         [Category("VBControl")]
         public bool AnimationOff
         {
-            get { return (bool)GetValue(AnimationOffProperty); }
+            get { return GetValue(AnimationOffProperty); }
             set { SetValue(AnimationOffProperty, value); }
         }
 
@@ -490,7 +453,9 @@ namespace gip.core.layoutengine.avui
         private DispatcherTimer _dispTimer = null;
         private void dispatcherTimer_CanExecute(object sender, EventArgs e)
         {
-            CommandManager.InvalidateRequerySuggested();
+            // In Avalonia, CommandManager.InvalidateRequerySuggested() doesn't exist
+            // We need to use an alternative approach for command invalidation
+            // This is typically handled by the command implementation itself
         }
         #endregion
 

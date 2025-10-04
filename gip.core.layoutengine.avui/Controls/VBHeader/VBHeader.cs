@@ -1,20 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,66 +21,40 @@ namespace gip.core.layoutengine.avui
     {
         #region c'tors
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "HeaderStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBHeader/Themes/HeaderStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "HeaderStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBHeader/Themes/HeaderStyleAero.xaml" },
-        };
         /// <summary>
-        /// Gets the list of custom styles.
+        /// Represents the dependency property for ACCaption.
         /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
+        public static readonly StyledProperty<string> ACCaptionProperty;
+
+        /// <summary>
+        /// Represents the dependency property for ACCaptionTrans.
+        /// </summary>
+        public static readonly StyledProperty<string> ACCaptionTransProperty;
 
         static VBHeader()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBHeader), new FrameworkPropertyMetadata(typeof(VBHeader)));
+            ACCaptionProperty = AvaloniaProperty.Register<VBHeader, string>(Const.ACCaptionPrefix);
+            ACCaptionTransProperty = AvaloniaProperty.Register<VBHeader, string>(nameof(ACCaptionTrans));
+            
+            ACCaptionProperty.Changed.AddClassHandler<VBHeader>((x, e) => x.OnACCaptionChanged(e));
+            ACCompInitStateProperty.Changed.AddClassHandler<VBHeader>((x, e) => x.InitStateChanged());
+            BSOACComponentProperty.Changed.AddClassHandler<VBHeader>((x, e) => x.OnBSOACComponentChanged(e));
         }
 
-        bool _themeApplied = false;
-        public VBHeader()
+        public VBHeader() : base()
         {
         }
 
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             Loaded += VBHeader_Loaded;
             Unloaded += VBHeader_Unloaded;
-            ActualizeTheme(true);
         }
 
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            InitVBControl();
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region IDataField Members
@@ -138,54 +104,39 @@ namespace gip.core.layoutengine.avui
         }
 
         #region Caption
-        /// <summary>
-        /// Represents the dependency property for ACCaption.
-        /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBHeader), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
         }
 
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private void OnACCaptionChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            if (d is IVBContent)
+            if (!_Initialized)
+                return;
+            if (ACCaption != null && ACCaption.Contains("{'") && ACCaption.Contains("'}"))
+                ACCaptionTrans = Translator.GetTranslation("VBTabItem", ACCaption);
+            else
             {
-                VBHeader control = d as VBHeader;
-                if (!control._Initialized)
-                    return;
-                if (control.ACCaption != null && control.ACCaption.Contains("{'") && control.ACCaption.Contains("'}"))
-                    control.ACCaptionTrans = Translator.GetTranslation("VBTabItem", control.ACCaption);
-                else
+                IACObject translationContext = ContextACObject;
+                if (TranslateFromParentDesign)
                 {
-                    IACObject translationContext = control.ContextACObject;
-                    if (control.TranslateFromParentDesign)
+                    VBDesign vbDesign = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDesign)) as VBDesign;
+                    if (vbDesign != null)
                     {
-                        VBDesign vbDesign = VBVisualTreeHelper.FindParentObjectInVisualTree(control, typeof(VBDesign)) as VBDesign;
-                        if (vbDesign != null)
-                        {
-                            ACClassDesign acClassDesign = vbDesign.ContentACObject as ACClassDesign;
-                            if (acClassDesign != null)
-                                translationContext = acClassDesign.ACClass;
-                        }
+                        ACClassDesign acClassDesign = vbDesign.ContentACObject as ACClassDesign;
+                        if (acClassDesign != null)
+                            translationContext = acClassDesign.ACClass;
                     }
-
-                    control.ACCaptionTrans = control.Root().Environment.TranslateText(translationContext, control.ACCaption);
                 }
+
+                ACCaptionTrans = this.Root().Environment.TranslateText(translationContext, ACCaption);
             }
         }
-
-        /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
-        /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBHeader));
 
         /// <summary>
         /// Gets or sets the ACCaption translation.
@@ -196,7 +147,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
+            get { return GetValue(ACCaptionTransProperty); }
             set { SetValue(ACCaptionTransProperty, value); }
         }
         #endregion
@@ -219,13 +170,13 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBHeader), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBHeader>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
@@ -233,36 +184,25 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBHeader),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBHeader, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        private void OnBSOACComponentChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            VBHeader thisControl = dependencyObject as VBHeader;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            if (e.NewValue == null && e.OldValue != null && !String.IsNullOrEmpty(this.VBContent))
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
+                IACBSO bso = e.OldValue as IACBSO;
+                if (bso != null)
+                    this.DeInitVBControl(bso);
             }
         }
 
@@ -294,41 +234,6 @@ namespace gip.core.layoutengine.avui
         public bool IsEnabledACAction(ACActionArgs actionArgs)
         {
             return false;
-        }
-
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ucTextblock.ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ucTextblock.ToolTip = value;
-        //    }
-        //}
-
-
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
         }
 
         private bool Enabled
@@ -426,7 +331,7 @@ namespace gip.core.layoutengine.avui
 
             if (RightControlMode < Global.ControlModes.Disabled)
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
             //ucTextblock.Text = PropertySchema.DataTypeCaption;
             IACType dcACTypeInfo = null;
@@ -442,19 +347,18 @@ namespace gip.core.layoutengine.avui
 
             Binding binding = new Binding();
             binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
+            binding.Path = dcPath;
             binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
-            SetBinding(VBHeader.ACCaptionTransProperty, binding);
+            // Note: NotifyOnSourceUpdated and NotifyOnTargetUpdated don't exist in Avalonia
+            this.Bind(VBHeader.ACCaptionTransProperty, binding);
 
             if (BSOACComponent != null)
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBHeader.ACCompInitStateProperty, binding);
+                this.Bind(VBHeader.ACCompInitStateProperty, binding);
             }
         }
 
@@ -467,19 +371,17 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, VBHeader.ACCaptionTransProperty);
-                if (boundedValue != null)
+                // In Avalonia, we can't use BindingOperations.GetBinding in the same way
+                // This logic would need to be adapted if the WPF reference tracking is needed
+                try
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
-                    try
-                    {
-                        if (boundToObject != null)
-                            BSOACComponent.AddWPFRef(this.GetHashCode(), boundToObject);
-                    }
-                    catch (Exception exw)
-                    {
-                        this.Root().Messages.LogDebug("VBHeader", "AddWPFRef", exw.Message);
-                    }
+                    // Simplified logic - the original WPF reference tracking may need alternative implementation
+                    if (BSOACComponent != null)
+                        BSOACComponent.AddWPFRef(this.GetHashCode(), ContextACObject);
+                }
+                catch (Exception exw)
+                {
+                    this.Root().Messages.LogDebug("VBHeader", "AddWPFRef", exw.Message);
                 }
             }
             _Loaded = true;
@@ -516,8 +418,8 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             _VBContentPropertyInfo = null;
 
-            BindingOperations.ClearBinding(this, VBHeader.ACCaptionTransProperty);
-            BindingOperations.ClearBinding(this, VBHeader.ACCompInitStateProperty);
+            this.ClearValue(VBHeader.ACCaptionTransProperty);
+            this.ClearValue(VBHeader.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
