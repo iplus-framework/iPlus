@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Schema;
-using System.Xml;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Reflection;
-using System.IO;
-using System.Windows.Markup;
-using System.ComponentModel;
-using System.Runtime.Remoting;
-using System.Windows.Documents;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml;
 using gip.core.datamodel;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
+using System.Xml.Schema;
 
 namespace gip.core.layoutengine.avui
 {
@@ -358,7 +354,7 @@ namespace gip.core.layoutengine.avui
             List<Tuple<XmlSchemaImport, XmlQualifiedName>> importSchemaList = new List<Tuple<XmlSchemaImport, XmlQualifiedName>>();
             importSchemaList.Add(new Tuple<XmlSchemaImport, XmlQualifiedName>(importSchema, CodeCompletionXsdGenerator.msNs));
 
-            gen.RunTool("gip.core.layoutengine.avui", CodeCompletionXsdGenerator.vbNs, new Type[] { typeof(DependencyObject), typeof(MarkupExtension) }, importSchemaList, "VBControls",
+            gen.RunTool("gip.core.layoutengine.avui", CodeCompletionXsdGenerator.vbNs, new Type[] { typeof(AvaloniaObject), typeof(MarkupExtension) }, importSchemaList, "VBControls",
                         new Func<XmlSchemaElement, Type, bool>((e, t) => AddTypeSpecificSubGroup(e, t)), CodeCompletionXsdGenerator.baseDir + CodeCompletionXsdGenerator.vbSchemaPath, 
                         "VB", "VBControl");
 

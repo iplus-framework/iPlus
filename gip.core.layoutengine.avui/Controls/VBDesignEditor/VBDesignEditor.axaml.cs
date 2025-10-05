@@ -1,24 +1,20 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Xml;
-using System.Xml.Linq;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
 using gip.ext.designer.avui;
-using gip.ext.designer.avui.PropertyGrid;
-using gip.ext.designer.avui.Xaml;
-using gip.ext.xamldom.avui;
 using gip.ext.designer.avui.Services;
-using System.Reflection;
-using System.Transactions;
+using gip.ext.designer.avui.Xaml;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using Avalonia.Controls;
-using Avalonia.Data;
-using Avalonia.Data.Core;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Xml;
 
 namespace gip.core.layoutengine.avui
 {
@@ -39,16 +35,15 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            Unloaded += new RoutedEventHandler(VBDesignEditor_Unloaded);
-            Loaded += new RoutedEventHandler(VBDesignEditor_Loaded);
-            DataContextChanged += new DependencyPropertyChangedEventHandler(VBDesignEditor_DataContextChanged);
-            base.OnInitialized(e);
+            Unloaded += VBDesignEditor_Unloaded;
+            Loaded += VBDesignEditor_Loaded;
+            DataContextChanged += VBDesignEditor_DataContextChanged;
+            base.OnInitialized();
         }
 
-        void VBDesignEditor_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void VBDesignEditor_DataContextChanged(object sender, EventArgs e)
         {
             DeInitVBControl();
         }
@@ -135,16 +130,22 @@ namespace gip.core.layoutengine.avui
                 return;
             }
             _VBContentPropertyInfo = dcACTypeInfo;
-            RightControlMode = dcRightControlMode;
 
-            // VBContent muß im XAML gestetzt sein
+            // Check if RightControlMode is locally set
+            if (!this.IsSet(VBDesignEditor.RightControlModeProperty)
+                || RightControlMode < dcRightControlMode)
+            {
+                RightControlMode = dcRightControlMode;
+            }
+
+            // VBContent muß im XAML gestettet sein
             System.Diagnostics.Debug.Assert(VBContent != "");
 
-            if (Visibility == Visibility.Visible)
+            if (IsVisible)
             {
                 if (RightControlMode < Global.ControlModes.Disabled)
                 {
-                    Visibility = Visibility.Collapsed;
+                    IsVisible = false;
                 }
                 else
                 {
@@ -160,15 +161,13 @@ namespace gip.core.layoutengine.avui
                     {
                         if (!designManager.ShowXMLEditor)
                         {
-                            foreach (var item in ucTabControl.Items)
+                            if (ucTabControl != null && ucTabControl.Items != null)
                             {
-                                if (item is VBTabItem)
+                                foreach (var item in ucTabControl.Items)
                                 {
-                                    VBTabItem vbTabItem = item as VBTabItem;
-                                    if (vbTabItem.Name == "XAMLTab")
+                                    if (item is VBTabItem vbTabItem && vbTabItem.Name == "XAMLTab")
                                     {
-                                        ucTabControl.Items.Remove(vbTabItem);
-                                        break;
+                                        ucTabControl.Items.Add(vbTabItem);
                                     }
                                 }
                             }
@@ -202,16 +201,14 @@ namespace gip.core.layoutengine.avui
                         BSOACComponent = designManager;
                     }
 
-                    Binding binding = new Binding();
-                    binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    binding.NotifyOnSourceUpdated = true;
-                    binding.NotifyOnTargetUpdated = true;
-                    binding.Mode = BindingMode.TwoWay;
+                    var binding = new Binding
+                    {
+                        Source = dcSource,
+                        Path = dcPath,
+                        Mode = BindingMode.TwoWay
+                    };
 
-                    this.SetBinding(VBDesignEditor.XMLTextProperty, binding);
-                    this.TargetUpdated += OnTargetUpdatedOfBinding;
-                    this.SourceUpdated += OnSourceUpdatedOfBinding;
+                    this.Bind(VBDesignEditor.XMLTextProperty, binding);
 
                     if (!String.IsNullOrEmpty(VBDesignerDataContext))
                     {
@@ -225,13 +222,13 @@ namespace gip.core.layoutengine.avui
                             return;
                         }
 
-                        Binding binding2 = new Binding();
-                        binding2.Source = dcSource2;
-                        binding2.Path = new PropertyPath(dcPath2);
-                        binding2.NotifyOnSourceUpdated = true;
-                        binding2.NotifyOnTargetUpdated = true;
-                        binding2.Mode = BindingMode.OneWay;
-                        this.SetBinding(VBDesignEditor.DesignerDataContextProperty, binding2);
+                        var binding2 = new Binding
+                        {
+                            Source = dcSource2,
+                            Path = dcPath2,
+                            Mode = BindingMode.OneWay
+                        };
+                        this.Bind(VBDesignEditor.DesignerDataContextProperty, binding2);
                     }
 
                     if (!String.IsNullOrEmpty(VBRefreshDesigner))
@@ -246,33 +243,25 @@ namespace gip.core.layoutengine.avui
                             return;
                         }
 
-                        Binding binding2 = new Binding();
-                        binding2.Source = dcSource2;
-                        binding2.Path = new PropertyPath(dcPath2);
-                        binding2.NotifyOnSourceUpdated = true;
-                        binding2.NotifyOnTargetUpdated = true;
-                        binding2.Mode = BindingMode.OneWay;
-                        this.SetBinding(VBDesignEditor.RefreshDesignerProperty, binding2);
+                        var binding2 = new Binding
+                        {
+                            Source = dcSource2,
+                            Path = dcPath2,
+                            Mode = BindingMode.OneWay
+                        };
+                        this.Bind(VBDesignEditor.RefreshDesignerProperty, binding2);
                     }
 
                     if (BSOACComponent != null)
                     {
-                        binding = new Binding();
-                        binding.Source = BSOACComponent;
-                        binding.Path = new PropertyPath(Const.InitState);
-                        binding.Mode = BindingMode.OneWay;
-                        SetBinding(VBDesignEditor.ACCompInitStateProperty, binding);
-                    }
-
-                    //if (ContextACObject is IACComponent)
-                    //{
-                    //    Binding binding = new Binding();
-                    //    binding.Source = ContextACObject;
-                    //    binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
-                    //    binding.Mode = BindingMode.OneWay;
-                    //    SetBinding(VBDesignEditor.ACUrlCmdMessageProperty, binding);
-                    //}
-                
+                        var initStateBinding = new Binding
+                        {
+                            Source = BSOACComponent,
+                            Path = Const.InitState,
+                            Mode = BindingMode.OneWay
+                        };
+                        this.Bind(VBDesignEditor.ACCompInitStateProperty, initStateBinding);
+                    }               
                 }
             }
 
@@ -298,6 +287,7 @@ namespace gip.core.layoutengine.avui
             RefreshViewFromXAML();
         }
 
+
         void DesignSurface_OnDeleteItem(object sender, EventArgs e)
         {
             if (BSOACComponent != null && BSOACComponent is IACComponentDesignManager)
@@ -305,7 +295,7 @@ namespace gip.core.layoutengine.avui
                     ModelTools.DeleteComponents(DesignContext.Services.Selection.SelectedItems);
         }
 
-        public void OnTargetUpdatedOfBinding(Object sender, DataTransferEventArgs args)
+        public void OnTargetUpdatedOfBinding(Object sender, AvaloniaPropertyChangedEventArgs args)
         {
             if (args.Property == VBDesignEditor.XMLTextProperty)
             {
@@ -320,22 +310,21 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public void OnSourceUpdatedOfBinding(Object sender, DataTransferEventArgs args)
-        {
-            if (args.Property == VBDesignEditor.XMLTextProperty)
-            {
-            }
-            else if (args.Property == VBDesignEditor.DesignerDataContextProperty)
-            {
-            }
-            else if (args.Property == VBDesignEditor.RefreshDesignerProperty)
-            {
-                //RefreshDesignEditor();
-            }
-        }
+        //public void OnSourceUpdatedOfBinding(Object sender, AvaloniaPropertyChangedEventArgs args)
+        //{
+        //    if (args.Property == VBDesignEditor.XMLTextProperty)
+        //    {
+        //    }
+        //    else if (args.Property == VBDesignEditor.DesignerDataContextProperty)
+        //    {
+        //    }
+        //    else if (args.Property == VBDesignEditor.RefreshDesignerProperty)
+        //    {
+        //        //RefreshDesignEditor();
+        //    }
+        //}
 
-
-        VBTabItem _LastActiveTab = null;
+        object _LastActiveTab = null;
         void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
@@ -401,16 +390,17 @@ namespace gip.core.layoutengine.avui
             this.Unloaded -= VBDesignEditor_Unloaded;
             this.DataContextChanged -= VBDesignEditor_DataContextChanged;
 
-            if (!String.IsNullOrEmpty(VBRefreshDesigner))
-                BindingOperations.ClearBinding(this, VBDesignEditor.RefreshDesignerProperty);
-            if (!String.IsNullOrEmpty(VBDesignerDataContext))
-                BindingOperations.ClearBinding(this, VBDesignEditor.DesignerDataContextProperty);
-            BindingOperations.ClearBinding(this, VBDesignEditor.XMLTextProperty);
-            BindingOperations.ClearBinding(this, VBDesignEditor.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBDesignEditor.ACCompInitStateProperty);
+            // Clear bindings using Avalonia's method
+            //if (!String.IsNullOrEmpty(VBRefreshDesigner))
+            //    this[VBDesignEditor.RefreshDesignerProperty] = AvaloniaProperty.UnsetValue;
+            //if (!String.IsNullOrEmpty(VBDesignerDataContext))
+            //    this[VBDesignEditor.DesignerDataContextProperty] = AvaloniaProperty.UnsetValue;
+            //this[VBDesignEditor.XMLTextProperty] = AvaloniaProperty.UnsetValue;
+            //this[VBDesignEditor.ACUrlCmdMessageProperty] = AvaloniaProperty.UnsetValue;
+            //this[VBDesignEditor.ACCompInitStateProperty] = AvaloniaProperty.UnsetValue;
             this.ClearAllBindings();
 
-            if (ReadLocalValue(BSOACComponentProperty) != DependencyProperty.UnsetValue)
+            if (GetValue(BSOACComponentProperty) != AvaloniaProperty.UnsetValue)
                 BSOACComponent = null;
             if (_LastElementACComponent != null && _LastElementACComponent.ReferencePoint != null)
                 _LastElementACComponent.ReferencePoint.Remove(this);
@@ -455,13 +445,13 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static readonly DependencyProperty PropertyGridViewProperty
-            = DependencyProperty.Register("PropertyGridView", typeof(PropertyGridView), typeof(VBDesignEditor));
+        public static readonly StyledProperty<VBPropertyGridView> PropertyGridViewProperty =
+            AvaloniaProperty.Register<VBDesignEditor, VBPropertyGridView>(nameof(PropertyGridView));
         public VBPropertyGridView PropertyGridView
         {
             get
             {
-                return (VBPropertyGridView)GetValue(PropertyGridViewProperty);
+                return GetValue(PropertyGridViewProperty);
             }
             set
             {
@@ -470,13 +460,13 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly DependencyProperty DesignItemTreeViewProperty
-            = DependencyProperty.Register("DesignItemTreeView", typeof(DesignItemTreeView), typeof(VBDesignEditor));
+        public static readonly StyledProperty<VBDesignItemTreeView> DesignItemTreeViewProperty =
+            AvaloniaProperty.Register<VBDesignEditor, VBDesignItemTreeView>(nameof(DesignItemTreeView));
         public VBDesignItemTreeView DesignItemTreeView
         {
             get
             {
-                return (VBDesignItemTreeView)GetValue(DesignItemTreeViewProperty);
+                return GetValue(DesignItemTreeViewProperty);
             }
             set
             {
@@ -484,14 +474,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static readonly DependencyProperty XMLTextProperty
-            = DependencyProperty.Register("Text", typeof(string), typeof(VBDesignEditor), new PropertyMetadata(new PropertyChangedCallback(XMLTextChanged)));
+        public static readonly StyledProperty<string> XMLTextProperty =
+            AvaloniaProperty.Register<VBDesignEditor, string>(nameof(XMLText));
 
         public string XMLText
         {
             get
             {
-                return (string)GetValue(XMLTextProperty);
+                return GetValue(XMLTextProperty);
             }
             set
             {
@@ -499,19 +489,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private static void XMLTextChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-
-        public static readonly DependencyProperty DesignerDataContextProperty
-            = DependencyProperty.Register("DesignerDataContext", typeof(IACObject), typeof(VBDesignEditor));
+        public static readonly StyledProperty<IACObject> DesignerDataContextProperty =
+            AvaloniaProperty.Register<VBDesignEditor, IACObject>(nameof(DesignerDataContext));
 
         public IACObject DesignerDataContext
         {
             get
             {
-                return (IACObject)GetValue(DesignerDataContextProperty);
+                return GetValue(DesignerDataContextProperty);
             }
             set
             {
@@ -520,14 +505,14 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly DependencyProperty RefreshDesignerProperty
-            = DependencyProperty.Register("RefreshDesigner", typeof(int), typeof(VBDesignEditor));
+        public static readonly StyledProperty<int> RefreshDesignerProperty =
+            AvaloniaProperty.Register<VBDesignEditor, int>(nameof(RefreshDesigner));
 
         public int RefreshDesigner
         {
             get
             {
-                return (int)GetValue(RefreshDesignerProperty);
+                return GetValue(RefreshDesignerProperty);
             }
             set
             {
@@ -544,13 +529,13 @@ namespace gip.core.layoutengine.avui
             VBDesign vbDesign = this.GetVBDesign();
             ACClassDesign acClassDesign = null;
 
-            if (TypeOfBSOiPlusStudio.IsAssignableFrom(DataContext.GetType()))
+            if (DataContext != null && TypeOfBSOiPlusStudio.IsAssignableFrom(DataContext.GetType()))
             {
                 IACComponent component = this.DataContext as IACComponent;
                 if (component != null)
                     acClassDesign = component.ACUrlCommand("CurrentACClassDesign") as ACClassDesign;
             }
-            else if (TypeOfBSOVisualisationStudio.IsAssignableFrom(DataContext.GetType()))
+            else if (DataContext != null && TypeOfBSOVisualisationStudio.IsAssignableFrom(DataContext.GetType()))
             {
                 IACComponent component = this.DataContext as IACComponent;
                 if (component != null)
@@ -845,8 +830,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDesignEditor));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBDesignEditor, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -855,60 +840,66 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBDesignEditor),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBDesignEditor, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBDesignEditor),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBDesignEditor, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBDesignEditor thisControl = dependencyObject as VBDesignEditor;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
+            base.OnPropertyChanged(change);
+            VBDesignEditor thisControl = this;
+            if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
                         thisControl.DeInitVBControl(bso);
                 }
+            }
+            else if (change.Property == XMLTextProperty)
+            {
+                OnTargetUpdatedOfBinding(change.Sender, change);
+            }
+            else if (change.Property == DesignerDataContextProperty)
+            {
+                OnTargetUpdatedOfBinding(change.Sender, change);
+            }
+            else if (change.Property == RefreshDesignerProperty)
+            {
+                OnTargetUpdatedOfBinding(change.Sender, change);
             }
         }
 
@@ -978,13 +969,14 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBDesignEditor), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDesignEditor>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
@@ -1041,24 +1033,12 @@ namespace gip.core.layoutengine.avui
             }
             return false;
         }
-
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ucAvalonTextEditor.ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ucAvalonTextEditor.ToolTip = value;
-        //    }
-        //}
         
         private bool Visible
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -1066,12 +1046,12 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
@@ -1168,8 +1148,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBDesignEditor));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBDesignEditor, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -1178,7 +1158,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -1188,22 +1168,22 @@ namespace gip.core.layoutengine.avui
 
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the dependency property for DisabledModes.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBDesignEditor));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBDesignEditor, string>(nameof(DisabledModes));
         /// <summary>
-        /// Gets or sets the ACCaption translation.
+        /// Gets or sets the DisabledModes.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die DisabledModes.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
 
@@ -1215,11 +1195,14 @@ namespace gip.core.layoutengine.avui
                 return BSOACComponent as IACComponentDesignManager;
             else
             {
-                foreach (IACComponent child in BSOACComponent.ACComponentChilds)
+                if (BSOACComponent?.ACComponentChilds != null)
                 {
-                    if (child is IACComponentDesignManager)
+                    foreach (IACComponent child in BSOACComponent.ACComponentChilds)
                     {
-                        return child as IACComponentDesignManager;
+                        if (child is IACComponentDesignManager)
+                        {
+                            return child as IACComponentDesignManager;
+                        }
                     }
                 }
             }
@@ -1236,10 +1219,13 @@ namespace gip.core.layoutengine.avui
         /// <summary xml:lang="de">
         /// Liest oder setzt den richtigen Kontrollmodus.
         /// </summary>
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty =
+            AvaloniaProperty.Register<VBDesignEditor, Global.ControlModes>(nameof(RightControlMode));
+
         public Global.ControlModes RightControlMode
         {
-            get;
-            set;
+            get { return GetValue(RightControlModeProperty); }
+            set { SetValue(RightControlModeProperty, value); }
         }
         #endregion
 
@@ -1360,84 +1346,5 @@ namespace gip.core.layoutengine.avui
         }
 
     }
-
-    /*public class MyTypeFinder : XamlTypeFinder
-    {
-        OpenedFile file;
-        readonly TypeResolutionService typeResolutionService = new TypeResolutionService();
-
-        public static MyTypeFinder Create(OpenedFile file)
-        {
-            MyTypeFinder f = new MyTypeFinder();
-            f.file = file;
-            f.ImportFrom(CreateWpfTypeFinder());
-            return f;
-        }
-
-        public override Assembly LoadAssembly(string name)
-        {
-            if (string.IsNullOrEmpty(name))
-            {
-                IProjectContent pc = GetProjectContent(file);
-                if (pc != null)
-                {
-                    return this.typeResolutionService.LoadAssembly(pc);
-                }
-                return null;
-            }
-            else
-            {
-                Assembly assembly = FindAssemblyInProjectReferences(name);
-                if (assembly != null)
-                {
-                    return assembly;
-                }
-                return base.LoadAssembly(name);
-            }
-        }
-
-        Assembly FindAssemblyInProjectReferences(string name)
-        {
-            IProjectContent pc = GetProjectContent(file);
-            if (pc != null)
-            {
-                return FindAssemblyInProjectReferences(pc, name);
-            }
-            return null;
-        }
-
-        Assembly FindAssemblyInProjectReferences(IProjectContent pc, string name)
-        {
-            foreach (IProjectContent referencedProjectContent in pc.ReferencedContents)
-            {
-                if (name == referencedProjectContent.AssemblyName)
-                {
-                    return this.typeResolutionService.LoadAssembly(referencedProjectContent);
-                }
-            }
-            return null;
-        }
-
-        public override XamlTypeFinder Clone()
-        {
-            MyTypeFinder copy = new MyTypeFinder();
-            copy.file = this.file;
-            copy.ImportFrom(this);
-            return copy;
-        }
-
-        internal static IProjectContent GetProjectContent(OpenedFile file)
-        {
-            if (ProjectService.OpenSolution != null && file != null)
-            {
-                IProject p = ProjectService.OpenSolution.FindProjectContainingFile(file.FileName);
-                if (p != null)
-                {
-                    return ParserService.GetProjectContent(p);
-                }
-            }
-            return ParserService.DefaultProjectContent;
-        }
-    }*/
 
 }

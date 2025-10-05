@@ -1,0 +1,75 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBDataTriggerEditor}" TargetType="{x:Type local:VBDataTriggerEditor}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <local:VBTabControl>
+            <local:VBTabItem Header="Triggerdata">
+              <local:VBGrid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="30" />
+                  <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition />
+                  <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+                <local:VBButton x:Name="PART_SetBinding"
+                                Grid.Row="0" Grid.Column="0"
+                                Content="One data item"
+                                IsEnabled="{TemplateBinding IsTriggerEditable}" />
+                <local:VBButton x:Name="PART_SetMultiBinding"
+                                Grid.Row="0" Grid.Column="1"
+                                Content="More data items"
+                                IsEnabled="{TemplateBinding IsTriggerEditable}" />
+
+                <!-- Using StackPanel instead of DockPanel since DockPanel isn't available in Avalonia -->
+                <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Orientation="Vertical">
+                  <ContentControl x:Name="PART_BindingEditor"
+                                  VerticalAlignment="Center"
+                                  Margin="3 0" />
+
+                  <local:VBGrid Margin="0,5,0,0">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="30" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="60" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <local:VBTextBlock Text="Value" Grid.Column="0" />
+                    <ContentControl Grid.Row="0" Grid.Column="1" x:Name="PART_TriggerValueEditor"
+                                    VerticalAlignment="Center"
+                                    Margin="3 0"
+                                    IsHitTestVisible="{TemplateBinding IsTriggerEditable}"/>
+                  </local:VBGrid>
+                </StackPanel>
+              </local:VBGrid>
+            </local:VBTabItem>
+            <local:VBTabItem Header="Setter">
+              <local:VBSettersCollectionEditor x:Name="PART_SetterEditor"
+                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"/>
+            </local:VBTabItem>
+            <local:VBTabItem Header="Enter Actions">
+              <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor"
+                                              IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                              Margin="0,5,0,0"/>
+            </local:VBTabItem>
+            <local:VBTabItem Header="Exit Actions">
+              <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor"
+                                              IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                              Margin="0,5,0,0"/>
+            </local:VBTabItem>
+          </local:VBTabControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

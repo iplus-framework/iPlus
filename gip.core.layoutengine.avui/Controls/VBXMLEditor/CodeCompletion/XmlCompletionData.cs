@@ -1,8 +1,9 @@
+using Avalonia.Media;
+using AvaloniaEdit.CodeCompletion;
+using AvaloniaEdit.Document;
+using AvaloniaEdit.Editing;
 using System;
 using System.Windows.Media;
-using ICSharpCode.AvalonEdit.CodeCompletion;
-using ICSharpCode.AvalonEdit.Document;
-using ICSharpCode.AvalonEdit.Editing;
 
 namespace gip.core.layoutengine.avui.CodeCompletion
 {
@@ -170,6 +171,8 @@ namespace gip.core.layoutengine.avui.CodeCompletion
             get;
             set;
         }
+
+        IImage ICompletionData.Image => throw new NotImplementedException();
 
         /// <summary>
         /// The insert action.

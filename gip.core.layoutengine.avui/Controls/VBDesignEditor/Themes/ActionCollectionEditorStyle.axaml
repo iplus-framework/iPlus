@@ -16,17 +16,12 @@
               <ColumnDefinition Width="100" />
               <ColumnDefinition Width="2*" />
             </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="25" />
-              <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Column="0" Grid.Row="1" Height="70" VerticalAlignment="Center" Margin="5,0,5,0">
+            <StackPanel Grid.Column="0" Height="70" VerticalAlignment="Center" Margin="0,10,0,0">
               <local:VBButton Content="Add ->" Height="23" Margin="0,5,0,0" Name="PART_AddItem" VerticalAlignment="Top" />
               <local:VBButton Content="Remove" Height="23" Margin="0,5,0,0" Name="PART_RemoveItem" VerticalAlignment="Top" />
             </StackPanel>
-            <local:VBFrame Grid.Column="1" Grid.RowSpan="2" />
-            <local:VBHeader ACCaption="Actions:" Grid.Column="1" Grid.Row="0"/>
-              <local:VBListBox Grid.Column="1"  Grid.Row="1" x:Name="PART_OutlineList" ItemsSource="{Binding }" IsSynchronizedWithCurrentItem="True" ShowCaption="False">
+            <Border Grid.Column="1" BorderBrush="Black" BorderThickness="0.75" Margin="10">
+              <local:VBListBox x:Name="PART_OutlineList" ItemsSource="{Binding}" IsSynchronizedWithCurrentItem="True" ShowCaption="False">
                 <ListBox.ItemTemplate>
                   <DataTemplate>
                     <StackPanel>
@@ -38,9 +33,12 @@
                         <local:VBTextBlock Text="{Binding Description}"
                             TextTrimming="CharacterEllipsis"
                             VerticalAlignment="Center"
+                            Margin="7 0 0 0"
                             ToolTip.Tip="{Binding Description}"
                             Grid.Column="0" />
-                        <Border Grid.Column="1"
+                        <Border BorderThickness="1 0 0 0"
+                            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                            Grid.Column="1"
                             HorizontalAlignment="Right">
                           <ContentPresenter x:Name="editorContainer"
                               Content="{Binding Editor}"
@@ -52,6 +50,7 @@
                   </DataTemplate>
                 </ListBox.ItemTemplate>
               </local:VBListBox>
+            </Border>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

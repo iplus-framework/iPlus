@@ -2,16 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Input;
-using System.Windows.Media;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.ComponentModel;
 using System.Transactions;
-using System.Windows.Threading;
-using System.Windows.Data;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Data.Core;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Presenters;
+using Avalonia;
+using Avalonia.Controls.Metadata;
+using Avalonia.Threading;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -27,55 +31,28 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTabItem'}de{'VBTabItem'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTabItem : TabItem, IVBContent, IVBSource, IACObject
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TabItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTabItem/Themes/TabItemStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TabItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTabItem/Themes/TabItemStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         static VBTabItem()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTabItem), new FrameworkPropertyMetadata(typeof(VBTabItem)));
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBTabItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBTabItem>();
         }
 
-        //public VBTabItem(IACObjectWithBinding acObject)
-        //{
-        //    ShowRibbonBar = true;
-        //    WithVisibleCloseButton = true;
+        protected Control _parentObject = null;
+        private bool _themeApplied = false;
 
-        //    DataContext = acObject;
-
-        //    PinACClassDesignList = acObject.GetACLayouts(Global.ACLayoutType.Pinview);
-        //    FixACClassDesignList = acObject.GetACLayouts(Global.ACLayoutType.View);
-
-        //    InitVBTabItem(null);
-        //}
-
-        protected FrameworkElement _parentObject = null;
-        bool _themeApplied = false;
         public VBTabItem()
             : base()
         {
             ShowRibbonBar = false;
             IsDragable = false;
             LayoutOrientation = Global.eLayoutOrientation.HorizontalBottom;
-            this.Loaded += new RoutedEventHandler(VBTabItem_Loaded);
-            this.Unloaded += new RoutedEventHandler(VBTabItem_Unloaded);
-            this.IsVisibleChanged += VBTabItem_IsVisibleChanged;
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            Loaded += VBTabItem_Loaded;
+            Unloaded += VBTabItem_Unloaded;
+            this.GetObservable(IsVisibleProperty).Subscribe(_ => VBTabItem_IsVisibleChanged());
         }
 
         VBTabControl vbTabControl = null;
@@ -90,54 +67,44 @@ namespace gip.core.layoutengine.avui
 
             if (vbTabControl != null)
             {
-                vbTabControl.Items.CurrentChanged -= Items_CurrentChanged;
+                vbTabControl.Items.CollectionChanged -= Items_CurrentChanged;
                 TabItemCount = vbTabControl.Items.Count;
             }
         }
 
         /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            object partObj = (object)GetTemplateChild("PART_CloseButton");
-            if ((partObj != null) && (partObj is Button))
+            base.OnApplyTemplate(e);
+            
+            var partObj = e.NameScope.Find("PART_CloseButton");
+            if (partObj is Button closeButton)
             {
-                _PART_CloseButton = ((Button)partObj);
+                _PART_CloseButton = closeButton;
                 _PART_CloseButton.Click += closeButton_Click;
             }
 
-            partObj = (object)GetTemplateChild("PART_TabItemBorder");
-            if ((partObj != null) && (partObj is Border))
+            partObj = e.NameScope.Find("PART_TabItemBorder");
+            if (partObj is Border border)
             {
-                _PART_TabItemBorder = ((Border)partObj);
+                _PART_TabItemBorder = border;
             }
 
-            partObj = (object)GetTemplateChild("PART_RibbonSwitchButton");
-            if ((partObj != null) && (partObj is Button))
+            partObj = e.NameScope.Find("PART_RibbonSwitchButton");
+            if (partObj is Button ribbonButton)
             {
-                _PART_RibbonSwitchButton = ((Button)partObj);
+                _PART_RibbonSwitchButton = ribbonButton;
                 _PART_RibbonSwitchButton.Click += ribbonSwitchButton_Click;
             }
-            //ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, FrameworkElement.MinHeightProperty);
-            //if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-            //{
-            //    if (ControlManager.TouchScreenMode)
-            //        MinHeight = 35;
-            //}
+
+            // In Avalonia, we can't use DependencyPropertyHelper.GetValueSource
+            // Instead, we check if MinHeight has been set locally and apply touch mode if needed
+            if (ControlManager.TouchScreenMode && !this.IsSet(MinHeightProperty))
+            {
+                MinHeight = 35;
+            }
 
             InitVBControl();
         }
@@ -150,13 +117,14 @@ namespace gip.core.layoutengine.avui
         {
             if (!_LoadedBase)
             {
-                Binding binding = null;
                 if (!string.IsNullOrEmpty(TabIsActivated))
                 {
-                    binding = new Binding();
-                    binding.ElementName = TabIsActivated;
-                    binding.Path = new PropertyPath("Visibility");
-                    SetBinding(VisibilityProperty, binding);
+                    var binding = new Binding
+                    {
+                        ElementName = TabIsActivated,
+                        Path = "Visibility"
+                    };
+                    this.Bind(IsVisibleProperty, binding);
                 }
                 else if (!String.IsNullOrEmpty(TabVisibilityACUrl))
                 {
@@ -169,25 +137,28 @@ namespace gip.core.layoutengine.avui
 
                         if (ContextACObject.ACUrlBinding(TabVisibilityACUrl, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
                         {
-                            binding = new Binding();
-                            binding.Source = dcSource;
-                            binding.Path = new PropertyPath(dcPath);
-                            binding.Mode = BindingMode.OneWay;
-                            binding.Converter = ConverterVisibilityBool.Current;
-                            SetBinding(VisibilityProperty, binding);
+                            var binding = new Binding
+                            {
+                                Source = dcSource,
+                                Path = dcPath,
+                                Mode = BindingMode.OneWay,
+                                Converter = ConverterVisibilityBool.Current
+                            };
+                            this.Bind(IsVisibleProperty, binding);
                         }
                     }
                 }
 
                 if (BSOACComponent != null)
                 {
-                    binding = new Binding();
-                    binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.InitState);
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBTabItem.ACCompInitStateProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = BSOACComponent,
+                        Path = Const.InitState,
+                        Mode = BindingMode.OneWay
+                    };
+                    this.Bind(ACCompInitStateProperty, binding);
                 }
-                
             }
             _LoadedBase = true;
             CheckIsSelected();
@@ -205,9 +176,9 @@ namespace gip.core.layoutengine.avui
             if (!_LoadedBase)
                 return;
             _LoadedBase = false;
-            this.Loaded -= new RoutedEventHandler(VBTabItem_Loaded);
-            this.Unloaded -= new RoutedEventHandler(VBTabItem_Unloaded);
-            this.IsVisibleChanged -= VBTabItem_IsVisibleChanged;
+            Loaded -= VBTabItem_Loaded;
+            Unloaded -= VBTabItem_Unloaded;
+            
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -218,11 +189,10 @@ namespace gip.core.layoutengine.avui
 
             if (vbTabControl != null)
             {
-                vbTabControl.Items.CurrentChanged -= Items_CurrentChanged;
+                vbTabControl.Items.CollectionChanged -= Items_CurrentChanged;
                 TabItemCount = vbTabControl.Items.Count;
             }
-            //BindingOperations.ClearBinding(this, VBTabItem.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBTabItem.ACCompInitStateProperty);
+
             this.ClearAllBindings();
 
             _PART_TabItemBorder = null;
@@ -233,44 +203,43 @@ namespace gip.core.layoutengine.avui
 
         private void CheckIsSelected()
         {
-            //if (Parent != null && Parent is VBTabControl && ((VBTabControl)Parent).IsActiveLastSelectedTab)
-            //{
-                List<Tuple<string, string>> resources = FindListWithLastSelectedTabs();
-                if (resources != null)
+            List<Tuple<string, string>> resources = FindListWithLastSelectedTabs();
+            if (resources != null)
+            {
+                if (this.ACCaption != null && resources.Any(c => c.Item1 == "ACCaption" && c.Item2 == this.ACCaption))
                 {
-                    if (this.ACCaption != null && resources.Any(c => c.Item1 == "ACCaption" && c.Item2 == this.ACCaption))
-                    {
-                        this.IsSelected = true;
-                        ((FrameworkElement)this.Content).OnApplyTemplate();
-                        VBTabControl childTabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree(this, typeof(VBTabControl)) as VBTabControl;
-                        if (childTabControl != null)
-                            childTabControl.IsActiveLastSelectedTab = true;
-                    }
-                    else if (this.Header != null && resources.Any(c => c.Item1 == "Header" && c.Item2 == this.Header.ToString()))
-                    {
-                        this.IsSelected = true;
-                        ((FrameworkElement)this.Content).OnApplyTemplate();
-                        VBTabControl childTabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree(this, typeof(VBTabControl)) as VBTabControl;
-                        if (childTabControl != null)
-                            childTabControl.IsActiveLastSelectedTab = true;
-                    }
+                    this.IsSelected = true;
+                    if (this.Content is Control contentControl)
+                        contentControl.ApplyTemplate();
+                    VBTabControl childTabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree(this, typeof(VBTabControl)) as VBTabControl;
+                    if (childTabControl != null)
+                        childTabControl.IsActiveLastSelectedTab = true;
                 }
-            //}
+                else if (this.Header != null && resources.Any(c => c.Item1 == "Header" && c.Item2 == this.Header.ToString()))
+                {
+                    this.IsSelected = true;
+                    if (this.Content is Control contentControl)
+                        contentControl.ApplyTemplate();
+                    VBTabControl childTabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree(this, typeof(VBTabControl)) as VBTabControl;
+                    if (childTabControl != null)
+                        childTabControl.IsActiveLastSelectedTab = true;
+                }
+            }
         }
 
         private List<Tuple<string,string>> FindListWithLastSelectedTabs()
         {
             ContentControl contentControl = VBLogicalTreeHelper.FindParentObjectInLogicalTree(this, typeof(VBDynamic)) as ContentControl;
-            if(contentControl != null && ((FrameworkElement)contentControl.Content).Resources.Contains("LastSelectedTabsList"))
-                return ((FrameworkElement)contentControl.Content).Resources["LastSelectedTabsList"] as List<Tuple<string, string>>;
+            if(contentControl != null && contentControl.Content is Control control && control.Resources.ContainsKey("LastSelectedTabsList"))
+                return control.Resources["LastSelectedTabsList"] as List<Tuple<string, string>>;
 
             else
             {
                 while (contentControl != null)
                 {
                     contentControl = VBLogicalTreeHelper.FindParentObjectInLogicalTree(contentControl.Parent, typeof(VBDynamic)) as ContentControl;
-                    if (contentControl != null && ((FrameworkElement)contentControl.Content).Resources.Contains("LastSelectedTabsList"))
-                        return ((FrameworkElement)contentControl.Content).Resources["LastSelectedTabsList"] as List<Tuple<string, string>>;
+                    if (contentControl != null && contentControl.Content is Control parentControl && parentControl.Resources.ContainsKey("LastSelectedTabsList"))
+                        return parentControl.Resources["LastSelectedTabsList"] as List<Tuple<string, string>>;
                 }
             }
             return null;
@@ -292,16 +261,27 @@ namespace gip.core.layoutengine.avui
         /// <param name="bInitializingCall">Determines is initializing call or not.</param>
         public void ActualizeTheme(bool bInitializingCall)
         {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            // In Avalonia, theme handling is different - we'll implement this based on available API
+            // For now, just set the flag
+            _themeApplied = true;
         }
 
-        public static readonly DependencyProperty IsDragableProperty
-            = DependencyProperty.Register("IsDragable", typeof(bool), typeof(VBTabItem));
+        public static readonly StyledProperty<bool> IsDragableProperty
+            = AvaloniaProperty.Register<VBTabItem, bool>(nameof(IsDragable));
+
+        [Category("VBControl")]
+        public bool IsDragable
+        {
+            get { return GetValue(IsDragableProperty); }
+            set { SetValue(IsDragableProperty, value); }
+        }
 
         /// <summary>
         /// Represents the dependency property for CanExecuteCyclic.
         /// </summary>
-        public static readonly DependencyProperty CanExecuteCyclicProperty = ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner(typeof(VBTabItem), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<int> CanExecuteCyclicProperty = 
+            ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner<VBTabItem>();
+
         /// <summary>
         /// Determines is cyclic execution enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.
         /// </summary>
@@ -311,14 +291,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int CanExecuteCyclic
         {
-            get { return (int)GetValue(CanExecuteCyclicProperty); }
+            get { return GetValue(CanExecuteCyclicProperty); }
             set { SetValue(CanExecuteCyclicProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBTabItem), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBTabItem>();
+
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -329,14 +311,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
+        public static readonly StyledProperty<string> StringFormatProperty =
+            AvaloniaProperty.Register<VBTabItem, string>(nameof(StringFormat));
+
         /// <summary>
         /// Gets or sets the string format for the control.
         /// </summary>
@@ -348,7 +332,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string StringFormat
         {
-            get { return (string)GetValue(StringFormatProperty); }
+            get { return GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
 
@@ -393,7 +377,7 @@ namespace gip.core.layoutengine.avui
                 if (ContextACObject == null)
                     return;
 
-                if ((_dispTimer == null) && ReadLocalValue(CanExecuteCyclicProperty) != DependencyProperty.UnsetValue)
+                if ((_dispTimer == null) && this.IsSet(CanExecuteCyclicProperty))
                 {
                     _dispTimer = new DispatcherTimer();
                     _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
@@ -402,22 +386,20 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            //this.IsVisibleChanged += VBTabItem_IsVisibleChanged;
-
             vbTabControl = Parent as VBTabControl;
             if (vbTabControl != null)
             {
-                vbTabControl.Items.CurrentChanged += new EventHandler(Items_CurrentChanged);
+                vbTabControl.Items.CollectionChanged += Items_CurrentChanged;
                 TabItemCount = vbTabControl.Items.Count;
             }
             IACComponent acComponent = ContextACObject as IACComponent;
             if (acComponent != null)
-                acComponent.ACAction(new ACActionArgs(sender as IACInteractiveObject, 0, 0, Global.ElementActionType.TabItemLoaded));
+                acComponent.ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.TabItemLoaded));
         }
 
-        void VBTabItem_IsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void VBTabItem_IsVisibleChanged()
         {
-            if (!string.IsNullOrEmpty(this.TabIsActivated) && this.IsSelected && !this.IsVisible && Parent != null && Parent is VBTabControl)
+            if (!string.IsNullOrEmpty(this.TabIsActivated) && this.IsSelected && !this.IsVisible && Parent is VBTabControl)
             {
                 VBTabControl tabControl = Parent as VBTabControl;
                 int index = tabControl.Items.IndexOf(this);
@@ -426,8 +408,7 @@ namespace gip.core.layoutengine.avui
                 else
                     tabControl.SelectedIndex = 0;
             }
-
-            else if (!string.IsNullOrEmpty(TabVisibilityACUrl) && Parent is VBTabControl && IsSelected && Visibility == Visibility.Collapsed)
+            else if (!string.IsNullOrEmpty(TabVisibilityACUrl) && Parent is VBTabControl && IsSelected && !IsVisible)
             {
                 VBTabControl tabControl = Parent as VBTabControl;
                 int currentIndex = tabControl.Items.IndexOf(this);
@@ -435,7 +416,7 @@ namespace gip.core.layoutengine.avui
                 if(currentIndex > 0)
                 {
                     VBTabItem prevItem = tabControl.Items[currentIndex - 1] as VBTabItem;
-                    if (prevItem != null && prevItem.Visibility != Visibility.Collapsed)
+                    if (prevItem != null && prevItem.IsVisible)
                     {
                         tabControl.SelectedItem = prevItem;
                         return;
@@ -445,105 +426,87 @@ namespace gip.core.layoutengine.avui
                 if(currentIndex + 1 < tabControl.Items.Count)
                 {
                     VBTabItem nextItem = tabControl.Items[currentIndex + 1] as VBTabItem;
-                    if (nextItem != null && nextItem.Visibility != Visibility.Collapsed)
+                    if (nextItem != null && nextItem.IsVisible)
                         tabControl.SelectedItem = nextItem;
                 }
             }
-
         }
 
-        void Items_CurrentChanged(object sender, EventArgs e)
+        void Items_CurrentChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if (sender is ItemCollection)
+            if (sender is ItemCollection itemCollection)
             {
-                ItemCollection itemCollection = sender as ItemCollection;
                 TabItemCount = itemCollection.Count;
             }
         }
 
-        void tabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBTabItem vbTabitemAdded = null;
-            foreach (var added in e.AddedItems)
+            base.OnPropertyChanged(change);
+            if (change.Property == IsSelectedProperty)
             {
-                if (added is VBTabItem)
+                OnSelected(change);
+            }
+            else if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    vbTabitemAdded = added as VBTabItem;
-                    break;
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
                 }
             }
+        }
 
-            if (vbTabitemAdded != null && ContextACObject is IACComponent)
+        protected virtual void OnSelected(AvaloniaPropertyChangedEventArgs change)
+        {
+            if (change.NewValue is bool && (bool)change.NewValue == true)
             {
-                foreach (var removed in e.RemovedItems)
+                try
                 {
-                    if (removed is VBTabItem)
+                    if (!string.IsNullOrEmpty(VBContent))
                     {
-                        VBTabItem vbTabitemRemoved = removed as VBTabItem;
-                        (ContextACObject as IACComponent).ACAction(new ACActionArgs(vbTabitemRemoved, 0, 0, Global.ElementActionType.TabItemDeActivated));
-                        break;
+                        if (ContextACObject != null)
+                            (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.TabItemActivated));
                     }
+                    this.Focus();
+                    Control parentControl = Parent as Control;
+                    if (parentControl != null)
+                        parentControl.Focus();
                 }
-                (ContextACObject as IACComponent).ACAction(new ACActionArgs(vbTabitemAdded, 0, 0, Global.ElementActionType.TabItemActivated));
-            }
-        }
-
-        protected override void OnSelected(RoutedEventArgs e)
-        {
-            base.OnSelected(e);
-            try
-            {
-                if (!string.IsNullOrEmpty(VBContent))
+                catch (Exception)
                 {
-                    if (ContextACObject != null)
-                        (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.TabItemActivated));
                 }
-                this.Focus();
-                UIElement parentUIElement = Parent as UIElement;
-                if (parentUIElement != null)
-                    parentUIElement.Focus();
             }
-            catch (Exception)
-            {                
-            }            
         }
 
-        public static readonly DependencyProperty WithVisibleCloseButtonProperty
-            = DependencyProperty.Register("WithVisibleCloseButton", typeof(bool), typeof(VBTabItem));
+        public static readonly StyledProperty<bool> WithVisibleCloseButtonProperty
+            = AvaloniaProperty.Register<VBTabItem, bool>(nameof(WithVisibleCloseButton));
 
         public bool WithVisibleCloseButton
         {
-            get
-            {
-                return (bool)GetValue(WithVisibleCloseButtonProperty);
-            }
-            set
-            {
-                SetValue(WithVisibleCloseButtonProperty, value);
-            }
+            get { return GetValue(WithVisibleCloseButtonProperty); }
+            set { SetValue(WithVisibleCloseButtonProperty, value); }
         }
 
-        public static readonly DependencyProperty ShowRibbonBarProperty
-            = DependencyProperty.Register("ShowRibbonBar", typeof(bool), typeof(VBTabItem));
+        public static readonly StyledProperty<bool> ShowRibbonBarProperty
+            = AvaloniaProperty.Register<VBTabItem, bool>(nameof(ShowRibbonBar));
+
         [Category("VBControl")]
         public bool ShowRibbonBar
         {
-            get
-            {
-                return (bool)GetValue(ShowRibbonBarProperty);
-            }
-
-            set
-            {
-                SetValue(ShowRibbonBarProperty, value);
-            }
+            get { return GetValue(ShowRibbonBarProperty); }
+            set { SetValue(ShowRibbonBarProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-        = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBTabItem), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> ShowCaptionProperty
+        = AvaloniaProperty.Register<VBTabItem, bool>(nameof(ShowCaption), false);
+
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -553,12 +516,12 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool ShowCaption
         {
-            get { return (bool)GetValue(ShowCaptionProperty); }
+            get { return GetValue(ShowCaptionProperty); }
             set { SetValue(ShowCaptionProperty, value); }
         }
 
-        public static readonly DependencyProperty TabIsActivatedProperty
-            = DependencyProperty.Register("TabIsActivated", typeof(string), typeof(VBTabItem));
+        public static readonly StyledProperty<string> TabIsActivatedProperty
+            = AvaloniaProperty.Register<VBTabItem, string>(nameof(TabIsActivated));
 
         /// <summary>
         /// This property is defined for VBTabItem dynamic visibility which depends on child element visibility.
@@ -567,14 +530,12 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string TabIsActivated
         {
-            get { return (string)GetValue(TabIsActivatedProperty); }
+            get { return GetValue(TabIsActivatedProperty); }
             set { SetValue(TabIsActivatedProperty, value); }
         }
 
-
-
-        public static readonly DependencyProperty TabVisibilityACUrlProperty
-            = DependencyProperty.Register("TabVisibilityACUrl", typeof(string), typeof(VBTabItem));
+        public static readonly StyledProperty<string> TabVisibilityACUrlProperty
+            = AvaloniaProperty.Register<VBTabItem, string>(nameof(TabVisibilityACUrl));
 
         /// <summary>
         /// This property is defined for VBTabItem dynamic visibility which depends on child element visibility.
@@ -582,42 +543,11 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public string TabVisibilityACUrl
         {
-            get { return (string)GetValue(TabVisibilityACUrlProperty); }
+            get { return GetValue(TabVisibilityACUrlProperty); }
             set { SetValue(TabVisibilityACUrlProperty, value); }
         }
 
-
         #region DockingManager members
-        //VBDockingContainerToolBSOExplorer _explorer;
-        //public VBDockingContainerToolBSOExplorer Explorer
-        //{
-        //    get
-        //    {
-        //        return _explorer;
-        //    }
-        //}
-
-        //VBDockingContainerToolBSOMsg _bsoMsg;
-        //public VBDockingContainerToolBSOMsg BSOMsg
-        //{
-        //    get
-        //    {
-        //        return _bsoMsg;
-        //    }
-        //}
-
-        //VBDockingContainerToolWindowFindReplace _findAndReplaceEditor;
-        //public VBDockingContainerToolWindowFindReplace FindAndReplaceEditor
-        //{
-        //    get
-        //    {
-        //        return _findAndReplaceEditor;
-        //    }
-        //    set
-        //    {
-        //        _findAndReplaceEditor = value;
-        //    }
-        //}
 
         #endregion
 
@@ -657,7 +587,7 @@ namespace gip.core.layoutengine.avui
 
         IACObject _ACComponent = null;
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -670,7 +600,6 @@ namespace gip.core.layoutengine.avui
                     _ACComponent = DataContext as IACObject;
                     if (_ACComponent != null)
                     {
-                        //Caption = _ACComponent.ACCaption;
                         ACUrl = "Window" + _ACComponent.ACIdentifier;
                     }
                 }
@@ -681,67 +610,31 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTabItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTabItem>();
+
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
-
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBTabItem),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBTabItem),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBTabItem, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBTabItem thisControl = dependencyObject as VBTabItem;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
         }
 
         /// <summary>
@@ -826,30 +719,31 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        [Category("VBControl")]
-        public bool IsDragable
+        // StyleInfoList property for theme handling
+        public List<ACClassDesignInfo> StyleInfoList
         {
-            get { return (bool)GetValue(IsDragableProperty); }
-            set { SetValue(IsDragableProperty, value); }
+            get;
+            set;
         }
 
         #endregion
 
         #endregion
 
-        public static readonly RoutedEvent CloseTabEvent =
-            EventManager.RegisterRoutedEvent("CloseTab", RoutingStrategy.Bubble,
-                typeof(RoutedEventHandler), typeof(VBTabItem));
+        public static readonly RoutedEvent<RoutedEventArgs> CloseTabEvent =
+            RoutedEvent.Register<VBTabItem, RoutedEventArgs>(nameof(CloseTab), RoutingStrategies.Bubble);
 
-        public event RoutedEventHandler CloseTab
+        public event EventHandler<RoutedEventArgs> CloseTab
         {
             add { AddHandler(CloseTabEvent, value); }
             remove { RemoveHandler(CloseTabEvent, value); }
         }
 
-        public void closeButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        public void closeButton_Click(object sender, RoutedEventArgs e)
         {
-            this.RaiseEvent(new RoutedEventArgs(CloseTabEvent, this));
+            var args = new RoutedEventArgs(CloseTabEvent, this);
+            RaiseEvent(args);
+            
             VBTabControl tabControl = this.vbTabControl;
             if (tabControl == null)
                 tabControl = this.Parent as VBTabControl;
@@ -857,8 +751,8 @@ namespace gip.core.layoutengine.avui
             VBDockingPanelTabbedDoc vbDockingPanelTabbedDoc = tabControl?.Parent as VBDockingPanelTabbedDoc;
             VBDockingContainerBase vbDockingContainerBase = null;
 
-            if (this.Content is ContentPresenter && vbDockingPanelTabbedDoc != null)
-                vbDockingContainerBase = vbDockingPanelTabbedDoc.Documents.FirstOrDefault(c => c.Content == ((ContentPresenter)this.Content).Content);
+            if (this.Content is ContentPresenter presenter && vbDockingPanelTabbedDoc != null)
+                vbDockingContainerBase = vbDockingPanelTabbedDoc.Documents.FirstOrDefault(c => c.Content == presenter.Content);
 
             if (vbDockingContainerBase != null)
             {
@@ -867,45 +761,8 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        //VBRibbon _VBRibbon;
-
-        public void ribbonSwitchButton_Click(object sender, System.Windows.RoutedEventArgs e)
+        public void ribbonSwitchButton_Click(object sender, RoutedEventArgs e)
         {
-            /*if (_VBRibbon != null)
-            {
-                if (_VBRibbon.Visibility == System.Windows.Visibility.Collapsed)
-                    _VBRibbon.Visibility = System.Windows.Visibility.Visible;
-                else
-                    _VBRibbon.Visibility = System.Windows.Visibility.Collapsed;
-            }
-            if (Content == null)
-                return;
-            DockPanel dockPanel = null;
-            if (!(Content is DockPanel))
-            {
-                if (Content is ContentPresenter)
-                {
-                    if ((Content as ContentPresenter).Content is DockPanel)
-                        dockPanel = (Content as ContentPresenter).Content as DockPanel;
-                }
-            }
-            else
-                dockPanel = Content as DockPanel;
-
-            if (dockPanel == null)
-                return;
-            foreach (UIElement element in dockPanel.Children)
-            {
-                if (element is VBRibbon)
-                {
-                    VBRibbon ribbon = element as VBRibbon;
-                    if (ribbon.Visibility == System.Windows.Visibility.Collapsed)
-                        ribbon.Visibility = System.Windows.Visibility.Visible;
-                    else
-                        ribbon.Visibility = System.Windows.Visibility.Collapsed;
-                    break;
-                }
-            }*/
         }
 
         private object DataContentObject
@@ -913,7 +770,6 @@ namespace gip.core.layoutengine.avui
             get;
             set;
         }
-
 
         #region IDataCommand Members
 
@@ -978,7 +834,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
         /// 1. get references to components,
@@ -1001,7 +856,6 @@ namespace gip.core.layoutengine.avui
             }
             return null;
         }
-
 
         /// <summary>
         /// Determines is ACUrlCommand is enabled or disabled.
@@ -1094,21 +948,14 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region IDataContent Member
-        public static readonly DependencyProperty TabItemCountProperty
-            = DependencyProperty.Register("TabItemCount", typeof(int), typeof(VBTabItem));
+        public static readonly StyledProperty<int> TabItemCountProperty
+            = AvaloniaProperty.Register<VBTabItem, int>(nameof(TabItemCount));
+
         [Bindable(true)]
         public int TabItemCount
         {
-            get
-            {
-                //VBTabControl vbTabControl = Parent as VBTabControl;
-                //return vbTabControl.Items.Count;
-                return (int)GetValue(TabItemCountProperty);
-            }
-            set
-            {
-                SetValue(TabItemCountProperty, value);
-            }
+            get { return GetValue(TabItemCountProperty); }
+            set { SetValue(TabItemCountProperty, value); }
         }
 
         private bool Visible
@@ -1217,24 +1064,42 @@ namespace gip.core.layoutengine.avui
         private DispatcherTimer _dispTimer = null;
         private void dispatcherTimer_CanExecute(object sender, EventArgs e)
         {
-            CommandManager.InvalidateRequerySuggested();
+            // In Avalonia, we don't have CommandManager.InvalidateRequerySuggested()
+            // Commands are automatically reevaluated when needed
+            // We can trigger a manual reevaluation if needed by updating command state
         }
         #endregion
 
         #region Event overrides
 
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if(WithVisibleCloseButton && e.MiddleButton == MouseButtonState.Pressed && e.OriginalSource == PART_TabItemBorder)
+            if (DisableContextMenu)
+            {
+                e.Handled = true;
+                return;
+            }
+
+            if (WithVisibleCloseButton && e.GetCurrentPoint(this).Properties.IsMiddleButtonPressed && e.Source == PART_TabItemBorder)
                 closeButton_Click(this, new RoutedEventArgs());
 
-            base.OnMouseDown(e);
-        }
+            if (ContextACObject != null && e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+            {
+                var point = e.GetPosition(this);
+                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                BSOACComponent.ACAction(actionArgs);
+                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                {
+                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                    this.ContextMenu = vbContextMenu;
+                    if (vbContextMenu.PlacementTarget == null)
+                        vbContextMenu.PlacementTarget = this;
+                    ContextMenu.Open(this);
+                }
+                e.Handled = true;
+            }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
-        {
-            if (WithVisibleCloseButton && !ControlManager.TouchScreenMode && e.OriginalSource == PART_TabItemBorder)
-                closeButton_Click(this, new RoutedEventArgs());
+            base.OnPointerPressed(e);
         }
 
         #endregion
@@ -1243,20 +1108,18 @@ namespace gip.core.layoutengine.avui
 
         #region Behavior -> FocusNames
 
-        public static readonly DependencyProperty FocusNamesProperty =
-            DependencyProperty.Register("FocusNames", typeof(string), typeof(VBTabItem));
+        public static readonly StyledProperty<string> FocusNamesProperty =
+            AvaloniaProperty.Register<VBTabItem, string>(nameof(FocusNames));
 
         [Category("VBControl")]
         public string FocusNames
         {
-            get { return (string)GetValue(FocusNamesProperty); }
+            get { return GetValue(FocusNamesProperty); }
             set { SetValue(FocusNamesProperty, value); }
         }
 
         #endregion
 
         #endregion
-
     }
-
 }

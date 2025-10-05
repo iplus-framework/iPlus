@@ -2,98 +2,41 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
-    </ResourceDictionary.MergedDictionaries>
 
-    <SolidColorBrush x:Key="TextEditorBgEnabledGip" Color="#FF1A1A1A"/>
-    <SolidColorBrush x:Key="TextEditorFgEnabledGip" Color="#FFFFFFFF"/>
-    <SolidColorBrush x:Key="TextEditorFgEnabledGipFocus" Color="#FFFFFFFF"/>
-    <RadialGradientBrush x:Key="TextEditorBorderEnabledGip" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
-        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
-        <GradientStop Color="#FF666666" Offset="0.548"/>
-        <GradientStop Color="Black" Offset="1"/>
-    </RadialGradientBrush>
+  <ControlTheme x:Key="{x:Type local:VBXMLEditor}" TargetType="{x:Type local:VBXMLEditor}">
+    <Setter Property="FontFamily" Value="Consolas"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="Foreground" Value="{StaticResource TextEditorFgEnabled}"/>
+    <Setter Property="Background" Value="{StaticResource TextEditorBgEnabled}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource TextEditorBorderEnabled}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type local:VBXMLEditor}">
+          <Border x:Name="Border"
+              CornerRadius="3"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              Background="{TemplateBinding Background}">
+            <ScrollViewer
+                Focusable="False"
+                Name="PART_ScrollViewer"
+                VerticalScrollBarVisibility="Auto"
+                HorizontalScrollBarVisibility="{Binding WordWrap, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static local:BooleanToScrollBarVisibilityConverter.Instance}}"
+                Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextArea}"
+                VerticalContentAlignment="Top"
+                HorizontalContentAlignment="Left"
+                Background="{TemplateBinding Background}"
+                Padding="{TemplateBinding Padding}"
+                Margin="2"/>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
 
-    <Style x:Key="XMLEditorStyleGip" BasedOn="{x:Null}" TargetType="{x:Type local:VBXMLEditor}">
-        <Setter Property="FontFamily" Value="Consolas"/>
-        <Setter Property="FontSize" Value="10pt"/>
-        <Setter Property="Foreground" Value="{StaticResource TextEditorFgEnabledGip}"/>
-        <Setter Property="Background" Value="{StaticResource TextEditorBgEnabledGip}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource TextEditorBorderEnabledGip}"/>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:VBXMLEditor}">
-                    <Border x:Name="Border" 
-							CornerRadius="3"
-							BorderBrush="{TemplateBinding BorderBrush}" 
-							BorderThickness="{TemplateBinding BorderThickness}" 
-							Background="{TemplateBinding Background}" 
-							SnapsToDevicePixels="true">
-                        <ScrollViewer
-						Focusable="False"
-						Name="PART_ScrollViewer"
-						CanContentScroll="True"
-						VerticalScrollBarVisibility="Auto"
-						HorizontalScrollBarVisibility="Auto"
-						Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextArea}"
-						VerticalContentAlignment="Top"
-						HorizontalContentAlignment="Left"
-						Background="{TemplateBinding Background}"
-						Padding="{TemplateBinding Padding}"
-                            Margin="2"
-					/>
-                    </Border>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="WordWrap"
-						         Value="True">
-                            <Setter TargetName="PART_ScrollViewer"
-							        Property="HorizontalScrollBarVisibility"
-							        Value="Disabled" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <!-- WordWrap style using pseudo-class selector -->
+    <Style Selector="^[WordWrap=True] /template/ ScrollViewer#PART_ScrollViewer">
+      <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
     </Style>
-
-    <!--<Style TargetType="{x:Type editing:TextArea}">
-        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-        <Setter Property="SelectionBrush">
-            <Setter.Value>
-                <SolidColorBrush
-					Color="{DynamicResource {x:Static SystemColors.HighlightColorKey}}"
-					Opacity="0.7"/>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="SelectionBorder">
-            <Setter.Value>
-                <Pen Brush="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}"
-				     Thickness="1"/>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="SelectionForeground" Value="{DynamicResource {x:Static SystemColors.HighlightTextBrushKey}}"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type editing:TextArea}">
-                    <DockPanel Focusable="False">
-                        <ItemsControl DockPanel.Dock="Left"
-						              Focusable="False"
-						              ItemsSource="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=LeftMargins}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                        <ContentPresenter
-							Panel.ZIndex="-1"
-							Focusable="False"
-							Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=TextView}"/>
-                    </DockPanel>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-    </Style>-->
+  </ControlTheme>
 </ResourceDictionary>

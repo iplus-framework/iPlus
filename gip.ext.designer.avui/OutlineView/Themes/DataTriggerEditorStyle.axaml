@@ -5,9 +5,9 @@
     xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-  <ControlTheme x:Key="{x:Type OutlineView:DataTriggerEditor}" TargetType="OutlineView:DataTriggerEditor">
+  <ControlTheme x:Key="{x:Type OutlineView:DataTriggerEditor}" TargetType="{x:Type OutlineView:DataTriggerEditor}">
     <Setter Property="Template">
-      <ControlTemplate TargetType="OutlineView:DataTriggerEditor">
+      <ControlTemplate>
         <TabControl>
           <TabItem Header="Triggerdata">
             <Grid>

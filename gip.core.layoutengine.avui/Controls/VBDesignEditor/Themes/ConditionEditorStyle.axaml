@@ -1,0 +1,101 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBConditionEditor}" TargetType="{x:Type local:VBConditionEditor}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <StackPanel>
+            <!-- SourceName row -->
+            <Grid Margin="0,0,0,2" x:Name="SourceName" IsVisible="{TemplateBinding IsTemplateTrigger}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <local:VBTextBlock Grid.Column="0" 
+                                 Text="{Binding Path=SourceName.Name}" 
+                                 TextTrimming="CharacterEllipsis" 
+                                 VerticalAlignment="Center" />
+              <ContentControl Grid.Column="1" 
+                              Content="{Binding Path=SourceName.Editor}" />
+            </Grid>
+            
+            <!-- Selector row -->
+            <Grid Margin="0,0,0,2" x:Name="Selector" IsVisible="{Binding !IsMultiDataTrigger, RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <local:VBTextBlock Grid.Column="0" 
+                                 Text="{Binding Path=Property.Name}" 
+                                 TextTrimming="CharacterEllipsis" 
+                                 VerticalAlignment="Center" />
+              <local:VBComboBox Grid.Column="1"
+                                ShowCaption="False" 
+                                x:Name="PART_SelectorTriggerable" 
+                                ItemsSource="{Binding TriggerableProperties}" 
+                                SelectedItem="{Binding SelectedTriggerableProperty}">
+                <ComboBox.ItemTemplate>
+                  <DataTemplate>
+                    <local:VBTextBlock Text="{Binding Name}" />
+                  </DataTemplate>
+                </ComboBox.ItemTemplate>
+              </local:VBComboBox>
+            </Grid>
+            
+            <!-- Buttons row -->
+            <Grid x:Name="Buttons" IsVisible="{TemplateBinding IsMultiDataTrigger}" Height="30" Margin="0,0,0,2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <local:VBButton x:Name="PART_SetBinding" 
+                              Content="One data item" 
+                              Margin="2,0,1,0" 
+                              MaxHeight="30" 
+                              Grid.Column="0" />
+              <local:VBButton x:Name="PART_SetMultiBinding" 
+                              Content="More data items" 
+                              Margin="1,0,1,0" 
+                              MaxHeight="30" 
+                              Grid.Column="1" />
+              <local:VBButton x:Name="PART_ResetBinding" 
+                              Content="Reset" 
+                              Margin="1,0,0,0" 
+                              MaxHeight="30" 
+                              Grid.Column="2" />
+            </Grid>
+            
+            <!-- Bindings row -->
+            <Grid Margin="0,0,0,2" x:Name="Bindings" IsVisible="{TemplateBinding IsMultiDataTrigger}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <ContentControl Grid.Column="0" x:Name="PART_BindingEditor" />
+            </Grid>
+            
+            <!-- Value row -->
+            <Grid Margin="0,0,0,2">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="120" />
+                <ColumnDefinition Width="*" />
+              </Grid.ColumnDefinitions>
+              <local:VBTextBlock Grid.Column="0" 
+                                 Text="{Binding Path=Value.Name}" 
+                                 TextTrimming="CharacterEllipsis" 
+                                 VerticalAlignment="Center" />
+              <ContentControl Grid.Column="1" 
+                              x:Name="PART_TriggerValueEditor" />
+            </Grid>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

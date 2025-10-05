@@ -1,33 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
-using System.Xml;
-using System.Xml.Linq;
+﻿using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using AvaloniaEdit.CodeCompletion;
+using AvaloniaEdit.Document;
+using AvaloniaEdit.Editing;
+using AvaloniaEdit.Folding;
+using AvaloniaEdit.Highlighting;
+using AvaloniaEdit.Highlighting.Xshd;
+using AvaloniaEdit.Indentation;
 using gip.core.datamodel;
-using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
-using System.ComponentModel;
-using ICSharpCode.AvalonEdit;
 using gip.core.layoutengine.avui.CodeCompletion;
-using ICSharpCode.AvalonEdit.CodeCompletion;
-using ICSharpCode.AvalonEdit.Editing;
-using ICSharpCode.AvalonEdit.Highlighting;
-using ICSharpCode.AvalonEdit.Highlighting.Xshd;
-using ICSharpCode.AvalonEdit.Folding;
-using ICSharpCode.AvalonEdit.Indentation;
-using System.Reflection;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Linq;
+using System.Xml;
 
 namespace gip.core.layoutengine.avui
 {
@@ -38,7 +25,7 @@ namespace gip.core.layoutengine.avui
     /// Steuerelemnt zur Bearbeitung von XML.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBXMLEditor'}de{'VBXMLEditor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBXMLEditor : VBTextEditor, IVBContent, IACObject, IACMenuBuilderWPFTree
+    public class VBXMLEditor : VBTextEditor
     {
         #region c'tors
 
@@ -57,7 +44,7 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
             if (!string.IsNullOrEmpty(CodeCompletionSchema))
             {
@@ -95,7 +82,7 @@ namespace gip.core.layoutengine.avui
             HighlightingManager.Instance.RegisterHighlighting("XML", new string[] { ".xml" }, customHighlighting);
             SyntaxHighlighting = customHighlighting;
 
-            base.OnInitialized(e);
+            base.OnInitialized();
         }
 
         /// <summary>
@@ -109,9 +96,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and runs the VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -158,7 +145,7 @@ namespace gip.core.layoutengine.avui
 
         #region Methods => Completion
 
-        protected override void ucAvalonTextEditor_TextArea_TextEntered(object sender, TextCompositionEventArgs e)
+        protected override void ucAvalonTextEditor_TextArea_TextEntered(object sender, TextInputEventArgs e)
         {
             if (_xmlCompletionDataProvider != null && _xmlCompletionDataProvider.IsSchemaLoaded)
             {
@@ -250,7 +237,7 @@ namespace gip.core.layoutengine.avui
                 {
                     completionWindow = new CompletionWindow(TextArea);
                     completionWindow.MinWidth = 100;
-                    completionWindow.SizeToContent = SizeToContent.Width;
+                    //completionWindow.SizeToContent = SizeToContent.Width;
 
                     foreach (XmlCompletionData item in result.OrderBy(c => c.Text))
                     {
@@ -292,7 +279,7 @@ namespace gip.core.layoutengine.avui
             {
                 completionWindow = new CompletionWindow(TextArea);
                 completionWindow.MinWidth = 100;
-                completionWindow.SizeToContent = SizeToContent.Width;
+                //completionWindow.SizeToContent = SizeToContent.Width;
                 foreach (var item in result)
                     completionWindow.CompletionList.CompletionData.Add(item);
 
@@ -338,7 +325,7 @@ namespace gip.core.layoutengine.avui
         {
             bool inside = false;
 
-            ICSharpCode.AvalonEdit.Document.DocumentLine line = textArea.Document.GetLineByOffset(textArea.Caret.Offset);
+            DocumentLine line = textArea.Document.GetLineByOffset(textArea.Caret.Offset);
             if (line != null)
             {
                 if ((line.Offset + line.Length > textArea.Caret.Offset) &&
@@ -363,7 +350,7 @@ namespace gip.core.layoutengine.avui
 
         #region Methods => Find & Replace
 
-        private void CanOpenFindAndReplace(object sender, CanExecuteRoutedEventArgs e)
+        private void CanOpenFindAndReplace(object sender, Avalonia.Labs.Input.CanExecuteRoutedEventArgs e)
         {
             if (_VBFindAndReplace != null && _VBFindAndReplace.InitState == ACInitState.Destructed)
                 _VBFindAndReplace = null;
@@ -378,7 +365,7 @@ namespace gip.core.layoutengine.avui
             e.Handled = true;
         }
 
-        private void OpenFindAndReplace(object sender, ExecutedRoutedEventArgs e)
+        private void OpenFindAndReplace(object sender, Avalonia.Labs.Input.ExecutedRoutedEventArgs e)
         {
             InstanceVBFindAndReplace();
         }

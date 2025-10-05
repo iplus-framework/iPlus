@@ -1,6 +1,6 @@
+using AvaloniaEdit.CodeCompletion;
 using System;
 using System.Collections;
-using ICSharpCode.AvalonEdit.CodeCompletion;
 
 namespace gip.core.layoutengine.avui.CodeCompletion
 {

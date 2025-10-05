@@ -1,0 +1,52 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBMultiBindingEditor}" TargetType="{x:Type local:VBMultiBindingEditor}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <local:VBGrid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" MinHeight="100" />
+              <RowDefinition Height="30" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="160" />
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <local:VBListBox x:Name="PART_BindingList" 
+                             ItemsSource="{Binding Path=BindingsCollection}" 
+                             IsSynchronizedWithCurrentItem="True" 
+                             ShowCaption="False">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <local:VBTextBlock Text="{Binding Description}" />
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </local:VBListBox>
+            <Grid Grid.Row="1" ColumnDefinitions="*,*">
+              <local:VBButton x:Name="PART_AddItem" Content="Add" Margin="2,0,1,0" Grid.Column="0" MaxHeight="30" />
+              <local:VBButton x:Name="PART_RemoveItem" Content="Remove" Margin="1,0,0,0" Grid.Column="1" MaxHeight="30" />
+            </Grid>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Vertical">
+              <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                <local:VBTextBlock Text="Converter:" 
+                                   Width="100" 
+                                   TextTrimming="CharacterEllipsis" 
+                                   VerticalAlignment="Center"
+                                   IsVisible="{Binding Path=ConverterEditor, Converter={x:Static ObjectConverters.IsNotNull}}" />
+                <ContentControl x:Name="ConverterEditor" Content="{Binding Path=ConverterEditor}" />
+              </StackPanel>
+              <ContentControl x:Name="PART_BindingEditor" />
+            </StackPanel>
+          </local:VBGrid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

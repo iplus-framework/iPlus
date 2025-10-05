@@ -1,0 +1,139 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+    <ControlTheme x:Key="{x:Type local:VBTabControl}" TargetType="{x:Type local:VBTabControl}">
+        <Setter Property="Background" Value="{StaticResource AppLight}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource TabItemSelectedBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Padding" Value="2"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid x:Name="PART_Root">
+                    <Grid.RowDefinitions>
+                        <RowDefinition x:Name="RowDefinition0" Height="Auto"/>
+                        <RowDefinition x:Name="RowDefinition1" Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition x:Name="ColumnDefinition0" Width="*"/>
+                        <ColumnDefinition x:Name="ColumnDefinition1" Width="0"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                    Grid.Row="0"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}"
+                                    ZIndex="1"
+                                    Margin="0,0,4,-1"/>
+                    
+                    <!--<Border x:Name="OuterBorder"
+                            Grid.Row="1"
+                            BorderBrush="{StaticResource TabControlOuterBorderBrush}"
+                            BorderThickness="0,0,1,1"
+                            BoxShadow="2 5 10 0 #71000000">-->
+                        <Border x:Name="PART_ContentBorder"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                Margin="0,1,0,0"
+                                CornerRadius="0,0,6,6"
+                                BoxShadow="2 5 10 0 #71000000">
+                            <ContentPresenter x:Name="PART_SelectedContentHost"
+                                              Margin="{TemplateBinding Padding}"
+                                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                                              Content="{TemplateBinding SelectedContent}"
+                                              ContentTemplate="{TemplateBinding SelectedContentTemplate}"/>
+                        </Border>
+                    <!--</Border>-->
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Disabled State -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="{StaticResource AppLight}"/>
+        </Style>
+        
+        <Style Selector="^:disabled /template/ Border#PART_ContentBorder">
+            <Setter Property="BorderBrush" Value="{StaticResource AppLight}"/>
+        </Style>
+
+        <!-- TabStripPlacement = Bottom -->
+        <Style Selector="^[TabStripPlacement=Bottom] /template/ ItemsPresenter#PART_ItemsPresenter">
+            <Setter Property="Grid.Row" Value="1"/>
+            <Setter Property="Margin" Value="0,-4,4,1"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Bottom] /template/ Border#OuterBorder">
+            <Setter Property="Grid.Row" Value="0"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Bottom] /template/ RowDefinition#RowDefinition0">
+            <Setter Property="Height" Value="*"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Bottom] /template/ RowDefinition#RowDefinition1">
+            <Setter Property="Height" Value="Auto"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Bottom] /template/ Border#PART_ContentBorder">
+            <Setter Property="Margin" Value="0,0,0,1"/>
+            <Setter Property="CornerRadius" Value="6,6,0,0"/>
+        </Style>
+
+        <!-- TabStripPlacement = Left -->
+        <Style Selector="^[TabStripPlacement=Left] /template/ Grid#PART_Root">
+            <Setter Property="RowDefinitions" Value="*"/>
+            <Setter Property="ColumnDefinitions" Value="Auto,*"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter">
+            <Setter Property="Grid.Row" Value="0"/>
+            <Setter Property="Grid.Column" Value="0"/>
+            <Setter Property="Margin" Value="0,0,-1,4"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Left] /template/ Border#OuterBorder">
+            <Setter Property="Grid.Row" Value="0"/>
+            <Setter Property="Grid.Column" Value="1"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel,
+                        ^[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
+            <Setter Property="Orientation" Value="Vertical"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter > StackPanel,
+                        ^[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter > StackPanel">
+            <Setter Property="Orientation" Value="Vertical"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Left] /template/ Border#PART_ContentBorder">
+            <Setter Property="CornerRadius" Value="0,6,6,0"/>
+            <Setter Property="Margin" Value="1,0,0,0"/>
+        </Style>
+
+        <!-- TabStripPlacement = Right -->
+        <Style Selector="^[TabStripPlacement=Right] /template/ Grid#PART_Root">
+            <Setter Property="RowDefinitions" Value="*"/>
+            <Setter Property="ColumnDefinitions" Value="*,Auto"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter">
+            <Setter Property="Grid.Row" Value="0"/>
+            <Setter Property="Grid.Column" Value="1"/>
+            <Setter Property="Margin" Value="-1,0,0,4"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Right] /template/ Border#OuterBorder">
+            <Setter Property="Grid.Row" Value="0"/>
+            <Setter Property="Grid.Column" Value="0"/>
+        </Style>
+
+        <Style Selector="^[TabStripPlacement=Right] /template/ Border#PART_ContentBorder">
+            <Setter Property="CornerRadius" Value="6,0,0,6"/>
+            <Setter Property="Margin" Value="0,0,1,0"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

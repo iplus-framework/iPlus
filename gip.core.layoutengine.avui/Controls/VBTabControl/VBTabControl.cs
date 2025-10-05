@@ -2,18 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using System.Transactions;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,64 +19,6 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTabControl'}de{'VBTabControl'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTabControl : TabControl, IACInteractiveObject, IACObject
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TabControlStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTabControl/Themes/TabControlStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TabControlStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTabControl/Themes/TabControlStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBTabControl()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTabControl), new FrameworkPropertyMetadata(typeof(VBTabControl)));
-        }
-
-        bool _themeApplied = false;
-        public VBTabControl()
-        {
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
         #region IACInteractiveObject Member
         public IACType VBContentValueType
         {
@@ -94,8 +29,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBTabControl));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBTabControl, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -269,14 +203,23 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            if (change.Property == FocusViewProperty)
+            {
+                OnFocusViewChanged(change);
+            }
+        }
+
         #region FocusView
 
-        public static readonly DependencyProperty FocusViewProperty =
-            DependencyProperty.Register("FocusView", typeof(string), typeof(VBTabControl), new PropertyMetadata(new PropertyChangedCallback(OnFocusViewChanged)));
+        public static readonly StyledProperty<string> FocusViewProperty = AvaloniaProperty.Register<VBTabControl, string>(nameof(FocusView));
 
-        private static void OnFocusViewChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+
+        private void OnFocusViewChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            VBTabControl thisControl = dependencyObject as VBTabControl;
+            VBTabControl thisControl = this;
             if (thisControl == null)
                 return;
             if (thisControl.Items != null && e.NewValue != null)

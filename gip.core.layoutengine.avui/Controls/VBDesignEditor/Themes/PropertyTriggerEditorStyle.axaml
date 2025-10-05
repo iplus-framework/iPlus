@@ -1,0 +1,71 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBPropertyTriggerEditor}" TargetType="{x:Type local:VBPropertyTriggerEditor}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <local:VBTabControl>
+            <local:VBTabItem Header="Triggerdata">
+              <local:VBGrid>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="30" />
+                  <RowDefinition Height="30" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="60" />
+                  <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Border Grid.RowSpan="2" Grid.ColumnSpan="2"
+                        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                        BorderThickness="1" />
+                <local:VBTextBlock Text="Property" Grid.Row="0" Grid.Column="0"
+                                   VerticalAlignment="Center" Margin="3,0" />
+                <local:VBComboBox Grid.Row="0" Grid.Column="1" 
+                                  ShowCaption="False" 
+                                  x:Name="PART_SelectorTriggerable" 
+                                  ItemsSource="{Binding TriggerableProperties}" 
+                                  SelectedItem="{Binding SelectedTriggerableProperty}" 
+                                  IsEnabled="{TemplateBinding IsTriggerEditable}"
+                                  Margin="3,0">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <local:VBTextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </local:VBComboBox>
+                <local:VBTextBlock Text="Value" Grid.Row="1" Grid.Column="0"
+                                   VerticalAlignment="Center" Margin="3,0" />
+                <ContentControl Grid.Row="1" Grid.Column="1" x:Name="PART_TriggerValueEditor"
+                                VerticalAlignment="Center"
+                                Margin="3,0"
+                                IsHitTestVisible="{TemplateBinding IsTriggerEditable}"/>
+                <!--Content="{Binding TriggerValueEditor}"-->
+              </local:VBGrid>
+            </local:VBTabItem>
+            <local:VBTabItem Header="Setter">
+              <local:VBSettersCollectionEditor x:Name="PART_SetterEditor"
+                                               IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                               Margin="0,5,0,0"/>
+            </local:VBTabItem>
+            <local:VBTabItem Header="Enter Actions">
+              <local:VBActionCollectionEditor x:Name="PART_EnterActionsEditor"
+                                              IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                              Margin="0,5,0,0"/>
+            </local:VBTabItem>
+            <local:VBTabItem Header="Exit Actions">
+              <local:VBActionCollectionEditor x:Name="PART_ExitActionsEditor"
+                                              IsVisible="{TemplateBinding AreTriggerValuesValid}"
+                                              Margin="0,5,0,0"/>
+            </local:VBTabItem>
+          </local:VBTabControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

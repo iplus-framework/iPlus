@@ -5,7 +5,7 @@
     xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid"
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-  <ControlTheme x:Key="{x:Type OutlineView:MultiTriggerEditor}" TargetType="OutlineView:MultiTriggerEditor">
+  <ControlTheme x:Key="{x:Type OutlineView:MultiTriggerEditor}" TargetType="{x:Type OutlineView:MultiTriggerEditor}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>

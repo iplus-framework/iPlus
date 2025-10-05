@@ -5,7 +5,7 @@
     xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid" 
     xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView">
 
-  <ControlTheme x:Key="{x:Type OutlineView:ActionCollectionEditor}" TargetType="OutlineView:ActionCollectionEditor">
+  <ControlTheme x:Key="{x:Type OutlineView:ActionCollectionEditor}" TargetType="{x:Type OutlineView:ActionCollectionEditor}">
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>

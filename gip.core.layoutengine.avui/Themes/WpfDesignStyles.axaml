@@ -1,321 +1,659 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui" 
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
-                    xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui" 
-                    xmlns:ControlConvertors="clr-namespace:gip.ext.designer.avui.Controls.Converters;assembly=gip.ext.designer.avui" 
+                    xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui"
+                    xmlns:ControlConvertors="clr-namespace:gip.ext.designer.avui.Controls.Converters;assembly=gip.ext.designer.avui"
                     xmlns:Converters="clr-namespace:gip.ext.designer.avui.Converters;assembly=gip.ext.designer.avui">
-    <!--
+  <!--
 		This file contains the default styles used by the Controls in gip.ext.designer.avui.Controls
 	-->
-    <SolidColorBrush Color="#FF474747" x:Key="HandleBrush" />
-    <Style TargetType="{x:Type Controls:PanelMoveAdorner}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:PanelMoveAdorner}">
-                    <Border BorderThickness="4" Margin="-2" BorderBrush="Transparent" Cursor="SizeAll" />
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+  <Converters:LevelConverter x:Key="FormatDoubleConverter" />
+  <ControlConvertors:HandleLengthWithOffset x:Key="HandleLengthWithOffset" />
+  <Converters:CollapsedWhenNull x:Key="CollapsedWhenNullConverter" />
+  <SolidColorBrush Color="#FF474747" x:Key="HandleBrush" />
+
+  <ControlTheme x:Key="{x:Type Controls:PanelMoveAdorner}" TargetType="Controls:PanelMoveAdorner">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border BorderThickness="4" Margin="-2" BorderBrush="Transparent" Cursor="SizeAll" />
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:EnumButton}" TargetType="Controls:EnumButton">
+    <Setter Property="Margin" Value="3 3 0 3" />
+    <Setter Property="MinWidth" Value="50" />
+    <Setter Property="Foreground" Value="#FF000000"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="BorderBrush" Value="Black"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <Border x:Name="Background" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}">
+            <Grid Background="{TemplateBinding Background}">
+              <Border Opacity="0"  x:Name="BackgroundAnimation" Background="#FF448DCA" />
+            </Grid>
+          </Border>
+          <ContentPresenter
+            x:Name="contentPresenter"
+            Content="{TemplateBinding Content}"
+            ContentTemplate="{TemplateBinding ContentTemplate}"
+            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+            Margin="{TemplateBinding Padding}"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested style for checked state -->
+    <Style Selector="^:checked">
+      <Setter Property="Background" Value="SkyBlue" />
     </Style>
-    <Style TargetType="{x:Type Controls:EnumButton}" BasedOn="{StaticResource {x:Type ToggleButton}}">
-        <Setter Property="Margin" Value="3 3 0 3" />
-        <Setter Property="MinWidth" Value="50" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:ResizeThumb}" TargetType="Controls:ResizeThumb">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Rectangle Name="thumbRectangle" Stroke="Black" Fill="White" RadiusX="1.414" RadiusY="1.414" />
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested styles for different states -->
+    <Style Selector="^:not(.primary-selection) /template/ Rectangle#thumbRectangle">
+      <Setter Property="Stroke" Value="White" />
+      <Setter Property="Fill" Value="Black" />
     </Style>
-    <Style TargetType="{x:Type Controls:ResizeThumb}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:ResizeThumb}">
-                    <Rectangle Name="thumbRectangle" SnapsToDevicePixels="True" Stroke="White" Fill="Red" RadiusX="1.414" RadiusY="1.414" />
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsPrimarySelection" Value="False">
-                            <Setter TargetName="thumbRectangle" Property="Stroke" Value="LightGray" />
-                            <Setter TargetName="thumbRectangle" Property="Fill" Value="LightCoral" />
-                        </Trigger>
-                        <Trigger Property="IsEnabled" Value="False">
-                            <Setter TargetName="thumbRectangle" Property="Stroke" Value="LightGray" />
-                            <Setter TargetName="thumbRectangle" Property="Fill" Value="Gray" />
-                        </Trigger>
-                        <Trigger Property="ThumbVisible" Value="False">
-                            <Setter TargetName="thumbRectangle" Property="Visibility" Value="Hidden" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^:disabled /template/ Rectangle#thumbRectangle">
+      <Setter Property="Fill" Value="Gray" />
     </Style>
-    <Style TargetType="{x:Type Controls:SelectionFrame}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:SelectionFrame}">
-                    <Rectangle Fill="#519ABFE5" Stroke="#FF7A8787" StrokeThickness="1" />
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.thumb-hidden /template/ Rectangle#thumbRectangle">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style TargetType="{x:Type Controls:ContainerDragHandle}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:ContainerDragHandle}">
-                    <Canvas Height="13" Width="13" Name="Canvas" SnapsToDevicePixels="True">
-                        <Rectangle Height="13" Width="13" RadiusX="2" RadiusY="2" Fill="#889ABFE5" Name="BorderRectangle" Stroke="#FF7A8FB5" StrokeThickness="1" />
-                        <Path Fill="#FF748EAA" Canvas.Left="1" Canvas.Top="1">
-                            <Path.Data>
-                                <GeometryGroup>
-                                    <PathGeometry Figures="M5.5,0L3,3L8,3 M11,5.5L8,3L8,8 M5.5,11L3,8L8,8 M0,5.5L3,3L3,8" />
-                                    <RectangleGeometry Rect="3,5,5,1" />
-                                    <RectangleGeometry Rect="5,3,1,5" />
-                                    <RectangleGeometry Rect="5,5,1,1" />
-                                </GeometryGroup>
-                            </Path.Data>
-                        </Path>
-                    </Canvas>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:DesignerThumb}" TargetType="Controls:DesignerThumb">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <Rectangle Name="thumbRectangle" Stroke="Black" Fill="White" RadiusX="1.414" RadiusY="1.414" />
+          <Menu Height="15" HorizontalAlignment="Left" Margin="0,-19,-19,0" VerticalAlignment="Top" Width="15" BorderThickness="0" Background="Transparent" IsVisible="{Binding Path=OperationMenu, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CollapsedWhenNullConverter}}" >
+            <MenuItem Height="15" Width="15" Padding="0" Background="Transparent" BorderThickness="1" ItemsSource="{TemplateBinding OperationMenu}">
+              <MenuItem.Header>
+                <Path Data="M3.5,5.5 L11.5,5.5 L7.5,11 z" Fill="Black" Stroke="Gray" StrokeThickness="1" />
+              </MenuItem.Header>
+            </MenuItem>
+          </Menu>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested styles for different states -->
+    <Style Selector="^:not(.primary-selection) /template/ Rectangle#thumbRectangle">
+      <Setter Property="Stroke" Value="White" />
+      <Setter Property="Fill" Value="Black" />
     </Style>
-    <Style TargetType="{x:Type Controls:WindowClone}">
-        <Setter Property="Width" Value="640" />
-        <Setter Property="Height" Value="480" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:WindowClone}">
-                    <Border Background="{DynamicResource {x:Static SystemColors.GradientActiveCaptionBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" BorderThickness="1,1,1,1" CornerRadius="5,5,5,5">
-                        <DockPanel Margin="4,0,4,4">
-                            <DockPanel Height="26" DockPanel.Dock="Top">
-                                <Image Width="16" Height="16" Margin="1,0,0,0" Source="{TemplateBinding Window.Icon}" />
-                                <Button Name="CloseButton" VerticalAlignment="Top" Width="43" Height="17" DockPanel.Dock="Right">
-                                    <Path Fill="#FFF6F2F2" Stretch="Uniform" Margin="1" Stroke="#FF808080" Data="M160,400 L176,400 192,384 208,400 224,400 200,376 224,352 208,352 192,368 176,352 160,352 184,376 z" />
-                                </Button>
-                                <Button Name="MaximiseButton" VerticalAlignment="Top" Width="25" Height="17" DockPanel.Dock="Right" />
-                                <Button Name="MinimizeButton" VerticalAlignment="Top" Width="25" Height="17" DockPanel.Dock="Right">
-                                    <!--<Rectangle Fill="#FFF6F2F2" RadiusX="0.5" RadiusY="0.5" Width="12" Height="5" Stroke="#FF808080" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>-->
-                                </Button>
-                                <Label Margin="4,0,0,0" Content="{TemplateBinding Window.Title}" />
-                            </DockPanel>
-                            <Border Background="{DynamicResource {x:Static ThemeBackgroundBrush}}">
-                                <Border BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" Background="{TemplateBinding Panel.Background}">
-                                    <AdornerDecorator>
-                                        <ContentPresenter ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" Content="{TemplateBinding ContentControl.Content}" />
-                                    </AdornerDecorator>
-                                </Border>
-                            </Border>
-                        </DockPanel>
-                    </Border>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^:disabled /template/ Rectangle#thumbRectangle">
+      <Setter Property="Fill" Value="Gray" />
     </Style>
-    <Style TargetType="{x:Type Controls:ErrorBalloon}">
-        <Setter Property="WindowStyle" Value="None" />
-        <Setter Property="AllowsTransparency" Value="True" />
-        <Setter Property="SizeToContent" Value="WidthAndHeight" />
-        <Setter Property="ShowInTaskbar" Value="False" />
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:ErrorBalloon}">
-                    <Grid x:Name="LayoutRoot">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Rectangle RadiusX="10" RadiusY="10" Margin="12,36,4,4">
-                            <Rectangle.Fill>
-                                <SolidColorBrush Color="#41626262" />
-                            </Rectangle.Fill>
-                        </Rectangle>
-                        <Border Margin="8,32,8,8" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" BorderBrush="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" BorderThickness="1,1,1,1" CornerRadius="10,10,10,10" Padding="10,10,10,10">
-                            <Border BorderBrush="{TemplateBinding Border.BorderBrush}" BorderThickness="{TemplateBinding Border.BorderThickness}" Background="{TemplateBinding Panel.Background}">
-                                <AdornerDecorator>
-                                    <ContentPresenter ContentTemplate="{TemplateBinding ContentControl.ContentTemplate}" Content="{TemplateBinding ContentControl.Content}" />
-                                </AdornerDecorator>
-                            </Border>
-                        </Border>
-                        <Path Fill="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" Stretch="Fill" HorizontalAlignment="Left" Margin="34.75,9.25,0,0" VerticalAlignment="Top" Width="15.25" Height="24.5" Data="M34.75,33.75 L40.5,9.25 50,33.5 z" />
-                        <Path Stretch="Fill" Stroke="{DynamicResource {x:Static SystemColors.WindowFrameBrushKey}}" HorizontalAlignment="Left" Margin="34.5,9.25,0,0" VerticalAlignment="Top" Width="16" Height="24" Data="M35,32.75 L40.5,9.25 50,32.75" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.thumb-hidden /template/ Rectangle#thumbRectangle">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style TargetType="{x:Type Controls:GridRowSplitterAdorner}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:GridRowSplitterAdorner}">
-                    <Grid Height="{x:Static Controls:GridRailAdorner.SplitterWidth}">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="10" />
-                            <!-- 10=RailSize -->
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <!-- put a transparent rectangle in the rail so the user does not have to hit the small railHandle -->
-                        <Rectangle Fill="Transparent" />
-                        <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" Data="M0,0 L0,1 1,0.5 z" />
-                        <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" Grid.Column="2" Margin="-1 0 0 0" Data="M0,0.5 L1,0.5" />
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="railHandle" Property="Fill" Value="#FFFFB74F" />
-                        </Trigger>
-                        <Trigger Property="IsPreview" Value="True">
-                            <Setter TargetName="railHandle" Property="Stroke" Value="#D0FFB74F" />
-                            <Setter TargetName="line" Property="Stroke" Value="#D0FFB74F" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:PointThumb}" TargetType="Controls:PointThumb">
+    <Setter Property="Foreground" Value="Black" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Margin="-3.5,-3.5,0,0" HorizontalAlignment="Left" VerticalAlignment="Top">
+          <Grid.Resources>
+            <Converters:DoubleOffsetConverter x:Key="PointOffset" Offset="3.5" />
+            <Converters:PointConverter x:Key="PointConverter" />
+          </Grid.Resources>
+          <Line HorizontalAlignment="Left" VerticalAlignment="Top" Stroke="{TemplateBinding Foreground}" StrokeThickness="1" StrokeDashArray="2,2" StartPoint="3.5,3.5"
+                IsVisible="{Binding Path=RelativeToPoint, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CollapsedWhenNullConverter}}">
+            <Line.EndPoint>
+              <MultiBinding Converter="{StaticResource PointConverter}">
+                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="RelativeToPoint.X"/>
+                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="RelativeToPoint.Y"/>
+              </MultiBinding>
+            </Line.EndPoint>
+          </Line>
+          <Grid Width="7" Height="7" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Rectangle HorizontalAlignment="Left" VerticalAlignment="Top" Width="7" Height="7"  Name="thumbRectangle" Stroke="{TemplateBinding Foreground}" Fill="White" RadiusX="1.414" RadiusY="1.414" />
+            <Ellipse HorizontalAlignment="Left" VerticalAlignment="Top" Width="7" Height="7"  Name="thumbElipse" Stroke="{TemplateBinding Foreground}" Fill="White" IsVisible="False" />
+            <Menu Foreground="Black" Height="15" HorizontalAlignment="Left" Margin="0,-19,-19,0" VerticalAlignment="Top" Width="15" BorderThickness="0" Background="Transparent" IsVisible="{Binding Path=OperationMenu, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CollapsedWhenNullConverter}}" >
+              <MenuItem RenderTransform="{TemplateBinding InnerRenderTransform}" Height="15" Width="15" Padding="0" Background="Transparent" BorderThickness="1" ItemsSource="{TemplateBinding OperationMenu}">
+                <MenuItem.Header>
+                  <Path Data="M3.5,5.5 L11.5,5.5 L7.5,11 z" Fill="Black" Stroke="Gray" StrokeThickness="1" />
+                </MenuItem.Header>
+              </MenuItem>
+            </Menu>
+          </Grid>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested styles for different states -->
+    <Style Selector="^:not(.primary-selection) /template/ Rectangle#thumbRectangle">
+      <Setter Property="Stroke" Value="White" />
+      <Setter Property="Fill" Value="Black" />
     </Style>
-    <Style TargetType="{x:Type Controls:GridColumnSplitterAdorner}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:GridColumnSplitterAdorner}">
-                    <Grid Width="{x:Static Controls:GridRailAdorner.SplitterWidth}">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="10" />
-                            <!-- 10=RailSize -->
-                            <RowDefinition Height="*" />
-                        </Grid.RowDefinitions>
-                        <!-- put a transparent rectangle in the rail so the user does not have to hit the small railHandle -->
-                        <Rectangle Fill="Transparent" />
-                        <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" Data="M0,0 L1,0 0.5,1 z" />
-                        <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" Grid.Row="2" Margin="0 -1 0 0" Data="M0.5,0 L0.5,1" />
-                    </Grid>
-                    <ControlTemplate.Triggers>
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="railHandle" Property="Fill" Value="#FFFFB74F" />
-                        </Trigger>
-                        <Trigger Property="IsPreview" Value="True">
-                            <Setter TargetName="railHandle" Property="Stroke" Value="#D0FFB74F" />
-                            <Setter TargetName="line" Property="Stroke" Value="#D0FFB74F" />
-                        </Trigger>
-                    </ControlTemplate.Triggers>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^:not(.primary-selection) /template/ Ellipse#thumbElipse">
+      <Setter Property="Fill" Value="Black" />
     </Style>
-    <Style TargetType="{x:Type Controls:MarginHandle}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:MarginHandle}">
-                    <Grid Height="10" Width="{Binding Path=HandleLength, Converter={x:Static ControlConvertors:HandleLengthWithOffset.Instance}, RelativeSource={RelativeSource Mode=TemplatedParent}}" SnapsToDevicePixels="True">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="8" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Path Name="startArrow" Fill="{StaticResource HandleBrush}" Stretch="Fill" Stroke="{TemplateBinding Panel.Background}" StrokeThickness="0.5" Margin="0,1,0,1" Data="M0,0 L0,1 1,0.5 z" Grid.Column="0" />
-                        <!-- Wrap the handle-line and endArrow in this grid. It's visiblity is subjected to HandleLength  -->
-                        <Grid Height="10" Grid.Column="1" Name="lineArrow">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition MaxWidth="20" MinWidth="10" />
-                                <ColumnDefinition Width="*" />
-                                <ColumnDefinition Width="8" />
-                                <ColumnDefinition Width="1.5"/>
-                            </Grid.ColumnDefinitions>
-                            <Rectangle Fill="Transparent" Height="10" Grid.Column="0" Grid.ColumnSpan="4" />
-                            <Path Name="line1" Stretch="Fill" Stroke="{StaticResource HandleBrush}" StrokeThickness="1.5" Margin="0 0 0 0" Data="M0,-0.75 L1,-0.75" Grid.Column="0" />
-                            <local:VBTextBlock Grid.Column="1" Text="{Binding Path=HandleLength, Mode=OneWay, Converter={x:Static Converters:FormatDoubleConverter.Instance }, RelativeSource={RelativeSource Mode=TemplatedParent}}" FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="1,1,1,1">
-                                <TextBlock.LayoutTransform>
-                                    <RotateTransform Angle="{Binding Path=TextTransform, RelativeSource={RelativeSource Mode=TemplatedParent}}" CenterX="0.5" CenterY="0.5">
-                                    </RotateTransform>
-                                </TextBlock.LayoutTransform>
-                            </local:VBTextBlock>
-                            <Path Name="line2" Stretch="Fill" Stroke="{StaticResource HandleBrush}" StrokeThickness="1.5" Margin="0 0 0 0" Data="M0,-0.75 L1,-0.75" Grid.Column="2" />
-                            <Path Name="arrow2" Margin="0,1,0,1" Fill="{StaticResource HandleBrush}" Stretch="Fill" Stroke="{TemplateBinding Panel.Background}" StrokeThickness="0.5" Data="M0,0 L0,1 1,0.5 z" Grid.Column="3" />
-                            <Rectangle Width="1.5" Fill="{StaticResource HandleBrush}" Grid.Column="4"/>
-                        </Grid>
-                        <!--  Rotate the handle and angle of rotation being set by the Margin type. See enum HandleOrientation  -->
-                        <Grid.LayoutTransform>
-                            <RotateTransform Angle="{Binding Path=Angle, RelativeSource={RelativeSource Mode=TemplatedParent}}">
-                            </RotateTransform>
-                        </Grid.LayoutTransform>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^:disabled /template/ Rectangle#thumbRectangle">
+      <Setter Property="Fill" Value="Gray" />
     </Style>
-    <Style TargetType="{x:Type Controls:MarginStub}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:MarginStub}">
-                    <Grid SnapsToDevicePixels="True" Height="10" Width="10">
-                        <Rectangle Fill="Transparent" />
-                        <Ellipse Fill="{TemplateBinding Panel.Background}" Height="7" Width="7" StrokeThickness="1" Stroke="{StaticResource HandleBrush}" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.ellipse /template/ Rectangle#thumbRectangle">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style TargetType="{x:Type Controls:HeightDisplay}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:HeightDisplay}">
-                    <Grid Width="22">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*" />
-                            <RowDefinition MaxHeight="20" MinHeight="5" />
-                            <RowDefinition Height="5" />
-                        </Grid.RowDefinitions>
-                        <Path SnapsToDevicePixels="True" Grid.Row="0" Stroke="#AC0000" StrokeThickness="1.0" Data="M0,0 L1,0 M0.75,0 L0.75,1" Stretch="Fill" />
-                        <local:VBTextBlock Text="{Binding Path=ActualHeight, Converter={x:Static Converters:FormatDoubleConverter.Instance}}" HorizontalAlignment="Center" Margin="8,0,0,1" Padding="1,1,1,1" FontSize="10" Grid.Row="1">
-                            <TextBlock.LayoutTransform>
-                                <RotateTransform Angle="270" CenterX="0.5" CenterY="0.5" />
-                            </TextBlock.LayoutTransform>
-                        </local:VBTextBlock>
-                        <Path SnapsToDevicePixels="True" Grid.Row="2" Stroke="#AC0000" StrokeThickness="1.0" Data="M0.75,0 L0.75,3 M0,3 L1,3 " Stretch="Fill" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.ellipse /template/ Ellipse#thumbElipse">
+      <Setter Property="IsVisible" Value="True" />
     </Style>
-    <Style TargetType="{x:Type Controls:WidthDisplay}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:WidthDisplay}">
-                    <Grid Height="22" SnapsToDevicePixels="True">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition MaxWidth="20" MinWidth="5" />
-                            <ColumnDefinition Width="5" />
-                        </Grid.ColumnDefinitions>
-                        <Path Grid.Column="0" Stroke="#AC0000" StrokeThickness="1" Data="M0,0 L0,1 M0,0.75 L1,0.75" Stretch="Fill" SnapsToDevicePixels="True" />
-                        <local:VBTextBlock Text="{Binding Path=ActualWidth,  Converter={x:Static Converters:FormatDoubleConverter.Instance}}" HorizontalAlignment="Center" Margin="0,8,0,0" Padding="1,1,1,1" FontSize="10" Grid.Column="1" />
-                        <Path Grid.Column="2" Stroke="#AC0000" StrokeThickness="1" Data="M0,0.75 L3,0.75 M3,0 L3,1 " Stretch="Fill" SnapsToDevicePixels="True" />
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.thumb-hidden /template/ Rectangle#thumbRectangle">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style TargetType="{x:Type Controls:InPlaceEditor}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:InPlaceEditor}">
-                    <local:VBTextBox ShowCaption="False" x:Name="editor" SnapsToDevicePixels="True" Padding="{Binding Path=Padding}" FontSize="{Binding Path=FontSize}" FontFamily="{Binding Path=FontFamily}" FontStyle="{Binding Path=FontStyle}" FontStretch="{Binding Path=FontStretch}" FontWeight="{Binding Path=FontWeight}" Text="{Binding Path=BindPlace, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" />
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.thumb-hidden /template/ Ellipse#thumbElipse">
+      <Setter Property="IsVisible" Value="False" />
     </Style>
-    <Style TargetType="{x:Type local:VBQuickOperationMenu}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type Controls:QuickOperationMenu}">
-                    <local:VBMenu Height="15" HorizontalAlignment="Left" x:Name="menu1" VerticalAlignment="Top" Width="15" BorderThickness="0" Background="Transparent">
-                        <local:VBMenuItem Height="15" Width="15" Padding="0" Background="Transparent" BorderThickness="1" x:Name="MainHeader">
-                            <local:VBMenuItem.Header>
-                                <Path Data="M3.5,5.5 L11.5,5.5 L7.5,11 z" Fill="Black" Stroke="Gray" StrokeThickness="1" />
-                            </local:VBMenuItem.Header>
-                        </local:VBMenuItem>
-                    </local:VBMenu>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:RotateThumb}" TargetType="Controls:RotateThumb">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <Rectangle VerticalAlignment="Top" Width="2" Height="30" Fill="Black" Margin="0,0,0,0" />
+          <Ellipse VerticalAlignment="Top" StrokeThickness="1" Name="thumbRectangle" Stroke="Black"
+       Width="7" Height="7" Fill="Black">
+          </Ellipse>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:SelectionFrame}" TargetType="Controls:SelectionFrame">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Rectangle Fill="#519ABFE5" Stroke="#FF7A8787" StrokeThickness="1" />
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:ContainerDragHandle}" TargetType="Controls:ContainerDragHandle">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Canvas Height="13" Width="13" Name="Canvas">
+          <Rectangle Height="13" Width="13" RadiusX="2" RadiusY="2" Fill="#889ABFE5" Name="BorderRectangle" Stroke="#FF7A8FB5" StrokeThickness="1" />
+          <Path Fill="#FF748EAA" Canvas.Left="1" Canvas.Top="1">
+            <Path.Data>
+              <GeometryGroup>
+                <PathGeometry Figures="M5.5,0L3,3L8,3 M11,5.5L8,3L8,8 M5.5,11L3,8L8,8 M0,5.5L3,3L3,8" />
+                <RectangleGeometry Rect="3,5,5,1" />
+                <RectangleGeometry Rect="5,3,1,5" />
+                <RectangleGeometry Rect="5,5,1,1" />
+              </GeometryGroup>
+            </Path.Data>
+          </Path>
+        </Canvas>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:WindowClone}" TargetType="Controls:WindowClone">
+    <Setter Property="Width" Value="640" />
+    <Setter Property="Height" Value="480" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{DynamicResource ThemeBackgroundBrush}" BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1,1,1,1" CornerRadius="5,5,5,5">
+          <DockPanel Margin="4,0,4,4">
+            <DockPanel Height="26" DockPanel.Dock="Top">
+              <Image Width="16" Height="16" Margin="1,0,0,0" Source="{TemplateBinding Window.Icon}" />
+              <Button Name="CloseButton" VerticalAlignment="Top" Width="43" Height="17" DockPanel.Dock="Right">
+                <Path Fill="#FFF6F2F2" Stretch="Uniform" Margin="1" Stroke="#FF808080" Data="M160,400 L176,400 192,384 208,400 224,400 200,376 224,352 208,352 192,368 176,352 160,352 184,376 z" />
+              </Button>
+              <Button Name="MaximiseButton" VerticalAlignment="Top" Width="25" Height="17" DockPanel.Dock="Right" />
+              <Button Name="MinimizeButton" VerticalAlignment="Top" Width="25" Height="17" DockPanel.Dock="Right">
+                <!--<Rectangle Fill="#FFF6F2F2" RadiusX="0.5" RadiusY="0.5" Width="12" Height="5" Stroke="#FF808080" VerticalAlignment="Bottom" HorizontalAlignment="Center"/>-->
+              </Button>
+              <Label Margin="4,0,0,0" Content="{TemplateBinding Window.Title}" />
+            </DockPanel>
+            <Border Background="{DynamicResource ThemeBackgroundBrush}">
+              <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+                <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" />
+              </Border>
+            </Border>
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:ErrorBalloon}" TargetType="Controls:ErrorBalloon">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid x:Name="LayoutRoot">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Rectangle RadiusX="10" RadiusY="10" Margin="12,36,4,4">
+            <Rectangle.Fill>
+              <SolidColorBrush Color="#41626262" />
+            </Rectangle.Fill>
+          </Rectangle>
+          <Border Margin="8,32,8,8" Background="{DynamicResource ThemeBackgroundBrush}" BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1,1,1,1" CornerRadius="10,10,10,10" Padding="10,10,10,10">
+            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
+              <ContentPresenter ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" />
+            </Border>
+          </Border>
+          <Path Fill="{DynamicResource ThemeBackgroundBrush}" Stretch="Fill" HorizontalAlignment="Left" Margin="34.75,9.25,0,0" VerticalAlignment="Top" Width="15.25" Height="24.5" Data="M34.75,33.75 L40.5,9.25 50,33.5 z" />
+          <Path Stretch="Fill" Stroke="{DynamicResource ThemeBorderMidBrush}" HorizontalAlignment="Left" Margin="34.5,9.25,0,0" VerticalAlignment="Top" Width="16" Height="24" Data="M35,32.75 L40.5,9.25 50,32.75" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:GridRowSplitterAdorner}" TargetType="Controls:GridRowSplitterAdorner">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Height="{x:Static Controls:GridRailAdorner.SplitterWidth}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10" />
+            <!-- 10=RailSize -->
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <!-- put a transparent rectangle in the rail so the user does not have to hit the small railHandle -->
+          <Rectangle Fill="Transparent" />
+          <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" Data="M0,0 L0,1 1,0.5 z" />
+          <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" Grid.Column="2" Margin="-1 0 0 0" Data="M0,0.5 L1,0.5" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested styles for different states -->
+    <Style Selector="^:pointerover /template/ Path#railHandle">
+      <Setter Property="Fill" Value="#FFFFB74F" />
     </Style>
-    <Style TargetType="{x:Type local:VBConnectorAdorner}">
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type local:VBConnectorAdorner}">
-                    <Rectangle Fill="#5000FF00" Stroke="#FF00FF00" StrokeThickness="1" />
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
+    <Style Selector="^.preview /template/ Path#railHandle">
+      <Setter Property="Stroke" Value="#D0FFB74F" />
     </Style>
+    <Style Selector="^.preview /template/ Path#line">
+      <Setter Property="Stroke" Value="#D0FFB74F" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:GridColumnSplitterAdorner}" TargetType="Controls:GridColumnSplitterAdorner">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Width="{x:Static Controls:GridRailAdorner.SplitterWidth}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10" />
+            <!-- 10=RailSize -->
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <!-- put a transparent rectangle in the rail so the user does not have to hit the small railHandle -->
+          <Rectangle Fill="Transparent" />
+          <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" Data="M0,0 L1,0 0.5,1 z" />
+          <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" Grid.Row="2" Margin="0 -1 0 0" Data="M0.5,0 L0.5,1" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested styles for different states -->
+    <Style Selector="^:pointerover /template/ Path#railHandle">
+      <Setter Property="Fill" Value="#FFFFB74F" />
+    </Style>
+    <Style Selector="^.preview /template/ Path#railHandle">
+      <Setter Property="Stroke" Value="#D0FFB74F" />
+    </Style>
+    <Style Selector="^.preview /template/ Path#line">
+      <Setter Property="Stroke" Value="#D0FFB74F" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:CanvasPositionHandle}" TargetType="Controls:CanvasPositionHandle">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Height="10" Width="{Binding Path=HandleLength, Converter={x:Static ControlConvertors:HandleLengthWithOffset.Instance}, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Path Name="startArrow" Fill="{StaticResource HandleBrush}" Stretch="Fill" Stroke="{TemplateBinding Background}" StrokeThickness="0.5" Margin="0,1,0,1" Data="M0,0 L0,1 1,0.5 z" Grid.Column="0" />
+          <!-- Wrap the handle-line and endArrow in this grid. It's visibility is subjected to HandleLength  -->
+          <Grid Height="10" Grid.Column="1" Name="lineArrow">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition MaxWidth="20" MinWidth="10" />
+              <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Rectangle Fill="Transparent" Height="10" Grid.Column="0" Grid.ColumnSpan="4" />
+            <Path Name="line1" StrokeDashArray="2,2"  Stretch="Fill" Stroke="{StaticResource HandleBrush}" StrokeThickness="1.5" Margin="0 0 0 0" Data="M0,-0.75 L1,-0.75" Grid.Column="0" />
+            <TextBlock Grid.Column="1" Text="{Binding Path=HandleLength, Mode=OneWay, Converter={x:Static Converters:FormatDoubleConverter.Instance }, RelativeSource={RelativeSource Mode=TemplatedParent}}" FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="1,1,1,1">
+              <TextBlock.RenderTransform>
+                <RotateTransform Angle="{Binding Path=TextTransform, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+              </TextBlock.RenderTransform>
+            </TextBlock>
+            <Path Name="line2" StrokeDashArray="2,2"  Stretch="Fill" Stroke="{StaticResource HandleBrush}" StrokeThickness="1.5" Margin="0 0 0 0" Data="M0,-0.75 L1,-0.75" Grid.Column="2" />
+            <!--<Path Name="arrow2" Margin="0,1,0,1" Fill="{StaticResource HandleBrush}" Stretch="Fill" Stroke="{TemplateBinding Panel.Background}" StrokeThickness="0.5" Data="M0,0 L0,1 1,0.5 z" Grid.Column="3" />-->
+            <!--<Rectangle Width="1.5" Fill="{StaticResource HandleBrush}" Grid.Column="4"/>-->
+          </Grid>
+          <!--  Rotate the handle and angle of rotation being set by the Margin type. See enum HandleOrientation  -->
+          <Grid.RenderTransform>
+            <RotateTransform Angle="{Binding Path=Angle, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+          </Grid.RenderTransform>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:MarginHandle}" TargetType="Controls:MarginHandle">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Height="10" Width="{Binding Path=HandleLength, Converter={x:Static ControlConvertors:HandleLengthWithOffset.Instance}, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="8" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Path Name="startArrow" Fill="{StaticResource HandleBrush}" Stretch="Fill" Stroke="{TemplateBinding Background}" StrokeThickness="0.5" Margin="0,1,0,1" Data="M0,0 L0,1 1,0.5 z" Grid.Column="0" />
+          <!-- Wrap the handle-line and endArrow in this grid. It's visiblity is subjected to HandleLength  -->
+          <Grid Height="10" Grid.Column="1" Name="lineArrow">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition MaxWidth="20" MinWidth="10" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="8" />
+              <ColumnDefinition Width="1.5"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle Fill="Transparent" Height="10" Grid.Column="0" Grid.ColumnSpan="4" />
+            <Path Name="line1" Stretch="Fill" Stroke="{StaticResource HandleBrush}" StrokeThickness="1.5" Margin="0 0 0 0" Data="M0,-0.75 L1,-0.75" Grid.Column="0" />
+            <TextBlock Grid.Column="1" Text="{Binding Path=HandleLength, Mode=OneWay, Converter={x:Static Converters:FormatDoubleConverter.Instance }, RelativeSource={RelativeSource Mode=TemplatedParent}}" FontSize="9" VerticalAlignment="Center" HorizontalAlignment="Center" Padding="1,1,1,1">
+              <TextBlock.RenderTransform>
+                <RotateTransform Angle="{Binding Path=TextTransform, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+              </TextBlock.RenderTransform>
+            </TextBlock>
+            <Path Name="line2" Stretch="Fill" Stroke="{StaticResource HandleBrush}" StrokeThickness="1.5" Margin="0 0 0 0" Data="M0,-0.75 L1,-0.75" Grid.Column="2" />
+            <Path Name="arrow2" Margin="0,1,0,1" Fill="{StaticResource HandleBrush}" Stretch="Fill" Stroke="{TemplateBinding Background}" StrokeThickness="0.5" Data="M0,0 L0,1 1,0.5 z" Grid.Column="3" />
+            <Rectangle Width="1.5" Fill="{StaticResource HandleBrush}" Grid.Column="4"/>
+          </Grid>
+          <!--  Rotate the handle and angle of rotation being set by the Margin type. See enum HandleOrientation  -->
+          <Grid.RenderTransform>
+            <RotateTransform Angle="{Binding Path=Angle, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+          </Grid.RenderTransform>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:MarginStub}" TargetType="Controls:MarginStub">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Height="10" Width="10">
+          <Rectangle Fill="Transparent" />
+          <Ellipse Fill="{TemplateBinding Background}" Height="7" Width="7" StrokeThickness="1" Stroke="{StaticResource HandleBrush}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:HeightDisplay}" TargetType="Controls:HeightDisplay">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Width="22">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition MaxHeight="20" MinHeight="5" />
+            <RowDefinition Height="5" />
+          </Grid.RowDefinitions>
+          <Path Grid.Row="0" Stroke="#AC0000" StrokeThickness="1.0" Data="M0,0 L1,0 M0.75,0 L0.75,1" Stretch="Fill" />
+          <TextBlock HorizontalAlignment="Center" Margin="8,0,0,1" Padding="1,1,1,1" FontSize="10" Grid.Row="1">
+            <TextBlock.Text>
+              <MultiBinding Converter="{x:Static Converters:ControlToRealHeightConverter.Instance}" StringFormat="0">
+                <MultiBinding.Bindings>
+                  <Binding />
+                  <Binding Path="ActualHeight" UpdateSourceTrigger="PropertyChanged" />
+                  <Binding Path="Height" UpdateSourceTrigger="PropertyChanged" />
+                </MultiBinding.Bindings>
+              </MultiBinding>
+            </TextBlock.Text>
+            <TextBlock.RenderTransform>
+              <RotateTransform Angle="270" />
+            </TextBlock.RenderTransform>
+          </TextBlock>
+          <Path Grid.Row="2" Stroke="#AC0000" StrokeThickness="1.0" Data="M0.75,0 L0.75,3 M0,3 L1,3 " Stretch="Fill" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:WidthDisplay}" TargetType="Controls:WidthDisplay">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Height="22">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition MaxWidth="20" MinWidth="5" />
+            <ColumnDefinition Width="5" />
+          </Grid.ColumnDefinitions>
+          <Path Grid.Column="0" Stroke="#AC0000" StrokeThickness="1" Data="M0,0 L0,1 M0,0.75 L1,0.75" Stretch="Fill" />
+          <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Padding="1,1,1,1" FontSize="10" Grid.Column="1">
+            <TextBlock.Text>
+              <MultiBinding Converter="{x:Static Converters:ControlToRealWidthConverter.Instance}" StringFormat="0">
+                <MultiBinding.Bindings>
+                  <Binding />
+                  <Binding Path="ActualWidth" UpdateSourceTrigger="PropertyChanged" />
+                  <Binding Path="Width" UpdateSourceTrigger="PropertyChanged" />
+                </MultiBinding.Bindings>
+              </MultiBinding>
+            </TextBlock.Text>
+          </TextBlock>
+          <Path Grid.Column="2" Stroke="#AC0000" StrokeThickness="1" Data="M0,0.75 L3,0.75 M3,0 L3,1 " Stretch="Fill" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:InPlaceEditor}" TargetType="Controls:InPlaceEditor">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <TextBox Name="editor" Padding="{Binding Path=Padding}" FontSize="{Binding Path=FontSize}" FontFamily="{Binding Path=FontFamily}" FontStyle="{Binding Path=FontStyle}" FontStretch="{Binding Path=FontStretch}" FontWeight="{Binding Path=FontWeight}" Text="{Binding Path=BindPlace, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" />
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:QuickOperationMenu}" TargetType="Controls:QuickOperationMenu">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Menu Height="15" HorizontalAlignment="Left" Name="menu1" VerticalAlignment="Top" Width="15" BorderThickness="0" Background="Transparent">
+            <MenuItem Height="15" Width="15" Padding="0" Background="Transparent" BorderThickness="1" Name="MainHeader">
+              <MenuItem.Header>
+                <Path Data="M3.5,5.5 L11.5,5.5 L7.5,11 z" Fill="Black" Stroke="Gray" StrokeThickness="1" />
+              </MenuItem.Header>
+            </MenuItem>
+          </Menu>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:ZoomControl}" TargetType="Controls:ZoomControl">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Background="{TemplateBinding Background}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="Auto" />
+              <ColumnDefinition Width="*" />
+              <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Controls:SelfCollapsingPanel Grid.Column="0" Grid.Row="1" CollapseOrientation="Horizontal" CanCollapse="{Binding Path=ComputedZoomButtonCollapsed, Mode=OneWay, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+              <Controls:ZoomButtons x:Name="zoomButtons" Value="{Binding Path=CurrentZoom, RelativeSource={RelativeSource Mode=TemplatedParent}}" Minimum="{TemplateBinding MinimumZoom}" Maximum="{TemplateBinding MaximumZoom}" />
+            </Controls:SelfCollapsingPanel>
+            <Rectangle Grid.Column="2" Grid.Row="1" Fill="{DynamicResource ThemeBackgroundBrush}" />
+            <ScrollContentPresenter Name="PART_Presenter" Grid.Column="0" Grid.ColumnSpan="3" Grid.Row="0" Margin="{TemplateBinding Padding}" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}">
+              <ScrollContentPresenter.RenderTransform>
+                <ScaleTransform ScaleX="{Binding Path=CurrentZoom, RelativeSource={RelativeSource Mode=TemplatedParent}}" ScaleY="{Binding Path=CurrentZoom, RelativeSource={RelativeSource Mode=TemplatedParent}}"/>
+              </ScrollContentPresenter.RenderTransform>
+            </ScrollContentPresenter>
+            <ContentControl Grid.Column="1" Grid.Row="1" Content="{TemplateBinding AdditionalControls}" />
+            <!-- Old WPF Code 
+            <ScrollBar Name="PART_VerticalScrollBar" Grid.Column="3" Grid.Row="0" Minimum="0" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Value="{TemplateBinding VerticalOffset}" Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}" />
+            <ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Column="2" Grid.Row="1" Minimum="0" Maximum="{TemplateBinding ScrollableWidth}" ViewportSize="{TemplateBinding ViewportWidth}" Value="{TemplateBinding HorizontalOffset}" Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}" />
+            -->
+            <!-- TODO: Fix New Avalonia buggy code
+            <ScrollBar Name="PART_VerticalScrollBar" Grid.Column="3" Grid.Row="0" Minimum="0" Maximum="{TemplateBinding ScrollableHeight}" ViewportSize="{TemplateBinding ViewportHeight}" Value="{TemplateBinding VerticalOffset}" IsVisible="{TemplateBinding ComputedVerticalScrollBarVisibility}" />
+            <ScrollBar Name="PART_HorizontalScrollBar" Orientation="Horizontal" Grid.Column="2" Grid.Row="1" Minimum="0" Maximum="{TemplateBinding ScrollableWidth}" ViewportSize="{TemplateBinding ViewportWidth}" Value="{TemplateBinding HorizontalOffset}" IsVisible="{TemplateBinding ComputedHorizontalScrollBarVisibility}" />-->
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme TargetType="Button" x:Key="ClearButtonStyle">
+    <Setter Property="Background" Value="#FFaaaaaa" />
+    <Setter Property="BorderBrush" Value="#FFaaaaaa" />
+    <Setter Property="Foreground" Value="White" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Width="14" Height="14">
+          <Ellipse x:Name="ellipse"
+       Fill="{TemplateBinding Background}"
+       Stroke="{TemplateBinding BorderBrush}" />
+          <Ellipse x:Name="ellipseHighlight"
+       Fill="#FFBD7777"
+       Opacity="0"
+       Stroke="Red" />
+          <Path x:Name="path"
+    Margin="4.5"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    Data="M0.5,0.5 L8.5,8.5 M8.5000095,0.50000072 L0.50000954,8.500001"
+    Stretch="Fill"
+    Stroke="{TemplateBinding Foreground}"
+    UseLayoutRounding="False" />
+          <Path x:Name="pathHighlight"
+    Margin="4.5"
+    HorizontalAlignment="Center"
+    VerticalAlignment="Center"
+    Data="M0.5,0.5 L8.5,8.5 M8.5000095,0.50000072 L0.50000954,8.500001"
+    Opacity="0"
+    Stretch="Fill"
+    Stroke="Red"
+    UseLayoutRounding="False" />
+          <ContentPresenter x:Name="contentPresenter"
+HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+IsVisible="False" />
+          <Rectangle x:Name="DisabledVisualElement"
+         Fill="#FFFFFFFF"
+         IsHitTestVisible="false"
+         Opacity="0"
+         RadiusX="3"
+         RadiusY="3" />
+          <Rectangle x:Name="FocusVisualElement"
+         Margin="1"
+         IsHitTestVisible="false"
+         Opacity="0"
+         RadiusX="2"
+         RadiusY="2"
+         Stroke="#FF6DBDD1"
+         StrokeThickness="1" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Nested styles for button states -->
+    <Style Selector="^:pointerover /template/ Ellipse#ellipseHighlight">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="^:pressed /template/ Ellipse#ellipseHighlight">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+    <Style Selector="^:pressed /template/ Path#pathHighlight">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:ClearableTextBox}" TargetType="Controls:ClearableTextBox">
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}" />
+    <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="#888" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Padding" Value="1,0,0,0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <Border x:Name="Border"
+              Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              CornerRadius="1" />
+          <ScrollViewer x:Name="PART_ContentHost"
+                    VerticalAlignment="Center"
+                    Margin="0,0,18,0">
+            <TextPresenter x:Name="PART_TextPresenter" />
+          </ScrollViewer>
+          <Button x:Name="TextRemover"
+              Width="14"
+              Height="14"
+              Margin="0,0,3,0"
+              HorizontalAlignment="Right"
+              VerticalAlignment="Center"
+              IsTabStop="False"
+              RenderTransformOrigin="0.5,0.5"
+              Theme="{StaticResource ClearButtonStyle}">
+            <Button.RenderTransform>
+              <ScaleTransform ScaleX="0" ScaleY="0" />
+            </Button.RenderTransform>
+            <Button.Transitions>
+              <Transitions>
+                <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3" />
+                <DoubleTransition Property="Opacity" Duration="0:0:0.3" />
+              </Transitions>
+            </Button.Transitions>
+          </Button>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Pseudo-class styles to replace VisualStates -->
+    <Style Selector="^.text-present /template/ Button#TextRemover">
+      <Setter Property="RenderTransform" Value="scale(1,1)" />
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <Style Selector="^.empty /template/ Button#TextRemover">
+      <Setter Property="RenderTransform" Value="scale(0,0)" />
+      <Setter Property="Opacity" Value="0" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:RenderTransformOriginThumb}" TargetType="Controls:RenderTransformOriginThumb">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Width="10" Height="10" Margin="-5,-5,-5,-5">
+          <Ellipse Width="2" Height="2" Fill="Black"/>
+          <Ellipse Width="10" Height="10" Fill="Transparent" Stroke="Black" StrokeThickness="1" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type Controls:ShapePointAdorner}" TargetType="Controls:ShapePointAdorner">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Ellipse Width="6" Height="6" Fill="White" Stroke="Red" StrokeThickness="1" />
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="Margin" Value="-3,-3" />
+  </ControlTheme>
 </ResourceDictionary>

@@ -1,0 +1,21 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBQuickOperationMenu}" TargetType="{x:Type local:VBQuickOperationMenu}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <local:VBMenu Height="15" HorizontalAlignment="Left" x:Name="menu1" VerticalAlignment="Top" Width="15" BorderThickness="0" Background="Transparent">
+            <local:VBMenuItem Height="15" Width="15" Padding="0" Background="Transparent" BorderThickness="1" x:Name="MainHeader">
+              <local:VBMenuItem.Header>
+                <Path Data="M3.5,5.5 L11.5,5.5 L7.5,11 z" Fill="Black" Stroke="Gray" StrokeThickness="1" />
+              </local:VBMenuItem.Header>
+            </local:VBMenuItem>
+          </local:VBMenu>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

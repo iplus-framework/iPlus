@@ -1,0 +1,63 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+   xmlns:OutlineView="clr-namespace:gip.ext.designer.avui.OutlineView;assembly=gip.ext.designer.avui"
+   xmlns:PropertyGrid="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
+   xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBSettersCollectionEditor}" TargetType="{x:Type local:VBSettersCollectionEditor}">
+    <Setter Property="FirstColumnWidth" Value="200"/>        
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <local:VBGrid x:Name="PART_OutlineNodesContext">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="2*" />
+              <ColumnDefinition Width="100" />
+              <ColumnDefinition Width="2*" />
+            </Grid.ColumnDefinitions>
+            <Border BorderBrush="Black" BorderThickness="0.75" Margin="10" Grid.Column="0">
+              <local:VBPropertyGridView x:Name="PART_PropertyGridView" ShowAs="AsListbox" ShowEnumBar="OnlyProperties" DependencyPropFilter="True" Margin="0.5" />
+            </Border>
+            <StackPanel Grid.Column="1" Height="70" VerticalAlignment="Center" Margin="0,10,0,0">
+              <local:VBButton Content="Add ->" Height="23" Margin="0,5,0,0" x:Name="PART_AddItem" VerticalAlignment="Top" />
+              <local:VBButton Content="Remove" Height="23" Margin="0,5,0,0" x:Name="PART_RemoveItem" VerticalAlignment="Top" />
+            </StackPanel>
+            <Border Grid.Column="2" BorderBrush="Black" BorderThickness="0.75" Margin="10">
+              <local:VBListBox x:Name="PART_OutlineList" ItemsSource="{Binding}" IsSynchronizedWithCurrentItem="True" ShowCaption="False">
+                <ListBox.ItemTemplate>
+                  <DataTemplate>
+                    <StackPanel>
+                      <Grid>
+                        <Grid.ColumnDefinitions>
+                          <ColumnDefinition Width="2*" />
+                          <ColumnDefinition Width="1*" />
+                        </Grid.ColumnDefinitions>
+                        <local:VBTextBlock Text="{Binding SetterTargetPropertyName}"
+                                           TextTrimming="CharacterEllipsis"
+                                           VerticalAlignment="Center"
+                                           Margin="7 0 0 0"
+                                           ToolTip.Tip="{Binding Description}"
+                                           Grid.Column="0" />
+                        <Border BorderThickness="1 0 0 0"
+                                BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                Grid.Column="1"
+                                HorizontalAlignment="Right">
+                          <ContentPresenter x:Name="editorContainer"
+                                            Content="{Binding Editor}"
+                                            VerticalAlignment="Center"
+                                            Margin="3 0" />
+                        </Border>
+                      </Grid>
+                    </StackPanel>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </local:VBListBox>
+            </Border>
+          </local:VBGrid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

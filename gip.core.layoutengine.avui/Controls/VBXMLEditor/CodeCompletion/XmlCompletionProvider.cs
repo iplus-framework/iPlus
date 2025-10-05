@@ -1,14 +1,11 @@
+using AvaloniaEdit.CodeCompletion;
+using AvaloniaEdit.Editing;
 using System;
-using System.Diagnostics;
-using System.Windows.Forms;
-using ICSharpCode.AvalonEdit.CodeCompletion;
-using ICSharpCode.AvalonEdit.Editing;
-//using PixelLab.Common;
-using System.Linq;
-using System.Xml;
 using System.Collections.Generic;
-using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Xml;
 
 namespace gip.core.layoutengine.avui.CodeCompletion
 {
