@@ -1,10 +1,5 @@
-﻿using gip.core.datamodel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui.Controls.VBDocking.VBWindow
 {

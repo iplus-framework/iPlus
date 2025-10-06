@@ -1,16 +1,11 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -46,8 +41,8 @@ namespace gip.core.layoutengine.avui
             {
                 Documents.Clear();
             }
-            if (cxDocumentSwitchMenu != null)
-                cxDocumentSwitchMenu = null;
+            //if (cxDocumentSwitchMenu != null)
+            //    cxDocumentSwitchMenu = null;
         }
 
 
@@ -257,8 +252,8 @@ namespace gip.core.layoutengine.avui
 
             if (isNewTabItem)
             {
-                vbTabItem.Loaded += new RoutedEventHandler(OnTabItemLoaded);
-                vbTabItem.Unloaded += new RoutedEventHandler(OnTabItemUnLoaded);
+                vbTabItem.Loaded += OnTabItemLoaded;
+                vbTabItem.Unloaded += OnTabItemUnLoaded;
                 if (   container.OnAddedToPanelTabbedDoc(vbTabItem, this)
                     || vbTabItem.Content == null)
                 {
@@ -280,13 +275,13 @@ namespace gip.core.layoutengine.avui
                 vbTabItem.Header = container.Title;
             if (isNewTabItem)
             {
-                container.VBDesignLoaded += new RoutedEventHandler(container_VBDesignLoaded);
+                container.VBDesignLoaded += container_VBDesignLoaded;
                 tbcDocuments.Items.Add(vbTabItem);
                 if ((container.VBDesignContent != null) && VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
                     tbcDocuments.SelectedItem = vbTabItem;
 
                 if (tbcDocuments.Items.Count == 1)
-                    tbcDocuments.Visibility = Visibility.Visible;
+                    tbcDocuments.IsVisible = true;
 
                 if (tbcDocuments.Items.Count > 1)
                     ((VBTabItem)tbcDocuments.Items[0]).ShowCaption = true;
@@ -295,6 +290,10 @@ namespace gip.core.layoutengine.avui
                 vbTabItem.MinHeight = container.DockManager.TabItemMinHeight;
         }
 
+        private void VbTabItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
         public override void RefreshTitle()
         {
@@ -317,13 +316,16 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
+            // Only preview events
+            if (e.Route != RoutingStrategies.Tunnel)
+                return;
             if (this.ActiveContent != null && this.ActiveContent.ContextACObject != null)
             {
                 this.Root().RootPageWPF.CurrentACComponent = this.ActiveContent.ContextACObject as IACComponent;
             }
-            base.OnPreviewMouseDown(e);
+            base.OnPointerPressed(e);
         }
 
         void tbcDocuments_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -348,9 +350,9 @@ namespace gip.core.layoutengine.avui
                 item.ApplyTemplate();
             if (item.PART_TabItemBorder != null && !item._TabItemBorderEventsSubscr)
             {
-                item.PART_TabItemBorder.PreviewMouseDown += new MouseButtonEventHandler(OnTabItemMouseDown);
-                item.PART_TabItemBorder.MouseMove += new MouseEventHandler(OnTabItemMouseMove);
-                item.PART_TabItemBorder.MouseUp += new MouseButtonEventHandler(OnTabItemMouseUp);
+                item.PART_TabItemBorder.PointerPressed += PART_TabItemBorder_PointerPressed;
+                item.PART_TabItemBorder.PointerMoved += PART_TabItemBorder_PointerMoved;
+                item.PART_TabItemBorder.PointerReleased += PART_TabItemBorder_PointerReleased;
                 item._TabItemBorderEventsSubscr = true;
             }
         }
@@ -365,9 +367,9 @@ namespace gip.core.layoutengine.avui
         {
             if (item.PART_TabItemBorder != null && item._TabItemBorderEventsSubscr)
             {
-                item.PART_TabItemBorder.PreviewMouseDown -= OnTabItemMouseDown;
-                item.PART_TabItemBorder.MouseMove -= OnTabItemMouseMove;
-                item.PART_TabItemBorder.MouseUp -= OnTabItemMouseUp;
+                item.PART_TabItemBorder.PointerPressed -= PART_TabItemBorder_PointerPressed;
+                item.PART_TabItemBorder.PointerMoved -= PART_TabItemBorder_PointerMoved;
+                item.PART_TabItemBorder.PointerReleased -= PART_TabItemBorder_PointerReleased;
                 item._TabItemBorderEventsSubscr = false;
             }
         }
@@ -375,10 +377,13 @@ namespace gip.core.layoutengine.avui
         #region Drag inner contents
         Point ptStartDrag;
         
-        void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
+        void PART_TabItemBorder_PointerPressed(object sender, PointerPressedEventArgs e)
         {
+            // Only preview events
+            if (e.Route != RoutingStrategies.Tunnel)
+                return;
             VBDockingContainerBase clickedContent = this.ActiveContent;
-            FrameworkElement senderElement = (sender as FrameworkElement);
+            Control senderElement = (sender as Control);
             VBTabItem item = senderElement.TemplatedParent as VBTabItem;
             if (!item.IsSelected)
             {
@@ -401,20 +406,21 @@ namespace gip.core.layoutengine.avui
                     return;
                 }
             }
-            if (!senderElement.IsMouseCaptured)
+            if (!senderElement.Focusable)
             {
                 ptStartDrag = e.GetPosition(this);
-                senderElement.CaptureMouse();
+                e.Pointer.Capture(senderElement);
             }
         }
 
-        void OnTabItemMouseMove(object sender, MouseEventArgs e)
+        void PART_TabItemBorder_PointerMoved(object sender, PointerEventArgs e)
         {
-            FrameworkElement senderElement = sender as FrameworkElement;
+            Control senderElement = sender as Control;
             VBTabItem item = senderElement.TemplatedParent as VBTabItem;
-            if (senderElement.IsMouseCaptured && Math.Abs(ptStartDrag.X - e.GetPosition(this).X) > 4)
+            if (senderElement.Focusable && Math.Abs(ptStartDrag.X - e.GetPosition(this).X) > 4)
             {
-                senderElement.ReleaseMouseCapture();
+                if (e.Pointer.Captured == senderElement)
+                    e.Pointer.Capture(null);
                 int index = tbcDocuments.Items.IndexOf(item);
                 VBDockingContainerToolWindow contentToDrag = null;
                 //foreach (DockableContent content in Contents)
@@ -429,69 +435,72 @@ namespace gip.core.layoutengine.avui
                 e.Handled = true;
             }
         }
-        void OnTabItemMouseUp(object sender, MouseButtonEventArgs e)
+        void PART_TabItemBorder_PointerReleased(object sender, PointerReleasedEventArgs e)
         {
-            FrameworkElement senderElement = sender as FrameworkElement;
+            Control senderElement = sender as Control;
             VBTabItem item = senderElement.TemplatedParent as VBTabItem;
-            senderElement.ReleaseMouseCapture();
-
+            if (e.Pointer.Captured == senderElement)
+                e.Pointer.Capture(null);
         }
         #endregion
 
         #region TabControl commands (switch menu / close current content)
-        void OnDocumentSwitch(object sender, EventArgs e)
-        {
-            int index = cxDocumentSwitchMenu.Items.IndexOf((sender as MenuItem));
+        //void OnDocumentSwitch(object sender, EventArgs e)
+        //{
+        //    int index = cxDocumentSwitchMenu.Items.IndexOf((sender as MenuItem));
 
-            VBTabItem tabItem = tbcDocuments.Items[index] as VBTabItem;
-            tbcDocuments.Items.RemoveAt(index);
-            tbcDocuments.Items.Insert(0, tabItem);
-            tbcDocuments.SelectedIndex = 0;
+        //    VBTabItem tabItem = tbcDocuments.Items[index] as VBTabItem;
+        //    tbcDocuments.Items.RemoveAt(index);
+        //    tbcDocuments.Items.Insert(0, tabItem);
+        //    tbcDocuments.SelectedIndex = 0;
 
-            VBDockingContainerBase contentToSwap = Documents[index];
-            Documents.RemoveAt(index);
-            Documents.Insert(0, contentToSwap);
+        //    VBDockingContainerBase contentToSwap = Documents[index];
+        //    Documents.RemoveAt(index);
+        //    Documents.Insert(0, contentToSwap);
 
-            foreach(MenuItem item in cxDocumentSwitchMenu.Items)
-                item.Click -= new RoutedEventHandler(OnDocumentSwitch);
-        }
+        //    foreach (MenuItem item in cxDocumentSwitchMenu.Items)
+        //    {
+        //        item.Click -= OnDocumentSwitch;
+        //    }
+        //}
 
-        ContextMenu cxDocumentSwitchMenu;
+        //ContextMenu cxDocumentSwitchMenu;
 
-        void OnBtnDocumentsMenu(object sender, MouseButtonEventArgs e)
-        {
-            if (Documents.Count <= 1)
-                return;
+        //void OnBtnDocumentsMenu(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (Documents.Count <= 1)
+        //        return;
 
-            cxDocumentSwitchMenu = new ContextMenu();
+        //    cxDocumentSwitchMenu = new ContextMenu();
 
-            foreach (VBDockingContainerBase content in Documents)
-            {
-                MenuItem item = new MenuItem();
-                Image imgIncon = new Image();
-                imgIncon.Source = content.Icon;
-                item.Icon = imgIncon;
-                item.Header = content.Title;
-                item.Click += new RoutedEventHandler(OnDocumentSwitch);
-                cxDocumentSwitchMenu.Items.Add(item);
-            }
+        //    foreach (VBDockingContainerBase content in Documents)
+        //    {
+        //        MenuItem item = new MenuItem();
+        //        Image imgIncon = new Image();
+        //        imgIncon.Source = content.Icon;
+        //        item.Icon = imgIncon;
+        //        item.Header = content.Title;
+        //        item.Click += OnDocumentSwitch;
+        //        cxDocumentSwitchMenu.Items.Add(item);
+        //    }
 
-            cxDocumentSwitchMenu.Placement = System.Windows.Controls.Primitives.PlacementMode.AbsolutePoint;
-            cxDocumentSwitchMenu.PlacementRectangle = new Rect(PointToScreen(e.GetPosition(this)), new Size(0, 0));
-            cxDocumentSwitchMenu.PlacementTarget = this;
-            cxDocumentSwitchMenu.IsOpen = true;
-        }
+        //    cxDocumentSwitchMenu.Placement = PlacementMode.Custom;
+        //    PixelPoint startPoint = this.PointToScreen(e.GetPosition(this));
+        //    cxDocumentSwitchMenu.PlacementRect = new Rect(startPoint.ToPoint(1.0), new Size(0, 0));
+        //    cxDocumentSwitchMenu.PlacementTarget = this;
+        //    cxDocumentSwitchMenu.Open();
+        //}
 
-        void OnBtnDocumentClose(object sender, MouseButtonEventArgs e)
-        {
-            if (ActiveContent == null)
-                return;
+        //void OnBtnDocumentClose(object sender, MouseButtonEventArgs e)
+        //{
+        //    if (ActiveContent == null)
+        //        return;
 
-            if (ActiveContent is VBDockingContainerToolWindow)
-                RemoveDockingContainerToolWindow(ActiveContent as VBDockingContainerToolWindow);
-            else 
-                RemoveDockingContainerTabbedDoc(ActiveDocument);
-        }
+        //    if (ActiveContent is VBDockingContainerToolWindow)
+        //        RemoveDockingContainerToolWindow(ActiveContent as VBDockingContainerToolWindow);
+        //    else 
+        //        RemoveDockingContainerTabbedDoc(ActiveDocument);
+        //}
 
         //void OnShowDocumentsMenu(object sender, DependencyPropertyChangedEventArgs e)
         //{ 

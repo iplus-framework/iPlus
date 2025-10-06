@@ -1,9 +1,9 @@
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
+using System;
+using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -17,7 +17,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerToolWindowVB(VBDockingManager dockManager, UIElement vbDesignContent)
+        public VBDockingContainerToolWindowVB(VBDockingManager dockManager, Control vbDesignContent)
             : base(dockManager, vbDesignContent)
         {
             InitializeComponent();
@@ -132,23 +132,23 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
+        public void OnTabItemMouseDown(object sender, PointerPressedEventArgs e)
         {
             if ((_VBRibbon != null) && (e.Source is Button))
             {
                 Button button = (Button)e.Source;
                 if (button.Name == "PART_RibbonSwitchButton")
                 {
-                    if (_VBRibbon.Visibility == System.Windows.Visibility.Collapsed)
+                    if (!_VBRibbon.IsVisible)
                     {
-                        _VBRibbon.Visibility = System.Windows.Visibility.Visible;
+                        _VBRibbon.IsVisible = true;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
                             VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
                     }
                     else
                     {
-                        _VBRibbon.Visibility = System.Windows.Visibility.Collapsed;
+                        _VBRibbon.IsVisible = false;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
                             VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);

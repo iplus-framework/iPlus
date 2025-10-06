@@ -1,16 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 using gip.core.datamodel;
+using gip.ext.design.avui;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,7 +24,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerToolWindow(VBDockingManager manager, UIElement vbDesignContent)
+        public VBDockingContainerToolWindow(VBDockingManager manager, Control vbDesignContent)
             : base(manager, vbDesignContent)
         {
             RefreshTitle();
@@ -68,7 +63,7 @@ namespace gip.core.layoutengine.avui
         /// Show this content
         /// </summary>
         /// <remarks>Show this content in a dockable pane. If no pane was previuosly created, it creates a new one with default right dock. </remarks>
-        public void Show(SettingsVBDesignWndPos wndPos = null)
+        public void Show(PointerPressedEventArgs e, SettingsVBDesignWndPos wndPos = null)
         {
             if (VBDockingPanel != null)
             {
@@ -89,28 +84,28 @@ namespace gip.core.layoutengine.avui
                         {
                             double desiredWidth = 300;
                             double desiredHeight = 400;
-                            if (VBDesignContent is FrameworkElement)
+                            if (VBDesignContent is Control)
                             {
-                                if ((VBDesignContent as FrameworkElement).Width > 50 && (VBDesignContent as FrameworkElement).Width < 800)
-                                    desiredWidth = (VBDesignContent as FrameworkElement).Width;
-                                if ((VBDesignContent as FrameworkElement).Height > 50 && (VBDesignContent as FrameworkElement).Height < 600)
-                                    desiredHeight = (VBDesignContent as FrameworkElement).Height;
+                                if ((VBDesignContent as Control).Width > 50 && (VBDesignContent as Control).Width < 800)
+                                    desiredWidth = (VBDesignContent as Control).Width;
+                                if ((VBDesignContent as Control).Height > 50 && (VBDesignContent as Control).Height < 600)
+                                    desiredHeight = (VBDesignContent as Control).Height;
                             }
                             if (wndPos != null)
                             {
                                 Rect wndRect = wndPos.WndRect;
-                                if (wndPos.WndRect.Location.X > (System.Windows.SystemParameters.VirtualScreenWidth - 50)
-                                    || wndPos.WndRect.Location.Y > (System.Windows.SystemParameters.VirtualScreenHeight - 50))
-                                    wndRect = new Rect(DockManager.PointToScreen(Mouse.GetPosition(DockManager)), new Size(desiredWidth, desiredHeight));
+                                if (wndPos.WndRect.Position.X > (System.Windows.SystemParameters.VirtualScreenWidth - 50)
+                                    || wndPos.WndRect.Position.Y > (System.Windows.SystemParameters.VirtualScreenHeight - 50))
+                                    wndRect = new Rect(DockManager.PointToScreen(e != null ? e.GetPosition(DockManager) : new Point()).ToPoint(1.0), new Size(desiredWidth, desiredHeight));
                                 else if (ControlManager.RestoreWindowsOnSameScreen)
                                 {
-                                    Window window = Window.GetWindow(DockManager);
+                                    Window window = DockManager.TryFindParent<Window>();
                                     if (window != null)
                                     {
-                                        var screenOfDockManager = LocatedOnScreen(window.RestoreBounds);
+                                        var screenOfDockManager = LocatedOnScreen(window.Bounds);
                                         var screenOfToolWindow = LocatedOnScreen(wndRect);
                                         if (screenOfDockManager != screenOfToolWindow)
-                                            wndRect = new Rect(DockManager.PointToScreen(Mouse.GetPosition(DockManager)), new Size(desiredWidth, desiredHeight));
+                                            wndRect = new Rect(DockManager.PointToScreen(e != null ? e.GetPosition(DockManager) : new Point()).ToPoint(1.0), new Size(desiredWidth, desiredHeight));
                                     }
                                 }
                                 (_vbDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
@@ -120,7 +115,7 @@ namespace gip.core.layoutengine.avui
                             {
                                 Rect wndRect;
                                 if (DockManager.IsLoaded)
-                                    wndRect = new Rect(DockManager.PointToScreen(Mouse.GetPosition(DockManager)), new Size(desiredWidth, desiredHeight));
+                                    wndRect = new Rect(DockManager.PointToScreen(e != null ? e.GetPosition(DockManager) : new Point()).ToPoint(1.0), new Size(desiredWidth, desiredHeight));
                                 else
                                     wndRect = new Rect(new Point(50,50), new Size(desiredWidth, desiredHeight));
                                 (_vbDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);

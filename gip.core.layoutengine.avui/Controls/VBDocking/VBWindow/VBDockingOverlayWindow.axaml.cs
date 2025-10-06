@@ -1,20 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.IO;
-using System.Windows.Markup;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
-    class VBDockingOverlayWindowButton : IVBDockDropSurface
+    class VBDockingOverlayWindowButton : Window, IVBDockDropSurface
     {
         VBDockingOverlayWindow _owner;
         public readonly Button _btnDock;
@@ -45,7 +38,7 @@ namespace gip.core.layoutengine.avui
                 if (!_owner.IsLoaded)
                     return new Rect();
 
-                return new Rect(_btnDock.PointToScreen(new Point(0,0)), new Size(_btnDock.ActualWidth, _btnDock.ActualHeight)); 
+                return new Rect(_btnDock.PointToScreen(new Point(0,0)).ToPoint(1), new Size(_btnDock.Bounds.Width, _btnDock.Bounds.Height)); 
             }
         }
 
@@ -78,7 +71,7 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Interaction logic for OverlayWindow.xaml
     /// </summary>
-    public partial class VBDockingOverlayWindow : System.Windows.Window
+    public partial class VBDockingOverlayWindow : Window
     {
         VBDockingOverlayWindowButton owdBottom;
         VBDockingOverlayWindowButton owdTop;
@@ -166,12 +159,11 @@ namespace gip.core.layoutengine.avui
         public void ShowOverlayPaneDockingOptions(VBDockingPanelBase pane)
         {
             Rect rectPane = pane.SurfaceRectangle;
-
-            Point myScreenTopLeft = PointToScreen(new Point(0, 0));
-            rectPane.Offset(-myScreenTopLeft.X, -myScreenTopLeft.Y);//relative to me
+            Point myScreenTopLeft = this.PointToScreen(new Point(0, 0)).ToPoint(1);
+            rectPane = new Rect(rectPane.X - myScreenTopLeft.X, rectPane.Y - myScreenTopLeft.Y, rectPane.Width, rectPane.Height); //relative to me
             gridPaneRelativeDockingOptions.SetValue(Canvas.LeftProperty, rectPane.Left+rectPane.Width/2-gridPaneRelativeDockingOptions.Width/2);
             gridPaneRelativeDockingOptions.SetValue(Canvas.TopProperty, rectPane.Top + rectPane.Height/2-gridPaneRelativeDockingOptions.Height/2);
-            gridPaneRelativeDockingOptions.Visibility = Visibility.Visible;
+            gridPaneRelativeDockingOptions.IsVisible = true;
 
             owdBottom.Enabled = true;
             owdTop   .Enabled = true;
@@ -189,7 +181,7 @@ namespace gip.core.layoutengine.avui
             owdRight.Enabled = false;
             owdInto.Enabled = false; 
             
-            gridPaneRelativeDockingOptions.Visibility = Visibility.Collapsed;
+            gridPaneRelativeDockingOptions.IsVisible = false;
             CurrentDropPane = null;
         }
     

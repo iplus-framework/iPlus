@@ -2,18 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using System.Windows.Threading;
 using gip.core.layoutengine.avui.Controls.VBDocking.VBWindow;
+using Avalonia.Interactivity;
+using Avalonia.Input;
+using Avalonia.Controls;
+using Avalonia.Styling;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace gip.core.layoutengine.avui
 {
@@ -42,7 +40,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="msg">The MSG.</param>
         /// <param name="msgButton">The MSG button.</param>
         /// <param name="caller">The caller.</param>
-        public VBWindowDialogMsg(Msg msg, eMsgButton msgButton, DependencyObject caller) : base(caller)
+        public VBWindowDialogMsg(Msg msg, eMsgButton msgButton, AvaloniaObject caller) : base(caller)
         {
             InitializeComponent();
             _Msg = msg;
@@ -81,8 +79,8 @@ namespace gip.core.layoutengine.avui
 
         private void VBWindowDialogMsg_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.SystemKey == Key.LeftCtrl && e.Key == Key.C)
-                Clipboard.SetText(_Msg.Message);
+            if (e.KeyModifiers == KeyModifiers.Control && e.Key == Key.C)
+                this.Clipboard.SetTextAsync(_Msg.Message);
         }
 
         internal override void DeInitVBControl(IACComponent bso = null)
@@ -248,7 +246,7 @@ namespace gip.core.layoutengine.avui
                     break;
             }
 
-            WindowStartupLocation = System.Windows.WindowStartupLocation.CenterScreen;
+            WindowStartupLocation = Avalonia.Controls.WindowStartupLocation.CenterScreen;
 
             Title = string.Format(title, _Msg.ACIdentifier);
             RefreshTitle();
@@ -263,7 +261,8 @@ namespace gip.core.layoutengine.avui
             try
             {
                 _ModalCounter++;
-                ShowDialog();
+                var owner = ((Database.Root?.RootPageWPF?.WPFApplication as Application)?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow;
+                ShowDialog(owner);
             }
             finally
             {
@@ -349,17 +348,19 @@ namespace gip.core.layoutengine.avui
         public ContentControl MsgLevelContentControlGet(string imagePNG)
         {
             ContentControl contentControl = new ContentControl();
-            contentControl.Style = (Style)this.Resources.FindName(imagePNG);
-            if (contentControl.Style == null)
+            object theme = null;
+            if (this.Resources.TryGetResource(imagePNG, null, out theme))
+                contentControl.Styles.Add(theme as Style);
+            else
             {
                 foreach (ResourceDictionary dict in this.Resources.MergedDictionaries)
                 {
-                    if (dict.Contains(imagePNG))
+                    if (dict.TryGetResource(imagePNG, null, out theme))
                     {
                         object resource = dict[imagePNG];
                         if (resource != null)
                         {
-                            contentControl.Style = (Style)resource;
+                            contentControl.Styles.Add(theme as Style);
                             break;
                         }
                     }

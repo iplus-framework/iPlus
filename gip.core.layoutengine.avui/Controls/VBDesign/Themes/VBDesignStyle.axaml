@@ -3,7 +3,7 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-    <Style x:Key="VBDesignStyleGip" TargetType="{x:Type local:VBDesign}">
+    <ControlTheme x:Key="{x:Type local:VBDesign}" TargetType="{x:Type local:VBDesign}">
         <Setter Property="Foreground" Value="#FF000000"/>
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         <Setter Property="VerticalContentAlignment" Value="Stretch"/>
@@ -25,26 +25,30 @@
                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
                         </Grid>
                     </Border>
-                    <ControlTemplate.Triggers>
-                        <MultiTrigger>
-                            <MultiTrigger.Conditions>
-                                <Condition Property="ControlSelectionState" Value="FrameSearch"/>
-                                <Condition Property="IsMouseOver" Value="True"/>
-                            </MultiTrigger.Conditions>
-                            <Setter TargetName="PART_BorderFreeze" Property="BorderThickness" Value="2,2,2,2"/>
-                            <Setter TargetName="PART_BorderFreeze" Property="Background" Value="#80FF4040"/>
-                            <Setter TargetName="PART_BorderFreeze" Property="BorderBrush" Value="#FFFF0000"/>
-                            <Setter TargetName="PART_Presenter" Property="Opacity" Value="0.95"/>
-                            <Setter TargetName="PART_Presenter" Property="Cursor" Value="Hand"/>
-                        </MultiTrigger>
-                        <Trigger Property="IsDesignerActive" Value="True">
-                            <Setter TargetName="PART_BorderFreeze" Property="BorderThickness" Value="2,2,2,2"/>
-                            <Setter TargetName="PART_BorderFreeze" Property="BorderBrush" Value="#FFFF0000"/>
-                            <Setter TargetName="PART_Presenter" Property="Opacity" Value="1"/>
-                        </Trigger>
-                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
+
+        <!-- ControlSelectionState = FrameSearch + PointerOver combined condition -->
+        <Style Selector="^[ControlSelectionState=FrameSearch]:pointerover /template/ Border#PART_BorderFreeze">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="Background" Value="#80FF4040"/>
+            <Setter Property="BorderBrush" Value="#FFFF0000"/>
+        </Style>
+
+        <Style Selector="^[ControlSelectionState=FrameSearch]:pointerover /template/ ContentPresenter#PART_Presenter">
+            <Setter Property="Opacity" Value="0.95"/>
+            <Setter Property="Cursor" Value="Hand"/>
+        </Style>
+
+        <!-- IsDesignerActive = True state -->
+        <Style Selector="^[IsDesignerActive=true] /template/ Border#PART_BorderFreeze">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+            <Setter Property="BorderBrush" Value="#FFFF0000"/>
+        </Style>
+
+        <Style Selector="^[IsDesignerActive=true] /template/ ContentPresenter#PART_Presenter">
+            <Setter Property="Opacity" Value="1"/>
+        </Style>
+    </ControlTheme>
 </ResourceDictionary>

@@ -1,11 +1,17 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Media.Imaging;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Xml;
-using gip.core.layoutengine.avui.Helperclasses;
-using System.Linq;
-using gip.core.datamodel;
-using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -53,7 +59,7 @@ namespace gip.core.layoutengine.avui
     ///// <remarks>A dockable pane occupies a window region. It can be in two different states: docked to a border or hosted in a floating window.
     ///// When is docked it can be resizes only in a direction. User can switch between pane states using mouse or context menus.
     ///// Contents whitin a dockable pane are arranged through a tabcontrol.</remarks>
-    partial class VBDockingPanelToolWindow : VBDockingPanelBase
+    public partial class VBDockingPanelToolWindow : VBDockingPanelBase
     {
         #region ctors
         //public VBDockingPanelToolWindow()
@@ -101,69 +107,24 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DockingPanelToolWindowStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleGip.xaml",
-                                         hasImplicitStyles = true},
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DockingPanelToolWindowStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleAero.xaml",
-                                         hasImplicitStyles = true},
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        public static List<CustomControlStyleInfo> _TemplateInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DockingWindowAsPanelStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleGip.xaml",
-                                         hasImplicitStyles = true},
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DockingWindowAsPanelStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleAero.xaml",
-                                         hasImplicitStyles = true},
-        };
-
-        /*static VBDockingPanelToolWindow()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDockingPanelToolWindow), new FrameworkPropertyMetadata(typeof(VBDockingPanelToolWindow)));
-        }*/
-
-
-        bool _themeApplied = false;
-
-
 
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            base.OnInitialized();
             ApplyTemplate();
-            RegisterEvents();
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            RegisterEvents();
+            base.OnApplyTemplate(e);
+            RegisterEvents(e);
         } 
 
         bool _Loaded = false;
@@ -175,44 +136,20 @@ namespace gip.core.layoutengine.avui
             //RegisterEvents();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall, true);
-            if (_themeApplied)
-            {
-                ControlManager.OverrideStyleWithTheme(this, StyleInfoList);
-                CustomControlStyleInfo CustomControlStyleInfo = (from o in _TemplateInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
-                if (CustomControlStyleInfo != null)
-                {
-                    object resource = this.TryFindResource(CustomControlStyleInfo.styleName);
-                    if (resource == null && this.Parent is FrameworkElement)
-                        resource = ((FrameworkElement)this.Parent).TryFindResource(CustomControlStyleInfo.styleName);
-                    if (resource != null)
-                        this.Template = resource as ControlTemplate;
-                }
-            }
-            if (bInitializingCall)
-                _themeApplied = false;
-        }
-
-        private void RegisterEvents()
+        private void RegisterEvents(TemplateAppliedEventArgs e)
         {
             //object partObject = (object)contentControl.Template.FindName("PART_PanelHeader", contentControl);
-            object partObject = (object)GetTemplateChild("PART_PanelHeader");
+            object partObject = (object)e.NameScope.Find("PART_PanelHeader");
             if ((partObject != null) && (partObject is Border))
             {
                 _PART_PanelHeader = ((Border)partObject);
-                _PART_PanelHeader.MouseDown += OnHeaderMouseDown;
-                _PART_PanelHeader.MouseUp += OnHeaderMouseUp;
-                _PART_PanelHeader.MouseMove += OnHeaderMouseMove;
+                _PART_PanelHeader.PointerPressed += OnHeaderMouseDown;
+                _PART_PanelHeader.PointerReleased += OnHeaderMouseUp;
+                _PART_PanelHeader.PointerMoved += OnHeaderMouseMove;
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_CloseButton", contentControl);
-            partObject = (object)GetTemplateChild("PART_CloseButton");
+            partObject = (object)e.NameScope.Find("PART_CloseButton");
             if ((partObject != null) && (partObject is Button))
             {
                 _PART_CloseButton = ((Button)partObject);
@@ -221,7 +158,7 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_HideButton", contentControl);
-            partObject = (object)GetTemplateChild("PART_HideButton");
+            partObject = (object)e.NameScope.Find("PART_HideButton");
             if ((partObject != null) && (partObject is Button))
             {
                 _PART_HideButton = ((Button)partObject);
@@ -229,7 +166,7 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_MenuButton", contentControl);
-            partObject = (object)GetTemplateChild("PART_MenuButton");
+            partObject = (object)e.NameScope.Find("PART_MenuButton");
             if ((partObject != null) && (partObject is Button))
             {
                 _PART_MenuButton = ((Button)partObject);
@@ -237,15 +174,15 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_ContextMenu", contentControl);
-            partObject = (object)GetTemplateChild("PART_ContextMenu");
+            partObject = (object)e.NameScope.Find("PART_ContextMenu");
             if ((partObject != null) && (partObject is VBContextMenu))
             {
                 _PART_ContextMenu = ((VBContextMenu)partObject);
-                _PART_ContextMenu.IsVisibleChanged += OnBtnMenuPopup;
+                _PART_ContextMenu.Opened += OnBtnMenuPopup;
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_menuFloatingWindow", contentControl);
-            partObject = (object)GetTemplateChild("PART_menuFloatingWindow");
+            partObject = (object)e.NameScope.Find("PART_menuFloatingWindow");
             if ((partObject != null) && (partObject is VBMenuItem))
             {
                 _PART_menuFloatingWindow = ((VBMenuItem)partObject);
@@ -253,7 +190,7 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_menuDockedWindow", contentControl);
-            partObject = (object)GetTemplateChild("PART_menuDockedWindow");
+            partObject = (object)e.NameScope.Find("PART_menuDockedWindow");
             if ((partObject != null) && (partObject is VBMenuItem))
             {
                 _PART_menuDockedWindow = ((VBMenuItem)partObject);
@@ -261,7 +198,7 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_menuTabbedDocument", contentControl);
-            partObject = (object)GetTemplateChild("PART_menuTabbedDocument");
+            partObject = (object)e.NameScope.Find("PART_menuTabbedDocument");
             if ((partObject != null) && (partObject is VBMenuItem))
             {
                 _PART_menuTabbedDocument = ((VBMenuItem)partObject);
@@ -269,7 +206,7 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_menuAutoHide", contentControl);
-            partObject = (object)GetTemplateChild("PART_menuAutoHide");
+            partObject = (object)e.NameScope.Find("PART_menuAutoHide");
             if ((partObject != null) && (partObject is VBMenuItem))
             {
                 _PART_menuAutoHide = ((VBMenuItem)partObject);
@@ -277,39 +214,40 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_menuClose", contentControl);
-            partObject = (object)GetTemplateChild("PART_menuClose");
+            partObject = (object)e.NameScope.Find("PART_menuClose");
             if ((partObject != null) && (partObject is VBMenuItem))
             {
                 _PART_menuClose = ((VBMenuItem)partObject);
                 _PART_menuClose.Click += OnDockingMenu;
             }
 
-            partObject = (object)GetTemplateChild("PART_cpClientWindowContent");
+            partObject = (object)e.NameScope.Find("PART_cpClientWindowContent");
             if ((partObject != null) && (partObject is ContentPresenter))
             {
                 _PART_cpClientWindowContent = ((ContentPresenter)partObject);
             }
 
-            partObject = (object)GetTemplateChild("PART_tbcContents");
+            partObject = (object)e.NameScope.Find("PART_tbcContents");
             if ((partObject != null) && (partObject is VBTabControl))
             {
                 _PART_tbcContents = ((VBTabControl)partObject);
             }
 
-            partObject = (object)GetTemplateChild("PART_tbTitle");
+            partObject = (object)e.NameScope.Find("PART_tbTitle");
             if ((partObject != null) && (partObject is TextBlock))
             {
                 _PART_tbTitle = ((TextBlock)partObject);
             }
         }
 
+
         private void UnRegisterEvents()
         {
             if (_PART_PanelHeader != null)
             {
-                _PART_PanelHeader.MouseDown -= OnHeaderMouseDown;
-                _PART_PanelHeader.MouseUp -= OnHeaderMouseUp;
-                _PART_PanelHeader.MouseMove -= OnHeaderMouseMove;
+                _PART_PanelHeader.PointerPressed -= OnHeaderMouseDown;
+                _PART_PanelHeader.PointerReleased -= OnHeaderMouseUp;
+                _PART_PanelHeader.PointerMoved -= OnHeaderMouseMove;
             }
 
             if (_PART_CloseButton != null)
@@ -330,7 +268,7 @@ namespace gip.core.layoutengine.avui
 
             if (_PART_ContextMenu != null)
             {
-                _PART_ContextMenu.IsVisibleChanged -= OnBtnMenuPopup;
+                _PART_ContextMenu.Opened -= OnBtnMenuPopup;
             }
 
             if (_PART_menuFloatingWindow != null)
@@ -372,8 +310,8 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_PanelHeader == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(this, "PART_PanelHeader");
-                    //DependencyObject partObj = GetTemplateChild("PART_PanelHeader");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(this, "PART_PanelHeader");
+                    //AvaloniaObject partObj = GetTemplateChild("PART_PanelHeader");
                     _PART_PanelHeader = partObj != null ? (Border)partObj : null;
                 }
                 return _PART_PanelHeader;
@@ -388,7 +326,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_CloseButton == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_CloseButton");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_CloseButton");
                     _PART_CloseButton = partObj != null ? (Button)partObj : null;
                 }
                 return _PART_CloseButton;
@@ -403,7 +341,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_HideButton == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_HideButton");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_HideButton");
                     _PART_HideButton = partObj != null ? (Button)partObj : null;
                 }
                 return _PART_HideButton;
@@ -418,7 +356,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_MenuButton == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_MenuButton");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_MenuButton");
                     _PART_MenuButton = partObj != null ? (Button)partObj : null;
                 }
                 return _PART_MenuButton;
@@ -433,7 +371,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_ContextMenu == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_ContextMenu");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_ContextMenu");
                     _PART_ContextMenu = partObj != null ? (VBContextMenu)partObj : null;
                 }
                 return _PART_ContextMenu;
@@ -448,7 +386,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_menuFloatingWindow == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuFloatingWindow");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuFloatingWindow");
                     _PART_menuFloatingWindow = partObj != null ? (VBMenuItem)partObj : null;
                 }
                 return _PART_menuFloatingWindow;
@@ -463,7 +401,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_menuDockedWindow == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuDockedWindow");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuDockedWindow");
                     _PART_menuDockedWindow = partObj != null ? (VBMenuItem)partObj : null;
                 }
                 return _PART_menuDockedWindow;
@@ -478,7 +416,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_menuTabbedDocument == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuTabbedDocument");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuTabbedDocument");
                     _PART_menuTabbedDocument = partObj != null ? (VBMenuItem)partObj : null;
                 }
                 return _PART_menuTabbedDocument;
@@ -493,7 +431,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_menuAutoHide == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuAutoHide");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuAutoHide");
                     _PART_menuAutoHide = partObj != null ? (VBMenuItem)partObj : null;
                 }
                 return _PART_menuAutoHide;
@@ -508,7 +446,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_menuClose == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuClose");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_menuClose");
                     _PART_menuClose = partObj != null ? (VBMenuItem)partObj : null;
                 }
                 return _PART_menuClose;
@@ -523,7 +461,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_cpClientWindowContent == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_cpClientWindowContent");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_cpClientWindowContent");
                     _PART_cpClientWindowContent = partObj != null ? (ContentPresenter)partObj : null;
                 }
                 return _PART_cpClientWindowContent;
@@ -538,7 +476,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_tbcContents == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_tbcContents");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_tbcContents");
                     _PART_tbcContents = partObj != null ? (VBTabControl)partObj : null;
                 }
                 return _PART_tbcContents;
@@ -553,7 +491,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_PART_tbTitle == null)
                 {
-                    DependencyObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_tbTitle");
+                    AvaloniaObject partObj = VBVisualTreeHelper.FindChildObjectInVisualTree(this, "PART_tbTitle");
                     _PART_tbTitle = partObj != null ? (TextBlock)partObj : null;
                 }
                 return _PART_tbTitle;
@@ -591,9 +529,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly DependencyProperty IsUndockedProperty
-            = DependencyProperty.Register("IsUndocked", typeof(bool), typeof(VBDockingPanelToolWindow));
-
+        public static readonly StyledProperty<bool> IsUndockedProperty = AvaloniaProperty.Register<VBDockingPanelToolWindow, bool>(nameof(IsUndocked));
         public bool IsUndocked
         {
             get
@@ -606,9 +542,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static readonly DependencyProperty IsDragableProperty
-            = DependencyProperty.Register("IsDragable", typeof(bool), typeof(VBDockingPanelToolWindow));
-
+        public static readonly StyledProperty<bool> IsDragableProperty = AvaloniaProperty.Register<VBDockingPanelToolWindow, bool>(nameof(IsDragable));
         public bool IsDragable
         {
             get
@@ -828,14 +762,14 @@ namespace gip.core.layoutengine.avui
             }
             if (this.ActiveContent != null && this.ActiveContent.VBDesignContent != null && VBDockingManager.GetCloseButtonVisibility(this.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled)
             {
-                PART_CloseButton.Visibility = System.Windows.Visibility.Visible;
-                PART_menuClose.Visibility = System.Windows.Visibility.Visible;
+                PART_CloseButton.IsVisible = true;
+                PART_menuClose.IsVisible = true;
             }
             else
             {
-                PART_CloseButton.Visibility = System.Windows.Visibility.Hidden;
+                PART_CloseButton.IsVisible = false;
                 if (PART_menuClose != null)
-                    PART_menuClose.Visibility = System.Windows.Visibility.Collapsed;
+                    PART_menuClose.IsVisible = false;
             }
         }
 
@@ -887,7 +821,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (PART_cpClientWindowContent == null)
                     return false;
-                return PART_cpClientWindowContent.Visibility == Visibility.Visible;
+                return PART_cpClientWindowContent.IsVisible;
             }
         }
 
@@ -896,7 +830,7 @@ namespace gip.core.layoutengine.avui
             if (PART_cpClientWindowContent == null)
                 return;
             PART_cpClientWindowContent.Content = content.Content;
-            PART_cpClientWindowContent.Visibility = Visibility.Visible;
+            PART_cpClientWindowContent.IsVisible = true;
             RefreshTitle();
         }
 
@@ -905,7 +839,7 @@ namespace gip.core.layoutengine.avui
             if (PART_cpClientWindowContent == null)
                 return;
             PART_cpClientWindowContent.Content = null;
-            PART_cpClientWindowContent.Visibility = Visibility.Collapsed;
+            PART_cpClientWindowContent.IsVisible = false;
         }
 
 
@@ -915,7 +849,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (PART_tbcContents == null)
                     return false;
-                return PART_tbcContents.Visibility == Visibility.Visible;
+                return PART_tbcContents.IsVisible;
             }
         }
 
@@ -926,10 +860,10 @@ namespace gip.core.layoutengine.avui
                 return;
             if (!_SelectionChangedSubscr)
             {
-                PART_tbcContents.SelectionChanged += new SelectionChangedEventHandler(_tabs_SelectionChanged);
+                PART_tbcContents.SelectionChanged += _tabs_SelectionChanged;
                 _SelectionChangedSubscr = true;
             }
-            PART_tbcContents.Visibility = Visibility.Visible;
+            PART_tbcContents.IsVisible = true;
         }
 
         protected void HideTabs()
@@ -938,10 +872,10 @@ namespace gip.core.layoutengine.avui
                 return;
             if (_SelectionChangedSubscr)
             {
-                PART_tbcContents.SelectionChanged -= new SelectionChangedEventHandler(_tabs_SelectionChanged);
+                PART_tbcContents.SelectionChanged -= _tabs_SelectionChanged;
                 _SelectionChangedSubscr = false;
             }
-            PART_tbcContents.Visibility = Visibility.Collapsed;
+            PART_tbcContents.IsVisible = false;
         }
 
         void SetTabItemHeader(TabItem item, VBDockingContainerBase content)
@@ -949,7 +883,12 @@ namespace gip.core.layoutengine.avui
             StackPanel spHeader = new StackPanel();
             spHeader.Orientation = Orientation.Horizontal;
             Image iconContent = new Image();
-            iconContent.Source = content.Icon;
+            using (var ms = new System.IO.MemoryStream())
+            {
+                content.Icon.Save(ms);
+                Bitmap bmp = new Bitmap(ms);
+                iconContent.Source = bmp;
+            }
             spHeader.Children.Add(iconContent);
             TextBlock titleContent = new TextBlock();
             titleContent.Text = content.Title;
@@ -989,6 +928,7 @@ namespace gip.core.layoutengine.avui
             if (PART_tbcContents == null)
                 return;
             foreach (TabItem item in PART_tbcContents.Items)
+            {
                 if ((item.Content as ContentPresenter).Content == content.Content)
                 {
                     //item.PreviewMouseDown -= new MouseButtonEventHandler(OnTabItemMouseDown);
@@ -1000,16 +940,20 @@ namespace gip.core.layoutengine.avui
                     //ChangeTitle();
                     break;
                 }
+            }
         }
 
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
+            // Only preview events
+            if (e.Route != RoutingStrategies.Tunnel)
+                return;
             if (this.ActiveContent != null && this.ActiveContent.ContextACObject != null)
             {
                 this.Root().RootPageWPF.CurrentACComponent = this.ActiveContent.ContextACObject as IACComponent;
             }
-            base.OnPreviewMouseDown(e);
+            base.OnPointerPressed(e);
         }
 
         void _tabs_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -1138,7 +1082,7 @@ namespace gip.core.layoutengine.avui
 
         public void FloatingWindow(Rect wndPos)
         {
-            ptFloatingWindow = wndPos.Location;
+            ptFloatingWindow = wndPos.Position;
             sizeFloatingWindow = wndPos.Size;
             FloatingWindow();
         }
@@ -1154,26 +1098,29 @@ namespace gip.core.layoutengine.avui
                 VBDockingManager parentDockManager = DockManager;
                 VBWindowDockingUndocked wnd = new VBWindowDockingUndocked(this);
                 SetFloatingWindowSizeAndPosition(wnd);
-                
+
                 if (DockManager.ParentWindow is VBDockingContainerToolWindow)
                 {
                     VBDockingContainerToolWindow dockContainerToolW = DockManager.ParentWindow as VBDockingContainerToolWindow;
                     if (dockContainerToolW.VBDockingPanel is VBDockingPanelTabbedDoc)
                     {
-                        wnd.Owner = (dockContainerToolW.VBDockingPanel as VBDockingPanelTabbedDoc).DockManager.ParentWindow;
+                        wnd.Show((dockContainerToolW.VBDockingPanel as VBDockingPanelTabbedDoc).DockManager.ParentWindow);
                         parentDockManager = (dockContainerToolW.VBDockingPanel as VBDockingPanelTabbedDoc).DockManager;
                     }
                     else
                     {
                         //wnd.Owner = DockManager.ParentWindow;
+                        wnd.Show();
                     }
-                        
+
                 }
                 else
-                    wnd.Owner = DockManager.ParentWindow;
-                //wnd.Owner = DockManager.ParentWindow;
+                {
+                    wnd.Show(DockManager.ParentWindow);
+                    //wnd.Owner = DockManager.ParentWindow;
+                }
                 ChangeState(VBDockingPanelState.FloatingWindow);
-                wnd.Show();
+                //wnd.Show();
             }
         }
 
@@ -1191,13 +1138,22 @@ namespace gip.core.layoutengine.avui
             {
                 VBDockingContainerToolWindow dockContainerToolW = DockManager.ParentWindow as VBDockingContainerToolWindow;
                 if (dockContainerToolW.VBDockingPanel is VBDockingPanelTabbedDoc)
-                    wnd.Owner = (dockContainerToolW.VBDockingPanel as VBDockingPanelTabbedDoc).DockManager.ParentWindow;
+                {
+                    wnd.Show((dockContainerToolW.VBDockingPanel as VBDockingPanelTabbedDoc).DockManager.ParentWindow);
+                    //wnd.Owner = (dockContainerToolW.VBDockingPanel as VBDockingPanelTabbedDoc).DockManager.ParentWindow;
+                }
                 else
-                    wnd.Owner = DockManager.ParentWindow;
+                {
+                    wnd.Show(DockManager.ParentWindow);
+                    //wnd.Owner = DockManager.ParentWindow;
+                }
             }
             else
-                wnd.Owner = DockManager.ParentWindow;
-            wnd.Show();
+            {
+                wnd.Show(DockManager.ParentWindow);
+                //wnd.Owner = DockManager.ParentWindow;
+            }
+            //wnd.Show();
         }
 
         /// <summary>
@@ -1303,10 +1259,10 @@ namespace gip.core.layoutengine.avui
         /// Handles effective pane resizing 
         /// </summary>
         /// <param name="sizeInfo"></param>
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected override void OnSizeChanged(SizeChangedEventArgs sizeInfo)
         {
             //SaveSize();
-            base.OnRenderSizeChanged(sizeInfo);
+            base.OnSizeChanged(sizeInfo);
             SaveSize();
         }
 
@@ -1321,15 +1277,15 @@ namespace gip.core.layoutengine.avui
 
             if (Dock == Dock.Left || Dock == Dock.Right)
             {
-                if (ActualWidth > 20 && ActualWidth < 1500)
-                    PaneWidth = ActualWidth;
+                if (Bounds.Width > 20 && Bounds.Width < 1500)
+                    PaneWidth = Bounds.Width;
                 else if (PaneWidth <= 20)
                     PaneWidth = PaneDefaultWidth;
             }
             else
             {
-                if (ActualHeight > 20 && ActualHeight < 1500)
-                    PaneHeight = ActualHeight;
+                if (Bounds.Height > 20 && Bounds.Height < 1500)
+                    PaneHeight = Bounds.Height;
                 else if (PaneHeight <= 20)
                     PaneHeight = PaneDefaultHeight;
             }
@@ -1340,16 +1296,18 @@ namespace gip.core.layoutengine.avui
 
         Point ptFloatingWindow = new Point(0, 0);
         Size sizeFloatingWindow = new Size(300,400);
-
         internal void SaveFloatingWindowSizeAndPosition(Window fw)
         {
-            if (!double.IsNaN(fw.Left) && !double.IsNaN(fw.Top))
-                ptFloatingWindow = new Point(fw.Left, fw.Top);
+            if (!double.IsNaN(fw.Position.X) && !double.IsNaN(fw.Position.Y))
+                ptFloatingWindow = new Point(fw.Position.X, fw.Position.Y);
+
+            double sizeWidth = sizeFloatingWindow.Width;
+            double sizeHeight = sizeFloatingWindow.Height;
 
             if (!double.IsNaN(fw.Width) && !double.IsNaN(fw.Height))
             {
-                sizeFloatingWindow.Width = fw.Width;
-                sizeFloatingWindow.Height = fw.Height;
+                sizeWidth = fw.Width;
+                sizeHeight = fw.Height;
             }
             else
             {
@@ -1363,13 +1321,13 @@ namespace gip.core.layoutengine.avui
                             Size size = VBDockingManager.GetWindowSize(docCont.VBDesignContent);
                             if (size != null && !double.IsNaN(size.Width) && !double.IsNaN(size.Height) && size.Width >= 0 && size.Height >= 0)
                             {
-                                sizeFloatingWindow.Height = size.Height;
-                                sizeFloatingWindow.Width = size.Width;
+                                sizeHeight = size.Height;
+                                sizeWidth = size.Width;
                             }
-                            if (sizeFloatingWindow.Width < 50 || sizeFloatingWindow.Height < 50)
+                            if (sizeWidth < 50 || sizeHeight < 50)
                             {
-                                sizeFloatingWindow.Height = 400;
-                                sizeFloatingWindow.Width = 400;
+                                sizeHeight = 400;
+                                sizeWidth = 400;
                             }
                         }
                         catch (Exception e)
@@ -1385,19 +1343,19 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
+            sizeFloatingWindow = new Size(sizeWidth, sizeHeight);
             if ((DockManager != null) && (ContainerToolWindowsList.Count > 0))
             {
                 foreach (VBDockingContainerBase dockingContainer in ContainerToolWindowsList)
                 {
-                    DockManager.SaveUserFloatingWindowSize(dockingContainer, ptFloatingWindow, sizeFloatingWindow);
+                    DockManager.SaveUserFloatingWindowSize(dockingContainer, ptFloatingWindow, new Size(sizeWidth, sizeHeight));
                 }
             }
         }
 
         internal void SetFloatingWindowSizeAndPosition(VBWindowDockingUndocked fw)
         {
-            fw.Left = ptFloatingWindow.X;
-            fw.Top = ptFloatingWindow.Y;
+            fw.Position = new PixelPoint((int)ptFloatingWindow.X, (int)ptFloatingWindow.Y);
             fw.Width = sizeFloatingWindow.Width;
             fw.Height = sizeFloatingWindow.Height;
         }
@@ -1451,7 +1409,7 @@ namespace gip.core.layoutengine.avui
         {
             if (PART_ContextMenu == null)
                 return;
-            PART_ContextMenu.IsOpen = true;
+            PART_ContextMenu.Open();
             e.Handled = true;
         }
 
@@ -1511,7 +1469,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnBtnMenuPopup(object sender, DependencyPropertyChangedEventArgs e)
+        void OnBtnMenuPopup(object sender, RoutedEventArgs e)
         {
             if (PART_ContextMenu == null)
                 return;
@@ -1541,15 +1499,15 @@ namespace gip.core.layoutengine.avui
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks>Save current mouse position in ptStartDrag and capture mouse event on PART_PanelHeader object.</remarks>
-        void OnHeaderMouseDown(object sender, MouseEventArgs e)
+        void OnHeaderMouseDown(object sender, PointerPressedEventArgs e)
         {
             if (DockManager == null)
                 return;
 
-            if (!PART_PanelHeader.IsMouseCaptured)
+            if (!PART_PanelHeader.Focusable)
             {
                 ptStartDrag = e.GetPosition(this);
-                PART_PanelHeader.CaptureMouse();
+                e.Pointer.Capture(PART_PanelHeader);
             }
         }
         /// <summary>
@@ -1558,9 +1516,10 @@ namespace gip.core.layoutengine.avui
         /// <param name="sender"></param>
         /// <param name="e"></param>
         /// <remarks>Release any mouse capture</remarks>
-        void OnHeaderMouseUp(object sender, MouseEventArgs e)
+        void OnHeaderMouseUp(object sender, PointerReleasedEventArgs e)
         {
-            PART_PanelHeader.ReleaseMouseCapture();
+            if (e.Pointer.Captured == PART_PanelHeader)
+                e.Pointer.Capture(null);
         }
 
         /// <summary>
@@ -1568,14 +1527,15 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void OnHeaderMouseMove(object sender, MouseEventArgs e)
+        void OnHeaderMouseMove(object sender, PointerEventArgs e)
         {
             if (this.IsDragable == false)
                 return;
-            if (PART_PanelHeader.IsMouseCaptured && Math.Abs(ptStartDrag.X - e.GetPosition(this).X) > 4)
+            if (PART_PanelHeader.Focusable && Math.Abs(ptStartDrag.X - e.GetPosition(this).X) > 4)
             {
-                PART_PanelHeader.ReleaseMouseCapture();
-                DragPane(DockManager.PointToScreen(e.GetPosition(DockManager)), e.GetPosition(PART_PanelHeader));
+                if (e.Pointer.Captured == PART_PanelHeader)
+                    e.Pointer.Capture(null);
+                DragPane(DockManager.PointToScreen(e.GetPosition(DockManager)).ToPoint(1.0), e.GetPosition(PART_PanelHeader));
             }
         }
 
@@ -1595,61 +1555,63 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        /// <summary>
-        /// Mouse down event on a content tab item
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            //TabItem item = sender as TabItem;
-            FrameworkElement senderElement = sender as FrameworkElement;
-            //TabItem item = senderElement.TemplatedParent as TabItem;
+        ///// <summary>
+        ///// Mouse down event on a content tab item
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
+        //{
+        //    //TabItem item = sender as TabItem;
+        //    Control senderElement = sender as Control;
+        //    //TabItem item = senderElement.TemplatedParent as TabItem;
 
-            if (!senderElement.IsMouseCaptured)
-            {
-                ptStartDrag = e.GetPosition(this);
-                senderElement.CaptureMouse();
-            }
+        //    if (!senderElement.Focusable)
+        //    {
+        //        ptStartDrag = e.GetPosition(this);
+        //        e.Pointer.Capture(senderElement);
+        //    }
 
-        }
+        //}
 
-        /// <summary>
-        /// Mouse move event on a content tab item
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        /// <remarks>If mouse is moved when left button is pressed than this method starts a dragging content operations. Also in this case relative DockManager is involved.</remarks>
-        void OnTabItemMouseMove(object sender, MouseEventArgs e)
-        {
-            if (PART_tbcContents == null)
-                return;
-            //TabItem item = sender as TabItem;
-            FrameworkElement senderElement = sender as FrameworkElement;
-            TabItem item = senderElement.TemplatedParent as TabItem;
+        ///// <summary>
+        ///// Mouse move event on a content tab item
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        ///// <remarks>If mouse is moved when left button is pressed than this method starts a dragging content operations. Also in this case relative DockManager is involved.</remarks>
+        //void OnTabItemMouseMove(object sender, MouseEventArgs e)
+        //{
+        //    if (PART_tbcContents == null)
+        //        return;
+        //    //TabItem item = sender as TabItem;
+        //    Control senderElement = sender as Control;
+        //    TabItem item = senderElement.TemplatedParent as TabItem;
 
-            if (senderElement.IsMouseCaptured && Math.Abs(ptStartDrag.X - e.GetPosition(this).X) > 4)
-            {
-                senderElement.ReleaseMouseCapture();
-                VBDockingContainerToolWindow contentToDrag = ContainerToolWindowsList[PART_tbcContents.Items.IndexOf(item)] as VBDockingContainerToolWindow;
-                if (contentToDrag != null)
-                    DragContent(contentToDrag, e.GetPosition(DockManager), e.GetPosition(item));
-            }
-        }
+        //    if (senderElement.Focusable && Math.Abs(ptStartDrag.X - e.GetPosition(this).X) > 4)
+        //    {
+        //        if (e.Pointer.Captured == senderElement)
+        //            e.Pointer.Capture(null);
+        //        VBDockingContainerToolWindow contentToDrag = ContainerToolWindowsList[PART_tbcContents.Items.IndexOf(item)] as VBDockingContainerToolWindow;
+        //        if (contentToDrag != null)
+        //            DragContent(contentToDrag, e.GetPosition(DockManager), e.GetPosition(item));
+        //    }
+        //}
 
-        /// <summary>
-        /// Handles MouseUp event fired from a content tab item and eventually release mouse event capture 
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void OnTabItemMouseUp(object sender, MouseButtonEventArgs e)
-        {
-            //TabItem item = sender as TabItem;
-            FrameworkElement senderElement = sender as FrameworkElement;
-            //TabItem item = senderElement.TemplatedParent as TabItem;
+        ///// <summary>
+        ///// Handles MouseUp event fired from a content tab item and eventually release mouse event capture 
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //void OnTabItemMouseUp(object sender, MouseButtonEventArgs e)
+        //{
+        //    //TabItem item = sender as TabItem;
+        //    Control senderElement = sender as Control;
+        //    //TabItem item = senderElement.TemplatedParent as TabItem;
 
-            senderElement.ReleaseMouseCapture();
-        }
+        //    if (e.Pointer.Captured == senderElement)
+        //        e.Pointer.Capture(null);
+        //}
 
 
         #region persistence
@@ -1666,11 +1628,14 @@ namespace gip.core.layoutengine.avui
             parentNode.Attributes["LastState"].Value = _lastState.ToString();
 
 
-            parentNode.Attributes.Append(doc.CreateAttribute("ptFloatingWindow"));
-            parentNode.Attributes["ptFloatingWindow"].Value = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Point)).ConvertToInvariantString(ptFloatingWindow);
-            parentNode.Attributes.Append(doc.CreateAttribute("sizeFloatingWindow"));
-            parentNode.Attributes["sizeFloatingWindow"].Value = System.ComponentModel.TypeDescriptor.GetConverter(typeof(Size)).ConvertToInvariantString(sizeFloatingWindow);
-
+            parentNode.Attributes.Append(doc.CreateAttribute("ptFloatingWindowX"));
+            parentNode.Attributes["ptFloatingWindowX"].Value = ptFloatingWindow.X.ToString();
+            parentNode.Attributes.Append(doc.CreateAttribute("ptFloatingWindowY"));
+            parentNode.Attributes["ptFloatingWindowY"].Value = ptFloatingWindow.Y.ToString();
+            parentNode.Attributes.Append(doc.CreateAttribute("sizeFloatingWindowWidth"));
+            parentNode.Attributes["sizeFloatingWindowWidth"].Value = sizeFloatingWindow.Width.ToString();
+            parentNode.Attributes.Append(doc.CreateAttribute("sizeFloatingWindowHeight"));
+            parentNode.Attributes["sizeFloatingWindowHeight"].Value = sizeFloatingWindow.Height.ToString();
             base.Serialize(doc, parentNode);
         }
 
@@ -1682,10 +1647,9 @@ namespace gip.core.layoutengine.avui
             SetState((VBDockingPanelState)Enum.Parse(typeof(VBDockingPanelState), node.Attributes["State"].Value));
             _lastState = (VBDockingPanelState)Enum.Parse(typeof(VBDockingPanelState), node.Attributes["LastState"].Value);
 
-            ptFloatingWindow = (Point)System.ComponentModel.TypeDescriptor.GetConverter(typeof(Point)).ConvertFromInvariantString(node.Attributes["ptFloatingWindow"].Value);
-            sizeFloatingWindow = (Size)System.ComponentModel.TypeDescriptor.GetConverter(typeof(Size)).ConvertFromInvariantString(node.Attributes["sizeFloatingWindow"].Value);
 
-
+            ptFloatingWindow = new Point(double.Parse(node.Attributes["ptFloatingWindowX"].Value), double.Parse(node.Attributes["ptFloatingWindowY"].Value));
+            sizeFloatingWindow = new Size(double.Parse(node.Attributes["sizeFloatingWindowWidth"].Value), double.Parse(node.Attributes["sizeFloatingWindowHeight"].Value));
 
             if (State == VBDockingPanelState.FloatingWindow)
                 FloatingWindow();

@@ -25,6 +25,7 @@
 					<MultiTrigger.Conditions>
 						<Condition Property="IsMouseOver" Value="True"/>
 						<Condition Property="IsMouseCaptured" Value="False"/>
+                        <!-- Avalonia UI:<Condition Property="Focusable" Value="False"/>-->
 					</MultiTrigger.Conditions>
 					<MultiTrigger.Setters>
 					</MultiTrigger.Setters>

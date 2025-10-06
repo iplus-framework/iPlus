@@ -1,17 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Markup;
 using gip.core.datamodel;
+using Avalonia.Input;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -30,7 +22,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerTabbedDoc(VBDockingManager manager, UIElement vbDesignContent)
+        public VBDockingContainerTabbedDoc(VBDockingManager manager, Control vbDesignContent)
             : base(manager, vbDesignContent)
         {
         }
@@ -78,7 +70,7 @@ namespace gip.core.layoutengine.avui
 
             if (panel is VBDockingPanelTabbedDoc)
             {
-                (panel as VBDockingPanelTabbedDoc).TabControl.SelectionChanged += new SelectionChangedEventHandler(tabControl_SelectionChanged);
+                (panel as VBDockingPanelTabbedDoc).TabControl.SelectionChanged += tabControl_SelectionChanged;
                 _SelectionChangedSubscribed = true;
             }
             return false; // Neues Tab nicht einem Parent-DockPanel unter VBDockingPanelTabbedDoc.AddDockingContainer() zuordnen!!
@@ -94,7 +86,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
+        public void OnTabItemMouseDown(object sender, PointerPressedEventArgs e)
         {
             if ((_VBRibbon != null) && (e.Source is Button))
             {
@@ -102,16 +94,16 @@ namespace gip.core.layoutengine.avui
                 if (button.Name == "PART_RibbonSwitchButton")
                 {
                     //string xaml = XamlWriter.Save(DockManager);
-                    if (_VBRibbon.Visibility == System.Windows.Visibility.Collapsed)
+                    if (!_VBRibbon.IsVisible)
                     {
-                        _VBRibbon.Visibility = System.Windows.Visibility.Visible;
+                        _VBRibbon.IsVisible = true;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
                             VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
                     }
                     else
                     {
-                        _VBRibbon.Visibility = System.Windows.Visibility.Collapsed;
+                        _VBRibbon.IsVisible = false;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
                             VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);

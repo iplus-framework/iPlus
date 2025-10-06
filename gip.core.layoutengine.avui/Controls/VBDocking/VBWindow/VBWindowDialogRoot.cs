@@ -2,22 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.VisualControlAnalyser;
 using System.Transactions;
-using System.Windows.Interop;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -33,9 +26,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Creates a new instance of VBWindowDialogRoot.
         /// </summary>
-        public VBWindowDialogRoot(DependencyObject caller) : base(caller)
+        public VBWindowDialogRoot(AvaloniaObject caller) : base(caller)
         {
-            this.SizeToContent = System.Windows.SizeToContent.Height;
+            this.SizeToContent = SizeToContent.Height;
             this.MaxHeight = System.Windows.SystemParameters.WorkArea.Height;
         }
 
@@ -45,9 +38,9 @@ namespace gip.core.layoutengine.avui
         /// <param name="acObject">The acObject parameter.</param>
         /// <param name="uiElement">The uiElement parameter.</param>
         /// <param name="dockManager">The dockManager parameter.</param>
-        public VBWindowDialogRoot(IACObject acObject, UIElement uiElement, VBDockingManager dockManager) : base(dockManager)
+        public VBWindowDialogRoot(IACObject acObject, Control uiElement, VBDockingManager dockManager) : base(dockManager)
         {
-            this.SizeToContent = System.Windows.SizeToContent.Height;
+            this.SizeToContent = SizeToContent.Height;
             this.MaxHeight = System.Windows.SystemParameters.WorkArea.Height;
 
             DataContext = acObject;
@@ -56,21 +49,21 @@ namespace gip.core.layoutengine.avui
             {
                 Binding binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBWindowDialogRoot.ACCompInitStateProperty, binding);
+                this.Bind(VBWindowDialogRoot.ACCompInitStateProperty, binding);
             }
 
             if (ACComponent != null)
             {
                 Binding binding = new Binding();
                 binding.Source = ACComponent;
-                binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
+                binding.Path = Const.ACUrlCmdMessage;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBWindowDialogRoot.ACUrlCmdMessageProperty, binding);
+                this.Bind(VBWindowDialogRoot.ACUrlCmdMessageProperty, binding);
             }
 
-            _UIElement = uiElement;
+            _Control = uiElement;
             _DockManager = dockManager;
         }
 
@@ -84,15 +77,13 @@ namespace gip.core.layoutengine.avui
 
             VBLogicalTreeHelper.DeInitVBControls(bso, this.Content);
             VBVisualTreeHelper.DeInitVBControls(bso, this.Content);
-            BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACCompInitStateProperty);
             this.ClearAllBindings();
 
-            if (ReadLocalValue(DataContextProperty) != DependencyProperty.UnsetValue)
+            if (IsSet(DataContextProperty))
                 DataContext = null;
-            if (ReadLocalValue(BSOACComponentProperty) != DependencyProperty.UnsetValue)
+            if (IsSet(BSOACComponentProperty))
                 BSOACComponent = null;
-            _UIElement = null;
+            _Control = null;
             _DockManager = null;
 
             _RootPanelDialog = null;
@@ -169,24 +160,25 @@ namespace gip.core.layoutengine.avui
         // Root für den Viewbereich
         Panel _RootPanelDialog = null;
         //protected string _ACContext, _LayoutXML;
-        protected UIElement _UIElement;
-        public UIElement ContentUIElement
+        protected Control _Control;
+        public Control ContentControl
         {
             get
             {
-                return _UIElement;
+                return _Control;
             }
         }
         protected VBDockingManager _DockManager;
         #endregion
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnClosing(WindowClosingEventArgs e)
         {
             if (_DockManager != null)
-                _DockManager.CloseAndRemoveVBDesign(_UIElement);
+                _DockManager.CloseAndRemoveVBDesign(_Control);
 
-            BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACCompInitStateProperty);
+            //BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACUrlCmdMessageProperty);
+            //BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACCompInitStateProperty);
+            this.ClearAllBindings();
             if (_DockManager != null)
                 _DockManager.OnCloseTopDialog(this);
             DeInitVBControl();
@@ -206,10 +198,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Represents the dependency property for BSOACComponent.
-        /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBWindowDialogRoot), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBWindowDialogRoot>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -222,11 +211,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBWindowDialogRoot),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty = AvaloniaProperty.Register<VBWindowDialogRoot, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
@@ -239,11 +224,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBWindowDialogRoot),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBWindowDialogRoot, ACInitState>(nameof(ACCompInitState));
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
@@ -253,25 +234,23 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBWindowDialogRoot thisControl = dependencyObject as VBWindowDialogRoot;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACUrlCmdMessageProperty)
-                thisControl.OnACUrlMessageReceived();
-            else if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            if (change.Property == ACUrlCmdMessageProperty)
+                OnACUrlMessageReceived();
+            else if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null)
+                if (change.NewValue == null && change.OldValue != null)
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
+            base.OnPropertyChanged(change);
+
         }
 
         #endregion
@@ -292,8 +271,8 @@ namespace gip.core.layoutengine.avui
 
             _RootPanelDialog.Children.Clear();
 
-            if (_UIElement != null)
-                _RootPanelDialog.Children.Add(_UIElement);
+            if (_Control != null)
+                _RootPanelDialog.Children.Add(_Control);
 
             _RootPanelDialog.DataContext = null;
             _RootPanelDialog.DataContext = ACComponent;
@@ -302,23 +281,22 @@ namespace gip.core.layoutengine.avui
             this.Content = _RootPanelDialog;
             _Loaded = true;
 
-            if (VBDockingManager.GetCloseButtonVisibility(_UIElement) == Global.ControlModes.Enabled)
-                PART_CloseButton.Visibility = System.Windows.Visibility.Visible;
-            else 
-                PART_CloseButton.Visibility = System.Windows.Visibility.Hidden;
+            if (VBDockingManager.GetCloseButtonVisibility(_Control) == Global.ControlModes.Enabled)
+                PART_CloseButton.IsVisible = true;
+            else
+                PART_CloseButton.IsVisible = false;
         }
 
 
-        protected override void OnContentRendered(EventArgs e)
+        protected override void OnOpened(EventArgs e)
         {
-            base.OnContentRendered(e);
+            base.OnOpened(e);
 
-            if (Owner != null && Top + ActualHeight > Owner.ActualHeight)
+            if (Owner != null && Position.Y + this.Bounds.Height > Owner.Bounds.Height)
             {
-                double calc = (Owner.ActualHeight - ActualHeight) / 2;
-                Top = calc > 0 ? calc : 1;
+                double calc = (Owner.Bounds.Height - Bounds.Height) / 2;
+                Position = new PixelPoint(Position.X, calc > 0 ? (int)calc : 1);
             }
-
         }
 
         #region IDialog Members

@@ -1,15 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -18,20 +9,9 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDockingButton : VBButton
     {
-        static VBDockingButton()
-        {
-            //This OverrideMetadata call tells the system that this element wants to provide a style that is different than its base class.
-            //This style is defined in themes\generic.xaml
-            //DefaultStyleKeyProperty.OverrideMetadata(typeof(VBDockingButton), new FrameworkPropertyMetadata(typeof(VBDockingButton)));
-
-            DockableContentProperty = DependencyProperty.Register("DockableContent", typeof(VBDockingContainerToolWindow), typeof(VBDockingButton));
-            DockingButtonGroupProperty = DependencyProperty.Register("DockingButtonGroup", typeof(VBDockingButtonGroup), typeof(VBDockingButton));
-            DockProperty = DependencyProperty.Register("Dock", typeof(Dock), typeof(VBDockingButton));
-        }
-
         public VBDockingButton() : base()
         {
-            Click += new RoutedEventHandler(VBDockingButton_Click);
+            Click += VBDockingButton_Click;
         }
 
         private void VBDockingButton_Click(object sender, RoutedEventArgs e)
@@ -44,8 +24,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static DependencyProperty DockableContentProperty;
-
+        public static readonly StyledProperty<VBDockingContainerToolWindow> DockableContentProperty = AvaloniaProperty.Register<VBDockingButton, VBDockingContainerToolWindow>(nameof(DockingContainerToolWindow));
         public VBDockingContainerToolWindow DockingContainerToolWindow
         {
             get
@@ -71,8 +50,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static DependencyProperty DockingButtonGroupProperty;
-
+        public static readonly StyledProperty<VBDockingButtonGroup> DockingButtonGroupProperty = AvaloniaProperty.Register<VBDockingButton, VBDockingButtonGroup>(nameof(DockingButtonGroup));
         public VBDockingButtonGroup DockingButtonGroup
         {
             get
@@ -86,8 +64,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static DependencyProperty DockProperty;
-
+        public static readonly StyledProperty<Dock> DockProperty = AvaloniaProperty.Register<VBDockingButton, Dock>(nameof(Dock));
         public Dock Dock
         {
             get

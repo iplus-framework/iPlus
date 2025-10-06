@@ -1,0 +1,86 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+  
+  <SolidColorBrush x:Key="DialogRootHeaderNormalBorderBrush" Color="{StaticResource TabItemSelectedBorderColor}"/>
+  <LinearGradientBrush x:Key="DialogRootHeaderSelectedBackground" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#F2F2F2" Offset="0.15"/>
+    <GradientStop Color="#E2E2E2" Offset=".5"/>
+    <GradientStop Color="#D2D2D2" Offset=".5"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
+  </LinearGradientBrush>
+
+  <RadialGradientBrush x:Key="DialogRootCloseButtonBrushStyle">
+    <GradientStop Color="#ADADAD" Offset="0"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="DialogRootCloseButtonBorderBrush" Color="#2D2D2D"/>
+  <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#9D9D9D"/>
+
+  <RadialGradientBrush x:Key="DialogRootCloseButtonBrushHotStyle">
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="0"/>
+    <GradientStop Color="#626262" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="DialogRootCloseButtonBorderBrushHot" Color="Red"/>
+  <SolidColorBrush x:Key="DialogRootCloseButtonFillBrushHot" Color="#FF770000"/>
+
+  <LinearGradientBrush x:Key="DialogRootPinButtonFill" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF464646" Offset="0"/>
+      <GradientStop Color="#FF727272" Offset="0.146553"/>
+      <GradientStop Color="#FF9E9E9E" Offset="0.344828"/>
+      <GradientStop Color="#FF2E2E2E" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="DialogRootPinButtonHotFill" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF4D0000" Offset="0"/>
+      <GradientStop Color="#FF760000" Offset="0.146553"/>
+      <GradientStop Color="Red" Offset="0.344828"/>
+      <GradientStop Color="#FF390000" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+  <SolidColorBrush x:Key="DialogVBDialogHeaderNormalBorderBrush" Color="{StaticResource {ComponentResourceKey ResourceId=TabItemSelectedBorderColor, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+  <LinearGradientBrush x:Key="DialogVBDialogHeaderSelectedBackground" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#F2F2F2" Offset="0.15"/>
+    <GradientStop Color="#E2E2E2" Offset=".5"/>
+    <GradientStop Color="#D2D2D2" Offset=".5"/>
+    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+  </LinearGradientBrush>
+
+  <RadialGradientBrush x:Key="DialogVBDialogCloseButtonBrushStyle">
+    <GradientStop Color="#ADADAD" Offset="0"/>
+    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="DialogVBDialogCloseButtonBorderBrush" Color="#2D2D2D"/>
+  <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#9D9D9D"/>
+
+  <RadialGradientBrush x:Key="DialogVBDialogCloseButtonBrushHotStyle">
+    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="0"/>
+    <GradientStop Color="#626262" Offset="1"/>
+  </RadialGradientBrush>
+  <SolidColorBrush x:Key="DialogVBDialogCloseButtonBorderBrushHot" Color="Red"/>
+  <SolidColorBrush x:Key="DialogVBDialogCloseButtonFillBrushHot" Color="#FF770000"/>
+
+  <LinearGradientBrush x:Key="DialogVBDialogPinButtonFill" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF464646" Offset="0"/>
+      <GradientStop Color="#FF727272" Offset="0.146553"/>
+      <GradientStop Color="#FF9E9E9E" Offset="0.344828"/>
+      <GradientStop Color="#FF2E2E2E" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="DialogVBDialogPinButtonHotFill" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF4D0000" Offset="0"/>
+      <GradientStop Color="#FF760000" Offset="0.146553"/>
+      <GradientStop Color="Red" Offset="0.344828"/>
+      <GradientStop Color="#FF390000" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+</ResourceDictionary>

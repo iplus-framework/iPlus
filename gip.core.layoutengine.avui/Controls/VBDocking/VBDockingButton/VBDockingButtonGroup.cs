@@ -1,6 +1,5 @@
-using System;
+using Avalonia.Controls;
 using System.Collections.Generic;
-using System.Text;
 
 namespace gip.core.layoutengine.avui
 {
@@ -10,6 +9,6 @@ namespace gip.core.layoutengine.avui
     public class VBDockingButtonGroup
     {
         public readonly List<VBDockingButton> Buttons = new List<VBDockingButton>();
-        public System.Windows.Controls.Dock Dock; 
+        public Dock Dock; 
     }
 }

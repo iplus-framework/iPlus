@@ -105,7 +105,7 @@ namespace gip.ext.chart.avui.Charts.Navigation
 			content.Background = fillBrush;
 			Cursor = orientation == Orientation.Horizontal ? Cursors.ScrollWE : Cursors.ScrollNS;
 
-			CaptureMouse();
+            e.Pointer.Capture(this);
 		}
 
         /// <summary>
@@ -120,10 +120,11 @@ namespace gip.ext.chart.avui.Charts.Navigation
 			ClearValue(CursorProperty);
 			content.Background = Brushes.Transparent;
 
-			ReleaseMouseCapture();
-		}
+            if (e.Pointer.Captured == this)
+                e.Pointer.Capture(null);
+        }
 
-		protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnMouseMove(MouseEventArgs e)
 		{
 			if (lmbPressed)
 			{
@@ -184,7 +185,8 @@ namespace gip.ext.chart.avui.Charts.Navigation
 			ClearValue(CursorProperty);
 			content.Background = Brushes.Transparent;
 
-			ReleaseMouseCapture();
-		}
-	}
+            if (e.Pointer.Captured == this)
+                e.Pointer.Capture(null);
+        }
+    }
 }

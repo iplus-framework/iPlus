@@ -1,12 +1,13 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Linq;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using System.Transactions;
 using System.ComponentModel;
-using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,17 +26,17 @@ namespace gip.core.layoutengine.avui
             DockManager = manager;
         }
 
-        public VBDockingContainerBase(VBDockingManager manager, UIElement vbDesignContent)
+        public VBDockingContainerBase(VBDockingManager manager, Control vbDesignContent)
         {
             DockManager = manager;
             this.VBDesignContent = vbDesignContent;
-            if ((this.VBDesignContent is FrameworkElement) && (this.VBDesignContent is IVBContent))
+            if ((this.VBDesignContent is Control) && (this.VBDesignContent is IVBContent))
             {
                 if (this.VBDesignContent is VBDesign)
                     (this.VBDesignContent as VBDesign).OnContextACObjectChanged += new EventHandler(VBDockingContainerBase_OnElementACComponentChanged);
                 else
-                    (this.VBDesignContent as FrameworkElement).DataContextChanged += new DependencyPropertyChangedEventHandler(VBDockingContainerBase_ContentDataContextChanged);
-                (this.VBDesignContent as FrameworkElement).Loaded += new RoutedEventHandler(VBDockingContainerBase_ContentLoaded);
+                    (this.VBDesignContent as Control).DataContextChanged += VBDockingContainerBase_ContentDataContextChanged;
+                (this.VBDesignContent as Control).Loaded += VBDockingContainerBase_ContentLoaded;
             }
         }
 
@@ -45,7 +46,7 @@ namespace gip.core.layoutengine.avui
             RefreshTitle();
         }
 
-        void VBDockingContainerBase_ContentDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void VBDockingContainerBase_ContentDataContextChanged(object sender, EventArgs e)
         {
             AddToComponentReference();
         }
@@ -54,9 +55,9 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
         }
 
         internal virtual void DeInitVBControl(IACComponent bso=null)
@@ -70,13 +71,13 @@ namespace gip.core.layoutengine.avui
             }
             
             _vbDockingPanel = null;
-            if ((this.VBDesignContent is FrameworkElement) && (this.VBDesignContent is IVBContent))
+            if ((this.VBDesignContent is Control) && (this.VBDesignContent is IVBContent))
             {
                 if (this.VBDesignContent is VBDesign)
                     (this.VBDesignContent as VBDesign).OnContextACObjectChanged -= VBDockingContainerBase_OnElementACComponentChanged;
                 else
-                    (this.VBDesignContent as FrameworkElement).DataContextChanged -= VBDockingContainerBase_ContentDataContextChanged;
-                (this.VBDesignContent as FrameworkElement).Loaded -= VBDockingContainerBase_ContentLoaded;
+                    (this.VBDesignContent as Control).DataContextChanged -= VBDockingContainerBase_ContentDataContextChanged;
+                (this.VBDesignContent as Control).Loaded -= VBDockingContainerBase_ContentLoaded;
             }
             if (VBDesignContent is VBDesign)
             {
@@ -114,19 +115,19 @@ namespace gip.core.layoutengine.avui
                 {
                     IACObject invoker = (IACObject)ACUrlCmdMessage.ACParameter[0];
                     string filterVBControlClassName = (string)ACUrlCmdMessage.ACParameter[1];
-                    string filterFrameworkElementName = (string)ACUrlCmdMessage.ACParameter[2];
+                    string filterControlName = (string)ACUrlCmdMessage.ACParameter[2];
                     string filterVBContent = (string)ACUrlCmdMessage.ACParameter[3];
                     string filterACNameOfComponent = (string)ACUrlCmdMessage.ACParameter[4];
                     bool withDialogStack = (bool)ACUrlCmdMessage.ACParameter[5];
 
                     bool filterVBControlClassNameSet = !String.IsNullOrEmpty(filterVBControlClassName);
-                    bool filterFrameworkElementNameSet = !String.IsNullOrEmpty(filterFrameworkElementName);
+                    bool filterControlNameSet = !String.IsNullOrEmpty(filterControlName);
                     bool filterACNameOfComponentSet = !String.IsNullOrEmpty(filterACNameOfComponent);
                     bool filterVBContentSet = !String.IsNullOrEmpty(filterVBContent);
-                    if (!filterVBControlClassNameSet && !filterFrameworkElementNameSet && !filterACNameOfComponentSet && !filterVBContentSet)
+                    if (!filterVBControlClassNameSet && !filterControlNameSet && !filterACNameOfComponentSet && !filterVBContentSet)
                         return;
 
-                    if (ACUrlHelper.IsSearchedGUIInstance(ACIdentifier, filterVBControlClassName, filterFrameworkElementName, filterVBContent, filterACNameOfComponent))
+                    if (ACUrlHelper.IsSearchedGUIInstance(ACIdentifier, filterVBControlClassName, filterControlName, filterVBContent, filterACNameOfComponent))
                     {
                         invoker.ACUrlCommand(Const.CmdFindGUIResult, this);
                     }
@@ -147,7 +148,7 @@ namespace gip.core.layoutengine.avui
 
         #region Docking-Framework
 
-        public event RoutedEventHandler VBDesignLoaded;
+        public event EventHandler VBDesignLoaded;
         void VBDockingContainerBase_ContentLoaded(object sender, RoutedEventArgs e)
         {
             AddToComponentReference();
@@ -189,12 +190,12 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region Properties Extension
-        protected override void OnGotFocus(RoutedEventArgs e)
+        protected override void OnGotFocus(GotFocusEventArgs e)
         {
             base.OnGotFocus(e);
         }
 
-        public UIElement VBDesignContent
+        public Control VBDesignContent
         {
             get;
             set;
@@ -202,7 +203,7 @@ namespace gip.core.layoutengine.avui
 
         IACObject _ACComponent = null;
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -276,9 +277,9 @@ namespace gip.core.layoutengine.avui
                 _VBRibbon = new VBRibbon();
                 _VBRibbon.SetValue(DockPanel.DockProperty, Dock.Top);
                 if (VBDockingManager.GetRibbonBarVisibility(VBDesignContent) == Global.ControlModes.Collapsed)
-                    _VBRibbon.Visibility = System.Windows.Visibility.Collapsed;
+                    _VBRibbon.IsVisible = false;
                 else
-                    _VBRibbon.Visibility = System.Windows.Visibility.Visible;
+                    _VBRibbon.IsVisible = true;
                 dockPanel.Children.Add(_VBRibbon);
             }
 
@@ -296,10 +297,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBDockingContainerBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
-        /// <summary>
-        /// Gets or sets the BSOACComponent.
-        /// </summary>
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDockingContainerBase>();        
         public IACBSO BSOACComponent
         {
             get { return (IACBSO)GetValue(BSOACComponentProperty); }
@@ -309,11 +307,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBDockingContainerBase),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty = AvaloniaProperty.Register<VBDockingContainerBase, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
@@ -326,11 +320,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBDockingContainerBase),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBDockingContainerBase, ACInitState>(nameof(ACCompInitState));
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
@@ -341,25 +331,22 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBDockingContainerBase thisControl = dependencyObject as VBDockingContainerBase;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACUrlCmdMessageProperty)
-                thisControl.OnACUrlMessageReceived();
-            else if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            if (change.Property == ACUrlCmdMessageProperty)
+                OnACUrlMessageReceived();
+            else if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
+            base.OnPropertyChanged(change);
         }
 
 
@@ -369,17 +356,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_VBRibbon == null)
                     return Global.ControlModes.Hidden;
-                switch (_VBRibbon.Visibility)
-                {
-                    case System.Windows.Visibility.Hidden:
-                        return Global.ControlModes.Hidden;
-                    case System.Windows.Visibility.Collapsed:
-                        return Global.ControlModes.Collapsed;
-                    case System.Windows.Visibility.Visible:
-                        return Global.ControlModes.Enabled;
-                    default:
-                        return Global.ControlModes.Hidden;
-                }
+                return _VBRibbon.IsVisible ? Global.ControlModes.Enabled : Global.ControlModes.Collapsed;
             }
         }
 
@@ -456,23 +433,22 @@ namespace gip.core.layoutengine.avui
             {
                 Binding binding = new Binding();
                 binding.Source = ContextACObject;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBDockingContainerBase.ACCompInitStateProperty, binding);
+                this.Bind(VBDockingContainerBase.ACCompInitStateProperty, binding);
 
                 binding = new Binding();
                 binding.Source = ContextACObject;
-                binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
+                binding.Path = Const.ACUrlCmdMessage;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBDockingContainerBase.ACUrlCmdMessageProperty, binding);
+                this.Bind(VBDockingContainerBase.ACUrlCmdMessageProperty, binding);
                 _ReferenceAdded = true;
             }
         }
 
         protected void RemoveFromComponentReference()
         {
-            BindingOperations.ClearBinding(this, VBDockingContainerBase.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBDockingContainerBase.ACCompInitStateProperty);
+            this.ClearAllBindings();
             _ReferenceAdded = false;
         }
 
@@ -489,7 +465,7 @@ namespace gip.core.layoutengine.avui
                     VBDockingManager.SetDockState(VBDesignContent, TranslateDockingPanelState(toolWindow.State));
                     if (_VBRibbon != null)
                         VBDockingManager.SetRibbonBarVisibility(VBDesignContent, VBRibbonVisibility);
-                    VBDockingManager.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.ActualWidth, (int)VBDockingPanel.ActualHeight));
+                    VBDockingManager.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.Bounds.Width, (int)VBDockingPanel.Bounds.Height));
                     VBDockingManager.SetCloseButtonVisibility(VBDesignContent, VBDockingManager.GetCloseButtonVisibility(VBDesignContent));
                 }
                 else if (VBDockingPanel is VBDockingPanelTabbedDoc)
@@ -498,7 +474,7 @@ namespace gip.core.layoutengine.avui
                     VBDockingManager.SetDockState(VBDesignContent, Global.VBDesignDockState.Tabbed);
                     if (_VBRibbon != null)
                         VBDockingManager.SetRibbonBarVisibility(VBDesignContent, VBRibbonVisibility);
-                    VBDockingManager.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.ActualWidth, (int)VBDockingPanel.ActualHeight));
+                    VBDockingManager.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.Bounds.Width, (int)VBDockingPanel.Bounds.Height));
                 }
             }
         }
@@ -642,16 +618,16 @@ namespace gip.core.layoutengine.avui
             return true;
         }
 
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(WindowClosingEventArgs e)
         {
             _IsClosingVBWindow = true;
             base.OnClosing(e);
         }
 
-        protected override void OnActivated(EventArgs e)
+        protected override void OnOpened(EventArgs e)
         {
             _IsClosingVBWindow = false;
-            base.OnActivated(e);
+            base.OnOpened(e);
         }
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 

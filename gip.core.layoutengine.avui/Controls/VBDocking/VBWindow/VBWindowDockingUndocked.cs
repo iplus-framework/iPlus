@@ -1,16 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using System.Windows.Interop;
-using System.Windows.Controls.Primitives;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
@@ -22,30 +16,6 @@ namespace gip.core.layoutengine.avui
     [TemplatePart(Name = "PART_MenuButton", Type = typeof(Button))]
     public class VBWindowDockingUndocked : VBWindow
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "DockFloatingWindowStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "DockFloatingWindowStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBWindowDockingUndocked()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBWindowDockingUndocked), new FrameworkPropertyMetadata(typeof(VBWindowDockingUndocked)));
-        }
-
         private const int WM_MOVE = 0x0003;
         private const int WM_SIZE = 0x0005;
         private const int WM_NCMOUSEMOVE = 0xa0;
@@ -102,22 +72,18 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            if (!_themeApplied)
-                ActualizeTheme(true);
+            base.OnInitialized();
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            RegisterEvents();
+            base.OnApplyTemplate(e);
+            RegisterEvents(e);
             if (_PART_cpClientWindowContent != null)
                 _PART_cpClientWindowContent.Content = HostedPane;
             else
@@ -126,21 +92,12 @@ namespace gip.core.layoutengine.avui
             RefreshTitle();
             if (VBDockingManager.GetCloseButtonVisibility(HostedPane.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled && PART_CloseButton != null)
             {
-                PART_CloseButton.Visibility = System.Windows.Visibility.Visible;
+                PART_CloseButton.IsVisible = true;
             }
             else
             {
-                PART_CloseButton.Visibility = System.Windows.Visibility.Hidden;
+                PART_CloseButton.IsVisible = false;
             }
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
         }
 
         internal override void DeInitVBControl(IACComponent bso = null)
@@ -158,10 +115,10 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        private void RegisterEvents()
+        private void RegisterEvents(TemplateAppliedEventArgs e)
         {
             //partObject = (object)contentControl.Template.FindName("PART_HideButton", contentControl);
-            object partObject = (object)GetTemplateChild("PART_HideButton");
+            object partObject = (object)e.NameScope.Find("PART_HideButton");
             if ((partObject != null) && (partObject is Button))
             {
                 _PART_HideButton = ((Button)partObject);
@@ -169,7 +126,7 @@ namespace gip.core.layoutengine.avui
             }
 
             //partObject = (object)contentControl.Template.FindName("PART_MenuButton", contentControl);
-            partObject = (object)GetTemplateChild("PART_MenuButton");
+            partObject = (object)e.NameScope.Find("PART_MenuButton");
             if ((partObject != null) && (partObject is Button))
             {
                 _PART_MenuButton = ((Button)partObject);
@@ -221,7 +178,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (PART_cpClientWindowContent == null)
                     return false;
-                return PART_cpClientWindowContent.Visibility == Visibility.Visible;
+                return PART_cpClientWindowContent.IsVisible;
             }
         }
 
@@ -230,7 +187,7 @@ namespace gip.core.layoutengine.avui
             if (PART_cpClientWindowContent == null)
                 return;
             PART_cpClientWindowContent.Content = content.Content;
-            PART_cpClientWindowContent.Visibility = Visibility.Visible;
+            PART_cpClientWindowContent.IsVisible = true;
             RefreshTitle();
         }
 
@@ -239,7 +196,7 @@ namespace gip.core.layoutengine.avui
             if (PART_cpClientWindowContent == null)
                 return;
             PART_cpClientWindowContent.Content = null;
-            PART_cpClientWindowContent.Visibility = Visibility.Collapsed;
+            PART_cpClientWindowContent.IsVisible = false;
         }
 
 
@@ -257,7 +214,8 @@ namespace gip.core.layoutengine.avui
 
         void OnBtnMenuMouseDown(object sender, RoutedEventArgs e)
         {
-            DisplayContextMenu();
+            // TODO: Avalonia
+            //DisplayContextMenu();
         }
 
 
@@ -268,147 +226,149 @@ namespace gip.core.layoutengine.avui
             RefreshTitle();
         }
 
-        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        protected override void OnClosing(WindowClosingEventArgs e)
         {
             HostedPane.ReferencedPane.SaveFloatingWindowSizeAndPosition(this);
             if (_OnTitleChangedSubsc)
             {
-                HostedPane.ReferencedPane.OnTitleChanged -= new EventHandler(HostedPane_OnTitleChanged);
+                HostedPane.ReferencedPane.OnTitleChanged -= HostedPane_OnTitleChanged;
                 _OnTitleChangedSubsc = false;
             }
             HostedPane.Close();
 
-            if (_hwndSource != null)
-                _hwndSource.RemoveHook(_wndProcHandler);
+            // TODO: Avalonia:
+            //if (_hwndSource != null)
+            //    _hwndSource.RemoveHook(_wndProcHandler);
 
             base.OnClosing(e);
         }
 
-        HwndSource _hwndSource;
-        HwndSourceHook _wndProcHandler;
+        // TODO: Avalonia
+        //HwndSource _hwndSource;
+        //HwndSourceHook _wndProcHandler;
 
-        protected void OnLoaded(object sender, EventArgs e)
-        {
-            WindowInteropHelper helper = new WindowInteropHelper(this);
-            _hwndSource = HwndSource.FromHwnd(helper.Handle);
-            _wndProcHandler = new HwndSourceHook(HookHandler);
-            _hwndSource.AddHook(_wndProcHandler);
-        }
+        //protected void OnLoaded(object sender, EventArgs e)
+        //{
+        //    WindowInteropHelper helper = new WindowInteropHelper(this);
+        //    _hwndSource = HwndSource.FromHwnd(helper.Handle);
+        //    _wndProcHandler = new HwndSourceHook(HookHandler);
+        //    _hwndSource.AddHook(_wndProcHandler);
+        //}
 
-        protected override void OnHeaderMouseDown(object sender, MouseEventArgs e)
-        {
-            base.OnHeaderMouseDown(sender, e);
-        }
+        //protected override void OnHeaderMouseDown(object sender, MouseEventArgs e)
+        //{
+        //    base.OnHeaderMouseDown(sender, e);
+        //}
 
-        protected override void OnHeaderMouseUp(object sender, MouseEventArgs e)
-        {
-            base.OnHeaderMouseUp(sender, e);
-        }
+        //protected override void OnHeaderMouseUp(object sender, MouseEventArgs e)
+        //{
+        //    base.OnHeaderMouseUp(sender, e);
+        //}
 
-        protected override void OnHeaderMouseLeftDown(object sender, MouseEventArgs e)
-        {
-            base.OnHeaderMouseLeftDown(sender, e);
-            if (HostedPane.ReferencedPane.State == VBDockingPanelState.DockableWindow)
-            {
-                Point pos = e.GetPosition(this);
-                if(HostedPane != null && HostedPane.ReferencedPane != null && HostedPane.ReferencedPane.DockManager != null)
-                    HostedPane.ReferencedPane.DockManager.Drag(this, new Point(pos.X, pos.Y), new Point(pos.X, pos.Y));
-            }
-        }
+        //protected override void OnHeaderMouseLeftDown(object sender, MouseEventArgs e)
+        //{
+        //    base.OnHeaderMouseLeftDown(sender, e);
+        //    if (HostedPane.ReferencedPane.State == VBDockingPanelState.DockableWindow)
+        //    {
+        //        Point pos = e.GetPosition(this);
+        //        if(HostedPane != null && HostedPane.ReferencedPane != null && HostedPane.ReferencedPane.DockManager != null)
+        //            HostedPane.ReferencedPane.DockManager.Drag(this, new Point(pos.X, pos.Y), new Point(pos.X, pos.Y));
+        //    }
+        //}
 
-        protected override void OnHeaderMouseRightDown(object sender, MouseEventArgs e)
-        {
-            base.OnHeaderMouseRightDown(sender, e);
-            DisplayContextMenu();
-        }
+        //protected override void OnHeaderMouseRightDown(object sender, MouseEventArgs e)
+        //{
+        //    base.OnHeaderMouseRightDown(sender, e);
+        //    DisplayContextMenu();
+        //}
 
-        private void DisplayContextMenu()
-        {
-            Point pos = Mouse.GetPosition(this);
-            ContextMenu cxMenu = HostedPane.OptionsMenu;
-            cxMenu.Placement = PlacementMode.AbsolutePoint;
-            cxMenu.PlacementRectangle = new Rect(new Point(Left + pos.X, Top + pos.Y), new Size(0, 0));
-            cxMenu.PlacementTarget = this;
-            cxMenu.IsOpen = true;
-        }
+        //private void DisplayContextMenu()
+        //{
+        //    Point pos = Mouse.GetPosition(this);
+        //    ContextMenu cxMenu = HostedPane.OptionsMenu;
+        //    cxMenu.Placement = PlacementMode.AbsolutePoint;
+        //    cxMenu.PlacementRectangle = new Rect(new Point(Left + pos.X, Top + pos.Y), new Size(0, 0));
+        //    cxMenu.PlacementTarget = this;
+        //    cxMenu.IsOpen = true;
+        //}
 
-        protected override void OnHeaderMouseMove(object sender, MouseEventArgs e)
-        {
-            base.OnHeaderMouseMove(sender, e);
-            if (HostedPane != null && HostedPane.ReferencedPane != null)
-                HostedPane.ReferencedPane.SaveFloatingWindowSizeAndPosition(this);
-        }
-
-
-        // Hook Handler wird nur dann gebraucht, wenn Fenster einen Rahmen hat
-        // this.WindowStyle = WindowStyle.None;
-        // this.AllowsTransparency = true;
-        private IntPtr HookHandler(
-            IntPtr hwnd,
-            int msg,
-            IntPtr wParam,
-            IntPtr lParam,
-            ref bool handled
-        )
-        {
-            handled = false;
-
-            switch (msg)
-            {
-                case WM_SIZE:
-                case WM_MOVE:
-                    HostedPane.ReferencedPane.SaveFloatingWindowSizeAndPosition(this);
-                    break;
-                case WM_NCLBUTTONDOWN:
-                    if (HostedPane.ReferencedPane.State == VBDockingPanelState.DockableWindow && wParam.ToInt32() == HTCAPTION)
-                    {
-                        short x = (short)((lParam.ToInt32() & 0xFFFF));
-                        short y = (short)((lParam.ToInt32() >> 16));
+        //protected override void OnHeaderMouseMove(object sender, MouseEventArgs e)
+        //{
+        //    base.OnHeaderMouseMove(sender, e);
+        //    if (HostedPane != null && HostedPane.ReferencedPane != null)
+        //        HostedPane.ReferencedPane.SaveFloatingWindowSizeAndPosition(this);
+        //}
 
 
-                        HostedPane.ReferencedPane.DockManager.Drag(this, new Point(x, y), new Point(x - Left, y - Top));
+        //// Hook Handler wird nur dann gebraucht, wenn Fenster einen Rahmen hat
+        //// this.WindowStyle = WindowStyle.None;
+        //// this.AllowsTransparency = true;
+        //private IntPtr HookHandler(
+        //    IntPtr hwnd,
+        //    int msg,
+        //    IntPtr wParam,
+        //    IntPtr lParam,
+        //    ref bool handled
+        //)
+        //{
+        //    handled = false;
 
-                        handled = true;
-                    }
-                    break;
-                case WM_NCLBUTTONDBLCLK:
-                    if (HostedPane.ReferencedPane.State == VBDockingPanelState.DockableWindow && wParam.ToInt32() == HTCAPTION)
-                    {
-                        //
-                        HostedPane.ReferencedPane.ChangeState(VBDockingPanelState.Docked);
-                        HostedPane.ReferencedPane.Show();
-                        this.Close();
-
-                        handled = true;
-                    }
-                    break;
-                case WM_NCRBUTTONDOWN:
-                    if (wParam.ToInt32() == HTCAPTION)
-                    {
-                        short x = (short)((lParam.ToInt32() & 0xFFFF));
-                        short y = (short)((lParam.ToInt32() >> 16));
-
-                        ContextMenu cxMenu = HostedPane.OptionsMenu;
-                        cxMenu.Placement = PlacementMode.AbsolutePoint;
-                        cxMenu.PlacementRectangle = new Rect(new Point(x, y), new Size(0, 0));
-                        cxMenu.PlacementTarget = this;
-                        cxMenu.IsOpen = true;
-
-                        handled = true;
-                    }
-                    break;
-                case WM_NCRBUTTONUP:
-                    if (wParam.ToInt32() == HTCAPTION)
-                    {
-
-                        handled = true;
-                    }
-                    break;
-
-            }
+        //    switch (msg)
+        //    {
+        //        case WM_SIZE:
+        //        case WM_MOVE:
+        //            HostedPane.ReferencedPane.SaveFloatingWindowSizeAndPosition(this);
+        //            break;
+        //        case WM_NCLBUTTONDOWN:
+        //            if (HostedPane.ReferencedPane.State == VBDockingPanelState.DockableWindow && wParam.ToInt32() == HTCAPTION)
+        //            {
+        //                short x = (short)((lParam.ToInt32() & 0xFFFF));
+        //                short y = (short)((lParam.ToInt32() >> 16));
 
 
-            return IntPtr.Zero;
-        }
+        //                HostedPane.ReferencedPane.DockManager.Drag(this, new Point(x, y), new Point(x - Left, y - Top));
+
+        //                handled = true;
+        //            }
+        //            break;
+        //        case WM_NCLBUTTONDBLCLK:
+        //            if (HostedPane.ReferencedPane.State == VBDockingPanelState.DockableWindow && wParam.ToInt32() == HTCAPTION)
+        //            {
+        //                //
+        //                HostedPane.ReferencedPane.ChangeState(VBDockingPanelState.Docked);
+        //                HostedPane.ReferencedPane.Show();
+        //                this.Close();
+
+        //                handled = true;
+        //            }
+        //            break;
+        //        case WM_NCRBUTTONDOWN:
+        //            if (wParam.ToInt32() == HTCAPTION)
+        //            {
+        //                short x = (short)((lParam.ToInt32() & 0xFFFF));
+        //                short y = (short)((lParam.ToInt32() >> 16));
+
+        //                ContextMenu cxMenu = HostedPane.OptionsMenu;
+        //                cxMenu.Placement = PlacementMode.AbsolutePoint;
+        //                cxMenu.PlacementRectangle = new Rect(new Point(x, y), new Size(0, 0));
+        //                cxMenu.PlacementTarget = this;
+        //                cxMenu.IsOpen = true;
+
+        //                handled = true;
+        //            }
+        //            break;
+        //        case WM_NCRBUTTONUP:
+        //            if (wParam.ToInt32() == HTCAPTION)
+        //            {
+
+        //                handled = true;
+        //            }
+        //            break;
+
+        //    }
+
+
+        //    return IntPtr.Zero;
+        //}
     }
 }

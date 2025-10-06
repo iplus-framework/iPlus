@@ -42,7 +42,7 @@ namespace gip.core.layoutengine.avui
         protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
         {
             anchorPoint = e.GetPosition(TemplatedParent as FrameworkElement);
-            this.CaptureMouse();
+            e.Pointer.Capture(this);
             _IsInDrag = true;
             e.Handled = true;
         }
@@ -51,7 +51,8 @@ namespace gip.core.layoutengine.avui
         {
             if (_IsInDrag)
             {
-                this.ReleaseMouseCapture();
+                if (e.Pointer.Captured == this)
+                    e.Pointer.Capture(null);
                 _IsInDrag = false;
                 e.Handled = true;
             }
@@ -59,7 +60,8 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnLostFocus(RoutedEventArgs e)
         {
-            this.ReleaseMouseCapture();
+            if (e.Pointer.Captured == this)
+                e.Pointer.Capture(null);
             _IsInDrag = false;
             base.OnLostFocus(e);
         }

@@ -277,7 +277,8 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                ((VBMultiSelectComboBox)sender).ReleaseMouseCapture();
+                if (e.Pointer.Captured == (VBMultiSelectComboBox)sender)
+                    e.Pointer.Capture(null);
             }
         }
 

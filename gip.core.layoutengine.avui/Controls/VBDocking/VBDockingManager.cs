@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Diagnostics;
 using System.Xml;
-using System.Windows.Markup;
 using System.Linq;
 using System.Xml.Linq;
 using gip.core.datamodel;
@@ -12,6 +11,7 @@ using System.Transactions;
 using System.ComponentModel;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -298,9 +298,9 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        public List<UIElement> _VBDesignList = new List<UIElement>();
+        public List<Control> _VBDesignList = new List<Control>();
         [Content]
-        public List<UIElement> VBDesignList
+        public List<Control> VBDesignList
         {
             get
             {
@@ -344,7 +344,7 @@ namespace gip.core.layoutengine.avui
                 VBPropertyGridView gridView = null;
                 VBDesignEditor designEditor = null;
                 VBDesignItemTreeView logicalTreeView = null;
-                foreach (UIElement uiElement in VBDesignList)
+                foreach (Control uiElement in VBDesignList)
                 {
                     count++;
                     ShowVBDesign(uiElement);
@@ -420,7 +420,7 @@ namespace gip.core.layoutengine.avui
             if (VBDesignList != null)
             {
                 VBDesignList.Clear();
-                //foreach (UIElement uiElement in VBDesignList)
+                //foreach (Control uiElement in VBDesignList)
                 //{
                 //}
             }
@@ -531,7 +531,7 @@ namespace gip.core.layoutengine.avui
 
         #region AccessMethods Attached Properties
         [AttachedPropertyBrowsableForChildren]
-        public static void SetContainer(UIElement element, Global.VBDesignContainer value)
+        public static void SetContainer(Control element, Global.VBDesignContainer value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -539,7 +539,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static Global.VBDesignContainer GetContainer(UIElement element)
+        public static Global.VBDesignContainer GetContainer(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -548,7 +548,7 @@ namespace gip.core.layoutengine.avui
 
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetDockState(UIElement element, Global.VBDesignDockState value)
+        public static void SetDockState(Control element, Global.VBDesignDockState value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -556,7 +556,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static Global.VBDesignDockState GetDockState(UIElement element)
+        public static Global.VBDesignDockState GetDockState(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -564,7 +564,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetDockPosition(UIElement element, Global.VBDesignDockPosition value)
+        public static void SetDockPosition(Control element, Global.VBDesignDockPosition value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -572,7 +572,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static Global.VBDesignDockPosition GetDockPosition(UIElement element)
+        public static Global.VBDesignDockPosition GetDockPosition(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -581,7 +581,7 @@ namespace gip.core.layoutengine.avui
 
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetRibbonBarVisibility(UIElement element, Global.ControlModes value)
+        public static void SetRibbonBarVisibility(Control element, Global.ControlModes value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -589,7 +589,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static Global.ControlModes GetRibbonBarVisibility(UIElement element)
+        public static Global.ControlModes GetRibbonBarVisibility(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -598,7 +598,7 @@ namespace gip.core.layoutengine.avui
 
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetIsCloseableBSORoot(UIElement element, bool value)
+        public static void SetIsCloseableBSORoot(Control element, bool value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -606,7 +606,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static bool GetIsCloseableBSORoot(UIElement element)
+        public static bool GetIsCloseableBSORoot(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -614,7 +614,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetDisableDockingOnClick(UIElement element, bool value)
+        public static void SetDisableDockingOnClick(Control element, bool value)
         {
             if (element == null)
             {
@@ -625,7 +625,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static bool GetDisableDockingOnClick(UIElement element)
+        public static bool GetDisableDockingOnClick(Control element)
         {
             if (element == null)
             {
@@ -637,7 +637,7 @@ namespace gip.core.layoutengine.avui
 
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetWindowSize(UIElement element, Size value)
+        public static void SetWindowSize(Control element, Size value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -645,7 +645,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static Size GetWindowSize(UIElement element)
+        public static Size GetWindowSize(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -654,7 +654,7 @@ namespace gip.core.layoutengine.avui
 
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetWindowTitle(UIElement element, String value)
+        public static void SetWindowTitle(Control element, String value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -662,7 +662,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static String GetWindowTitle(UIElement element)
+        public static String GetWindowTitle(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -670,7 +670,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetCloseButtonVisibility(UIElement element, Global.ControlModes value)
+        public static void SetCloseButtonVisibility(Control element, Global.ControlModes value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -678,7 +678,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static Global.ControlModes GetCloseButtonVisibility(UIElement element)
+        public static Global.ControlModes GetCloseButtonVisibility(Control element)
         {
             if (element == null)
             {
@@ -691,7 +691,7 @@ namespace gip.core.layoutengine.avui
 
 
         [AttachedPropertyBrowsableForChildren]
-        public static void SetTabVisibilityACUrl(UIElement element, string value)
+        public static void SetTabVisibilityACUrl(Control element, string value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -699,7 +699,7 @@ namespace gip.core.layoutengine.avui
         }
 
         [AttachedPropertyBrowsableForChildren]
-        public static string GetTabVisibilityACUrl(UIElement element)
+        public static string GetTabVisibilityACUrl(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
@@ -988,7 +988,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        private void ShowVBDesign(UIElement uiElement, string acCaption = "")
+        private void ShowVBDesign(Control uiElement, string acCaption = "")
         {
             if (uiElement == null)
                 return;
@@ -1040,13 +1040,13 @@ namespace gip.core.layoutengine.avui
                     SettingsVBDesignWndPos wndPos = this.Root().RootPageWPF.ReStoreSettingsWndPos(toolWin.ACIdentifier) as SettingsVBDesignWndPos;
                     if (wndPos != null)
                     {
-                        toolWin.Show(wndPos);
+                        toolWin.Show(null, wndPos);
                     }
                     else
-                        toolWin.Show();
+                        toolWin.Show(null, null);
                 }
                 else
-                    toolWin.Show();
+                    toolWin.Show(null, null);
             }
             else if ((uiElementAsDataContent != null) && (containerType == Global.VBDesignContainer.ModalDialog))
             {
@@ -1236,7 +1236,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public void CloseAndRemoveVBDesign(UIElement uiElement)
+        public void CloseAndRemoveVBDesign(Control uiElement)
         {
             if (uiElement == null)
                 return;
@@ -1744,7 +1744,7 @@ namespace gip.core.layoutengine.avui
         {
             bool found = false;
             Border br = null;
-            foreach (UIElement child in stackPanel.Children)
+            foreach (Control child in stackPanel.Children)
             {
                 if (found)
                 {
@@ -2187,9 +2187,9 @@ namespace gip.core.layoutengine.avui
         /// <returns>Retruns True is drag is completed, false otherwise</returns>
         public bool Drag(VBWindowDockingUndocked floatingWindow, Point point, Point offset)
         {
-            if (!IsMouseCaptured)
+            if (!Focusable)
             {
-                if (CaptureMouse())
+                e.Pointer.Capture(this);
                 {
                     if (ParentWindow is VBDockingContainerToolWindow)
                     {
@@ -2216,7 +2216,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arugments.</param>
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
-            if (IsMouseCaptured)
+            if (Focusable)
                 DragPanelServices.MoveDrag(PointToScreen(e.GetPosition(this)));
             base.OnPreviewMouseMove(e);
         }
@@ -2228,10 +2228,11 @@ namespace gip.core.layoutengine.avui
         /// <remarks>Releases eventually camptured mouse events</remarks>
         protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
         {
-            if (IsMouseCaptured)
+            if (Focusable)
             {
                 DragPanelServices.EndDrag(PointToScreen(e.GetPosition(this)));
-                ReleaseMouseCapture();
+                if (e.Pointer.Captured == this)
+                    e.Pointer.Capture(null);
             }
             base.OnPreviewMouseUp(e);
         }
@@ -2473,12 +2474,12 @@ namespace gip.core.layoutengine.avui
             xElementRoot.Add(new XAttribute(xNsX + "Name", this.Name));
             xDoc.Add(xElementRoot);
 
-            foreach (UIElement uiElement in VBDesignList)
+            foreach (Control uiElement in VBDesignList)
             {
-                KeyValuePair<string, ACxmlnsInfo> nsUIElement = Layoutgenerator.GetNamespaceInfo(uiElement);
-                if (nsUIElement.Value == null)
+                KeyValuePair<string, ACxmlnsInfo> nsControl = Layoutgenerator.GetNamespaceInfo(uiElement);
+                if (nsControl.Value == null)
                     continue;
-                XNamespace xNsUI = nsUIElement.Value.XMLNameSpace;
+                XNamespace xNsUI = nsControl.Value.XMLNameSpace;
                 XElement xElement = new XElement(xNsUI + uiElement.GetType().Name,
                     new XAttribute(xNsThis + thisTypeName + ".Container", VBDockingManager.GetContainer(uiElement).ToString()),
                     new XAttribute(xNsThis + thisTypeName + ".DockState", VBDockingManager.GetDockState(uiElement).ToString()),
@@ -2519,13 +2520,13 @@ namespace gip.core.layoutengine.avui
             //xmlElementRoot.SetAttribute("Name", nsX.Value, this.Name);
             //xmldoc.AppendChild(xmlElementRoot);
 
-            //foreach (UIElement uiElement in VBDesignList)
+            //foreach (Control uiElement in VBDesignList)
             //{
             //    XmlElement xmlElement;
-            //    KeyValuePair<string, string> nsUIElement = Layoutgenerator.GetNamespaceInfo(uiElement);
-            //    if (String.IsNullOrEmpty(nsUIElement.Value))
+            //    KeyValuePair<string, string> nsControl = Layoutgenerator.GetNamespaceInfo(uiElement);
+            //    if (String.IsNullOrEmpty(nsControl.Value))
             //        continue;
-            //    xmlElement = xmldoc.CreateElement(nsUIElement.Key, uiElement.GetType().Name, nsUIElement.Value);
+            //    xmlElement = xmldoc.CreateElement(nsControl.Key, uiElement.GetType().Name, nsControl.Value);
             //    xmlElement.SetAttribute(thisTypeName + ".Container", nsThis.Value, VBDockingManager.GetContainer(uiElement).ToString());
             //    xmlElement.SetAttribute(thisTypeName + ".DockState", nsThis.Value, VBDockingManager.GetDockState(uiElement).ToString());
             //    xmlElement.SetAttribute(thisTypeName + ".DockPosition", nsThis.Value, VBDockingManager.GetDockPosition(uiElement).ToString());

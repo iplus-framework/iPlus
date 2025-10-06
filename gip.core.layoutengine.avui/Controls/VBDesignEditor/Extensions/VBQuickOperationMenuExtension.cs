@@ -53,7 +53,7 @@ namespace gip.core.layoutengine.avui
                             var editor = new VBStyleSetterWindow(DockingManager);
                             editor.LoadItemsCollection(extendedItem);
                             editor.Title = "Style Setter: " + WindowTitle;
-                            editor.Show();
+                            editor.Show(e);
                             Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 400));
                             (editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
                         }
@@ -66,7 +66,7 @@ namespace gip.core.layoutengine.avui
                             var editor = new VBStyleTriggerWindow(DockingManager);
                             editor.LoadItemsCollection(extendedItem);
                             editor.Title = "Style Trigger: " + WindowTitle;
-                            editor.Show();
+                            editor.Show(e);
                             Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 500));
                             (editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
                         }

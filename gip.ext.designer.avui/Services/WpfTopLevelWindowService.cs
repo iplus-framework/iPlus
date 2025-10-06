@@ -31,7 +31,7 @@ namespace gip.ext.designer.avui.Services
 			
 			public void SetOwner(Window child)
 			{
-                // TODO: Not accessible in Avalonia. Workaround?
+                child.Show(window);
                 //child.Owner = window;
             }
 

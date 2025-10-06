@@ -112,7 +112,8 @@ namespace gip.core.layoutengine.avui.timeline
                 Cursor = (ExtentWidth > ViewportWidth) ||
                     (ExtentHeight > ViewportHeight) ?
                     Cursors.ScrollAll : Cursors.Arrow;
-                CaptureMouse();
+                e.Pointer.Capture(this);
+
             }
             base.OnMouseDown(e);
         }
@@ -124,7 +125,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            if (IsMouseCaptured)
+            if (Focusable)
             {
                 shouldAutoScroll = false;
                 Point currentPoint = e.GetPosition(this);
@@ -155,10 +156,11 @@ namespace gip.core.layoutengine.avui.timeline
         /// <param name="e"></param>
         protected override void OnMouseUp(MouseButtonEventArgs e)
         {
-            if (IsMouseCaptured)
+            if (Focusable)
             {
                 Cursor = Cursors.Arrow;
-                ReleaseMouseCapture();
+                if (e.Pointer.Captured == this)
+                    e.Pointer.Capture(null);
             }
             base.OnMouseUp(e);
         }
@@ -172,7 +174,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         private void HandleWorldTimerTick(object sender, EventArgs e)
         {
-            if (IsMouseCaptured)
+            if (Focusable)
             {
                 Point currentPoint = Mouse.GetPosition(this);
                 velocity = previousPoint - currentPoint;

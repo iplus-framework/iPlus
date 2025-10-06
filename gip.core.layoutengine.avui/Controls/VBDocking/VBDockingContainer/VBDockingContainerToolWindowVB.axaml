@@ -2,9 +2,9 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 	  xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <local:VBDockingContainerToolWindow.Resources>
+    <!--<local:VBDockingContainerToolWindow.Resources>
         <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
-    </local:VBDockingContainerToolWindow.Resources>
+    </local:VBDockingContainerToolWindow.Resources>-->
     <local:VBDockPanel Grid.Row="1" 
                Grid.Column="0" 
                x:Name="_RootPanelDialog" 

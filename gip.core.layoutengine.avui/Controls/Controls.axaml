@@ -70,6 +70,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBVisualGroup/Themes/VBVisualGroupStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBConnector/Themes/VBConnectorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBCanvas/VBSelectedThumb/Themes/SelectedThumbStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogRootStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBFrame/Themes/FrameStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBPage/Themes/PageStyle.axaml"/>

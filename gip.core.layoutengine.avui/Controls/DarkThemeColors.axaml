@@ -14,6 +14,8 @@
     <ResourceInclude Source="/Controls/VBDateTimePicker/Themes/DarkThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBXMLEditor/Themes/DarkThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBTabItem/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBDocking/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBDocking/VBWindow/Themes/DarkThemeColors.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
   <Color x:Key="ColorCtrlTxtDisabled" A="#FF" B="#B0" G="#B0" R="#B0"/>

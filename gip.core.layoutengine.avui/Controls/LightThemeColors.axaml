@@ -14,6 +14,8 @@
     <ResourceInclude Source="/Controls/VBDateTimePicker/Themes/LightThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBXMLEditor/Themes/LightThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBTabItem/Themes/LightThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBDocking/Themes/LightThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBDocking/VBWindow/Themes/LightThemeColors.axaml"/>
   </ResourceDictionary.MergedDictionaries>
   
   <Color x:Key="ColorCtrlTxtDisabled" A="#FF" B="#30" G="#30" R="#30"/>

@@ -29,7 +29,6 @@ namespace gip.core.layoutengine.avui
         {
             IsHitTestVisible = false;
             _color = color;
-            //ReleaseMouseCapture();
         }
 
         /// <summary>

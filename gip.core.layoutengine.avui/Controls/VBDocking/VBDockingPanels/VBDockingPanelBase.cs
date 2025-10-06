@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Xml;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
@@ -21,12 +23,16 @@ namespace gip.core.layoutengine.avui
 
         #region c´tors
 
+        public VBDockingPanelBase() : base()
+        {
+        }
+
         public VBDockingPanelBase(VBDockingManager dockManager)
             : this(dockManager, null)
         {
         }
 
-        public VBDockingPanelBase(VBDockingManager dockManager, VBDockingContainerToolWindow content)
+        public VBDockingPanelBase(VBDockingManager dockManager, VBDockingContainerToolWindow content) : this()
         {
             _dockManager = dockManager;
 
@@ -49,12 +55,13 @@ namespace gip.core.layoutengine.avui
             //set { _dockManager = value; }
         }
 
-        protected override void OnPreviewMouseDown(MouseButtonEventArgs e)
+
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            base.OnPreviewMouseDown(e);
+            base.OnPointerPressed(e);
         }
 
-        protected override void OnGotFocus(RoutedEventArgs e)
+        protected override void OnGotFocus(GotFocusEventArgs e)
         {
             base.OnGotFocus(e);
         }
@@ -183,7 +190,8 @@ namespace gip.core.layoutengine.avui
                     return new Rect();
                 try
                 {
-                    return new Rect(PointToScreen(new Point(0, 0)), new Size(ActualWidth, ActualHeight));
+                    PixelPoint startPoint = this.PointToScreen(new Point(0, 0));
+                    return new Rect(startPoint.ToPoint(1.0), new Size(Bounds.Width, Bounds.Height));
                 }
                 catch (Exception e)
                 {

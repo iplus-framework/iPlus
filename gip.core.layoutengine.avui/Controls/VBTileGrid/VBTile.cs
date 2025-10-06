@@ -449,7 +449,7 @@ namespace gip.core.layoutengine.avui
         protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
             mouseOffset = Mouse.GetPosition(this);
-            CaptureMouse();
+            e.Pointer.Capture(this);
             Panel.SetZIndex(this, 2);
             base.OnPreviewMouseLeftButtonDown(e);
         }
@@ -460,7 +460,8 @@ namespace gip.core.layoutengine.avui
         /// <param name="e"></param>
         protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
-            ReleaseMouseCapture();
+            if (e.Pointer.Captured == this)
+                e.Pointer.Capture(null);
             if (Math.Abs(Margin.Bottom) <= 3 && Math.Abs(Margin.Top) <= 3 && Math.Abs(Margin.Left) <= 3 && Math.Abs(Margin.Right) <= 3)
             {
                 _VBTileGrid.OnTileClicked(this);
@@ -490,7 +491,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
-            if (IsMouseCaptured)
+            if (Focusable)
             {
                 Point mouseDelta = Mouse.GetPosition(this);
                 mouseDelta.Offset(-mouseOffset.X, -mouseOffset.Y);

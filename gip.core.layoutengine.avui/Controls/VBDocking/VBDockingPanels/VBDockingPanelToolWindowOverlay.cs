@@ -1,15 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia.Controls;
+using Avalonia.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -27,7 +17,11 @@ namespace gip.core.layoutengine.avui
             : base(dockManager, initialDock)
         {
             if (PART_HideButton != null)
-                PART_HideButton.LayoutTransform = new RotateTransform(90);
+            {
+                var ltctl = PART_HideButton.Parent as LayoutTransformControl;
+                if (ltctl != null && ltctl.LayoutTransform == null)
+                    ltctl.LayoutTransform = new RotateTransform(90);
+            }
             ReferencedPane = content.VBDockingPanel as VBDockingPanelToolWindow;
             ReferencedContent = content;
             AddDockingContainerToolWindow(ReferencedContent);

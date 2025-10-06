@@ -1,18 +1,18 @@
 ﻿<local:VBWindowDialog x:Class="gip.core.layoutengine.avui.VBWindowDialogMsg"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Height="500" Width="750" MaxHeight="350" Background="Black" ResizeMode="NoResize" Foreground="Yellow"
+        Height="500" Width="750" MaxHeight="350" Background="Black" CanResize="False" Foreground="Yellow"
         xmlns:local="clr-namespace:gip.core.layoutengine.avui"
-        Icon="/gip.core.layoutengine.avui;Component/Images/iPlusIconDesktop.ico">
+        Icon="avares://gip.core.layoutengine.avui/Images/iPlusIconDesktop.ico">
 
     <Window.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgExclamation.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgQuestion.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgInfo.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/VBWindow/Icons/MsgStop.xaml"/>
+                <!--<ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml"/>-->
+                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgExclamation.axaml"/>
+                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgQuestion.axaml"/>
+                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgInfo.axaml"/>
+                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgStop.axaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Window.Resources>
@@ -32,10 +32,9 @@
         </Grid.RowDefinitions>
         <ContentPresenter Grid.Column="1" Grid.Row="1" x:Name="imgIcon" Width="48" Height="48"
                                       HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      RecognizesAccessKey="True"/>
+                                      VerticalAlignment="Center"/>
         <local:VBTextBlock x:Name="txtMessage" Grid.Column="2"  Grid.Row="1" TextWrapping="Wrap" TextAlignment="Left" Margin="10 10 10 10" VerticalAlignment="Center" Foreground="White" />
-        <local:VBDataGrid x:Name="lstDetails" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding MsgDetailsView}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="FullRow" CanUserAddRows="False">
+        <local:VBDataGrid x:Name="lstDetails" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding MsgDetailsView}" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False">
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>
@@ -43,8 +42,7 @@
                             <ContentPresenter Width="20" Height="20"
                                       Content="{Binding ImageContent}"
                                       HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"
-                                      RecognizesAccessKey="True"/>
+                                      VerticalAlignment="Center"/>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
@@ -53,10 +51,10 @@
             </DataGrid.Columns>
         </local:VBDataGrid>
         <StackPanel Name="stackPanel" Grid.Row="3" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 5 0 0">
-            <local:VBButton Content="_Ja" x:Name="btnYes" Visibility="Visible" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Yes"/>
-            <local:VBButton Content="_Nein" x:Name="btnNo" Visibility="Visible" Margin="2 0 0 0" Height="24" Width="80" Click="Button_No"/>
-            <local:VBButton Content="O_K" x:Name="btnOK" Visibility="Visible" Margin="2 0 0 0" Height="24" Width="80" Click="Button_OK"/>
-            <local:VBButton Content="A_bbrechen" x:Name="btnCancel" Visibility="Visible" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Cancel"/>
+            <local:VBButton Content="_Ja" x:Name="btnYes" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Yes"/>
+            <local:VBButton Content="_Nein" x:Name="btnNo" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_No"/>
+            <local:VBButton Content="O_K" x:Name="btnOK" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_OK"/>
+            <local:VBButton Content="A_bbrechen" x:Name="btnCancel" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Cancel"/>
         </StackPanel>
     </Grid>
 </local:VBWindowDialog>
