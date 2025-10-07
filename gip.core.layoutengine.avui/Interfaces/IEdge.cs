@@ -12,6 +12,5 @@ namespace gip.core.layoutengine.avui
         Control TargetElement { get;}
         IList<Point> Points { get; set; }
         void RedrawVBEdge(bool isFromNode, bool withCalcConnPos = false);
-        Matrix? TransformToVisual(Visual visual);
     }
 }

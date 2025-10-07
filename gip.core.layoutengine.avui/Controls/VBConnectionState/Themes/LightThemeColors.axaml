@@ -1,0 +1,36 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <SolidColorBrush x:Key="ConnStateFillNoConnection" Color="Transparent"></SolidColorBrush>
+  <SolidColorBrush x:Key="ConnStateStrokePath" Color="#FF000000"/>
+  <SolidColorBrush x:Key="ConnStateStrokePathInverse" Color="#FF000000"/>
+
+  <LinearGradientBrush x:Key="ConnStateFillGood" StartPoint="0.497613,-0.125" EndPoint="0.497613,1.125">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF65FD03" Offset="0.0172414"/>
+      <GradientStop Color="#FF4FC702" Offset="0.525862"/>
+      <GradientStop Color="#FF3A9102" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ConnStateFillInstable" StartPoint="0.497613,-0.125" EndPoint="0.497613,1.125">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF00FF00" Offset="0"/>
+      <GradientStop Color="#FF7FFF00" Offset="0.0757128"/>
+      <GradientStop Color="#FFFFFF00" Offset="0.334884"/>
+      <GradientStop Color="#FFFF7F00" Offset="0.832558"/>
+      <GradientStop Color="#FFFF0000" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ConnStateFillBad" StartPoint="0.497613,-0.125" EndPoint="0.497613,1.125">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FFFF0000" Offset="0"/>
+      <GradientStop Color="#FFD90000" Offset="0.511628"/>
+      <GradientStop Color="#FFB40000" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+
+</ResourceDictionary>

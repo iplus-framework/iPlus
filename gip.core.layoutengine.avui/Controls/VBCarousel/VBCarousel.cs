@@ -10,6 +10,12 @@ using System.IO;
 using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Metadata;
 using gip.ext.designer.avui;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
 
 namespace gip.core.layoutengine.avui
 {
@@ -28,41 +34,9 @@ namespace gip.core.layoutengine.avui
         string _DataShowColumns;
         string _DataChilds;
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo>
-        {
-            new CustomControlStyleInfo {wpfTheme = eWpfTheme.Gip, styleName = "CarouselStyleGip",
-                                        styleUri = "/gip.core.layoutengine.avui; Component/Controls/VBCarousel/Themes/CarouselStyleGip.xaml",
-                                        hasImplicitStyles = false},
-            new CustomControlStyleInfo {wpfTheme = eWpfTheme.Aero, styleName = "CarouselStyleAero",
-                                        styleUri = "/gip.core.layoutengine.avui; Component/Controls/VBCarousel/Themes/CarouselStyleAero.xaml",
-                                        hasImplicitStyles = false},
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         static VBCarousel()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBCarousel), new FrameworkPropertyMetadata(typeof(VBCarousel)));
+            // Avalonia equivalent - no direct equivalent but this is handled by themes
         }
 
         bool _themeApplied = false;
@@ -79,23 +53,18 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            this.SourceUpdated += VBCarousel_SourceUpdated;
-            this.TargetUpdated += VBCarousel_TargetUpdated;
-            ActualizeTheme(true);
+            base.OnInitialized();
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            object partObj = (object)GetTemplateChild("PART_VBCarouselControl");
+            base.OnApplyTemplate(e);
+            var partObj = e.NameScope.Find("PART_VBCarouselControl");
             if (partObj != null && partObj is VBCarouselControl)
             {
                 _PART_VBCarouselControl = (VBCarouselControl)partObj;
@@ -126,17 +95,8 @@ namespace gip.core.layoutengine.avui
 
         private void _PART_VBCarouselControl_OnElementSelected(object sender)
         {
-            if (_PART_VBCarouselControl.CurrentlySelected != null && ((FrameworkElement)sender).Uid == _PART_VBCarouselControl.CurrentlySelected.Uid)
-                SelectedItem = Items.Cast<ACClassDesign>().FirstOrDefault(c => c.ACClassDesignID.ToString() == _PART_VBCarouselControl.CurrentlySelected.Uid);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, _styleInfoList,bInitializingCall);
+            if (_PART_VBCarouselControl.CurrentlySelected != null && ((Control)sender).Name == _PART_VBCarouselControl.CurrentlySelected.Name)
+                SelectedItem = Items.Cast<ACClassDesign>().FirstOrDefault(c => c.ACClassDesignID.ToString() == _PART_VBCarouselControl.CurrentlySelected.Name);
         }
 
         #endregion
@@ -171,10 +131,8 @@ namespace gip.core.layoutengine.avui
 
             _ACTypeInfo = dcACTypeInfo;
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBCarousel.RightControlModeProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
-                || (dcRightControlMode < RightControlMode))
+            // Avalonia equivalent for dependency property value source checking
+            if (dcRightControlMode < RightControlMode)
             {
                 RightControlMode = dcRightControlMode;
             }
@@ -191,7 +149,7 @@ namespace gip.core.layoutengine.avui
 
             System.Diagnostics.Debug.Assert(VBContent != "");
 
-            if (Visibility == Visibility.Visible)
+            if (IsVisible)
             {
                 if (_ACTypeInfo == null)
                     return;
@@ -216,32 +174,29 @@ namespace gip.core.layoutengine.avui
                     return;
                 }
 
-                Binding binding = new Binding();
+                var binding = new Binding();
                 binding.Source = dsSource;
                 if (!string.IsNullOrEmpty(dsPath))
                 {
-                    binding.Path = new PropertyPath(dsPath);
+                    binding.Path = dsPath;
                 }
-                SetBinding(VBCarousel.ItemsSourceProperty, binding);
+                this.Bind(VBCarousel.ItemsSourceProperty, binding);
 
                 // Gebundene Spalte setzen (VBContent)
-                Binding binding2 = new Binding();
+                var binding2 = new Binding();
                 binding2.Source = dcSource;
-                binding2.Path = new PropertyPath(dcPath);
+                binding2.Path = dcPath;
                 if (VBContentPropertyInfo != null)
                     binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
-                binding2.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-                binding2.NotifyOnSourceUpdated = true;
-                binding2.NotifyOnTargetUpdated = true;
-                SetBinding(VBCarousel.SelectedValueProperty, binding2);
+                this.Bind(VBCarousel.SelectedValueProperty, binding2);
 
                 if (BSOACComponent != null)
                 {
                     binding = new Binding();
                     binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.InitState);
+                    binding.Path = Const.InitState;
                     binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBCarousel.ACCompInitStateProperty, binding);
+                    this.Bind(VBCarousel.ACCompInitStateProperty, binding);
                 }
             }
         }
@@ -269,11 +224,10 @@ namespace gip.core.layoutengine.avui
                 this.Root().Messages.LogDebug("VBCarousel", "RemoveWPFRef", exw.Message);
             }
 
-            this.SourceUpdated -= VBCarousel_SourceUpdated;
-            this.TargetUpdated -= VBCarousel_TargetUpdated;
             _ACTypeInfo = null;
 
-            this.ClearAllBindings();
+            // TODO: Implement Avalonia equivalent for clearing bindings
+            // this.ClearAllBindings();
 
             if (_PART_VBCarouselControl != null)
                 _PART_VBCarouselControl.OnElementSelected -= _PART_VBCarouselControl_OnElementSelected;
@@ -291,33 +245,13 @@ namespace gip.core.layoutengine.avui
                 DeInitVBControl(BSOACComponent);
         }
 
-        //void BSOACComponent_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        //{
-        //    if (e.PropertyName == "InitState")
-        //    {
-        //        IACComponent bso = sender as IACComponent;
-        //        if ((bso != null)
-        //            && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
-        //            DeInitVBControl(bso);
-        //    }
-        //    if (e.PropertyName == "SelectedVisualisation")
-        //    {
-        //        FillCarousel();
-        //    }
-        //    if (e.PropertyName == "VisualisationList")
-        //    {
-        //        FillCarousel();
-        //    }
-        //}
-
-        void VBCarousel_TargetUpdated(object sender, DataTransferEventArgs e)
+        void VBCarousel_TargetUpdated(object sender, EventArgs e)
         {
-            e.Handled = true;
             UpdateControlMode();
             FillCarousel();
         }
 
-        void VBCarousel_SourceUpdated(object sender, DataTransferEventArgs e)
+        void VBCarousel_SourceUpdated(object sender, EventArgs e)
         {
             UpdateControlMode();
         }
@@ -349,14 +283,14 @@ namespace gip.core.layoutengine.avui
         {
             if (_PART_VBCarouselControl.Children.Count < Items.Count && _PART_VBCarouselControl.Children.Count > 0)
                 _IsNewItem = true;
-            FrameworkElement tempSelectedElement = null;
+            Control tempSelectedElement = null;
             _PART_VBCarouselControl.Children.Clear();
             ACClassDesign tempACClassDesign;
             foreach (var item in Items)
             {
                 if (item is ACClassDesign)
                 {
-                    BitmapImage imageSource = null;
+                    Bitmap imageSource = null;
                     Image img = new Image();
                     tempACClassDesign = item as ACClassDesign;
                     if (tempACClassDesign.DesignBinary != null)
@@ -365,16 +299,14 @@ namespace gip.core.layoutengine.avui
                         {
                             try
                             {
-                                imageSource = new BitmapImage();
-                                imageSource.BeginInit();
-                                imageSource.CacheOption = BitmapCacheOption.OnLoad;
-                                imageSource.StreamSource = stream;
-                                imageSource.EndInit();
+                                imageSource = new Bitmap(stream);
                                 img.Source = imageSource;
                             }
                             catch (Exception e)
                             {
-                                img.Source = new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine.avui;component/Images/questionMark2.jpg", UriKind.Absolute));
+                                // Use resource URI for Avalonia
+                                img.Source = new Bitmap(System.Reflection.Assembly.GetExecutingAssembly()
+                                    .GetManifestResourceStream("gip.core.layoutengine.avui.Images.questionMark2.jpg"));
 
                                 string msg = e.Message;
                                 if (e.InnerException != null && e.InnerException.Message != null)
@@ -386,7 +318,8 @@ namespace gip.core.layoutengine.avui
                         }
                     }
                     else
-                        img.Source = new BitmapImage(new Uri("pack://application:,,,/gip.core.layoutengine.avui;component/Images/questionMark2.jpg", UriKind.Absolute));
+                        img.Source = new Bitmap(System.Reflection.Assembly.GetExecutingAssembly()
+                            .GetManifestResourceStream("gip.core.layoutengine.avui.Images.questionMark2.jpg"));
 
                     double imageWidth = 370;
                     double imageHeight = 250;
@@ -411,12 +344,12 @@ namespace gip.core.layoutengine.avui
                     textBlock.Height = img.Height * 0.15;
                     textBlock.FontSize = img.Height * 0.1;
                     textBlock.Foreground = new SolidColorBrush(Colors.Red);
-                    textBlock.Foreground.Opacity = 0.9;
-                    textBlock.FontWeight = FontWeights.Bold;
+                    textBlock.Opacity = 0.9;
+                    textBlock.FontWeight = FontWeight.Bold;
                     textBlock.TextAlignment = TextAlignment.Center;
 
                     Canvas canvas = new Canvas();
-                    canvas.Uid = tempACClassDesign.ACClassDesignID.ToString();
+                    canvas.Name = tempACClassDesign.ACClassDesignID.ToString();
                     canvas.Children.Add(border);
                     canvas.Children.Add(textBlock);
                     canvas.Height = img.Height;
@@ -429,10 +362,10 @@ namespace gip.core.layoutengine.avui
                 }
             }
             if (SelectedItem != null && _IsNewItem == false)
-                tempSelectedElement = _PART_VBCarouselControl.Children.Cast<FrameworkElement>().FirstOrDefault(c => c.Uid == ((ACClassDesign)SelectedItem).ACClassDesignID.ToString());
+                tempSelectedElement = _PART_VBCarouselControl.Children.Cast<Control>().FirstOrDefault(c => c.Name == ((ACClassDesign)SelectedItem).ACClassDesignID.ToString());
             else if(_IsNewItem)
             {
-                tempSelectedElement = _PART_VBCarouselControl.Children[_PART_VBCarouselControl.Children.Count-1] as FrameworkElement;
+                tempSelectedElement = _PART_VBCarouselControl.Children[_PART_VBCarouselControl.Children.Count-1] as Control;
                 _IsNewItem = false;
             }
             _PART_VBCarouselControl.ReInitialize();
@@ -445,8 +378,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBCarousel));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty
+            = AvaloniaProperty.Register<VBCarousel, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -455,7 +388,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -466,8 +399,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for RotationSpeed.
         /// </summary>
-        public static readonly DependencyProperty RotationSpeedProperty
-            = DependencyProperty.Register("RotationSpeed", typeof(double), typeof(VBCarousel), new PropertyMetadata(200.0));
+        public static readonly StyledProperty<double> RotationSpeedProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(RotationSpeed), 200.0);
 
         /// <summary>
         /// Gets or sets the rotation speed. It can be set in range 1 : 1000, default value = 200.0
@@ -478,15 +411,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double RotationSpeed
         {
-            get { return (double)GetValue(RotationSpeedProperty); }
+            get { return GetValue(RotationSpeedProperty); }
             set { SetValue(RotationSpeedProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for LookdownOffset.
         /// </summary>
-        public static readonly DependencyProperty LookdownOffsetProperty
-            = DependencyProperty.Register("LookdownOffset", typeof(double), typeof(VBCarousel), new PropertyMetadata(25.0));
+        public static readonly StyledProperty<double> LookdownOffsetProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(LookdownOffset), 25.0);
 
         /// <summary>
         /// Gets or sets the lookdown offset. It can be set in range -100.0 : 100.0, default value = 25.0
@@ -497,15 +430,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double LookdownOffset
         {
-            get { return (double)GetValue(LookdownOffsetProperty); }
+            get { return GetValue(LookdownOffsetProperty); }
             set { SetValue(LookdownOffsetProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for Fade.
         /// </summary>
-        public static readonly DependencyProperty FadeProperty
-            = DependencyProperty.Register("Fade", typeof(double), typeof(VBCarousel), new PropertyMetadata(0.1));
+        public static readonly StyledProperty<double> FadeProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(Fade), 0.1);
 
         /// <summary>
         /// Gets or sets the fade. It can be set in range 0.0 : 1.0, default value = 0.1
@@ -516,15 +449,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double Fade
         {
-            get { return (double)GetValue(FadeProperty); }
+            get { return GetValue(FadeProperty); }
             set { SetValue(FadeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for Scale.
         /// </summary>
-        public static readonly DependencyProperty ScaleProperty
-            = DependencyProperty.Register("Scale", typeof(double), typeof(VBCarousel), new PropertyMetadata(0.4));
+        public static readonly StyledProperty<double> ScaleProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(Scale), 0.4);
 
 
         /// <summary>
@@ -536,7 +469,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double Scale
         {
-            get { return (double)GetValue(ScaleProperty); }
+            get { return GetValue(ScaleProperty); }
             set { SetValue(ScaleProperty, value); }
         }
 
@@ -544,8 +477,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for Orientation.
         /// </summary>
-        public static readonly DependencyProperty OrientationProperty
-            = DependencyProperty.Register("Orientation", typeof(string), typeof(VBCarousel), new PropertyMetadata("Horizontal"));
+        public static readonly StyledProperty<string> OrientationProperty
+            = AvaloniaProperty.Register<VBCarousel, string>(nameof(Orientation), "Horizontal");
 
 
         /// <summary>
@@ -557,15 +490,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string Orientation
         {
-            get { return (string)GetValue(OrientationProperty); }
+            get { return GetValue(OrientationProperty); }
             set { SetValue(OrientationProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ImagesSize.
         /// </summary>
-        public static readonly DependencyProperty ImagesSizeProperty
-            = DependencyProperty.Register("ImagesSize", typeof(double), typeof(VBCarousel), new PropertyMetadata(1.0));
+        public static readonly StyledProperty<double> ImagesSizeProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(ImagesSize), 1.0);
 
 
         /// <summary>
@@ -579,15 +512,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double ImagesSize
         {
-            get { return (double)GetValue(ImagesSizeProperty); }
+            get { return GetValue(ImagesSizeProperty); }
             set { SetValue(ImagesSizeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for CarouselWidth.
         /// </summary>
-        public static readonly DependencyProperty CarouselWidthProperty
-            = DependencyProperty.Register("CarouselWidth", typeof(double), typeof(VBCarousel));
+        public static readonly StyledProperty<double> CarouselWidthProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(CarouselWidth));
 
 
         /// <summary>
@@ -599,7 +532,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double CarouselWidth
         {
-            get { return (double)GetValue(CarouselWidthProperty); }
+            get { return GetValue(CarouselWidthProperty); }
             set { SetValue(CarouselWidthProperty, value); }
         }
 
@@ -607,8 +540,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for CarouselHeight.
         /// </summary>
-        public static readonly DependencyProperty CarouselHeightProperty
-            = DependencyProperty.Register("CarouselHeight", typeof(double), typeof(VBCarousel));
+        public static readonly StyledProperty<double> CarouselHeightProperty
+            = AvaloniaProperty.Register<VBCarousel, double>(nameof(CarouselHeight));
 
 
         /// <summary>
@@ -620,7 +553,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double CarouselHeight
         {
-            get { return (double)GetValue(CarouselHeightProperty); }
+            get { return GetValue(CarouselHeightProperty); }
             set { SetValue(CarouselHeightProperty, value); }
         }
 
@@ -644,7 +577,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for RightControlMode.
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBCarousel));
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty = 
+            AvaloniaProperty.Register<VBCarousel, Global.ControlModes>(nameof(RightControlMode));
         /// <summary>
         /// Gets or sets the right control mode.
         /// </summary>
@@ -656,15 +590,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
+            get { return GetValue(RightControlModeProperty); }
             set { SetValue(RightControlModeProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBCarousel));
+        public static readonly StyledProperty<string> DisabledModesProperty
+            = AvaloniaProperty.Register<VBCarousel, string>(nameof(DisabledModes));
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -676,14 +610,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentPropery = DependencyProperty.Register("VBContent", typeof(string), typeof(VBCarousel));
+        public static readonly StyledProperty<string> VBContentPropery = 
+            AvaloniaProperty.Register<VBCarousel, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of BSO's selected property marked with [ACPropertySelected(...)] attribute.
@@ -696,7 +631,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentPropery); }
+            get { return GetValue(VBContentPropery); }
             set { SetValue(VBContentPropery, value); }
         }
 
@@ -716,65 +651,60 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBCarousel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBCarousel>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBCarousel),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBCarousel, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBCarousel),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBCarousel, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBCarousel thisControl = dependencyObject as VBCarousel;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
         }
@@ -796,8 +726,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty =
-            DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBCarousel), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBCarousel, string>("ACCaption");
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
@@ -805,30 +735,15 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBCarousel control = d as VBCarousel;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-
-                    (control as VBCarousel).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBCarousel));
+        public static readonly StyledProperty<string> ACCaptionTransProperty
+            = AvaloniaProperty.Register<VBCarousel, string>(nameof(ACCaptionTrans));
 
         /// <summary>
         /// Gets or sets the ACCaption translation.
@@ -841,7 +756,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
+            get { return GetValue(ACCaptionTransProperty); }
             set { SetValue(ACCaptionTransProperty, value); }
         }
 
@@ -988,18 +903,18 @@ namespace gip.core.layoutengine.avui
 
             if (controlMode == Global.ControlModes.Collapsed)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else if (controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!this.IsVisible)
+                    this.IsVisible = true;
                 if (controlMode == Global.ControlModes.Disabled)
                 {
                     if (IsEnabled)

@@ -1,0 +1,18 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <local:ConverterVisibilityBool x:Key="ConverterVisibilityBool" />
+
+    <ControlTheme x:Key="{x:Type local:VBConnector}" TargetType="local:VBConnector">
+        <Setter Property="Width" Value="5"/>
+        <Setter Property="Height" Value="5"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="local:VBConnector">
+                <Grid>
+                    <Rectangle Fill="LightBlue" Opacity="0" StrokeThickness="1" Stroke="LightCoral"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

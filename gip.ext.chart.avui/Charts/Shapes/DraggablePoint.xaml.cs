@@ -44,7 +44,7 @@ namespace gip.ext.chart.avui.Charts.Shapes
 			shift = Position - dragStart;
 			dragging = true;
 
-            e.Pointer.Capture(this);
+            //e.Pointer.Capture(this);
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -65,8 +65,8 @@ namespace gip.ext.chart.avui.Charts.Shapes
         /// <param name="e">The MouseButtonEvent arguments.</param>
 		protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
 		{
-            if (e.Pointer.Captured == this)
-                e.Pointer.Capture(null);
+            //if (e.Pointer.Captured == this)
+            //    e.Pointer.Capture(null);
             dragging = false;
 		}
 	}

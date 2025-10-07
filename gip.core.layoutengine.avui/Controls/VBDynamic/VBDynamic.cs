@@ -1,19 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml.Linq;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml.Styling;
+using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui
@@ -67,11 +61,9 @@ namespace gip.core.layoutengine.avui
             {
                 Binding binding = new Binding();
                 binding.Source = DataContext;
-                binding.Path = new PropertyPath(VBContent);
+                binding.Path = VBContent;
                 binding.Mode = BindingMode.OneWay;
-                binding.NotifyOnSourceUpdated = true;
-                binding.NotifyOnTargetUpdated = true;
-                this.SetBinding(VBDynamic.XMLDesignProperty, binding);
+                this.Bind(VBDynamic.XMLDesignProperty, binding);
                 _Loaded = true;
             }
 
@@ -92,9 +84,9 @@ namespace gip.core.layoutengine.avui
             if (_Loaded)
             {
                 Content = null;
-                if (ReadLocalValue(DataContextProperty) != DependencyProperty.UnsetValue)
+                if (IsSet(DataContextProperty))
                     DataContext = null;
-                BindingOperations.ClearBinding(this, VBDynamic.XMLDesignProperty);
+                this.ClearAllBindings();
             }
             
             base.DeInitVBControl(bso);
@@ -121,31 +113,31 @@ namespace gip.core.layoutengine.avui
                 DataContext = BSOACComponent.ACUrlCommand(VBDynamicACComponent);
             }
 
-            UIElement uiElement = null;
+            Visual uiElement = null;
             if (string.IsNullOrEmpty(XMLDesign))
             {
                 ContentControl contentControl = new ContentControl();
                 ResourceDictionary dict = new ResourceDictionary();
-                dict.Source = new Uri("/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative);
-                contentControl.Style = (Style)dict["IconDesignStyleGip"];
+                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative)));
+                contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
                 uiElement = contentControl;
             }
             else
             {
                 uiElement = Layoutgenerator.LoadLayout(XMLDesign, DataContextForContent != null ? DataContextForContent : ContextACObject, BSOACComponent, VBContent);
-                FrameworkElement fw = uiElement as FrameworkElement;
+                Control fw = uiElement as Control;
                 if (fw != null && DataContextForContent != null)
                 {
                     Binding binding = new Binding();
                     binding.Source = DataContextForContent;
-                    SetBinding(FrameworkElement.DataContextProperty, binding);
+                    fw.Bind(Control.DataContextProperty, binding);
                     //fw.DataContext = DataContextForContent;
                 }
             }
 
-            if (tabNamesList != null && uiElement is FrameworkElement)
+            if (tabNamesList != null && uiElement is Control)
             {
-                ((FrameworkElement)uiElement).Resources.Add("LastSelectedTabsList", tabNamesList);
+                ((Control)uiElement).Resources.Add("LastSelectedTabsList", tabNamesList);
                 SetLastSelectedTabsOnVBTabControl(uiElement);
 
             }
@@ -172,16 +164,15 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for XMLDesign.
         /// </summary>
-        public static readonly DependencyProperty XMLDesignProperty
-            = DependencyProperty.Register("XMLDesign", typeof(string), typeof(VBDynamic), new PropertyMetadata(new PropertyChangedCallback(XMLDesignChanged)));
+        public static readonly StyledProperty<string> XMLDesignProperty = AvaloniaProperty.Register<VBDynamic, string>(nameof(XMLDesign));
 
-        private static void XMLDesignChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (d is VBDynamic)
+            if (change.Property == XMLDesignProperty && change.NewValue != change.OldValue)
             {
-                VBDynamic vbDynamic = d as VBDynamic;
-                vbDynamic.LoadDesign();
+                LoadDesign();
             }
+            base.OnPropertyChanged(change);
         }
 
         /// <summary>
@@ -202,8 +193,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for DataContextForContent.
         /// </summary>
-        public static readonly DependencyProperty DataContextForContentProperty
-            = DependencyProperty.Register("DataContextForContent", typeof(IACObject), typeof(VBDynamic), new PropertyMetadata());
+        public static readonly StyledProperty<IACObject> DataContextForContentProperty = AvaloniaProperty.Register<VBDynamic, IACObject>(nameof(DataContextForContent));
         #endregion
 
         #region Overridden IACInteractiveObject Member
@@ -265,11 +255,11 @@ namespace gip.core.layoutengine.avui
 
         private List<Tuple<string,string>> CheckContent(object oldContent)
         {
-            if (oldContent == null || oldContent.GetType().IsAssignableFrom(typeof(FrameworkElement)))
+            if (oldContent == null || oldContent.GetType().IsAssignableFrom(typeof(Control)))
                 return null;
 
             List<Tuple<string, string>> tabItemNameList = new List<Tuple<string, string>>();
-            VBTabControl tabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree((DependencyObject)oldContent, typeof(VBTabControl)) as VBTabControl;
+            VBTabControl tabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree((AvaloniaObject)oldContent, typeof(VBTabControl)) as VBTabControl;
             if (tabControl == null)
                 return null;
 
@@ -302,7 +292,7 @@ namespace gip.core.layoutengine.avui
 
         private void SetLastSelectedTabsOnVBTabControl(object content)
         {
-            VBTabControl tabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree((DependencyObject)content, typeof(VBTabControl)) as VBTabControl;
+            VBTabControl tabControl = VBLogicalTreeHelper.FindChildObjectInLogicalTree((AvaloniaObject)content, typeof(VBTabControl)) as VBTabControl;
             if (tabControl == null)
             {
                 return;

@@ -1,17 +1,10 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace gip.core.layoutengine.avui
 {
@@ -40,20 +33,19 @@ namespace gip.core.layoutengine.avui
 
 		static VBClockDisplay()
 		{
-			TimeInfoProperty = DependencyProperty.Register
-				( "TimeInfo", typeof( VBClockTimeInfo ), typeof( VBClockDisplay )
-				, new FrameworkPropertyMetadata( null, FrameworkPropertyMetadataOptions.AffectsRender, TimeInfo_Changed ) );
+			TimeInfoProperty = AvaloniaProperty.Register<VBClockDisplay, VBClockTimeInfo>
+				( nameof(TimeInfo), defaultValue: null );
 
-			NowProperty = DependencyProperty.Register
-				( "Now", typeof( DateTime ), typeof( VBClockDisplay ) );
+			NowProperty = AvaloniaProperty.Register<VBClockDisplay, DateTime>
+				( nameof(Now), defaultValue: default(DateTime) );
 
-			ClockZoomProperty = DependencyProperty.Register
-				( "ClockZoom", typeof( double ), typeof( VBClockDisplay )
-				, new FrameworkPropertyMetadata( 1.0, FrameworkPropertyMetadataOptions.AffectsRender ) );
+			ClockZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>
+				( nameof(ClockZoom), defaultValue: 1.0 );
 
-			TextZoomProperty = DependencyProperty.Register
-				( "TextZoom", typeof( double ), typeof( VBClockDisplay )
-				, new FrameworkPropertyMetadata( 1.0, FrameworkPropertyMetadataOptions.AffectsRender ) );
+			TextZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>
+				( nameof(TextZoom), defaultValue: 1.0 );
+
+			TimeInfoProperty.Changed.AddClassHandler<VBClockDisplay>((sender, e) => TimeInfo_Changed(sender, e));
 		}
 
         /// <summary>
@@ -61,14 +53,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public VBClockTimeInfo TimeInfo
 		{
-			get
-			{
-				return (VBClockTimeInfo) GetValue( TimeInfoProperty );
-			}
-			set
-			{
-				SetValue( TimeInfoProperty, value );
-			}
+			get => GetValue( TimeInfoProperty );
+			set => SetValue( TimeInfoProperty, value );
 		}
 
         /// <summary>
@@ -76,14 +62,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public DateTime Now
 		{
-			get
-			{
-				return (DateTime) GetValue( NowProperty );
-			}
-			set
-			{
-				SetValue( NowProperty, value );
-			}
+			get => GetValue( NowProperty );
+			set => SetValue( NowProperty, value );
 		}
 
         /// <summary>
@@ -91,14 +71,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public double ClockZoom
 		{
-			get
-			{
-				return (double) GetValue( ClockZoomProperty );
-			}
-			set
-			{
-				SetValue( ClockZoomProperty, value );
-			}
+			get => GetValue( ClockZoomProperty );
+			set => SetValue( ClockZoomProperty, value );
 		}
 
         /// <summary>
@@ -106,14 +80,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public double TextZoom
 		{
-			get
-			{
-				return (double) GetValue( TextZoomProperty );
-			}
-			set
-			{
-				SetValue( TextZoomProperty, value );
-			}
+			get => GetValue( TextZoomProperty );
+			set => SetValue( TextZoomProperty, value );
 		}
 
 		private void _timer_Tick( object sender, EventArgs e )
@@ -130,20 +98,22 @@ namespace gip.core.layoutengine.avui
 			}
 		}
 
-		private static void TimeInfo_Changed( DependencyObject d, DependencyPropertyChangedEventArgs e )
+		private static void TimeInfo_Changed( VBClockDisplay sender, AvaloniaPropertyChangedEventArgs e )
 		{
-			VBClockTimeInfo ti = (VBClockTimeInfo) d.GetValue( TimeInfoProperty );
+			VBClockTimeInfo ti = sender.TimeInfo;
 
 			if( ti != null )
 			{
-				d.SetValue( NowProperty, ti.GetAdjusted( DateTime.UtcNow ) );
+				sender.Now = ti.GetAdjusted( DateTime.UtcNow );
 			}
 		}
 
         /// <summary>
-        /// Represents a dependency properties for TimeInfo, Now, ClockZoom, TextZoom.
+        /// Represents styled properties for TimeInfo, Now, ClockZoom, TextZoom.
         /// </summary>
-		public static DependencyProperty TimeInfoProperty, NowProperty, ClockZoomProperty, TextZoomProperty;
+		public static StyledProperty<VBClockTimeInfo> TimeInfoProperty;
+		public static StyledProperty<DateTime> NowProperty;
+		public static StyledProperty<double> ClockZoomProperty, TextZoomProperty;
 
 		private DispatcherTimer _timer;
 	}

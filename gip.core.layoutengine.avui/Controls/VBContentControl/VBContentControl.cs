@@ -1,28 +1,27 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 
 namespace gip.core.layoutengine.avui
 {
     public class VBContentControl : ContentControl, IVBContent, IACObject
     {
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        protected override void OnContentChanged(object oldContent, object newContent)
-        {
-            base.OnContentChanged(oldContent, newContent);
-        }
+        //protected override void OnContentChanged(object oldContent, object newContent)
+        //{
+        //    base.OnContentChanged(oldContent, newContent);
+        //}
 
         bool _IsInitialized = false;
         private void InitVBControl()
@@ -45,8 +44,8 @@ namespace gip.core.layoutengine.avui
                 {
                     Binding binding = new Binding();
                     binding.Source = tempComponent;
-                    binding.Path = new PropertyPath(path);
-                    SetBinding(ContentDataContextProperty, binding);
+                    binding.Path = path;
+                    this.Bind(ContentDataContextProperty, binding);
                 }
 
                 _IsInitialized = true;
@@ -63,7 +62,6 @@ namespace gip.core.layoutengine.avui
         public void DeInitVBControl(IACComponent bso)
         {
             VBContent = null;
-            BindingOperations.ClearBinding(this, ContentDataContextProperty);
             this.ClearAllBindings();
         }
 
@@ -149,8 +147,7 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ContentDataContextProperty, value); }
         }
 
-        public static readonly DependencyProperty ContentDataContextProperty =
-            DependencyProperty.Register("ContentDataContext", typeof(IACObject), typeof(VBContentControl));
+        public static readonly StyledProperty<IACObject> ContentDataContextProperty = AvaloniaProperty.Register<VBContentControl, IACObject>(nameof(ContentDataContext));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -166,20 +163,21 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBContentControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBContentControl>();
 
-        private static void OnDepPropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBContentControl thisControl = d as VBContentControl;
-            if (e.Property == BSOACComponentProperty)
+
+            if (change.Property == BSOACComponentProperty)
             {
-                if (e.NewValue == null && e.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = e.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
+            base.OnPropertyChanged(change);
         }
 
         /// <summary>

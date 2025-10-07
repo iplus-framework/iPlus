@@ -1,13 +1,18 @@
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Shapes;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using gip.ext.design.avui;
+using gip.ext.design.avui.UIExtensions;
 using gip.ext.designer.avui.Controls;
 using System;
 using System.Collections.Generic;
@@ -15,13 +20,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
-using Avalonia.Interactivity;
-using Avalonia.Input;
-using Avalonia.Controls.Primitives;
-using Avalonia.VisualTree;
-using Avalonia.Data;
-using gip.ext.design.avui.UIExtensions;
-using Avalonia.Collections;
 
 namespace gip.core.layoutengine.avui
 {

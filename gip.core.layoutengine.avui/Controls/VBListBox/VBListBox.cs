@@ -769,7 +769,9 @@ namespace gip.core.layoutengine.avui
                 var selectionChangedArgs = new SelectionChangedEventArgs(SelectionChangedEvent, oldItems, newItems);
                 OnSelectionChanged(selectionChangedArgs);
             }
+            VB_TargetUpdated(null, change);
         }
+
         private void UpdateDragDropHandlers()
         {
             if (DragEnabled == DragMode.Enabled)
@@ -788,6 +790,16 @@ namespace gip.core.layoutengine.avui
                 RemoveHandler(DragDrop.DropEvent, OnDrop);
                 RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
             }
+        }
+
+        void VB_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            UpdateControlMode();
+        }
+
+        void VB_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            UpdateControlMode();
         }
 
         #endregion

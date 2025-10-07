@@ -1,10 +1,10 @@
 using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
+using Avalonia.Controls;
+using Avalonia.Threading;
 using gip.core.datamodel;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Media;
 
 
 namespace gip.core.layoutengine.avui
@@ -38,10 +38,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             Init();
         }
 
@@ -60,7 +59,7 @@ namespace gip.core.layoutengine.avui
         /// Selects the element.
         /// </summary>
         /// <param name="element">The element to select.</param>
-        public void SelectElement(FrameworkElement element)
+        public void SelectElement(Control element)
         {
             if (element != null)
             {
@@ -159,37 +158,41 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void element_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            SelectElement(sender as FrameworkElement);
+            base.OnPointerPressed(e);
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            {
+                SelectElement(e.Source as Control);
+            }
         }
 
         /// <summary>
-        /// Handles OnMouseWheel event.
+        /// Handles OnPointerWheelChanged event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            base.OnMouseWheel(e);
+            base.OnPointerWheelChanged(e);
             int index = Children.IndexOf(CurrentlySelected);
-            if (e.Delta == 120 && !_timer.IsEnabled)
+            if (e.Delta.Y > 0 && !_timer.IsEnabled)
             {
                 if (index == 0)
-                    SelectElement(Children[Children.Count - 1] as FrameworkElement);
+                    SelectElement(Children[Children.Count - 1] as Control);
                 else
-                    SelectElement(Children[index - 1] as FrameworkElement);
+                    SelectElement(Children[index - 1] as Control);
 
             }
-            else if (e.Delta == -120 && !_timer.IsEnabled)
+            else if (e.Delta.Y < 0 && !_timer.IsEnabled)
             {
                 if (index == Children.Count - 1)
-                    SelectElement(Children[0] as FrameworkElement);
+                    SelectElement(Children[0] as Control);
                 else
-                    SelectElement(Children[index + 1] as FrameworkElement);
+                    SelectElement(Children[index + 1] as Control);
             }
         }
 
-        private void RotateToElement(FrameworkElement element)
+        private void RotateToElement(Control element)
         {
             if (element != _currentlySelected)
             {
@@ -230,10 +233,10 @@ namespace gip.core.layoutengine.avui
             X_SCALE = CenterX * INTERNAL_SCALE_COEFFICIENT;
             Y_SCALE = CenterY * INTERNAL_SCALE_COEFFICIENT;
 
-            foreach (FrameworkElement element in Children)
+            foreach (Control element in Children)
             {
-                element.MouseLeftButtonDown += new MouseButtonEventHandler(element_MouseLeftButtonDown);
-                element.Cursor = Cursors.Hand;
+                element.PointerPressed += Element_PointerPressed;
+                element.Cursor = new Cursor(StandardCursorType.Hand);
             }
 
             SelectElement(GetChild(0));
@@ -241,12 +244,20 @@ namespace gip.core.layoutengine.avui
             SetElementPositions();
         }
 
-        private FrameworkElement _currentlySelected = null;
+        private void Element_PointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            {
+                SelectElement(sender as Control);
+            }
+        }
+
+        private Control _currentlySelected = null;
 
         /// <summary>
         /// Gets the CurrentlySelected.
         /// </summary>
-        public FrameworkElement CurrentlySelected { get { return _currentlySelected; } }
+        public Control CurrentlySelected { get { return _currentlySelected; } }
 
         /// <summary>
         /// Gets the CenterX.
@@ -348,10 +359,10 @@ namespace gip.core.layoutengine.avui
         {
             for (int index = 0; index < TotalNumberOfElements; index++)
             {
-                FrameworkElement element = GetChild(index);
+                Control element = GetChild(index);
 
-                double elementWidthCenter = GetElementCenter(element.Width, element.ActualWidth);
-                double elementHeightCenter = GetElementCenter(element.Height, element.ActualHeight);
+                double elementWidthCenter = GetElementCenter(element.Width, element.Bounds.Width);
+                double elementHeightCenter = GetElementCenter(element.Height, element.Bounds.Height);
 
                 double degrees = 360 * ((double)index / (double)TotalNumberOfElements) + _currentRotation;
 
@@ -361,31 +372,26 @@ namespace gip.core.layoutengine.avui
                 double y = Y_SCALE * Math.Sin(ConvertToRads(degrees)) - (double.IsNaN(X_SCALE) ? 0.0 : X_SCALE / 100.0) * (Math.Cos(ConvertToRads(degrees)) * LookDownOffset);
                 Canvas.SetTop(element, y + CenterY - elementHeightCenter);
 
-                ScaleTransform scale = element.RenderTransform as ScaleTransform;
-                if (scale == null)
-                {
-                    scale = new ScaleTransform();
-                    element.RenderTransform = scale;
-                }
-
-                scale.CenterX = elementWidthCenter;
-                scale.CenterY = elementHeightCenter;
-                scale.ScaleX = scale.ScaleY = GetScaledSize(degrees);
-                Canvas.SetZIndex(element, GetZValue(degrees));
+                // Set transforms for Avalonia
+                var scaleTransform = new ScaleTransform();
+                scaleTransform.ScaleX = scaleTransform.ScaleY = GetScaledSize(degrees);
+                element.RenderTransform = scaleTransform;
+                element.RenderTransformOrigin = new RelativePoint(0.5, 0.5, RelativeUnit.Relative);
+                element.ZIndex = GetZValue(degrees);
 
                 SetOpacity(element, degrees);
             }
         }
 
-        private FrameworkElement GetChild(int index)
+        private Control GetChild(int index)
         {
             if (Children.Count == 0)
                 return null;
 
-            FrameworkElement element = Children[index] as FrameworkElement;
+            Control element = Children[index] as Control;
 
             if (element == null)
-                throw new NotSupportedException("Carousel only supports children that are Framework elements");
+                throw new NotSupportedException("Carousel only supports children that are Control elements");
 
             return element;
         }
@@ -396,7 +402,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        private void SetOpacity(FrameworkElement element, double degrees)
+        private void SetOpacity(Control element, double degrees)
         {
             element.Opacity = (1.0 - Fade) + Fade * GetCoefficient(degrees);
         }

@@ -3,12 +3,9 @@ using Avalonia.Controls;
 using Avalonia.Media;
 using Avalonia.Metadata;
 using gip.core.datamodel;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
 {

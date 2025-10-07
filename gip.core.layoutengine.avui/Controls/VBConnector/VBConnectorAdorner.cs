@@ -4,16 +4,13 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,11 +22,6 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBConnectorAdorner : Control
     {
-        static VBConnectorAdorner()
-		{
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBConnectorAdorner), new FrameworkPropertyMetadata(typeof(VBConnectorAdorner)));
-		}
-
         /// <summary>
         /// The VBVisualConnector item.
         /// </summary>

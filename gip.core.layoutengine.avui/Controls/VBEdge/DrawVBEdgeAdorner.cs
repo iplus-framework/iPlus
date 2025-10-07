@@ -6,6 +6,8 @@ using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.Controls;
 using Avalonia;
+using Avalonia.Input;
+using Avalonia.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -46,11 +48,11 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public override void DrawPath(DependencyObject hitObject, PointerEventArgs e)
+        public virtual void DrawPath(AvaloniaObject hitObject, PointerEventArgs e)
         {
             if ((hitObject != null) && !(hitObject is VBConnector))
             {
-                DependencyObject hitConnectorObject = VBVisualTreeHelper.FindParentObjectInVisualTree(hitObject, typeof(VBConnector));
+                AvaloniaObject hitConnectorObject = VBVisualTreeHelper.FindParentObjectInVisualTree(hitObject, typeof(VBConnector));
                 if ((hitConnectorObject != null) && (hitConnectorObject is VBConnector))
                     HitConnector = hitObject as VBConnector;
                 else
@@ -74,14 +76,17 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="hitTest"></param>
         /// <returns></returns>
-        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, MouseButtonEventArgs e = null)
+        public override DesignItem CreateShapeInstanceForDesigner(DesignPanelHitTestResult hitTest, PointerEventArgs e = null)
         {
-            DependencyObject vbConnector = null;
+            AvaloniaObject vbConnector = null;
             if (e != null && hitTest.VisualHit is VBEdge)
             {
                 VBEdge vbEdge = hitTest.VisualHit as VBEdge;
-                Point hitPoint = e.GetPosition(DesignPanel);
-                Point targetPoint = vbEdge.Target.TransformToAncestor(vbEdge.Parent as UIElement).Transform(new Point(0, 0));
+                Point hitPoint = e.GetPosition(DesignPanel as Visual);
+                
+                Transform targetTransform = vbEdge.Target.TransformToAncestor(vbEdge.Parent as Visual);
+                Point targetPoint = new Point(0, 0).Transform(targetTransform.Value);
+                
                 if (Math.Abs(hitPoint.X - targetPoint.X) < 5 && Math.Abs(hitPoint.Y - targetPoint.Y) < 5)
                     vbConnector = vbEdge.Target;
             }
@@ -149,8 +154,8 @@ namespace gip.core.layoutengine.avui
             if ((item != null) && (item.View != null))
             {
                 ApplyDefaultPropertiesToItem(item);
-                item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
-                item.Properties[VBEdge.ACName2Property].SetValue(toXName);
+                item.Properties[VBEdge.VBConnectorSourceProperty].SetValue(fromXName);
+                item.Properties[VBEdge.VBConnectorTargetProperty].SetValue(toXName);
                 item.Properties[VBEdge.StrokeProperty].SetValue("#FFFFFF");
                 item.Properties[VBEdge.StrokeThicknessProperty].SetValue(1.5);
 

@@ -5,10 +5,6 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
 using gip.core.datamodel;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
@@ -16,6 +12,8 @@ using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
 using gip.ext.designer.avui.Controls;
+using Avalonia;
+using Avalonia.VisualTree;
 
 namespace gip.core.layoutengine.avui
 {
@@ -150,7 +148,7 @@ namespace gip.core.layoutengine.avui
             base.OnRemove();
         }
 
-        private void AttachToVBConnectorRelocationEvent(DependencyObject obj, bool removeEventHandler, List<VBEdge> edges)
+        private void AttachToVBConnectorRelocationEvent(StyledElement obj, bool removeEventHandler, List<VBEdge> edges)
         {
             if (obj is VBConnector)
             {
@@ -172,12 +170,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-                {
-                    DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                    if (child != null)
-                        AttachToVBConnectorRelocationEvent(child, removeEventHandler, edges);
-                }
+                (obj as Visual)?.GetVisualChildren().ToList().ForEach(x => AttachToVBConnectorRelocationEvent(x, removeEventHandler, edges));
             }
         }
 

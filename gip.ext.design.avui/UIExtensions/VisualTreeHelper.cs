@@ -149,7 +149,7 @@ namespace gip.ext.design.avui
         }
 
         // Helper method
-        public static bool IsDescendantOf(this Control element, Control ancestor, bool visualTree = false)
+        public static bool IsDescendantOf(this Visual element, Visual ancestor, bool visualTree = false)
         {
             var current = element;
             while (current != null)
@@ -157,9 +157,9 @@ namespace gip.ext.design.avui
                 if (current == ancestor)
                     return true;
                 if (visualTree)
-                    current = current.GetVisualParent() as Control;
+                    current = current.GetVisualParent();
                 else
-                    current = current.Parent as Control;
+                    current = current.Parent as Visual;
             }
             return false;
         }

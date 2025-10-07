@@ -1,36 +1,15 @@
 ﻿<UserControl x:Class="gip.core.layoutengine.avui.VBClockDisplay"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:wc="clr-namespace:gip.core.layoutengine.avui"
-    >
+    xmlns:wc="clr-namespace:gip.core.layoutengine.avui">
     <Border Padding="5">
-		<!--<Border.Background>
-			<LinearGradientBrush StartPoint="0.0,0.0" EndPoint="0.0,1.0">
-				<LinearGradientBrush.GradientStops>
-					<GradientStop Offset="0.0" Color="#888888" />
-					<GradientStop Offset="1.0" Color="#111111" />
-				</LinearGradientBrush.GradientStops>
-			</LinearGradientBrush>
-		</Border.Background>-->
 		<DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="_panel">
-			<!--<DockPanel Height="30" DockPanel.Dock="Bottom">
-				<TextBlock
-						Foreground="White"
-						DockPanel.Dock="Bottom"
-						TextWrapping="Wrap"
-						TextAlignment="Center"
-						VerticalAlignment="Center"
-						TextTrimming="WordEllipsis"
-						Text="{Binding TimeInfo.DisplayName}" />
-			</DockPanel>-->
 			<TextBlock
 					Foreground="White"
 					DockPanel.Dock="Top"
 					TextWrapping="Wrap"
 					TextAlignment="Center"
-					TextTrimming="WordEllipsis"
-					FontSize="24"
-					RenderTransformOrigin="0.5,1.0">
+					FontSize="24">
 				<TextBlock.Resources>
 					<wc:FormattedMultiTextConverter x:Key="FormattedMultiTextConverter" />
 				</TextBlock.Resources>
@@ -48,9 +27,7 @@
 					DockPanel.Dock="Top"
 					TextWrapping="Wrap"
 					TextAlignment="Center"
-					TextTrimming="WordEllipsis"
-					FontSize="24"
-					RenderTransformOrigin="0.5,1.0">
+					FontSize="24">
 				<TextBlock.Resources>
 					<wc:FormattedMultiTextConverter x:Key="FormattedMultiTextConverter" />
 				</TextBlock.Resources>
@@ -63,29 +40,35 @@
 					<ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
 				</TextBlock.RenderTransform>
             </TextBlock>
-            <wc:VBClock DockPanel.Dock="Bottom" TimeInfo="{Binding Path=TimeInfo}" Margin="5" x:Name="_clock" RenderTransformOrigin="0.5,0.2">
+            <wc:VBClock DockPanel.Dock="Bottom" TimeInfo="{Binding Path=TimeInfo}" Margin="5" x:Name="_clock">
 				<wc:VBClock.RenderTransform>
 					<ScaleTransform ScaleX="{Binding ClockZoom}" ScaleY="{Binding ClockZoom}" />
 				</wc:VBClock.RenderTransform>
 			</wc:VBClock>
 		</DockPanel>
 	</Border>
-	<UserControl.Triggers>
-		<EventTrigger RoutedEvent="Control.MouseEnter">
-			<BeginStoryboard>
-				<Storyboard>
-					<DoubleAnimation Storyboard.TargetProperty="ClockZoom" To="2" Duration="0:0:0.5" FillBehavior="HoldEnd" />
-                    <DoubleAnimation Storyboard.TargetProperty="TextZoom" To="1.5" Duration="0:0:0.5" FillBehavior="HoldEnd" />
-                </Storyboard>
-            </BeginStoryboard>
-		</EventTrigger>
-		<EventTrigger RoutedEvent="Control.MouseLeave">
-			<BeginStoryboard>
-				<Storyboard>
-					<DoubleAnimation Storyboard.TargetProperty="ClockZoom" To="1" Duration="0:0:0.5" FillBehavior="HoldEnd" />
-                    <DoubleAnimation Storyboard.TargetProperty="TextZoom" To="1" Duration="0:0:0.5" FillBehavior="HoldEnd" />
-                </Storyboard>
-            </BeginStoryboard>
-		</EventTrigger>
-	</UserControl.Triggers>
+
+	<!-- Avalonia-style animations using Styles instead of UserControl.Triggers -->
+	<UserControl.Styles>
+		<Style Selector="UserControl:pointerover">
+			<Style.Animations>
+				<Animation Duration="0:0:0.5" FillMode="Both">
+					<KeyFrame Cue="100%">
+						<Setter Property="wc:VBClockDisplay.ClockZoom" Value="2" />
+						<Setter Property="wc:VBClockDisplay.TextZoom" Value="1.5" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+		<Style Selector="UserControl:not(:pointerover)">
+			<Style.Animations>
+				<Animation Duration="0:0:0.5" FillMode="Both">
+					<KeyFrame Cue="100%">
+						<Setter Property="wc:VBClockDisplay.ClockZoom" Value="1" />
+						<Setter Property="wc:VBClockDisplay.TextZoom" Value="1" />
+					</KeyFrame>
+				</Animation>
+			</Style.Animations>
+		</Style>
+	</UserControl.Styles>
 </UserControl>

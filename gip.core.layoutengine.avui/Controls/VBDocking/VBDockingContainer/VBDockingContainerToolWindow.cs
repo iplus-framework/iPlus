@@ -4,8 +4,10 @@ using System.Text;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Avalonia.Platform;
 using gip.core.datamodel;
 using gip.ext.design.avui;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -94,22 +96,23 @@ namespace gip.core.layoutengine.avui
                             if (wndPos != null)
                             {
                                 Rect wndRect = wndPos.WndRect;
-                                if (wndPos.WndRect.Position.X > (System.Windows.SystemParameters.VirtualScreenWidth - 50)
-                                    || wndPos.WndRect.Position.Y > (System.Windows.SystemParameters.VirtualScreenHeight - 50))
+                                Point maxBounds = GetMaxBoundsVirtualSreens();
+                                if (wndPos.WndRect.Position.X > (maxBounds.X - 50)
+                                    || wndPos.WndRect.Position.Y > (maxBounds.Y - 50))
                                     wndRect = new Rect(DockManager.PointToScreen(e != null ? e.GetPosition(DockManager) : new Point()).ToPoint(1.0), new Size(desiredWidth, desiredHeight));
                                 else if (ControlManager.RestoreWindowsOnSameScreen)
                                 {
                                     Window window = DockManager.TryFindParent<Window>();
                                     if (window != null)
                                     {
-                                        var screenOfDockManager = LocatedOnScreen(window.Bounds);
-                                        var screenOfToolWindow = LocatedOnScreen(wndRect);
+                                        var screenOfDockManager = Screens.ScreenFromWindow(window);
+                                        var screenOfToolWindow = Screens.ScreenFromBounds(new PixelRect((int)wndRect.X, (int)wndRect.Y, (int)wndRect.Width, (int)wndRect.Height));
+                                        //var screenOfToolWindow = LocatedOnScreen(wndRect);
                                         if (screenOfDockManager != screenOfToolWindow)
                                             wndRect = new Rect(DockManager.PointToScreen(e != null ? e.GetPosition(DockManager) : new Point()).ToPoint(1.0), new Size(desiredWidth, desiredHeight));
                                     }
                                 }
                                 (_vbDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
-                                System.Windows.Forms.Screen screen = System.Windows.Forms.Screen.PrimaryScreen;
                             }
                             else
                             {
@@ -140,12 +143,36 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private System.Windows.Forms.Screen LocatedOnScreen(Rect rect)
+        private Point GetMaxBoundsVirtualSreens()
         {
-            System.Drawing.Rectangle rectangle = new System.Drawing.Rectangle((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
-            foreach (var screen in System.Windows.Forms.Screen.AllScreens)
+            if (this.Screens?.All == null || !this.Screens.All.Any())
+                return new Point(0, 0);
+
+            int minX = int.MaxValue;
+            int minY = int.MaxValue;
+            int maxX = int.MinValue;
+            int maxY = int.MinValue;
+
+            foreach (var screen in this.Screens.All)
             {
-                if (rectangle.IntersectsWith(screen.Bounds))
+                var bounds = screen.Bounds;
+                minX = Math.Min(minX, bounds.X);
+                minY = Math.Min(minY, bounds.Y);
+                maxX = Math.Max(maxX, bounds.X + bounds.Width);
+                maxY = Math.Max(maxY, bounds.Y + bounds.Height);
+            }
+
+            return new Point(maxX - minX, maxY - minY);
+        }
+
+        private Screen LocatedOnScreen(Rect rect)
+        {
+            if (this.Screens == null)
+                return null;
+            PixelRect pixelRect = new PixelRect((int)rect.X, (int)rect.Y, (int)rect.Width, (int)rect.Height);
+            foreach (var screen in this.Screens.All)
+            {
+                if (pixelRect.Intersects(screen.Bounds))
                 {
                     return screen;
                 }

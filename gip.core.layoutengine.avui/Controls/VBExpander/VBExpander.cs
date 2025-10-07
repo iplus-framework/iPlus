@@ -1,19 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui
@@ -29,48 +22,18 @@ namespace gip.core.layoutengine.avui
     {
         #region c'tors
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ExpanderStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBExpander/Themes/ExpanderStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ExpanderStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBExpander/Themes/ExpanderStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         static VBExpander()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBExpander), new FrameworkPropertyMetadata(typeof(VBExpander)));
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBExpander), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        }
-
-        bool _themeApplied = false;
-
-        /// <summary>
-        /// Creates a new instance of the VBExpander.
-        /// </summary>
-        public VBExpander()
-        {
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBExpander>();
         }
 
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            base.OnInitialized();
             Loaded += VBExpander_Loaded;
             Unloaded += VBExpander_Unloaded;
         }
@@ -78,21 +41,10 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
         }
         #endregion
 
@@ -101,8 +53,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBExpander));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBExpander, string>(nameof(VBContent));
 
         /// <summary>
         /// Gets or sets the name of BSO's property which is intended for VBExpander header.
@@ -113,7 +65,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -147,25 +99,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /*private void SetTextProperty(string value)
-        {
-            if (String.IsNullOrEmpty(value))
-                Text = value;
-            else if (value.Contains("\\n"))
-            {
-                Inlines.Clear();
-                TextWrapping = TextWrapping.Wrap;
-                string[] stringSeparators = new string[] { "\\n" };
-                string[] split = ACCaption.Split(stringSeparators, StringSplitOptions.None);
-                foreach (string s in split)
-                {
-                    Inlines.Add(new Run(s));
-                    Inlines.Add(new LineBreak());
-                }
-            }
-            else
-                Text = value;
-        }*/
         #endregion
 
         #region IDataContent Members
@@ -186,46 +119,43 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBExpander), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBExpander>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBExpander),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBExpander, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBExpander thisControl = dependencyObject as VBExpander;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
+            base.OnPropertyChanged(change);
+            VBExpander thisControl = this;
+            if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
                         thisControl.DeInitVBControl(bso);
                 }
@@ -262,24 +192,12 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ucExpander.ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ucExpander.ToolTip = value;
-        //    }
-        //}
-
 
         private bool Visible
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -287,12 +205,12 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
@@ -375,7 +293,7 @@ namespace gip.core.layoutengine.avui
 
             if (RightControlMode < Global.ControlModes.Disabled)
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
             //ucExpander.Text = PropertySchema.DataTypeCaption;
             IACType dcACTypeInfo = null;
@@ -389,25 +307,26 @@ namespace gip.core.layoutengine.avui
                 return;
             }
 
-            Binding binding = new Binding();
-            binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
-            binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
+            var binding = new Binding
+            {
+                Source = dcSource,
+                Path = dcPath,
+                Mode = BindingMode.OneWay
+            };
             if (!String.IsNullOrEmpty(StringFormat))
                 binding.StringFormat = StringFormat;
-            binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture; //System.Globalization.CultureInfo.CurrentUICulture;
 
-            SetBinding(Expander.HeaderProperty, binding);
+            this.Bind(Expander.HeaderProperty, binding);
 
             if (BSOACComponent != null)
             {
-                binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBExpander.ACCompInitStateProperty, binding);
+                var initBinding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBExpander.ACCompInitStateProperty, initBinding);
             }
         }
 
@@ -420,10 +339,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, Expander.HeaderProperty);
+                var boundedValue = BindingOperations.GetBindingExpressionBase(this, Expander.HeaderProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -468,8 +387,6 @@ namespace gip.core.layoutengine.avui
             Unloaded -= VBExpander_Unloaded;
             _VBContentPropertyInfo = null;
 
-            BindingOperations.ClearBinding(this, Expander.HeaderProperty);
-            BindingOperations.ClearBinding(this, VBExpander.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -500,7 +417,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
+        public static readonly AttachedProperty<string> StringFormatProperty;
         /// <summary>
         /// Gets or sets the string format for the control.
         /// </summary>
@@ -512,7 +429,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string StringFormat
         {
-            get { return (string)GetValue(StringFormatProperty); }
+            get { return GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
 

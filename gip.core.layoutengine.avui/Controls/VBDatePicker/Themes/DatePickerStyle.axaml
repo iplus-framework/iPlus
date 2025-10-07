@@ -2,7 +2,7 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <ResourceDictionary.MergedDictionaries>
+    <!--<ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
     <ControlTemplate x:Key="DatePickerButtonStyleGip" TargetType="{x:Type Button}">
@@ -100,8 +100,8 @@
         </Grid>
     </ControlTemplate>
     <Style x:Key="DatePickerTextBoxStyleGip" TargetType="{x:Type DatePickerTextBox}">
-        <!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-        <Setter Property="Background" Value="{DynamicResource {x:Static ThemeBackgroundBrush}}"/>-->
+        --><!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+        <Setter Property="Background" Value="{DynamicResource {x:Static ThemeBackgroundBrush}}"/>--><!--
         <Setter Property="Background" Value="Red"/>
         <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
@@ -350,6 +350,8 @@
 
     <Style x:Key="DatePickerStyleGip" BasedOn="{StaticResource DatePickerStyleBaseGip}"  TargetType="{x:Type local:VBDatePicker}">
         <Setter Property="Template" Value="{StaticResource DatePickerTemplateGip}" />
-    </Style>
+    </Style>-->
+
+  <ControlTheme x:Key="{x:Type local:VBDatePicker}" BasedOn="{x:Type DatePicker}"  TargetType="{x:Type local:VBDatePicker}" />
 
 </ResourceDictionary>

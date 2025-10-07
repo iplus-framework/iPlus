@@ -48,6 +48,12 @@ namespace gip.ext.design.avui
         public static readonly PlacementType Delete = Register("Delete");
 
         /// <summary>
+        /// Placement is done by moving an element in a drag'n'drop operation.
+        /// </summary>
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]
+        public static readonly PlacementType MoveDependentItems = Register("MoveDependentItems");
+
+        /// <summary>
         /// Inserting from Cliboard
         /// </summary>
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Security", "CA2104:DoNotDeclareReadOnlyMutableReferenceTypes")]

@@ -2,7 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 
@@ -16,35 +19,10 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBContextMenu : ContextMenu
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ContextMenuStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBContextMenu/Themes/ContextMenuStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ContextMenuStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBContextMenu/Themes/ContextMenuStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBContextMenu()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBContextMenu), new FrameworkPropertyMetadata(typeof(VBContextMenu)));
-        }
-
-        bool _themeApplied = false;
         public VBContextMenu()
             : base()
         {
-            IRootPageWPF vbWPF = Application.Current?.MainWindow as IRootPageWPF;
+            IRootPageWPF vbWPF = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as IRootPageWPF;
             if (vbWPF != null)
                 Zoom = ControlManager.TouchScreenMode ? vbWPF.Zoom + 15 : vbWPF.Zoom;
             else
@@ -54,7 +32,7 @@ namespace gip.core.layoutengine.avui
         public VBContextMenu(IACInteractiveObject acElement, IEnumerable<ACMenuItem> acMenuItemList)
             : this()
         {
-            IRootPageWPF vbWPF = Application.Current?.MainWindow as IRootPageWPF;
+            IRootPageWPF vbWPF = (Application.Current?.ApplicationLifetime as IClassicDesktopStyleApplicationLifetime)?.MainWindow as IRootPageWPF;
             if (vbWPF != null)
                 Zoom = ControlManager.TouchScreenMode ? vbWPF.Zoom + 15 : vbWPF.Zoom;
             else
@@ -64,43 +42,6 @@ namespace gip.core.layoutengine.avui
         }
 
         private List<VBMenuItem> _AppCommandsToRemove = new List<VBMenuItem>();
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
-        //public void ShowContextMenu(IACInteractiveObject acElement, IEnumerable<ACMenuItem> acMenuItemList)
-        //{
-        //    VBContextMenu contextMenu = new VBContextMenu(this);
-        //    FillContextMenu(contextMenu, acElement, acMenuItemList);
-        //    contextMenu.StaysOpen = true;
-        //    contextMenu.IsOpen = true;
-        //}
 
         public double Zoom
         {
@@ -153,24 +94,25 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override void OnClosed(RoutedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            //@ihrastinski NOTE: Remote desktop context menu problem - check PlacementTarget is null
-            if (_AppCommandsToRemove == null || PlacementTarget == null)
-                return;
-
-            foreach (var acMenuItem in _AppCommandsToRemove)
+            if (change.Property == IsOpenProperty && !(bool)change.NewValue)
             {
-                ICommand command = AppCommands.FindVBApplicationCommand(acMenuItem.ACCommand.ACUrl);
-                if (command != null)
+                if (_AppCommandsToRemove == null || PlacementTarget == null)
+                    return;
+
+                foreach (var acMenuItem in _AppCommandsToRemove)
                 {
-                    AppCommands.RemoveVBApplicationCommand(command);
-                    acMenuItem.CommandBindings.RemoveCommandBinding(command as RoutedUICommandEx);
+                    ICommand command = AppCommands.FindVBApplicationCommand(acMenuItem.ACCommand.ACUrl);
+                    if (command != null)
+                    {
+                        AppCommands.RemoveVBApplicationCommand(command);
+                        // TODO: Remove in Avalonia
+                        //acMenuItem.CommandBindings.RemoveCommandBinding(command as RoutedUICommandEx);
+                    }
                 }
+                PlacementTarget = null;
             }
-            PlacementTarget = null;
-            base.OnClosed(e);
-            //Console.WriteLine("OK");
         }
     }
 }

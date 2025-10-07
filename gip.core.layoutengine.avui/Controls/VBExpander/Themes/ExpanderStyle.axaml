@@ -1,0 +1,197 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+    <!-- Expander Toggle Button Theme for Down direction -->
+    <ControlTheme x:Key="VBExpanderToggleButtonTheme" TargetType="ToggleButton">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Margin="{TemplateBinding Margin}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Fill="Transparent" Grid.ColumnSpan="2"/>
+                    <Ellipse Name="Circle"
+                             Grid.Column="0"
+                             Stroke="{DynamicResource ExpanderEllipseStroke}"
+                             Width="20"
+                             Height="20"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center" />
+                    <Path x:Name="Sign"
+                          Grid.Column="0"
+                          Data="M 0,5 H 10 M 5,0 V 10 Z"
+                          Stroke="{DynamicResource ExpanderSignStroke}"
+                          Width="10"
+                          Height="10"
+                          StrokeThickness="2"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center" />
+                    <ContentPresenter x:Name="HeaderContent"
+                                      Grid.Column="1"
+                                      Margin="4,0,0,0"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      VerticalAlignment="Center" />
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- Pseudo-class styles -->
+        <Style Selector="^:checked /template/ Path#Sign">
+            <Setter Property="Data" Value="M 0,5 H 10 Z"/>
+        </Style>
+        <Style Selector="^:pointerover /template/ Ellipse#Circle">
+            <Setter Property="Stroke" Value="{DynamicResource ExpanderEllipseStrokeHover}"/>
+        </Style>
+        <Style Selector="^:pointerover /template/ Path#Sign">
+            <Setter Property="Stroke" Value="{DynamicResource ExpanderSignStrokeHover}"/>
+        </Style>
+        <Style Selector="^:pressed /template/ Ellipse#Circle">
+            <Setter Property="StrokeThickness" Value="1.5"/>
+        </Style>
+        <Style Selector="^:pressed /template/ Path#Sign">
+            <Setter Property="Stroke" Value="{DynamicResource ExpanderSignStrokeHover}"/>
+        </Style>
+    </ControlTheme>
+
+    <!-- Expander Toggle Button Theme for Up direction -->
+    <ControlTheme x:Key="VBExpanderToggleButtonUpTheme" BasedOn="{StaticResource VBExpanderToggleButtonTheme}" TargetType="ToggleButton">
+        <Style Selector="^ /template/ Path#Sign">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="180" />
+            </Setter>
+        </Style>
+        <Style Selector="^:checked /template/ Path#Sign">
+            <Setter Property="Data" Value="M 0,5 H 10 Z"/>
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="0" />
+            </Setter>
+        </Style>
+    </ControlTheme>
+
+    <!-- Expander Toggle Button Theme for Left direction -->
+    <ControlTheme x:Key="VBExpanderToggleButtonLeftTheme" BasedOn="{StaticResource VBExpanderToggleButtonTheme}" TargetType="ToggleButton">
+        <Style Selector="^ /template/ Path#Sign">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="270" />
+            </Setter>
+        </Style>
+        <Style Selector="^:checked /template/ Path#Sign">
+            <Setter Property="Data" Value="M 0,5 H 10 Z"/>
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="90" />
+            </Setter>
+        </Style>
+    </ControlTheme>
+
+    <!-- Expander Toggle Button Theme for Right direction -->
+    <ControlTheme x:Key="VBExpanderToggleButtonRightTheme" BasedOn="{StaticResource VBExpanderToggleButtonTheme}" TargetType="ToggleButton">
+        <Style Selector="^ /template/ Path#Sign">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="90" />
+            </Setter>
+        </Style>
+        <Style Selector="^:checked /template/ Path#Sign">
+            <Setter Property="Data" Value="M 0,5 H 10 Z"/>
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="270" />
+            </Setter>
+        </Style>
+    </ControlTheme>
+
+    <!-- Main VBExpander ControlTheme -->
+    <ControlTheme x:Key="{x:Type local:VBExpander}" TargetType="{x:Type local:VBExpander}">
+        <Setter Property="Margin" Value="0,2,0,0" />
+        
+        <!-- Default template for Down direction -->
+        <Setter Property="Template">
+            <ControlTemplate>
+                <DockPanel>
+                    <ToggleButton x:Name="PART_ExpanderButton" 
+                                  DockPanel.Dock="Top"
+                                  Theme="{StaticResource VBExpanderToggleButtonTheme}"
+                                  Content="{TemplateBinding Header}"
+                                  IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                  Padding="1.5,0">
+                    </ToggleButton>
+                    <ContentPresenter x:Name="PART_ExpanderContent"
+                                      DockPanel.Dock="Bottom"
+                                      Content="{TemplateBinding Content}"
+                                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                                      IsVisible="{TemplateBinding IsExpanded}" />
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Template for Up direction -->
+        <Style Selector="^:up">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <DockPanel>
+                        <ToggleButton x:Name="PART_ExpanderButton" 
+                                      DockPanel.Dock="Bottom"
+                                      Theme="{StaticResource VBExpanderToggleButtonUpTheme}"
+                                      Content="{TemplateBinding Header}"
+                                      IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      Padding="1.5,0">
+                        </ToggleButton>
+                        <ContentPresenter x:Name="PART_ExpanderContent"
+                                          DockPanel.Dock="Top"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          IsVisible="{TemplateBinding IsExpanded}" />
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <!-- Template for Left direction -->
+        <Style Selector="^:left">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <DockPanel>
+                        <ToggleButton x:Name="PART_ExpanderButton" 
+                                      DockPanel.Dock="Right"
+                                      Theme="{StaticResource VBExpanderToggleButtonLeftTheme}"
+                                      Content="{TemplateBinding Header}"
+                                      IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      Padding="1.5,0">
+                        </ToggleButton>
+                        <ContentPresenter x:Name="PART_ExpanderContent"
+                                          DockPanel.Dock="Left"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          IsVisible="{TemplateBinding IsExpanded}" />
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <!-- Template for Right direction -->
+        <Style Selector="^:right">
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <DockPanel>
+                        <ToggleButton x:Name="PART_ExpanderButton" 
+                                      DockPanel.Dock="Left"
+                                      Theme="{StaticResource VBExpanderToggleButtonRightTheme}"
+                                      Content="{TemplateBinding Header}"
+                                      IsChecked="{Binding Path=IsExpanded, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}"
+                                      Padding="1.5,0">
+                        </ToggleButton>
+                        <ContentPresenter x:Name="PART_ExpanderContent"
+                                          DockPanel.Dock="Right"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          IsVisible="{TemplateBinding IsExpanded}" />
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

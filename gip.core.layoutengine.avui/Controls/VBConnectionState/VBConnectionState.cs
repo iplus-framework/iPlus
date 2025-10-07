@@ -2,15 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+using Avalonia.Controls;
+using Avalonia;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
@@ -51,31 +44,10 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBConnectionState : Button
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ConnectionStateStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBConnectionState/Themes/ConnectionStateStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ConnectionStateStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBConnectionState/Themes/ConnectionStateStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         static VBConnectionState()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBConnectionState), new FrameworkPropertyMetadata(typeof(VBConnectionState)));
         }
 
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBConnectionState.
         /// </summary>
@@ -84,76 +56,47 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
-        /// <summary>
         /// Represents the dependency property for ConnectionQuality.
         /// </summary>
-        public static readonly DependencyProperty ConnectionQualityProperty
-            = DependencyProperty.Register("ConnectionQuality", typeof(ConnectionQuality), typeof(VBConnectionState));
+        public static readonly StyledProperty<ConnectionQuality> ConnectionQualityProperty
+            = AvaloniaProperty.Register<VBConnectionState, ConnectionQuality>(nameof(ConnectionQuality));
 
         /// <summary>
         /// Gets or sets the quality of connection.
         /// </summary>
         public ConnectionQuality ConnectionQuality
         {
-            get { return (ConnectionQuality)GetValue(ConnectionQualityProperty); }
+            get { return GetValue(ConnectionQualityProperty); }
             set { SetValue(ConnectionQualityProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ConnectionInfoText.
         /// </summary>
-        public static readonly DependencyProperty ConnectionInfoTextProperty
-            = DependencyProperty.Register("ConnectionInfoText", typeof(string), typeof(VBConnectionState));
+        public static readonly StyledProperty<string> ConnectionInfoTextProperty
+            = AvaloniaProperty.Register<VBConnectionState, string>(nameof(ConnectionInfoText));
 
         /// <summary>
         /// Gets or sets connection info text.
         /// </summary>
         public string ConnectionInfoText
         {
-            get { return (string)GetValue(ConnectionInfoTextProperty); }
+            get { return GetValue(ConnectionInfoTextProperty); }
             set { SetValue(ConnectionInfoTextProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for IsServerConnection.
         /// </summary>
-        public static readonly DependencyProperty IsServerConnectionProperty
-            = DependencyProperty.Register("IsServerConnection", typeof(bool), typeof(VBConnectionState));
+        public static readonly StyledProperty<bool> IsServerConnectionProperty
+            = AvaloniaProperty.Register<VBConnectionState, bool>(nameof(IsServerConnection));
 
         /// <summary>
         /// Determines is server connection or not.
         /// </summary>
         public bool IsServerConnection
         {
-            get { return (bool)GetValue(IsServerConnectionProperty); }
+            get { return GetValue(IsServerConnectionProperty); }
             set { SetValue(IsServerConnectionProperty, value); }
         }
 

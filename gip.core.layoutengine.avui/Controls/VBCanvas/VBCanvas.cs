@@ -1,20 +1,19 @@
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.IO;
-using System.ComponentModel;
-using System.Xml;
-using System.Collections;
-using gip.core.layoutengine.avui.VisualControlAnalyser;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Labs.Input;
+using Avalonia.Threading;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
+using gip.ext.design.avui;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
-using gip.ext.design.avui;
-using Avalonia.Controls;
-using gip.ext.designer.avui;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -53,7 +52,7 @@ namespace gip.core.layoutengine.avui
                 {
                     var designElements = this.Context.RootItem.ContentProperty.CollectionElements.Where(c => c.ComponentType == typeof(VBEdge));
 
-                    PointCollection points = new PointCollection();
+                    List<Point> points = new List<Point>();
                     points.Clear();
 
                     foreach (DesignItem item in designElements)
@@ -119,29 +118,13 @@ namespace gip.core.layoutengine.avui
             else
                 return true;
         }
-        //public override void SetPosition(PlacementInformation info)
-        //{
-        //    //base.SetPosition(info);
-        //    info.Item.Properties[FrameworkElement.MarginProperty].Reset();
 
-        //    UIElement child = info.Item.View;
-        //    Rect newPosition = info.Bounds;
 
-        //    if (newPosition.Left != GetLeft(child))
-        //    {
-        //        info.Item.Properties.GetAttachedProperty(Canvas.LeftProperty).SetValue(newPosition.Left);
-        //    }
-        //    if (newPosition.Top != GetTop(child))
-        //    {
-        //        info.Item.Properties.GetAttachedProperty(Canvas.TopProperty).SetValue(newPosition.Top);
-        //    }
-        //}
-
-            /// <summary>
-            /// Determines can or can't leave container.
-            /// </summary>
-            /// <param name="operation">The placement operation.</param>
-            /// <returns>Returns true if can leave container, otherwise false.</returns>
+        /// <summary>
+        /// Determines can or can't leave container.
+        /// </summary>
+        /// <param name="operation">The placement operation.</param>
+        /// <returns>Returns true if can leave container, otherwise false.</returns>
         public override bool CanLeaveContainer(PlacementOperation operation)
         {
             if (operation.Type == PlacementType.Move)
@@ -161,34 +144,6 @@ namespace gip.core.layoutengine.avui
         }
     }
 
-    ///// <summary>
-    ///// Verhindern, das Canvas innerhalb einer VBVisualGroup markiert werden kann
-    ///// </summary>
-    //[ExtensionFor(typeof(Canvas), OverrideExtension = typeof(PanelSelectionHandler))]
-    //public class CanvasSelectionHandler : BehaviorExtension, IHandlePointerToolMouseDown
-    //{
-    //    public CanvasSelectionHandler()
-    //        : base()
-    //    {
-    //    }
-
-    //    protected override void OnInitialized()
-    //    {
-    //        base.OnInitialized();
-    //        this.ExtendedItem.AddBehavior(typeof(IHandlePointerToolMouseDown), this);
-    //    }
-
-    //    public void HandleSelectionMouseDown(IDesignPanel designPanel, MouseButtonEventArgs e, DesignPanelHitTestResult result)
-    //    {
-    //        if (e.ChangedButton == MouseButton.Left && MouseGestureBase.IsOnlyButtonPressed(e, MouseButton.Left))
-    //        {
-    //            e.Handled = true;
-    //            if (result.ModelHit.Parent == null || !(result.ModelHit.Parent.ComponentType == typeof(VBVisualGroup)))
-    //                new RangeSelectionGesture(result.ModelHit).Start(designPanel, e);
-    //        }
-    //    }
-    //}
-
     /// <summary>
     /// Defines an area within which you can explicitly position child elements by using coordinates that are relative to the VBCanvas.
     /// </summary>
@@ -201,7 +156,6 @@ namespace gip.core.layoutengine.avui
         #region c'tors
         static VBCanvas()
         {
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBCanvas), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
         }
 
         /// <summary>
@@ -210,16 +164,16 @@ namespace gip.core.layoutengine.avui
         public VBCanvas()
         {
             RightControlMode = Global.ControlModes.Enabled;
-            this.Loaded += new RoutedEventHandler(VBCanvas_Loaded);
-            this.Unloaded += new RoutedEventHandler(VBCanvas_Unloaded);
+            this.Loaded += VBCanvas_Loaded;
+            this.Unloaded += VBCanvas_Unloaded;
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnInitialized()
         {
-            base.OnApplyTemplate();
+            base.OnInitialized();
             InitVBControl();
         }
 
@@ -244,20 +198,24 @@ namespace gip.core.layoutengine.avui
 
                 if (ContextACObject != null && ContextACObject.ACUrlBinding(VBContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
                 {
-                    Binding binding = new Binding();
-                    binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBCanvas.ACUpdateControlModeProperty, binding);
+                    var binding = new Binding
+                    {
+                        Source = dcSource,
+                        Path = dcPath,
+                        Mode = BindingMode.OneWay
+                    };
+                    this.Bind(VBCanvas.ACUpdateControlModeProperty, binding);
                 }
             }
             if (BSOACComponent != null)
             {
-                Binding binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBCanvas.ACCompInitStateProperty, binding);
+                var binding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBCanvas.ACCompInitStateProperty, binding);
             }
 
             _Initialized = true;
@@ -300,7 +258,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                if (ReadLocalValue(CanExecuteCyclicProperty) != DependencyProperty.UnsetValue)
+                if (this.IsSet(CanExecuteCyclicProperty))
                 {
                     _dispTimer = new DispatcherTimer();
                     _dispTimer.Tick += new EventHandler(dispatcherTimer_CanExecute);
@@ -319,14 +277,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseRightButtonDown(e);
-        }
         #endregion
 
         #region IVBContent Members
@@ -364,29 +314,28 @@ namespace gip.core.layoutengine.avui
                 return;
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
-            Visibility = controlMode >= Global.ControlModes.Disabled ? Visibility.Visible : Visibility.Collapsed;
+            IsVisible = controlMode >= Global.ControlModes.Disabled;
         }
 
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBCanvas), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBCanvas>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACUpdateControlMode.
         /// </summary>
-        public static readonly DependencyProperty ACUpdateControlModeProperty =
-            DependencyProperty.Register("ACUpdateControlMode",
-                typeof(object), typeof(VBCanvas),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<object> ACUpdateControlModeProperty =
+            AvaloniaProperty.Register<VBCanvas, object>(nameof(ACUpdateControlMode));
 
         /// <summary>
         /// Gets or sets the AC update control mode.
@@ -400,35 +349,31 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBCanvas),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBCanvas, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBCanvas thisControl = dependencyObject as VBCanvas;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
+            base.OnPropertyChanged(change);
+            VBCanvas thisControl = this;
+            if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
-            else if (args.Property == ACUpdateControlModeProperty)
+            else if (change.Property == ACUpdateControlModeProperty)
                 thisControl.UpdateControlMode();
-            else if (args.Property == BSOACComponentProperty)
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
                         thisControl.DeInitVBControl(bso);
                 }
@@ -502,8 +447,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for CanExecuteCyclic.
         /// </summary>
-        public static readonly DependencyProperty CanExecuteCyclicProperty = 
-            ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner(typeof(VBCanvas), new FrameworkPropertyMetadata((int)0, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<int> CanExecuteCyclicProperty = 
+            ContentPropertyHandler.CanExecuteCyclicProperty.AddOwner<VBCanvas>();
 
         /// <summary>
         /// Determines is cyclic execution enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.
@@ -514,15 +459,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int CanExecuteCyclic
         {
-            get { return (int)GetValue(CanExecuteCyclicProperty); }
+            get { return GetValue(CanExecuteCyclicProperty); }
             set { SetValue(CanExecuteCyclicProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = 
-            ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBCanvas), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBCanvas>();
 
         /// <summary>
         /// Determines is context menu disabled or enabled.
@@ -534,7 +479,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
@@ -542,7 +487,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
+        public static readonly AttachedProperty<string> StringFormatProperty = 
+            ContentPropertyHandler.StringFormatProperty.AddOwner<VBCanvas>();
 
         /// <summary>
         /// Gets or sets the string format for the control.
@@ -555,19 +501,20 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string StringFormat
         {
-            get { return (string)GetValue(StringFormatProperty); }
+            get { return GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
 
 
-        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBCanvas), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> AnimationOffProperty = 
+            ContentPropertyHandler.AnimationOffProperty.AddOwner<VBCanvas>();
         /// <summary>
         /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
         /// </summary>
         [Category("VBControl")]
         public bool AnimationOff
         {
-            get { return (bool)GetValue(AnimationOffProperty); }
+            get { return GetValue(AnimationOffProperty); }
             set { SetValue(AnimationOffProperty, value); }
         }
 
@@ -576,7 +523,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -584,12 +531,12 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
@@ -638,8 +585,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBCanvas));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBCanvas, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -648,7 +595,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 

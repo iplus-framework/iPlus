@@ -2,19 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml.Linq;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.ComponentModel;
+using Avalonia.Interactivity;
+using Avalonia.Data;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -57,7 +52,7 @@ namespace gip.core.layoutengine.avui
                 return;
 
             // If Binding to Object wich should be presented manually set, then the Binding must be done over VBContent
-            Binding boundedValue = BindingOperations.GetBinding(this, VBDynamicContent.DesignVBContentProperty);
+            BindingExpressionBase boundedValue = BindingOperations.GetBindingExpressionBase(this, VBDynamicContent.DesignVBContentProperty);
             if (boundedValue != null)
             {
             }
@@ -73,11 +68,9 @@ namespace gip.core.layoutengine.avui
                     _VBContentPropertyInfo = dcACTypeInfo;
                     Binding binding = new Binding();
                     binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    binding.NotifyOnSourceUpdated = true;
-                    binding.NotifyOnTargetUpdated = true;
+                    binding.Path = dcPath;
                     binding.Mode = BindingMode.OneWay;
-                    this.SetBinding(VBDynamicContent.DesignVBContentProperty, binding);
+                    this.Bind(VBDynamicContent.DesignVBContentProperty, binding);
                 }
                 else
                 {
@@ -86,21 +79,17 @@ namespace gip.core.layoutengine.avui
                         _VBContentPropertyInfo = dcACTypeInfo;
                         Binding binding = new Binding();
                         binding.Source = dcSource;
-                        binding.Path = new PropertyPath(dcPath);
-                        binding.NotifyOnSourceUpdated = true;
-                        binding.NotifyOnTargetUpdated = true;
+                        binding.Path = dcPath;
                         binding.Mode = BindingMode.OneWay;
-                        this.SetBinding(VBDynamicContent.DesignVBContentProperty, binding);
+                        this.Bind(VBDynamicContent.DesignVBContentProperty, binding);
                     }
                     else
                     {
                         Binding binding = new Binding();
                         binding.Source = DataContext;
-                        binding.Path = new PropertyPath(VBContent);
+                        binding.Path = VBContent;
                         binding.Mode = BindingMode.OneWay;
-                        binding.NotifyOnSourceUpdated = true;
-                        binding.NotifyOnTargetUpdated = true;
-                        this.SetBinding(VBDynamicContent.DesignVBContentProperty, binding);
+                        this.Bind(VBDynamicContent.DesignVBContentProperty, binding);
                     }
                 }
                 LoadDesign();
@@ -120,9 +109,9 @@ namespace gip.core.layoutengine.avui
             if (_Loaded)
             {
                 Content = null;
-                if (ReadLocalValue(DataContextProperty) != DependencyProperty.UnsetValue)
+                if (IsSet(DataContextProperty))
                     DataContext = null;
-                BindingOperations.ClearBinding(this, VBDynamicContent.DesignVBContentProperty);
+                this.ClearAllBindings();
                 DesignVBContent = null;
             }
             
@@ -156,11 +145,9 @@ namespace gip.core.layoutengine.avui
                             {
                                 Binding binding = new Binding();
                                 binding.Source = DataContext;
-                                binding.Path = new PropertyPath(VBContent + ".ValueTypeACClass");
+                                binding.Path = VBContent + ".ValueTypeACClass";
                                 binding.Mode = BindingMode.OneWay;
-                                binding.NotifyOnSourceUpdated = true;
-                                binding.NotifyOnTargetUpdated = true;
-                                this.SetBinding(VBDynamicContent.ValueTypeProperty, binding);
+                                this.Bind(VBDynamicContent.ValueTypeProperty, binding);
                             }
                             catch (Exception e)
                             {
@@ -245,11 +232,9 @@ namespace gip.core.layoutengine.avui
                             {
                                 Binding binding = new Binding();
                                 binding.Source = DataContext;
-                                binding.Path = new PropertyPath(VBContent + ".ValueTypeACClass");
+                                binding.Path = VBContent + ".ValueTypeACClass";
                                 binding.Mode = BindingMode.OneWay;
-                                binding.NotifyOnSourceUpdated = true;
-                                binding.NotifyOnTargetUpdated = true;
-                                this.SetBinding(VBDynamicContent.ValueTypeProperty, binding);
+                                this.Bind(VBDynamicContent.ValueTypeProperty, binding);
                             }
                             catch (Exception e)
                             {
@@ -458,9 +443,9 @@ namespace gip.core.layoutengine.avui
                     xaml = "<DockPanel></DockPanel>";
                 }
             }
-            UIElement uiElement = Layoutgenerator.LoadLayout(xaml, ContextACObject, BSOACComponent, VBContent);
-            if (newDataContextForChild != null && uiElement is FrameworkElement)
-                SetBindingToDataContext(newDataContextForChild, uiElement as FrameworkElement);
+            Visual uiElement = Layoutgenerator.LoadLayout(xaml, ContextACObject, BSOACComponent, VBContent);
+            if (newDataContextForChild != null && uiElement is Control)
+                SetBindingToDataContext(newDataContextForChild, uiElement as Control);
 
             Content = uiElement;
         }
@@ -468,7 +453,7 @@ namespace gip.core.layoutengine.avui
         protected object DetermineBindableDataContextForVBControl(string vbContentUrl)
         {
             object newContext = null;
-            FrameworkElement parentFW = Parent as FrameworkElement;
+            Control parentFW = Parent as Control;
             if (parentFW != null)
             {
                 IACObject parentACObject = parentFW.DataContext as IACObject;
@@ -514,7 +499,7 @@ namespace gip.core.layoutengine.avui
         protected object GetObjectForVBContent(string vbContentUrl)
         {
             object newContext = null;
-            FrameworkElement parentFW = Parent as FrameworkElement;
+            Control parentFW = Parent as Control;
             if (parentFW != null)
             {
                 IACObject parentACObject = parentFW.DataContext as IACObject;
@@ -540,11 +525,11 @@ namespace gip.core.layoutengine.avui
             return newContext;
         }
 
-        protected void SetBindingToDataContext(object newContext, FrameworkElement targetElement)
+        protected void SetBindingToDataContext(object newContext, Control targetElement)
         {
             Binding binding = new Binding();
             binding.Source = newContext;
-            targetElement.SetBinding(FrameworkElement.DataContextProperty, binding);
+            targetElement.Bind(Control.DataContextProperty, binding);
         }
 
         /// <summary>
@@ -565,31 +550,24 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for DesignVBContent.
         /// </summary>
-        public static readonly DependencyProperty DesignVBContentProperty
-            = DependencyProperty.Register("DesignVBContent", typeof(object), typeof(VBDynamicContent), new PropertyMetadata(new PropertyChangedCallback(DesignVBContentChanged)));
-
-        private static void DesignVBContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBDynamicContent)
-            {
-                VBDynamicContent vbDynamic = d as VBDynamicContent;
-                vbDynamic.LoadDesign();
-            }
-        }
+        public static readonly StyledProperty<object> DesignVBContentProperty = AvaloniaProperty.Register<VBDynamicContent, object>(nameof(DesignVBContent));
 
         /// <summary>
         /// Represents the dependency property for ValueType.
         /// </summary>
-        public static readonly DependencyProperty ValueTypeProperty
-            = DependencyProperty.Register("ValueType", typeof(object), typeof(VBDynamicContent), new PropertyMetadata(new PropertyChangedCallback(ValueTypeChanged)));
+        public static readonly StyledProperty<object> ValueTypeProperty = AvaloniaProperty.Register<VBDynamicContent, object>(nameof(ValueType));
 
-        private static void ValueTypeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (d is VBDynamicContent)
+            if (change.Property == DesignVBContentProperty)
             {
-                VBDynamicContent vbDynamic = d as VBDynamicContent;
-                vbDynamic.LoadDesign();
+                LoadDesign();
             }
+            else if (change.Property == ValueTypeProperty)
+            {
+                LoadDesign();
+            }
+            base.OnPropertyChanged(change);
         }
         #endregion
 
@@ -640,8 +618,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ShowConfigValue.
         /// </summary>
-        public static readonly DependencyProperty ShowConfigValueProperty
-            = DependencyProperty.Register("ShowConfigValue", typeof(bool), typeof(VBComboBox));
+
+        public static readonly StyledProperty<bool> ShowConfigValueProperty = AvaloniaProperty.Register<VBComboBox, bool>(nameof(ShowConfigValue));
 
         /// <summary>
         /// Detrmines is configuration value shown or hidden.
@@ -666,13 +644,7 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ShowCaptionProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for ShowCaption.
-        /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty =
-            DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBDynamicContent), new PropertyMetadata(true));
-
-        
+        public static readonly StyledProperty<bool> ShowCaptionProperty = AvaloniaProperty.Register<VBComboBox, bool>(nameof(ShowCaption));        
 
     }
 }

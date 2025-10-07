@@ -6,6 +6,9 @@ using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.Linq;
 using Avalonia.Controls.Primitives;
+using Avalonia;
+using gip.ext.design.avui;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -19,61 +22,6 @@ namespace gip.core.layoutengine.avui
     public class VBConnector : TemplatedControl, IVBConnector
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "VBConnectorStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBConnector/Themes/VBConnectorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "VBConnectorStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBConnector/Themes/VBConnectorStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBConnector()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(
-                typeof(VBConnector),
-                new FrameworkPropertyMetadata(typeof(VBConnector)));
-        }
-
-        bool _themeApplied = false;
-
-        /// <summary>
-        /// Creates a new instance of VBConnector.
-        /// </summary>
-        public VBConnector()
-        {
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
         /// <summary>
         /// Called to arrange and size the content. 
         /// </summary>
@@ -86,14 +34,6 @@ namespace gip.core.layoutengine.avui
             return base.ArrangeOverride(arrangeBounds);
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region Dependency-Properties
@@ -102,9 +42,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for Orientation.
         /// </summary>
-        public static readonly DependencyProperty OrientationProperty
-            = DependencyProperty.Register("Orientation", typeof(Global.ConnectorOrientation), typeof(VBConnector));
-
+        public static readonly StyledProperty<Global.ConnectorOrientation> OrientationProperty = AvaloniaProperty.Register<VBConnector, Global.ConnectorOrientation>(nameof(Orientation));
         /// <summary>
         /// Gets or sets orientation.
         /// </summary>
@@ -205,10 +143,10 @@ namespace gip.core.layoutengine.avui
                 return new Point();
             double actualWidth = 2;
             double actualHeight = 2;
-            if ((connector.ActualWidth > 0) || (connector.ActualHeight > 0))
+            if ((connector.Bounds.Width > 0) || (connector.Bounds.Height > 0))
             {
-                actualWidth = connector.ActualWidth;
-                actualHeight = connector.ActualHeight;
+                actualWidth = connector.Bounds.Width;
+                actualHeight = connector.Bounds.Height;
             }
             else if ((connector.Width > 0) || (connector.Height > 0))
             {
@@ -217,10 +155,12 @@ namespace gip.core.layoutengine.avui
             }
             try
             {
-                if (!connector.IsDescendantOf(container))
+                if (!connector.IsDescendantOf(container as Control))
                     return new Point();
-                Point newSourcePoint = connector.TransformToVisual(container).Transform(new Point(actualWidth / 2, actualHeight / 2));
-                return newSourcePoint;
+                Matrix? transform = connector.TransformToVisual(container);
+                if (transform != null)
+                    return transform.Value.Transform(new Point(actualWidth / 2, actualHeight / 2));
+                return new Point();
             }
             catch (Exception e)
             {
@@ -238,19 +178,19 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region internal Methods
-        internal VCConnectorInfoIntern GetInfo(UIElement containerOfPath)
+        internal VCConnectorInfoIntern GetInfo(Control containerOfPath)
         {
-            UIElement containerOfConnector = ParentVBControl as UIElement;
+            Control containerOfConnector = ParentVBControl as Control;
             VCConnectorInfoIntern info = new VCConnectorInfoIntern();
-            Point relativePoint = containerOfConnector.TranslatePoint(new Point(0, 0), containerOfPath);
+            Point relativePoint = containerOfConnector.TranslatePoint(new Point(0, 0), containerOfPath).Value;
             info.DesignerItemLeft = relativePoint.X;
             info.DesignerItemTop = relativePoint.Y;
-            if (containerOfConnector is FrameworkElement)
-                info.DesignerItemSize = new Size((containerOfConnector as FrameworkElement).ActualWidth, (containerOfConnector as FrameworkElement).ActualHeight);
+            if (containerOfConnector is Control)
+                info.DesignerItemSize = new Size((containerOfConnector as Control).Bounds.Width, (containerOfConnector as Control).Bounds.Height);
             info.Orientation = this.Orientation;
             if (info.Orientation == Global.ConnectorOrientation.Hidden)
                 info.Orientation = Global.ConnectorOrientation.Top;
-            info.Position = TranslatePoint(new Point(0, 0), containerOfPath);
+            info.Position = this.TranslatePoint(new Point(0, 0), containerOfPath).Value;
             return info;
         }
         #endregion
@@ -324,9 +264,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBConnector));
-
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBConnector, string>(nameof(VBContent));
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
         /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
@@ -340,7 +278,7 @@ namespace gip.core.layoutengine.avui
 
         private IACObject _ContextACObject;
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>

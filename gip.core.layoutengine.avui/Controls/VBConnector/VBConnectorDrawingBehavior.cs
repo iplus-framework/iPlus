@@ -1,21 +1,17 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
 using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
-using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
-using gip.ext.designer.avui.Xaml;
-using gip.core.layoutengine.avui.Helperclasses;
+using System;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -38,13 +34,13 @@ namespace gip.core.layoutengine.avui
                 this._ConnectorPoint = connectorPoint; 
             }
 
-            public override void Arrange(AdornerPanel panel, UIElement adorner, Size adornedElementSize)
+            public override void Arrange(AdornerPanel panel, Control adorner, Size adornedElementSize)
             {
                 if (adorner is VBConnectorAdorner)
                 {
                     VBConnectorAdorner VBConnectorAdorner = adorner as VBConnectorAdorner;
-                    Point relativePoint = _ConnectorPoint.TranslatePoint(new Point(0, 0), VBConnectorAdorner._vbVisualConnectorItem.View);
-                    adorner.Arrange(new Rect(relativePoint, new Size(_ConnectorPoint.ActualWidth,_ConnectorPoint.ActualHeight)));
+                    Point relativePoint = _ConnectorPoint.TranslatePoint(new Point(0, 0), VBConnectorAdorner._vbVisualConnectorItem.View as Visual).Value;
+                    adorner.Arrange(new Rect(relativePoint, new Size(_ConnectorPoint.Bounds.Width,_ConnectorPoint.Bounds.Height)));
                 }
                 else
                     adorner.Arrange(new Rect(adornedElementSize));
@@ -73,7 +69,7 @@ namespace gip.core.layoutengine.avui
             Adorners.Add(adornerPanel);
             if (this.ExtendedItem.View != null)
                 if (this.ExtendedItem.View is VBEdge)
-                    DecorateVBConnectors(((FrameworkElement)this.ExtendedItem.View).Parent);
+                    DecorateVBConnectors((this.ExtendedItem.View).Parent);
                 else
                     DecorateVBConnectors(this.ExtendedItem.View);
         }
@@ -83,7 +79,7 @@ namespace gip.core.layoutengine.avui
             base.OnRemove();
         }
 
-        private void DecorateVBConnectors(DependencyObject obj)
+        private void DecorateVBConnectors(StyledElement obj)
         {
             if (Context.Services.Tool.CurrentTool.GetType().Name != "ConnectTool")
                 return;
@@ -134,12 +130,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-                {
-                    DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-                    if (child != null)
-                        DecorateVBConnectors(child);
-                }
+                (obj as Visual)?.GetVisualChildren().ToList().ForEach(x => DecorateVBConnectors(x));
             }
         }
     }

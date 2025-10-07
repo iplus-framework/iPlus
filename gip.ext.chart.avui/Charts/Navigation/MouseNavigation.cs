@@ -162,7 +162,7 @@ namespace gip.ext.chart.avui.Navigation
 			Plotter2D.UndoProvider.CaptureOldValue(Viewport, Viewport2D.VisibleProperty, Viewport.Visible);
 
 			isPanning = true;
-            e.Pointer.Capture(this);
+            //e.Pointer.Capture(this);
         }
 
         protected virtual void StartZoom(MouseButtonEventArgs e)
@@ -172,7 +172,7 @@ namespace gip.ext.chart.avui.Navigation
 			{
 				isZooming = true;
 				AddSelectionAdorner();
-                e.Pointer.Capture(this);
+                //e.Pointer.Capture(this);
                 shouldKeepRatioWhileZooming = Keyboard.Modifiers == ModifierKeys.Shift;
 			}
 		}
@@ -301,8 +301,8 @@ namespace gip.ext.chart.avui.Navigation
 				Viewport.Visible = newVisible;
 
 				zoomRect = null;
-                if (e.Pointer.Captured == this)
-                    e.Pointer.Capture(null);
+                //if (e.Pointer.Captured == this)
+                //    e.Pointer.Capture(null);
                 RemoveSelectionAdorner();
 			}
 		}
@@ -313,8 +313,8 @@ namespace gip.ext.chart.avui.Navigation
 
 			Plotter2D.Focus();
 
-            if (e.Pointer.Captured == this)
-                e.Pointer.Capture(null);
+            //if (e.Pointer.Captured == this)
+            //    e.Pointer.Capture(null);
             ClearValue(CursorProperty);
 		}
 
@@ -329,8 +329,8 @@ namespace gip.ext.chart.avui.Navigation
 			{
 				RemoveSelectionAdorner();
 			}
-            if (e.Pointer.Captured == this)
-                e.Pointer.Capture(null);
+            //if (e.Pointer.Captured == this)
+            //    e.Pointer.Capture(null);
             base.OnLostFocus(e);
 		}
 

@@ -1,0 +1,22 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    
+    <ControlTheme x:Key="{x:Type local:VBCarousel}" TargetType="{x:Type local:VBCarousel}">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <local:VBCarouselControl x:Name="PART_VBCarouselControl" 
+                                           Width="1350" 
+                                           Height="0" 
+                                           HorizontalAlignment="Center" 
+                                           VerticalAlignment="Center" 
+                                           RenderTransformOrigin="0.5,0.5">
+                    </local:VBCarouselControl>
+                </Grid>
+            </ControlTemplate>
+        </Setter>   
+    </ControlTheme>
+
+</ResourceDictionary>

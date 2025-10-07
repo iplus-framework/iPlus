@@ -599,6 +599,7 @@ namespace gip.core.layoutengine.avui
                     ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
                 }
             }
+            VB_TargetUpdated(null, change);
         }
         #endregion
 

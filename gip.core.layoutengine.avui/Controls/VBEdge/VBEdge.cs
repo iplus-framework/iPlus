@@ -3,15 +3,9 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Linq;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
-using System.Windows.Shapes;
 using gip.ext.designer.avui.Services;
 using System.Transactions;
 using gip.ext.designer.avui.Controls;
@@ -19,6 +13,12 @@ using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.graphics.avui.shapes;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Interactivity;
+using Avalonia.Controls;
+using Avalonia.VisualTree;
+using Avalonia.Input;
 
 namespace gip.core.layoutengine.avui
 {
@@ -36,14 +36,6 @@ namespace gip.core.layoutengine.avui
         }
     }
 
-    //[ExtensionFor(typeof(VBEdge), OverrideExtension = typeof(MarginHandleExtension))]
-    //[ExtensionServer(typeof(PrimarySelectionExtensionServer))]
-    //public class VBEdgeMarginHandleExtension : AdornerProvider
-    //{
-    //    public VBEdgeMarginHandleExtension()
-    //    {
-    //    }
-    //}
 
 
     /// <summary>
@@ -181,8 +173,8 @@ namespace gip.core.layoutengine.avui
 
         static VBEdge()
         {
-            ArrowEndsProperty.OverrideMetadata(typeof(VBEdge), new FrameworkPropertyMetadata(ArrowEnds.End, FrameworkPropertyMetadataOptions.AffectsMeasure));
-            IsArrowClosedProperty.OverrideMetadata(typeof(VBEdge), new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsMeasure));
+            ArrowEndsProperty.OverrideMetadata(typeof(VBEdge), new StyledPropertyMetadata<ArrowEnds>(ArrowEnds.End));//, FrameworkPropertyMetadataOptions.AffectsMeasure));
+            IsArrowClosedProperty.OverrideMetadata(typeof(VBEdge), new StyledPropertyMetadata<bool>(true)); //, FrameworkPropertyMetadataOptions.AffectsMeasure));
         }
 
         private static bool _NewEdgeRouting = false;
@@ -191,29 +183,11 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            this.Unloaded += new RoutedEventHandler(VBConnectPath_Unloaded);
-            this.Loaded += new RoutedEventHandler(VBConnectPath_Loaded);
-        }
-
-        /// <summary>
-        ///     Identifies the Points dependency property.
-        /// </summary>
-        public static new readonly DependencyProperty PointsProperty =
-            DependencyProperty.Register("Points",
-                typeof(PointCollection), typeof(VBEdge),
-                new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsMeasure));
-
-        /// <summary>
-        ///     Gets or sets a collection that contains the 
-        ///     vertex points of the ArrowPolyline.
-        /// </summary>
-        public override PointCollection Points
-        {
-            set { SetValue(PointsProperty, value); }
-            get { return (PointCollection)GetValue(PointsProperty); }
+            base.OnInitialized();
+            this.Unloaded += VBConnectPath_Unloaded;
+            this.Loaded += VBConnectPath_Loaded;
         }
 
         protected virtual void VBConnectPath_Loaded(object sender, RoutedEventArgs e)
@@ -271,21 +245,18 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Gets the defining geometry.
         /// </summary>
-        protected override Geometry DefiningGeometry 
+        protected override Geometry CreateDefiningGeometry()
         {
-            get
+            if (this.Data == null)
             {
-                if (this.Data == null)
-                {
-                    if (_NewEdgeRouting)
-                        InitConnectionPoints();
-                    return base.DefiningGeometry;
-                }
                 if (_NewEdgeRouting)
-                    return this.Data != null ? this.Data : base.DefiningGeometry;
-                else
-                    return this.Data;
+                    InitConnectionPoints();
+                return base.DefiningGeometry;
             }
+            if (_NewEdgeRouting)
+                return this.Data != null ? this.Data : base.DefiningGeometry;
+            else
+                return this.Data;
         }
         #endregion
 
@@ -303,24 +274,16 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for IsSelected.
         /// </summary>
-        public static readonly DependencyProperty IsSelectedProperty =
-          DependencyProperty.Register("IsSelected",
-                                       typeof(bool),
-                                       typeof(VBEdge),
-                                       new PropertyMetadata(new PropertyChangedCallback(IsSelected_Changed)));
+        public static readonly StyledProperty<bool> IsSelectedProperty = AvaloniaProperty.Register<VBEdge, bool>(nameof(IsSelected));
 
-        static void IsSelected_Changed(object sender, DependencyPropertyChangedEventArgs e)
-        {
-        }
         #endregion
 
         #region IVBRelation Member
         /// <summary>
         /// Represents the dependency property for VBConnectorSource.
         /// </summary>
-        public static readonly DependencyProperty ACName1Property
-            = DependencyProperty.Register("VBConnectorSource", typeof(string), typeof(VBEdge));
 
+        public static readonly StyledProperty<string> VBConnectorSourceProperty = AvaloniaProperty.Register<VBEdge, string>(nameof(VBConnectorSource));
         /// <summary>VBConnectorSource is the VBContent to address a SOURCE-IACObject
         /// By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -329,15 +292,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBConnectorSource
         {
-            get { return (string)GetValue(ACName1Property); }
-            set { SetValue(ACName1Property, value); }
+            get { return (string)GetValue(VBConnectorSourceProperty); }
+            set { SetValue(VBConnectorSourceProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for VBConnectorTarget.
         /// </summary>
-        public static readonly DependencyProperty ACName2Property
-            = DependencyProperty.Register("VBConnectorTarget", typeof(string), typeof(VBEdge));
+
+
+        public static readonly StyledProperty<string> VBConnectorTargetProperty = AvaloniaProperty.Register<VBEdge, string>(nameof(VBConnectorTarget));
 
         /// <summary>VBConnectorSource is the VBContent to address a TARGET-IACObject
         /// By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
@@ -347,8 +311,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBConnectorTarget
         {
-            get { return (string)GetValue(ACName2Property); }
-            set { SetValue(ACName2Property, value); }
+            get { return (string)GetValue(VBConnectorTargetProperty); }
+            set { SetValue(VBConnectorTargetProperty, value); }
         }
         #endregion
 
@@ -420,7 +384,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Gets the parent container of edge.
         /// </summary>
-        public FrameworkElement ParentContainerOfEdge
+        public Control ParentContainerOfEdge
         {
             get
             {
@@ -428,9 +392,9 @@ namespace gip.core.layoutengine.avui
                     return null;
                 if (this.Parent is VBCanvas)
                     return this.Parent as VBCanvas;
-                if (this.Parent is FrameworkElement)
-                    return this.Parent as FrameworkElement;
-                DependencyObject parent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(this, typeof(VBCanvas));
+                if (this.Parent is Control)
+                    return this.Parent as Control;
+                AvaloniaObject parent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(this, typeof(VBCanvas));
                 if (parent == null)
                     return null;
                 return parent as VBCanvas;
@@ -446,9 +410,9 @@ namespace gip.core.layoutengine.avui
         /// <returns>The VBConnector if is found, otherwise null.</returns>
         protected VBConnector GetConnector(string acName)
         {
-            if (!(this.Parent is FrameworkElement))
+            if (!(this.Parent is Control))
                 return null;
-            FrameworkElement x = VBVisualTreeHelper.FindChildVBContentObjectInVisualTree(this.Parent as FrameworkElement, acName);
+            Control x = VBVisualTreeHelper.FindChildVBContentObjectInVisualTree(this.Parent as Control, acName);
             if (x != null)
             {
                 if (x is VBConnector)
@@ -523,8 +487,7 @@ namespace gip.core.layoutengine.avui
                         for (int i = 0; i < ((PolyLineSegment)(x2)).Points.Count(); i++)
                         {
                             var p = ((PolyLineSegment)(x2)).Points[i];
-                            p.X = p.X - l;
-                            p.Y = p.Y - t;
+                            p = new Point(p.X - l, p.Y - t);
                             ((PolyLineSegment)(x2)).Points[i] = p;
                         }
                     }
@@ -604,9 +567,31 @@ namespace gip.core.layoutengine.avui
         Point _NewSourcePosition = new Point();
         Point _NewTargetPosition = new Point();
 
-        protected override void OnRender(DrawingContext drawingContext)
+        protected override void OnMeasureInvalidated()
         {
-            base.OnRender(drawingContext);
+            // AvaloniaWorkaraound because Render is sealed
+            OnRender();
+            base.OnMeasureInvalidated();
+        }
+
+        protected override Size MeasureOverride(Size availableSize)
+        {
+            // AvaloniaWorkaraound because Render is sealed
+            OnRender();
+            return base.MeasureOverride(availableSize);
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            // AvaloniaWorkaraound because Render is sealed
+            OnRender();
+            return base.ArrangeOverride(finalSize);
+        }
+
+        //protected override void Render(DrawingContext drawingContext)
+        private void OnRender()
+        {
+            //base.Render(drawingContext);
             InitConnectionPoints();
             if (Source != null && Target != null && ParentContainerOfEdge != null)
             {
@@ -697,7 +682,7 @@ namespace gip.core.layoutengine.avui
                 if (rebuildPoints)
                 {
                     if (Points == null || !Points.Any())
-                        Points = new PointCollection();
+                        Points = new List<Point>();
                     Points.Insert(0, _NewSourcePosition);
                     Points.Insert(Points.Count, _NewTargetPosition);
                 }
@@ -706,7 +691,7 @@ namespace gip.core.layoutengine.avui
 
         void TransformConnectorPosToPolylinePoints()
         {
-            PointCollection points = new PointCollection();
+            List<Point> points = new List<Point>();
             points.Add(_NewSourcePosition);
             points.Add(_NewTargetPosition);
             Point startPoint;
@@ -858,9 +843,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBEdge));
-
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBEdge, string>(nameof(VBContent));
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
         /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
@@ -873,7 +856,7 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -892,7 +875,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBEdge), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBEdge>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -1024,21 +1007,18 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        /// <summary>
-        /// Handles the OnMouseLeftButtonDown event.
-        /// </summary>
-        /// <param name="e">The MouseButtonEvent arguments.</param>
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
-        {
-            base.OnMouseLeftButtonDown(e);
-        }
 
         /// <summary>
         /// Handles the OnMouseRightButtonDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
+            if (!e.Properties.IsRightButtonPressed)
+            {
+                base.OnPointerPressed(e);
+                return;
+            }
             VBDesign vbDesign = this.GetVBDesign();
 
             if (vbDesign != null && vbDesign.IsDesignerActive && (vbDesign.GetDesignManager() == null || !vbDesign.GetDesignManager().ACIdentifier.StartsWith("VBDesignerWorkflowMethod") 
@@ -1057,10 +1037,10 @@ namespace gip.core.layoutengine.avui
                 //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                 if (vbContextMenu.PlacementTarget == null)
                     vbContextMenu.PlacementTarget = this;
-                ContextMenu.IsOpen = true;
+                ContextMenu.Open();
                 e.Handled = true;
             }
-            base.OnMouseRightButtonDown(e);
+            base.OnPointerPressed(e);
         }
 
         #region IACObject Member
@@ -1140,12 +1120,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Gets the parent element of source VBConnector.
         /// </summary>
-        public virtual FrameworkElement SourceElement
+        public virtual Control SourceElement
         {
             get
             {
                 if(Source != null)
-                    return Source.ParentVBControl as FrameworkElement;
+                    return Source.ParentVBControl as Control;
                 else
                     return null;
             }
@@ -1154,12 +1134,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Gets the parent element of target VBConnector.
         /// </summary>
-        public virtual FrameworkElement TargetElement
+        public virtual Control TargetElement
         {
             get
             {
                 if (Target != null)
-                    return Target.ParentVBControl as FrameworkElement;
+                    return Target.ParentVBControl as Control;
                 else
                     return null;
             }

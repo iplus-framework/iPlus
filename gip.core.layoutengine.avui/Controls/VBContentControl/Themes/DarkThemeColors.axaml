@@ -1,0 +1,15 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <SolidColorBrush x:Key="ContentControlNormalContentStroke" Color="#202020"/>
+  <SolidColorBrush x:Key="ContentControlNormalContentFill" Color="#404040"/>
+  <SolidColorBrush x:Key="ContentControlDisabledContentStroke" Color="#404040"/>
+  <SolidColorBrush x:Key="ContentControlDisabledContentFill" Color="#404040"/>
+  <SolidColorBrush x:Key="ContentControlFocusContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="ContentControlFocusContentFill" Color="#FF700000"/>
+  <SolidColorBrush x:Key="ContentControlPressedContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="ContentControlPressedContentFill" Color="#FFA00000"/>  
+
+</ResourceDictionary>

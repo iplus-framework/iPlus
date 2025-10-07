@@ -6,7 +6,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ContentControl}">
                     <Viewbox Stretch="Uniform">
-                        <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_152" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                        <Canvas x:Name="Ebene_1_152" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                             <Ellipse x:Name="Ellipse_153" Width="22" Height="22" Canvas.Left="0.999999" Canvas.Top="1" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
                                 <Ellipse.Stroke>
                                     <LinearGradientBrush StartPoint="0.146447,0.146446" EndPoint="0.853553,0.853553">

@@ -27,11 +27,9 @@
 			
 			<Canvas x:Name="_markersCanvas" />
 			
+			<!-- Hour and Minute hands with drop shadow effect -->
 			<Canvas>
-				<Canvas.BitmapEffect>
-					<DropShadowBitmapEffect ShadowDepth="1" Softness="0.1" Opacity="0.5" />
-				</Canvas.BitmapEffect>
-				<Rectangle Width="8" Height="36" Fill="White" Stroke="#333333" StrokeThickness="0.6" RadiusX="2" RadiusY="2">
+				<Rectangle Width="8" Height="36" Fill="White" Stroke="#333333" StrokeThickness="0.6">
 					<Rectangle.RenderTransform>
 						<TransformGroup>
 							<TranslateTransform X="-4" Y="-32" />
@@ -39,9 +37,12 @@
 							<TranslateTransform X="50" Y="50" />
 						</TransformGroup>
 					</Rectangle.RenderTransform>
+					<Rectangle.Effect>
+						<DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.5" Color="Black" />
+					</Rectangle.Effect>
 				</Rectangle>
 				
-				<Rectangle Width="5" Height="44" Fill="White" Stroke="#333333" StrokeThickness="0.6" RadiusX="1" RadiusY="1">
+				<Rectangle Width="5" Height="44" Fill="White" Stroke="#333333" StrokeThickness="0.6">
 					<Rectangle.RenderTransform>
 						<TransformGroup>
 							<TranslateTransform X="-2.5" Y="-41.5" />
@@ -49,13 +50,14 @@
 							<TranslateTransform X="50" Y="50" />
 						</TransformGroup>
 					</Rectangle.RenderTransform>
+					<Rectangle.Effect>
+						<DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.5" Color="Black" />
+					</Rectangle.Effect>
 				</Rectangle>
 			</Canvas>
 			
+			<!-- Second hand with drop shadow effect -->
 			<Canvas>
-				<Canvas.BitmapEffect>
-					<DropShadowBitmapEffect ShadowDepth="1" Softness="0.05" Opacity="1.0" />
-				</Canvas.BitmapEffect>
 				<Rectangle Width="0.5" Height="46" Fill="White">
 					<Rectangle.RenderTransform>
 						<TransformGroup>
@@ -64,6 +66,9 @@
 							<TranslateTransform X="50" Y="50" />
 						</TransformGroup>
 					</Rectangle.RenderTransform>
+					<Rectangle.Effect>
+						<DropShadowEffect BlurRadius="1" ShadowDepth="1" Opacity="1.0" Color="Black" />
+					</Rectangle.Effect>
 				</Rectangle>
 			</Canvas>
 
@@ -78,7 +83,7 @@
 			</Ellipse>
 			<Ellipse Canvas.Left="3" Canvas.Top="3" Width="94" Height="94">
 				<Ellipse.Fill>
-					<RadialGradientBrush Center="0.7,0.8" SpreadMethod="Pad" RadiusX="1.3" RadiusY="1.2">
+					<RadialGradientBrush Center="0.7,0.8" SpreadMethod="Pad">
 						<GradientStop Offset="0.0" Color="Transparent" />
 						<GradientStop Offset="0.4" Color="#30ffffff" />
 						<GradientStop Offset="0.5" Color="#60ffffff" />

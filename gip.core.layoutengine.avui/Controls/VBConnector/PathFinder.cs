@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Controls;
 using gip.core.layoutengine.avui.VisualControlAnalyser;
 using gip.core.layoutengine.avui;
 using gip.core.datamodel;
+using Avalonia;
+using Avalonia.Layout;
+using gip.ext.design.avui.UIExtensions;
 
 namespace gip.core.layoutengine.avui
 {
@@ -578,8 +579,8 @@ namespace gip.core.layoutengine.avui
 
         private static bool RectangleIntersectsLine(Rect rect, Point startPoint, Point endPoint)
         {
-            rect.Inflate(-1, -1);
-            return rect.IntersectsWith(new Rect(startPoint, endPoint));
+            rect = rect.Inflate(-1, -1);
+            return rect.Intersects(new Rect(startPoint, endPoint));
         }
 
         private static void GetOppositeCorners(Global.ConnectorOrientation orientation, Rect rect, out Point n1, out Point n2)
@@ -626,7 +627,7 @@ namespace gip.core.layoutengine.avui
 
         private static double Distance(Point p1, Point p2)
         {
-            return Point.Subtract(p1, p2).Length;
+            return Math.Sqrt(Math.Pow(p2.X - p1.X, 2) + Math.Pow(p2.Y - p1.Y, 2));
         }
 
         private static Rect GetRectWithMargin(VCConnectorInfoIntern connectorThumb, double margin)
@@ -636,7 +637,7 @@ namespace gip.core.layoutengine.avui
                                  connectorThumb.DesignerItemSize.Width,
                                  connectorThumb.DesignerItemSize.Height);
 
-            rect.Inflate(margin, margin);
+            rect = rect.Inflate(margin, margin);
 
             return rect;
         }

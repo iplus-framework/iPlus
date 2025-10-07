@@ -1,0 +1,36 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+    <ControlTheme x:Key="{x:Type local:VBContentControlIcon}" TargetType="local:VBContentControlIcon">
+        <Setter Property="Foreground" Value="#FF000000"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="VerticalContentAlignment" Value="Top"/>
+        <Setter Property="ContentStroke" Value="{StaticResource ContentControlNormalContentStrokeGip}"/>
+        <Setter Property="ContentFill" Value="{StaticResource ContentControlNormalContentFillGip}"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="local:VBContentControlIcon">
+                <ContentPresenter
+                  Content="{TemplateBinding Content}"
+                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                  Cursor="{TemplateBinding Cursor}"
+                  Margin="{TemplateBinding Padding}"
+                  HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Mouse Over State -->
+        <Style Selector="^:pointerover">
+            <Setter Property="ContentStroke" Value="{StaticResource ContentControlFocusContentStrokeGip}"/>
+            <Setter Property="ContentFill" Value="{StaticResource ContentControlFocusContentFillGip}"/>
+        </Style>
+
+        <!-- Disabled State -->
+        <Style Selector="^:disabled">
+            <Setter Property="ContentStroke" Value="{StaticResource ContentControlDisabledContentStrokeGip}"/>
+            <Setter Property="ContentFill" Value="{StaticResource ContentControlDisabledContentFillGip}"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

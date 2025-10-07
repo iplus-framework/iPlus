@@ -1,17 +1,12 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Media;
+using Avalonia.Threading;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace gip.core.layoutengine.avui
 {
@@ -40,19 +35,17 @@ namespace gip.core.layoutengine.avui
 
 		static VBClock()
 		{
-			TimeInfoProperty = DependencyProperty.Register
-				( "TimeInfo", typeof( VBClockTimeInfo ), typeof( VBClock )
-				, new FrameworkPropertyMetadata( null, FrameworkPropertyMetadataOptions.AffectsRender ) );
+			TimeInfoProperty = AvaloniaProperty.Register<VBClock, VBClockTimeInfo>
+				( nameof(TimeInfo), defaultValue: null );
 
-			HourAngleProperty = DependencyProperty.Register
-				( "HourAngle", typeof( double ), typeof( VBClock )
-				, new FrameworkPropertyMetadata( 0.0, FrameworkPropertyMetadataOptions.AffectsRender ) );
-			MinuteAngleProperty = DependencyProperty.Register
-				( "MinuteAngle", typeof( double ), typeof( VBClock )
-				, new FrameworkPropertyMetadata( 0.0, FrameworkPropertyMetadataOptions.AffectsRender ) );
-			SecondAngleProperty = DependencyProperty.Register
-				( "SecondAngle", typeof( double ), typeof( VBClock )
-				, new FrameworkPropertyMetadata( 0.0, FrameworkPropertyMetadataOptions.AffectsRender ) );
+			HourAngleProperty = AvaloniaProperty.Register<VBClock, double>
+				( nameof(HourAngle), defaultValue: 0.0 );
+			
+			MinuteAngleProperty = AvaloniaProperty.Register<VBClock, double>
+				( nameof(MinuteAngle), defaultValue: 0.0 );
+			
+			SecondAngleProperty = AvaloniaProperty.Register<VBClock, double>
+				( nameof(SecondAngle), defaultValue: 0.0 );
 		}
 
         /// <summary>
@@ -60,14 +53,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public VBClockTimeInfo TimeInfo
 		{
-			get
-			{
-				return (VBClockTimeInfo) GetValue( TimeInfoProperty );
-			}
-			set
-			{
-				SetValue( TimeInfoProperty, value );
-			}
+			get => GetValue( TimeInfoProperty );
+			set => SetValue( TimeInfoProperty, value );
 		}
 
         /// <summary>
@@ -75,14 +62,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public double HourAngle
 		{
-			get
-			{
-				return (double) GetValue( HourAngleProperty );
-			}
-			set
-			{
-				SetValue( HourAngleProperty, value );
-			}
+			get => GetValue( HourAngleProperty );
+			set => SetValue( HourAngleProperty, value );
 		}
 
         /// <summary>
@@ -90,14 +71,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public double MinuteAngle
 		{
-			get
-			{
-				return (double) GetValue( MinuteAngleProperty );
-			}
-			set
-			{
-				SetValue( MinuteAngleProperty, value );
-			}
+			get => GetValue( MinuteAngleProperty );
+			set => SetValue( MinuteAngleProperty, value );
 		}
 
         /// <summary>
@@ -105,23 +80,17 @@ namespace gip.core.layoutengine.avui
         /// </summary>
 		public double SecondAngle
 		{
-			get
-			{
-				return (double) GetValue( SecondAngleProperty );
-			}
-			set
-			{
-				SetValue( SecondAngleProperty, value );
-			}
+			get => GetValue( SecondAngleProperty );
+			set => SetValue( SecondAngleProperty, value );
 		}
 
         /// <summary>
         /// Handles a OnInitialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-		protected override void OnInitialized( EventArgs e )
+		protected override void OnInitialized()
 		{
-			base.OnInitialized( e );
+			base.OnInitialized();
 
 			for( int i = 0; i < 60; ++i )
 			{
@@ -161,7 +130,6 @@ namespace gip.core.layoutengine.avui
 
 				tb.Text = i.ToString();
 				tb.TextAlignment = TextAlignment.Center;
-				tb.RenderTransformOrigin = new Point( 1, 1 );
 				tb.Foreground = Brushes.White;
 				tb.FontSize = 4;
 
@@ -203,9 +171,10 @@ namespace gip.core.layoutengine.avui
 		}
 
         /// <summary>
-        /// Represents a dependecy properties for TimeInfo, HourAngle, MinuteAngle and SecondAngle.
+        /// Represents styled properties for TimeInfo, HourAngle, MinuteAngle and SecondAngle.
         /// </summary>
-		public static DependencyProperty TimeInfoProperty, HourAngleProperty, MinuteAngleProperty, SecondAngleProperty;
+		public static StyledProperty<VBClockTimeInfo> TimeInfoProperty;
+		public static StyledProperty<double> HourAngleProperty, MinuteAngleProperty, SecondAngleProperty;
 
 		private DispatcherTimer _timer = new DispatcherTimer();
 	}
