@@ -20,12 +20,13 @@ namespace gip.core.reporthandler
         public ACPrintServerBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
-            _IPAddress = new ACPropertyConfigValue<string>(this, "IPAddress", "");
-            _Port = new ACPropertyConfigValue<int>(this, "Port", 0);
-            _SendTimeout = new ACPropertyConfigValue<int>(this, "SendTimeout", 0);
-            _ReceiveTimeout = new ACPropertyConfigValue<int>(this, "ReceiveTimeout", 0);
-            _PrintTries = new ACPropertyConfigValue<int>(this, "PrintTries", 1);
-            _CodePage = new ACPropertyConfigValue<int>(this, "CodePage", 0);
+            _IPAddress = new ACPropertyConfigValue<string>(this, nameof(IPAddress), "");
+            _Port = new ACPropertyConfigValue<int>(this, nameof(Port), 0);
+            _SendTimeout = new ACPropertyConfigValue<int>(this, nameof(SendTimeout), 0);
+            _ReceiveTimeout = new ACPropertyConfigValue<int>(this, nameof(ReceiveTimeout), 0);
+            _PrintTries = new ACPropertyConfigValue<int>(this, nameof(PrintTries), 1);
+            _CodePage = new ACPropertyConfigValue<int>(this, nameof(CodePage), 0);
+            _DumpToTempFolder = new ACPropertyConfigValue<bool>(this, nameof(DumpToTempFolder), false);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -140,6 +141,14 @@ namespace gip.core.reporthandler
         {
             get => _CodePage.ValueT;
             set => _CodePage.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<bool> _DumpToTempFolder;
+        [ACPropertyConfig("en{'Output to File in temp folder'}de{'Ausgabe in Datei im Temporären Ordner'}")]
+        public bool DumpToTempFolder
+        {
+            get => _DumpToTempFolder.ValueT;
+            set => _DumpToTempFolder.ValueT = value;
         }
 
         private ACDispatchedDelegateQueue _DelegateQueue = null;

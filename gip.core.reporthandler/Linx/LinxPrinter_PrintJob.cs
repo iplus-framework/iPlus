@@ -5,6 +5,7 @@ using gip.core.reporthandler.Flowdoc;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Net;
@@ -93,6 +94,10 @@ namespace gip.core.reporthandler
 
                 if (linxPrintJob != null)
                 {
+                    if (DumpToTempFolder)
+                    {
+                        linxPrintJob.WriteTelegramsToFiles(Path.GetTempPath());
+                    }
                     using (ACMonitor.Lock(_61000_LockPort))
                     {
                         Messages.LogMessage(eMsgLevel.Info, GetACUrl(), nameof(SendDataToPrinter) + "(100)", $"Add LinxPrintJob:{linxPrintJob.PrintJobID} to queue...");

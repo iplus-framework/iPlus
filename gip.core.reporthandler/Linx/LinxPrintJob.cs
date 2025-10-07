@@ -1,6 +1,8 @@
 ﻿using DocumentFormat.OpenXml.Vml;
 using gip.core.layoutengine;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace gip.core.reporthandler
 {
@@ -127,6 +129,26 @@ namespace gip.core.reporthandler
         public string GetJobInfo()
         {
             return $"PrintJobID: {PrintJobID} Name:{Name}";
+        }
+
+        public void WriteTelegramsToFiles(string rootPath)
+        {
+            if (string.IsNullOrEmpty(rootPath))
+                throw new ArgumentException("Root path cannot be null or empty", nameof(rootPath));
+
+            if (!Directory.Exists(rootPath))
+                Directory.CreateDirectory(rootPath);
+
+            string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
+
+            for (int i = 0; i < PacketsForPrint.Count; i++)
+            {
+                var telegram = PacketsForPrint[i];
+                string filename = $"{timestamp}_{telegram.LinxPrintJobType}_{i:D3}.bin";
+                string filePath = System.IO.Path.Combine(rootPath, filename);
+
+                File.WriteAllBytes(filePath, telegram.Packet);
+            }
         }
 
         #endregion
