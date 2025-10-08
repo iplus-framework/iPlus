@@ -351,7 +351,7 @@ namespace gip.core.datamodel
             foreach (var ai in aiOrder)
             {
                 (string ai, string val, bool variable) item = input.FirstOrDefault(el => el.ai == ai);
-       
+
                 if (!string.IsNullOrEmpty(item.val))
                 {
                     parts.Add($"({item.ai}){item.val}");
@@ -373,7 +373,7 @@ namespace gip.core.datamodel
 
                 if (!string.IsNullOrEmpty(strValue))
                 {
-                    input.Add((ai.AI, strValue,ai.FNC1));
+                    input.Add((ai.AI, strValue, ai.FNC1));
                 }
             }
             return input;
@@ -400,6 +400,7 @@ namespace gip.core.datamodel
             }
             else
             {
+#if NETFRAMEWORK
                 if (value is IACObject)
                 {
                     object tempObject = (value as IACObject).ACUrlCommand(valueIdentifier);
@@ -419,6 +420,10 @@ namespace gip.core.datamodel
                 {
                     returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
                 }
+#else
+                returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
+#endif
+
             }
 
             return returnValue;
