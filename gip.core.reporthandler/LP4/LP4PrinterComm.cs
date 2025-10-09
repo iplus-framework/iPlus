@@ -48,7 +48,7 @@ namespace gip.core.reporthandler
 
         #region Communication -> Open / Close port
 
-        [ACMethodInteraction(nameof(LinxPrinter), "en{'Open Connection'}de{'Öffne Verbindung'}", 200, true)]
+        [ACMethodInteraction(nameof(OpenPort), "en{'Open Connection'}de{'Öffne Verbindung'}", 200, true)]
         public bool OpenPort()
         {
             bool success = false;
@@ -89,7 +89,7 @@ namespace gip.core.reporthandler
                     LP4PrinterAlarm.ValueT = PANotifyState.AlarmOrFault;
                     if (IsAlarmActive(nameof(LP4PrinterAlarm), e.Message) == null)
                     {
-                        Messages.LogException(GetACUrl(), $"{nameof(LinxPrinter)}.{nameof(OpenPort)}(05)", e);
+                        Messages.LogException(GetACUrl(), $"{nameof(OpenPort)}.{nameof(OpenPort)}(05)", e);
                     }
                     OnNewAlarmOccurred(LP4PrinterAlarm, e.Message, true);
                     ClosePort();
@@ -113,7 +113,7 @@ namespace gip.core.reporthandler
             return false;
         }
 
-        [ACMethodInteraction(nameof(LinxPrinter), "en{'Close Connection'}de{'Schliesse Verbindung'}", 201, true)]
+        [ACMethodInteraction(nameof(ClosePort), "en{'Close Connection'}de{'Schliesse Verbindung'}", 201, true)]
         public void ClosePort()
         {
             if (!IsEnabledClosePort())
