@@ -158,11 +158,6 @@
   <ItemGroup>
     <Compile Include="Flowdoc\Document\Barcode\BarcodeValue.cs" />
     <Compile Include="Flowdoc\Document\Barcode\BarcodeValueCollection.cs" />
-    <Compile Include="LP4\LP4PrinterComm.cs" />
-    <Compile Include="LP4\LP4PrinterCommands.cs" />
-    <Compile Include="LP4\LP4Printer.cs" />
-    <Compile Include="LP4\LP4PrintJob.cs" />
-    <Compile Include="LP4\LP4Render.cs" />
     <Compile Include="Manager\ACPerfLog2ExcelWriter.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />
     <Compile Include="Manager\PAPrintInfo.cs" />
