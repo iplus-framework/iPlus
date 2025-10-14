@@ -28,6 +28,13 @@ namespace gip.core.layoutengine.avui.Helperclasses
             }
         }
 
+        public static void ClearBinding(this AvaloniaObject obj, AvaloniaProperty property)
+        {
+            if (obj == null || property == null)
+                throw new ArgumentNullException(nameof(obj));
+            BindingOperations.GetBindingExpressionBase(obj, property)?.Dispose();
+        }
+
         /// <summary>
         /// Gets the binding observable for a property (similar to WPF's GetBindingExpression)
         /// </summary>
@@ -54,6 +61,25 @@ namespace gip.core.layoutengine.avui.Helperclasses
             
             // Move caret to end
             textBox.CaretIndex = textBox.Text?.Length ?? 0;
+        }
+
+        public static void SetOwner(this Window window, WindowBase owner)
+        {
+            if (window == null)
+                throw new ArgumentNullException(nameof(window));
+
+            try
+            {
+                var ownerProperty = typeof(Window).GetProperty("Owner", BindingFlags.Public | BindingFlags.Instance);
+                if (ownerProperty != null && ownerProperty.CanWrite)
+                {
+                    ownerProperty.SetValue(window, owner);
+                }
+            }
+            catch
+            {
+                // Silently ignore if reflection fails
+            }
         }
     }
 

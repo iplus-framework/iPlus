@@ -1,0 +1,372 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:collections="using:Avalonia.Collections"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+  
+  <x:Double x:Key="cellHeight">22</x:Double>
+  <Geometry x:Key="DownArrowGeometry">M 0 0 L 3.5 4 L 7 0 Z</Geometry>
+
+  <ControlTheme x:Key="DataGridCellTextBlockTheme"
+                BasedOn="{StaticResource {x:Type local:VBTextBlock}}"
+                TargetType="local:VBTextBlock">
+    <Setter Property="Margin" Value="2,0,2,0" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCellTextBoxTheme"
+                BasedOn="{StaticResource {x:Type local:VBTextBox}}"
+                TargetType="local:VBTextBox">
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="ShowCaptionProperty" Value="false" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCellDateTimeTheme"
+              BasedOn="{StaticResource {x:Type local:VBDateTimePicker}}"
+              TargetType="local:VBDateTimePicker">
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="ShowCaptionProperty" Value="false" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCellComboDefaultTheme"
+            BasedOn="{StaticResource {x:Type local:VBComboBox}}"
+            TargetType="local:VBComboBox">
+    <Setter Property="ShowCaptionProperty" Value="false" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCellComboEditTheme"
+            BasedOn="{StaticResource {x:Type local:VBComboBox}}"
+            TargetType="local:VBComboBox">
+    <Setter Property="ShowCaptionProperty" Value="false" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCheckBoxDefaultTheme"
+        BasedOn="{StaticResource {x:Type local:VBCheckBox}}"
+        TargetType="local:VBCheckBox">
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+    <Setter Property="Focusable" Value="False" />
+    <Setter Property="IsHitTestVisible" Value="False" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCheckBoxEditTheme"
+          BasedOn="{StaticResource {x:Type local:VBCheckBox}}"
+          TargetType="local:VBCheckBox">
+    <Setter Property="HorizontalAlignment" Value="Center" />
+    <Setter Property="VerticalAlignment" Value="Top" />
+  </ControlTheme>
+
+  <ControlTheme x:Key="DataGridCellACValueTheme"
+        BasedOn="{StaticResource {x:Type local:VBValueEditor}}"
+        TargetType="local:VBValueEditor">
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="BorderThickness" Value="0" />
+  </ControlTheme>
+
+  <!-- Main DataGrid Cell ControlTheme -->
+  <ControlTheme x:Key="{x:Type DataGridCell}" TargetType="DataGridCell">
+    <Setter Property="MinHeight" Value="{StaticResource cellHeight}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Padding" Value="2,0,0,0" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="CellBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid x:Name="PART_CellRoot" ColumnDefinitions="*,Auto">
+
+            <Rectangle x:Name="CurrencyVisual"
+                       IsVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       Fill="Transparent"
+                       IsHitTestVisible="False"
+                       Stroke="{StaticResource DataGridCurrencyVisualPrimaryBrush}"
+                       StrokeThickness="1" />
+            <Grid Grid.Column="0" x:Name="FocusVisual" IsHitTestVisible="False"
+                  IsVisible="False">
+              <Rectangle HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Fill="Transparent"
+                         IsHitTestVisible="False"
+                         Stroke="{StaticResource DataGridCellFocusVisualPrimaryBrush}"
+                         StrokeThickness="2" />
+              <Rectangle Margin="2"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Fill="Transparent"
+                         IsHitTestVisible="False"
+                         Stroke="{StaticResource DataGridCellFocusVisualSecondaryBrush}"
+                         StrokeThickness="1" />
+            </Grid>
+
+            <ContentPresenter Grid.Column="0" Margin="{TemplateBinding Padding}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}" />
+
+            <Rectangle Grid.Column="0" x:Name="InvalidVisualElement"
+                       IsVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsHitTestVisible="False"
+                       Stroke="{StaticResource DataGridCellInvalidBrush}"
+                       StrokeThickness="1" />
+
+            <Rectangle Name="PART_RightGridLine"
+                       Grid.Column="1"
+                       Width="1"
+                       VerticalAlignment="Stretch"
+                       Fill="{StaticResource DataGridLineBrush}" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- Current state -->
+    <Style Selector="^:current /template/ Border#CellBorder">
+      <Setter Property="Background">
+        <Setter.Value>
+          <SolidColorBrush Color="{StaticResource CellBgSelected}" />
+        </Setter.Value>
+      </Setter>
+      <Setter Property="BorderBrush">
+        <Setter.Value>
+          <SolidColorBrush Color="{StaticResource CellBorderSelected}" />
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
+    <Style Selector="^:current /template/ Rectangle#CurrencyVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Focus state -->
+    <Style Selector="^:focus /template/ Grid#FocusVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Invalid state -->
+    <Style Selector="^:invalid /template/ Rectangle#InvalidVisualElement">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Specialized ControlTheme for ComboBox columns -->
+  <ControlTheme x:Key="DataGridCellComboTheme" TargetType="DataGridCell">
+    <Setter Property="MinHeight" Value="{StaticResource cellHeight}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrush}" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Padding" Value="2,0,0,0" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="CellBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid ColumnDefinitions="*,Auto,Auto">
+            <Rectangle x:Name="CurrencyVisual"
+                       Grid.ColumnSpan="3"
+                       IsVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       Fill="Transparent"
+                       IsHitTestVisible="False"
+                       Stroke="{StaticResource DataGridCurrencyVisualPrimaryBrush}"
+                       StrokeThickness="1" />
+            
+            <Grid Grid.Column="0" x:Name="FocusVisual" IsHitTestVisible="False"
+                  IsVisible="False">
+              <Rectangle HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Fill="Transparent"
+                         IsHitTestVisible="False"
+                         Stroke="{StaticResource DataGridCellFocusVisualPrimaryBrush}"
+                         StrokeThickness="2" />
+              <Rectangle Margin="2"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Fill="Transparent"
+                         IsHitTestVisible="False"
+                         Stroke="{StaticResource DataGridCellFocusVisualSecondaryBrush}"
+                         StrokeThickness="1" />
+            </Grid>
+            
+            <ContentPresenter Grid.Column="0" Margin="{TemplateBinding Padding}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}" />
+            
+            <Path x:Name="Arrow" 
+                  Width="7" 
+                  Grid.Column="1" 
+                  Data="{StaticResource DownArrowGeometry}" 
+                  Fill="White" 
+                  HorizontalAlignment="Right" 
+                  VerticalAlignment="Center"
+                  IsVisible="True"/>
+                  
+            <Rectangle Grid.Column="0" x:Name="InvalidVisualElement"
+                       IsVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsHitTestVisible="False"
+                       Stroke="{StaticResource DataGridCellInvalidBrush}"
+                       StrokeThickness="1" />
+                       
+            <Rectangle Name="PART_RightGridLine"
+                       Grid.Column="2"
+                       Width="1"
+                       VerticalAlignment="Stretch"
+                       Fill="{StaticResource DataGridLineBrush}" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- Current state -->
+    <Style Selector="^:current /template/ Border#CellBorder">
+      <Setter Property="Background">
+        <Setter.Value>
+          <SolidColorBrush Color="{StaticResource CellBgSelected}" />
+        </Setter.Value>
+      </Setter>
+      <Setter Property="BorderBrush">
+        <Setter.Value>
+          <SolidColorBrush Color="{StaticResource CellBorderSelected}" />
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
+    <Style Selector="^:current /template/ Rectangle#CurrencyVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Focus state -->
+    <Style Selector="^:focus /template/ Grid#FocusVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Invalid state -->
+    <Style Selector="^:invalid /template/ Rectangle#InvalidVisualElement">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Editing state - hide arrow for combo -->
+    <Style Selector="^:edited /template/ Path#Arrow">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Specialized ControlTheme for ReadOnly columns -->
+  <ControlTheme x:Key="DataGridCellReadOnlyTheme" TargetType="DataGridCell">
+    <Setter Property="MinHeight" Value="{StaticResource cellHeight}" />
+    <Setter Property="Foreground" Value="{StaticResource TextBrushReadonly}" />
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Padding" Value="2,0,0,0" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="{StaticResource CellBgBrushReadOnly}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="CellBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding Background}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid x:Name="PART_CellRoot" ColumnDefinitions="*,Auto">
+
+            <Rectangle x:Name="CurrencyVisual"
+                       IsVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       Fill="Transparent"
+                       IsHitTestVisible="False"
+                       Stroke="{StaticResource DataGridCurrencyVisualPrimaryBrush}"
+                       StrokeThickness="1" />
+            <Grid Grid.Column="0" x:Name="FocusVisual" IsHitTestVisible="False"
+                  IsVisible="False">
+              <Rectangle HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Fill="Transparent"
+                         IsHitTestVisible="False"
+                         Stroke="{StaticResource DataGridCellFocusVisualPrimaryBrush}"
+                         StrokeThickness="2" />
+              <Rectangle Margin="2"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         Fill="Transparent"
+                         IsHitTestVisible="False"
+                         Stroke="{StaticResource DataGridCellFocusVisualSecondaryBrush}"
+                         StrokeThickness="1" />
+            </Grid>
+
+            <ContentPresenter Grid.Column="0" Margin="{TemplateBinding Padding}"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              TextBlock.FontStyle="Italic" />
+
+            <Rectangle Grid.Column="0" x:Name="InvalidVisualElement"
+                       IsVisible="False"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       IsHitTestVisible="False"
+                       Stroke="{StaticResource DataGridCellInvalidBrush}"
+                       StrokeThickness="1" />
+
+            <Rectangle Name="PART_RightGridLine"
+                       Grid.Column="1"
+                       Width="1"
+                       VerticalAlignment="Stretch"
+                       Fill="{StaticResource DataGridLineBrush}" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- Current state for read-only -->
+    <Style Selector="^:current /template/ Border#CellBorder">
+      <Setter Property="BorderBrush">
+        <Setter.Value>
+          <SolidColorBrush Color="{StaticResource CellBorderSelectedReadOnly}" />
+        </Setter.Value>
+      </Setter>
+    </Style>
+    
+    <Style Selector="^:current /template/ Rectangle#CurrencyVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Focus state -->
+    <Style Selector="^:focus /template/ Grid#FocusVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <!-- Invalid state -->
+    <Style Selector="^:invalid /template/ Rectangle#InvalidVisualElement">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

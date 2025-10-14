@@ -61,31 +61,6 @@ namespace gip.core.layoutengine.avui
     {
         #region c'tors
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "VBVisualStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBVisual/Themes/VBVisualStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "VBVisualStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBVisual/Themes/VBVisualStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBVisual()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBVisual), new FrameworkPropertyMetadata(typeof(VBVisual)));
-        }
-
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instace of the VBVisual.
         /// </summary>
@@ -870,8 +845,6 @@ namespace gip.core.layoutengine.avui
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
             if (ParentACObject != null)
             {
                 if (VBContent == "this")
@@ -884,14 +857,6 @@ namespace gip.core.layoutengine.avui
            
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
 
         protected bool _VBInitialized = false;
         protected bool _VBContentBindedLate = false;

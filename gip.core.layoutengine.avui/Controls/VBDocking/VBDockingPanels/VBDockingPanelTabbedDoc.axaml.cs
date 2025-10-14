@@ -13,7 +13,7 @@ namespace gip.core.layoutengine.avui
     /// Represents a docking panel for tabbed document. Use with <see cref="VBDockingGrid"/>
     /// </summary>
 
-    partial class VBDockingPanelTabbedDoc : VBDockingPanelBase
+    public partial class VBDockingPanelTabbedDoc : VBDockingPanelBase
     {
         public readonly List<VBDockingContainerBase> Documents = new List<VBDockingContainerBase>();
 

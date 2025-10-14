@@ -1,26 +1,11 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Transactions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml;
 
 namespace gip.core.layoutengine.avui
 {
@@ -32,69 +17,23 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDataGridCheckBoxColumn : DataGridCheckBoxColumn, IGriColumn
     {
-        static VBDataGridCheckBoxColumn()
+        private readonly Lazy<ControlTheme> _cellCheckBoxEditTheme;
+        private readonly Lazy<ControlTheme> _cellCheckBoxDefaultTheme;
+        public VBDataGridCheckBoxColumn() : base()
         {
-            ElementStyleProperty.OverrideMetadata(typeof(VBDataGridCheckBoxColumn), new FrameworkPropertyMetadata(VBDefaultElementStyle));
-            EditingElementStyleProperty.OverrideMetadata(typeof(VBDataGridCheckBoxColumn), new FrameworkPropertyMetadata(VBDefaultEditingElementStyle));
-        }
-
-        private static Style _defaultElementStyle;
-        /// <summary>
-        /// Gets the style of VBDefault element.
-        /// </summary>
-        public static Style VBDefaultElementStyle
-        {
-            get
+            if (this.OwningGrid != null)
             {
-                if (_defaultElementStyle == null)
-                {
-                    Style style = new Style(typeof(VBCheckBox));
-                    style.BasedOn = ControlManager.GetStyleOfTheme(VBCheckBox.StyleInfoList);
-
-                    // When not in edit mode, the end-user should not be able to toggle the state 
-                    style.Setters.Add(new Setter(UIElement.IsHitTestVisibleProperty, false));
-                    style.Setters.Add(new Setter(UIElement.FocusableProperty, false));
-                    style.Setters.Add(new Setter(CheckBox.HorizontalAlignmentProperty, HorizontalAlignment.Center));
-                    style.Setters.Add(new Setter(CheckBox.VerticalAlignmentProperty, VerticalAlignment.Top));
-
-                    style.Seal();
-                    _defaultElementStyle = style;
-                }
-
-                return _defaultElementStyle;
+                _cellCheckBoxEditTheme = new Lazy<ControlTheme>(() =>
+                    OwningGrid.TryFindResource("DataGridCheckBoxEditTheme", out var theme) ? (ControlTheme)theme : null);
+                _cellCheckBoxDefaultTheme = new Lazy<ControlTheme>(() =>
+                    OwningGrid.TryFindResource("DataGridCheckBoxDefaultTheme", out var theme) ? (ControlTheme)theme : null);
             }
         }
-
-        private static Style _defaultEditingElementStyle;
-        /// <summary>
-        /// Gets the style of default editing element.
-        /// </summary>
-        public static Style VBDefaultEditingElementStyle
-        {
-            get
-            {
-                if (_defaultEditingElementStyle == null)
-                {
-                    Style style = new Style(typeof(VBCheckBox));
-                    style.BasedOn = ControlManager.GetStyleOfTheme(VBCheckBox.StyleInfoList);
-
-                    style.Setters.Add(new Setter(CheckBox.HorizontalAlignmentProperty, HorizontalAlignment.Center));
-                    style.Setters.Add(new Setter(CheckBox.VerticalAlignmentProperty, VerticalAlignment.Top));
-
-                    style.Seal();
-                    _defaultEditingElementStyle = style;
-                }
-
-                return _defaultEditingElementStyle;
-            }
-        }
-
 
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDataGridCheckBoxColumn));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of property that you want show in this column. Property must be in object, which is bounded to the VBDataGrid.
@@ -103,19 +42,13 @@ namespace gip.core.layoutengine.avui
         public string VBContent
         {
             get { return (string)GetValue(VBContentProperty); }
-            set
-            {
-                SetValue(VBContentProperty, value);
-                this.ACColumnItem = new ACColumnItem(value);
-            }
+            set { SetValue(VBContentProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for VBIsReadOnly.
+        /// Represents the dependency property for VBIsReadOnlyProperty.
         /// </summary>
-        public static readonly DependencyProperty VBIsReadOnlyProperty
-            = DependencyProperty.Register("VBIsReadOnly", typeof(bool), typeof(VBDataGridCheckBoxColumn));
-
+        public static readonly StyledProperty<bool> VBIsReadOnlyProperty = AvaloniaProperty.Register<VBDataGridCheckBoxColumn, bool>(nameof(VBIsReadOnly));
         /// <summary>
         /// Determines is column is read only or not. The true value is for readonly.
         /// </summary>
@@ -145,7 +78,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return DataGridOwner as VBDataGrid;
+                return OwningGrid as VBDataGrid;
             }
         }
 
@@ -162,9 +95,9 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if ((this.DataGridOwner != null) && (this.DataGridOwner is VBDataGrid))
+                if ((this.OwningGrid != null) && (this.OwningGrid is VBDataGrid))
                 {
-                    VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+                    VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
                     if (dataGrid == null)
                         return;
                     if (dataGrid.ContextACObject == null)
@@ -217,7 +150,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="dsColRightControlMode">The data source right control mode for column.</param>
         public void Initialize(ACColumnItem acColumnItem, IACType dsColACTypeInfo, object dsColSource, string dsColPath, Global.ControlModes dsColRightControlMode)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return;
             if (dataGrid.ContextACObject == null)
@@ -228,7 +161,7 @@ namespace gip.core.layoutengine.avui
             RightControlMode = dsColRightControlMode;
 
             Binding binding = new Binding();
-            binding.Path = new PropertyPath(dsColPath);
+            binding.Path = dsColPath;
             bool bIsInput = false;
             if (dsColACTypeInfo is ACClassProperty)
                 bIsInput = (dsColACTypeInfo as ACClassProperty).IsInput;
@@ -243,13 +176,9 @@ namespace gip.core.layoutengine.avui
 
             this.Binding = binding;
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.WidthProperty);
-            if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-                this.Width = 100;
+            if (!this.IsSet(DataGridColumn.WidthProperty))
+                this.Width = new DataGridLength(100);
 
-            //valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.IsReadOnlyProperty);
-            //if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-            //    this.IsReadOnly = !dataGrid.IsSetInVBDisabledColumns(acColumnItem.PropertyName);
             RefreshReadOnlyProperty();
         }
 
@@ -259,11 +188,18 @@ namespace gip.core.layoutengine.avui
         /// <param name="cell">The DataGridCell parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
         /// <returns>Returns the VBCheckBox element.</returns>
-        protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
+        protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
         {
             if (!String.IsNullOrEmpty(VBContent) && ACColumnItem == null)
                 ACColumnItem = new ACColumnItem(VBContent);
-            return GenerateCheckBox(true, cell);
+            VBCheckBox checkBox = GenerateCheckBox(true, cell);
+            checkBox.Name = "CellTextBlock";
+            if (_cellCheckBoxEditTheme.Value is { } theme)
+            {
+                checkBox.Theme = theme;
+            }
+            checkBox.ShowCaption = false;
+            return checkBox;
         }
 
         /// <summary>
@@ -272,14 +208,46 @@ namespace gip.core.layoutengine.avui
         /// <param name="cell">The DataGridCell parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
         /// <returns>Returns the VBCheckBox element.</returns>
-        protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
+        protected override Control GenerateElement(DataGridCell cell, object dataItem)
         {
+            bool isEnabled = false;
             if (!String.IsNullOrEmpty(VBContent) && ACColumnItem == null)
                 ACColumnItem = new ACColumnItem(VBContent);
-            return GenerateCheckBox(false, cell);
+            VBCheckBox checkBox = GenerateCheckBox(false, cell);
+            checkBox.Name = "CellTextBox";
+            if (_cellCheckBoxDefaultTheme.Value is { } theme)
+            {
+                checkBox.Theme = theme;
+            }
+            if (EnsureOwningGridViaReflection())
+            {
+                if (cell.GetRowIndexViaReflection() != -1 
+                    && cell.GetColumnIndexViaReflection() != -1
+                    && cell.GetOwningRowViaReflection() != null
+                    && cell.GetOwningRowViaReflection().GetSlotViaReflection() == this.OwningGrid.GetCurrentSlotViaReflection()
+                    && cell.GetColumnIndexViaReflection() == this.OwningGrid.GetCurrentColumnIndexViaReflection())
+                {
+                    isEnabled = true;
+                    if (CurrentCheckBox != null)
+                    {
+                        CurrentCheckBox.IsEnabled = false;
+                    }
+                    CurrentCheckBox = checkBox;
+                }
+            }
+            checkBox.IsEnabled = isEnabled;
+            checkBox.IsHitTestVisible = false;
+            //ConfigureCheckBox(checkBoxElement);
+            //if (Binding != null)
+            //{
+            //    checkBoxElement.Bind(BindingTarget, Binding);
+            //}
+            return checkBox;
         }
 
-        private CheckBox GenerateCheckBox(bool isEditing, DataGridCell cell)
+
+
+        private VBCheckBox GenerateCheckBox(bool isEditing, DataGridCell cell)
         {
             VBCheckBox checkBox = (cell != null) ? (cell.Content as VBCheckBox) : null;
             if (checkBox == null)
@@ -289,48 +257,37 @@ namespace gip.core.layoutengine.avui
                     checkBox.IsEnabled = false;
             }
 
-            Style style = new Style(typeof(DataGridCell), cell.Style);
-            Trigger trigger = new Trigger() { Property = DataGridCell.IsMouseOverProperty, Value = true };
-            trigger.Setters.Add(new Setter(DataGridCell.IsEditingProperty, true));
-            style.Triggers.Add(trigger);
-            cell.Style = style;
+            //Style style = new Style(typeof(DataGridCell), cell.Style);
+            //Trigger trigger = new Trigger() { Property = DataGridCell.IsMouseOverProperty, Value = true };
+            //trigger.Setters.Add(new Setter(DataGridCell.IsEditingProperty, true));
+            //style.Triggers.Add(trigger);
+            //cell.Style = style;
 
-            checkBox.IsThreeState = IsThreeState;
-            ApplyStyle(isEditing, /* defaultToElementStyle = */ true, checkBox);
             ApplyBinding(checkBox, CheckBox.IsCheckedProperty);
             return checkBox;
         }
 
-        internal void ApplyStyle(bool isEditing, bool defaultToElementStyle, FrameworkElement element)
+        private void ConfigureCheckBox(CheckBox checkBox)
         {
-            Style style = PickStyle(isEditing, defaultToElementStyle);
-            if (style != null)
-            {
-                element.Style = style;
-            }
+            DataGridHelper.SyncColumnProperty(this, checkBox, IsThreeStateProperty);
         }
 
-        private Style PickStyle(bool isEditing, bool defaultToElementStyle)
+        internal void ApplyBinding(AvaloniaObject target, AvaloniaProperty property)
         {
-            Style style = isEditing ? EditingElementStyle : ElementStyle;
-            if (isEditing && defaultToElementStyle && (style == null))
-            {
-                style = ElementStyle;
-            }
-            return style;
-
+            IBinding binding = Binding;
+            ApplyBinding(binding, target, property);
         }
 
-        internal void ApplyBinding(DependencyObject target, DependencyProperty property)
+        private static void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
         {
-            BindingBase binding = Binding;
             if (binding != null)
             {
-                BindingOperations.SetBinding(target, property, binding);
+                target.Bind(property, binding);
             }
             else
             {
-                BindingOperations.ClearBinding(target, property);
+                target.ClearAllBindings();
+                target.ClearBinding(property);
             }
         }
 
@@ -353,6 +310,74 @@ namespace gip.core.layoutengine.avui
             this.Binding = null;
             _ACColumnItem = null;
             _ColACTypeInfo = null;
+        }
+
+        /// <summary>
+        /// Calls the private EnsureOwningGrid method from the base class via reflection.
+        /// </summary>
+        /// <returns>Returns true if the owning grid is valid, false otherwise.</returns>
+        private bool EnsureOwningGridViaReflection()
+        {
+            try
+            {
+                var method = this.GetType().BaseType?.GetMethod("EnsureOwningGrid", 
+                    System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                
+                if (method != null)
+                {
+                    var result = method.Invoke(this, null);
+                    return result is bool boolResult ? boolResult : false;
+                }
+                
+                return false;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the current checkbox using reflection to access the private field from the base class.
+        /// </summary>
+        private VBCheckBox CurrentCheckBox
+        {
+            get
+            {
+                try
+                {
+                    var field = this.GetType().BaseType?.GetField("_currentCheckBox", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    
+                    if (field != null)
+                    {
+                        return field.GetValue(this) as VBCheckBox;
+                    }
+                    
+                    return null;
+                }
+                catch (Exception)
+                {
+                    return null;
+                }
+            }
+            set
+            {
+                try
+                {
+                    var field = this.GetType().BaseType?.GetField("_currentCheckBox", 
+                        System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                    
+                    if (field != null)
+                    {
+                        field.SetValue(this, value);
+                    }
+                }
+                catch (Exception)
+                {
+                    // Silently ignore reflection errors
+                }
+            }
         }
     }
 }

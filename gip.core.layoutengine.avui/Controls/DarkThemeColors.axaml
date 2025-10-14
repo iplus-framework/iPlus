@@ -21,6 +21,7 @@
     <ResourceInclude Source="/Controls/VBContextMenu/Themes/DarkThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBControlSelectionIcon/Themes/DarkThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBExpander/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBDataGrid/Themes/DarkThemeColors.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
   <Color x:Key="ColorCtrlTxtDisabled" A="#FF" B="#B0" G="#B0" R="#B0"/>

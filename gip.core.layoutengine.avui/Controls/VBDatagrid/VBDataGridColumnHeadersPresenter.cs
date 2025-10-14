@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Avalonia.Controls.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui
 {
@@ -13,11 +13,11 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Wird innerhalb der Vorlage eines <see cref="VBDataGrid"/> verwendet, um die Stelle im visuellen Baum des Controls anzugeben, an der die Spaltenüberschriften hinzugefügt werden sollen.
     /// </summary>
-    public class VBDataGridColumnHeadersPresenter:DataGridColumnHeadersPresenter
-    {
-        protected override System.Windows.DependencyObject GetContainerForItemOverride()
-        {
-            return new VBDataGridColumnHeader();
-        }
-    }
+    //public class VBDataGridColumnHeadersPresenter : DataGridColumnHeadersPresenter
+    //{
+    //    protected override GetContainerForItemOverride()
+    //    {
+    //        return new VBDataGridColumnHeader();
+    //    }
+    //}
 }

@@ -2,118 +2,112 @@
 // This source is subject to the Microsoft Public License (Ms-PL).
 // Please see http://go.microsoft.com/fwlink/?LinkID=131993 for details.
 // All other rights reserved.
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Threading;
-using System.Windows.Controls.Primitives;
-using MS.Internal;
-using System.Windows.Shapes;
-using System.Windows.Interop;
 
 namespace gip.core.layoutengine.avui
 {
     public static class DataGridHelper
     {
 
-		#region SelectedCells
-		public static IList<DataGridCellInfo> GetSelectedCells(DependencyObject obj)
-		{
-			return (IList<DataGridCellInfo>)obj.GetValue(SelectedCellsProperty);
-		}
-		public static void SetSelectedCells(DependencyObject obj, IList<DataGridCellInfo> value)
-		{
-			obj.SetValue(SelectedCellsProperty, value);
-		}
-		public static readonly DependencyProperty SelectedCellsProperty =
-			DependencyProperty.RegisterAttached("SelectedCells", typeof(IList<DataGridCellInfo>), typeof(DataGridHelper), new UIPropertyMetadata(null, OnSelectedCellsChanged));
-		static SelectedCellsChangedEventHandler GetSelectionChangedHandler(DependencyObject obj)
-		{
-			return (SelectedCellsChangedEventHandler)obj.GetValue(SelectionChangedHandlerProperty);
-		}
-		static void SetSelectionChangedHandler(DependencyObject obj, SelectedCellsChangedEventHandler value)
-		{
-			obj.SetValue(SelectionChangedHandlerProperty, value);
-		}
-		static readonly DependencyProperty SelectionChangedHandlerProperty =
-			DependencyProperty.RegisterAttached("SelectedCellsChangedEventHandler", typeof(SelectedCellsChangedEventHandler), typeof(DataGridHelper), new UIPropertyMetadata(null));
+		//#region SelectedCells
+		//public static IList<DataGridCellInfo> GetSelectedCells(AvaloniaObject obj)
+		//{
+		//	return (IList<DataGridCellInfo>)obj.GetValue(SelectedCellsProperty);
+		//}
+		//public static void SetSelectedCells(AvaloniaObject obj, IList<DataGridCellInfo> value)
+		//{
+		//	obj.SetValue(SelectedCellsProperty, value);
+		//}
+		//public static readonly DependencyProperty SelectedCellsProperty =
+		//	DependencyProperty.RegisterAttached("SelectedCells", typeof(IList<DataGridCellInfo>), typeof(DataGridHelper), new UIPropertyMetadata(null, OnSelectedCellsChanged));
+		//static SelectedCellsChangedEventHandler GetSelectionChangedHandler(AvaloniaObject obj)
+		//{
+		//	return (SelectedCellsChangedEventHandler)obj.GetValue(SelectionChangedHandlerProperty);
+		//}
+		//static void SetSelectionChangedHandler(AvaloniaObject obj, SelectedCellsChangedEventHandler value)
+		//{
+		//	obj.SetValue(SelectionChangedHandlerProperty, value);
+		//}
+		//static readonly DependencyProperty SelectionChangedHandlerProperty =
+		//	DependencyProperty.RegisterAttached("SelectedCellsChangedEventHandler", typeof(SelectedCellsChangedEventHandler), typeof(DataGridHelper), new UIPropertyMetadata(null));
 
-		//d is MultiSelector (d as ListBox not supported)
-		static void OnSelectedCellsChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
+		////d is MultiSelector (d as ListBox not supported)
+		//static void OnSelectedCellsChanged(AvaloniaObject d, DependencyPropertyChangedEventArgs args)
+		//{
+		//	if (GetSelectionChangedHandler(d) != null)
+		//		return;
+
+		//	if (d is DataGrid)//DataGrid
+		//	{
+		//		DataGrid datagrid = d as DataGrid;
+		//		SelectedCellsChangedEventHandler selectionchanged = null;
+		//		foreach (var selected in GetSelectedCells(d) as IList<DataGridCellInfo>)
+		//			datagrid.SelectedCells.Add(selected);
+
+		//		selectionchanged = (sender, e) =>
+		//		{
+		//			SetSelectedCells(d, datagrid.SelectedCells);
+		//		};
+		//		SetSelectionChangedHandler(d, selectionchanged);
+		//		datagrid.SelectedCellsChanged += GetSelectionChangedHandler(d);
+		//	}
+		//	//else if (d is ListBox)
+		//	//{
+		//	//    ListBox listbox = d as ListBox;
+		//	//    SelectionChangedEventHandler selectionchanged = null;
+
+		//	//    selectionchanged = (sender, e) =>
+		//	//    {
+		//	//        SetSelectedCells(d, listbox.SelectedCells);
+		//	//    };
+		//	//    SetSelectionChangedHandler(d, selectionchanged);
+		//	//    listbox.SelectionChanged += GetSelectionChangedHandler(d);
+		//	//}
+		//}
+
+		//#region HorizontalMouseWheelScrollingEnabled
+		//public static bool GetHorizontalMouseWheelScrollingEnabled(AvaloniaObject obj)
+		//{
+		//	return (bool)obj.GetValue(HorizontalMouseWheelScrollingEnabledProperty);
+		//}
+		//public static void SetHorizontalMouseWheelScrollingEnabled(AvaloniaObject obj, bool value)
+		//{
+		//	obj.SetValue(HorizontalMouseWheelScrollingEnabledProperty, value);
+		//}
+		//public static readonly DependencyProperty HorizontalMouseWheelScrollingEnabledProperty =
+		//	DependencyProperty.RegisterAttached("HorizontalMouseWheelScrollingEnabled", typeof(bool), typeof(DataGridHelper), new UIPropertyMetadata(false, OnHorizontalMouseWheelScrollingEnabledChanged));
+		//static void OnHorizontalMouseWheelScrollingEnabledChanged(AvaloniaObject d, DependencyPropertyChangedEventArgs args)
+		//{
+		//	if (d is DataGrid)
+		//	{
+		//		DataGrid datagrid = d as DataGrid;
+		//		datagrid.Loaded += (sender, e) =>
+		//		{
+		//			var obj = datagrid.Template.FindName("DG_ScrollViewer", datagrid);
+		//			if (obj is ScrollViewer)
+		//			{
+		//				ScrollViewer scrollviewer = obj as ScrollViewer;
+		//				var mhelper = new HorizontalMouseScrollHelper(scrollviewer, datagrid);
+		//			}
+
+		//		};
+		//	}
+
+
+		//}
+		//#endregion
+
+		public static T FindParent<T>(Control element) where T : Control
 		{
-			if (GetSelectionChangedHandler(d) != null)
-				return;
-
-			if (d is DataGrid)//DataGrid
-			{
-				DataGrid datagrid = d as DataGrid;
-				SelectedCellsChangedEventHandler selectionchanged = null;
-				foreach (var selected in GetSelectedCells(d) as IList<DataGridCellInfo>)
-					datagrid.SelectedCells.Add(selected);
-
-				selectionchanged = (sender, e) =>
-				{
-					SetSelectedCells(d, datagrid.SelectedCells);
-				};
-				SetSelectionChangedHandler(d, selectionchanged);
-				datagrid.SelectedCellsChanged += GetSelectionChangedHandler(d);
-			}
-			//else if (d is ListBox)
-			//{
-			//    ListBox listbox = d as ListBox;
-			//    SelectionChangedEventHandler selectionchanged = null;
-
-			//    selectionchanged = (sender, e) =>
-			//    {
-			//        SetSelectedCells(d, listbox.SelectedCells);
-			//    };
-			//    SetSelectionChangedHandler(d, selectionchanged);
-			//    listbox.SelectionChanged += GetSelectionChangedHandler(d);
-			//}
-		}
-
-		#region HorizontalMouseWheelScrollingEnabled
-		public static bool GetHorizontalMouseWheelScrollingEnabled(DependencyObject obj)
-		{
-			return (bool)obj.GetValue(HorizontalMouseWheelScrollingEnabledProperty);
-		}
-		public static void SetHorizontalMouseWheelScrollingEnabled(DependencyObject obj, bool value)
-		{
-			obj.SetValue(HorizontalMouseWheelScrollingEnabledProperty, value);
-		}
-		public static readonly DependencyProperty HorizontalMouseWheelScrollingEnabledProperty =
-			DependencyProperty.RegisterAttached("HorizontalMouseWheelScrollingEnabled", typeof(bool), typeof(DataGridHelper), new UIPropertyMetadata(false, OnHorizontalMouseWheelScrollingEnabledChanged));
-		static void OnHorizontalMouseWheelScrollingEnabledChanged(DependencyObject d, DependencyPropertyChangedEventArgs args)
-		{
-			if (d is DataGrid)
-			{
-				DataGrid datagrid = d as DataGrid;
-				datagrid.Loaded += (sender, e) =>
-				{
-					var obj = datagrid.Template.FindName("DG_ScrollViewer", datagrid);
-					if (obj is ScrollViewer)
-					{
-						ScrollViewer scrollviewer = obj as ScrollViewer;
-						var mhelper = new HorizontalMouseScrollHelper(scrollviewer, datagrid);
-					}
-
-				};
-			}
-
-
-		}
-		#endregion
-
-		public static T FindParent<T>(FrameworkElement element) where T : FrameworkElement
-		{
-			FrameworkElement parent = LogicalTreeHelper.GetParent(element) as FrameworkElement;
+			Control parent = LogicalTreeHelper.GetParent(element) as Control;
 			//parent.FindName
 			while (parent != null)
 			{
@@ -127,24 +121,6 @@ namespace gip.core.layoutengine.avui
 			return null;
 		}
 
-        private const char _escapeChar = '\u001b';
-        public static bool HasNonEscapeCharacters(TextCompositionEventArgs textArgs)
-        {
-            if (textArgs != null)
-            {
-                string text = textArgs.Text;
-                for (int i = 0, count = text.Length; i < count; i++)
-                {
-                    if (text[i] != _escapeChar)
-                    {
-                        return true;
-                    }
-                }
-            }
-
-            return false;
-        }
-
         public static bool IsImeProcessed(KeyEventArgs keyArgs)
         {
             if (keyArgs != null)
@@ -155,14 +131,12 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-		#endregion
-
         /// <summary>
         ///     Walks up the templated parent tree looking for a parent type.
         /// </summary>
-        public static T FindTemplatedParent<T>(FrameworkElement element) where T : FrameworkElement
+        public static T FindTemplatedParent<T>(Control element) where T : Control
         {
-            FrameworkElement parent = element.TemplatedParent as FrameworkElement;
+            Control parent = element.TemplatedParent as Control;
 
             while (parent != null)
             {
@@ -172,15 +146,15 @@ namespace gip.core.layoutengine.avui
                     return correctlyTyped;
                 }
 
-                parent = parent.TemplatedParent as FrameworkElement;
+                parent = parent.TemplatedParent as Control;
             }
 
             return null;
         }
 
-        public static T FindVisualParent<T>(UIElement element) where T : UIElement
+        public static T FindVisualParent<T>(Control element) where T : Control
         {
-            UIElement parent = element;
+            Control parent = element;
             while (parent != null)
             {
                 T correctlyTyped = parent as T;
@@ -189,21 +163,22 @@ namespace gip.core.layoutengine.avui
                     return correctlyTyped;
                 }
 
-                parent = VisualTreeHelper.GetParent(parent) as UIElement;
+                parent = VisualTreeHelper.GetParent(parent) as Control;
             }
 
             return null;
         }
 
-        internal static void SyncColumnProperty(DependencyObject column, DependencyObject content, DependencyProperty contentProperty, DependencyProperty columnProperty)
+        internal static void SyncColumnProperty<T>(AvaloniaObject column, AvaloniaObject content, AvaloniaProperty<T> property)
         {
-            if (IsDefaultValue(column, columnProperty))
+            SyncColumnProperty(column, content, property, property);
+        }
+
+        internal static void SyncColumnProperty<T>(AvaloniaObject column, AvaloniaObject content, AvaloniaProperty<T> contentProperty, AvaloniaProperty<T> columnProperty)
+        {
+            if (!column.IsSet(columnProperty))
             {
                 content.ClearValue(contentProperty);
-
-                // Workaround TODO: Bei Aero wird die Foreground-Property von TextBlock in der Datagrid-Cell nicht richtig gesetzt sonderb beliebt weiß warum??
-                //if (ControlManager.WpfTheme == eWpfTheme.Aero)
-                    //content.SetValue(contentProperty, column.GetValue(columnProperty));
             }
             else
             {
@@ -211,7 +186,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static bool IsDefaultValue(DependencyObject d, DependencyProperty dp)
+        public static bool IsDefaultValue(AvaloniaObject d, AvaloniaObject dp)
         {
             return DependencyPropertyHelper.GetValueSource(d, dp).BaseValueSource == BaseValueSource.Default;
         }

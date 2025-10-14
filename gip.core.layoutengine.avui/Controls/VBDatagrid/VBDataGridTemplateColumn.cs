@@ -1,3 +1,5 @@
+using Avalonia;
+using Avalonia.Controls;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
@@ -9,17 +11,6 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Transactions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml;
 
 namespace gip.core.layoutengine.avui
@@ -35,8 +26,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDataGridTemplateColumn));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBDataGridTemplateColumn, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of property that you want show in this column. Property must be in object, which is bounded to the VBDataGrid.
@@ -51,9 +41,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBIsReadOnlyProperty.
         /// </summary>
-        public static readonly DependencyProperty VBIsReadOnlyProperty
-            = DependencyProperty.Register("VBIsReadOnly", typeof(bool), typeof(VBDataGridTemplateColumn));
-
+        public static readonly StyledProperty<bool> VBIsReadOnlyProperty = AvaloniaProperty.Register<VBDataGridTemplateColumn, bool>(nameof(VBIsReadOnly));
         /// <summary>
         /// Determines is column is read only or not. The true value is for readonly.
         /// </summary>
@@ -83,7 +71,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return DataGridOwner as VBDataGrid;
+                return OwningGrid as VBDataGrid;
             }
         }
 
@@ -108,9 +96,9 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if ((this.DataGridOwner != null) && (this.DataGridOwner is VBDataGrid))
+                if ((this.OwningGrid != null) && (this.OwningGrid is VBDataGrid))
                 {
-                    VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+                    VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
                     if (dataGrid == null)
                         return;
                     if (dataGrid.ContextACObject == null)
@@ -150,7 +138,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="dsColRightControlMode">The data source right control mode for column.</param>
         public void Initialize(ACColumnItem acColumnItem, IACType dsColACTypeInfo, object dsColSource, string dsColPath, Global.ControlModes dsColRightControlMode, bool isShowColumnAMethod)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return;
             if (dataGrid.ContextACObject == null)
@@ -160,15 +148,15 @@ namespace gip.core.layoutengine.avui
             _ColACTypeInfo = dsColACTypeInfo;
             RightControlMode = dsColRightControlMode;
 
-            ValueSource valueSource;
             // ACCaption bevorzugen
             if (!string.IsNullOrEmpty(ACCaption))
                 this.Header = this.Root().Environment.TranslateText(dataGrid.ContextACObject, ACCaption);
             else
             {
-            valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-            if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-                this.Header = dsColACTypeInfo.ACCaption;
+                //valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
+                //if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                if (!this.IsSet(DataGridColumn.HeaderProperty))
+                    this.Header = dsColACTypeInfo.ACCaption;
             }
 
             //valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.IsReadOnlyProperty);

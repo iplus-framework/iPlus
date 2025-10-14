@@ -1,11 +1,12 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia.Controls.Primitives;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace gip.core.layoutengine.avui
 {
-    partial class VBPage : Page, IACObject
+    partial class VBPage : TemplatedControl, IACObject
     {
         public VBPage()
         {

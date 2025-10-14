@@ -1,0 +1,135 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:collections="using:Avalonia.Collections"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <ControlTheme x:Key="RowHeaderGripperStyle" TargetType="Thumb">
+    <Setter Property="Height" Value="8" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Cursor" Value="SizeNorthSouth" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="Thumb">
+        <Border Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" />
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="RowHeaderStyle" TargetType="DataGridRowHeader">
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="MinWidth" Value="32" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="SeparatorBrush" Value="{StaticResource DataGridLineBrush}" />
+    <Setter Property="AreSeparatorsVisible" Value="False" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="DataGridRowHeader">
+        <Grid x:Name="PART_Root"
+              RowDefinitions="*,*,Auto"
+              ColumnDefinitions="Auto,*">
+          <Border Grid.RowSpan="3"
+                  Grid.ColumnSpan="2"
+                  BorderBrush="{TemplateBinding SeparatorBrush}"
+                  BorderThickness="0,0,1,0">
+            <Grid Background="{TemplateBinding Background}">
+              <Rectangle x:Name="RowInvalidVisualElement"
+                         Opacity="0"
+                         Fill="{StaticResource DataGridRowInvalidBrush}"
+                         Stretch="Fill" />
+              <Rectangle x:Name="BackgroundRectangle"
+                         Fill="{StaticResource NormalBrush}"
+                         Stretch="Fill"
+                         Stroke="{StaticResource NormalBorderBrush}" 
+                         StrokeThickness="1" />
+              <Path x:Name="Triangle" 
+                    Margin="6,0,6,0" 
+                    Data="M 0,0 L 1.25,1 L 0,2 L 0,0" 
+                    Stretch="Uniform" 
+                    RenderTransformOrigin="0,1" 
+                    Height="10" 
+                    Width="10" 
+                    StrokeThickness="1">
+                <Path.Fill>
+                  <SolidColorBrush Color="{StaticResource RowHeaderTriangleFillNormal}" />
+                </Path.Fill>
+                <Path.Stroke>
+                  <SolidColorBrush Color="{StaticResource RowHeaderTriangleStrokeNormal}" />
+                </Path.Stroke>
+              </Path>
+              <Rectangle x:Name="HoverRectangle"
+                         Stretch="Fill"
+                         Fill="{StaticResource HoverShineBrush}"
+                         Opacity="0" />
+              <Rectangle x:Name="ShineRectangle"
+                         Fill="{StaticResource ShineBrush}"
+                         Stretch="Fill"
+                         Stroke="{StaticResource NormalBorderBrush}"
+                         StrokeThickness="1" />
+              
+              <!-- Row resize grippers for maintaining original functionality -->
+              <Thumb x:Name="PART_TopHeaderGripper" 
+                     Theme="{StaticResource RowHeaderGripperStyle}" 
+                     VerticalAlignment="Top" />
+              <Thumb x:Name="PART_BottomHeaderGripper" 
+                     Theme="{StaticResource RowHeaderGripperStyle}" 
+                     VerticalAlignment="Bottom" />
+            </Grid>
+          </Border>
+          <Rectangle x:Name="HorizontalSeparator"
+                     Grid.Row="2"
+                     Grid.ColumnSpan="2"
+                     Height="1"
+                     Margin="1,0,1,0"
+                     HorizontalAlignment="Stretch"
+                     Fill="{TemplateBinding SeparatorBrush}"
+                     IsVisible="{TemplateBinding AreSeparatorsVisible}" />
+          
+          <ContentPresenter Grid.RowSpan="2"
+                            Grid.Column="1"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="{TemplateBinding Content}" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Pseudo-class styles replacing VisualStateManager -->
+    <Style Selector="^:invalid /template/ Rectangle#RowInvalidVisualElement">
+      <Setter Property="Opacity" Value="0.4" />
+    </Style>
+
+    <Style Selector="^:selected /template/ Path#Triangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowHeaderTriangleFillSelected}" />
+      </Setter>
+      <Setter Property="Stroke">
+        <SolidColorBrush Color="{StaticResource RowHeaderTriangleStrokeSelected}" />
+      </Setter>
+    </Style>
+
+    <Style Selector="^:editing /template/ Path#Triangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowHeaderTriangleFillSelected}" />
+      </Setter>
+      <Setter Property="Stroke">
+        <SolidColorBrush Color="{StaticResource RowHeaderTriangleStrokeSelected}" />
+      </Setter>
+    </Style>
+
+    <Style Selector="^:current /template/ Path#Triangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowHeaderTriangleFillSelected}" />
+      </Setter>
+      <Setter Property="Stroke">
+        <SolidColorBrush Color="{StaticResource RowHeaderTriangleStrokeSelected}" />
+      </Setter>
+    </Style>
+
+    <Style Selector="^:pointerover /template/ Rectangle#HoverRectangle">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type DataGridRowHeader}" TargetType="DataGridRowHeader" BasedOn="{StaticResource RowHeaderStyle}">
+  </ControlTheme>
+
+</ResourceDictionary>

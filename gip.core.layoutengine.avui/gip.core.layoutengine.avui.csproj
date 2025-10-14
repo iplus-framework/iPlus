@@ -191,6 +191,7 @@
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />
     <Compile Remove="Controls\VBButton.xaml.cs" />
+    <Compile Remove="Controls\VBComboBox\VBComboBoxOld.cs" />
     <Compile Remove="Controls\VBDatagrid\VBDataGridColumnHeadersPresenter2.cs" />
     <Compile Remove="Controls\VBDocking\VBDockableContent.cs" />
     <Compile Remove="Controls\VBListBox\VBListBoxOld.cs" />
@@ -211,6 +212,7 @@
     </None>
     <Content Include="appsettings.json" />
     <Content Include="Controls\VBComboBox\Themes\ComboBoxStyleOldWPF.xaml" />
+    <Content Include="Controls\VBComboBox\VBComboBoxOld.cs" />
     <Content Include="Controls\VBListBox\VBListBoxOld.cs" />
     <Content Include="Controls\VBTextBox\VBTextBoxOldWPF.cs" />
   </ItemGroup>

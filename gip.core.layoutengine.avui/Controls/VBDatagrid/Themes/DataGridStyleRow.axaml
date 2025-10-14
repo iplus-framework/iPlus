@@ -1,0 +1,147 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:collections="using:Avalonia.Collections"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <ControlTheme x:Key="VBDataGridRowStyle" TargetType="DataGridRow">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="RowBorder"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <DataGridFrozenGrid Name="PART_Root"
+                              ColumnDefinitions="Auto,*"
+                              RowDefinitions="*,Auto,Auto">
+
+            <Rectangle Name="BackgroundRectangle"
+                       Fill="Transparent"
+                       Grid.RowSpan="2"
+                       Grid.ColumnSpan="2" />
+            <Rectangle x:Name="InvalidVisualElement"
+                       Opacity="0"
+                       Grid.ColumnSpan="2"
+                       Fill="{StaticResource NormalBrushAero}" />
+
+            <DataGridRowHeader Name="PART_RowHeader"
+                               Grid.RowSpan="3"
+                               DataGridFrozenGrid.IsFrozen="True" />
+            <DataGridCellsPresenter Name="PART_CellsPresenter"
+                                    Grid.Column="1"
+                                    DataGridFrozenGrid.IsFrozen="True" />
+            <DataGridDetailsPresenter Name="PART_DetailsPresenter"
+                                      Grid.Row="1"
+                                      Grid.Column="1"
+                                      Background="Transparent" />
+            <Rectangle Name="PART_BottomGridLine"
+                       Grid.Row="2"
+                       Grid.Column="1"
+                       Height="1"
+                       HorizontalAlignment="Stretch" />
+
+            <Rectangle x:Name="HoverRectangle"
+                       Opacity="0"
+                       IsHitTestVisible="False"
+                       Fill="{StaticResource HoverShineBrush}" 
+                       Grid.ColumnSpan="2" 
+                       Grid.RowSpan="2" />
+
+          </DataGridFrozenGrid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Normal state with alternating row background -->
+    <Style Selector="^:nth-child(even) /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowBgAlternate}" />
+      </Setter>
+    </Style>
+
+    <!-- Invalid state -->
+    <Style Selector="^:invalid">
+      <Style Selector="^ /template/ Rectangle#InvalidVisualElement">
+        <Setter Property="Opacity" Value="0.4" />
+      </Style>
+      <Style Selector="^ /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Opacity" Value="0" />
+      </Style>
+    </Style>
+
+    <!-- Pointer over state -->
+    <Style Selector="^:pointerover /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowBgHover}" />
+      </Setter>
+    </Style>
+
+    <!-- Pointer over state with hover effect -->
+    <Style Selector="^:pointerover /template/ Rectangle#HoverRectangle">
+      <Setter Property="Opacity" Value="1" />
+    </Style>
+
+    <!-- Selected state -->
+    <Style Selector="^:selected">
+      <Style Selector="^ /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill">
+          <SolidColorBrush Color="{StaticResource RowBgSelected}" />
+        </Setter>
+      </Style>
+      <Style Selector="^:pointerover /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill">
+          <SolidColorBrush Color="{StaticResource RowBgSelected}" />
+        </Setter>
+      </Style>
+      <Style Selector="^:focus /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill">
+          <SolidColorBrush Color="{StaticResource RowBgSelected}" />
+        </Setter>
+      </Style>
+      <Style Selector="^:pointerover:focus /template/ Rectangle#BackgroundRectangle">
+        <Setter Property="Fill">
+          <SolidColorBrush Color="{StaticResource RowBgSelected}" />
+        </Setter>
+      </Style>
+    </Style>
+
+    <!-- Editing state -->
+    <Style Selector="^:editing /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowBgSelectedEdit}" />
+      </Setter>
+    </Style>
+
+    <!-- Editing state with pointer over -->
+    <Style Selector="^:editing:pointerover /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowBgSelectedEdit}" />
+      </Setter>
+    </Style>
+
+    <!-- Editing state when unfocused -->
+    <Style Selector="^:editing:not(:focus) /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowBgSelectedEdit}" />
+      </Setter>
+    </Style>
+
+    <!-- Editing state with pointer over when unfocused -->
+    <Style Selector="^:editing:not(:focus):pointerover /template/ Rectangle#BackgroundRectangle">
+      <Setter Property="Fill">
+        <SolidColorBrush Color="{StaticResource RowBgSelectedEdit}" />
+      </Setter>
+    </Style>
+
+  </ControlTheme>
+
+  <DataTemplate x:Key="VBRowDetailsContentTemplate">
+    <TextBlock Text="{Binding}" VerticalAlignment="Center" Foreground="White" />
+  </DataTemplate>
+
+  <ControlTheme x:Key="{x:Type DataGridRow}" TargetType="DataGridRow" BasedOn="{StaticResource VBDataGridRowStyle}">
+  </ControlTheme>
+
+</ResourceDictionary>

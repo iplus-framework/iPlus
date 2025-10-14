@@ -40,3 +40,10 @@ EventTrigger -> EventTriggerBehavior
 
 This is old WPF code for editing TriggersCollection in a designer. Even though Avalonia UI doesn't have triggers, please convert these files to Avaloni UI code. In a later step, I'll adapt it by using the BehaviorCollection element from the Xaml Behaviors extension.
 
+ItemsControl vs. SelectingItemsControl:
+SelectedValuePath -> SelectedValueBinding (Binding Path=...))
+DisplayMemberPath -> ItemTemplate = {DataTemplate TextBlock Text={Binding ...}}
+SelectedValue -> SelectedValue
+ItemsSource -> ItemsSource
+SelectedItem -> SelectedItem
+xxx -> SelectedItems

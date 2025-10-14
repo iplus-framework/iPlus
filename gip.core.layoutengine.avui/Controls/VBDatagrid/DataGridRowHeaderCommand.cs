@@ -2,15 +2,13 @@
 // This source is subject to the Microsoft Public License (Ms-PL).
 // Please see http://go.microsoft.com/fwlink/?LinkID=131993 for details.
 // All other rights reserved.
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows.Input;
-using System.Windows.Controls.Primitives;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -19,7 +17,6 @@ namespace gip.core.layoutengine.avui
     /// </summary>
 	public class DataGridRowHeaderCommand : ICommand
 	{
-
         DataGridRow _prevRow;
 		/// <summary>
 		/// Collapse/Expands the selected DataGridRow.
@@ -32,14 +29,10 @@ namespace gip.core.layoutengine.avui
 			if (_prevRow is DataGridRow
 				&& _prevRow != row
 				&& DataGridHelper.FindVisualParent<DataGrid>(_prevRow) == DataGridHelper.FindVisualParent<DataGrid>(rowHeader))
-			{	//collapse the previously selected row
-				_prevRow.DetailsVisibility = Visibility.Collapsed;
+			{   //collapse the previously selected row
+                row.AreDetailsVisible = false;
 			}
-			if (row.DetailsVisibility == Visibility.Visible)
-				row.DetailsVisibility = Visibility.Collapsed;
-			else
-				row.DetailsVisibility = Visibility.Visible;
-
+			row.AreDetailsVisible = !row.AreDetailsVisible;
 			_prevRow = row;
 		}	
 

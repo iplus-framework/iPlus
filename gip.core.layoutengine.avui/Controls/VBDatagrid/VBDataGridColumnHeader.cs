@@ -3,11 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
+using Avalonia.Automation.Peers;
+using Avalonia.Controls;
+using Avalonia.Controls.Automation.Peers;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 
 
 namespace gip.core.layoutengine.avui
@@ -31,10 +34,10 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            object partObj = GetTemplateChild("PART_TextBlockSum");
+            base.OnApplyTemplate(e);
+            object partObj = e.NameScope.Find("PART_TextBlockSum");
             if (partObj != null && partObj is TextBlock)
                 _SumTextBlock = partObj as TextBlock;
             AddBinding();
@@ -45,7 +48,8 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         void AddBinding()
         {
-            IGriColumn column = Column as IGriColumn;
+            DataGridColumn dColumn = this.GetOwningColumnViaReflection() as DataGridColumn;
+            IGriColumn column = this.GetOwningColumnViaReflection() as IGriColumn;
             Binding bind = null;
             if (column != null && column.VBDataGrid.IsSumEnabled)
             {
@@ -53,18 +57,18 @@ namespace gip.core.layoutengine.avui
                 {
                     bind = new Binding("DictionarySumProperties[" + column.VBContent + "]");
                 }
-                else if (Column.Header != null && column.VBDataGrid.VBSumColumns != null && column.VBDataGrid.VBSumColumns.Contains(Column.Header.ToString()))
+                else if (dColumn.Header != null && column.VBDataGrid.VBSumColumns != null && column.VBDataGrid.VBSumColumns.Contains(dColumn.Header.ToString()))
                 {
-                    bind = new Binding("DictionarySumProperties[" + Column.Header.ToString() + "]");
+                    bind = new Binding("DictionarySumProperties[" + dColumn.Header.ToString() + "]");
                 }
             }
 
-            if(bind != null)
+            if (bind != null)
             {
                 bind.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture;
                 bind.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-                bind.RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor, typeof(VBDataGrid), 1);
-                _SumTextBlock.SetBinding(TextBlock.TextProperty, bind);
+                bind.RelativeSource = new RelativeSource() { AncestorType = typeof(VBDataGrid), AncestorLevel = 1 };
+                _SumTextBlock.Bind(TextBlock.TextProperty, bind);
             }
            
         }

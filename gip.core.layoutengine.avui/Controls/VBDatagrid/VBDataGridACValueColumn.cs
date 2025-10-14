@@ -1,26 +1,12 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization;
-using System.Text;
-using System.Transactions;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Xml;
 
 namespace gip.core.layoutengine.avui
 {
@@ -32,18 +18,22 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBDataGridACValueColumn : DataGridBoundColumn, IGriColumn
     {
-        static VBDataGridACValueColumn()
+        private readonly Lazy<ControlTheme> _cellACValueTheme;
+        private readonly Lazy<ControlTheme> _cellTextBlockTheme;
+
+        public VBDataGridACValueColumn() : base()
         {
-            ElementStyleProperty.OverrideMetadata(typeof(VBDataGridACValueColumn), new FrameworkPropertyMetadata(DefaultElementStyle));
-            EditingElementStyleProperty.OverrideMetadata(typeof(VBDataGridACValueColumn), new FrameworkPropertyMetadata(DefaultEditingElementStyle));
+            _cellACValueTheme = new Lazy<ControlTheme>(() =>
+               OwningGrid.TryFindResource("DataGridCellACValueTheme", out var theme) ? (ControlTheme)theme : null);
+            _cellTextBlockTheme = new Lazy<ControlTheme>(() =>
+               OwningGrid.TryFindResource("DataGridCellTextBlockTheme", out var theme) ? (ControlTheme)theme : null);
         }
 
         #region VBLogic
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDataGridACValueColumn));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBDataGridACValueColumn, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of property that you want show in this column. Property must be in object, which is bounded to the VBDataGrid.
@@ -58,9 +48,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBIsReadOnlyProperty.
         /// </summary>
-        public static readonly DependencyProperty VBIsReadOnlyProperty
-            = DependencyProperty.Register("VBIsReadOnly", typeof(bool), typeof(VBDataGridACValueColumn));
-
+        public static readonly StyledProperty<bool> VBIsReadOnlyProperty = AvaloniaProperty.Register<VBDataGridACValueColumn, bool>(nameof(VBIsReadOnly));
         /// <summary>
         /// Determines is column is read only or not. The true value is for readonly.
         /// </summary>
@@ -71,6 +59,8 @@ namespace gip.core.layoutengine.avui
             set { SetValue(VBIsReadOnlyProperty, value); }
         }
 
+        public static readonly StyledProperty<string> VBEditorContentProperty = AvaloniaProperty.Register<VBDataGridACValueColumn, string>(nameof(VBEditorContent));
+
         /// <summary>
         /// Gets or sets the content for VBEditor.
         /// </summary>
@@ -80,13 +70,6 @@ namespace gip.core.layoutengine.avui
             get { return (string)GetValue(VBEditorContentProperty); }
             set { SetValue(VBEditorContentProperty, value); }
         }
-
-        /// <summary>
-        /// Represents the dependency property for VBEditorContent.
-        /// </summary>
-        public static readonly DependencyProperty VBEditorContentProperty =
-            DependencyProperty.Register("VBEditorContent", typeof(string), typeof(VBDataGridACValueColumn), new PropertyMetadata(""));
-
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -107,7 +90,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return DataGridOwner as VBDataGrid;
+                return OwningGrid as VBDataGrid;
             }
         }
 
@@ -123,9 +106,9 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if ((this.DataGridOwner != null) && (this.DataGridOwner is VBDataGrid))
+                if ((this.OwningGrid != null) && (this.OwningGrid is VBDataGrid))
                 {
-                    VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+                    VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
                     if (dataGrid == null)
                         return;
                     if (dataGrid.ContextACObject == null)
@@ -187,7 +170,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="dsColRightControlMode">The data source right control mode for column.</param>
         public void Initialize(ACColumnItem acColumnItem, IACType dsColACTypeInfo, object dsColSource, string dsColPath, Global.ControlModes dsColRightControlMode)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return;
             if (dataGrid.ContextACObject == null)
@@ -197,22 +180,19 @@ namespace gip.core.layoutengine.avui
             RightControlMode = dsColRightControlMode;
 
             Binding binding = new Binding();
-            binding.Path = new PropertyPath(dsColPath);
+            binding.Path = dsColPath;
             binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture;
             bool bIsInput = false;
             if (dsColACTypeInfo is ACClassProperty)
                 bIsInput = (dsColACTypeInfo as ACClassProperty).IsInput;
             binding.Mode = bIsInput ? BindingMode.TwoWay : BindingMode.OneWay;
 
-            ValueSource valueSource;
-
             // ACCaption bevorzugen
             if (!string.IsNullOrEmpty(ACCaption))
                 this.Header = this.Root().Environment.TranslateText(dataGrid.ContextACObject, ACCaption);
             else
             {
-                valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-                if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                if (!this.IsSet(DataGridColumn.HeaderProperty))
                     this.Header = dsColACTypeInfo.ACCaption;
             }
 
@@ -223,17 +203,16 @@ namespace gip.core.layoutengine.avui
             this.Binding = binding;
 
             ACClassProperty propertyInfo = dsColACTypeInfo as ACClassProperty;
-            valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.WidthProperty);
-            if ((propertyInfo != null) && ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))))
+            if (propertyInfo != null && !this.IsSet(DataGridColumn.WidthProperty))
             {
                 if (propertyInfo.MaxLength.HasValue && propertyInfo.MaxLength > 20)
-                    this.Width = 200;
+                    this.Width = new DataGridLength(200);
                 else if (propertyInfo.MaxLength.HasValue && propertyInfo.MaxLength.Value == 0)
-                    this.Width = 100;
+                    this.Width = new DataGridLength(100);
                 else if (propertyInfo.MaxLength.HasValue)
-                    this.Width = propertyInfo.MaxLength.Value * 10;
+                    this.Width = new DataGridLength(propertyInfo.MaxLength.Value * 10);
                 else
-                    this.Width = 100;
+                    this.Width = new DataGridLength(100);
                 this.MinWidth = 60;
                 this.Width = new DataGridLength(100, DataGridLengthUnitType.SizeToCells);
             }
@@ -255,46 +234,6 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        #region Styles
-        /// <summary>
-        /// Gets the default element style.
-        /// </summary>
-        public static Style DefaultElementStyle
-        {
-            get
-            {
-                if (_defaultElementStyle == null)
-                {
-                    Style style = new Style(typeof(VBTextBlock));
-                    style.BasedOn = ControlManager.GetStyleOfTheme(VBTextBlock.StyleInfoList);
-                    style.Setters.Add(new Setter(TextBlock.MarginProperty, new Thickness(2.0, 0.0, 2.0, 0.0)));
-                    style.Seal();
-                    _defaultElementStyle = style;
-                }
-                return _defaultElementStyle;
-            }
-        }
-
-        /// <summary>
-        /// Gets the default style of editing element.
-        /// </summary>
-        public static Style DefaultEditingElementStyle
-        {
-            get
-            {
-                if (_defaultEditingElementStyle == null)
-                {
-                    Style style = new Style(typeof(VBValueEditor));
-                    style.Setters.Add(new Setter(VBValueEditor.BorderThicknessProperty, new Thickness(0.0)));
-                    style.Setters.Add(new Setter(VBValueEditor.PaddingProperty, new Thickness(0.0)));
-                    style.Seal();
-                    _defaultEditingElementStyle = style;
-                }
-                return _defaultEditingElementStyle;
-            }
-        }
-        #endregion
-
         #region Element Generation
         /// <summary>
         /// Generates a new VBTextBlock element, then applies style and binding.
@@ -302,11 +241,17 @@ namespace gip.core.layoutengine.avui
         /// <param name="cell">The DataGridCell parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
         /// <returns>Returns the VBTextBlock element.</returns>
-        protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
+        protected override Control GenerateElement(DataGridCell cell, object dataItem)
         {
-            VBTextBlock textBlock = new VBTextBlock();
+            VBTextBlock textBlock = new VBTextBlock()
+            {
+                Name = "CellTextBlock"
+            };
+            if (_cellTextBlockTheme.Value is { } theme)
+            {
+                textBlock.Theme = theme;
+            }
             SyncProperties(textBlock);
-            ApplyStyle(false, false, textBlock, dataItem);
             ApplyBinding(textBlock, TextBlock.TextProperty);
             return textBlock;
         }
@@ -317,9 +262,9 @@ namespace gip.core.layoutengine.avui
         /// <param name="cell">The DataGridCell parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
         /// <returns>Returns the VBValueEditor element.</returns>
-        protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
+        protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return null;
             //if (dataGrid.ContextACObject == null)
@@ -347,69 +292,31 @@ namespace gip.core.layoutengine.avui
             //    }
             //}
 
-            ApplyStyle(true, false, valueEditor, dataItem);
             return valueEditor;
         }
 
-        private void SyncProperties(FrameworkElement e)
+        private void SyncProperties(AvaloniaObject content)
         {
         }
 
-        internal void ApplyBinding(DependencyObject target, DependencyProperty property)
+        internal void ApplyBinding(AvaloniaObject target, AvaloniaProperty property)
         {
-            BindingBase binding = Binding;
-            if (binding != null)
-            {
-                BindingOperations.SetBinding(target, property, binding);
-            }
-            else
-            {
-                BindingOperations.ClearBinding(target, property);
-            }
+            IBinding binding = Binding;
+            ApplyBinding(binding, target, property);
         }
 
-        private static void ApplyBinding(BindingBase binding, DependencyObject target, DependencyProperty property)
+
+        private static void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
         {
             if (binding != null)
             {
-                BindingOperations.SetBinding(target, property, binding);
+                target.Bind(property, binding);
             }
             else
             {
-                BindingOperations.ClearBinding(target, property);
+                target.ClearAllBindings();
+                target.ClearBinding(property);
             }
-        }
-
-        internal void ApplyStyle(bool isEditing, bool defaultToElementStyle, FrameworkElement element, object dataItem)
-        {
-            Style style = PickStyle(isEditing, defaultToElementStyle);
-            if (style != null)
-            {
-                element.Style = style;
-                IACContainer acValue = dataItem as IACContainer;
-
-                if (acValue != null 
-                    && acValue.ValueTypeACClass != null 
-                    && (style == DefaultElementStyle || style == DefaultEditingElementStyle)
-                    && TypeAnalyser.IsNumericType(acValue.ValueTypeACClass.ObjectType))
-                {
-                    if (style == DefaultElementStyle)
-                        (element as TextBlock).TextAlignment = TextAlignment.Right;
-                    else if (style == DefaultEditingElementStyle)
-                        (element as VBValueEditor).TextAlignment = TextAlignment.Right;
-                }
-            }
-        }
-
-        private Style PickStyle(bool isEditing, bool defaultToElementStyle)
-        {
-            Style style = isEditing ? EditingElementStyle : ElementStyle;
-            if (isEditing && defaultToElementStyle && (style == null))
-            {
-                style = ElementStyle;
-            }
-            return style;
-
         }
 
         /// <summary>
@@ -417,29 +324,20 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="element">The element parameter.</param>
         /// <param name="propertyName">The property name parameter.</param>
-        protected override void RefreshCellContent(FrameworkElement element, string propertyName)
+        protected override void RefreshCellContent(Control element, string propertyName)
         {
             DataGridCell cell = element as DataGridCell;
             if (cell != null)
             {
-                bool isCellEditing = cell.IsEditing;
-                if ((string.Compare(propertyName, "ElementStyle", StringComparison.Ordinal) == 0 && !isCellEditing) ||
-                    (string.Compare(propertyName, "EditingElementStyle", StringComparison.Ordinal) == 0 && isCellEditing))
+                VBValueEditor comboBox = cell.Content as VBValueEditor;
+                switch (propertyName)
                 {
-                    base.RefreshCellContent(element, propertyName);
-                }
-                else
-                {
-                    VBValueEditor comboBox = cell.Content as VBValueEditor;
-                    switch (propertyName)
-                    {
-                        case "Binding":
-                            //ApplyBinding(Binding, comboBox, VBValueEditor.SelectedDateProperty);
-                            break;
-                        default:
-                            base.RefreshCellContent(element, propertyName);
-                            break;
-                    }
+                    case "Binding":
+                        //ApplyBinding(Binding, comboBox, VBValueEditor.SelectedDateProperty);
+                        break;
+                    default:
+                        base.RefreshCellContent(element, propertyName);
+                        break;
                 }
             }
             else
@@ -457,7 +355,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="editingElement">The editing element.</param>
         /// <param name="editingEventArgs">The editing event arguments.</param>
         /// <returns></returns>
-        protected override object PrepareCellForEdit(FrameworkElement editingElement, RoutedEventArgs editingEventArgs)
+        protected override object PrepareCellForEdit(Control editingElement, RoutedEventArgs editingEventArgs)
         {
             VBValueEditor dateTimePicker = editingElement as VBValueEditor;
             if (dateTimePicker != null)

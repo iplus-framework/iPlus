@@ -21,32 +21,11 @@ namespace gip.core.layoutengine.avui
     public class VBTextBlock : TextBlock, IVBContent, IACObject
     {
         #region c'tors
-
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TextBlockStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBlock/Themes/TextBlockStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TextBlockStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBlock/Themes/TextBlockStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         static VBTextBlock()
         {
             StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBTextBlock>();
         }
 
-        bool _themeApplied = false;
         public VBTextBlock()
         {
         }
@@ -57,7 +36,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            ActualizeTheme(true);
             Loaded += VBTextBlock_Loaded;
             Unloaded += VBTextBlock_Unloaded;
         }
@@ -70,16 +48,6 @@ namespace gip.core.layoutengine.avui
         void VBTextBlock_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            // _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-            _themeApplied = true; // Simplified for now
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

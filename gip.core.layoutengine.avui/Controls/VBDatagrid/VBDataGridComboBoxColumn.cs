@@ -1,12 +1,18 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Metadata;
+using Avalonia.Styling;
 using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
 
 namespace gip.core.layoutengine.avui
 {
@@ -16,66 +22,29 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Stellt eine <see cref="gip.core.layoutengine.avui.VBDataGrid"/>-Spalte dar, die das <see cref="VBComboBox"/>-Control in ihren Zellen hostet.
     /// </summary>
-    public class VBDataGridComboBoxColumn : DataGridComboBoxColumn, IGriColumn
+    public class VBDataGridComboBoxColumn : DataGridTextColumn, IGriColumn
     {
-        static VBDataGridComboBoxColumn()
+        private readonly Lazy<ControlTheme> _cellComboEditTheme;
+        private readonly Lazy<ControlTheme> _cellComboDefaultTheme;
+        public VBDataGridComboBoxColumn() : base()
         {
-            ElementStyleProperty.OverrideMetadata(typeof(VBDataGridComboBoxColumn), new FrameworkPropertyMetadata(VBDefaultElementStyle));
-            EditingElementStyleProperty.OverrideMetadata(typeof(VBDataGridComboBoxColumn), new FrameworkPropertyMetadata(VBDefaultEditingElementStyle));
-        }
-
-        private static Style _defaultElementStyle;
-        /// <summary>
-        /// Gets the default element style.
-        /// </summary>
-        public static Style VBDefaultElementStyle
-        {
-            get
+            if (this.OwningGrid != null)
             {
-                return DefaultElementStyle;
+                _cellComboEditTheme = new Lazy<ControlTheme>(() =>
+                    OwningGrid.TryFindResource("DataGridCellComboEditTheme", out var theme) ? (ControlTheme)theme : null);
+                _cellComboDefaultTheme = new Lazy<ControlTheme>(() =>
+                    OwningGrid.TryFindResource("DataGridCellComboDefaultTheme", out var theme) ? (ControlTheme)theme : null);
             }
         }
 
-        /// <summary>
-        /// Gets the default style of editing element.
-        /// </summary>
-        public static Style VBDefaultEditingElementStyle
-        {
-            get
-            {
-                if (_defaultElementStyle == null)
-                {
-                    Style style = GetDefaultEditingElementStyle();
-                    style.Seal();
-                    _defaultElementStyle = style;
-                }
-
-                return _defaultElementStyle;
-            }
-        }
-
-        public static Style GetDefaultEditingElementStyle()
-        {
-            Style style = new Style(typeof(VBComboBox));
-            style.BasedOn = ControlManager.GetStyleOfTheme(VBComboBox.StyleInfoList);
-            style.Setters.Add(new Setter(ComboBox.IsSynchronizedWithCurrentItemProperty, false));
-            return style;
-        }
-
-        public static Style GetDefaultElementStyle()
-        {
-            Style style = new Style(typeof(ComboBox));
-            style.Setters.Add(new Setter(ComboBox.IsSynchronizedWithCurrentItemProperty, false));
-            //Style style = new Style(typeof(TextBlock));
-            //style.BasedOn = ControlManager.GetStyleOfTheme(TextBlock.StyleInfoList);
-            return style;
-        }
 
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBDataGridComboBoxColumn));
+        /// <summary>
+        /// Represents the dependency property for VBContent.
+        /// </summary>
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property in which you enter the name of property that you want show in this column. Property must be in object, which is bounded to the VBDataGrid.
@@ -84,19 +53,13 @@ namespace gip.core.layoutengine.avui
         public string VBContent
         {
             get { return (string)GetValue(VBContentProperty); }
-            set
-            {
-                SetValue(VBContentProperty, value);
-                this.ACColumnItem = new ACColumnItem(value);
-            }
+            set { SetValue(VBContentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for VBIsReadOnlyProperty.
         /// </summary>
-        public static readonly DependencyProperty VBIsReadOnlyProperty
-            = DependencyProperty.Register("VBIsReadOnly", typeof(bool), typeof(VBDataGridComboBoxColumn));
-
+        public static readonly StyledProperty<bool> VBIsReadOnlyProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, bool>(nameof(VBIsReadOnly));
         /// <summary>
         /// Determines is column is read only or not. The true value is for readonly.
         /// </summary>
@@ -108,8 +71,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly DependencyProperty IsEditableProperty
-            = DependencyProperty.Register("IsEditable", typeof(bool), typeof(VBDataGridComboBoxColumn), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> IsEditableProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, bool>(nameof(IsEditable));
         [Category("VBControl")]
         public bool IsEditable
         {
@@ -117,13 +79,80 @@ namespace gip.core.layoutengine.avui
             set { SetValue(IsEditableProperty, value); }
         }
 
-        public static readonly DependencyProperty UpdateSourceTriggerProperty
-                        = DependencyProperty.Register("UpdateSource", typeof(System.Windows.Data.UpdateSourceTrigger), typeof(VBDataGridComboBoxColumn), new PropertyMetadata(System.Windows.Data.UpdateSourceTrigger.LostFocus));
+        public static readonly StyledProperty<UpdateSourceTrigger> UpdateSourceTriggerProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, UpdateSourceTrigger>(nameof(UpdateSourceTrigger), UpdateSourceTrigger.LostFocus);
         [Category("VBControl")]
         public UpdateSourceTrigger UpdateSourceTrigger
         {
             get { return (UpdateSourceTrigger)GetValue(UpdateSourceTriggerProperty); }
             set { SetValue(UpdateSourceTriggerProperty, value); }
+        }
+
+        public static readonly StyledProperty<IEnumerable> ItemsSourceProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IEnumerable>(nameof(ItemsSource));
+        public IEnumerable ItemsSource
+        {
+            get { return (IEnumerable)GetValue(ItemsSourceProperty); }
+            set { SetValue(ItemsSourceProperty, value); }
+        }
+
+
+        public static readonly StyledProperty<IBinding> DisplayMemberBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(DisplayMemberBinding));
+        [AssignBinding]
+        [InheritDataTypeFromItems(nameof(ItemsSource))]
+        public IBinding DisplayMemberBinding
+        {
+            get => GetValue(DisplayMemberBindingProperty);
+            set => SetValue(DisplayMemberBindingProperty, value);
+        }
+
+        public static readonly StyledProperty<IBinding> SelectedValueBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(SelectedValueBinding));
+        [AssignBinding]
+        [InheritDataTypeFromItems(nameof(ItemsSource))]
+        public IBinding SelectedValueBinding
+        {
+            get => GetValue(SelectedValueBindingProperty);
+            set => SetValue(SelectedValueBindingProperty, value);
+        }
+
+        public static readonly StyledProperty<IBinding> SelectedItemBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(SelectedItemBinding));
+        [AssignBinding]
+        [InheritDataTypeFromItems(nameof(ItemsSource))]
+        public IBinding SelectedItemBinding
+        {
+            get => GetValue(SelectedItemBindingProperty);
+            set => SetValue(SelectedItemBindingProperty, value);
+        }
+
+        public static readonly StyledProperty<string> DisplayMemberPathProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(DisplayMemberPath));
+        [Category("VBControl")]
+        public string DisplayMemberPath
+        {
+            get { return (string)GetValue(DisplayMemberPathProperty); }
+            set { SetValue(DisplayMemberPathProperty, value); }
+        }
+
+        private IDataTemplate _ItemTemplate;
+        public static readonly DirectProperty<VBDataGridComboBoxColumn, IDataTemplate> ItemTemplateProperty =
+        AvaloniaProperty.RegisterDirect<VBDataGridComboBoxColumn, IDataTemplate>(
+            nameof(ItemTemplate),
+            o => o.ItemTemplate,
+            (o, v) => o.ItemTemplate = v);
+
+        /// <summary>
+        ///  Gets or sets an <see cref="IDataTemplate"/> for the <see cref="Header"/>
+        /// </summary>
+        public IDataTemplate ItemTemplate
+        {
+            get { return _ItemTemplate; }
+            set { SetAndRaise(HeaderTemplateProperty, ref _ItemTemplate, value); }
+        }
+
+        public static readonly StyledProperty<IBinding> TextBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(TextBinding));
+        [AssignBinding]
+        [InheritDataTypeFromItems(nameof(ItemsSource))]
+        public IBinding TextBinding
+        {
+            get => GetValue(TextBindingProperty);
+            set => SetValue(TextBindingProperty, value);
         }
 
         /// <summary>
@@ -145,7 +174,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return DataGridOwner as VBDataGrid;
+                return OwningGrid as VBDataGrid;
             }
         }
 
@@ -161,9 +190,9 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if ((this.DataGridOwner != null) && (this.DataGridOwner is VBDataGrid))
+                if ((this.OwningGrid != null) && (this.OwningGrid is VBDataGrid))
                 {
-                    VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+                    VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
                     if (dataGrid == null)
                         return;
                     if (dataGrid.ContextACObject == null)
@@ -241,7 +270,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="dsColRightControlMode">The data source right control mode for column.</param>
         public void Initialize(ACColumnItem acColumnItem, IACType dsColACTypeInfo, object dsColSource, string dsColPath, Global.ControlModes dsColRightControlMode, bool isShowColumnAMethod)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return;
             if (dataGrid.ContextACObject == null)
@@ -283,7 +312,7 @@ namespace gip.core.layoutengine.avui
 
         private void InitWithBinding(IACType dsColACTypeInfo, ACColumnItem acColumnItem, object dsColSource, string dsColPath, object dscSource, string dscPath, IACType dscACTypeInfo, string dataSourceColumn, string acAccess)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return;
             if (dataGrid.ContextACObject == null)
@@ -295,7 +324,6 @@ namespace gip.core.layoutengine.avui
             string dsColPathColumn = "";
             Global.ControlModes dscolRightControlMode = Global.ControlModes.Hidden;
 
-            ValueSource valueSource;
             if (dsColACTypeInfo.ObjectType.IsEnum)
             {
                 if (string.IsNullOrEmpty(acAccess))
@@ -319,8 +347,7 @@ namespace gip.core.layoutengine.avui
                     this.Header = this.Root().Environment.TranslateText(dataGrid.ContextACObject, ACCaption);
                 else
                 {
-                    valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-                    if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                    if (!this.IsSet(DataGridColumn.HeaderProperty))
                     {
                         if (_ColACTypeInfo != null)
                             this.Header = _ColACTypeInfo.ACCaption;
@@ -354,34 +381,28 @@ namespace gip.core.layoutengine.avui
                         binding.Source = dscSource;
                         if (!string.IsNullOrEmpty(dscPath))
                         {
-                            binding.Path = new PropertyPath(dscPath);
+                            binding.Path = dscPath;
                         }
                     }
                     else
                     {
-                        binding.Source = dataGrid.Items;
-                        binding.Path = new PropertyPath(dataSourceColumn);
+                        binding.Source = dataGrid.ItemsSource;
+                        binding.Path = dataSourceColumn;
                     }
-                    BindingOperations.SetBinding(this, DataGridComboBoxColumn.ItemsSourceProperty, binding);
+                    Bind(ItemsSourceProperty, binding);
                 }
 
-                SetValue(DataGridComboBoxColumn.SelectedValuePathProperty, Const.Value);
+                SetValue(SelectedValueBindingProperty, new Binding(Const.Value));
 
                 // Anzeige des Wertes in der Zelle
-                this.DisplayMemberPath = dataShowColumnsColumn[0].PropertyName;
+                this.DisplayMemberBinding = DisplayMemberBinding = new Binding(dataShowColumnsColumn[0].PropertyName);
 
                 Binding binding2 = new Binding();
-                //binding2.Source = dsColSource;
-                binding2.Path = new PropertyPath(dsColPath);
+                binding2.Path = dsColPath;
                 binding2.Mode = BindingMode.TwoWay;
                 binding2.UpdateSourceTrigger = UpdateSourceTrigger;
-                //this.SelectedItemBinding = binding2;
                 SelectedValueBinding = binding2;
 
-                //Binding binding3 = new Binding();
-                //binding3.Path = new PropertyPath(dataShowColumnsColumn[0].PropertyName);
-                //binding3.Mode = BindingMode.OneWay;
-                //TextBinding = binding3;
             }
             else
             {
@@ -394,20 +415,19 @@ namespace gip.core.layoutengine.avui
                     this.Header = this.Root().Environment.TranslateText(dataGrid.ContextACObject, ACCaption);
                 else
                 {
-                    valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-                    if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                    if (!this.IsSet(DataGridColumn.HeaderProperty))
                         this.Header = dsColACTypeInfo.ACCaption;
                 }
 
                 // Set Selected Item
                 Binding bindingEdit = new Binding();
-                bindingEdit.Path = new PropertyPath(dsColPath);
+                bindingEdit.Path = dsColPath;
                 bindingEdit.Mode = BindingMode.TwoWay;
                 this.SelectedItemBinding = bindingEdit;
                 bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
 
                 // Anzeige des Wertes in der Zelle
-                if (String.IsNullOrEmpty(DisplayMemberPath))
+                if (String.IsNullOrEmpty(DisplayMemberPath) && ItemTemplate == null)
                     DisplayMemberPath = dsColPathColumn;
 
                 // Set Items-Source
@@ -415,102 +435,92 @@ namespace gip.core.layoutengine.avui
                 if (dscSource != null)
                 {
                     bindingSource.Source = dscSource;
-                    bindingSource.Path = new PropertyPath(dscPath);
+                    bindingSource.Path = dscPath;
                     bindingSource.Mode = BindingMode.OneWay;
-                    BindingOperations.SetBinding(this, DataGridComboBoxColumn.ItemsSourceProperty, bindingSource);
+                    this.Bind(ItemsSourceProperty, bindingSource);
                 }
                 else
                 {
-                    if (this.EditingElementStyle != null)
+                    if (   _cellComboEditTheme != null
+                        && !_cellComboEditTheme.Value.Setters.OfType<Setter>().Where(c => c.Property == ComboBox.ItemsSourceProperty).Any())
                     {
-                        bindingSource.Path = new PropertyPath(dataSourceColumn);
+                        bindingSource.Path = dataSourceColumn;
                         Setter setter = new Setter();
                         setter.Property = ComboBox.ItemsSourceProperty;
                         setter.Value = bindingSource;
-                        Style style = GetDefaultEditingElementStyle();
-                        style.Setters.Add(setter);
-                        this.EditingElementStyle = style;
+                        _cellComboEditTheme.Value.Setters.Add(setter);
                     }
-                    if (this.ElementStyle != null)
+                    if (    _cellComboDefaultTheme != null
+                        && !_cellComboDefaultTheme.Value.Setters.OfType<Setter>().Where(c => c.Property == ComboBox.ItemsSourceProperty).Any())
                     {
                         Binding bindingSource2 = new Binding();
-                        bindingSource2.Path = new PropertyPath(dataSourceColumn);
+                        bindingSource2.Path = dataSourceColumn;
                         Setter setter = new Setter();
                         setter.Property = ComboBox.ItemsSourceProperty;
                         setter.Value = bindingSource2;
-                        Style style = GetDefaultElementStyle();
-                        style.Setters.Add(setter);
-                        this.ElementStyle = style;
+                        _cellComboDefaultTheme.Value.Setters.Add(setter);
                     }
                 }
             }
 
             ACClassProperty propertyInfo = dsColACTypeInfo as ACClassProperty;
-            valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.WidthProperty);
-            if ((propertyInfo != null) && ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))))
+            if (propertyInfo != null && !this.IsSet(DataGridColumn.WidthProperty))
             {
                 if (propertyInfo.MaxLength.HasValue && propertyInfo.MaxLength > 20)
-                    this.Width = 200 + 20;
+                    this.Width = new DataGridLength(200 + 20);
                 else if (propertyInfo.MaxLength.HasValue && propertyInfo.MaxLength.Value == 0)
-                    this.Width = 100 + 20;
+                    this.Width = new DataGridLength(100 + 20);
                 else if (propertyInfo.MaxLength.HasValue)
-                    this.Width = propertyInfo.MaxLength.Value * 10 + 20;
+                    this.Width = new DataGridLength((propertyInfo.MaxLength.Value * 10) + 20);
                 else
-                    this.Width = 100;
+                    this.Width = new DataGridLength(100);
                 this.MinWidth = 60;
                 this.Width = new DataGridLength(100, DataGridLengthUnitType.SizeToCells);
             }
 
-            //valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.IsReadOnlyProperty);
-            //if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-            //    this.IsReadOnly = !dataGrid.IsSetInVBDisabledColumns(acColumnItem.PropertyName);
             RefreshReadOnlyProperty();
         }
 
         private void InitWithMethodBinding(IACType dsColACTypeInfo, ACColumnItem acColumnItem, object dsColSource, string dsColPath, object dscSource, string dscPath, IACType dscACTypeInfo, string dataSourceColumn, string acAccess)
         {
-            VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
+            VBDataGrid dataGrid = this.OwningGrid as VBDataGrid;
             if (dataGrid == null)
                 return;
             if (dataGrid.ContextACObject == null)
                 return;
 
             ACClassProperty propertyInfo = dsColACTypeInfo as ACClassProperty;
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.WidthProperty);
-            if ((propertyInfo != null) && ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))))
+            if (propertyInfo != null && !this.IsSet(DataGridColumn.WidthProperty))
             {
                 if (propertyInfo.MaxLength.HasValue && propertyInfo.MaxLength > 20)
-                    this.Width = 200 + 20;
+                    this.Width = new DataGridLength(200 + 20);
                 else if (propertyInfo.MaxLength.HasValue && propertyInfo.MaxLength.Value == 0)
-                    this.Width = 100 + 20;
+                    this.Width = new DataGridLength(100 + 20);
                 else if (propertyInfo.MaxLength.HasValue)
-                    this.Width = propertyInfo.MaxLength.Value * 10 + 20;
+                    this.Width = new DataGridLength((propertyInfo.MaxLength.Value * 10) + 20);
                 else
-                    this.Width = 100;
+                    this.Width = new DataGridLength(100);
                 this.MinWidth = 60;
                 this.Width = new DataGridLength(100, DataGridLengthUnitType.SizeToCells);
             }
 
-            //valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.IsReadOnlyProperty);
-            //if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
-            //    this.IsReadOnly = dataGrid.IsSetInVBDisabledColumns(acColumnItem.PropertyName);
 
             List<ACColumnItem> dataShowColumnsColumn = dsColACTypeInfo.GetColumns();
 
             // Sonderbehandlung enum, da hier immer eine IEnumerable<ACValueItem> als Datasource generiert wird
             if (dsColACTypeInfo.ObjectType.IsEnum)
             {
-                this.SelectedValuePath = Const.Value;
+                SetValue(SelectedValueBindingProperty, new Binding(Const.Value));
                 Binding bindingEdit = new Binding();
-                bindingEdit.Path = new PropertyPath(dsColACTypeInfo.ACIdentifier);
+                bindingEdit.Path = dsColACTypeInfo.ACIdentifier;
                 bindingEdit.Mode = this.IsReadOnly ? BindingMode.OneWay : BindingMode.TwoWay;
                 bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
                 this.SelectedValueBinding = bindingEdit;
-                valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-                if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                if (!this.IsSet(DataGridColumn.HeaderProperty))
                     this.Header = dsColACTypeInfo.ACCaption;
 
-                this.DisplayMemberPath = Const.ACCaptionPrefix;
+                if (String.IsNullOrEmpty(DisplayMemberPath) && ItemTemplate == null)
+                    DisplayMemberPath = Const.ACCaptionPrefix;
             }
             else
             {
@@ -524,15 +534,15 @@ namespace gip.core.layoutengine.avui
                     return;
                 }
                 Binding bindingEdit = new Binding();
-                bindingEdit.Path = new PropertyPath(dsColACTypeInfo.ACIdentifier);
+                bindingEdit.Path = dsColACTypeInfo.ACIdentifier;
                 bindingEdit.Mode = BindingMode.TwoWay;
                 bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
                 this.SelectedItemBinding = bindingEdit;
-                valueSource = DependencyPropertyHelper.GetValueSource(this, DataGridColumn.HeaderProperty);
-                if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+                if (!this.IsSet(DataGridColumn.HeaderProperty))
                     this.Header = dsColACTypeInfo.ACCaption;
 
-                this.DisplayMemberPath = dsColPathColumn;
+                if (String.IsNullOrEmpty(DisplayMemberPath) && ItemTemplate == null)
+                    DisplayMemberPath = dsColPathColumn;
             }
 
             ObjectDataProvider odp = new ObjectDataProvider();
@@ -553,17 +563,24 @@ namespace gip.core.layoutengine.avui
             odp.MethodName = dscPath.Substring(1);  // "!" bei Methodenname entfernen
             Binding bindingSource = new Binding();
             bindingSource.Source = odp;
-            BindingOperations.SetBinding(this, DataGridComboBoxColumn.ItemsSourceProperty, bindingSource);
+            this.Bind(ItemsSourceProperty, bindingSource);
 
             RefreshReadOnlyProperty();
         }
 
-        protected override FrameworkElement GenerateEditingElement(DataGridCell cell, object dataItem)
+        protected override Control GenerateEditingElementDirect(DataGridCell cell, object dataItem)
         {
-            VBComboBox comboBox = new VBComboBox();
-            comboBox.MouseEnter += ComboBox_MouseEnter;
-            comboBox.MouseLeave += ComboBox_MouseLeave;
-            comboBox.IsEditable = IsEditable;
+            VBComboBox comboBox = new VBComboBox()
+            {
+                Name = "CellTextBox"
+            };
+            if (_cellComboEditTheme.Value is { } theme)
+            {
+                comboBox.Theme = theme;
+            }
+            comboBox.PointerEntered += ComboBox_PointerEntered;
+            comboBox.PointerExited += ComboBox_PointerExited;
+            comboBox.IsEnabled = IsEditable;
             comboBox.ShowCaption = false;
             comboBox.VBContent = Const.Value;
             comboBox.UpdateSourceTrigger = UpdateSourceTrigger;
@@ -572,28 +589,27 @@ namespace gip.core.layoutengine.avui
                 comboBox.VBContent = this.VBContent;
                 comboBox.VBShowColumns = this.VBShowColumns;
             }
-            ApplyStyle(true, false, comboBox);
             ApplyColumnProperties(comboBox);
             return comboBox;
         }
 
-        private void ComboBox_MouseEnter(object sender, MouseEventArgs e)
+        private void ComboBox_PointerEntered(object sender, PointerEventArgs e)
         {
-            if (DataGridOwner != null && !IsReadOnly)
+            if (OwningGrid != null && !IsReadOnly)
             {
-                DataGridCellInfo currentCell = DataGridOwner.CurrentCell;
-                DataGridOwner.BeginEdit();
-                System.Diagnostics.Debug.WriteLine("MouseLeave BeginEdit()");
+                //DataGridCellInfo currentCell = OwningGrid.CurrentCell;
+                OwningGrid.BeginEdit();
+                //System.Diagnostics.Debug.WriteLine("MouseLeave BeginEdit()");
             }
         }
 
-        private void ComboBox_MouseLeave(object sender, MouseEventArgs e)
+        private void ComboBox_PointerExited(object sender, PointerEventArgs e)
         {
-            if (DataGridOwner != null && !IsReadOnly)
+            if (OwningGrid != null && !IsReadOnly)
             {
-                DataGridCellInfo currentCell = DataGridOwner.CurrentCell;
-                DataGridOwner.CommitEdit();
-                System.Diagnostics.Debug.WriteLine("MouseLeave CommitEdit()");
+                //DataGridCellInfo currentCell = OwningGrid.CurrentCell;
+                OwningGrid.CommitEdit();
+                //System.Diagnostics.Debug.WriteLine("MouseLeave CommitEdit()");
             }
         }
 
@@ -603,86 +619,60 @@ namespace gip.core.layoutengine.avui
         /// <param name="cell">The DataGridCell parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
         /// <returns>Returns the VBTextBlock element.</returns>
-        protected override FrameworkElement GenerateElement(DataGridCell cell, object dataItem)
+        protected override Control GenerateElement(DataGridCell cell, object dataItem)
         {
-            //if (!String.IsNullOrEmpty(VBContent) && ACColumnItem == null)
-            //    ACColumnItem = new ACColumnItem(VBContent);
-            try
+            VBComboBox comboBox = new VBComboBox()
             {
-                FrameworkElement element = base.GenerateElement(cell, dataItem);
-                return element;
-            }
-            catch (Exception e)
+                Name = "CellTextBlock"
+            };
+            if (_cellComboDefaultTheme.Value is { } theme)
             {
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
-
-                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogException("VBDataGridComboxBoxColumn", "GenerateElement", msg);
-#if DEBUG
-                System.Diagnostics.Debug.Print(e.Message);
-#endif
+                comboBox.Theme = theme;
             }
-            return new TextBlock();
-            //VBComboBox comboBox = new VBComboBox();
-            //comboBox.ShowCaption = false;
-            //comboBox.IsEnabled = false;
-            //comboBox.IsEditable = false;
-            //ApplyStyle(true, false, comboBox);
-            //ApplyColumnProperties(comboBox);
-            //return comboBox;
+            comboBox.IsEnabled = false;
+            comboBox.ShowCaption = false;
+            comboBox.VBContent = Const.Value;
+            comboBox.UpdateSourceTrigger = UpdateSourceTrigger;
+            if (!string.IsNullOrEmpty(this.VBContent) && !string.IsNullOrEmpty(this.VBShowColumns))
+            {
+                comboBox.VBContent = this.VBContent;
+                comboBox.VBShowColumns = this.VBShowColumns;
+            }
+            ApplyColumnProperties(comboBox);
+            return comboBox;
         }
 
         private void ApplyColumnProperties(VBComboBox comboBox)
         {
-            ApplyBinding(SelectedItemBinding, comboBox, VBComboBox.SelectedItemProperty);
-            ApplyBinding(SelectedValueBinding, comboBox, VBComboBox.SelectedValueProperty);
-            ApplyBinding(TextBinding, comboBox, VBComboBox.TextProperty);
-
-            DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.SelectedValuePathProperty, SelectedValuePathProperty);
-            DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.DisplayMemberPathProperty, DisplayMemberPathProperty);
+            comboBox.Bind(VBComboBox.SelectedItemProperty, SelectedItemBinding);
+            comboBox.SetValue(VBComboBox.SelectedValueBindingProperty, SelectedValueBinding);
+            comboBox.SetValue(TextSearch.TextProperty, TextBinding);
+            DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.SelectedValueBindingProperty, SelectedValueBindingProperty);
+            if (string.IsNullOrEmpty(DisplayMemberPath) && ItemTemplate == null)
+            {
+                comboBox.ItemTemplate = new FuncDataTemplate<object>((value, namescope) =>
+                                    new TextBlock
+                                    {
+                                        [!TextBlock.TextProperty] = new Binding(DisplayMemberPath),
+                                    });
+            }
+            else if (ItemTemplate != null)
+            {
+                comboBox.ItemTemplate = ItemTemplate;
+            }
             DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.ItemsSourceProperty, ItemsSourceProperty);
-
         }
 
-        private void ApplyStyle(bool isEditing, bool defaultToElementStyle, FrameworkElement element)
-        {
-            Style style = PickStyle(isEditing, defaultToElementStyle);
-            if (style != null)
-            {
-                element.Style = style;
-            }
-        }
-
-        internal void ApplyStyle(bool isEditing, bool defaultToElementStyle, FrameworkContentElement element)
-        {
-            Style style = PickStyle(isEditing, defaultToElementStyle);
-            if (style != null)
-            {
-                element.Style = style;
-            }
-        }
-
-        private Style PickStyle(bool isEditing, bool defaultToElementStyle)
-        {
-            Style style = isEditing ? EditingElementStyle : ElementStyle;
-            if (isEditing && defaultToElementStyle && (style == null))
-            {
-                style = ElementStyle;
-            }
-            return style;
-        }
-
-        private static void ApplyBinding(BindingBase binding, DependencyObject target, DependencyProperty property)
+        private static void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
         {
             if (binding != null)
             {
-                BindingOperations.SetBinding(target, property, binding);
+                target.Bind(property, binding);
             }
             else
             {
-                BindingOperations.ClearBinding(target, property);
+                target.ClearAllBindings();
+                target.ClearBinding(property);
             }
         }
 
@@ -701,8 +691,8 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bso parameter.</param>
         public void DeInitVBControl(IACComponent bso)
         {
-            BindingOperations.ClearBinding(this, DataGridComboBoxColumn.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, DataGridComboBoxColumn.SelectedValuePathProperty);
+            //BindingOperations.ClearBinding(this, DataGridComboBoxColumn.ItemsSourceProperty);
+            //BindingOperations.ClearBinding(this, DataGridComboBoxColumn.SelectedValuePathProperty);
             this.ClearAllBindings();
             this.SelectedValueBinding = null;
             this.SelectedItemBinding = null;

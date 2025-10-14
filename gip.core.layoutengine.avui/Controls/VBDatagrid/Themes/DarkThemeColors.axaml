@@ -1,0 +1,59 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <SolidColorBrush x:Key="DataGridLineBrush" Color="#FF3D3D3D" />
+  <SolidColorBrush x:Key="NormalBrush" Color="#FF535353" />
+  <LinearGradientBrush x:Key="SelectedBackgroundBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+    <GradientStop Color="#FFFF0000"/>
+    <GradientStop Color="#FF000000" Offset="1"/>
+  </LinearGradientBrush>
+  <Color x:Key="GlyphColor" A="#FF" R="#00" G="#00" B="#00"/>
+  <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}" />
+  <SolidColorBrush x:Key="RowHeaderPathBrush" Color="#FF535353" />
+  <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#FFD4D4D4" />
+  <SolidColorBrush x:Key="NormalBorderBrush" Color="#FF9B9999" />
+  <SolidColorBrush x:Key="ControlBackgroundBrush" Color="#FF1A1A1A" />
+  <!-- Grid-Text: -->
+  <SolidColorBrush x:Key="TextBrush" Color="#FFFFFF" />
+  <SolidColorBrush x:Key="TextBrushReadonly" Color="Silver" />
+  <LinearGradientBrush x:Key="ShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+    <GradientStop Color="#59FFFFFF" Offset="0" />
+    <GradientStop Color="#00FFFFFF" Offset="1" />
+    <GradientStop Color="#26FFFFFF" Offset="0.467" />
+    <GradientStop Color="#00FFFFFF" Offset="0.475" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+    <GradientStop Color="#4CFF2020" Offset="0" />
+    <GradientStop Color="#26FF2020" Offset="1" />
+    <GradientStop Color="#26FF2020" Offset="0.467" />
+    <GradientStop Color="#00FF2020" Offset="0.475" />
+    <GradientStop Color="#00FF2020" Offset="0.856" />
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="DataGridRowInvalidBrush" Color="Red" />
+
+  <Color x:Key="RowBgSelected" A="#FF" R="#00" G="#00" B="#00"/>
+  <Color x:Key="RowBgSelectedEdit" A="#FF" R="#00" G="#00" B="#00"/>
+  <Color x:Key="RowBgHover" A="#FF" R="#00" G="#00" B="#00"/>
+  <Color x:Key="RowBgAlternate" A="#10" R="#FF" G="#FF" B="#FF"/>
+
+  <Color x:Key="CellBgSelected" A="#20" R="#60" G="#00" B="#00"/>
+  <Color x:Key="CellBorderSelected" A="#FF" R="#60" G="#00" B="#00"/>
+  <Color x:Key="CellBgReadOnly" A="#80" R="#30" G="#30" B="#30"/>
+  <SolidColorBrush x:Key="CellBgBrushReadOnly" Color="{StaticResource CellBgReadOnly}" />
+  <Color x:Key="CellBorderSelectedReadOnly" A="#FF" R="#A0" G="#A0" B="#A0"/>
+
+  <Color x:Key="RowHeaderTriangleFillNormal" A="#FF" R="#00" G="#00" B="#00"/>
+  <Color x:Key="RowHeaderTriangleFillSelected" A="#40" R="#FF" G="#00" B="#00"/>
+  <Color x:Key="RowHeaderTriangleStrokeNormal" A="#00" R="#00" G="#00" B="#00"/>
+  <Color x:Key="RowHeaderTriangleStrokeSelected" A="#FF" R="#FF" G="#00" B="#00"/>
+
+  <!-- Fallback brushes if not defined elsewhere -->
+  <SolidColorBrush x:Key="DataGridCurrencyVisualPrimaryBrush" Color="Transparent" />
+  <SolidColorBrush x:Key="DataGridCellFocusVisualPrimaryBrush" Color="#FF000000" />
+  <SolidColorBrush x:Key="DataGridCellFocusVisualSecondaryBrush" Color="#FF808080" />
+  <SolidColorBrush x:Key="DataGridCellInvalidBrush" Color="#FFFF0000" />
+  <SolidColorBrush x:Key="DataGridGridLinesBrush" Color="#FFD4D4D4" />
+
+</ResourceDictionary>

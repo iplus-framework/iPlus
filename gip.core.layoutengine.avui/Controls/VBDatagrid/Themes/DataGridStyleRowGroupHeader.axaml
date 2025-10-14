@@ -1,0 +1,131 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:collections="using:Avalonia.Collections"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <!-- Expander Button Theme for DataGridRowGroupHeader -->
+  <ControlTheme x:Key="FluentDataGridRowGroupExpanderButtonTheme" TargetType="ToggleButton">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Width="12"
+                Height="12"
+                Background="Transparent"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <Path Fill="{TemplateBinding Foreground}"
+                Data="M515 93l930 931l-930 931l90 90l1022 -1021l-1022 -1021z"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Center"
+                Stretch="Uniform" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:checked /template/ Path">
+      <Setter Property="Data" Value="M109 486 19 576 1024 1581 2029 576 1939 486 1024 1401z" />
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type DataGridRowGroupHeader}" TargetType="{x:Type DataGridRowGroupHeader}">
+    <Setter Property="Foreground" Value="{DynamicResource DataGridRowGroupHeaderForegroundBrush}" />
+    <Setter Property="Background" Value="{DynamicResource DataGridRowGroupHeaderBackgroundBrush}" />
+    <Setter Property="FontSize" Value="15" />
+    <Setter Property="MinHeight" Value="32" />
+    <Setter Property="Template">
+      <ControlTemplate x:DataType="collections:DataGridCollectionViewGroup">
+        <DataGridFrozenGrid Name="PART_Root"
+                            Background="{TemplateBinding Background}"
+                            MinHeight="{TemplateBinding MinHeight}"
+                            ColumnDefinitions="Auto,Auto,Auto,Auto,*"
+                            RowDefinitions="*,Auto">
+
+          <Rectangle Name="PART_IndentSpacer"
+                     Grid.Column="1" />
+          <ToggleButton Name="PART_ExpanderButton"
+                        Grid.Column="2"
+                        Width="12"
+                        Height="12"
+                        Margin="12,0,0,0"
+                        Theme="{StaticResource FluentDataGridRowGroupExpanderButtonTheme}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="{TemplateBinding CornerRadius}"
+                        IsTabStop="False"
+                        Foreground="{TemplateBinding Foreground}" />
+
+          <StackPanel Grid.Column="3"
+                      Orientation="Horizontal"
+                      VerticalAlignment="Center"
+                      Margin="12,0,0,0">
+            <local:VBTextBlock Name="PART_PropertyNameElement"
+                       Margin="4,0,0,0"
+                       IsVisible="{TemplateBinding IsPropertyNameVisible}"
+                       Foreground="{TemplateBinding Foreground}" />
+            <local:VBTextBlock Margin="4,0,0,0"
+                       Text="{Binding Key}"
+                       Foreground="{TemplateBinding Foreground}" />
+            <local:VBTextBlock Name="PART_ItemCountElement"
+                       Margin="4,0,0,0"
+                       IsVisible="{TemplateBinding IsItemCountVisible}"
+                       Foreground="{TemplateBinding Foreground}" />
+          </StackPanel>
+
+          <Rectangle x:Name="CurrencyVisual"
+                     Grid.ColumnSpan="5"
+                     IsVisible="False"
+                     HorizontalAlignment="Stretch"
+                     VerticalAlignment="Stretch"
+                     Fill="Transparent"
+                     IsHitTestVisible="False"
+                     Stroke="{DynamicResource DataGridCurrencyVisualPrimaryBrush}"
+                     StrokeThickness="1" />
+          <Grid x:Name="FocusVisual"
+                Grid.ColumnSpan="5"
+                IsVisible="False"
+                IsHitTestVisible="False">
+            <Rectangle HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       Fill="Transparent"
+                       IsHitTestVisible="False"
+                       Stroke="{DynamicResource DataGridCellFocusVisualPrimaryBrush}"
+                       StrokeThickness="2" />
+            <Rectangle Margin="2"
+                       HorizontalAlignment="Stretch"
+                       VerticalAlignment="Stretch"
+                       Fill="Transparent"
+                       IsHitTestVisible="False"
+                       Stroke="{DynamicResource DataGridCellFocusVisualSecondaryBrush}"
+                       StrokeThickness="1" />
+          </Grid>
+
+          <DataGridRowHeader Name="PART_RowHeader"
+                             Grid.RowSpan="2"
+                             DataGridFrozenGrid.IsFrozen="True" />
+
+          <Rectangle x:Name="PART_BottomGridLine"
+                     Grid.Row="1"
+                     Grid.ColumnSpan="5"
+                     Height="1" />
+        </DataGridFrozenGrid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Pseudo-class styles for visual states -->
+    <Style Selector="^:current /template/ Rectangle#CurrencyVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <Style Selector="^:focus /template/ Grid#FocusVisual">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+    
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DataGridRowGroupHeaderHoveredBackgroundBrush}" />
+    </Style>
+    
+    <Style Selector="^:pressed">
+      <Setter Property="Background" Value="{DynamicResource DataGridRowGroupHeaderPressedBackgroundBrush}" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

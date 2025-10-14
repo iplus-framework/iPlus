@@ -1,0 +1,256 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:collections="using:Avalonia.Collections"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleCell.axaml"/>
+    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleColumnHeader.axaml"/>
+    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleRow.axaml"/>
+    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleRowGroupHeader.axaml"/>
+    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleRowHeader.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <ControlTemplate TargetType="{x:Type local:VBDataGrid}" x:Key="TemplateDataGridHorizontal">
+    <Border x:Name="border"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            Padding="{TemplateBinding Padding}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+      <Grid ColumnDefinitions="Auto,*,Auto"
+            RowDefinitions="Auto,*,Auto,Auto"
+            ClipToBounds="True">
+        
+        <!-- Top Left Corner Header -->
+        <DataGridColumnHeader Name="PART_TopLeftCornerHeader"
+                              Grid.Row="0" Grid.Column="0"
+                              Background="{StaticResource NormalBrush}"
+                              Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.All}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, 
+                                          RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}"
+                              Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*" />
+              <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <!-- Sum visibility indicator -->
+            <Path Grid.Row="1"
+                  Data="M 3,3  L 18,3 M 2.5,3 L 14,10.2 M 14,9.8 L 2.5,17 M 3,17 L 18,17"
+                  StrokeThickness="1.5"
+                  Stroke="DarkRed"
+                  IsVisible="{Binding SumVisibility, RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}"
+                  Margin="0,1.5,0,4"/>
+          </Grid>
+        </DataGridColumnHeader>
+
+        <!-- Column Headers -->
+        <DataGridColumnHeadersPresenter Name="PART_ColumnHeadersPresenter"
+                                        Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2"
+                                        Visibility="{Binding HeadersVisibility, 
+                                                    ConverterParameter={x:Static DataGridHeadersVisibility.Column}, 
+                                                    Converter={x:Static DataGrid.HeadersVisibilityConverter}, 
+                                                    RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}" />
+
+        <!-- Column Headers and Rows Separator -->
+        <Rectangle Name="PART_ColumnHeadersAndRowsSeparator"
+                   Grid.Row="0" Grid.ColumnSpan="3"
+                   VerticalAlignment="Bottom"
+                   Height="1"
+                   Fill="{StaticResource DataGridLineBrush}" />
+
+        <!-- Rows Presenter -->
+        <DataGridRowsPresenter Name="PART_RowsPresenter"
+                               Grid.Row="1" Grid.ColumnSpan="3"
+                               IsScrollInertiaEnabled="{TemplateBinding IsScrollInertiaEnabled}">
+          <DataGridRowsPresenter.GestureRecognizers>
+            <ScrollGestureRecognizer CanHorizontallyScroll="True"
+                                     CanVerticallyScroll="True"
+                                     IsScrollInertiaEnabled="{Binding IsScrollInertiaEnabled, RelativeSource={RelativeSource TemplatedParent}}" />
+          </DataGridRowsPresenter.GestureRecognizers>
+        </DataGridRowsPresenter>
+
+        <!-- Vertical ScrollBar -->
+        <ScrollBar Name="PART_VerticalScrollbar"
+                   Grid.Row="1" Grid.Column="2"
+                   Orientation="Vertical"
+                   ViewportSize="{TemplateBinding ViewportHeight}"
+                   Maximum="{TemplateBinding ScrollableHeight}"
+                   Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                   Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                   Width="{DynamicResource ScrollBarSize}" />
+
+        <!-- Bottom Right Corner -->
+        <Rectangle Name="PART_BottomRightCorner"
+                   Grid.Row="2" Grid.Column="2"
+                   Fill="{StaticResource NormalBrush}" />
+
+        <!-- Horizontal ScrollBar Area -->
+        <Grid Grid.Row="2" Grid.Column="1"
+              ColumnDefinitions="Auto,*">
+          <Rectangle Name="PART_FrozenColumnScrollBarSpacer"
+                     Grid.Column="0"
+                     Width="{Binding NonFrozenColumnsViewportHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}" />
+          
+          <ScrollBar Name="PART_HorizontalScrollbar"
+                     Grid.Column="1"
+                     Orientation="Horizontal"
+                     ViewportSize="{TemplateBinding ViewportWidth}"
+                     Maximum="{TemplateBinding ScrollableWidth}"
+                     Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                     Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                     Height="{DynamicResource ScrollBarSize}" />
+        </Grid>
+
+        <!-- Disabled Visual Element -->
+        <Border x:Name="PART_DisabledVisualElement"
+                Grid.RowSpan="4" Grid.ColumnSpan="3"
+                IsHitTestVisible="False"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                CornerRadius="2"
+                Background="{StaticResource CtrlFrmDisabled}"
+                IsVisible="{Binding !$parent[local:VBDataGrid].IsEnabled}" />
+      </Grid>
+    </Border>
+  </ControlTemplate>
+
+  <ControlTemplate TargetType="{x:Type local:VBDataGrid}" x:Key="TemplateDataGridVertical">
+    <Border x:Name="border"
+            Background="{TemplateBinding Background}"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            Padding="{TemplateBinding Padding}"
+            CornerRadius="{TemplateBinding CornerRadius}">
+      <Grid ColumnDefinitions="Auto,*,Auto"
+            RowDefinitions="Auto,*,Auto"
+            ClipToBounds="True">
+
+        <!-- Top Left Corner Header for Vertical Layout -->
+        <DataGridColumnHeader Name="PART_TopLeftCornerHeader"
+                              Grid.Row="0" Grid.Column="0"
+                              Background="{StaticResource NormalBrush}"
+                              Visibility="{Binding HeadersVisibility, ConverterParameter={x:Static DataGridHeadersVisibility.All}, Converter={x:Static DataGrid.HeadersVisibilityConverter}, 
+                                          RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}"
+                              Width="{Binding CellsPanelHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}" />
+
+        <!-- Column Headers for Vertical Layout -->
+        <DataGridColumnHeadersPresenter x:Name="PART_ColumnHeadersPresenter"
+                                        Grid.Row="1" Grid.Column="0"
+                                        Visibility="{Binding HeadersVisibility, 
+                                                    ConverterParameter={x:Static DataGridHeadersVisibility.Column}, 
+                                                    Converter={x:Static DataGrid.HeadersVisibilityConverter}, 
+                                                    RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}" />
+
+        <!-- Rows Presenter for Vertical Layout -->
+        <DataGridRowsPresenter Name="PART_RowsPresenter"
+                               Grid.Row="1" Grid.Column="1"
+                               IsScrollInertiaEnabled="{TemplateBinding IsScrollInertiaEnabled}">
+          <DataGridRowsPresenter.GestureRecognizers>
+            <ScrollGestureRecognizer CanHorizontallyScroll="True"
+                                     CanVerticallyScroll="True"
+                                     IsScrollInertiaEnabled="{Binding IsScrollInertiaEnabled, RelativeSource={RelativeSource TemplatedParent}}" />
+          </DataGridRowsPresenter.GestureRecognizers>
+        </DataGridRowsPresenter>
+
+        <!-- Vertical ScrollBar for Vertical Layout (acts as horizontal) -->
+        <ScrollBar x:Name="PART_VerticalScrollBar"
+                   Grid.Row="2" Grid.Column="1"
+                   Orientation="Horizontal"
+                   ViewportSize="{TemplateBinding ViewportHeight}"
+                   Maximum="{TemplateBinding ScrollableWidth}"
+                   Visibility="{TemplateBinding ComputedHorizontalScrollBarVisibility}"
+                   Value="{Binding HorizontalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                   Height="{DynamicResource ScrollBarSize}" />
+
+        <!-- Horizontal ScrollBar for Vertical Layout (acts as vertical) -->
+        <Grid Grid.Row="1" Grid.Column="2">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="{Binding NonFrozenColumnsViewportHorizontalOffset, RelativeSource={RelativeSource AncestorType={x:Type local:VBDataGrid}}}" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+
+          <ScrollBar x:Name="PART_HorizontalScrollBar"
+                     Grid.Row="1"
+                     Orientation="Vertical"
+                     ViewportSize="{TemplateBinding ViewportHeight}"
+                     Maximum="{TemplateBinding ScrollableHeight}"
+                     Visibility="{TemplateBinding ComputedVerticalScrollBarVisibility}"
+                     Value="{Binding VerticalOffset, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}"
+                     Width="{DynamicResource ScrollBarSize}" />
+        </Grid>
+
+        <!-- Disabled Visual Element for Vertical Layout -->
+        <Border x:Name="PART_DisabledVisualElement"
+                Grid.RowSpan="3" Grid.ColumnSpan="3"
+                IsHitTestVisible="False"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                CornerRadius="2"
+                Background="{DynamicResource CtrlFrmDisabled}"
+                IsVisible="{Binding !$parent[local:VBDataGrid].IsEnabled}" />
+      </Grid>
+    </Border>
+  </ControlTemplate>
+
+  <ControlTheme x:Key="{x:Type local:VBDataGrid}" TargetType="{x:Type local:VBDataGrid}">
+    <Setter Property="RowBackground" Value="Transparent" />
+    <Setter Property="Background" Value="{StaticResource ControlBackgroundBrush}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="GridLinesVisibility" Value="All" />
+    <Setter Property="HorizontalGridLinesBrush" Value="{StaticResource DataGridLineBrush}" />
+    <Setter Property="VerticalGridLinesBrush" Value="{StaticResource DataGridLineBrush}" />
+    <Setter Property="RowDetailsVisibilityMode" Value="Collapsed" />
+    <Setter Property="IsReadOnly" Value="False" />
+    <Setter Property="AutoGenerateColumns" Value="False" />
+    <Setter Property="CanUserAddRows" Value="False" />
+    <Setter Property="CanUserDeleteRows" Value="False" />
+    <Setter Property="EnableRowVirtualization" Value="True" />
+    <Setter Property="CellStyle" Value="{StaticResource CellStyle}" />
+    <Setter Property="RowStyle" Value="{StaticResource RowStyle}" />
+    <Setter Property="RowHeaderStyle" Value="{StaticResource RowHeaderStyle}" />
+    <Setter Property="ColumnHeaderStyle" Value="{StaticResource ColumnHeaderStyle}" />
+    <Setter Property="HeadersVisibility" Value="Column" />
+    <Setter Property="HorizontalScrollBarVisibility" Value="Auto" />
+    <Setter Property="VerticalScrollBarVisibility" Value="Auto" />
+    <Setter Property="SelectionMode" Value="Extended" />
+    <Setter Property="IsTabStop" Value="True" />
+    <Setter Property="Focusable" Value="True" />
+    <Setter Property="FocusAdorner" Value="{x:Null}" />
+    <Setter Property="Template" Value="{StaticResource TemplateDataGridHorizontal}" />
+    
+    <Style Selector="^:grouping">
+      <Setter Property="CanContentScroll" Value="False" />
+    </Style>
+    
+    <Style Selector="^[VerticalRows=True]">
+      <Setter Property="Template" Value="{StaticResource TemplateDataGridVertical}" />
+    </Style>
+
+    <Style Selector="^:empty-columns">
+      <Style Selector="^ /template/ DataGridColumnHeader#PART_TopLeftCornerHeader">
+        <Setter Property="IsVisible" Value="False" />
+      </Style>
+      <Style Selector="^ /template/ DataGridColumnHeadersPresenter#PART_ColumnHeadersPresenter">
+        <Setter Property="IsVisible" Value="False" />
+      </Style>
+      <Style Selector="^ /template/ Rectangle#PART_ColumnHeadersAndRowsSeparator">
+        <Setter Property="IsVisible" Value="False" />
+      </Style>
+    </Style>
+
+    <Style Selector="^ /template/ DataGridRowsPresenter#PART_RowsPresenter">
+      <Setter Property="Grid.RowSpan" Value="2" />
+      <Setter Property="Grid.ColumnSpan" Value="3" />
+    </Style>
+
+    <Style Selector="^:disabled">
+      <Style Selector="^ /template/ Border#border">
+        <Setter Property="Background" Value="{StaticResource CtrlFrmDisabled}" />
+      </Style>
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>
