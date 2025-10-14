@@ -47,6 +47,10 @@
     <AssemblyOriginatorKeyFile>..\GIP-SNKey.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <AvaloniaXaml Remove="Controls\VBDatagrid\Themes\DataGridStyleTest.axaml" />
+    <AvaloniaXaml Remove="Controls\VBDatagrid\Themes\FromAvaloniaDataGrid.axaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Reference Update="System.Xml.Linq">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
     </Reference>
@@ -213,6 +217,8 @@
     <Content Include="appsettings.json" />
     <Content Include="Controls\VBComboBox\Themes\ComboBoxStyleOldWPF.xaml" />
     <Content Include="Controls\VBComboBox\VBComboBoxOld.cs" />
+    <Content Include="Controls\VBDatagrid\Themes\DataGridStyleTest.axaml" />
+    <Content Include="Controls\VBDatagrid\Themes\FromAvaloniaDataGrid.axaml" />
     <Content Include="Controls\VBListBox\VBListBoxOld.cs" />
     <Content Include="Controls\VBTextBox\VBTextBoxOldWPF.cs" />
   </ItemGroup>
