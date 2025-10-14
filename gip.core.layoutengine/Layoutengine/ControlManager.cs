@@ -78,12 +78,7 @@ namespace gip.core.layoutengine
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
                                                      styleName = "WpfDesignStyle", 
                                                      styleUri = "/gip.core.layoutengine;Component/Themes/WpfDesignStyles.xaml" },
-                },
-            new List<CustomControlStyleInfo> { 
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                                     styleName = "sharedtestdamir", 
-                                                     styleUri = "/gip.core.layoutengine;Component/Controls/VBButton/Themes/SharedResourceTest.xaml" },
-                },
+                }
             /*new List<CustomControlStyleInfo> { 
                         new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
                                                      styleName = "TextBlockStyleGip", 
