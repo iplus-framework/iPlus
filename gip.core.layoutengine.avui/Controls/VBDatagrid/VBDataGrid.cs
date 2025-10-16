@@ -116,6 +116,9 @@ namespace gip.core.layoutengine.avui
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
             _Initialized = true;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             if (String.IsNullOrEmpty(VBContent))
                 return;
             System.Diagnostics.Debug.Assert(VBContent != "");

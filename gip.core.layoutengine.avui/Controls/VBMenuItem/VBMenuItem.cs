@@ -1,13 +1,15 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Labs.Input;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.IO;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using System.Transactions;
 using System.ComponentModel;
-using Avalonia.Controls;
+using System.IO;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -21,35 +23,7 @@ namespace gip.core.layoutengine.avui
     public class VBMenuItem : MenuItem, IACInteractiveObject, IACObject
     {
         #region c´tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "MenuItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBMenuItem/Themes/MenuItemStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "MenuItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBMenuItem/Themes/MenuItemStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBMenuItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBMenuItem), new FrameworkPropertyMetadata(typeof(VBMenuItem)));
-        }
-
-        bool _themeApplied = false;
-        /// <summary>
-        /// Creates a new instance of VBMenuItem.
-        /// </summary>
-        public VBMenuItem()
+        public VBMenuItem() : base()
         {
         }
 
@@ -73,7 +47,7 @@ namespace gip.core.layoutengine.avui
             if (!string.IsNullOrEmpty(acCommand.GetACUrl()))
             {
                 Command = AppCommands.AddApplicationCommand(ACCommand);
-                CommandBindings.Add(new CommandBinding(Command, VBMenuItem_Click, VBMenuItem_IsEnabled));
+                CommandManager.SetCommandBindings(this, new List<CommandBinding>() { new CommandBinding(Command, VBMenuItem_Click, VBMenuItem_IsEnabled) });
             }
         }
 
@@ -111,14 +85,14 @@ namespace gip.core.layoutengine.avui
                 acComponent = Layoutgenerator.Root;
 
             Application wpfApplication = null;
-            if (acComponent != null && acComponent.Root.RootPageWPF != null && acComponent.Root.RootPageWPF.WPFApplication != null)
+            if (acComponent.Root.RootPageWPF != null && acComponent.Root.RootPageWPF.WPFApplication != null)
                 wpfApplication = acComponent.Root.RootPageWPF.WPFApplication as Application;
 
             if (wpfApplication != null)
                icon = wpfApplication.Resources[iconACUrl];
 
-            if (icon != null && icon is BitmapImage)
-                Icon = new Image() { Source = icon as BitmapImage, MaxHeight = 16, MaxWidth = 16 };
+            if (icon != null && icon is Bitmap)
+                Icon = new Image() { Source = icon as Bitmap, MaxHeight = 16, MaxWidth = 16 };
             else if (icon != null && icon is string)
                 Icon = null;
             else
@@ -130,19 +104,24 @@ namespace gip.core.layoutengine.avui
                     design = Database.GlobalDatabase.ACClassDesign.Where(c => c.ACUsageIndex == (short)Global.ACUsages.DUIcon && c.ACIdentifier == iconACIdentifier)
                                                                   .ToList().FirstOrDefault(c => c.GetACUrl(null) == iconACUrl);
 
+
                 if (design != null && design.DesignBinary != null)
                 {
-                    using (var ms = new MemoryStream(design.DesignBinary))
+                    Bitmap bitmapImage = null;
+                    try
                     {
-                        BitmapImage bitmapImage = new BitmapImage();
-                        bitmapImage.BeginInit();
-                        bitmapImage.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmapImage.StreamSource = ms;
-                        bitmapImage.EndInit();
-                        bitmapImage.Freeze();
-                        if(wpfApplication != null)
-                            wpfApplication.Resources.Add(iconACUrl, bitmapImage);
-                        Icon = new Image() { Source = bitmapImage, MaxHeight = 16, MaxWidth = 16 };
+                        using (var stream = new MemoryStream(design.DesignBinary))
+                        {
+                            bitmapImage = new Bitmap(stream);
+                            this.Icon = new Image() { Source = bitmapImage, MaxHeight = 16, MaxWidth = 16 };
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        this.Root().Messages.LogException("VBImage", "UpdateImage()", e);
+                        this.Root().Messages.LogException("VBImage", "UpdateImage()", String.Format("Can't create icon for {0} at VBContent {1}. Invalid Binary", design.GetACUrl(), VBContent));
+                        bitmapImage = new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/QuestionMark.JPG")));
+                        this.Icon = new Image() { Source = bitmapImage, MaxHeight = 16, MaxWidth = 16 };
                     }
                 }
                 else if (wpfApplication != null)
@@ -164,8 +143,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBMenuItem));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBMenuItem, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -277,35 +255,6 @@ namespace gip.core.layoutengine.avui
             return HandlerACElement.IsEnabledACAction(actionArgs);
         }
         #endregion
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
 
         #region IACObject
         /// <summary>

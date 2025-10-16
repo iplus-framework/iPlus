@@ -7,126 +7,157 @@ using gip.core.layoutengine.avui.Helperclasses;
 using System.Transactions;
 using System.Reflection;
 using System.ComponentModel;
-using System.Windows.Controls.Primitives;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Labs.Input;
+using Avalonia;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Templates;
+using Avalonia.Layout;
+using Avalonia.Controls.Presenters;
+using Avalonia.Input;
 
 namespace gip.core.layoutengine.avui
 {
-    /// <summary>
-    /// Represents the control that shows data in flip view.
-    /// </summary>
-    /// <summary xml:lang="de">
-    /// Stellt das Steuerelement dar, das Daten in der Flip-Ansicht anzeigt.
-    /// </summary>
+    [TemplatePart("PART_PreviousButtonHorizontal", typeof(Button))]
+    [TemplatePart("PART_NextButtonHorizontal", typeof(Button))]
+    [TemplatePart("PART_PreviousButtonVertical", typeof(Button))]
+    [TemplatePart("PART_NextButtonVertical", typeof(Button))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFlipView'}de{'VBFlipView'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBFlipView : ListBox, IVBContent, IVBSource, IACObject
+    public class VBFlipView : SelectingItemsControl, IVBContent, IVBSource, IACObject
     {
         #region c'tors
         string _DataSource;
         string _DataShowColumns;
         string _DataChilds;
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "FlipViewStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBFlipView/Themes/FlipViewStyleGip.xaml",
-                                        hasImplicitStyles = false},
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "FlipViewStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBFlipView/Themes/FlipViewStyleAero.xaml",
-                                        hasImplicitStyles = false},
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
+        private static readonly FuncTemplate<Panel> DefaultPanel =
+            new FuncTemplate<Panel>(() => new StackPanel()
             {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
+                Orientation = Orientation.Vertical
+            });
 
         static VBFlipView()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBFlipView), new FrameworkPropertyMetadata(typeof(VBFlipView)));
-            SelectedIndexProperty.OverrideMetadata(typeof(VBFlipView), new FrameworkPropertyMetadata(-1, OnSelectedIndexChanged));
+            SelectionModeProperty.OverrideDefaultValue<VBFlipView>(SelectionMode.AlwaysSelected);
+            ItemsPanelProperty.OverrideDefaultValue<VBFlipView>(DefaultPanel);
+            AutoScrollToSelectedItemProperty.OverrideDefaultValue<VBFlipView>(false);
         }
 
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBFlipView.
         /// </summary>
         public VBFlipView()
         {
-            this.CommandBindings.Add(new CommandBinding(NextCommand, this.OnNextExecuted, this.OnNextCanExecute));
-            this.CommandBindings.Add(new CommandBinding(PreviousCommand, this.OnPreviousExecuted, this.OnPreviousCanExecute));
+            CommandManager.SetCommandBindings(this, 
+                new List<CommandBinding> 
+                { 
+                    new CommandBinding(NextCommand, this.OnNextExecuted, this.OnNextCanExecute),
+                    new CommandBinding(PreviousCommand, this.OnPreviousExecuted, this.OnPreviousCanExecute) 
+                });
+            AddHandler(PointerWheelChangedEvent, FlipPointerWheelChanged, handledEventsToo: true);
+            AddHandler(KeyDownEvent, FlipKeyDown, handledEventsToo: true);
         }
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            this.SourceUpdated += VB_SourceUpdated;
-            this.TargetUpdated += VB_TargetUpdated;
+            base.OnInitialized();
             this.Loaded += VBFlipView_Loaded;
             this.Unloaded += VBFlipView_Unloaded;
-            ActualizeTheme(true);
+        }
+
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey) => new FlipViewItem();
+
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+        {
+            return NeedsContainer<FlipViewItem>(item, out recycleKey);
+        }
+
+        protected override void PrepareContainerForItemOverride(Control element, object item, int index)
+        {
+            if (element is FlipViewItem viewItem)
+            {
+                viewItem.Content = item;
+                element.Width = GetDesiredItemWidth();
+                element.Height = GetDesiredItemHeight();
+            }
+            base.PrepareContainerForItemOverride(element, item, index);
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
 
-            this.PART_PreviousItem = this.GetTemplateChild("PART_PreviousItem") as ContentControl;
-            this.PART_NextItem = this.GetTemplateChild("PART_NextItem") as ContentControl;
-            this.PART_CurrentItem = this.GetTemplateChild("PART_CurrentItem") as ContentControl;
-            this.PART_Root = this.GetTemplateChild("PART_Root") as FrameworkElement;
-            this.PART_Container = this.GetTemplateChild("PART_Container") as FrameworkElement;
+            ItemsPresenterPart = e.NameScope.Get<ItemsPresenter>("PART_ItemsPresenter");
 
-            this.SizeChanged += this.OnSizeChanged;
-            this.PART_Root.ManipulationStarting += this.OnRootManipulationStarting;
-            this.PART_Root.ManipulationDelta += this.OnRootManipulationDelta;
-            this.PART_Root.ManipulationCompleted += this.OnRootManipulationCompleted;
-        }
+            _nextButtonHorizontal = e.NameScope.Get<Button>("PART_NextButtonHorizontal");
+            _previousButtonHorizontal = e.NameScope.Get<Button>("PART_PreviousButtonHorizontal");
+            _nextButtonVertical = e.NameScope.Get<Button>("PART_NextButtonVertical");
+            _previousButtonVertical = e.NameScope.Get<Button>("PART_PreviousButtonVertical");
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
+            //this.PART_PreviousItem = e.NameScope.Find("PART_PreviousItem") as ContentControl;
+            //this.PART_NextItem = e.NameScope.Find("PART_NextItem") as ContentControl;
+            //this.PART_CurrentItem = e.NameScope.Find("PART_CurrentItem") as ContentControl;
+            this.PART_Root = e.NameScope.Find("PART_Root") as Control;
+            this.PART_Container = e.NameScope.Find("PART_Container") as Control;
+
+            if (_nextButtonHorizontal != null)
+            {
+                _nextButtonHorizontal.Click += NextButton_Click;
+            }
+
+            if (_nextButtonVertical != null)
+            {
+                _nextButtonVertical.Click += NextButton_Click;
+            }
+
+            if (_previousButtonHorizontal != null)
+            {
+                _previousButtonHorizontal.Click += PreviousButton_Click;
+            }
+
+            if (_previousButtonVertical != null)
+            {
+                _previousButtonVertical.Click += PreviousButton_Click;
+            }
+
+            if (ScrollViewerPart != null)
+            {
+                ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+                ScrollViewerPart.SizeChanged -= ScrollViewerPart_SizeChanged;
+            }
+
+            ScrollViewerPart = e.NameScope.Find<FlipViewScrollViewer>("PART_ScrollViewer");
+
+            if (ScrollViewerPart != null)
+            {
+                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+                ScrollViewerPart.SizeChanged += ScrollViewerPart_SizeChanged;
+            }
+
+            _isApplied = true;
+
+            SetButtonsVisibility();
         }
         #endregion
 
         #region Private Fields
-        private ContentControl PART_CurrentItem;
-        private ContentControl PART_PreviousItem;
-        private ContentControl PART_NextItem;
-        private FrameworkElement PART_Root;
-        private FrameworkElement PART_Container;
+        private Button _previousButtonVertical;
+        private Button _nextButtonHorizontal;
+        private Button _previousButtonHorizontal;
+        private Button _nextButtonVertical;
+        private bool _isApplied;
+        private bool _isHorizontal;
+
+        private Control PART_Root;
+        private Control PART_Container;
         private double fromValue = 0.0;
         private double elasticFactor = 1.0;
         #endregion
@@ -134,31 +165,61 @@ namespace gip.core.layoutengine.avui
         #region Additional Dependenc-Properties
 
         /// <summary>
-        /// Represents the dependency property for control mode.
+        /// Defines the <see cref="IsButtonsVisible"/> property.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBFlipView));
+        public static StyledProperty<bool> IsButtonsVisibleProperty = AvaloniaProperty.Register<VBFlipView, bool>(nameof(IsButtonsVisible), defaultValue: true);
+
+        /// <summary>
+        /// Defines the <see cref="TransitionDuration"/> property.
+        /// </summary>
+        public static readonly StyledProperty<TimeSpan?> TransitionDurationProperty =
+            FlipViewScrollViewer.TransitionDurationProperty.AddOwner<VBFlipView>();
+
+        private bool _arranged;
+
+        internal ItemsPresenter ItemsPresenterPart { get; private set; }
+        internal FlipViewScrollViewer ScrollViewerPart { get; private set; }
+
+        /// <summary>
+        /// Gets or sets whether navigation buttons are visible on the flipview.
+        /// </summary>
+        public bool IsButtonsVisible
+        {
+            get => GetValue(IsButtonsVisibleProperty);
+            set => SetValue(IsButtonsVisibleProperty, value);
+        }
+
+        /// <summary>
+        /// Gets or sets the duration of transitions for the flipview.
+        /// </summary>
+        public TimeSpan? TransitionDuration
+        {
+            get => GetValue(TransitionDurationProperty);
+            set => SetValue(TransitionDurationProperty, value);
+        }
+
+
+        /// <summary>
+        /// Represents the styled property for control mode.
+        /// </summary>
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBFlipView, Global.ControlModes>(nameof(ControlMode));
+        
         /// <summary>
         /// Gets or sets the Control mode.
         /// </summary>
         public Global.ControlModes ControlMode
         {
-            get
-            {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
-            }
-            set
-            {
-                SetValue(ControlModeProperty, value);
-            }
+            get => GetValue(ControlModeProperty);
+            set => SetValue(ControlModeProperty, value);
         }
 
 
         /// <summary>
-        /// Represents the dependency property for RightControlMode.
+        /// Represents the styled property for RightControlMode.
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty
-            = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBFlipView));
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty =
+            AvaloniaProperty.Register<VBFlipView, Global.ControlModes>(nameof(RightControlMode));
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -171,15 +232,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
-            set { SetValue(RightControlModeProperty, value); }
+            get => GetValue(RightControlModeProperty);
+            set => SetValue(RightControlModeProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaption.
+        /// Represents the styled property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBFlipView), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBFlipView, string>(Const.ACCaptionPrefix);
+        
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
@@ -187,30 +249,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
-            set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBFlipView control = d as VBFlipView;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-
-                    (control as VBFlipView).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
+            get => GetValue(ACCaptionProperty);
+            set => SetValue(ACCaptionProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the styled property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBFlipView));
+        public static readonly StyledProperty<string> ACCaptionTransProperty =
+            AvaloniaProperty.Register<VBFlipView, string>(nameof(ACCaptionTrans));
+        
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -222,16 +270,17 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
-            set { SetValue(ACCaptionTransProperty, value); }
+            get => GetValue(ACCaptionTransProperty);
+            set => SetValue(ACCaptionTransProperty, value);
         }
 
 
         /// <summary>
-        /// Represents the dependency property for ShowCaption.
+        /// Represents the styled property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBFlipView), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaptionProperty =
+            AvaloniaProperty.Register<VBFlipView, bool>(nameof(ShowCaption), defaultValue: true);
+        
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -243,8 +292,8 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool ShowCaption
         {
-            get { return (bool)GetValue(ShowCaptionProperty); }
-            set { SetValue(ShowCaptionProperty, value); }
+            get => GetValue(ShowCaptionProperty);
+            set => SetValue(ShowCaptionProperty, value);
         }
         #endregion
 
@@ -276,10 +325,9 @@ namespace gip.core.layoutengine.avui
             }
             _ACTypeInfo = dcACTypeInfo;
 
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBFlipView.RightControlModeProperty);
-            if ((valueSource == null)
-                || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
-                || (dcRightControlMode < RightControlMode))
+
+            if (!this.IsSet(VBFlipView.RightControlModeProperty)
+                || RightControlMode < dcRightControlMode)
             {
                 RightControlMode = dcRightControlMode;
             }
@@ -289,9 +337,9 @@ namespace gip.core.layoutengine.avui
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBFlipView.ACCompInitStateProperty, binding);
+                this.Bind(VBFlipView.ACCompInitStateProperty, binding);
             }
 
             // VBContent muß im XAML gestetzt sein
@@ -316,17 +364,15 @@ namespace gip.core.layoutengine.avui
 
             binding = new Binding();
             binding.Source = dcSource;
-            SetBinding(VBFlipView.ItemsSourceProperty, binding);
+            this.Bind(VBFlipView.ItemsSourceProperty, binding);
 
             Binding binding2 = new Binding();
             binding2.Source = dcSource;
-            binding2.Path = new PropertyPath(dcPath);
+            binding2.Path = dcPath;
             if (VBContentPropertyInfo != null)
                 binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
             binding2.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-            binding2.NotifyOnSourceUpdated = true;
-            binding2.NotifyOnTargetUpdated = true;
-            SetBinding(VBFlipView.SelectedValueProperty, binding2);
+            this.Bind(VBFlipView.SelectedValueProperty, binding2);
 
             if (AutoFocus)
             {
@@ -340,20 +386,15 @@ namespace gip.core.layoutengine.avui
         {
             InitVBControl();
 
-            if (this.SelectedIndex > -1)
-            {
-                this.RefreshViewPort(this.SelectedIndex);
-            }
-
             if (_Loaded)
                 return;
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, VBFlipView.ItemsSourceProperty);
+                var boundedValue = BindingOperations.GetBindingExpressionBase(this, VBFlipView.ItemsSourceProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -396,17 +437,11 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.SourceUpdated -= VB_SourceUpdated;
-            this.TargetUpdated -= VB_TargetUpdated;
             this.Loaded -= VBFlipView_Loaded;
             this.Unloaded -= VBFlipView_Unloaded;
             _ACTypeInfo = null;
             _ACAccess = null;
 
-            BindingOperations.ClearBinding(this, VBFlipView.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, VBFlipView.SelectedValueProperty);
-            //BindingOperations.ClearBinding(this, VBFlipView.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBFlipView.ACCompInitStateProperty);
             this.ClearAllBindings();
             this.ItemsSource = null;
         }
@@ -421,25 +456,15 @@ namespace gip.core.layoutengine.avui
                 DeInitVBControl(BSOACComponent);
         }
 
-        void VB_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            e.Handled = true;
-            UpdateControlMode();
-        }
-
-        void VB_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
-            UpdateControlMode();
-        }
         #endregion
 
         #region IDataField Members
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBFlipView));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBFlipView, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -450,8 +475,8 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
+            get => GetValue(VBContentProperty);
+            set => SetValue(VBContentProperty, value);
         }
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
@@ -558,7 +583,7 @@ namespace gip.core.layoutengine.avui
 
         #region IDataContent Members
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -571,69 +596,34 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBFlipView), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBFlipView>();
+        
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
+            get => GetValue(BSOACComponentProperty);
+            set => SetValue(BSOACComponentProperty, value);
         }
 
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBFlipView),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
 
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBFlipView),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBFlipView, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
-            set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBFlipView thisControl = dependencyObject as VBFlipView;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
+            get => GetValue(ACCompInitStateProperty);
+            set => SetValue(ACCompInitStateProperty, value);
         }
 
         List<IACObject> _ACContentList = new List<IACObject>();
@@ -718,9 +708,11 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for VBValidation.
+        /// Represents the styled property for VBValidation.
         /// </summary>
-        public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBFlipView), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<string> VBValidationProperty = 
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBFlipView>();
+        
         /// <summary>
         /// Name of the VBValidation property.
         /// </summary>
@@ -730,14 +722,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBValidation
         {
-            get { return (string)GetValue(VBValidationProperty); }
-            set { SetValue(VBValidationProperty, value); }
+            get => GetValue(VBValidationProperty);
+            set => SetValue(VBValidationProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for DisableContextMenu.
+        /// Represents the styled property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBFlipView), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<bool> DisableContextMenuProperty = 
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBFlipView>();
+        
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -748,8 +742,8 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
-            set { SetValue(DisableContextMenuProperty, value); }
+            get => GetValue(DisableContextMenuProperty);
+            set => SetValue(DisableContextMenuProperty, value);
         }
 
 
@@ -771,20 +765,15 @@ namespace gip.core.layoutengine.avui
             else
                 this.IsTabStop = false;
 
-            if (controlMode == Global.ControlModes.Collapsed)
+            if (controlMode == Global.ControlModes.Collapsed || controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
-            }
-            else if (controlMode == Global.ControlModes.Hidden)
-            {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
+                if (this.IsVisible)
+                    this.IsVisible = false;
             }
             else
             {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
+                if (!this.IsVisible)
+                    IsVisible = true;
                 if (controlMode == Global.ControlModes.Disabled)
                 {
                     if (IsEnabled)
@@ -823,23 +812,24 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the styled property for DisabledModes.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBFlipView));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBFlipView, string>(nameof(DisabledModes));
+        
         /// <summary>
-        /// Gets or sets the ACCaption translation.
+        /// Gets or sets the DisabledModes.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die deaktivierten Modi.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
-            set { SetValue(DisabledModesProperty, value); }
+            get => GetValue(DisabledModesProperty);
+            set => SetValue(DisabledModesProperty, value);
         }
         #endregion
 
@@ -933,162 +923,331 @@ namespace gip.core.layoutengine.avui
 
         #region VBFlipView-Methods
         #region Private methods
-        private void OnRootManipulationCompleted(object sender, ManipulationCompletedEventArgs e)
+        private void ScrollViewerPart_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-            this.fromValue = e.TotalManipulation.Translation.X;
-            if (this.fromValue > 0)
+            SetItemSize();
+
+            if (ScrollViewerPart != null)
             {
-                if (this.SelectedIndex > 0)
+                var enableTransition = ScrollViewerPart.EnableTransition;
+                ScrollViewerPart.EnableTransition = false;
+                this.ScrollIntoView(SelectedIndex);
+                ScrollViewerPart.EnableTransition = enableTransition;
+            }
+        }
+
+        private void SetItemSize()
+        {
+            var width = GetDesiredItemWidth();
+            var height = GetDesiredItemHeight();
+
+            var item = ContainerFromIndex(SelectedIndex);
+            if (item is FlipViewItem flipViewItem)
+            {
+                flipViewItem.Width = width;
+                flipViewItem.Height = height;
+            }
+        }
+
+        private void ScrollEndedEventHandler(object sender, ScrollGestureEndedEventArgs e)
+        {
+            UpdateSelectedIndex();
+        }
+
+        protected override Size ArrangeOverride(Size finalSize)
+        {
+            var arrange = base.ArrangeOverride(finalSize);
+
+            if (!_arranged)
+            {
+                var width = GetDesiredItemWidth();
+                var height = GetDesiredItemHeight();
+
+                for (var i = 0; i < ItemCount; i++)
                 {
-                    this.SelectedIndex -= 1;
+                    var item = ContainerFromIndex(i);
+                    if (item is FlipViewItem flipViewItem)
+                    {
+                        flipViewItem.Width = width;
+                        flipViewItem.Height = height;
+                    }
                 }
+            }
+
+            _arranged = true;
+
+            return arrange;
+        }
+
+        private void UpdateSelectedIndex()
+        {
+            if (ItemsPresenterPart != null && ScrollViewerPart != null && ItemCount > 0)
+            {
+                var offset = _isHorizontal ? ScrollViewerPart.Offset.X : ScrollViewerPart.Offset.Y;
+                var viewport = _isHorizontal ? ScrollViewerPart.Viewport.Width : ScrollViewerPart.Viewport.Height;
+                var viewPortIndex = (long)(offset / viewport);
+                var lowerBounds = viewPortIndex * viewport;
+                var midPoint = lowerBounds + (viewport * 0.5);
+
+                var index = offset > midPoint ? viewPortIndex + 1 : viewPortIndex;
+
+                SetScrollViewerOffset((int)Math.Max(0, Math.Min(index, ItemCount)));
+            }
+        }
+
+        private void PreviousButton_Click(object sender, RoutedEventArgs e)
+        {
+            MovePrevious();
+        }
+
+        private void NextButton_Click(object sender, RoutedEventArgs e)
+        {
+            MoveNext();
+        }
+
+        protected void FlipPointerWheelChanged(object sender, PointerWheelEventArgs e)
+        {
+            if (e.Delta.Y < 0)
+            {
+                MoveNext();
             }
             else
             {
-                if (this.SelectedIndex < this.Items.Count - 1)
+                MovePrevious();
+            }
+        }
+
+        private void MoveNext()
+        {
+            if (ItemCount > 0)
+            {
+                SetScrollViewerOffset(Math.Min(ItemCount - 1, SelectedIndex + 1));
+            }
+        }
+
+        private void MovePrevious()
+        {
+            if (ItemCount > 0)
+            {
+                SetScrollViewerOffset(Math.Max(0, SelectedIndex - 1));
+            }
+        }
+
+        private void MoveStart()
+        {
+            if (ItemCount > 0)
+            {
+                SetScrollViewerOffset(0);
+            }
+        }
+
+        private void MoveEnd()
+        {
+            if (ItemCount > 0)
+            {
+                SetScrollViewerOffset(Math.Max(0, ItemCount - 1));
+            }
+        }
+
+        private void FlipKeyDown(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Up:
+                case Key.Left:
+                case Key.PageUp:
+                    MovePrevious();
+                    break;
+
+                case Key.Down:
+                case Key.Right:
+                case Key.PageDown:
+                    MoveNext();
+                    break;
+                case Key.Home:
+                    MoveStart();
+                    break;
+                case Key.End:
+                    MoveEnd();
+                    break;
+            }
+        }
+
+        internal double GetDesiredItemWidth()
+        {
+            double width = 0;
+            if (ItemsPresenterPart is { } presenter)
+            {
+                if (presenter.Panel is VirtualizingPanel virtualizingPanel)
                 {
-                    this.SelectedIndex += 1;
+                    width = virtualizingPanel.Bounds.Width;
+                }
+
+                if (width == 0)
+                {
+                    width = ScrollViewerPart != null ? ScrollViewerPart.Bounds.Width : Bounds.Width;
                 }
             }
 
-            if (this.elasticFactor < 1)
+            if (width == 0)
             {
-                this.RunSlideAnimation(0, ((MatrixTransform)this.PART_Root.RenderTransform).Matrix.OffsetX);
-            }
-            this.elasticFactor = 1.0;
-        }
-
-        private void OnRootManipulationDelta(object sender, ManipulationDeltaEventArgs e)
-        {
-            if (!(this.PART_Root.RenderTransform is MatrixTransform))
-            {
-                this.PART_Root.RenderTransform = new MatrixTransform();
+                width = Width;
             }
 
-            Matrix matrix = ((MatrixTransform)this.PART_Root.RenderTransform).Matrix;
-            var delta = e.DeltaManipulation;
+            return width;
+        }
 
-            if ((this.SelectedIndex == 0 && delta.Translation.X > 0 && this.elasticFactor > 0)
-                || (this.SelectedIndex == this.Items.Count - 1 && delta.Translation.X < 0 && this.elasticFactor > 0))
+        internal double GetDesiredItemHeight()
+        {
+            double height = 0;
+            if (ItemsPresenterPart is { } presenter)
             {
-                this.elasticFactor -= 0.05;
+                if (presenter.Panel is VirtualizingPanel virtualizingPanel)
+                {
+                    height = virtualizingPanel.Bounds.Height;
+                }
+
+                if (height == 0)
+                {
+                    height = ScrollViewerPart != null ? ScrollViewerPart.Bounds.Height : Bounds.Height;
+                }
             }
 
-            matrix.Translate(delta.Translation.X * elasticFactor, 0);
-            this.PART_Root.RenderTransform = new MatrixTransform(matrix);
+            if (height == 0)
+            {
+                height = Height;
+            }
 
-            e.Handled = true;
+            return height;
         }
 
-        private void OnRootManipulationStarting(object sender, ManipulationStartingEventArgs e)
+        private void SetButtonsVisibility()
         {
-            e.ManipulationContainer = this.PART_Container;
-            e.Handled = true;
-        }
-
-        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
-        {
-            this.RefreshViewPort(this.SelectedIndex);
-        }
-
-        private static void OnSelectedIndexChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var control = d as VBFlipView;
-
-            control.OnSelectedIndexChanged(e);
-        }
-
-        private void OnSelectedIndexChanged(DependencyPropertyChangedEventArgs e)
-        {
-            if (!this.EnsureTemplateParts())
+            if (!_isApplied)
             {
                 return;
             }
 
-            if ((int)e.NewValue >= 0 && (int)e.NewValue < this.Items.Count)
+            var panel = ItemsPanel.Build();
+
+            if (panel is StackPanel stackPanel)
             {
-                double toValue = (int)e.OldValue < (int)e.NewValue ? -this.ActualWidth : this.ActualWidth;
-                this.RunSlideAnimation(toValue, fromValue);
-            }
-        }
-
-        private void RefreshViewPort(int selectedIndex)
-        {
-            if (!this.EnsureTemplateParts())
-            {
-                return;
-            }
-
-            Canvas.SetLeft(this.PART_PreviousItem, -this.ActualWidth);
-            Canvas.SetLeft(this.PART_NextItem, this.ActualWidth);
-            this.PART_Root.RenderTransform = new TranslateTransform();
-
-            var currentItem = this.GetItemAt(selectedIndex);
-            var nextItem = this.GetItemAt(selectedIndex + 1);
-            var previousItem = this.GetItemAt(selectedIndex - 1);
-
-            //if (Items.Count == 1)
-            //{
-            //    currentItem = this.GetItemAt(0);
-            //    nextItem = null;
-            //    previousItem = null;
-            //}
-            //else if (Items.Count == 2)
-            //{
-            //}
-            if (currentItem != null)
-            {
-                var itemContainer = this.ItemContainerGenerator.ContainerFromItem(currentItem);
-                if (itemContainer == null)
+                switch (stackPanel.Orientation)
                 {
-                    //MethodInfo dynMethod = this.ItemContainerGenerator.GetType().GetMethod("Refresh",
-                    //BindingFlags.NonPublic | BindingFlags.Instance);
-                    ////this.ItemContainerGenerator.Refresh();
-                    //if (dynMethod != null)
-                    //    dynMethod.Invoke(this.ItemContainerGenerator, new object[] { });
-                    //this.UpdateLayout();
-                    itemContainer = this.ItemContainerGenerator.ContainerFromItem(currentItem);
+                    case Orientation.Horizontal:
+                        _nextButtonHorizontal!.IsVisible = true && IsButtonsVisible;
+                        _previousButtonHorizontal!.IsVisible = true && IsButtonsVisible;
+                        _nextButtonVertical!.IsVisible = false;
+                        _previousButtonVertical!.IsVisible = false;
+                        _isHorizontal = true;
+                        break;
+                    case Orientation.Vertical:
+                        _nextButtonVertical!.IsVisible = true && IsButtonsVisible;
+                        _previousButtonVertical!.IsVisible = true && IsButtonsVisible;
+                        _nextButtonHorizontal!.IsVisible = false;
+                        _previousButtonHorizontal!.IsVisible = false;
+                        _isHorizontal = false;
+                        break;
                 }
             }
 
-            this.PART_CurrentItem.Content = currentItem;
-            this.PART_NextItem.Content = nextItem;
-            this.PART_PreviousItem.Content = previousItem;
-            //this.PART_CurrentItem.ApplyTemplate();
-            this.PART_CurrentItem.ContentTemplate.LoadContent();
+            if (panel is VirtualizingStackPanel virtualizingStackPanel)
+            {
+                switch (virtualizingStackPanel.Orientation)
+                {
+                    case Orientation.Horizontal:
+                        _nextButtonHorizontal!.IsVisible = true && IsButtonsVisible;
+                        _previousButtonHorizontal!.IsVisible = true && IsButtonsVisible;
+                        _nextButtonVertical!.IsVisible = false;
+                        _previousButtonVertical!.IsVisible = false;
+                        _isHorizontal = true;
+                        break;
+                    case Orientation.Vertical:
+                        _nextButtonVertical!.IsVisible = true && IsButtonsVisible;
+                        _previousButtonVertical!.IsVisible = true && IsButtonsVisible;
+                        _nextButtonHorizontal!.IsVisible = false;
+                        _previousButtonHorizontal!.IsVisible = false;
+                        _isHorizontal = false;
+                        break;
+                }
+            }
         }
 
-        public void RunSlideAnimation(double toValue, double fromValue = 0)
+        protected Vector IndexToOffset(int index)
         {
-            if (!(this.PART_Root.RenderTransform is TranslateTransform))
+            var container = ContainerFromIndex(index);
+            var panel = ItemsPanelRoot;
+            var scrollViewer = ScrollViewerPart;
+            if (container == null || panel == null || scrollViewer == null)
+                return default;
+
+            var bounds = container.Bounds;
+            var offset = scrollViewer.Offset;
+
+            if (bounds.Bottom > offset.Y + scrollViewer.Viewport.Height)
             {
-                this.PART_Root.RenderTransform = new TranslateTransform();
+                offset = offset.WithY((bounds.Bottom - scrollViewer.Viewport.Height) + panel.Margin.Top);
             }
 
-            var story = AnimationFactory.Instance.GetAnimation(this.PART_Root, toValue, fromValue);
-            story.Completed += (s, e) =>
+            if (bounds.Y < offset.Y)
             {
-                this.RefreshViewPort(this.SelectedIndex);
-            };
-            story.Begin();
-        }
-
-        private object GetItemAt(int index)
-        {
-            if (index < 0 || index >= this.Items.Count)
-            {
-                return null;
+                offset = offset.WithY(bounds.Y);
             }
 
-            return this.Items[index];
+            if (bounds.Right > offset.X + scrollViewer.Viewport.Width)
+            {
+                offset = offset.WithX((bounds.Right - scrollViewer.Viewport.Width) + panel.Margin.Left);
+            }
+
+            if (bounds.X < offset.X)
+            {
+                offset = offset.WithX(bounds.X);
+            }
+
+            return offset;
         }
 
-        private bool EnsureTemplateParts()
+        private void SetScrollViewerOffset(int index)
         {
-            return this.PART_CurrentItem != null &&
-                this.PART_NextItem != null &&
-                this.PART_PreviousItem != null &&
-                this.PART_Root != null;
+            var offset = IndexToOffset(index);
+            SetCurrentValue(SelectedIndexProperty, index);
+
+            if (ScrollViewerPart is { } scrollViewer)
+            {
+                scrollViewer.SetCurrentValue(FlipViewScrollViewer.OffsetProperty, offset);
+            }
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            if (change.Property == ACCaptionProperty)
+            {
+                if (!_Initialized || ContextACObject == null)
+                    return;
+
+                ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+
+            }
+            else if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == SelectedIndexProperty)
+            {
+                SetScrollViewerOffset(change.GetNewValue<int>());
+            }
+            else if (change.Property == ItemsPanelProperty || change.Property == IsButtonsVisibleProperty)
+            {
+                SetButtonsVisibility();
+            }
+            base.OnPropertyChanged(change);
         }
 
         private void OnPreviousCanExecute(object sender, CanExecuteRoutedEventArgs e)
@@ -1117,11 +1276,11 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The next command.
         /// </summary>
-        public static RoutedUICommand NextCommand = new RoutedUICommand("Next", "Next", typeof(VBFlipView));
+        public static RoutedCommand NextCommand = new RoutedCommand("Next");
         /// <summary>
         /// The previous command.
         /// </summary>
-        public static RoutedUICommand PreviousCommand = new RoutedUICommand("Previous", "Previous", typeof(VBFlipView));
+        public static RoutedCommand PreviousCommand = new RoutedCommand("Previous");
 
         #endregion
 

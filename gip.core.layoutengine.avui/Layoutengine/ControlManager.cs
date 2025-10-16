@@ -178,11 +178,13 @@ namespace gip.core.layoutengine.avui
 
             if (WpfTheme == eWpfTheme.Aero)
             {
+                app.RequestedThemeVariant = ThemeVariant.Light;
                 app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/LightThemeColors.axaml", UriKind.Relative)));
                 //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Silver.xaml", UriKind.Relative)));
             }
             else if (WpfTheme == eWpfTheme.Gip)
             {
+                app.RequestedThemeVariant = ThemeVariant.Dark;
                 app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Relative)));
                 //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Black.xaml", UriKind.Relative)));
             }

@@ -2,19 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.Transactions;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.Controls.Primitives;
+using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Input;
 
 namespace gip.core.layoutengine.avui
 {
@@ -28,47 +26,10 @@ namespace gip.core.layoutengine.avui
     public class VBTreeViewItem : TreeViewItem, IACInteractiveObjectParent, IVBContent, IACObject
     {
         #region c´tors
-        protected static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TreeViewItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTreeViewItem/Themes/TreeViewItemStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TreeViewItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTreeViewItem/Themes/TreeViewItemStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-
-        static VBTreeViewItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTreeViewItem), new FrameworkPropertyMetadata(typeof(VBTreeViewItem)));
-        }
-
         /// <summary>
         /// Creates a new instance of VBTreeViewItem.
         /// </summary>
-        public VBTreeViewItem()
+        public VBTreeViewItem() : base()
         {
         }
 
@@ -87,7 +48,7 @@ namespace gip.core.layoutengine.avui
         #region IACInteractiveObject Member
         IACObject _ACComponent;
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -106,7 +67,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTreeViewItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = AvaloniaProperty.RegisterAttached<VBTreeViewItem, Control, IACBSO>(nameof(BSOACComponent), null, true);
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -172,11 +133,9 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            if (Template == null)
-                ActualizeTheme(true);
+            base.OnInitialized();
 
             VBTreeView treeView = FindParentTreeView(this) as VBTreeView;
 
@@ -187,11 +146,12 @@ namespace gip.core.layoutengine.avui
                     VBStaticResourceExtension.DataTemplateContext = this.DataContext;
                     try
                     {
-                        Header = treeView.TreeItemTemplate.LoadContent() as FrameworkElement;
-                        if (Header != null)
-                        {
-                            (Header as FrameworkElement).DataContext = this.DataContext;
-                        }
+                        // TODO Avalonia:
+                        //Header = treeView.TreeItemTemplate.LoadContent() as Control;
+                        //if (Header != null)
+                        //{
+                        //    (Header as Control).DataContext = this.DataContext;
+                        //}
                     }
                     catch (Exception ex)
                     {
@@ -209,7 +169,7 @@ namespace gip.core.layoutengine.avui
             }
 
             if (ContentACObject != null)
-                ToolTip = ContentACObject.ACUrlCommand(Const.CmdTooltip);
+                ToolTip.SetTip(this, ContentACObject.ACUrlCommand(Const.CmdTooltip));
         }
 
         private VBTreeView FindParentTreeView(VBTreeViewItem item)
@@ -226,12 +186,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            //Loaded += new RoutedEventHandler(VBTreeViewItem_Loaded);
-            base.OnApplyTemplate();
-            if ((Template == null) && !_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             if (!_IsInitialized)
                 InitVBControl();
             
@@ -249,12 +206,12 @@ namespace gip.core.layoutengine.avui
                 VBCheckBox vbCheckBox = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(this, "VBCheckBox") as VBCheckBox;
                 if (vbCheckBox != null)
                 {
-                    BindingOperations.ClearAllBindings(vbCheckBox);
+                    vbCheckBox.ClearAllBindings();
                     Binding bindingCheckbox = new Binding();
                     bindingCheckbox.Mode = BindingMode.TwoWay;
                     bindingCheckbox.Source = this.ContentACObject;
-                    bindingCheckbox.Path = new PropertyPath(((IVBDataCheckbox)ContentACObject).DataContentCheckBox);
-                    vbCheckBox.SetBinding(VBCheckBox.IsCheckedProperty, bindingCheckbox);
+                    bindingCheckbox.Path = ((IVBDataCheckbox)ContentACObject).DataContentCheckBox;
+                    vbCheckBox.Bind(VBCheckBox.IsCheckedProperty, bindingCheckbox);
                     vbCheckBox.IsEnabled = ((IVBDataCheckbox)ContentACObject).IsEnabled;
                     vbCheckBox.Click -= vbTreeView.cb_Click;
                     vbCheckBox.Click += vbTreeView.cb_Click;
@@ -263,48 +220,34 @@ namespace gip.core.layoutengine.avui
             _IsInitialized = true;
         }
 
-        /// <summary>
-        /// Actualizes the theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public virtual void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
 
         /// <summary>
         /// Handles the OnMouseRightButtonDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            VBTreeView treeView = FindParentTreeView(this) as VBTreeView;
-            if (treeView != null)
+            if (e.InitialPressMouseButton == MouseButton.Right)
             {
-                treeView.treeViewItem_MouseRightButtonDown(this, e);
+                VBTreeView treeView = FindParentTreeView(this) as VBTreeView;
+                if (treeView != null)
+                {
+                    treeView.treeViewItem_MouseRightButtonDown(this, e);
+                }
             }
-            base.OnMouseRightButtonDown(e);
+            base.OnPointerReleased(e);
         }
 
         /// <summary>
         /// Gets the container for item override.
         /// </summary>
         /// <returns>The new instance of VBTreeViewIem.</returns>
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
             return new VBTreeViewItem();
         }
 
-        /// <summary>
-        /// Determines is item is's own container override.
-        /// </summary>
-        /// <param name="item">The item.</param>
-        /// <returns>True if is override, otherwise false.</returns>
-        protected override bool IsItemItsOwnContainerOverride(object item)
-        {
-            //return item is VBTreeView;
-            return base.IsItemItsOwnContainerOverride(item);
-        }
 
         //protected bool _Loaded = false;
         //protected virtual void VBTreeViewItem_Loaded(object sender, RoutedEventArgs e)
@@ -313,7 +256,7 @@ namespace gip.core.layoutengine.avui
         //        return;
         //    _Loaded = true;
         //    if ((HeaderTemplate != null) && (Header != null))
-        //        (Header as FrameworkElement).DataContext = this.DataContext;
+        //        (Header as Control).DataContext = this.DataContext;
         //}
         #region IACInteractiveObjectParent Member
 
@@ -537,8 +480,7 @@ namespace gip.core.layoutengine.avui
             VBCheckBox vbCheckBox = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(this, "VBCheckBox") as VBCheckBox;
             if (vbCheckBox != null)
             {
-                BindingOperations.ClearBinding(vbCheckBox, VBCheckBox.IsCheckedProperty);
-                BindingOperations.ClearAllBindings(vbCheckBox);
+                vbCheckBox.ClearAllBindings();
                 vbCheckBox.Click -= ((VBTreeView)ParentACElement).cb_Click;
             }
         }
@@ -548,28 +490,25 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public bool IsTreeFilled = false;
 
-        /// <summary>
-        /// Handles the OnExpanded event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnExpanded(RoutedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            base.OnExpanded(e);
-            if (BSOACComponent != null && !IsTreeFilled)
+            if (change.Property == IsExpandedProperty 
+                && BSOACComponent != null 
+                && !IsTreeFilled
+                && (bool)change.NewValue == true)
             {
-                VBTreeViewItem vbtvi = e.Source as VBTreeViewItem;
-                if (vbtvi == null)
-                    return;
-                VBTreeView vbtv = vbtvi.ParentACElement as VBTreeView;
+                VBTreeView vbtv = ParentACElement as VBTreeView;
                 if (vbtv != null && !string.IsNullOrEmpty(vbtv.VBTreeViewExpandMethod))
                 {
-                    vbtvi.Items.Clear();
-                    BSOACComponent.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { vbtvi.ContentACObject });
-                    vbtv.FillChildsOnItemExpand(vbtvi);
+                    Items.Clear();
+                    BSOACComponent.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { ContentACObject });
+                    vbtv.FillChildsOnItemExpand(this);
                     this.IsSelected = true;
                 }
             }
             IsTreeFilled = true;
+            base.OnPropertyChanged(change);
+
         }
     }
 }

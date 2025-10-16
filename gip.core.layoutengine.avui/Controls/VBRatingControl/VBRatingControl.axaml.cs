@@ -1,19 +1,15 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.VisualTree;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,32 +21,45 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public partial class VBRatingControl : UserControl
     {
-
         #region ctor's
 
         public VBRatingControl()
         {
             InitializeComponent();
-            ratingList.PreviewMouseDown += ratingList_PreviewMouseDown;
+            ratingList.PointerPressed += RatingList_PointerPressed;
+        }
+
+        private void RatingList_PointerPressed(object sender, PointerPressedEventArgs e)
+        {
+            ratingSetupFromClick = true;
+            
+            // Find the clicked element and traverse up to find the container
+            var element = e.Source as Visual;
+            while (element != null && element != ratingList)
+            {
+                if (element is Control control && control.DataContext is RatingItem dataItem)
+                {
+                    var selectedItems = RatingItemsSource.Where(x => x.IsSelected);
+                    int sn = (dataItem.IsSelected && selectedItems.Any() && selectedItems.Max(x => x.Sn) == dataItem.Sn) 
+                        ? dataItem.Sn - 1 
+                        : dataItem.Sn;
+                    
+                    if (RatingStarCount > 0)
+                    {
+                        Rating = (decimal)sn / (decimal)RatingStarCount;
+                    }
+                    SetupRatingItemsSource(sn);
+                    break;
+                }
+                element = element.GetVisualParent();
+            }
+            
+            ratingSetupFromClick = false;
         }
 
         #endregion
 
-        #region Event Hanlders
-
-        void ratingList_PreviewMouseDown(object sender, MouseButtonEventArgs e)
-        {
-            ratingSetupFromClick = true;
-            var item = ItemsControl.ContainerFromElement(ratingList, e.OriginalSource as DependencyObject) as ListBoxItem;
-            if (item != null)
-            {
-                RatingItem dataItem = item.DataContext as RatingItem;
-                int sn = (dataItem.IsSelected && RatingItemsSource.Where(x => x.IsSelected).Max(x => x.Sn) == dataItem.Sn) ? dataItem.Sn - 1 : dataItem.Sn;
-                Rating = (decimal)sn / (decimal)RatingStarCount;
-                SetupRatingItemsSource(sn);
-            }
-            ratingSetupFromClick = false;
-        }
+        #region Event Handlers
 
         #endregion
 
@@ -68,14 +77,6 @@ namespace gip.core.layoutengine.avui
                 return ratingItemsSource;
             }
         }
-
-        //public decimal Step
-        //{
-        //    get
-        //    {
-        //        return ((decimal)1) / ((decimal)RatingStarCount);
-        //    }
-        //}
 
         #endregion
 
@@ -100,13 +101,12 @@ namespace gip.core.layoutengine.avui
             {
                 rt.IsSelected = rt.Sn <= sn;
             }
-            ratingList.Items.Refresh();
+            // No need to call Refresh() in Avalonia - property changes are automatically handled
         }
 
         #endregion
 
-        #region Dependency Property
-
+        #region Styled Properties
 
         /// <summary>
         /// Percentage value of rating
@@ -114,20 +114,14 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public decimal Rating
         {
-            get { return (decimal)this.GetValue(RatingProperty); }
+            get { return GetValue(RatingProperty); }
             set
             {
                 if (value > 1)
                     throw new InvalidOperationException("Unallowed value for percentage!");
-                this.SetValue(RatingProperty, value);
-                if(!ratingSetupFromClick)
-                {
-                    int sn = (int)Math.Round(Rating * RatingStarCount, 0);
-                    SetupRatingItemsSource(sn);
-                }
+                SetValue(RatingProperty, value);
             }
         }
-
 
         /// <summary>
         /// Rating star counts
@@ -135,46 +129,45 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int RatingStarCount
         {
-            get { return (int)this.GetValue(RatingStarCountProperty); }
+            get { return GetValue(RatingStarCountProperty); }
             set
             {
                 if (value > 10) value = 10;
                 if (value < 3) value = 3;
-                this.SetValue(RatingStarCountProperty, value);
+                SetValue(RatingStarCountProperty, value);
             }
         }
 
         #endregion
 
-        #region Dependency property - static
+        #region Styled Properties - Static
 
-        public static readonly DependencyProperty RatingStarCountProperty = DependencyProperty.Register(
-          "RatingStarCount", typeof(int), typeof(VBRatingControl), new PropertyMetadata(5, new PropertyChangedCallback(OnRatingStarCountChanged)));
+        public static readonly StyledProperty<int> RatingStarCountProperty =
+            AvaloniaProperty.Register<VBRatingControl, int>(nameof(RatingStarCount), defaultValue: 5);
 
+        public static readonly StyledProperty<decimal> RatingProperty =
+            AvaloniaProperty.Register<VBRatingControl, decimal>(nameof(Rating), defaultValue: 0m);
 
-        public static readonly DependencyProperty RatingProperty = DependencyProperty.Register(
-          "Rating", typeof(decimal), typeof(VBRatingControl), new PropertyMetadata(new PropertyChangedCallback(OnRatingChanged)));
-
-        private static void OnRatingChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBRatingControl ctrl = d as VBRatingControl;
-            if(ctrl != null /*&& ctrl.IsLoaded*/)
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == RatingStarCountProperty)
             {
-                int sn = (int)Math.Round(ctrl.Rating * ctrl.RatingStarCount, 0);
-                ctrl.SetupRatingItemsSource(sn);
+                LoadRatingItemsSource();
             }
-        }
-
-        private static void OnRatingStarCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            VBRatingControl ctrl = d as VBRatingControl;
-            if (ctrl != null /*&& ctrl.IsLoaded*/)
+            else if (change.Property == RatingProperty)
             {
-                ctrl.LoadRatingItemsSource();
+                if (!ratingSetupFromClick)
+                {
+                    int sn = (int)Math.Round(Rating * RatingStarCount, 0);
+                    SetupRatingItemsSource(sn);
+                }
             }
         }
 
         private bool ratingSetupFromClick;
+
         #endregion
     }
 }

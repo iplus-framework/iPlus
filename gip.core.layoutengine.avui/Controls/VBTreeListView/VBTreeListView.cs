@@ -1,17 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
 using System.ComponentModel;
-using System.Windows.Data;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.ganttchart;
 using System.Dynamic;
 using System.Reflection;
-using System.Windows.Media;
 using gip.core.layoutengine.avui.timeline;
-using System.Windows.Shapes;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,31 +21,6 @@ namespace gip.core.layoutengine.avui
     {
         #region c'tors
 
-        private static List<CustomControlStyleInfo> _styleInfoList2 = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TreeListViewStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTreeListView/Themes/TreeListViewStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TreeListViewStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTreeListView/Themes/TreeListViewStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of a custom styles.
-        /// </summary>
-        public override List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList2;
-            }
-        }
-
-        static VBTreeListView()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTreeListView), new FrameworkPropertyMetadata(typeof(VBTreeListView)));
-        }
-
         /// <summary>
         /// Creates a new instance of the VBTreeListView.
         /// </summary>
@@ -63,14 +33,6 @@ namespace gip.core.layoutengine.avui
 
         #region Loaded-Event
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-        }
 
         bool _themeApplied = false;
         new bool _Initialized = false;

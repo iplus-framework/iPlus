@@ -86,6 +86,9 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized || DataContext == null)
                 return;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             _Initialized = true;
             IBinding binding = null;
             if (String.IsNullOrEmpty(VBContent))
@@ -1044,8 +1047,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
-            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTextBox>();
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTextBox>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>

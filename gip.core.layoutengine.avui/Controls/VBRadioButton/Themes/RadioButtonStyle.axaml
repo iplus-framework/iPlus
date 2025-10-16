@@ -1,0 +1,161 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+    <ControlTemplate x:Key="TemplateRadioButtonStyle" TargetType="local:VBRadioButton">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="16"/>
+                <ColumnDefinition Width="1"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="{TemplateBinding Height}"/>
+            </Grid.RowDefinitions>
+            <Canvas x:Name="CanvasCheck" Width="16" Height="16">
+                <Ellipse x:Name="BoxBorder"
+                        Stroke="{TemplateBinding BorderBrush}" 
+                        StrokeThickness="{TemplateBinding BorderThickness}" 
+                        Fill="{TemplateBinding Background}" 
+                        Canvas.Left="0" 
+                        Canvas.Top="0" 
+                        Width="16"
+                        Height="16"/>
+                <Ellipse x:Name="CheckPath"
+                        IsVisible="False"
+                        Stroke="{StaticResource RadioButtonEnabledCheckBorder}" 
+                        StrokeThickness="1" 
+                        Fill="{StaticResource RadioButtonEnabledCheckFill}" 
+                        Canvas.Left="2" 
+                        Canvas.Top="2" 
+                        Width="12"
+                        Height="12"/>
+            </Canvas>
+            <ContentPresenter Grid.Column="2" 
+                            HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                            Margin="{TemplateBinding Padding}" 
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+        </Grid>
+    </ControlTemplate>
+    
+    <ControlTemplate x:Key="TemplateRadioButtonPressStyle" TargetType="local:VBRadioButton">
+        <Grid Background="Transparent">
+            <Rectangle x:Name="BdButtonBack" 
+                      Stroke="{StaticResource RadioButtonPressDisabledBg}"
+                      Fill="{StaticResource RadioButtonPressDisabledBg}"
+                      RadiusY="3" RadiusX="3"/>
+            <Rectangle x:Name="BdButtonFront" 
+                      Stroke="{StaticResource RadioButtonPressNormalBg}"
+                      Fill="{StaticResource RadioButtonPressNormalBg}"
+                      RadiusY="3" RadiusX="3"/>
+            <Border x:Name="BorderFocus" Margin="3,3,3,3" BorderThickness="1" CornerRadius="4">
+                <ContentPresenter x:Name="ContentPresenter"/>
+            </Border>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTheme x:Key="{x:Type local:VBRadioButton}" TargetType="local:VBRadioButton">
+        <Setter Property="Foreground" Value="{StaticResource RadioButtonFgEnabled}"/>
+        <Setter Property="Background" Value="{StaticResource RadioButtonBgEnabled}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderEnabled}"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressNormalContentStroke}"/>
+        <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressNormalContentFill}"/>
+        <Setter Property="Template" Value="{StaticResource TemplateRadioButtonStyle}" />
+
+        <!-- Normal RadioButton Styles -->
+        <Style Selector="^:disabled">
+            <Setter Property="Background" Value="{StaticResource RadioButtonBgDisabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource RadioButtonFgDisabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource RadioButtonBorderDisabled}"/>
+        </Style>
+
+        <Style Selector="^:focus-visible /template/ Ellipse#BoxBorder">
+            <Setter Property="StrokeThickness" Value="2"/>
+        </Style>
+
+        <Style Selector="^:focus-visible">
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+
+        <Style Selector="^:checked /template/ Ellipse#CheckPath">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+
+        <Style Selector="^:checked /template/ Ellipse#BoxBorder">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+
+        <!-- Push Button Style -->
+        <Style Selector="^.pushbutton">
+            <Setter Property="Template" Value="{StaticResource TemplateRadioButtonPressStyle}" />
+        </Style>
+
+        <Style Selector="^.pushbutton:focus-visible /template/ Border#BorderFocus">
+            <Setter Property="BorderBrush" Value="{StaticResource RadioButtonFocusBorder}" />
+        </Style>
+
+        <Style Selector="^.pushbutton:pointerover /template/ Rectangle#BdButtonFront">
+            <Setter Property="Stroke" Value="{StaticResource RadioButtonPressFocusBg}" />
+            <Setter Property="Fill" Value="{StaticResource RadioButtonPressFocusBg}" />
+        </Style>
+
+        <Style Selector="^.pushbutton:pointerover">
+            <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressFocusContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressFocusContentFill}"/>
+        </Style>
+
+        <Style Selector="^.pushbutton.mouseover-parent /template/ Rectangle#BdButtonFront">
+            <Setter Property="Stroke" Value="{StaticResource RadioButtonPressFocusBg}" />
+            <Setter Property="Fill" Value="{StaticResource RadioButtonPressFocusBg}" />
+        </Style>
+
+        <Style Selector="^.pushbutton.mouseover-parent">
+            <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressFocusContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressFocusContentFill}"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:checked /template/ Rectangle#BdButtonFront">
+            <Setter Property="Stroke" Value="{StaticResource RadioButtonPressPressedBg}" />
+            <Setter Property="Fill" Value="{StaticResource RadioButtonPressPressedBg}" />
+            <Setter Property="Margin" Value="1,1,-1,-1"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:checked /template/ Border#BorderFocus">
+            <Setter Property="Margin" Value="4,4,2,2"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:checked">
+            <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressPressedContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressPressedContentFill}"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:pressed /template/ Rectangle#BdButtonFront">
+            <Setter Property="Stroke" Value="{StaticResource RadioButtonPressPressedBg}" />
+            <Setter Property="Fill" Value="{StaticResource RadioButtonPressPressedBg}" />
+            <Setter Property="Margin" Value="1,1,-1,-1"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:pressed /template/ Border#BorderFocus">
+            <Setter Property="Margin" Value="4,4,2,2"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:pressed">
+            <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressPressedContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressPressedContentFill}"/>
+        </Style>
+
+        <Style Selector="^.pushbutton:disabled /template/ Rectangle#BdButtonFront">
+            <Setter Property="IsVisible" Value="False" />
+        </Style>
+
+        <Style Selector="^.pushbutton:disabled">
+            <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressDisabledContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressDisabledContentFill}"/>
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

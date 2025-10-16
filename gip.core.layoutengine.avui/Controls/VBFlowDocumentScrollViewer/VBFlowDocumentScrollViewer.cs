@@ -1,29 +1,27 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Markup;
 
 namespace gip.core.layoutengine.avui
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFlowDocumentScrollViewer'}de{'VBFlowDocumentScrollViewer'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBFlowDocumentScrollViewer : FlowDocumentScrollViewer, IVBContent
+    public class VBFlowDocumentScrollViewer : ScrollViewer, IVBContent
+    //Avalonia TODO: Old WPF Declaraion: public class VBFlowDocumentScrollViewer : FlowDocumentScrollViewer, IVBContent
     {
         public VBFlowDocumentScrollViewer()
         {
         }
 
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
             Loaded += VBFlowDocumentScrollViewer_Loaded;
-            base.OnInitialized(e);
+            base.OnInitialized();
         }
 
         private void VBFlowDocumentScrollViewer_Loaded(object sender, RoutedEventArgs e)
@@ -64,86 +62,61 @@ namespace gip.core.layoutengine.avui
 
             Binding binding = new Binding();
             binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
+            binding.Path = dcPath;
             binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
-            this.SetBinding(DocumentContentProperty, binding);
+            this.Bind(DocumentContentProperty, binding);
 
             if (BSOACComponent != null)
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBFlowDocumentScrollViewer.ACCompInitStateProperty, binding);
+                this.Bind(VBFlowDocumentScrollViewer.ACCompInitStateProperty, binding);
             }
         }
 
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBFlowDocumentScrollViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBFlowDocumentScrollViewer>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBFlowDocumentScrollViewer),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBFlowDocumentScrollViewer, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBFlowDocumentScrollViewer),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBFlowDocumentScrollViewer, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBFlowDocumentScrollViewer thisControl = dependencyObject as VBFlowDocumentScrollViewer;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
         }
 
         /// <summary>
@@ -158,37 +131,54 @@ namespace gip.core.layoutengine.avui
 
         public string DocumentContent
         {
-            get { return (string)GetValue(DocumentContentProperty); }
+            get { return GetValue(DocumentContentProperty); }
             set { SetValue(DocumentContentProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for DocumentContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DocumentContentProperty =
-            DependencyProperty.Register("DocumentContent", typeof(string), typeof(VBFlowDocumentScrollViewer), new PropertyMetadata(null, DocumnetContentChanged));
+        // Using a StyledProperty as the backing store for DocumentContent. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> DocumentContentProperty =
+            AvaloniaProperty.Register<VBFlowDocumentScrollViewer, string>(nameof(DocumentContent));
 
-        private static void DocumnetContentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        /// <summary>
+        /// The actual flow document being displayed
+        /// </summary>
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBFlowDocumentScrollViewer thisControl = d as VBFlowDocumentScrollViewer;
-            if (thisControl != null)
+            base.OnPropertyChanged(change);
+            if (change.Property == DocumentContentProperty)
             {
-                if (string.IsNullOrEmpty(thisControl.DocumentContent))
-                {
-                    thisControl.Document = null;
-                    return;
-                }
+                //if (string.IsNullOrEmpty(DocumentContent))
+                //{
+                //    Document = null;
+                //    return;
+                //}
 
-                try
+                //try
+                //{
+                //    // Try to load the XAML content as an AvaloniaUI control using AvaloniaRuntimeXamlLoader
+                //    var control = AvaloniaRuntimeXamlLoader.Load(DocumentContent) as FlowDocument;
+                //    Document = control;
+                //}
+                //catch (Exception ex)
+                //{
+                //    // Log the error and clear the content
+                //    this.Root()?.Messages?.LogError("VBFlowDocumentScrollViewer", "OnPropertyChanged", 
+                //        $"Failed to load DocumentContent: {ex.Message}");
+                //    Document = null;
+                //}
+            }
+            else if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    StringReader stringReader = new StringReader(thisControl.DocumentContent);
-                    System.Xml.XmlReader xmlReader = System.Xml.XmlReader.Create(stringReader);
-                    FlowDocument flowDoc = XamlReader.Load(xmlReader) as FlowDocument;
-                    thisControl.Document = flowDoc;
-                }
-                catch
-                {
-                    thisControl.Document = null;
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
                 }
             }
+
         }
 
 
@@ -217,13 +207,13 @@ namespace gip.core.layoutengine.avui
 
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for VBContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty VBContentProperty =
-            DependencyProperty.Register("VBContent", typeof(string), typeof(VBFlowDocumentScrollViewer), new PropertyMetadata(null));
+        // Using a StyledProperty as the backing store for VBContent. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBFlowDocumentScrollViewer, string>(nameof(VBContent));
 
 
         public IACObject ContextACObject => DataContext as IACObject;
@@ -270,10 +260,9 @@ namespace gip.core.layoutengine.avui
 
         public void DeInitVBControl(IACComponent bso)
         {
-            Document = null;
+            Content = null;
+            _documentControl = null;
             Loaded -= VBFlowDocumentScrollViewer_Loaded;
-            BindingOperations.ClearBinding(this, DocumentContentProperty);
-            BindingOperations.ClearBinding(this, BSOACComponentProperty);
             this.ClearAllBindings();
         }
 

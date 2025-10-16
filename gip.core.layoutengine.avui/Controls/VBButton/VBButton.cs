@@ -63,6 +63,9 @@ namespace gip.core.layoutengine.avui
                 return;
 
             _Initialized = true;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             if (!String.IsNullOrEmpty(VBContent))
             {
                 IACType dcACTypeInfo = null;

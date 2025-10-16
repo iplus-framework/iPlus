@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
 using gip.core.datamodel;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Data;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq.Expressions;
-using System.Windows.Input;
 
 namespace gip.core.layoutengine.avui
 {
@@ -37,32 +31,34 @@ namespace gip.core.layoutengine.avui
         private double _ZoomValue;
         private double _newZoomValue;
 
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
 
             if (IsEnabledZoom)
             {
-                FrameworkElement fe = this.Parent as FrameworkElement;
+                Control fe = this.Parent as Control;
                 if (fe != null)
                     fe.SizeChanged += Fe_SizeChanged;
             }
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected override void OnSizeChanged(SizeChangedEventArgs e)
         {
-            base.OnRenderSizeChanged(sizeInfo);
+            base.OnSizeChanged(e);
         }
 
-        protected override void OnChildDesiredSizeChanged(UIElement child)
-        {
-            base.OnChildDesiredSizeChanged(child);
-            FrameworkElement fe = this.Parent as FrameworkElement;
-            if (fe != null)
-            {
-                ChangeSize(new Size(fe.ActualWidth, fe.ActualHeight));
-            }
-        }
+
+        // TODO AVALONIA: Not suitable Method found:
+        //protected override void OnChildDesiredSizeChanged(Control child)
+        //{
+        //    base.OnChildDesiredSizeChanged(child);
+        //    Control fe = this.Parent as Control;
+        //    if (fe != null)
+        //    {
+        //        ChangeSize(new Size(fe.Bounds.Width, fe.Bounds.Height));
+        //    }
+        //}
 
         private void Fe_SizeChanged(object sender, SizeChangedEventArgs e)
         {
@@ -94,57 +90,79 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        private double _MinZoomValue = 40;
+        /// <summary>
+        /// Defines the MinZoomValue styled property.
+        /// </summary>
+        public static readonly StyledProperty<double> MinZoomValueProperty =
+            AvaloniaProperty.Register<VBViewbox, double>(nameof(MinZoomValue), 40.0, 
+                coerce: CoerceMinZoomValue);
+
+        /// <summary>
+        /// Gets or sets the minimum zoom value. Value is constrained between 40 and 100.
+        /// </summary>
         [Category("VBControl")]
         public double MinZoomValue
         {
-            get
-            {
-                return _MinZoomValue;
-            }
-            set
-            {
-                if (value < 40)
-                    _MinZoomValue = 40;
-                else if (value > 100)
-                    _MinZoomValue = 100;
-                else
-                    _MinZoomValue = value;
-            }
+            get => GetValue(MinZoomValueProperty);
+            set => SetValue(MinZoomValueProperty, value);
         }
 
-        private double _MaxZoomValue = 200;
+        /// <summary>
+        /// Coerces the MinZoomValue to be between 40 and 100.
+        /// </summary>
+        private static double CoerceMinZoomValue(AvaloniaObject sender, double value)
+        {
+            if (value < 40)
+                return 40;
+            else if (value > 100)
+                return 100;
+            else
+                return value;
+        }
+
+        /// <summary>
+        /// Defines the MaxZoomValue styled property.
+        /// </summary>
+        public static readonly StyledProperty<double> MaxZoomValueProperty =
+            AvaloniaProperty.Register<VBViewbox, double>(nameof(MaxZoomValue), 200.0,
+                coerce: CoerceMaxZoomValue);
+
+        /// <summary>
+        /// Gets or sets the maximum zoom value. Value is constrained between 100 and 300.
+        /// </summary>
         [Category("VBControl")]
         public double MaxZoomValue
         {
-            get
-            {
-                return _MaxZoomValue;
-            }
-            set
-            {
-                if (value > 300)
-                    _MaxZoomValue = 300;
-                else if (value < 100)
-                    _MaxZoomValue = 100;
-                else
-                    _MaxZoomValue = value;
-            }
+            get => GetValue(MaxZoomValueProperty);
+            set => SetValue(MaxZoomValueProperty, value);
         }
 
-        protected override void OnPreviewMouseWheel(MouseWheelEventArgs e)
+        /// <summary>
+        /// Coerces the MaxZoomValue to be between 100 and 300.
+        /// </summary>
+        private static double CoerceMaxZoomValue(AvaloniaObject sender, double value)
         {
-            if (IsEnabledZoom && Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (value > 300)
+                return 300;
+            else if (value < 100)
+                return 100;
+            else
+                return value;
+        }
+
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
+        {
+            if (IsEnabledZoom && e.KeyModifiers == KeyModifiers.Control)
             {
                 if (_InitialHeight == 0)
                 {
-                    _InitialHeight = this.ActualHeight;
-                    _InitialWidth = this.ActualWidth;
+                    _InitialHeight = this.Bounds.Height;
+                    _InitialWidth = this.Bounds.Width;
                 }
 
                 double zoomPercent = 0;
 
-                if (e.Delta > 0)
+                if (e.Delta.Y > 0)
                     _newZoomValue += 10;
                 else
                     _newZoomValue -= 10;
@@ -169,7 +187,7 @@ namespace gip.core.layoutengine.avui
                     Width = _InitialWidth - (zoomPercent * _InitialWidth);
                 }
             }
-            base.OnPreviewMouseWheel(e);
+            base.OnPointerWheelChanged(e);
         }
 
         #region IVBContent members
@@ -204,7 +222,7 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -269,7 +287,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public void DeInitVBControl(IACComponent bso)
         {
-            FrameworkElement fe = this.Parent as FrameworkElement;
+            Control fe = this.Parent as Control;
             if(fe != null)
                 fe.SizeChanged -= Fe_SizeChanged;
         }

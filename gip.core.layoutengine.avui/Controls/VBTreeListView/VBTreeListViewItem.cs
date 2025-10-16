@@ -1,9 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Data;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.timeline;
 

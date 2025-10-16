@@ -1,0 +1,10 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ControlTheme x:Key="{x:Type local:VBFrame}" TargetType="{x:Type local:VBFrame}">
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="{StaticResource AppDark}"/>
+        <Setter Property="Margin" Value="0"/>
+    </ControlTheme>
+</ResourceDictionary>

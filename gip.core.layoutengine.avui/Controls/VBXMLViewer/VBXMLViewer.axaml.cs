@@ -2,20 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Forms.Integration;
 using gip.core.datamodel;
 using System.Transactions;
 using System.Xml;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.Data;
+using Avalonia.Controls.Primitives;
+using gip.core.layoutengine.avui.Helperclasses;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -39,9 +35,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -49,10 +45,10 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            Loaded += new RoutedEventHandler(VBXMLViewer_Loaded);
-            base.OnInitialized(e);
+            Loaded += VBXMLViewer_Loaded;
+            base.OnInitialized();
         }
 
 
@@ -90,24 +86,23 @@ namespace gip.core.layoutengine.avui
 
             Binding binding = new Binding();
             binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
+            binding.Path = dcPath;
             binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
 
-            this.SetBinding(VBXMLViewer.ContentXMLProperty, binding);
+            this.Bind(VBXMLViewer.ContentXMLProperty, binding);
 
             if (BSOACComponent != null)
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBXMLViewer.ACCompInitStateProperty, binding);
+                this.Bind(VBXMLViewer.ACCompInitStateProperty, binding);
             }
 
+            _XMLEditor.ChangeSyntaxHighlighting();
+
             this.Loaded -= VBXMLViewer_Loaded;
-            TreeViewXML.SelectedItemChanged += new RoutedPropertyChangedEventHandler<object>(VBTreeView_SelectedItemChanged);
         }
 
         private void VBXMLViewer_Loaded(object sender, RoutedEventArgs e)
@@ -129,11 +124,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             _ACTypeInfo = null;
 
-            TreeViewXML.SelectedItemChanged -= VBTreeView_SelectedItemChanged;
-            BindingOperations.ClearBinding(TreeViewXML, TreeView.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, VBXMLViewer.ContentXMLProperty);
-            BindingOperations.ClearBinding(this, VBXMLViewer.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBXMLViewer.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -147,9 +137,7 @@ namespace gip.core.layoutengine.avui
                 DeInitVBControl(BSOACComponent);
         }
 
-        /// <summary>
-        /// Gets or sets the XML content.
-        /// </summary>
+        public static readonly StyledProperty<XmlDocument> ContentXMLProperty = AvaloniaProperty.Register<VBXMLViewer, XmlDocument>(nameof(ContentXML));
         [Category("VBControl")]
         public XmlDocument ContentXML
         {
@@ -162,79 +150,11 @@ namespace gip.core.layoutengine.avui
                 SetValue(ContentXMLProperty, value);
             }
         }
-        /// <summary>
-        /// Represents the dependency property for ContentXML.
-        /// </summary>
-        public static readonly DependencyProperty ContentXMLProperty
-            = DependencyProperty.Register("ContentXML", typeof(XmlDocument), typeof(VBXMLViewer), new PropertyMetadata(new PropertyChangedCallback(ContentXMLChanged)));
-
-        private static void ContentXMLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBXMLViewer)
-            {
-                VBXMLViewer vbContentControl = d as VBXMLViewer;
-                if (e.NewValue != null && e.NewValue is XmlDocument)
-                {
-                    BindingOperations.ClearBinding(vbContentControl.TreeViewXML, TreeView.ItemsSourceProperty);
-                    XmlDataProvider provider = new XmlDataProvider();
-                    provider.Document = e.NewValue as XmlDocument;
-                    Binding binding = new Binding();
-                    binding.Source = provider;
-                    binding.XPath = "child::node()";
-                    vbContentControl.TreeViewXML.SetBinding(TreeView.ItemsSourceProperty, binding);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Handles OnMouseRightDownButton event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            //if (e.OriginalSource is UIElement)
-            //{
-            //    System.Windows.Controls.Primitives.Popup popUp = new System.Windows.Controls.Primitives.Popup();
-            //    popUp.Child = new VBXMLViewer();
-            //    popUp.PlacementTarget = e.OriginalSource as UIElement;
-            //    popUp.IsOpen = true;
-            //    popUp.StaysOpen = false;
-            //    popUp.Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint;
-            //    e.Handled = true;
-            //}
-            //else
-            base.OnMouseRightButtonDown(e);
-        }
-
-        private void VBTreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            SetValue(SelectedItemProperty, e.NewValue);
-        }
-
-        //public static readonly DependencyPropertyKey SelectedItemPropertyKey
-        //    = DependencyProperty.RegisterReadOnly("SelectedItem", typeof(object), typeof(VBXMLViewer), new PropertyMetadata());
-
-        //public static readonly DependencyProperty SelectedItemProperty = SelectedItemPropertyKey.DependencyProperty;
-
-            /// <summary>
-            /// Represetns the dependency property for SelectItem.
-            /// </summary>
-        public static readonly DependencyProperty SelectedItemProperty
-            = DependencyProperty.Register("SelectedItem", typeof(object), typeof(VBXMLViewer), new PropertyMetadata());
-        /// <summary>
-        /// Gets the selected item.
-        /// </summary>
-        [Category("VBControl")]
-        public object SelectedItem
-        {
-            get { return (object)GetValue(SelectedItemProperty); }
-            set { /*SetValue(SelectedItemProperty, value);*/ }
-        }
 
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBXMLViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBXMLViewer>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -245,30 +165,9 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for ACUrlCmdMessage.
-        /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBXMLViewer),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        /// <summary>
-        /// Gets or sets the ACUrlCmdMessage.
-        /// </summary>
-        public ACUrlCmdMessage ACUrlCmdMessage
-        {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-            set { SetValue(ACUrlCmdMessageProperty, value); }
-        }
-
-        /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBXMLViewer),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBXMLViewer, ACInitState>(nameof(ACCompInitState));
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
@@ -278,24 +177,47 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBXMLViewer thisControl = dependencyObject as VBXMLViewer;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (!_Initialized)
+                    return;
+                ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+            }
+            else if (change.Property == ContentXMLProperty)
+            {
+                if (change.NewValue != null && change.NewValue is XmlDocument xmlDoc)
+                {
+                    _XMLEditor.Text = xmlDoc.InnerText;
+
+                    // Avalonia doesn't support XPath for Binding to XMLDataProvider and displaying XML with a Hierachical datatemplate
+                    // Maybe in Future there will be a control for it
+                    //this.Bind(VBTextEditor.VBTextProperty, binding);
+                    //BindingOperations.ClearBinding(vbContentControl._XMLEditor, TreeView.ItemsSourceProperty);
+                    //XmlDataProvider provider = new XmlDataProvider();
+                    //provider.Document = e.NewValue as XmlDocument;
+                    //Binding binding = new Binding();
+                    //binding.Source = provider;
+                    //binding.XPath = "child::node()";
+                    //vbContentControl._XMLEditor.SetBinding(TreeView.ItemsSourceProperty, binding);
                 }
             }
         }
+
 
         /// <summary>
         /// Enables or disables auto focus.
@@ -358,27 +280,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
-        }
 
         private bool Enabled
         {
@@ -411,11 +312,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for the VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBXMLViewer));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBXMLViewer, string>(nameof(VBContent));
 
         /// <summary>
-        /// Represents the property where you enter the name of BSO's property, which holds the XML data.
+        /// Represents the property where you enter the name of BSO's property which contains XML content or path to file with XML content.
+        /// Set VBContentIsXML property to true if you set this property to XML content.
+        /// Set VBContentIsXML property to false if you set this property to file path with XML content.
         /// By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
         /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
@@ -423,8 +325,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
+            get => GetValue(VBContentProperty);
+            set => SetValue(VBContentProperty, value);
         }
 
         /// <summary>
@@ -483,39 +385,25 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaption.
+        /// Represents the styled property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBXMLViewer), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBXMLViewer, string>(Const.ACCaptionPrefix);
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
-            set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBXMLViewer control = d as VBXMLViewer;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBXMLViewer).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
+            get => GetValue(ACCaptionProperty);
+            set => SetValue(ACCaptionProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the styled property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBXMLViewer));
+        public static readonly StyledProperty<string> ACCaptionTransProperty =
+            AvaloniaProperty.Register<VBXMLViewer, string>(nameof(ACCaptionTrans));
 
         /// <summary>
         /// Gets or sets the ACCaption translation.
@@ -526,8 +414,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
-            set { SetValue(ACCaptionTransProperty, value); }
+            get => GetValue(ACCaptionTransProperty);
+            set => SetValue(ACCaptionTransProperty, value);
         }
 
         /// <summary>
@@ -636,20 +524,19 @@ namespace gip.core.layoutengine.avui
         #region Additional Dependency Properties
 
         #region ControlMode
-
         /// <summary>
-        /// Represents the dependency property for control mode.
+        /// Represents the styled property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBXMLViewer));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBXMLViewer, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
         /// </summary>
         public Global.ControlModes ControlMode
         {
-            get { return (Global.ControlModes)GetValue(ControlModeProperty); }
-            set { SetValue(ControlModeProperty, value); }
+            get => GetValue(ControlModeProperty);
+            set => SetValue(ControlModeProperty, value);
         }
         #endregion
         #endregion

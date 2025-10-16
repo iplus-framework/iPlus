@@ -1,0 +1,49 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <!-- Timeline item brushes-->
+  <LinearGradientBrush x:Key="GreenBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF5B5749" Offset="0"/>
+      <GradientStop Color="#FF849F50" Offset="0.370726"/>
+      <GradientStop Color="#FFAEE757" Offset="0.49569"/>
+      <GradientStop Color="#FF849F50" Offset="0.660818"/>
+      <GradientStop Color="#FF5B5749" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="OrangeBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#967706" Offset="0"/>
+      <GradientStop Color="#F1BF09" Offset="0.370726"/>
+      <GradientStop Color="#F1D77A" Offset="0.49569"/>
+      <GradientStop Color="#F1BF09" Offset="0.660818"/>
+      <GradientStop Color="#967706" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="BlueBrush" StartPoint="0.5,-2" EndPoint="0.5,3">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF41A9FF" Offset="0"/>
+      <GradientStop Color="#FF62B7FF" Offset="0.422414"/>
+      <GradientStop Color="#FF83C5FF" Offset="0.5"/>
+      <GradientStop Color="#FF66B5F8" Offset="0.594828"/>
+      <GradientStop Color="#FF49A5F1" Offset="0.99569"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="RedBrush"  StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
+    <LinearGradientBrush.GradientStops>
+      <GradientStop Color="#FF5B4A49" Offset="0"/>
+      <GradientStop Color="#FFE66457" Offset="0.335"/>
+      <GradientStop Color="Red" Offset="0.49569"/>
+      <GradientStop Color="#FFCD6960" Offset="0.660818"/>
+      <GradientStop Color="#FF5B4949" Offset="1"/>
+    </LinearGradientBrush.GradientStops>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="DarkGreenBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+    <GradientStop Color="#FF115B00" Offset="0.059"/>
+    <GradientStop Color="#FF115B00" Offset="0.933"/>
+    <GradientStop Color="#FF29E400" Offset="0.494"/>
+  </LinearGradientBrush>
+
+</ResourceDictionary>

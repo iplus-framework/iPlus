@@ -1,24 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel;
-using System.Windows.Markup;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using System.Reflection;
-using System.Collections;
-using System.Transactions;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.design.avui;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,53 +23,9 @@ namespace gip.core.layoutengine.avui
     /// Steuerelement zur Darstellung von Hierarchien. Beispiel für Positionsdatenvorlage mit Checkbox => BSOTC3Sync.cs, Design Explorer
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTreeView'}de{'VBTreeView'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBTreeView : TreeView, IVBContent, IVBSource, IACMenuBuilderWPFTree, IACObject
+    public partial class VBTreeView : TreeView, IVBContent, IVBSource, IACMenuBuilderWPFTree, IACObject
     {
         #region c'tors
-        string _DataSource;
-        string _DataShowColumns;
-        string _DataChilds = "Items";
-        bool _isRoot;
-        /// <summary>
-        /// Represents the list of a custom control styles.
-        /// </summary>
-        protected static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TreeViewStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTreeControl/Themes/TreeViewStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TreeViewStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTreeControl/Themes/TreeViewStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBTreeView()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTreeView), new FrameworkPropertyMetadata(typeof(VBTreeView)));
-        }
-
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBTreeView.
         /// </summary>
@@ -84,226 +34,40 @@ namespace gip.core.layoutengine.avui
             CheckBoxLevel = 0;
             ExpandLevel = 1;
             AutoLoad = true;
-            this.AddHandler(TreeView.MouseDownEvent, new MouseButtonEventHandler(VBTreeView_MouseButtonDown), true);
         }
 
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             this.Loaded += VBTreeView_Loaded;
             this.Unloaded += VBTreeView_Unloaded;
-            this.SourceUpdated += VBTreeView_SourceUpdated;
-            this.TargetUpdated += VBTreeView_TargetUpdated;
-            ActualizeTheme(true);
+            AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+            AddHandler(DragDrop.DragOverEvent, OnDragOver);
+            AddHandler(DragDrop.DropEvent, OnDrop);
+            AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
-        #endregion
-
-        #region Additional Dependcy-Properties
-        /// <summary>
-        /// Represents the dependency property for control mode.
-        /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBTreeView));
-
-        /// <summary>
-        /// Gets or sets the Control mode.
-        /// </summary>
-        public Global.ControlModes ControlMode
-        {
-            get
-            {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
-            }
-            set
-            {
-                SetValue(ControlModeProperty, value);
-            }
-        }
-
-        /// <summary>
-        /// Gets the container for item override.
-        /// </summary>
-        /// <returns>The new instance of VBTreeViewItem.</returns>
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
             return new VBTreeViewItem();
         }
-
-        /// <summary>
-        /// Determines is item overrides it's own container.
-        /// </summary>
-        /// <param name="item">The item to check.</param>
-        /// <returns>True if is override, otherwise false.</returns>
-        protected override bool IsItemItsOwnContainerOverride(object item)
-        {
-            //return item is VBTreeView;
-            return base.IsItemItsOwnContainerOverride(item);
-        }
         #endregion
 
-        /// <summary>
-        /// Represents the dependency property for ACCaption.
-        /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBTreeView), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
-
-        /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
-        /// <value>  Translated description</value>
-        [Category("VBControl")]
-        public string ACCaption
-        {
-            get { return (string)GetValue(ACCaptionProperty); }
-            set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBTreeView control = d as VBTreeView;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBTreeView).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
-        /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBTreeView));
-
-        /// <summary>
-        /// Gets or sets the ACCaption translation.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
-        /// </summary>
-        [Category("VBControl")]
-        public string ACCaptionTrans
-        {
-            get { return (string)GetValue(ACCaptionTransProperty); }
-            set { SetValue(ACCaptionTransProperty, value); }
-        }
-
-
-        /// <summary>
-        /// Represents the dependency property for ShowCaption.
-        /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBTreeView), new PropertyMetadata(true));
-        /// <summary>
-        /// Determines is control caption shown or not.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Legt fest, ob die Steuertitel angezeigt werden oder nicht.
-        /// </summary>
-        [Category("VBControl")]
-        public bool ShowCaption
-        {
-            get { return (bool)GetValue(ShowCaptionProperty); }
-            set { SetValue(ShowCaptionProperty, value); }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for TreeItemTemplate.
-        /// </summary>
-        public static readonly DependencyProperty TreeItemTemplateProperty
-            = DependencyProperty.Register("TreeItemTemplate", typeof(DataTemplate), typeof(VBTreeView));
-
-        /// <summary>
-        /// Gets or sets the data template for tree items in this control. 
-        /// </summary>
-        [Category("VBControl")]
-        public DataTemplate TreeItemTemplate
-        {
-            get { return (DataTemplate)GetValue(TreeItemTemplateProperty); }
-            set { SetValue(TreeItemTemplateProperty, value); }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for DisableContextMenu.
-        /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBTreeView), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
-        /// <summary>
-        /// Determines is context menu disabled or enabled.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Ermittelt ist das Kontextmenü deaktiviert oder aktiviert
-        /// </summary>
-        [Category("VBControl")]
-        [ACPropertyInfo(9999)]
-        public bool DisableContextMenu
-        {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
-            set { SetValue(DisableContextMenuProperty, value); }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for the VBTreeViewExpandMethod
-        /// </summary>
-        public static readonly DependencyProperty VBTreeViewExpandMethodProperty = DependencyProperty.Register("VBTreeViewExpandMethod", typeof(string), typeof(VBTreeViewItem));
-
-        /// <summary>
-        /// Represents the property where you enter the name of BSO's method, which will be invoked on OnVBTreeViewItemExpand event. It's used for VBTreeView lazy loading.
-        /// </summary>
-        [Category("VBControl")]
-        public string VBTreeViewExpandMethod
-        {
-            get { return (string)GetValue(VBTreeViewExpandMethodProperty); }
-            set { SetValue(VBTreeViewExpandMethodProperty, value); }
-        }
-
-        /// <summary>
-        /// Determines is tree view check(set tick) items to root when is child item checked.
-        /// </summary>
-        [Category("VBControl")]
-        public bool CheckToRoot
-        {
-            get { return (bool)GetValue(CheckToRootProperty); }
-            set { SetValue(CheckToRootProperty, value); }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for the CheckToRoot.
-        /// </summary>
-        public static readonly DependencyProperty CheckToRootProperty =
-            DependencyProperty.Register("CheckToRoot", typeof(bool), typeof(VBTreeView), new PropertyMetadata(false));
-        
 
         #region Loaded-Event
-
-        /// <summary>
-        /// Determines is control initialized or not.
-        /// </summary>
-        protected bool _Initialized = false;
 
         /// <summary>
         /// Initializes the VB control.
@@ -314,6 +78,9 @@ namespace gip.core.layoutengine.avui
                 return;
             if (String.IsNullOrEmpty(VBContent) || String.IsNullOrEmpty(VBSource))
                 return;
+
+            if (DisableContextMenu)
+                ContextFlyout = null;
 
             _Initialized = true;
             IACType dcACTypeInfo = null;
@@ -341,11 +108,11 @@ namespace gip.core.layoutengine.avui
 
             if (VBContent != null && VBContent != "")
             {
-                if (Visibility == Visibility.Visible)
+                if (IsVisible)
                 {
                     if (RightControlMode < Global.ControlModes.Disabled)
                     {
-                        Visibility = Visibility.Collapsed;
+                        IsVisible = false;
                     }
                     else
                     {
@@ -390,12 +157,10 @@ namespace gip.core.layoutengine.avui
             {
                 binding = new Binding();
                 binding.Source = dsSource;
-                binding.Path = new PropertyPath(dsPath);
+                binding.Path = dsPath;
             }
             binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
-            this.SetBinding(VBTreeView.TreeDataSourceProperty, binding);
+            this.Bind(VBTreeView.TreeDataSourceProperty, binding);
 
             IACType ciACTypeInfo = null;
             object ciSource = null;
@@ -405,23 +170,22 @@ namespace gip.core.layoutengine.avui
             {
                 Binding bindingChangeInfo = new Binding();
                 bindingChangeInfo.Source = ciSource;
-                bindingChangeInfo.Path = new PropertyPath(ciPath);
+                bindingChangeInfo.Path = ciPath;
                 bindingChangeInfo.Mode = BindingMode.OneWay;
-                this.SetBinding(VBTreeView.ChangeInfoProperty, bindingChangeInfo);
+                this.Bind(VBTreeView.ChangeInfoProperty, bindingChangeInfo);
             }
 
             if (BSOACComponent != null)
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBTreeView.ACCompInitStateProperty, binding);
+                Bind(VBTreeView.ACCompInitStateProperty, binding);
             }
 
         }
 
-        bool _Loaded = false;
         void VBTreeView_Loaded(object sender, RoutedEventArgs e)
         {
             InitVBControl();
@@ -430,10 +194,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null)
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, VBTreeView.TreeDataSourceProperty);
+                BindingExpressionBase boundedValue = BindingOperations.GetBindingExpressionBase(this, VBTreeView.TreeDataSourceProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -479,19 +243,17 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
+            RemoveHandler(DragDrop.DragEnterEvent, OnDragEnter);
+            RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
+            RemoveHandler(DragDrop.DropEvent, OnDrop);
+            RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
             this.Loaded -= VBTreeView_Loaded;
             this.Unloaded -= VBTreeView_Unloaded;
-            this.SourceUpdated -= VBTreeView_SourceUpdated;
-            this.TargetUpdated -= VBTreeView_TargetUpdated;
-            this.RemoveHandler(TreeView.MouseDownEvent, new MouseButtonEventHandler(VBTreeView_MouseButtonDown));
             foreach (TreeViewItem item in Items)
             {
                 DeInitVBTreeViewItem(item);
             }
-            BindingOperations.ClearBinding(this, VBTreeView.TreeDataSourceProperty);
-            BindingOperations.ClearBinding(this, VBTreeView.ChangeInfoProperty);
-            //BindingOperations.ClearBinding(this, VBTreeView.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBTreeView.ACCompInitStateProperty);
+
             this.ClearAllBindings();
             _VBContentPropertyInfo = null;
 
@@ -499,15 +261,206 @@ namespace gip.core.layoutengine.avui
             CurrentTargetVBDataObject = null;
         }
 
-
-        private void VBTreeView_TargetUpdated(object sender, DataTransferEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            UpdateControlMode();
-        }
+            base.OnPropertyChanged(change);
 
-        private void VBTreeView_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            UpdateControlMode();
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (!_Initialized)
+                    return;
+                ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+            }
+            else if (change.Property == ControlModeProperty)
+                UpdateControlMode();
+            else if (change.Property == TreeDataSourceProperty && change.NewValue != null && change.NewValue != change.OldValue)
+            {
+                FillTree(change.NewValue);
+            }
+            else if (change.Property == SelectedItemProperty && change.NewValue != change.OldValue)
+            {
+                if (SelectedItem != null)
+                {
+                    VBTreeViewItem vbTreeViewItem = SelectedItem as VBTreeViewItem;
+                    if (vbTreeViewItem == null)
+                        return;
+                    if (TreeValue != vbTreeViewItem)
+                    {
+                        TreeValue = vbTreeViewItem;
+                    }
+                }
+            }
+            else if (change.Property == TreeValueProperty)
+            {
+                if (String.IsNullOrEmpty(VBContent))
+                    return;
+                UpdateValue();
+            }
+            else if (change.Property == ChangeInfoProperty)
+            {
+                switch (ChangeInfo.ChangeCmd)
+                {
+                    case Const.CmdDeleteData:
+                        {
+                            VBTreeViewItem treeItem = (VBTreeViewItem)SelectedItem;
+                            if (treeItem != null)
+                            {
+                                if (treeItem.Parent is TreeView) // Root-Item
+                                {
+                                    TreeView treeView = (TreeView)treeItem.Parent;
+                                    treeView.Items.Remove(treeItem);
+                                }
+                                else
+                                {
+                                    VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
+                                    if (parentTreeItem != null)
+                                    {
+                                        if (treeItem.Parent is VBTreeViewItem)
+                                        {
+                                            VBTreeViewItem parentVBTreeViewItem = treeItem.Parent as VBTreeViewItem;
+                                            if (parentVBTreeViewItem.ContentACObject is IACContainerWithItems)
+                                                ((IACContainerWithItems)parentVBTreeViewItem.ContentACObject).Remove(treeItem.ContentACObject as IACContainerWithItems);
+                                        }
+                                        parentTreeItem.Items.Remove(treeItem);
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Const.CmdNewData:
+                        {
+                            VBTreeViewItem treeItem = (VBTreeViewItem)SelectedItem;
+                            if (treeItem != null)
+                            {
+                                if (treeItem.Parent is TreeView) // Root-Item
+                                {
+                                    TreeView treeView = (TreeView)treeItem.Parent;
+                                    if (ChangeInfo.ChangedObject != null)
+                                    {
+                                        VBTreeViewItem newTreeItem = CreateNewTreeItem(ChangeInfo.ChangedObject);
+                                        treeView.Items.Add(newTreeItem);
+                                        newTreeItem.IsSelected = true;
+                                        newTreeItem.BringIntoView();
+                                    }
+                                }
+                                else
+                                {
+                                    VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
+                                    if (parentTreeItem != null)
+                                    {
+                                        if (ChangeInfo.ChangedObject != null)
+                                        {
+                                            VBTreeViewItem newTreeItem = CreateNewTreeItem(ChangeInfo.ChangedObject);
+                                            parentTreeItem.Items.Add(newTreeItem);
+                                            newTreeItem.IsSelected = true;
+                                            newTreeItem.BringIntoView();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Const.CmdInsertData:
+                        {
+                            VBTreeViewItem treeItem = (VBTreeViewItem)SelectedItem;
+                            if (treeItem != null && treeItem.Parent is VBTreeViewItem)
+                            {
+                                VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
+                                if (parentTreeItem != null)
+                                {
+                                    // Suche der Position zum einfügen
+                                    for (int i = 0; i < parentTreeItem.Items.Count; i++)
+                                    {
+                                        if (parentTreeItem.Items[i] == treeItem)
+                                        {
+                                            if (ChangeInfo.ChangedObject != null)
+                                            {
+                                                VBTreeViewItem newTreeItem = CreateNewTreeItem(ChangeInfo.ChangedObject);
+                                                parentTreeItem.Items.Insert(i, newTreeItem);
+                                                newTreeItem.IsSelected = true;
+                                                newTreeItem.BringIntoView();
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Const.CmdAddChildData:
+                        {
+                            VBTreeViewItem treeItem = null;
+                            if (ChangeInfo.ParentObject != null)
+                            {
+                                treeItem = (VBTreeViewItem)FindItem(Items, ChangeInfo.ParentObject);
+                            }
+                            else
+                            {
+                                treeItem = (VBTreeViewItem)SelectedItem;
+                            }
+                            if (treeItem != null)
+                            {
+                                if (ChangeInfo.ChangedObject != null)
+                                {
+                                    VBTreeViewItem newTreeItem = FillChilds(treeItem.Items, ChangeInfo.ChangedObject, 1);
+                                    if (newTreeItem != null)
+                                    {
+                                        newTreeItem.IsSelected = true;
+                                        newTreeItem.BringIntoView();
+                                    }
+                                }
+                            }
+                        }
+                        break;
+                    case Const.CmdAddChildNoExpand:
+                        {
+                            VBTreeViewItem treeItem = null;
+                            if (ChangeInfo.ParentObject != null)
+                                treeItem = (VBTreeViewItem)FindItem(Items, ChangeInfo.ParentObject);
+                            else
+                                treeItem = (VBTreeViewItem)SelectedItem;
+
+                            if (treeItem != null)
+                                if (ChangeInfo.ChangedObject != null)
+                                {
+                                    VBTreeViewItem newTreeItem = FillChilds(treeItem.Items, ChangeInfo.ChangedObject, 1);
+                                }
+                        }
+                        break;
+                    case Const.CmdUpdateAllData:
+                        {
+                            VBTreeViewItem treeItem = null;
+                            if (ChangeInfo.ChangedObject != null)
+                            {
+                                treeItem = (VBTreeViewItem)FindItem(Items, ChangeInfo.ChangedObject);
+                            }
+                            else
+                            {
+                                treeItem = (VBTreeViewItem)SelectedItem;
+                            }
+                            if (treeItem != null)
+                            {
+                                treeItem.IsSelected = true;
+                                treeItem.BringIntoView();
+                            }
+                        }
+                        break;
+                    default:
+                        FillTree();
+                        break;
+                }
+            }
         }
 
         /// <summary>
@@ -522,23 +475,23 @@ namespace gip.core.layoutengine.avui
             if (item.Header != null && item.Header is VBTextBlock)
             {
                 VBTextBlock tb = item.Header as VBTextBlock;
-                BindingOperations.ClearBinding(tb, VBTextBlock.TextProperty);
+                tb.ClearAllBindings();
             }
             else if (item.Header != null && item.Header is Grid)
             {
                 Grid g = item.Header as Grid;
-                foreach (UIElement child in g.Children)
+                foreach (Control child in g.Children)
                 {
                     if (child is VBCheckBox)
                     {
                         VBCheckBox cb = child as VBCheckBox;
-                        BindingOperations.ClearBinding(cb, VBCheckBox.IsCheckedProperty);
+                        cb.ClearAllBindings();
                         cb.Click -= cb_Click;
                     }
                     else if (child is VBTextBlock)
                     {
                         VBTextBlock tb = child as VBTextBlock;
-                        BindingOperations.ClearBinding(tb, VBTextBlock.TextProperty);
+                        tb.ClearAllBindings();
                     }
                 }
             }
@@ -563,158 +516,16 @@ namespace gip.core.layoutengine.avui
         #region Event-Handling
         #endregion
 
-        #region IDataField Members
-
-        /// <summary>
-        /// Represents the dependency property for VBContent.
-        /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBTreeView));
-
-        /// <summary>
-        /// Represents the property where you enter the name of BSO's property which is in tree structure(example: ACClassInfoWithItems) to connect it with tree view.
-        /// By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
-        /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
-        /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
-        /// <value>Relative or absolute ACUrl</value>
-        [Category("VBControl")]
-        public string VBContent
-        {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
-        }
-
-        /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
-        /// <value>The Unique Identifier as string</value>
-        public string ACIdentifier
-        {
-            get
-            {
-                return Name;
-            }
-            set
-            {
-                Name = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the CheckBox level.
-        /// </summary>
-        [Category("VBControl")]
-        public int CheckBoxLevel
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Represents the dependeny property for ExpandLevel.
-        /// </summary>
-        public static readonly DependencyProperty ExpandLevelProperty
-            = DependencyProperty.Register("ExpandLevel", typeof(int), typeof(VBTreeView));
-
-        /// <summary>
-        /// Gets or sets the expand level. Determines to which level tree view will be pre-expanded.
-        /// </summary>
-        [Category("VBControl")]
-        public int ExpandLevel
-        {
-            get { return (int)GetValue(ExpandLevelProperty); }
-            set { SetValue(ExpandLevelProperty, value); }
-        }
-        #endregion
 
         #region IVBSource Members
-
-        /// <summary>
-        /// Represents the property where you enter the name of BSO's property which contains the root item of tree structure.
-        /// </summary>
-        [Category("VBControl")]
-        public string VBSource
-        {
-            get
-            {
-                return _DataSource;
-            }
-            set
-            {
-                _DataSource = value;
-            }
-        }
-
-        /// <summary>
-        /// Determines which column will be shown. (On example: ACCaption)
-        /// </summary>
-        [Category("VBControl")]
-        public string VBShowColumns
-        {
-            get
-            {
-                return _DataShowColumns;
-            }
-            set
-            {
-                _DataShowColumns = value;
-            }
-        }
-
-        /// <summary>
-        /// Determines which columns will be disabled.
-        /// </summary>
-        public string VBDisabledColumns
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the VBChilds.
-        /// </summary>
-        public string VBChilds
-        {
-            get
-            {
-                return _DataChilds;
-            }
-            set
-            {
-                _DataChilds = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the ACQueryDefinition.
-        /// </summary>
-        public ACQueryDefinition ACQueryDefinition
-        {
-            get;
-            set;
-        }
-
-        // TODO: 
-        /// <summary>
-        /// Gets or sets sort order.
-        /// </summary>
-        public string SortOrder
-        {
-            get;
-            set;
-        }
 
         private VBTreeViewItem CreateNewTreeItem(IACObject acObject)
         {
             VBTreeViewItem newTreeItem = new VBTreeViewItem(this, ContextACObject);
-            //newTreeItem.MouseRightButtonDown += new MouseButtonEventHandler(treeViewItem_MouseRightButtonDown);
             newTreeItem.ContentACObject = acObject;
             if (this.TreeItemTemplate != null)
             {
                 newTreeItem.DataContext = acObject;
-                //if (this.TreeItemTemplate is DataTemplate)
-                //{
-                //    VBVisualTreeHelper.FindChildObjectInVisualTree(newTreeItem, typeof(VBCheckBox));
-                //}
-                //newTreeItem.HeaderTemplate = this.TreeItemTemplate;
                 return newTreeItem;
             }
 
@@ -737,19 +548,10 @@ namespace gip.core.layoutengine.avui
             Binding binding = new Binding(dataPath.Last());
             binding.Source = bindingDataObject;
 
-            // Damir TODO: With Datatemplate
             if (!showCheckbox)
             {
-                //Grid g = new Grid();
-                //g.ColumnDefinitions.Add(new ColumnDefinition());
-
                 VBTextBlock tb = new VBTextBlock();
-                tb.SetBinding(VBTextBlock.TextProperty, binding);
-
-                //g.Children.Add(tb);
-
-                //ContentControl ctc = new ContentControl();
-                //ctc.Content = tb;
+                tb.Bind(VBTextBlock.TextProperty, binding);
                 newTreeItem.Header = tb;
             }
             if (showCheckbox)
@@ -766,29 +568,27 @@ namespace gip.core.layoutengine.avui
                     Binding bindingCheckbox = new Binding();
                     bindingCheckbox.Mode = BindingMode.TwoWay;
                     bindingCheckbox.Source = bindingDataObject;
-                    bindingCheckbox.Path = new PropertyPath(treeEntry.DataContentCheckBox);
-                    cb.SetBinding(VBCheckBox.IsCheckedProperty, bindingCheckbox);
+                    bindingCheckbox.Path = treeEntry.DataContentCheckBox;
+                    cb.Bind(VBCheckBox.IsCheckedProperty, bindingCheckbox);
 
                     Binding bindingEnabled = new Binding();
                     bindingEnabled.Mode = BindingMode.OneWay;
                     bindingEnabled.Source = bindingDataObject;
-                    bindingEnabled.Path = new PropertyPath("IsEnabled");
-                    cb.SetBinding(VBCheckBox.IsEnabledProperty, bindingEnabled);
+                    bindingEnabled.Path = nameof(VBCheckBox.IsEnabled);
+                    cb.Bind(VBCheckBox.IsEnabledProperty, bindingEnabled);
                     
                     cb.SetValue(Grid.RowProperty, 0);
                     cb.SetValue(Grid.ColumnProperty, 0);
-                    cb.Click += new RoutedEventHandler(cb_Click);
+                    cb.Click += cb_Click;
 
                     VBTextBlock tb = new VBTextBlock();
                     tb.SetValue(Grid.RowProperty, 0);
                     tb.SetValue(Grid.ColumnProperty, 1);
-                    tb.SetBinding(VBTextBlock.TextProperty, binding);
+                    tb.Bind(VBTextBlock.TextProperty, binding);
 
                     g.Children.Add(tb);
                     g.Children.Add(cb);
 
-                    //ContentControl ctc = new ContentControl();
-                    //ctc.Content = g;
                     newTreeItem.Header = g;
                 }
                 _isRoot = false;
@@ -796,28 +596,44 @@ namespace gip.core.layoutengine.avui
             return newTreeItem;
         }
 
+        public bool IsKeyDown(Key key)
+        {
+            return _pressedKeys.TryGetValue(key, out bool isPressed) && isPressed;
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            _pressedKeys[e.Key] = true;
+            base.OnKeyDown(e);
+        }
+
+        protected override void OnKeyUp(KeyEventArgs e)
+        {
+            _pressedKeys[e.Key] = false;
+            base.OnKeyUp(e);
+        }
+
         internal void cb_Click(object sender, RoutedEventArgs e)
         {
             CheckBox cb = (CheckBox)sender;
-            object o = VisualTreeHelper.GetParent(cb);
+            AvaloniaObject o = VisualTreeHelper.GetParent(cb);
             while (true)
             {
                 if (o is TreeViewItem)
                 {
                     break;
                 }
-                o = VisualTreeHelper.GetParent((DependencyObject)o);
+                o = VisualTreeHelper.GetParent(o);
             }
             VBTreeViewItem vbtvi = (VBTreeViewItem)o;
             vbtvi.IsSelected = true;
-            if (vbtvi.ContentACObject is IVBDataCheckbox && !Keyboard.IsKeyDown(Key.LeftCtrl))
+            if (vbtvi.ContentACObject is IVBDataCheckbox && !IsKeyDown(Key.LeftCtrl))
             {
                 checkChilds(vbtvi, (vbtvi.ContentACObject as IVBDataCheckbox).IsChecked);
                 if (CheckToRoot)
                     checkParents(vbtvi);
             }
             vbtvi.BringIntoView();
-            //ACObject.ValueChanged(VBContent + "_" + WithCheckbox);
         }
 
         private void checkParents(VBTreeViewItem vbtvi)
@@ -941,106 +757,6 @@ namespace gip.core.layoutengine.avui
 
         #region IDataContent Members
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
-        /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
-        /// </summary>
-        /// <value>The Data-Context as IACObject</value>
-        public IACObject ContextACObject
-        {
-            get
-            {
-                return DataContext as IACObject;
-            }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for BSOACComponent.
-        /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTreeView), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
-        /// <summary>
-        /// Gets or sets the BSOACComponent.
-        /// </summary>
-        public IACBSO BSOACComponent
-        {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
-        }
-
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBTreeView),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
-
-        /// <summary>
-        /// Represents the dependency property for ACCompInitState.
-        /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBTreeView),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        /// <summary>
-        /// Gets or sets the ACCompInitState.
-        /// </summary>
-        public ACInitState ACCompInitState
-        {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
-            set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBTreeView thisControl = dependencyObject as VBTreeView;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
-        }
-
-        /// <summary>
-        /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
-        /// </summary>
-        /// <value> A nullable list ob IACObjects.</value>
-        public IEnumerable<IACObject> ACContentList
-        {
-            get
-            {
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// Zielobjekt beim ACDropData
-        /// </summary>
-        IACInteractiveObject CurrentTargetVBDataObject
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
         /// ACAction is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event.
         /// </summary>
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
@@ -1063,82 +779,6 @@ namespace gip.core.layoutengine.avui
             return (ContextACObject as IACComponent).IsEnabledACActionToTarget(CurrentTargetVBDataObject, actionArgs);
         }
 
-        string _DblClick = "";
-        /// <summary>
-        /// Gets or sets the double click ACMethod name.
-        /// </summary>
-        public string DblClick
-        {
-            get
-            {
-                if (string.IsNullOrEmpty(_DblClick) && (BSOACComponent != null))
-                {
-                    var query = BSOACComponent.ACClassMethods.Where(c => c.InteractionVBContent == VBContent && c.SortIndex == (short)MISort.Load);
-                    if (query.Any())
-                    {
-                        return query.First().ACIdentifier;
-                    }
-                }
-                return _DblClick;
-            }
-            set
-            {
-                _DblClick = value;
-            }
-        }
-
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        /// <summary>
-        /// Determines is control enabled or disabled.
-        /// </summary>
-        public bool Enabled
-        {
-            get
-            {
-                return IsEnabled;
-            }
-            set
-            {
-                if (value == true)
-                {
-                    if (ContextACObject == null)
-                    {
-                        IsEnabled = true;
-                    }
-                    else
-                    {
-                        IsEnabled = RightControlMode >= Global.ControlModes.Enabled;
-                    }
-                }
-                else
-                {
-                    IsEnabled = false;
-                }
-                ControlModeChanged();
-            }
-        }
-
         /// <summary>
         /// Updates a control mode.
         /// </summary>
@@ -1150,35 +790,8 @@ namespace gip.core.layoutengine.avui
             Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
             Global.ControlModes controlMode = controlModeInfo.Mode;
             Enabled = controlMode >= Global.ControlModes.Enabled;
-            Visible = controlMode >= Global.ControlModes.Disabled;
+            IsVisible = controlMode >= Global.ControlModes.Disabled;
             RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(this, elementACComponent, false);
-        }
-
-        /// <summary>
-        /// Enables or disables auto focus.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Aktiviert oder deaktiviert den Autofokus.
-        /// </summary>
-        [Category("VBControl")]
-        public bool AutoFocus { get; set; }
-
-        /// <summary>
-        /// Gets or sets DragEnabled.
-        /// </summary>
-        [Category("VBControl")]
-        public DragMode DragEnabled { get; set; }
-
-        IACType _VBContentPropertyInfo = null;
-        /// <summary>
-        /// Gets the ACClassProperty which describes a bounded property by VBContent.
-        /// </summary>
-        public ACClassProperty VBContentPropertyInfo
-        {
-            get
-            {
-                return _VBContentPropertyInfo as ACClassProperty;
-            }
         }
 
         /// <summary>
@@ -1207,53 +820,13 @@ namespace gip.core.layoutengine.avui
                 ControlMode = Global.ControlModes.Disabled;
             }
         }
-
-        /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
-        /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBTreeView));
-        /// <summary>
-        /// Gets or sets the ACCaption translation.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
-        /// </summary>
-        [Category("VBControl")]
-        [Bindable(true)]
-        [ACPropertyInfo(9999)]
-        public string DisabledModes
-        {
-            get { return (string)GetValue(DisabledModesProperty); }
-            set { SetValue(DisabledModesProperty, value); }
-        }
         #endregion
 
-        #region IDataHandling Members
-        /// <summary>
-        /// Determines is auto load enabled or disabled.
-        /// </summary>
-        [Category("VBControl")]
-        public bool AutoLoad { get; set; }
-        #endregion
 
         #region private methods
 
-        /// <summary>
-        /// Handles the OnContextMenuOpening event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
-        {
-            if (DisableContextMenu)
-            {
-                e.Handled = true;
-                return;
-            }
-            base.OnContextMenuOpening(e);
-        }
 
-        internal void treeViewItem_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        internal void treeViewItem_MouseRightButtonDown(object sender, PointerReleasedEventArgs e)
         {
             if (DisableContextMenu)
             {
@@ -1277,7 +850,7 @@ namespace gip.core.layoutengine.avui
                     //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                     if (((TreeViewItem)sender).Parent is TreeView)
                         vbContextMenu.PlacementTarget = this;
-                    ContextMenu.IsOpen = true;
+                    ContextMenu.Open();
                 }
                 else
                 {
@@ -1287,32 +860,6 @@ namespace gip.core.layoutengine.avui
             }
             else
                 e.Handled = true;
-        }
-
-        /// <summary>
-        /// Represents the dependency property for TreeDataSource.
-        /// </summary>
-        public static readonly DependencyProperty TreeDataSourceProperty
-            = DependencyProperty.Register("TreeDataSource", typeof(object), typeof(VBTreeView), new PropertyMetadata(new PropertyChangedCallback(TreeDataSourceChanged)));
-
-        /// <summary>
-        /// Gets or sets the TreeDataSource.
-        /// </summary>
-        public object TreeDataSource
-        {
-            get
-            {
-                return GetValue(TreeDataSourceProperty);
-            }
-            set
-            {
-                SetValue(TreeDataSourceProperty, value);
-            }
-        }
-
-        private static void TreeDataSourceChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            ((VBTreeView)d).FillTree(e.NewValue);
         }
 
         private void FillTree()
@@ -1553,56 +1100,17 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        /// Invoked on OnSelectedItemChanged event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnSelectedItemChanged(RoutedPropertyChangedEventArgs<object> e)
-        {
-            base.OnSelectedItemChanged(e);
-            if (SelectedItem != null)
-            {
-                VBTreeViewItem vbTreeViewItem = SelectedItem as VBTreeViewItem;
-                if (vbTreeViewItem == null)
-                    return;
-                if (TreeValue != vbTreeViewItem)
-                {
-                    TreeValue = vbTreeViewItem;
-                }
-            }
-        }
-
         #endregion
 
         #region DragAndDrop
 
-        /// <summary>
-        /// Represents the dependency property for TreeItemClicked.
-        /// </summary>
-        public static readonly DependencyProperty TreeItemClickedProperty
-                = DependencyProperty.Register("TreeItemClicked", typeof(int), typeof(VBTreeView));
-
-        /// <summary>
-        /// Gets or sets the TreeItemClicked.
-        /// </summary>
-        public int TreeItemClicked
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            get
+            if (e.Properties.IsLeftButtonPressed 
+                && (DragEnabled == DragMode.Enabled || (e.KeyModifiers == KeyModifiers.Control && DragEnabled == DragMode.EnabledMove)))
             {
-                return (int)GetValue(TreeItemClickedProperty);
-            }
-            set
-            {
-                SetValue(TreeItemClickedProperty, value);
-            }
-        }
-
-        void VBTreeView_MouseButtonDown(object sender, PointerEventArgs e)
-        {
-            if (DragEnabled == DragMode.Enabled || (Keyboard.IsKeyDown(Key.LeftShift) && DragEnabled == DragMode.EnabledMove))
-            {
-                System.Windows.Controls.Primitives.Thumb thumb = e?.MouseDevice?.DirectlyOver as System.Windows.Controls.Primitives.Thumb;
-                if(thumb != null && thumb.TemplatedParent != null && thumb.TemplatedParent is System.Windows.Controls.Primitives.ScrollBar)
+                Thumb thumb = e.Source as Thumb;
+                if (thumb != null && thumb.TemplatedParent != null && thumb.TemplatedParent is ScrollBar)
                     return;
 
                 VBTreeViewItem vbTreeViewItem = SelectedItem as VBTreeViewItem;
@@ -1613,60 +1121,17 @@ namespace gip.core.layoutengine.avui
 
                     try
                     {
-                        VBDragDrop.VBDoDragDrop(e, vbTreeViewItem/*, acObject, ACComponent, new Point()*/);
+                        VBDragDrop.VBDoDragDrop(e, vbTreeViewItem);
                     }
                     catch (Exception) 
                     {
                     }
                 }
             }
+            base.OnPointerPressed(e);
+
         }
         #endregion
-
-        /// <summary>
-        /// Gets or sets the right control mode.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt den richtigen Kontrollmodus.
-        /// </summary>
-        [Category("VBControl")]
-        public Global.ControlModes RightControlMode
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Represents the dependency property for the TreeValue.
-        /// </summary>
-        public static readonly DependencyProperty TreeValueProperty
-                = DependencyProperty.Register("TreeValue", typeof(VBTreeViewItem), typeof(VBTreeView), new PropertyMetadata(new PropertyChangedCallback(ValueChanged)));
-
-        /// <summary>
-        /// Gets or sets the TreeValue.
-        /// </summary>
-        public VBTreeViewItem TreeValue
-        {
-            get
-            {
-                return GetValue(TreeValueProperty) as VBTreeViewItem;
-            }
-            set
-            {
-                SetValue(TreeValueProperty, value);
-            }
-        }
-
-        private static void ValueChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBTreeView)
-            {
-                VBTreeView vbTreecontrol = d as VBTreeView;
-                if (vbTreecontrol == null || String.IsNullOrEmpty(vbTreecontrol.VBContent))
-                    return;
-                vbTreecontrol.UpdateValue();
-            }
-        }
 
         private void UpdateValue(bool always = false)
         {
@@ -1710,237 +1175,50 @@ namespace gip.core.layoutengine.avui
             return null;
         }
 
-        /// <summary>
-        /// Gets or sets the ChangeInfo.
-        /// </summary>
-        public ChangeInfo ChangeInfo
-        {
-            get { return (ChangeInfo)GetValue(ChangeInfoProperty); }
-            set
-            {
-                SetValue(ChangeInfoProperty, value);
-            }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for the ChangeInfo.
-        /// </summary>
-        public static readonly DependencyProperty ChangeInfoProperty
-            = DependencyProperty.Register("ChangeInfo", typeof(ChangeInfo), typeof(VBTreeView), new PropertyMetadata(new PropertyChangedCallback(OnChangedChangeInfo)));
-
-        private static void OnChangedChangeInfo(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBTreeView)
-            {
-                VBTreeView vbTreecontrol = d as VBTreeView;
-                if (vbTreecontrol.ChangeInfo == null)
-                    return;
-
-                switch (vbTreecontrol.ChangeInfo.ChangeCmd)
-                {
-                    case Const.CmdDeleteData:
-                        {
-                            VBTreeViewItem treeItem = (VBTreeViewItem)vbTreecontrol.SelectedItem;
-                            if (treeItem != null)
-                            {
-                                if (treeItem.Parent is TreeView) // Root-Item
-                                {
-                                    TreeView treeView = (TreeView)treeItem.Parent;
-                                    treeView.Items.Remove(treeItem);
-                                }
-                                else
-                                {
-                                    VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
-                                    if (parentTreeItem != null)
-                                    {
-                                        if (treeItem.Parent is VBTreeViewItem)
-                                        {
-                                            VBTreeViewItem parentVBTreeViewItem = treeItem.Parent as VBTreeViewItem;
-                                            if (parentVBTreeViewItem.ContentACObject is IACContainerWithItems)
-                                                ((IACContainerWithItems)parentVBTreeViewItem.ContentACObject).Remove(treeItem.ContentACObject as IACContainerWithItems);
-                                        }
-                                        parentTreeItem.Items.Remove(treeItem);
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdNewData:
-                        {
-                            VBTreeViewItem treeItem = (VBTreeViewItem)vbTreecontrol.SelectedItem;
-                            if (treeItem != null)
-                            {
-                                if (treeItem.Parent is TreeView) // Root-Item
-                                {
-                                    TreeView treeView = (TreeView)treeItem.Parent;
-                                    if (vbTreecontrol.ChangeInfo.ChangedObject != null)
-                                    {
-                                        VBTreeViewItem newTreeItem = vbTreecontrol.CreateNewTreeItem(vbTreecontrol.ChangeInfo.ChangedObject);
-                                        treeView.Items.Add(newTreeItem);
-                                        newTreeItem.IsSelected = true;
-                                        newTreeItem.BringIntoView();
-                                    }
-                                }
-                                else
-                                {
-                                    VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
-                                    if (parentTreeItem != null)
-                                    {
-                                        if (vbTreecontrol.ChangeInfo.ChangedObject != null)
-                                        {
-                                            VBTreeViewItem newTreeItem = vbTreecontrol.CreateNewTreeItem(vbTreecontrol.ChangeInfo.ChangedObject);
-                                            parentTreeItem.Items.Add(newTreeItem);
-                                            newTreeItem.IsSelected = true;
-                                            newTreeItem.BringIntoView();
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdInsertData:
-                        {
-                            VBTreeViewItem treeItem = (VBTreeViewItem)vbTreecontrol.SelectedItem;
-                            if (treeItem != null && treeItem.Parent is VBTreeViewItem)
-                            {
-                                VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
-                                if (parentTreeItem != null)
-                                {
-                                    // Suche der Position zum einfügen
-                                    for (int i = 0; i < parentTreeItem.Items.Count; i++)
-                                    {
-                                        if (parentTreeItem.Items[i] == treeItem)
-                                        {
-                                            if (vbTreecontrol.ChangeInfo.ChangedObject != null)
-                                            {
-                                                VBTreeViewItem newTreeItem = vbTreecontrol.CreateNewTreeItem(vbTreecontrol.ChangeInfo.ChangedObject);
-                                                parentTreeItem.Items.Insert(i, newTreeItem);
-                                                newTreeItem.IsSelected = true;
-                                                newTreeItem.BringIntoView();
-                                            }
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdAddChildData:
-                        {
-                            VBTreeViewItem treeItem = null;
-                            if (vbTreecontrol.ChangeInfo.ParentObject != null)
-                            {
-                                treeItem = (VBTreeViewItem)vbTreecontrol.FindItem(vbTreecontrol.Items, vbTreecontrol.ChangeInfo.ParentObject);
-                            }
-                            else
-                            {
-                                treeItem = (VBTreeViewItem)vbTreecontrol.SelectedItem;
-                            }
-                            if (treeItem != null)
-                            {
-                                if (vbTreecontrol.ChangeInfo.ChangedObject != null)
-                                {
-                                    VBTreeViewItem newTreeItem = vbTreecontrol.FillChilds(treeItem.Items, vbTreecontrol.ChangeInfo.ChangedObject, 1);
-                                    if (newTreeItem != null)
-                                    {
-                                        newTreeItem.IsSelected = true;
-                                        newTreeItem.BringIntoView();
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdAddChildNoExpand:
-                        {
-                            VBTreeViewItem treeItem = null;
-                            if (vbTreecontrol.ChangeInfo.ParentObject != null)
-                                treeItem = (VBTreeViewItem)vbTreecontrol.FindItem(vbTreecontrol.Items, vbTreecontrol.ChangeInfo.ParentObject);
-                            else
-                                treeItem = (VBTreeViewItem)vbTreecontrol.SelectedItem;
-                            
-                            if (treeItem != null)
-                                if (vbTreecontrol.ChangeInfo.ChangedObject != null)
-                                {
-                                    VBTreeViewItem newTreeItem = vbTreecontrol.FillChilds(treeItem.Items, vbTreecontrol.ChangeInfo.ChangedObject, 1);
-                                }
-                        }
-                        break;
-                    case Const.CmdUpdateAllData:
-                        {
-                            VBTreeViewItem treeItem = null;
-                            if (vbTreecontrol.ChangeInfo.ChangedObject != null)
-                            {
-                                treeItem = (VBTreeViewItem)vbTreecontrol.FindItem(vbTreecontrol.Items, vbTreecontrol.ChangeInfo.ChangedObject);
-                            }
-                            else
-                            {
-                                treeItem = (VBTreeViewItem)vbTreecontrol.SelectedItem;
-                            }
-                            if (treeItem != null)
-                            {
-                                treeItem.IsSelected = true;
-                                treeItem.BringIntoView();
-                            }
-                        }
-                        break;
-                    default:
-                        vbTreecontrol.FillTree();
-                        break;
-                }
-            }
-        }
 
         #region DragAndDrop
         /// <summary>
         /// Handles the OnDragEnter event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnDragEnter(DragEventArgs e)
+        protected void OnDragEnter(DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
-#if DEBUG
-            System.Diagnostics.Debug.WriteLine(e.OriginalSource.ToString()); // as UIElement
-#endif
             HandleDragOver(this, e);
-            base.OnDragEnter(e);
         }
 
         /// <summary>
         /// Handles the OnDragLeave event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnDragLeave(DragEventArgs e)
+        protected void OnDragLeave(DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
             HandleDragOver(this, e);
-            base.OnDragLeave(e);
         }
 
         /// <summary>
         /// Handles the OnDragOver event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnDragOver(DragEventArgs e)
+        protected void OnDragOver(DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
             HandleDragOver(this, e);
-            base.OnDragOver(e);
         }
 
         /// <summary>
         /// Handles the OnDrop event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnDrop(DragEventArgs e)
+        protected void OnDrop(DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
             HandleDrop(this, e);
-            base.OnDrop(e);
         }
 
         /// <summary>
@@ -1968,16 +1246,16 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         public void HandleDragOver(object sender, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
 
-            switch (e.AllowedEffects)
+            switch (e.DragEffects)
             {
                 case DragDropEffects.Move: // Vorhandene Elemente verschieben
                     HandleDragOver_Move(sender, 0, 0, e);
@@ -1988,7 +1266,7 @@ namespace gip.core.layoutengine.avui
                     HandleDragOver_Copy(sender, 0, 0, e);
                     return;
                 default:
-                    e.Effects = DragDropEffects.None;
+                    e.DragEffects = DragDropEffects.None;
                     e.Handled = true;
                     return;
             }
@@ -1996,11 +1274,11 @@ namespace gip.core.layoutengine.avui
 
         private void HandleDragOver_Move(object sender, double x, double y, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -2009,7 +1287,7 @@ namespace gip.core.layoutengine.avui
             IACInteractiveObject dropObject = VBDragDrop.GetDropObject(e);
             if (dropObject == null || CurrentTargetVBDataObject == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -2017,22 +1295,22 @@ namespace gip.core.layoutengine.avui
             ACActionArgs actionArgs = new ACActionArgs(dropObject, x, y, Global.ElementActionType.Move);
             if (IsEnabledACAction(actionArgs))
             {
-                e.Effects = DragDropEffects.Move;
+                e.DragEffects = DragDropEffects.Move;
             }
             else
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
             }
             e.Handled = true;
         }
 
         private void HandleDragOver_Copy(object sender, double x, double y, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -2040,7 +1318,7 @@ namespace gip.core.layoutengine.avui
             IACInteractiveObject dropObject = VBDragDrop.GetDropObject(e);
             if (dropObject == null || CurrentTargetVBDataObject == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -2049,7 +1327,7 @@ namespace gip.core.layoutengine.avui
             // noch das BSO gefragt, ob das kopieren (einfügen) erlaubt ist
 
             Global.ElementActionType elementActionType = Global.ElementActionType.Drop;
-            if (Keyboard.IsKeyDown(Key.LeftShift) && DragEnabled == DragMode.EnabledMove)
+            if (IsKeyDown(Key.LeftShift) && DragEnabled == DragMode.EnabledMove)
             {
                 elementActionType = Global.ElementActionType.Move;
             }
@@ -2057,11 +1335,11 @@ namespace gip.core.layoutengine.avui
             ACActionArgs actionArgs = new ACActionArgs(dropObject, x, y, elementActionType);
             if (IsEnabledACAction(actionArgs))
             {
-                e.Effects = DragDropEffects.Copy;
+                e.DragEffects = DragDropEffects.Copy;
             }
             else
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
             }
             e.Handled = true;
         }
@@ -2073,11 +1351,11 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         public void HandleDrop(object sender, DragEventArgs e)
         {
-            UIElement uiElement = e.OriginalSource as UIElement;
+            Control uiElement = e.Source as Control;
 
             if (uiElement == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
@@ -2085,14 +1363,14 @@ namespace gip.core.layoutengine.avui
             IACInteractiveObject dropObject = VBDragDrop.GetDropObject(e);
             if (dropObject == null)
             {
-                e.Effects = DragDropEffects.None;
+                e.DragEffects = DragDropEffects.None;
                 e.Handled = true;
                 return;
             }
 
             Global.ElementActionType elementActionType = Global.ElementActionType.Drop;
 
-            if (e.KeyStates == DragDropKeyStates.ShiftKey && DragEnabled == DragMode.EnabledMove)
+            if (e.KeyModifiers == KeyModifiers.Shift && DragEnabled == DragMode.EnabledMove)
                 elementActionType = Global.ElementActionType.Move;
             switch (elementActionType)
             {
@@ -2111,53 +1389,27 @@ namespace gip.core.layoutengine.avui
                     }
                     return;
                 default:
-                    e.Effects = DragDropEffects.None;
+                    e.DragEffects = DragDropEffects.None;
                     return;
             }
         }
 
-        private VBTreeViewItem GetNearestContainer(UIElement element)
+        private VBTreeViewItem GetNearestContainer(Control element)
         {
             // Walk up the element tree to the nearest tree view item.
             TreeViewItem container = element as TreeViewItem;
             while ((container == null) && (element != null))
             {
-                element = VisualTreeHelper.GetParent(element) as UIElement;
+                element = VisualTreeHelper.GetParent(element) as Control;
                 container = element as TreeViewItem;
             }
 
             return container as VBTreeViewItem;
         }
 
-        //VBDataObjectTarget GetTargetVBDataObject(UIElement element)
-        //{
-        //    VBTreeViewItem vbTreeViewItem = GetNearestContainer(element);
-        //    if (vbTreeViewItem == null)
-        //        return null;
-
-        //    VBDataObjectTarget targetObject = new VBDataObjectTarget();
-
-        //    targetObject.VBControl      = vbTreeViewItem;
-        //    targetObject.ACComponent    = vbTreeViewItem.ACComponent;
-        //    targetObject.ACObject       = vbTreeViewItem.ACObject;
-        //    return targetObject;
-        //}
         #endregion
 
         #region IACObject
-        /// <summary>
-        /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
-        /// </summary>
-        /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
-        public IACType ACType
-        {
-            get
-            {
-                return this.ReflectACType();
-            }
-        }
-
-
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
         /// 1. get references to components,
@@ -2183,18 +1435,6 @@ namespace gip.core.layoutengine.avui
         public bool IsEnabledACUrlCommand(string acUrl, params Object[] acParameter)
         {
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
-        }
-
-        /// <summary>
-        /// Returns the parent object
-        /// </summary>
-        /// <value>Reference to the parent object</value>
-        public IACObject ParentACObject
-        {
-            get
-            {
-                return Parent as IACObject;
-            }
         }
         #endregion
 
@@ -2258,52 +1498,5 @@ namespace gip.core.layoutengine.avui
         }
 
         #endregion
-    }
-
-    /// <summary>
-    /// Represents the class for SortItem.
-    /// </summary>
-    class SortItem
-    {
-        /// <summary>
-        /// Creates a new instance of Sortitem.
-        /// </summary>
-        /// <param name="item">The item parameter.</param>
-        /// <param name="property">The name of property.</param>
-        public SortItem(IACObject item, string property)
-        {
-            Item = item;
-
-            object actItem = item;
-
-            string[] dataPath = property.Split('.');
-            // Wenn es Properties in untergeordneten Objekten sind, dann sind diese erst zu ermitteln
-            for (int i = 0; i < dataPath.Length - 1; i++)
-            {
-                string path = dataPath[i];
-                actItem = actItem.GetType().GetProperty(path).GetValue(actItem, null);
-            }
-
-            Property = (string)actItem.GetType().GetProperty(dataPath.Last()).GetValue(actItem, null);
-        }
-
-        /// <summary>
-        /// Gets or sets the Item.
-        /// </summary>
-        public IACObject Item
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Gets or sets the name of property.
-        /// </summary>
-        public string Property
-        {
-            get;
-            set;
-        }
-
     }
 }

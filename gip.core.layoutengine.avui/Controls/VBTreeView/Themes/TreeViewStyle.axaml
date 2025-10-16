@@ -1,0 +1,92 @@
+<ResourceDictionary
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+	<ControlTheme x:Key="{x:Type local:VBTreeView}" TargetType="local:VBTreeView">
+		<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabledGip}"/>
+		<Setter Property="Background" Value="{StaticResource TreeViewBgEnabledGip}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabledGip}"/>
+		<Setter Property="BorderThickness" Value="1,1,1,1"/>
+		<Setter Property="Padding" Value="1"/>
+		<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+		<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+		<Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+					<Grid.RowDefinitions>
+						<RowDefinition x:Name="RowCaption" Height="30"/>
+						<RowDefinition Height="*"/>
+					</Grid.RowDefinitions>
+					<local:VBTextBlock x:Name="PART_Caption" 
+									   Margin="0,0,0,0" 
+									   Grid.Row="0" 
+									   VerticalAlignment="Center" 
+									   Text="{TemplateBinding ACCaptionTrans}"/>
+					<Border Margin="0,5,0,0" 
+							x:Name="Bd" 
+							Grid.Row="1"
+							MinHeight="100" 
+							MinWidth="100"
+							CornerRadius="3"
+							BorderBrush="{TemplateBinding BorderBrush}"
+							BorderThickness="{TemplateBinding BorderThickness}"
+							Background="{TemplateBinding Background}">
+						<local:VBScrollViewer x:Name="_tv_scrollviewer_"
+									  HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+									  VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+									  IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
+									  AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}"
+									  BringIntoViewOnFocusChange="{TemplateBinding (ScrollViewer.BringIntoViewOnFocusChange)}">
+							<ItemsPresenter Name="PART_ItemsPresenter"
+											ItemsPanel="{TemplateBinding ItemsPanel}"
+											Margin="{TemplateBinding Padding}"/>
+						</local:VBScrollViewer>
+					</Border>
+				</Grid>
+			</ControlTemplate>
+		</Setter>
+		
+		<!-- ShowCaption = False -->
+		<Style Selector="^[ShowCaption=False] /template/ #PART_Caption">
+			<Setter Property="IsVisible" Value="False"/>
+		</Style>
+		<Style Selector="^[ShowCaption=False] /template/ Border#Bd">
+			<Setter Property="Margin" Value="0,0,0,0"/>
+		</Style>
+		
+		<!-- IsEnabled = false -->
+		<Style Selector="^:disabled">
+			<Setter Property="Background" Value="{StaticResource TreeViewBgDisabledGip}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgDisabledGip}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderDisabledGip}"/>
+		</Style>
+		
+		<!-- IsKeyboardFocusWithin = true -->
+		<Style Selector="^:focus-within /template/ Border#Bd">
+			<Setter Property="BorderThickness" Value="2,2,2,2"/>
+		</Style>
+		
+		<!-- ControlMode = Enabled -->
+		<Style Selector="^[ControlMode=Enabled]">
+			<Setter Property="Background" Value="{StaticResource TreeViewBgEnabledGip}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabledGip}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabledGip}"/>
+		</Style>
+		
+		<!-- ControlMode = EnabledRequired -->
+		<Style Selector="^[ControlMode=EnabledRequired]">
+			<Setter Property="Background" Value="{StaticResource TreeViewBgRequiredGip}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgRequiredGip}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderRequiredGip}"/>
+		</Style>
+		
+		<!-- ControlMode = EnabledWrong -->
+		<Style Selector="^[ControlMode=EnabledWrong]">
+			<Setter Property="Background" Value="{StaticResource TreeViewBgWrongGip}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgWrongGip}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderWrongGip}"/>
+		</Style>
+	</ControlTheme>
+</ResourceDictionary>

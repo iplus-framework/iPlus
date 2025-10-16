@@ -1,0 +1,44 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <Design.PreviewWith>
+    <Border Width="200"
+            Height="200">
+      <local:VBFlipView Width="100" Height="100">
+        <Border Background="AntiqueWhite">
+          <TextBlock Text="Content"
+                     Foreground="Black"
+                     FontSize="20"/>
+        </Border>
+        <Border Background="Green" >
+          <TextBlock>Label</TextBlock>
+        </Border>
+      </local:VBFlipView>
+    </Border>
+  </Design.PreviewWith>
+
+  <ControlTheme x:Key="{x:Type local:FlipViewItem}"
+                TargetType="local:FlipViewItem">
+    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter
+          Name="PART_ContentPresenter"
+          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+          Padding="{TemplateBinding Padding}"
+          HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+          VerticalAlignment="{TemplateBinding VerticalAlignment}"
+          Content="{TemplateBinding Content}"
+          ContentTemplate="{TemplateBinding ContentTemplate}"
+          FontFamily="{TemplateBinding FontFamily}"
+          FontSize="{TemplateBinding FontSize}"
+          FontWeight="{TemplateBinding FontWeight}" />
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

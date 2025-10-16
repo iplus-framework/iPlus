@@ -1,15 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
 using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -46,71 +49,35 @@ namespace gip.core.layoutengine.avui
     public class VBVisualGroup : HeaderedContentControl, IVBContent, IACMenuBuilderWPFTree, IACObject
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "VBVisualGroupStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBVisualGroup/Themes/VBVisualGroupStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "VBVisualGroupStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBVisualGroup/Themes/VBVisualGroupStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBVisualGroup()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBVisualGroup), new FrameworkPropertyMetadata(typeof(VBVisualGroup)));
-        }
-
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBVisualGroup.
         /// </summary>
-        public VBVisualGroup()
+        public VBVisualGroup() : base()
         {
             RightControlMode = Global.ControlModes.Enabled;
-            Loaded += new RoutedEventHandler(OnVBContentControl_Loaded);
+            Loaded += OnVBContentControl_Loaded;
+            Unloaded += VBVisualGroup_Unloaded;
+            DoubleTapped += VBVisualGroup_DoubleTapped;
             VBDesignBase.IsSelectableEnum isSelectable = VBDesignBase.GetIsSelectable(this);
             if (isSelectable == VBDesignBase.IsSelectableEnum.Unset)
                 VBDesignBase.SetIsSelectable(this, VBDesignBase.IsSelectableEnum.True);
         }
 
         /// <summary>
-        /// The event hander for Initialized event.
+        /// The event handler for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
 
             IsHitTestVisible = true;
             Focusable = true;
         }
 
         /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
+        /// Overrides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             IACObject acObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
             ContentACObject = acObject;
@@ -130,16 +97,16 @@ namespace gip.core.layoutengine.avui
                     {
                         var resource = Layoutgenerator.LoadResource(acClassDesign.XMLDesign, ContentACObject, BSOACComponent);
 
-                        if (this.TryFindResource(acClassDesign.ACIdentifier) == null)
+                        if (e.NameScope.Find(acClassDesign.ACIdentifier) == null)
                             this.Resources.MergedDictionaries.Add(resource);
 
                         styleName = acClassDesign.ACIdentifier;
                     }
-                    catch (Exception e)
+                    catch (Exception ex)
                     {
-                        string msg = e.Message;
-                        if (e.InnerException != null && e.InnerException.Message != null)
-                            msg += " Inner:" + e.InnerException.Message;
+                        string msg = ex.Message;
+                        if (ex.InnerException != null && ex.InnerException.Message != null)
+                            msg += " Inner:" + ex.InnerException.Message;
 
                         if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                             datamodel.Database.Root.Messages.LogException("VBVisualGroup", "OnApplyTemplate", msg);
@@ -147,29 +114,11 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            base.OnApplyTemplate();
-            if (!_themeApplied && !String.IsNullOrEmpty(styleName))
-                ActualizeTheme(false, styleName);
+            base.OnApplyTemplate(e);
             if (ParentACObject != null)
                 ContentACObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
             UpdateACClassDesign();
             InitVBControl();
-        }
-
-        /// <summary>
-        /// Actualizes the theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        /// <param name="styleName">The style name.</param>
-        public void ActualizeTheme(bool bInitializingCall, string styleName)
-        {
-            if (!string.IsNullOrEmpty(styleName))
-            {
-                var resource1 = this.TryFindResource(styleName);
-                this.Style = resource1 as Style;
-            }
-
-            //_themeApplied = ControlManager.ActualizeTheme(this, MyStyleInfoList, bInitializingCall, false, styleName);
         }
         #endregion
 
@@ -184,18 +133,6 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                //if (_LastElementACComponent != null)
-                //{
-                //    if (_LastElementACComponent != value && _LastElementACComponent.ReferencePoint != null)
-                //        _LastElementACComponent.ReferencePoint.Remove(this);
-                //    else
-                //        return;
-                //}
-                //_LastElementACComponent = value;
-                //if (_LastElementACComponent != null && _LastElementACComponent.ReferencePoint != null)
-                //{
-                //    _LastElementACComponent.ReferencePoint.Add(this);
-                //}
                 if (_LastElementACComponent != null && BSOACComponent != null)
                     BSOACComponent.RemoveWPFRef(GetHashCode());
 
@@ -216,7 +153,7 @@ namespace gip.core.layoutengine.avui
 
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
-        /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
+        /// It's needed that the Garbage-Collector can delete the object when it's removed from the Logical-Tree.
         /// Controls that implement this interface should bind itself to the InitState of the BSOACComponent.
         /// When the BSOACComponent stops and the property changes to Destructed- or DisposedToPool-State than this method should be called.
         /// </summary>
@@ -227,11 +164,12 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = false;
             Loaded -= OnVBContentControl_Loaded;
+            Unloaded -= VBVisualGroup_Unloaded;
+            DoubleTapped -= VBVisualGroup_DoubleTapped;
             _Initialized = false;
             _ACClassDesign = null;
             _ACObject = null;
             _VBContentPropertyInfo = null;
-            BindingOperations.ClearBinding(this, VBVisualGroup.ACCompInitStateProperty);
             this.ClearAllBindings();
 
             _PART_Canvas = null;
@@ -253,6 +191,15 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected bool _Initialized = false;
 
+        void VBVisualGroup_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (!_Initialized)
+                return;
+
+            if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
+                BSOACComponent.RemoveWPFRef(this.GetHashCode());
+        }
+
         /// <summary>
         /// Handles on loaded event and runs VBControl initialization.
         /// </summary>
@@ -270,6 +217,9 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized)
                 return;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             _Initialized = true;
 
             if (ParentACObject == null)
@@ -280,11 +230,13 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null)
             {
-                Binding binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBVisualGroup.ACCompInitStateProperty, binding);
+                var binding = new Binding
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBVisualGroup.ACCompInitStateProperty, binding);
             }
 
             IACObject acObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
@@ -307,7 +259,6 @@ namespace gip.core.layoutengine.avui
                     Enabled = true; // ParentACObject.GetControlModes(this) >= Global.ControlModes.Enabled;
                 }
             }
-            //FrameworkElement x = VBVisualTreeHelper.FindChildVBContentObjectInVisualTree((this.Parent as FrameworkElement).Parent as FrameworkElement, "HeaderGrid");
         }
 
         #endregion
@@ -387,24 +338,22 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public bool IsSelected
         {
-            get { return (bool)GetValue(IsSelectedProperty); }
+            get { return GetValue(IsSelectedProperty); }
             set { SetValue(IsSelectedProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for IsSelected.
+        /// Represents the styled property for IsSelected.
         /// </summary>
-        public static readonly DependencyProperty IsSelectedProperty =
-          DependencyProperty.Register("IsSelected",
-                                       typeof(bool),
-                                       typeof(VBVisualGroup),
-                                       new FrameworkPropertyMetadata(false));
-
+        public static readonly StyledProperty<bool> IsSelectedProperty =
+            AvaloniaProperty.Register<VBVisualGroup, bool>(nameof(IsSelected), false);
 
         /// <summary>
-        /// Represents the dependency property for DisableContextMenu.
+        /// Represents the attached property for DisableContextMenu.
         /// </summary>
-        public static readonly DependencyProperty DisableContextMenuProperty = ContentPropertyHandler.DisableContextMenuProperty.AddOwner(typeof(VBVisualGroup), new FrameworkPropertyMetadata((bool)false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
+            AvaloniaProperty.RegisterAttached<VBVisualGroup, Control, bool>("DisableContextMenu", false, true);
+
         /// <summary>
         /// Determines is context menu disabled or enabled.
         /// </summary>
@@ -415,7 +364,7 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool DisableContextMenu
         {
-            get { return (bool)GetValue(DisableContextMenuProperty); }
+            get { return GetValue(DisableContextMenuProperty); }
             set { SetValue(DisableContextMenuProperty, value); }
         }
 
@@ -424,10 +373,10 @@ namespace gip.core.layoutengine.avui
         #region IACInteractiveObject Member
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBVisualGroup));
+        public static readonly StyledProperty<string> VBContentProperty
+            = AvaloniaProperty.Register<VBVisualGroup, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -436,7 +385,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -471,57 +420,58 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                FrameworkElement parentFrameworkElement = this.Parent as FrameworkElement;
+                var parentFrameworkElement = this.Parent as Control;
                 return parentFrameworkElement != null ? parentFrameworkElement.DataContext as IACObject : null;
             }
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the attached property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBVisualGroup), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = AvaloniaProperty.RegisterAttached<VBVisualGroup, Control, IACBSO>(nameof(BSOACComponent), null, true);
+
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBVisualGroup),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBVisualGroup, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBVisualGroup thisControl = dependencyObject as VBVisualGroup;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
+            }
+            else if (change.Property == DataContextProperty)
+            {
+                IACObject acObject = ParentACObject?.ACUrlCommand(VBContent, null) as IACObject;
+                ContentACObject = acObject;
+                LoadDesign();
             }
         }
 
@@ -612,7 +562,7 @@ namespace gip.core.layoutengine.avui
         /// 4. start and stop Components,
         /// 5. and send messages to other components.
         /// </summary>
-        /// <param name="acUrl">String that adresses a command</param>
+        /// <param name="acUrl">String that addresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
         public object ACUrlCommand(string acUrl, params object[] acParameter)
@@ -719,13 +669,13 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        #region Dynamic XAML over Dependency-Property
+        #region Dynamic XAML over Styled-Property
 
         /// <summary>
-        /// Represents the dependency property for DataValue.
+        /// Represents the styled property for DataValue.
         /// </summary>
-        public static readonly DependencyProperty DataValueProperty
-            = DependencyProperty.Register("DataValue", typeof(object), typeof(VBVisualGroup), new PropertyMetadata(new PropertyChangedCallback(VBVisualNode_DataContextChanged)));
+        public static readonly StyledProperty<object> DataValueProperty
+            = AvaloniaProperty.Register<VBVisualGroup, object>(nameof(DataValue));
 
         /// <summary>
         /// Gets or sets data value.
@@ -733,46 +683,13 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         private object DataValue
         {
-            get { return (object)GetValue(DataValueProperty); }
+            get { return GetValue(DataValueProperty); }
             set { SetValue(DataValueProperty, value); }
         }
 
-        static void VBVisualNode_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            if (sender is VBVisualGroup)
-            {
-                VBVisualGroup vbVisual = sender as VBVisualGroup;
-                IACObject acObject = vbVisual.ParentACObject.ACUrlCommand(vbVisual.VBContent, null) as IACObject;
-                vbVisual.ContentACObject = acObject;
-
-                vbVisual.LoadDesign();
-            }
-        }
         #endregion
 
         #region private Members
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
         private bool Enabled
         {
             get
@@ -862,35 +779,28 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        #region Mouse-Events
+        #region Pointer-Events (converted from Mouse-Events)
         /// <summary>
-        /// Handles the OnMouseLeftButtonDown event.
+        /// Handles the OnPointerPressed event.
         /// </summary>
-        /// <param name="e">The MouseButtonEvent arguments.</param>
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        /// <param name="e">The PointerEventArgs.</param>
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            base.OnMouseLeftButtonDown(e);
-        }
-
-        /// <summary>
-        /// Handles the OnContextMenuOpening event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnContextMenuOpening(ContextMenuEventArgs e)
-        {
-            if (DisableContextMenu)
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
             {
-                e.Handled = true;
-                return;
+                base.OnPointerPressed(e);
             }
-            base.OnContextMenuOpening(e);
+            else if (e.GetCurrentPoint(this).Properties.IsRightButtonPressed)
+            {
+                OnPointerRightButtonDown(e);
+            }
         }
 
         /// <summary>
-        /// Handles the OnMouseRightButtonDown event.
+        /// Handles the OnPointerRightButtonDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseRightButtonDown(MouseButtonEventArgs e)
+        protected virtual void OnPointerRightButtonDown(PointerPressedEventArgs e)
         {
             if (DisableContextMenu)
             {
@@ -912,70 +822,69 @@ namespace gip.core.layoutengine.avui
             }
             Point point = e.GetPosition(this);
             ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            //BSOACComponent.ParentACComponent.ACAction(actionArgs);
             BSOACComponent.ACAction(actionArgs);
             if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
             {
                 VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
                 this.ContextMenu = vbContextMenu;
-                //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                 if (vbContextMenu.PlacementTarget == null)
                     vbContextMenu.PlacementTarget = this;
-                ContextMenu.IsOpen = true;
+                ContextMenu.Open(this);
                 e.Handled = true;
             }
-            base.OnMouseRightButtonDown(e);
         }
 
         bool internalTooltip = false;
         /// <summary>
-        /// Handles the OnMouseEnter event.
+        /// Handles the OnPointerEntered event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseEnter(MouseEventArgs e)
+        protected override void OnPointerEntered(PointerEventArgs e)
         {
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, FrameworkElement.ToolTipProperty);
-            if ((valueSource == null) || ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style)))
+            // In Avalonia, we check if tooltip is already set
+            if (ToolTip.GetTip(this) == null)
             {
                 internalTooltip = true;
                 if (ContentACObject != null)
                 {
-                    ToolTip = VBContent + "\n" + ContentACObject.ACCaption;
+                    ToolTip.SetTip(this, VBContent + "\n" + ContentACObject.ACCaption);
                 }
                 else
                 {
-                    ToolTip = VBContent;
+                    ToolTip.SetTip(this, VBContent);
                 }
             }
-            base.OnMouseEnter(e);
+            base.OnPointerEntered(e);
         }
 
         /// <summary>
-        /// Handles the OnMouseLeave event.
+        /// Handles the OnPointerExited event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnMouseLeave(MouseEventArgs e)
+        protected override void OnPointerExited(PointerEventArgs e)
         {
             if (internalTooltip)
-                ToolTip = null;
-            base.OnMouseLeave(e);
+            {
+                ToolTip.SetTip(this, null);
+                internalTooltip = false;
+            }
+            base.OnPointerExited(e);
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        private void VBVisualGroup_DoubleTapped(object sender, TappedEventArgs e)
         {
             VBVisualGroup vbVisualGroup = this.GetVBDesign()?.SelectedVBControl as VBVisualGroup;
             if (vbVisualGroup == null || vbVisualGroup != this)
             {
-                base.OnMouseDoubleClick(e);
                 return;
             }
 
             Point p = e.GetPosition(vbVisualGroup);
-            HitTestResult result = VisualTreeHelper.HitTest(vbVisualGroup, p);
+            // Note: Avalonia doesn't have HitTest in the same way as WPF
+            // We may need to implement this differently or check if it's available
 
-            if (result == null || vbVisualGroup.ContextACObject == null)
+            if (vbVisualGroup.ContextACObject == null)
             {
-                base.OnMouseDoubleClick(e);
                 return;
             }
 
@@ -1044,7 +953,7 @@ namespace gip.core.layoutengine.avui
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
         /// </summary>
-        /// <param name="rootACObject">Object for creating a realtive path to it</param>
+        /// <param name="rootACObject">Object for creating a relative path to it</param>
         /// <returns>ACUrl as string</returns>
         public string GetACUrl(IACObject rootACObject = null)
         {

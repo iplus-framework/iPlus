@@ -1,12 +1,13 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Media;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.core.datamodel;
-using System.Reflection;
-using System.Collections;
 using System.ComponentModel;
-using Avalonia.Controls;
+using System.Linq;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,9 +30,9 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
 
             // TODO: VBSource in VBDataGridACVAlueColumn setzbar
             // TODO: Control auch ohne VBDataGridACVAlueColumn verwenden
@@ -106,7 +107,7 @@ namespace gip.core.layoutengine.avui
 
                                         List<ACColumnItem> vbShowColumns = queryDef.GetACColumns("");
                                         ACColumnItem col = vbShowColumns.First();
-                                        comboBox.DisplayMemberPath = col.ACIdentifier;
+                                        comboBox.DisplayMemberBinding = new Binding(col.ACIdentifier);
                                         isComboBound = true;
                                     }
                                     else
@@ -115,10 +116,8 @@ namespace gip.core.layoutengine.avui
                                         Binding binding = new Binding();
                                         binding.Source = dsSource;
                                         if (!string.IsNullOrEmpty(dsPath))
-                                        {
-                                            binding.Path = new PropertyPath(dsPath);
-                                        }
-                                        comboBox.SetBinding(ComboBox.ItemsSourceProperty, binding);
+                                            binding.Path = dsPath;
+                                        comboBox.Bind(ComboBox.ItemsSourceProperty, binding);
                                         isComboBound = true;
                                     }
                                 }
@@ -130,16 +129,16 @@ namespace gip.core.layoutengine.avui
                 // Falls keine Quellenbeschreibung gefunden, dann suche in Klassenbeschreibung des Datentyps
                 if (String.IsNullOrEmpty(acSource) && (_ACValue.ValueTypeACClass != null))
                 {
-                     ACClass queryACClass = _ACValue.ValueTypeACClass.PrimaryNavigationquery();
-                     if (queryACClass != null)
-                     {
-                         IACEntityObjectContext database = null;
-                         ACQueryDefinition queryDef = this.Root().Queries.CreateQueryByClass(null, queryACClass, queryACClass.ACIdentifier, true);
-                         if (_ACValue.Value != null && _ACValue.Value is VBEntityObject)
-                             database = (_ACValue.Value as VBEntityObject).GetObjectContext();
-                         else
-                             database = _ACValue.ValueTypeACClass.Database;
-                         var result = database.ACSelect(queryDef);
+                    ACClass queryACClass = _ACValue.ValueTypeACClass.PrimaryNavigationquery();
+                    if (queryACClass != null)
+                    {
+                        IACEntityObjectContext database = null;
+                        ACQueryDefinition queryDef = this.Root().Queries.CreateQueryByClass(null, queryACClass, queryACClass.ACIdentifier, true);
+                        if (_ACValue.Value != null && _ACValue.Value is VBEntityObject)
+                            database = (_ACValue.Value as VBEntityObject).GetObjectContext();
+                        else
+                            database = _ACValue.ValueTypeACClass.Database;
+                        var result = database.ACSelect(queryDef);
                         System.Collections.ArrayList arrayList = new System.Collections.ArrayList();
                         foreach (object entry in result)
                         {
@@ -147,21 +146,21 @@ namespace gip.core.layoutengine.avui
                         }
                         comboBox.ItemsSource = arrayList;
 
-                         List<ACColumnItem> vbShowColumns = queryDef.GetACColumns("");
-                         ACColumnItem col = vbShowColumns.First();
-                         comboBox.DisplayMemberPath = col.ACIdentifier;
-                         isComboBound = true;
-                     }
+                        List<ACColumnItem> vbShowColumns = queryDef.GetACColumns("");
+                        ACColumnItem col = vbShowColumns.First();
+                        comboBox.DisplayMemberBinding = new Binding(col.ACIdentifier);
+                        isComboBound = true;
+                    }
                 }
 
                 if (isComboBound)
                 {
                     Binding binding2 = new Binding();
                     binding2.Source = _ACValue;
-                    binding2.Path = new PropertyPath(Const.Value);
+                    binding2.Path = Const.Value;
                     binding2.Mode = BindingMode.TwoWay;
                     //SetBinding(ComboBox.SelectedItemProperty, binding2);
-                    comboBox.SetBinding(ComboBox.SelectedValueProperty, binding2);
+                    comboBox.Bind(ComboBox.SelectedValueProperty, binding2);
                     comboBox.ShowCaption = false;
                     Content = comboBox;
                 }
@@ -171,9 +170,9 @@ namespace gip.core.layoutengine.avui
                     textBox.TextAlignment = TextAlignment;
                     Binding binding2 = new Binding();
                     binding2.Source = _ACValue;
-                    binding2.Path = new PropertyPath(Const.Value);
+                    binding2.Path = Const.Value;
                     binding2.Mode = BindingMode.TwoWay;
-                    textBox.SetBinding(VBTextBox.TextProperty, binding2);
+                    textBox.Bind(VBTextBox.TextProperty, binding2);
                     textBox.ShowCaption = false;
                     Content = textBox;
                 }
@@ -189,9 +188,9 @@ namespace gip.core.layoutengine.avui
                     VBDateTimePicker dateTimePicker = new VBDateTimePicker();
                     Binding binding2 = new Binding();
                     binding2.Source = _ACValue;
-                    binding2.Path = new PropertyPath(Const.Value);
+                    binding2.Path = Const.Value;
                     binding2.Mode = BindingMode.TwoWay;
-                    dateTimePicker.SetBinding(VBDateTimePicker.SelectedDateProperty, binding2);
+                    dateTimePicker.Bind(VBDateTimePicker.SelectedDateProperty, binding2);
                     dateTimePicker.ShowCaption = false;
                     Content = dateTimePicker;
                 }
@@ -200,9 +199,9 @@ namespace gip.core.layoutengine.avui
                     VBCheckBox checkBox = new VBCheckBox();
                     Binding binding2 = new Binding();
                     binding2.Source = _ACValue;
-                    binding2.Path = new PropertyPath(Const.Value);
+                    binding2.Path = Const.Value;
                     binding2.Mode = BindingMode.TwoWay;
-                    checkBox.SetBinding(VBCheckBox.IsCheckedProperty, binding2);
+                    checkBox.Bind(VBCheckBox.IsCheckedProperty, binding2);
                     checkBox.ShowCaption = false;
                     Content = checkBox;
                 }
@@ -212,7 +211,7 @@ namespace gip.core.layoutengine.avui
                     textBox.TextAlignment = TextAlignment;
                     Binding binding2 = new Binding();
                     binding2.Source = _ACValue;
-                    binding2.Path = new PropertyPath(Const.Value);
+                    binding2.Path = Const.Value;
                     if (fullType.IsValueType || (fullType.IsClass && typeof(String).IsAssignableFrom(fullType)))
                     {
                         binding2.Mode = BindingMode.TwoWay;
@@ -223,7 +222,7 @@ namespace gip.core.layoutengine.avui
                         binding2.Mode = BindingMode.OneWay;
                         textBox.IsEnabled = false;
                     }
-                    textBox.SetBinding(VBTextBox.TextProperty, binding2);
+                    textBox.Bind(VBTextBox.TextProperty, binding2);
                     textBox.ShowCaption = false;
                     Content = textBox;
                 }
@@ -248,9 +247,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for TextAlignment.
         /// </summary>
-        public static readonly DependencyProperty TextAlignmentProperty
-            = DependencyProperty.Register("TextAlignment", typeof(TextAlignment), typeof(VBValueEditor));
-
+        public static readonly StyledProperty<TextAlignment> TextAlignmentProperty = AvaloniaProperty.Register<VBValueEditor, TextAlignment>(nameof(TextAlignment));
         /// <summary>
         /// Gets or sets the TextAlignment.
         /// </summary>

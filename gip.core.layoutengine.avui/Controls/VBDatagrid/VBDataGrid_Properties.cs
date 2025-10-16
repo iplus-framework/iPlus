@@ -435,7 +435,7 @@ namespace gip.core.layoutengine.avui
         /// Represents the attached property for BSOACComponent.
         /// </summary>
         public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
-            AvaloniaProperty.RegisterAttached<VBDataGrid, Control, IACBSO>("BSOACComponent", inherits: true);
+            AvaloniaProperty.RegisterAttached<VBDataGrid, Control, IACBSO>(nameof(BSOACComponent), inherits: true);
 
         /// <summary>
         /// Gets or sets the BSOACComponent.

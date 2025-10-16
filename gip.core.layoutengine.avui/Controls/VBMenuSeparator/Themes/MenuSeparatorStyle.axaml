@@ -1,0 +1,19 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ControlTheme x:Key="{x:Type local:VBMenuSeparator}" TargetType="{x:Type local:VBMenuSeparator}">
+        <Setter Property="Height" Value="4" />
+        <Setter Property="Margin" Value="0,2,0,2" />
+        <Setter Property="Focusable" Value="false" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid Margin="0,0,0,0">
+                        <Rectangle Fill="#E0E0E0" Height="1" Margin="30,0,1,1" Stroke="DarkRed"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,0 +1,36 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+	<SolidColorBrush x:Key="TreeViewBgEnabledGip" Color="#FF1A1A1A"/>
+	<SolidColorBrush x:Key="TreeViewFgEnabledGip" Color="#FFFFFFFF"/>
+	<SolidColorBrush x:Key="TreeViewFgEnabledGipFocus" Color="#FFFFFFFF"/>
+	<RadialGradientBrush x:Key="TreeViewBorderEnabledGip" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%">
+		<GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+		<GradientStop Color="#FF666666" Offset="0.548"/>
+		<GradientStop Color="Black" Offset="1"/>
+	</RadialGradientBrush>
+	<SolidColorBrush x:Key="TreeViewBgDisabledGip" Color="{StaticResource ColorAppDark}"/>
+	<SolidColorBrush x:Key="TreeViewFgDisabledGip" Color="Silver"/>
+	<RadialGradientBrush x:Key="TreeViewBorderDisabledGip" Center="80%,80%" RadiusX="100%" GradientOrigin="70%,80%" RadiusY="80%">
+		<GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+		<GradientStop Color="#FF666666" Offset="0.548"/>
+		<GradientStop Color="Black" Offset="1"/>
+	</RadialGradientBrush>
+	<SolidColorBrush x:Key="TreeViewBgRequiredGip" Color="#FF1A1A1A"/>
+	<SolidColorBrush x:Key="TreeViewFgRequiredGip" Color="#FFFFFFFF"/>
+	<SolidColorBrush x:Key="TreeViewFgRequiredGipFocus" Color="Yellow"/>
+	<RadialGradientBrush x:Key="TreeViewBorderRequiredGip" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%">
+		<GradientStop Color="#FFFFEA00" Offset="0.116"/>
+		<GradientStop Color="#FFD1D261" Offset="0.3"/>
+		<GradientStop Color="Black" Offset="1"/>
+	</RadialGradientBrush>
+	<SolidColorBrush x:Key="TreeViewBgWrongGip" Color="#FF1A1A1A"/>
+	<SolidColorBrush x:Key="TreeViewFgWrongGip" Color="#FFFFFFFF"/>
+	<SolidColorBrush x:Key="TreeViewFgWrongGipFocus" Color="#FFFF0000"/>
+	<RadialGradientBrush x:Key="TreeViewBorderWrongGip" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%">
+		<GradientStop Color="#FFFF0004" Offset="0.1116"/>
+		<GradientStop Color="#FFE43D3D" Offset="0.3"/>
+		<GradientStop Color="#FF020101" Offset="1"/>
+	</RadialGradientBrush>
+</ResourceDictionary>

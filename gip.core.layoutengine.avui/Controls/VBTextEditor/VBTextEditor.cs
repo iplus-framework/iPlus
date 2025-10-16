@@ -214,7 +214,7 @@ namespace gip.core.layoutengine.avui
 
         protected FoldingManager foldingManager;
         protected XmlFoldingStrategy foldingStrategy;
-        protected virtual void ChangeSyntaxHighlighting()
+        internal virtual void ChangeSyntaxHighlighting()
         {
         }
 

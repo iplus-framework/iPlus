@@ -1,0 +1,23 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vb="clr-namespace:gip.core.layoutengine.avui">
+    <ControlTheme x:Key="{x:Type vb:VBVisual}" TargetType="{x:Type vb:VBVisual}">
+        <Setter Property="MinWidth" Value="10"/>
+        <Setter Property="MinHeight" Value="10"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>                    
+                    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                        <!-- PART_ContentPresenter -->
+                        <ContentPresenter x:Name="PART_ContentPresenter"
+                                          HorizontalAlignment="Stretch"
+                                          VerticalAlignment="Stretch"
+                                          Content="{TemplateBinding ContentControl.Content}"
+                                          Margin="{TemplateBinding ContentControl.Padding}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

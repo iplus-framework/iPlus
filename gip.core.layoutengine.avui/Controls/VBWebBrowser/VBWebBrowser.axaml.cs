@@ -1,21 +1,13 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Forms.Integration;
-using gip.core.datamodel;
-using System.Transactions;
-using System.IO;
 using System.ComponentModel;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -39,9 +31,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -56,7 +48,7 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = true;
 
-            //windowsWebBrowser.Source = new Uri("http://www.google.de");
+            //nativeWebView.Source = new Uri("http://www.google.de");
             //return;
             if (String.IsNullOrEmpty(VBContent))
                 return;
@@ -84,23 +76,21 @@ namespace gip.core.layoutengine.avui
 
             Binding binding = new Binding();
             binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
+            binding.Path = dcPath;
             binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
 
             if (VBContentIsXML)
-                this.SetBinding(VBWebBrowser.ContentXMLProperty, binding);
+                this.Bind(VBWebBrowser.ContentXMLProperty, binding);
             else
-                this.SetBinding(VBWebBrowser.ContentFileProperty, binding);
+                this.Bind(VBWebBrowser.ContentFileProperty, binding);
 
             if (BSOACComponent != null)
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBWebBrowser.ACCompInitStateProperty, binding);
+                Bind(VBWebBrowser.ACCompInitStateProperty, binding);
             }
         }
 
@@ -118,10 +108,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             _ACTypeInfo = null;
             
-            BindingOperations.ClearBinding(this, VBWebBrowser.ContentFileProperty);
-            BindingOperations.ClearBinding(this, VBWebBrowser.ContentXMLProperty);
-            BindingOperations.ClearBinding(this, VBWebBrowser.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBWebBrowser.ACCompInitStateProperty);
             this.ClearAllBindings();
             ContentFile = null;
         }
@@ -142,77 +128,42 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public string ContentFile
         {
-            get
-            {
-                return (string)GetValue(ContentFileProperty);
-            }
-            set
-            {
-                SetValue(ContentFileProperty, value);
-            }
+            get => GetValue(ContentFileProperty);
+            set => SetValue(ContentFileProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ContentFile.
+        /// Represents the styled property for ContentFile.
         /// </summary>
-        public static readonly DependencyProperty ContentFileProperty
-            = DependencyProperty.Register("ContentFile", typeof(string), typeof(VBWebBrowser), new PropertyMetadata(new PropertyChangedCallback(ContentFileChanged)));
-
-        private static void ContentFileChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBWebBrowser)
-            {
-                VBWebBrowser vbContentControl = d as VBWebBrowser;
-                vbContentControl.LoadFile();
-            }
-        }
+        public static readonly StyledProperty<string> ContentFileProperty =
+            AvaloniaProperty.Register<VBWebBrowser, string>(nameof(ContentFile));
 
         /// <summary>
         /// Gets or sets the XML content.
         /// </summary>
         public string ContentXML
         {
-            get
-            {
-                return (string)GetValue(ContentXMLProperty);
-            }
-            set
-            {
-                SetValue(ContentXMLProperty, value);
-            }
+            get => GetValue(ContentXMLProperty);
+            set => SetValue(ContentXMLProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ContentXML.
+        /// Represents the styled property for ContentXML.
         /// </summary>
-        public static readonly DependencyProperty ContentXMLProperty
-            = DependencyProperty.Register("ContentXML", typeof(string), typeof(VBWebBrowser), new PropertyMetadata(new PropertyChangedCallback(ContentXMLChanged)));
+        public static readonly StyledProperty<string> ContentXMLProperty =
+            AvaloniaProperty.Register<VBWebBrowser, string>(nameof(ContentXML));
 
-        private static void ContentXMLChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBWebBrowser)
-            {
-                VBWebBrowser vbContentControl = d as VBWebBrowser;
-                if (e.NewValue != null)
-                {
-                    //MemoryStream mStream = new MemoryStream(ASCIIEncoding.Default.GetBytes(e.NewValue as string));
-                    //vbContentControl.windowsWebBrowser.NavigateToStream(mStream);
-                    vbContentControl.windowsWebBrowser.NavigateToString(e.NewValue as string);
-                    //vbContentControl.windowsWebBrowser.Refresh();
-                }
-            }
-        }
 
         /// <summary>
         /// Loads the XML file.
         /// </summary>
-        public void LoadFile()
+        public virtual void LoadFile()
         {
             if (!string.IsNullOrEmpty(ContentFile))
             {
                 try
                 {
-                    windowsWebBrowser.Source = new Uri(ContentFile);
+                    nativeWebView.Source = new Uri(ContentFile);
                 }
                 catch (Exception e)
                 {
@@ -227,68 +178,78 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBWebBrowser), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBWebBrowser>();
+        
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
+            get => GetValue(BSOACComponentProperty);
+            set => SetValue(BSOACComponentProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACUrlCmdMessage.
+        /// Represents the styled property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage",
-                typeof(ACUrlCmdMessage), typeof(VBWebBrowser),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBWebBrowser, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-            set { SetValue(ACUrlCmdMessageProperty, value); }
+            get => GetValue(ACUrlCmdMessageProperty);
+            set => SetValue(ACUrlCmdMessageProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBWebBrowser),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBWebBrowser, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
-            set { SetValue(ACCompInitStateProperty, value); }
+            get => GetValue(ACCompInitStateProperty);
+            set => SetValue(ACCompInitStateProperty, value);
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBWebBrowser thisControl = dependencyObject as VBWebBrowser;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
+            }
+            else if (change.Property == ContentXMLProperty && change.NewValue != null)
+            {
+                nativeWebView.NavigateToString(change.NewValue as string);
+            }
+            else if (change.Property == ContentFileProperty)
+            {
+                LoadFile();
+            }
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (!_Initialized)
+                    return;
+                ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
             }
         }
 
@@ -352,28 +313,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
         private bool Enabled
         {
             get
@@ -403,10 +342,10 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBWebBrowser));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBWebBrowser, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property where you enter the name of BSO's property which contains XML content or path to file with XML content.
@@ -419,23 +358,23 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
+            get => GetValue(VBContentProperty);
+            set => SetValue(VBContentProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for VBContentIsXML.
+        /// Represents the styled property for VBContentIsXML.
         /// </summary>
-        public static readonly DependencyProperty VBContentIsXMLProperty
-            = DependencyProperty.Register("VBContentIsXML", typeof(bool), typeof(VBWebBrowser));
+        public static readonly StyledProperty<bool> VBContentIsXMLProperty =
+            AvaloniaProperty.Register<VBWebBrowser, bool>(nameof(VBContentIsXML));
 
         /// <summary>
         /// Determines is VBContent XML.
         /// </summary>
         public bool VBContentIsXML
         {
-            get { return (bool)GetValue(VBContentIsXMLProperty); }
-            set { SetValue(VBContentIsXMLProperty, value); }
+            get => GetValue(VBContentIsXMLProperty);
+            set => SetValue(VBContentIsXMLProperty, value);
         }
 
         /// <summary>
@@ -494,39 +433,25 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaption.
+        /// Represents the styled property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBWebBrowser), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBWebBrowser, string>(Const.ACCaptionPrefix);
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
-            set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBWebBrowser control = d as VBWebBrowser;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBWebBrowser).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
+            get => GetValue(ACCaptionProperty);
+            set => SetValue(ACCaptionProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the styled property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBWebBrowser));
+        public static readonly StyledProperty<string> ACCaptionTransProperty =
+            AvaloniaProperty.Register<VBWebBrowser, string>(nameof(ACCaptionTrans));
 
         /// <summary>
         /// Gets or sets the ACCaption translation.
@@ -537,8 +462,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
-            set { SetValue(ACCaptionTransProperty, value); }
+            get => GetValue(ACCaptionTransProperty);
+            set => SetValue(ACCaptionTransProperty, value);
         }
 
         /// <summary>
@@ -645,22 +570,22 @@ namespace gip.core.layoutengine.avui
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
 
-        #region Additional Dependency Properties
+        #region Additional Styled Properties
 
         #region ControlMode
         /// <summary>
-        /// Represents the dependency property for control mode.
+        /// Represents the styled property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBWebBrowser));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBWebBrowser, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
         /// </summary>
         public Global.ControlModes ControlMode
         {
-            get { return (Global.ControlModes)GetValue(ControlModeProperty); }
-            set { SetValue(ControlModeProperty, value); }
+            get => GetValue(ControlModeProperty);
+            set => SetValue(ControlModeProperty, value);
         }
         #endregion
         #endregion

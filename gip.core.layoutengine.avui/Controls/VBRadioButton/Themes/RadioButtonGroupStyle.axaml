@@ -1,0 +1,140 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+    <ItemsPanelTemplate x:Key="HorizontalRadioButtonItems">
+        <VirtualizingStackPanel 
+        Orientation="Horizontal" />
+    </ItemsPanelTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupStackScrollTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" IsVisible="{TemplateBinding ScrollViewerVisibility}">
+                <ItemsPresenter x:Name="PART_ItemsPresenter" 
+                               ItemsPanel="{StaticResource HorizontalRadioButtonItems}"/>
+            </ScrollViewer>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupStackTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ItemsPresenter x:Name="PART_ItemsPresenter" />
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupWrapScrollTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" IsVisible="{TemplateBinding ScrollViewerVisibility}">
+                <ItemsPresenter x:Name="PART_ItemsPresenter" />
+            </ScrollViewer>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupWrapTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ItemsPresenter x:Name="PART_ItemsPresenter" />
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupDockScrollTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" IsVisible="{TemplateBinding ScrollViewerVisibility}">
+                <ItemsPresenter x:Name="PART_ItemsPresenter" />
+            </ScrollViewer>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupDockTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ItemsPresenter x:Name="PART_ItemsPresenter" />
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupGridScrollTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ScrollViewer x:Name="Border" Focusable="false" IsVisible="{TemplateBinding ScrollViewerVisibility}">
+                <ItemsPresenter x:Name="PART_ItemsPresenter" />
+            </ScrollViewer>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="RadioButtonGroupGridTemplate" TargetType="local:VBRadioButtonGroup">
+        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+            <ItemsPresenter x:Name="PART_ItemsPresenter" />
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTheme x:Key="{x:Type local:VBRadioButtonGroup}" TargetType="local:VBRadioButtonGroup">
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+<!--        <Setter Property="VerticalAlignment" Value="Center"/>
+-->        <Setter Property="Template" Value="{StaticResource RadioButtonGroupStackScrollTemplate}" />
+
+        <!-- Template selection based on ItemsHostType and ScrollViewerVisibility -->
+        <Style Selector="^.stackpanel-noscroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupStackTemplate}"/>
+        </Style>
+
+        <Style Selector="^.wrappanel-noscroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupWrapTemplate}"/>
+        </Style>
+
+        <Style Selector="^.wrappanel-scroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupWrapScrollTemplate}"/>
+        </Style>
+
+        <Style Selector="^.dockpanel-noscroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupDockTemplate}"/>
+        </Style>
+
+        <Style Selector="^.dockpanel-scroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupDockScrollTemplate}"/>
+        </Style>
+
+        <Style Selector="^.grid-noscroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupGridTemplate}"/>
+        </Style>
+
+        <Style Selector="^.grid-scroll">
+            <Setter Property="Template" Value="{StaticResource RadioButtonGroupGridScrollTemplate}"/>
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type local:VBRadioButtonGroupItem}" TargetType="local:VBRadioButtonGroupItem">
+        <Setter Property="Margin" Value="0,0,10,2" />
+        <Setter Property="Template">
+            <ControlTemplate TargetType="local:VBRadioButtonGroupItem">
+                <Border BorderThickness="0" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <!-- Note: IsChecked is bound to IsSelected-->
+                    <local:VBRadioButton x:Name="radioButton"
+                        IsChecked="{TemplateBinding IsSelected}"
+                        Focusable="False" 
+                        IsHitTestVisible="False"
+                        PushButtonStyle="{TemplateBinding PushButtonStyle}" 
+                        MinWidth="{TemplateBinding MinWidth}" 
+                        MaxWidth="{TemplateBinding MaxWidth}"
+                        HorizontalAlignment="Stretch" 
+                        VerticalAlignment="Stretch">
+                        <ContentPresenter />
+                    </local:VBRadioButton>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+
+        <!-- Push button style margin -->
+        <Style Selector="^.pushbutton">
+            <Setter Property="Margin" Value="0,0,2,2"/>
+        </Style>
+
+        <!-- Mouse over handling -->
+        <Style Selector="^:pointerover /template/ local|VBRadioButton#radioButton">
+            <Setter Property="IsMouseOverParent" Value="True"/>
+        </Style>
+
+        <Style Selector="^:not(:pointerover) /template/ local|VBRadioButton#radioButton">
+            <Setter Property="IsMouseOverParent" Value="False"/>
+        </Style>
+    </ControlTheme>
+
+</ResourceDictionary>

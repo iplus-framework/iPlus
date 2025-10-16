@@ -1,23 +1,12 @@
+using Avalonia;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using Markdown.Avalonia;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Collections;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using System.Transactions;
-using MdXaml;
 
 namespace gip.core.layoutengine.avui
 {
@@ -31,67 +20,24 @@ namespace gip.core.layoutengine.avui
     public class VBMarkDownViewer : MarkdownScrollViewer, IVBContent, IACObject
     {
         #region c'tors
-
-        //private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> {
-        //    new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip,
-        //                                 styleName = "MarkDownViewerStyleGip",
-        //                                 styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBMarkDownViewer/Themes/MarkDownViewerStyleGip.xaml" },
-        //    new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero,
-        //                                 styleName = "MarkDownViewerStyleAero",
-        //                                 styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBMarkDownViewer/Themes/MarkDownViewerStyleAero.xaml" },
-        //};
-        ///// <summary>
-        ///// Gets the list of custom styles.
-        ///// </summary>
-        //public static List<CustomControlStyleInfo> StyleInfoList
-        //{
-        //    get
-        //    {
-        //        return _styleInfoList;
-        //    }
-        //}
-
         static VBMarkDownViewer()
         {
-            //DefaultStyleKeyProperty.OverrideMetadata(typeof(VBMarkDownViewer), new FrameworkPropertyMetadata(typeof(VBMarkDownViewer)));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBMarkDownViewer>();
         }
 
-        bool _themeApplied = false;
-        public VBMarkDownViewer()
+        public VBMarkDownViewer() : base()
         {
         }
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            base.OnInitialized();
             Loaded += VBMarkDownViewer_Loaded;
             Unloaded += VBMarkDownViewer_Unloaded;
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
             InitVBControl();
+
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            //_themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region IDataField Members
@@ -99,8 +45,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBMarkDownViewer));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBMarkDownViewer, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -162,7 +107,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBMarkDownViewer), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBMarkDownViewer>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -175,11 +120,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBMarkDownViewer),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBMarkDownViewer, ACInitState>(nameof(ACCompInitState));
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
@@ -189,23 +130,20 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBMarkDownViewer thisControl = dependencyObject as VBMarkDownViewer;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
+            base.OnPropertyChanged(change);
         }
 
         /// <summary>
@@ -236,28 +174,6 @@ namespace gip.core.layoutengine.avui
         public bool IsEnabledACAction(ACActionArgs actionArgs)
         {
             return false;
-        }
-
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
         }
 
         private bool Enabled
@@ -326,10 +242,8 @@ namespace gip.core.layoutengine.avui
                 if (!String.IsNullOrEmpty(VBContent))
                 {
                     binding = new Binding();
-                    binding.Path = new PropertyPath(VBContent);
-                    //binding.NotifyOnSourceUpdated = true;
-                    //binding.NotifyOnTargetUpdated = true;
-                    SetBinding(MarkdownScrollViewer.MarkdownProperty, binding);
+                    binding.Path = VBContent;
+                    this.Bind(MarkdownScrollViewer.MarkdownProperty, binding);
                 }
                 return;
             }
@@ -340,9 +254,7 @@ namespace gip.core.layoutengine.avui
 
             RightControlMode = Global.ControlModes.Disabled;
             if (RightControlMode < Global.ControlModes.Disabled)
-            {
-                Visibility = Visibility.Collapsed;
-            }
+                IsVisible = false;
 
             IACType dcACTypeInfo = null;
             object dcSource = null;
@@ -362,12 +274,12 @@ namespace gip.core.layoutengine.avui
                 {
                     binding = new Binding();
                     binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
+                    binding.Path = dcPath;
                     binding.Mode = BindingMode.OneWay;
                     //binding.NotifyOnSourceUpdated = true;
                     //binding.NotifyOnTargetUpdated = true;
                 }
-                BindingExpressionBase bExp = SetBinding(MarkdownScrollViewer.MarkdownProperty, binding);
+                BindingExpressionBase bExp = this.Bind(MarkdownScrollViewer.MarkdownProperty, binding);
                 if (refConverter != null)
                     refConverter.ParentBinding = bExp;
             }
@@ -380,9 +292,9 @@ namespace gip.core.layoutengine.avui
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBMarkDownViewer.ACCompInitStateProperty, binding);
+                this.Bind(VBMarkDownViewer.ACCompInitStateProperty, binding);
             }
         }
 
@@ -395,10 +307,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, MarkdownScrollViewer.MarkdownProperty);
+                BindingExpressionBase boundedValue = BindingOperations.GetBindingExpressionBase(this, MarkdownScrollViewer.MarkdownProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -445,9 +357,9 @@ namespace gip.core.layoutengine.avui
             //this.TargetUpdated -= VBMarkDownViewer_TargetUpdated;
             _VBContentPropertyInfo = null;
 
-            BindingOperations.ClearBinding(this, MarkdownScrollViewer.MarkdownProperty);
-            //BindingOperations.ClearBinding(this, VBMarkDownViewer.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBMarkDownViewer.ACCompInitStateProperty);
+            //BindingOperations.ClearBinding(this, MarkdownScrollViewer.MarkdownProperty);
+            ////BindingOperations.ClearBinding(this, VBMarkDownViewer.ACUrlCmdMessageProperty);
+            //BindingOperations.ClearBinding(this, VBMarkDownViewer.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -478,7 +390,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
+        public static readonly AttachedProperty<string> StringFormatProperty;
         /// <summary>
         /// Gets or sets the string format for the control.
         /// </summary>
@@ -520,21 +432,14 @@ namespace gip.core.layoutengine.avui
             if (controlMode != RightControlMode)
                 RightControlMode = controlMode;
 
-            if (controlMode == Global.ControlModes.Collapsed)
+            if (   controlMode == Global.ControlModes.Collapsed
+                || controlMode == Global.ControlModes.Hidden)
             {
-                if (this.Visibility != System.Windows.Visibility.Collapsed)
-                    this.Visibility = System.Windows.Visibility.Collapsed;
+                if (IsVisible)
+                    IsVisible = false;
             }
-            else if (controlMode == Global.ControlModes.Hidden)
-            {
-                if (this.Visibility != System.Windows.Visibility.Hidden)
-                    this.Visibility = System.Windows.Visibility.Hidden;
-            }
-            else
-            {
-                if (this.Visibility != System.Windows.Visibility.Visible)
-                    this.Visibility = System.Windows.Visibility.Visible;
-            }
+            else if (!IsVisible)
+                    IsVisible = true;
         }
 
         #region IACObject

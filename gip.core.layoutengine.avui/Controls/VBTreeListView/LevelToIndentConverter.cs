@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text;
 using System.Windows.Data;
 using System.Globalization;
-using System.Windows;
 
 namespace gip.core.layoutengine.avui
 {

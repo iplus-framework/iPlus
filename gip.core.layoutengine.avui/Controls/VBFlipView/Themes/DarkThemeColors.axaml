@@ -1,0 +1,18 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <SolidColorBrush x:Key="FlipViewNextPreviousButtonBorderBrushPressed" Color="Transparent" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousButtonBorderBrushPointerOver" Color="Transparent" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousButtonBorderBrush" Color="Transparent" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousArrowForegroundPressed" Color="Black" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousArrowForegroundPointerOver" Color="Black" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousArrowForeground" Color="Black" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousButtonBackground" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousButtonBackgroundPointerOver" Color="#33FFFFFF" />
+  <SolidColorBrush x:Key="FlipViewNextPreviousButtonBackgroundPressed" Color="#33FFFFFF" />
+  <Thickness x:Key="FlipViewButtonBorderThemeThickness">0</Thickness>
+
+
+</ResourceDictionary>

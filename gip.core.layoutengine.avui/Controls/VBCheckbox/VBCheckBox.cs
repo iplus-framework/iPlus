@@ -231,6 +231,9 @@ namespace gip.core.layoutengine.avui
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
             _Initialized = true;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             if (String.IsNullOrEmpty(VBContent))
             {
                 if (!string.IsNullOrEmpty(ACCaption) && ContextACObject != null)

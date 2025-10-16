@@ -1,75 +1,45 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using System.Globalization;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
+
 
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
-    /// Represents a <see cref="DateTime"/> up or down switch control.
+    /// Represents a <see cref="Int32"/> up or down switch control.
     /// </summary>
     /// <summary xml:lang="de">
-    /// Stellt ein <see cref="DateTime"/> Up- oder Down-Steuerelement dar.
+    /// Stellt ein <see cref="Int32"/> Up- oder Down-Steuerelement dar.
     /// </summary>
     public class VBNumericUpDown : UpDownBase, IVBContent, IACMenuBuilderWPFTree, IACObject
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "NumericUpDownStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBNumericUpDown/Themes/NumericUpDownStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "NumericUpDownStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBNumericUpDown/Themes/NumericUpDownStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
         static VBNumericUpDown()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBNumericUpDown), new FrameworkPropertyMetadata(typeof(VBNumericUpDown)));
-            ValueTypeProperty.OverrideMetadata(typeof(VBNumericUpDown), new FrameworkPropertyMetadata(typeof(Int32)));
+            // In Avalonia, we don't override metadata like in WPF
+            // ValueTypeProperty behavior is handled differently
         }
 
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBNumericUpDown.
         /// </summary>
-        public VBNumericUpDown()
+        public VBNumericUpDown() : base()
         {
         }
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            base.OnInitialized();
             InitVBControl();
             this.Loaded += VBNumericUpDown_Loaded;
+            this.Unloaded += VBNumericUpDown_Unloaded;
         }
 
         private void VBNumericUpDown_Loaded(object sender, RoutedEventArgs e)
@@ -77,33 +47,31 @@ namespace gip.core.layoutengine.avui
             InitVBControl();
         }
 
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
+        private void VBNumericUpDown_Unloaded(object sender, RoutedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            if (!_Initialized)
+                return;
+
+            if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
+                BSOACComponent.RemoveWPFRef(this.GetHashCode());
         }
 
         /// <summary>
-        /// Actualizes current theme.
+        /// Overrides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            base.OnApplyTemplate(e);
         }
 
         #region Properties
 
-        #region Dependency-Properties
+        #region Styled-Properties (converted from Dependency-Properties)
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBNumericUpDown));
+        public static readonly StyledProperty<string> VBContentProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -112,16 +80,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
-
         /// <summary>
-        /// Represents the dependency property for RightControlMode.
+        /// Represents the styled property for RightControlMode.
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty
-            = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBNumericUpDown), new PropertyMetadata());
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, Global.ControlModes>(nameof(RightControlMode));
 
         /// <summary>
         /// Gets or sets the right control mode.
@@ -134,15 +101,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
+            get { return GetValue(RightControlModeProperty); }
             set { SetValue(RightControlModeProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaption.
+        /// Represents the styled property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBNumericUpDown), new PropertyMetadata());
+        public static readonly StyledProperty<string> ACCaptionProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, string>(nameof(ACCaption));
+
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
@@ -150,15 +118,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the styled property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBNumericUpDown));
+        public static readonly StyledProperty<string> ACCaptionTransProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, string>(nameof(ACCaptionTrans));
+
         /// <summary>
         /// Gets or sets the ACCaption translation.
         /// </summary>
@@ -170,15 +139,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
+            get { return GetValue(ACCaptionTransProperty); }
             set { SetValue(ACCaptionTransProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ShowCaption.
+        /// Represents the styled property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBNumericUpDown), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaptionProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, bool>(nameof(ShowCaption), true);
+
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -190,14 +160,8 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public bool ShowCaption
         {
-            get
-            {
-                return (bool)GetValue(ShowCaptionProperty);
-            }
-            set
-            {
-                SetValue(ShowCaptionProperty, value);
-            }
+            get { return GetValue(ShowCaptionProperty); }
+            set { SetValue(ShowCaptionProperty, value); }
         }
 
         public VBTextBox TextBoxVB
@@ -210,10 +174,11 @@ namespace gip.core.layoutengine.avui
 
         #region Layout
         /// <summary>
-        /// Represents the dependency property for WidthCaption.
+        /// Represents the styled property for WidthCaption.
         /// </summary>
-        public static readonly DependencyProperty WidthCaptionProperty
-            = DependencyProperty.Register("WidthCaption", typeof(GridLength), typeof(VBNumericUpDown), new PropertyMetadata(new GridLength(15, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthCaptionProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, GridLength>(nameof(WidthCaption), new GridLength(15, GridUnitType.Star));
+
         /// <summary>
         /// Gets or sets the width of caption.
         /// </summary>
@@ -225,15 +190,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthCaption
         {
-            get { return (GridLength)GetValue(WidthCaptionProperty); }
+            get { return GetValue(WidthCaptionProperty); }
             set { SetValue(WidthCaptionProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for WidthCaptionMax.
+        /// Represents the styled property for WidthCaptionMax.
         /// </summary>
-        public static readonly DependencyProperty WidthCaptionMaxProperty
-            = DependencyProperty.Register("WidthCaptionMax", typeof(double), typeof(VBNumericUpDown), new PropertyMetadata((double)150));
+        public static readonly StyledProperty<double> WidthCaptionMaxProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, double>(nameof(WidthCaptionMax), 150.0);
+
         /// <summary>
         /// Gets or sets the maximum width of caption.
         /// </summary>
@@ -245,15 +211,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthCaptionMax
         {
-            get { return (double)GetValue(WidthCaptionMaxProperty); }
+            get { return GetValue(WidthCaptionMaxProperty); }
             set { SetValue(WidthCaptionMaxProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for WidthContent.
+        /// Represents the styled property for WidthContent.
         /// </summary>
-        public static readonly DependencyProperty WidthContentProperty
-            = DependencyProperty.Register("WidthContent", typeof(GridLength), typeof(VBNumericUpDown), new PropertyMetadata(new GridLength(20, GridUnitType.Star)));
+        public static readonly StyledProperty<GridLength> WidthContentProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, GridLength>(nameof(WidthContent), new GridLength(20, GridUnitType.Star));
+
         /// <summary>
         /// Gets or sets the width of content.
         /// </summary>
@@ -265,15 +232,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthContent
         {
-            get { return (GridLength)GetValue(WidthContentProperty); }
+            get { return GetValue(WidthContentProperty); }
             set { SetValue(WidthContentProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for WidthContentMax.
+        /// Represents the styled property for WidthContentMax.
         /// </summary>
-        public static readonly DependencyProperty WidthContentMaxProperty
-            = DependencyProperty.Register("WidthContentMax", typeof(double), typeof(VBNumericUpDown), new PropertyMetadata(Double.PositiveInfinity));
+        public static readonly StyledProperty<double> WidthContentMaxProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, double>(nameof(WidthContentMax), Double.PositiveInfinity);
+
         /// <summary>
         /// Gets or sets the maximum width of content.
         /// </summary>
@@ -282,16 +250,16 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public double WidthContentMax
         {
-            get { return (double)GetValue(WidthContentMaxProperty); }
+            get { return GetValue(WidthContentMaxProperty); }
             set { SetValue(WidthContentMaxProperty, value); }
         }
 
-
         /// <summary>
-        /// Represents the dependency property for WidthPadding.
+        /// Represents the styled property for WidthPadding.
         /// </summary>
-        public static readonly DependencyProperty WidthPaddingProperty
-            = DependencyProperty.Register("WidthPadding", typeof(GridLength), typeof(VBNumericUpDown), new PropertyMetadata(new GridLength(0)));
+        public static readonly StyledProperty<GridLength> WidthPaddingProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, GridLength>(nameof(WidthPadding), new GridLength(0));
+
         /// <summary>
         /// Gets or sets the width of padding.
         /// </summary>
@@ -300,34 +268,49 @@ namespace gip.core.layoutengine.avui
         [ACPropertyInfo(9999)]
         public GridLength WidthPadding
         {
-            get { return (GridLength)GetValue(WidthPaddingProperty); }
+            get { return GetValue(WidthPaddingProperty); }
             set { SetValue(WidthPaddingProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the styled property for DisabledModes.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBNumericUpDown));
+        public static readonly StyledProperty<string> DisabledModesProperty
+            = AvaloniaProperty.Register<VBNumericUpDown, string>(nameof(DisabledModes));
+
         /// <summary>
-        /// Gets or sets the ACCaption translation.
+        /// Gets or sets the disabled modes.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die deaktivierten Modi.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
+        }
+
+        /// <summary>
+        /// Represents the attached property for BSOACComponent.
+        /// </summary>
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            AvaloniaProperty.RegisterAttached<VBNumericUpDown, Control, IACBSO>(nameof(BSOACComponent), null, true);
+
+        /// <summary>
+        /// Gets or sets the BSOACComponent.
+        /// </summary>
+        public IACBSO BSOACComponent
+        {
+            get { return GetValue(BSOACComponentProperty); }
+            set { SetValue(BSOACComponentProperty, value); }
         }
 
         #endregion
 
         #endregion
-
 
         #region IVBContent
 
@@ -335,7 +318,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return TextBoxVB.VBContentPropertyInfo;
+                return TextBoxVB?.VBContentPropertyInfo;
             }
         }
 
@@ -348,7 +331,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return TextBoxVB.ContextACObject;
+                return TextBoxVB?.ContextACObject;
             }
         }
 
@@ -374,7 +357,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return TextBoxVB.ACType;
+                return TextBoxVB?.ACType;
             }
         }
 
@@ -386,7 +369,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return TextBoxVB.ACContentList;
+                return TextBoxVB?.ACContentList;
             }
         }
 
@@ -398,10 +381,9 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return TextBoxVB.ParentACObject;
+                return TextBoxVB?.ParentACObject;
             }
         }
-
 
         #endregion //FormatString
 
@@ -419,29 +401,45 @@ namespace gip.core.layoutengine.avui
             if (_Initialized || DataContext == null || TextBoxVB == null || String.IsNullOrEmpty(VBContent))
                 return;
             _Initialized = true;
-            Binding tbBinding = BindingOperations.GetBinding(TextBoxVB, TextBox.TextProperty);
-            if (tbBinding != null)
+
+            IACType dcACTypeInfo = null;
+            object dcSource = null;
+            string dcPath = "";
+            Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
+
+            if (!ContextACObject.ACUrlBinding(VBContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
             {
-                Binding newBinding = new Binding();
-                newBinding.Source = tbBinding.Source;
-                newBinding.Path = tbBinding.Path;
-                newBinding.Mode = BindingMode.TwoWay;
-                SetBinding(InputBase.ValueProperty, newBinding);
+                this.Root().Messages.LogDebug("Error00003", "VBNumericUpDown", VBContent);
+                return;
             }
+
+            var newBinding = new Binding
+            {
+                Source = dcSource,
+                Path = dcPath,
+                Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay
+            };
+            this.Bind(ValueProperty, newBinding);
         }
         #endregion
 
         #region IVBContent
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
-        /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
+        /// It's needed that the Garbage-Collector can delete the object when it's removed from the Logical-Tree.
         /// Controls that implement this interface should bind itself to the InitState of the BSOACComponent.
         /// When the BSOACComponent stops and the property changes to Destructed- or DisposedToPool-State than this method should be called.
         /// </summary>
         /// <param name="bso">The bound BSOACComponent</param>
         public void DeInitVBControl(IACComponent bso)
         {
-            TextBoxVB.DeInitVBControl(bso);
+            if (!_Initialized)
+                return;
+            _Initialized = false;
+            Loaded -= VBNumericUpDown_Loaded;
+            Unloaded -= VBNumericUpDown_Unloaded;
+            TextBoxVB?.DeInitVBControl(bso);
+            this.ClearAllBindings();
         }
 
         /// <summary>
@@ -450,7 +448,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
         public void ACAction(ACActionArgs actionArgs)
         {
-            TextBoxVB.ACAction(actionArgs);
+            TextBoxVB?.ACAction(actionArgs);
         }
 
         /// <summary>
@@ -460,7 +458,7 @@ namespace gip.core.layoutengine.avui
         /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
         public bool IsEnabledACAction(ACActionArgs actionArgs)
         {
-            return TextBoxVB.IsEnabledACAction(actionArgs);
+            return TextBoxVB?.IsEnabledACAction(actionArgs) ?? false;
         }
 
         /// <summary>
@@ -471,34 +469,34 @@ namespace gip.core.layoutengine.avui
         /// 4. start and stop Components,
         /// 5. and send messages to other components.
         /// </summary>
-        /// <param name="acUrl">String that adresses a command</param>
+        /// <param name="acUrl">String that addresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
-            return TextBoxVB.ACUrlCommand(acUrl, acParameter);
+            return TextBoxVB?.ACUrlCommand(acUrl, acParameter);
         }
 
         /// <summary>
         /// This method is called before ACUrlCommand if a method-command was encoded in the ACUrl
         /// </summary>
-        /// <param name="acUrl">String that adresses a command</param>
+        /// <param name="acUrl">String that addresses a command</param>
         /// <param name="acParameter">Parameters if a method should be invoked</param>
         /// <returns>true if ACUrlCommand can be invoked</returns>
         public bool IsEnabledACUrlCommand(string acUrl, params object[] acParameter)
         {
-            return TextBoxVB.IsEnabledACUrlCommand(acUrl, acParameter);
+            return TextBoxVB?.IsEnabledACUrlCommand(acUrl, acParameter) ?? false;
         }
 
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
         /// If the passed object is null then the absolute path is returned
         /// </summary>
-        /// <param name="rootACObject">Object for creating a realtive path to it</param>
+        /// <param name="rootACObject">Object for creating a relative path to it</param>
         /// <returns>ACUrl as string</returns>
         public string GetACUrl(IACObject rootACObject = null)
         {
-            return TextBoxVB.GetACUrl(rootACObject);
+            return TextBoxVB?.GetACUrl(rootACObject) ?? ACIdentifier;
         }
 
         /// <summary>
@@ -512,7 +510,7 @@ namespace gip.core.layoutengine.avui
         /// <returns><c>true</c> if binding could resolved for the passed ACUrl<c>false</c> otherwise</returns>
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
-            return TextBoxVB.ACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode);
+            return TextBoxVB?.ACUrlBinding(acUrl, ref acTypeInfo, ref source, ref path, ref rightControlMode) ?? false;
         }
 
         public bool ACUrlTypeInfo(string acUrl, ref ACUrlTypeInfo acUrlTypeInfo)
@@ -522,16 +520,15 @@ namespace gip.core.layoutengine.avui
 
         public void AppendMenu(string vbContent, string vbControl, ref ACMenuItemList acMenuItemList)
         {
-            TextBoxVB.AppendMenu(vbContent, vbControl, ref acMenuItemList);
+            TextBoxVB?.AppendMenu(vbContent, vbControl, ref acMenuItemList);
         }
 
         public ACMenuItemList GetMenu(string vbContent, string vbControl)
         {
-            return TextBoxVB.GetMenu(vbContent, vbControl);
+            return TextBoxVB?.GetMenu(vbContent, vbControl);
         }
 
         #endregion //Private
-
 
         #region Abstract UpDownBase
 
@@ -565,7 +562,7 @@ namespace gip.core.layoutengine.avui
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("VBNumericUpDown", "ConvertTextToValue", msg);
 
-                return DateTime.MinValue;
+                return Int32.MinValue; // Fixed: was returning DateTime.MinValue, should be Int32.MinValue
             }
         }
 
@@ -585,10 +582,8 @@ namespace gip.core.layoutengine.avui
             Value = newVal;
         }
 
-
         #endregion //Abstract
 
         #endregion //Methods
-
     }
 }

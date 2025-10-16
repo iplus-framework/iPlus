@@ -1,40 +1,82 @@
 <ResourceDictionary
-   xmlns="https://github.com/avaloniaui"
-   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-  <ControlTheme x:Key="{x:Type local:VBContextMenu}" TargetType="local:VBContextMenu">
-    <Setter Property="Grid.IsSharedSizeScope" Value="true"/>
-    <Setter Property="HasDropShadow" Value="True"/>
-    <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
-    <Setter Property="Template">
-      <ControlTemplate TargetType="local:VBContextMenu">
-        <Border Name="Shdw" BoxShadow="2 5 10 0 #71000000">
-          <Border Name="Border" Background="{StaticResource SubMenuBackgroundBrush}" BorderBrush="#FF959595" BorderThickness="1">
-            <StackPanel>
-              <StackPanel.RenderTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="0.01" ScaleY="0.01"/>
-                  <ScaleTransform ScaleX="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}"
-                                  ScaleY="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}"/>
-                </TransformGroup>
-              </StackPanel.RenderTransform>
-              <ItemsPresenter/>
-            </StackPanel>
-          </Border>
-        </Border>
-      </ControlTemplate>
-    </Setter>
+<!--	<ControlTheme x:Key="{x:Type local:VBContextMenu}" TargetType="local:VBContextMenu">
+		<Setter Property="Grid.IsSharedSizeScope" Value="true"/>
+		<Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
+		<Setter Property="Template">
+			<ControlTemplate TargetType="local:VBContextMenu">
+				<Border Name="Shdw" BoxShadow="2 5 10 0 #71000000">
+					<Border Name="Border" Background="{StaticResource SubMenuBackgroundBrush}" BorderBrush="#FF959595" BorderThickness="1">
+						<StackPanel>
+							<StackPanel.RenderTransform>
+								<TransformGroup>
+									<ScaleTransform ScaleX="0.01" ScaleY="0.01"/>
+									<ScaleTransform ScaleX="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}"
+													ScaleY="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}"/>
+								</TransformGroup>
+							</StackPanel.RenderTransform>
+							<ItemsPresenter/>
+						</StackPanel>
+					</Border>
+				</Border>
+			</ControlTemplate>
+		</Setter>
 
-    <!-- HasDropShadow = True -->
-    <Style Selector="^[HasDropShadow=True] /template/ Border#Border">
-      <Setter Property="Padding" Value="0,3,0,3"/>
-      <Setter Property="CornerRadius" Value="6"/>
-    </Style>
+		--><!-- HasDropShadow = True --><!--
+		<Style Selector="^[HasDropShadow=True] /template/ Border#Border">
+			<Setter Property="Padding" Value="0,3,0,3"/>
+			<Setter Property="CornerRadius" Value="6"/>
+		</Style>
 
-    <Style Selector="^[HasDropShadow=True] /template/ Border#Shdw">
-      <Setter Property="Margin" Value="0,0,5,5"/>
-    </Style>
-  </ControlTheme>
+		<Style Selector="^[HasDropShadow=True] /template/ Border#Shdw">
+			<Setter Property="Margin" Value="0,0,5,5"/>
+		</Style>
+	</ControlTheme>-->
+
+	<Thickness x:Key="MenuFlyoutScrollerMargin">0,4,0,4</Thickness>
+
+	<ControlTheme x:Key="{x:Type local:VBContextMenu}" TargetType="local:VBContextMenu">
+		<Setter Property="Background" Value="{StaticResource SubMenuBackgroundBrush}" />
+		<Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
+<!--		<Setter Property="BorderBrush" Value="{DynamicResource MenuFlyoutPresenterBorderBrush}" />
+		<Setter Property="BorderThickness" Value="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}" />
+		<Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+-->		<Setter Property="Focusable" Value="True" />
+<!--		<Setter Property="MaxWidth" Value="{DynamicResource FlyoutThemeMaxWidth}" />
+		<Setter Property="MinHeight" Value="{DynamicResource MenuFlyoutThemeMinHeight}" />
+		<Setter Property="Padding" Value="{DynamicResource MenuFlyoutPresenterThemePadding}" />-->
+		<Setter Property="HorizontalAlignment" Value="Stretch" />
+		<Setter Property="WindowManagerAddShadowHint" Value="False" />
+		<Setter Property="Template">
+			<ControlTemplate>
+				<Border Background="{TemplateBinding Background}"
+						BorderBrush="{TemplateBinding BorderBrush}"
+						BorderThickness="{TemplateBinding BorderThickness}"
+						Padding="{TemplateBinding Padding}"
+						MaxWidth="{TemplateBinding MaxWidth}"
+						MinHeight="{TemplateBinding MinHeight}"
+						HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+						CornerRadius="{TemplateBinding CornerRadius}">
+					<LayoutTransformControl>
+						<LayoutTransformControl.LayoutTransform>
+							<ScaleTransform ScaleX="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}" ScaleY="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}" />
+						</LayoutTransformControl.LayoutTransform>
+
+						<ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
+							<ItemsPresenter Name="PART_ItemsPresenter"
+											ItemsPanel="{TemplateBinding ItemsPanel}"
+											Margin="{StaticResource MenuFlyoutScrollerMargin}"
+											KeyboardNavigation.TabNavigation="Continue"
+											Grid.IsSharedSizeScope="True" />
+						</ScrollViewer>
+					</LayoutTransformControl>
+				</Border>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+
 
 </ResourceDictionary>

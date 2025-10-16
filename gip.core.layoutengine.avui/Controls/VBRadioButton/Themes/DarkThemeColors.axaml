@@ -1,0 +1,89 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+    <SolidColorBrush x:Key="RadioButtonBgEnabled" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="RadioButtonFgEnabled" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RadioButtonFgEnabledFocus" Color="#FFFFFFFF"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonEnabledCheckBorder" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonEnabledCheckFill" Color="#FF770000"/>
+
+    <SolidColorBrush x:Key="RadioButtonBgDisabled" Color="{StaticResource ColorAppDark}"/>
+    <SolidColorBrush x:Key="RadioButtonFgDisabled" Color="Silver"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonDisabledCheckBorder" Color="Silver"/>
+    <SolidColorBrush x:Key="RadioButtonDisabledCheckFill" Color="#FF999999"/>
+
+    <SolidColorBrush x:Key="RadioButtonBgRequired" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="RadioButtonFgRequired" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RadioButtonFgRequiredFocus" Color="Yellow"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFFEA00" Offset="0.116"/>
+        <GradientStop Color="#FFD1D261" Offset="0.3"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonRequiredCheckBorder" Color="Yellow"/>
+    <SolidColorBrush x:Key="RadioButtonRequiredCheckFill" Color="#FFADAD00"/>
+
+    <SolidColorBrush x:Key="RadioButtonBgWrong" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="RadioButtonFgWrong" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="RadioButtonFgWrongFocus" Color="#FFFF0000"/>
+    <RadialGradientBrush x:Key="RadioButtonBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFF0004" Offset="0.1116"/>
+        <GradientStop Color="#FFE43D3D" Offset="0.3"/>
+        <GradientStop Color="#FF020101" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonWrongCheckBorder" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonWrongCheckFill" Color="#FF770000"/>
+
+    <SolidColorBrush x:Key="RadioButtonFillNormal" Color="#F4F4F4"/>
+    <SolidColorBrush x:Key="RadioButtonStroke" Color="#8E8F8F"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressNormalBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF424242" Offset="0"/>
+        <GradientStop Color="#FE828282" Offset="0.2"/>
+        <GradientStop Color="#FF929292" Offset="0.8"/>
+        <GradientStop Color="#FFB2B2B2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressNormalContentStroke" Color="#202020"/>
+    <SolidColorBrush x:Key="RadioButtonPressNormalContentFill" Color="#404040"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressDisabledBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF131313" Offset="0"/>
+        <GradientStop Color="#FE333333" Offset="0.2"/>
+        <GradientStop Color="#FF333333" Offset="0.8"/>
+        <GradientStop Color="#FF535353" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressDisabledContentStroke" Color="#404040"/>
+    <SolidColorBrush x:Key="RadioButtonPressDisabledContentFill" Color="#404040"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressFocusBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
+        <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+        <GradientStop Color="#FFF2F2F2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressFocusContentStroke" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonPressFocusContentFill" Color="#FF700000"/>
+
+    <LinearGradientBrush x:Key="RadioButtonPressPressedBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
+        <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
+        <GradientStop Color="#FFF2F2F2" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="RadioButtonPressPressedContentStroke" Color="#FFFF0000"/>
+    <SolidColorBrush x:Key="RadioButtonPressPressedContentFill" Color="#FFA00000"/>
+    <SolidColorBrush x:Key="RadioButtonFocusBorder" Color="#FF939393"/>
+
+</ResourceDictionary>

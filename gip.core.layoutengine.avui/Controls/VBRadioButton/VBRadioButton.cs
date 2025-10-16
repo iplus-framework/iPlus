@@ -2,24 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
-    /// Represents a button that can be selected with click on it, but deselected only by clicked on a another <see cref="VBRadioButton"/>.
+    /// Represents a button that can be selected with click on it, but deselected only by clicked on another <see cref="VBRadioButton"/>.
     /// </summary>
     /// <summary xml:lang="de">
     /// Stellt eine Schaltfläche dar, die durch Anklicken ausgewählt werden kann, aber nur durch Anklicken eines anderen <see cref="VBRadioButton"/> deaktiviert wird.
@@ -27,33 +21,7 @@ namespace gip.core.layoutengine.avui
     public class VBRadioButton : RadioButton, IVBDynamicIcon
     {
         #region c'tors
-
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> {
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip,
-                                         styleName = "RadioButtonStyleGip",
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero,
-                                         styleName = "RadioButtonStyleAero",
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBRadioButton()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBRadioButton), new FrameworkPropertyMetadata(typeof(VBRadioButton)));
-        }
-
-        bool _themeApplied = false;
-        public VBRadioButton()
+        public VBRadioButton() : base()
         {
         }
 
@@ -61,24 +29,18 @@ namespace gip.core.layoutengine.avui
 
         #region Init
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            base.OnInitialized();
+            InitVBControl();
         }
 
         /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
+        /// Overrides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -89,30 +51,22 @@ namespace gip.core.layoutengine.avui
             if (_isInitialized)
                 return;
 
-            if (!string.IsNullOrEmpty(ACCaption))
+            if (!string.IsNullOrEmpty(ACaption))
                 this.Content = Translator.GetTranslation(null, ACCaption, this.Root().Environment.VBLanguageCode);
 
+            UpdatePushButtonClass();
             _isInitialized = true;
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
         }
 
         #endregion
 
-        #region Dependency properties
+        #region Styled Properties (converted from Dependency Properties)
 
         /// <summary>
-        /// Represents the dependency property for ContentStroke.
+        /// Represents the styled property for ContentStroke.
         /// </summary>
-        public static readonly DependencyProperty ContentStrokeProperty
-            = DependencyProperty.Register("ContentStroke", typeof(Brush), typeof(VBRadioButton));
+        public static readonly StyledProperty<IBrush> ContentStrokeProperty
+            = AvaloniaProperty.Register<VBRadioButton, IBrush>(nameof(ContentStroke));
 
         /// <summary>
         /// Gets or sets the stroke of content.
@@ -121,17 +75,17 @@ namespace gip.core.layoutengine.avui
         /// Liest oder setzt den Strich des Inhalts.
         /// </summary>
         [Category("VBControl")]
-        public Brush ContentStroke
+        public IBrush ContentStroke
         {
-            get { return (Brush)GetValue(ContentStrokeProperty); }
+            get { return GetValue(ContentStrokeProperty); }
             set { SetValue(ContentStrokeProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ContentFill.
+        /// Represents the styled property for ContentFill.
         /// </summary>
-        public static readonly DependencyProperty ContentFillProperty
-            = DependencyProperty.Register("ContentFill", typeof(Brush), typeof(VBRadioButton));
+        public static readonly StyledProperty<IBrush> ContentFillProperty
+            = AvaloniaProperty.Register<VBRadioButton, IBrush>(nameof(ContentFill));
 
         /// <summary>
         /// Gets or sets the fill of content.
@@ -140,27 +94,79 @@ namespace gip.core.layoutengine.avui
         /// Liest oder setzt die Füllung des Inhalts.
         /// </summary>
         [Category("VBControl")]
-        public Brush ContentFill
+        public IBrush ContentFill
         {
-            get { return (Brush)GetValue(ContentFillProperty); }
+            get { return GetValue(ContentFillProperty); }
             set { SetValue(ContentFillProperty, value); }
         }
 
-        public static readonly DependencyProperty PushButtonStyleProperty
-            = DependencyProperty.Register("PushButtonStyle", typeof(Boolean), typeof(VBRadioButton));
+        /// <summary>
+        /// Represents the styled property for PushButtonStyle.
+        /// </summary>
+        public static readonly StyledProperty<bool> PushButtonStyleProperty
+            = AvaloniaProperty.Register<VBRadioButton, bool>(nameof(PushButtonStyle), false, false, false, OnPushButtonStyleChanged);
+
         [Category("VBControl")]
-        public Boolean PushButtonStyle
+        public bool PushButtonStyle
         {
-            get { return (Boolean)GetValue(PushButtonStyleProperty); }
+            get { return GetValue(PushButtonStyleProperty); }
             set { SetValue(PushButtonStyleProperty, value); }
         }
 
-        public static readonly DependencyProperty IsMouseOverParentProperty
-            = DependencyProperty.Register("IsMouseOverParent", typeof(Boolean), typeof(VBRadioButton));
-        public Boolean IsMouseOverParent
+        private static void OnPushButtonStyleChanged(AvaloniaPropertyChangedEventArgs e)
         {
-            get { return (Boolean)GetValue(IsMouseOverParentProperty); }
+            if (e.Sender is VBRadioButton radioButton)
+            {
+                radioButton.UpdatePushButtonClass();
+            }
+        }
+
+        private void UpdatePushButtonClass()
+        {
+            if (Classes == null) return;
+
+            if (PushButtonStyle)
+            {
+                Classes.Add("pushbutton");
+            }
+            else
+            {
+                Classes.Remove("pushbutton");
+            }
+        }
+
+        /// <summary>
+        /// Represents the styled property for IsMouseOverParent.
+        /// </summary>
+        public static readonly StyledProperty<bool> IsMouseOverParentProperty
+            = AvaloniaProperty.Register<VBRadioButton, bool>(nameof(IsMouseOverParent), false, false, false, OnIsMouseOverParentChanged);
+
+        public bool IsMouseOverParent
+        {
+            get { return GetValue(IsMouseOverParentProperty); }
             set { SetValue(IsMouseOverParentProperty, value); }
+        }
+
+        private static void OnIsMouseOverParentChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            if (e.Sender is VBRadioButton radioButton)
+            {
+                radioButton.UpdateMouseOverParentClass();
+            }
+        }
+
+        private void UpdateMouseOverParentClass()
+        {
+            if (Classes == null) return;
+
+            if (IsMouseOverParent)
+            {
+                Classes.Add("mouseover-parent");
+            }
+            else
+            {
+                Classes.Remove("mouseover-parent");
+            }
         }
 
         #endregion
@@ -182,6 +188,11 @@ namespace gip.core.layoutengine.avui
             set
             {
                 _Caption = value;
+                // Update content when caption changes
+                if (_isInitialized && !string.IsNullOrEmpty(_Caption))
+                {
+                    this.Content = Translator.GetTranslation(null, _Caption, this.Root().Environment.VBLanguageCode);
+                }
             }
         }
     }

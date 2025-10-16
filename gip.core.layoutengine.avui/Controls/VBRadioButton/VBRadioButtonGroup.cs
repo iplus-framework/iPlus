@@ -1,20 +1,21 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Transactions;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Layout;
+using Avalonia.Threading;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,90 +27,48 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBRadioButtonGroupItem : ListBoxItem
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "RadioButtonItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonGroupStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "RadioButtonItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonGroupStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-
-        static VBRadioButtonGroupItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBRadioButtonGroupItem), new FrameworkPropertyMetadata(typeof(VBRadioButtonGroupItem)));
-        }
-
-        bool _themeApplied = false;
-        public VBRadioButtonGroupItem()
+        public VBRadioButtonGroupItem() : base()
         {
         }
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
-
-        public static readonly DependencyProperty PushButtonStyleProperty
-            = DependencyProperty.Register("PushButtonStyle", typeof(Boolean), typeof(VBRadioButtonGroupItem));
+        public static readonly StyledProperty<Boolean> PushButtonStyleProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroupItem, Boolean>(nameof(PushButtonStyle), false, false);
+        
         [Category("VBControl")]
         public Boolean PushButtonStyle
         {
-            get { return (Boolean)GetValue(PushButtonStyleProperty); }
+            get { return GetValue(PushButtonStyleProperty); }
             set { SetValue(PushButtonStyleProperty, value); }
         }
 
-        protected override void OnPreviewMouseMove(MouseEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            base.OnPreviewMouseMove(e);
+            if (change.Property == PushButtonStyleProperty)
+            {
+                UpdatePushButtonClass();
+            }
+            base.OnPropertyChanged(change);
+        }
 
+        private void UpdatePushButtonClass()
+        {
+            if (Classes == null) 
+                return;
+
+            if (PushButtonStyle)
+            {
+                Classes.Add("pushbutton");
+            }
+            else
+            {
+                Classes.Remove("pushbutton");
+            }
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+            UpdatePushButtonClass();
         }
     }
 
@@ -127,77 +86,33 @@ namespace gip.core.layoutengine.avui
         string _DataShowColumns;
         string _DataChilds;
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "RadioButtonGroupStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonGroupStyleGip.xaml",
-                                        hasImplicitStyles = false},
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "RadioButtonGroupStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBRadioButton/Themes/RadioButtonGroupStyleAero.xaml",
-                                        hasImplicitStyles = false},
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-
-        static VBRadioButtonGroup()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBRadioButtonGroup), new FrameworkPropertyMetadata(typeof(VBRadioButtonGroup)));
-        }
-
-        bool _themeApplied = false;
-        public VBRadioButtonGroup()
+        public VBRadioButtonGroup() : base()
         {
         }
 
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             this.Loaded += VBRadioButtonGroup_Loaded;
             this.Unloaded += VBRadioButtonGroup_Unloaded;
-            this.SourceUpdated += VB_SourceUpdated;
-            this.TargetUpdated += VB_TargetUpdated;
-            ActualizeTheme(true);
+            UpdateTemplateClass();
+            UpdateOrientationClass();
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region Additional Dependenc-Properties
         /// <summary>
         /// Represents the dependency property for control mode.
         /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -206,7 +121,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -214,27 +129,24 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            VBRadioButtonGroupItem item = new VBRadioButtonGroupItem();
-            item.PushButtonStyle = this.PushButtonStyle;
-            ValueSource valueSource = DependencyPropertyHelper.GetValueSource(this, VBRadioButtonGroup.ItemsMinWidthProperty);
-            if (valueSource != null)
+            VBRadioButtonGroupItem vbItem = new VBRadioButtonGroupItem();
+            vbItem.PushButtonStyle = this.PushButtonStyle;
+            
+            // Check if ItemsMinWidth is locally set
+            if (this.IsSet(VBRadioButtonGroup.ItemsMinWidthProperty))
             {
-                if (valueSource.BaseValueSource == BaseValueSource.Local)
-                {
-                    item.MinWidth = this.ItemsMinWidth;
-                }
+                vbItem.MinWidth = this.ItemsMinWidth;
             }
-            valueSource = DependencyPropertyHelper.GetValueSource(this, VBRadioButtonGroup.ItemsMaxWidthProperty);
-            if (valueSource != null)
+            
+            // Check if ItemsMaxWidth is locally set
+            if (this.IsSet(VBRadioButtonGroup.ItemsMaxWidthProperty))
             {
-                if (valueSource.BaseValueSource == BaseValueSource.Local)
-                {
-                    item.MaxWidth = this.ItemsMaxWidth;
-                }
+                vbItem.MaxWidth = this.ItemsMaxWidth;
             }
-            return item;
+            
+            return vbItem;
         }
 
         public enum ItemHostType : short
@@ -245,50 +157,106 @@ namespace gip.core.layoutengine.avui
             Grid = 3,
         }
 
-        public static readonly DependencyProperty ItemsHostTypeProperty
-            = DependencyProperty.Register("ItemsHostType", typeof(ItemHostType), typeof(VBRadioButtonGroup), new PropertyMetadata(ItemHostType.StackPanel));
+        public static readonly StyledProperty<ItemHostType> ItemsHostTypeProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, ItemHostType>(nameof(ItemsHostType), ItemHostType.StackPanel, false);
+        
         [Category("VBControl")]
         public ItemHostType ItemsHostType
         {
-            get { return (ItemHostType)GetValue(ItemsHostTypeProperty); }
+            get { return GetValue(ItemsHostTypeProperty); }
             set { SetValue(ItemsHostTypeProperty, value); }
         }
 
-        public static readonly DependencyProperty ScrollViewerVisibilityProperty
-            = DependencyProperty.Register("ScrollViewerVisibility", typeof(Visibility), typeof(VBRadioButtonGroup), new PropertyMetadata(Visibility.Visible));
+        public static readonly StyledProperty<bool> ScrollViewerVisibilityProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, bool>(nameof(ScrollViewerVisibility), true, false);
+        
         [Category("VBControl")]
-        public Visibility ScrollViewerVisibility
+        public bool ScrollViewerVisibility
         {
-            get { return (Visibility)GetValue(ScrollViewerVisibilityProperty); }
+            get { return GetValue(ScrollViewerVisibilityProperty); }
             set { SetValue(ScrollViewerVisibilityProperty, value); }
         }
 
+        private void UpdateTemplateClass()
+        {
+            if (Classes == null) return;
 
-        public static readonly DependencyProperty PushButtonStyleProperty
-            = DependencyProperty.Register("PushButtonStyle", typeof(Boolean), typeof(VBRadioButtonGroup));
+            // Remove all template classes
+            Classes.Remove("stackpanel-noscroll");
+            Classes.Remove("stackpanel-scroll");
+            Classes.Remove("wrappanel-noscroll");
+            Classes.Remove("wrappanel-scroll");
+            Classes.Remove("dockpanel-noscroll");
+            Classes.Remove("dockpanel-scroll");
+            Classes.Remove("grid-noscroll");
+            Classes.Remove("grid-scroll");
+
+            // Add appropriate template class
+            string templateClass = ItemsHostType.ToString().ToLower() + (ScrollViewerVisibility ? "-scroll" : "-noscroll");
+            Classes.Add(templateClass);
+
+            // Update ItemsPanel based on ItemsHostType
+            UpdateItemsPanel();
+        }
+
+        private void UpdateItemsPanel()
+        {
+            var itemsPanelTemplate = new FuncTemplate<Panel>(() =>
+            {
+                Panel panel = ItemsHostType switch
+                {
+                    ItemHostType.StackPanel => new StackPanel 
+                    { 
+                        Orientation = HorizontalItems ? Orientation.Horizontal : Orientation.Vertical 
+                    },
+                    ItemHostType.WrapPanel => new WrapPanel 
+                    { 
+                        Orientation = HorizontalItems ? Orientation.Horizontal : Orientation.Vertical 
+                    },
+                    ItemHostType.DockPanel => new DockPanel(),
+                    ItemHostType.Grid => new UniformGrid 
+                    { 
+                        Columns = this.Columns, 
+                        Rows = this.Rows 
+                    },
+                    _ => new StackPanel 
+                    { 
+                        Orientation = HorizontalItems ? Orientation.Horizontal : Orientation.Vertical 
+                    }
+                };
+                return panel;
+            });
+
+            ItemsPanel = itemsPanelTemplate;
+        }
+
+        public static readonly StyledProperty<Boolean> PushButtonStyleProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, Boolean>(nameof(PushButtonStyle));
+        
         [Category("VBControl")]
         public Boolean PushButtonStyle
         {
-            get { return (Boolean)GetValue(PushButtonStyleProperty); }
+            get { return GetValue(PushButtonStyleProperty); }
             set { SetValue(PushButtonStyleProperty, value); }
         }
 
-        public static readonly DependencyProperty ItemsMinWidthProperty
-            = DependencyProperty.Register("ItemsMinWidth", typeof(Double), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<Double> ItemsMinWidthProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, Double>(nameof(ItemsMinWidth));
+        
         [Category("VBControl")]
         public Double ItemsMinWidth
         {
-            get { return (Double)GetValue(ItemsMinWidthProperty); }
+            get { return GetValue(ItemsMinWidthProperty); }
             set { SetValue(ItemsMinWidthProperty, value); }
         }
 
-
-        public static readonly DependencyProperty ItemsMaxWidthProperty
-            = DependencyProperty.Register("ItemsMaxWidth", typeof(Double), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<Double> ItemsMaxWidthProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, Double>(nameof(ItemsMaxWidth));
+        
         [Category("VBControl")]
         public Double ItemsMaxWidth
         {
-            get { return (Double)GetValue(ItemsMaxWidthProperty); }
+            get { return GetValue(ItemsMaxWidthProperty); }
             set { SetValue(ItemsMaxWidthProperty, value); }
         }
 
@@ -305,58 +273,46 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
-        public static readonly DependencyProperty ColumnsProperty
-            = DependencyProperty.Register("Columns", typeof(int), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<int> ColumnsProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, int>(nameof(Columns));
+        
         [Category("VBControl")]
         public int Columns
         {
-            get { return (int)GetValue(ColumnsProperty); }
+            get { return GetValue(ColumnsProperty); }
             set { SetValue(ColumnsProperty, value); }
         }
 
-        public static readonly DependencyProperty RowsProperty
-            = DependencyProperty.Register("Rows", typeof(int), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<int> RowsProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, int>(nameof(Rows));
+        
         [Category("VBControl")]
         public int Rows
         {
-            get { return (int)GetValue(RowsProperty); }
+            get { return GetValue(RowsProperty); }
             set { SetValue(RowsProperty, value); }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaption.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionProperty
-            = DependencyProperty.Register(Const.ACCaptionPrefix, typeof(string), typeof(VBRadioButtonGroup), new PropertyMetadata(new PropertyChangedCallback(OnACCaptionChanged)));
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, string>(Const.ACCaptionPrefix);
 
         /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
         /// <value>  Translated description</value>
         [Category("VBControl")]
         public string ACCaption
         {
-            get { return (string)GetValue(ACCaptionProperty); }
+            get { return GetValue(ACCaptionProperty); }
             set { SetValue(ACCaptionProperty, value); }
-        }
-
-        private static void OnACCaptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is IVBContent)
-            {
-                VBRadioButtonGroup control = d as VBRadioButtonGroup;
-                if (control.ContextACObject != null)
-                {
-                    if (!control._Initialized)
-                        return;
-                    (control as VBRadioButtonGroup).ACCaptionTrans = control.Root().Environment.TranslateText(control.ContextACObject, control.ACCaption);
-                }
-            }
         }
 
         /// <summary>
         /// Represents the dependency property for ACCaptionTrans.
         /// </summary>
-        public static readonly DependencyProperty ACCaptionTransProperty
-            = DependencyProperty.Register("ACCaptionTrans", typeof(string), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<string> ACCaptionTransProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, string>(nameof(ACCaptionTrans));
 
         /// <summary>
         /// Gets or sets the ACCaption translation.
@@ -367,16 +323,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string ACCaptionTrans
         {
-            get { return (string)GetValue(ACCaptionTransProperty); }
+            get { return GetValue(ACCaptionTransProperty); }
             set { SetValue(ACCaptionTransProperty, value); }
         }
-
 
         /// <summary>
         /// Represents the dependency property for ShowCaption.
         /// </summary>
-        public static readonly DependencyProperty ShowCaptionProperty
-            = DependencyProperty.Register("ShowCaption", typeof(bool), typeof(VBRadioButtonGroup), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowCaptionProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, bool>(nameof(ShowCaption), true);
+        
         /// <summary>
         /// Determines is control caption shown or not.
         /// </summary>
@@ -386,24 +342,41 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool ShowCaption
         {
-            get { return (bool)GetValue(ShowCaptionProperty); }
+            get { return GetValue(ShowCaptionProperty); }
             set { SetValue(ShowCaptionProperty, value); }
         }
 
-        public static readonly DependencyProperty HorizontalItemsProperty
-            = DependencyProperty.Register("HorizontalItems", typeof(Boolean), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<Boolean> HorizontalItemsProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, Boolean>(nameof(HorizontalItems), false, false);
 
         [Category("VBControl")]
         public Boolean HorizontalItems
         {
             get
             {
-                return (Boolean)GetValue(HorizontalItemsProperty);
+                return GetValue(HorizontalItemsProperty);
             }
             set
             {
                 SetValue(HorizontalItemsProperty, value);
             }
+        }
+
+        private void UpdateOrientationClass()
+        {
+            if (Classes == null) return;
+
+            if (HorizontalItems)
+            {
+                Classes.Add("horizontal");
+            }
+            else
+            {
+                Classes.Remove("horizontal");
+            }
+
+            // Update ItemsPanel when orientation changes
+            UpdateItemsPanel();
         }
 
         #endregion
@@ -413,6 +386,7 @@ namespace gip.core.layoutengine.avui
         /// Determines is control initialized or not.
         /// </summary>
         protected bool _Initialized = false;
+        
         /// <summary>
         /// Initializes the VB control.
         /// </summary>
@@ -437,9 +411,6 @@ namespace gip.core.layoutengine.avui
             _VBContentPropertyInfo = dcACTypeInfo;
             RightControlMode = dcRightControlMode;
 
-            //IACBSOContext bsoContext = VBLogicalTreeHelper.GetBSOContext(this);
-            //bsoContext.VBControlList.Add(this);
-
             // VBContent muß im XAML gestetzt sein
             System.Diagnostics.Debug.Assert(VBContent != "");
 
@@ -448,7 +419,7 @@ namespace gip.core.layoutengine.avui
 
             if (RightControlMode < Global.ControlModes.Disabled)
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
             // Beschriftung
             if (string.IsNullOrEmpty(ACCaption))
@@ -468,7 +439,6 @@ namespace gip.core.layoutengine.avui
             if (!ContextACObject.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00004", "VBRadioButtonGroup", VBSource + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00004", "VBRadioButtonGroup", VBSource, VBContent);
                 return;
             }
 
@@ -482,12 +452,11 @@ namespace gip.core.layoutengine.avui
                 ACQueryDefinition = access.NavACQueryDefinition;
             }
 
-            List<ACColumnItem> vbShowColumns = ACQueryDefinition != null ? ACQueryDefinition.ACColumns : null; // dsACTypeInfo.MyACColumns(9999, VBShowColumns);
+            List<ACColumnItem> vbShowColumns = ACQueryDefinition != null ? ACQueryDefinition.ACColumns : null;
 
             if (vbShowColumns == null || !vbShowColumns.Any())
             {
                 this.Root().Messages.LogDebug("Error00005", "VBRadioButtonGroup", VBShowColumns + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00005", "VBRadioButtonGroup", VBShowColumns, VBContent);
                 return;
             }
 
@@ -502,72 +471,60 @@ namespace gip.core.layoutengine.avui
 
             if (dsACTypeInfo is ACClassMethod)
             {
-                ObjectDataProvider odp = new ObjectDataProvider();
-                odp.ObjectInstance = dsSource;
-                string param = VBSource.Substring(VBSource.IndexOf('(') + 1, VBSource.LastIndexOf(')') - (VBSource.IndexOf('(') + 1));
-                if (param.StartsWith("#") && param.EndsWith("#"))
+                var binding = new Binding()
                 {
-                    odp.MethodParameters.Add(param.Substring(1, param.Length - 2));
-                }
-                else
-                {
-                    string[] paramList = param.Split(',');
-                    foreach (var param1 in paramList)
-                    {
-                        odp.MethodParameters.Add(param1.Replace("\"", ""));
-                    }
-                }
-                odp.MethodName = dsPath.Substring(1);  // "!" bei Methodenname entfernen
-                Binding binding = new Binding();
-                binding.Source = odp;
-                SetBinding(ListBox.ItemsSourceProperty, binding);
+                    Source = dsSource
+                };
+                this.Bind(ItemsSourceProperty, binding);
             }
             else
             {
-                Binding binding = new Binding();
-                binding.Source = dsSource;
+                var binding = new Binding()
+                {
+                    Source = dsSource
+                };
                 if (!string.IsNullOrEmpty(dsPath))
                 {
-                    binding.Path = new PropertyPath(dsPath);
+                    binding.Path = dsPath;
                 }
-                SetBinding(ListBox.ItemsSourceProperty, binding);
+                this.Bind(ItemsSourceProperty, binding);
             }
-            // TODO: Unterstützt bisher nur eine Spalte
+            
             if (ItemTemplate == null)
-                DisplayMemberPath = dsColPath;
+                DisplayMemberBinding = new Binding(dsColPath);
 
             if (dcACTypeInfo.ObjectType.IsEnum)
             {
-                SetValue(ListBox.SelectedValuePathProperty, Const.Value);
+                SelectedValueBinding = new Binding(Const.Value);
 
-                Binding binding2 = new Binding();
-                binding2.Source = dcSource;
-                binding2.Path = new PropertyPath(dcPath);
-                binding2.Mode = BindingMode.TwoWay;
-                binding2.NotifyOnSourceUpdated = true;
-                binding2.NotifyOnTargetUpdated = true;
-                //SetBinding(ComboBox.SelectedItemProperty, binding2);
-                SetBinding(ListBox.SelectedValueProperty, binding2);
+                var binding2 = new Binding()
+                {
+                    Source = dcSource,
+                    Path = dcPath,
+                    Mode = BindingMode.TwoWay
+                };
+                this.Bind(SelectedValueProperty, binding2);
             }
             else
             {
-                // Gebundene Spalte setzen (VBContent)
-                Binding binding2 = new Binding();
-                binding2.Source = dcSource;
-                binding2.Path = new PropertyPath(dcPath);
-                if (VBContentPropertyInfo != null)
-                    binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
-                binding2.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-                SetBinding(ListBox.SelectedValueProperty, binding2);
+                var binding2 = new Binding()
+                {
+                    Source = dcSource,
+                    Path = dcPath,
+                    Mode = VBContentPropertyInfo != null && VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay
+                };
+                this.Bind(SelectedValueProperty, binding2);
             }
 
             if (BSOACComponent != null)
             {
-                Binding binding = new Binding();
-                binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
-                binding.Mode = BindingMode.OneWay;
-                SetBinding(VBRadioButtonGroup.ACCompInitStateProperty, binding);
+                var binding = new Binding()
+                {
+                    Source = BSOACComponent,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
+                this.Bind(VBRadioButtonGroup.ACCompInitStateProperty, binding);
             }
 
             if (IsEnabled)
@@ -592,10 +549,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null)
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, ListBox.ItemsSourceProperty);
+                var boundedValue = BindingOperations.GetBindingExpressionBase(this, ItemsSourceProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -624,7 +581,6 @@ namespace gip.core.layoutengine.avui
             _Loaded = false;
         }
 
-
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
         /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
@@ -642,16 +598,9 @@ namespace gip.core.layoutengine.avui
             _VBContentPropertyInfo = null;
             this.Loaded -= VBRadioButtonGroup_Loaded;
             this.Unloaded -= VBRadioButtonGroup_Unloaded;
-            this.SourceUpdated -= VB_SourceUpdated;
-            this.TargetUpdated -= VB_TargetUpdated;
 
-            BindingOperations.ClearBinding(this, ListBox.ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, ListBox.SelectedValueProperty);
-            //BindingOperations.ClearBinding(this, VBRadioButtonGroup.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBRadioButtonGroup.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
-
 
         /// <summary>
         /// Calls on when initialization state is changed.
@@ -662,6 +611,51 @@ namespace gip.core.layoutengine.avui
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
                 DeInitVBControl(BSOACComponent);
         }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
+            {
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
+                {
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
+                }
+            }
+            else if (change.Property == ACCaptionProperty)
+            {
+                if (ContextACObject != null)
+                {
+                    if (!_Initialized)
+                        return;
+                    ACCaptionTrans = this.Root().Environment.TranslateText(ContextACObject, ACCaption);
+                }
+            }
+            else if ((change.Property == ItemsHostTypeProperty) 
+                || (change.Property == ScrollViewerVisibilityProperty))
+            {
+                UpdateTemplateClass();
+            }
+            else if (change.Property == HorizontalItemsProperty)
+            {
+                UpdateOrientationClass();
+            }
+            VB_TargetUpdated(null, change);
+        }
+
+        void VB_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            UpdateControlMode();
+        }
+
+        void VB_TargetUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
+        {
+            UpdateControlMode();
+        }
         #endregion
 
         #region Event-Handling
@@ -669,22 +663,16 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region Methods
-        private IACObject GetNearestContainer(UIElement element)
+        private IACObject GetNearestContainer(Visual element)
         {
             if (element == null)
                 return null;
 
-            //if (element is DataGridCellsPresenter)
-            //{
-            //    DataGridCellsPresenter presenter = element as DataGridCellsPresenter;
-            //    return presenter.Item as IACObjectWithBinding;
-            //}
-            //else //if (element is Border)
             {
                 int count = 0;
                 while (element != null && count < 10)
                 {
-                    element = VisualTreeHelper.GetParent(element) as UIElement;
+                    element = element.GetVisualParent();
 
                     if ((element != null) && (element is VBRadioButtonGroupItem))
                     {
@@ -703,8 +691,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -713,7 +701,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -802,67 +790,30 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBRadioButtonGroup), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBRadioButtonGroup>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
-
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBRadioButtonGroup),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
 
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBRadioButtonGroup),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
-        }
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
-        {
-            VBRadioButtonGroup thisControl = dependencyObject as VBRadioButtonGroup;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
-            {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
-                {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
-                }
-            }
         }
 
         List<IACObject> _ACContentList = new List<IACObject>();
@@ -881,7 +832,6 @@ namespace gip.core.layoutengine.avui
         private void UpdateACContentList(IACObject acObject)
         {
             _ACContentList.Clear();
-            // TODO Norbert:
             if (acObject != null)
             {
                 _ACContentList.Add(acObject);
@@ -939,16 +889,18 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBValidation.
         /// </summary>
-        public static readonly DependencyProperty VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner(typeof(VBRadioButtonGroup), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> VBValidationProperty = 
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBRadioButtonGroup>();
         /// <summary>
         /// Name of the VBValidation property.
         /// </summary>
         /// <summary xml:lang="de">
         /// Name der Eigenschaft VBValidation.
         /// </summary>
+        [Category("VBControl")]
         public string VBValidation
         {
-            get { return (string)GetValue(VBValidationProperty); }
+            get { return GetValue(VBValidationProperty); }
             set { SetValue(VBValidationProperty, value); }
         }
 
@@ -956,7 +908,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return Visibility == System.Windows.Visibility.Visible;
+                return IsVisible;
             }
             set
             {
@@ -964,12 +916,12 @@ namespace gip.core.layoutengine.avui
                 {
                     if (RightControlMode > Global.ControlModes.Hidden)
                     {
-                        Visibility = Visibility.Visible;
+                        IsVisible = true;
                     }
                 }
                 else
                 {
-                    Visibility = Visibility.Hidden;
+                    IsVisible = false;
                 }
             }
         }
@@ -999,17 +951,6 @@ namespace gip.core.layoutengine.avui
                 }
                 ControlModeChanged();
             }
-        }
-
-        void VB_SourceUpdated(object sender, DataTransferEventArgs e)
-        {
-            e.Handled = true;
-            UpdateControlMode();
-        }
-
-        void VB_TargetUpdated(object sender, DataTransferEventArgs e)
-        {
-            UpdateControlMode();
         }
 
         /// <summary>
@@ -1075,27 +1016,24 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCaptionTrans.
+        /// Represents the dependency property for DisabledModes.
         /// </summary>
-        public static readonly DependencyProperty DisabledModesProperty
-            = DependencyProperty.Register("DisabledModes", typeof(string), typeof(VBRadioButtonGroup));
+        public static readonly StyledProperty<string> DisabledModesProperty =
+            AvaloniaProperty.Register<VBRadioButtonGroup, string>(nameof(DisabledModes));
         /// <summary>
-        /// Gets or sets the ACCaption translation.
+        /// Gets or sets the disabled modes.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die deaktivierten Modi.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string DisabledModes
         {
-            get { return (string)GetValue(DisabledModesProperty); }
+            get { return GetValue(DisabledModesProperty); }
             set { SetValue(DisabledModesProperty, value); }
         }
-        #endregion
-
-        #region DragAndDrop
         #endregion
 
         #region IACObject
@@ -1110,7 +1048,6 @@ namespace gip.core.layoutengine.avui
                 return this.ReflectACType();
             }
         }
-
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:

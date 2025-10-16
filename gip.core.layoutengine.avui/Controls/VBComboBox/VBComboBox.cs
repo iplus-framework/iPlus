@@ -250,6 +250,9 @@ namespace gip.core.layoutengine.avui
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
             _Initialized = true;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             if (String.IsNullOrEmpty(VBContent))
                 return;
 
@@ -1022,7 +1025,7 @@ namespace gip.core.layoutengine.avui
         }
 
         public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
-            AvaloniaProperty.RegisterAttached<VBComboBox, Control, IACBSO>("BSOACComponent", null, true);
+            AvaloniaProperty.RegisterAttached<VBComboBox, Control, IACBSO>(nameof(BSOACComponent), null, true);
 
         public IACBSO BSOACComponent
         {

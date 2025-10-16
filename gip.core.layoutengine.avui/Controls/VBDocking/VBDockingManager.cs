@@ -3,6 +3,12 @@ using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Threading;
+using Avalonia.Animation;
+using Avalonia.Animation.Easings;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
@@ -11,6 +17,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Linq;
+using System.Collections.ObjectModel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,7 +33,6 @@ namespace gip.core.layoutengine.avui
     {
         public event EventHandler OnInitVBControlFinished;
 
-
         #region c'tors
         bool _themeApplied = false;
         public VBDockingManager() : base()
@@ -38,54 +44,29 @@ namespace gip.core.layoutengine.avui
             base.OnInitialized();
         }
 
-
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
 
-            object partObj = (object)GetTemplateChild("PART_BorderFreeze");
-            if ((partObj != null) && (partObj is Border))
+            _PART_BorderFreeze = e.NameScope.Find("PART_BorderFreeze") as Border;
+
+            _PART_btnPanelLeft = e.NameScope.Find("PART_btnPanelLeft") as StackPanel;
+
+            _PART_btnPanelRight = e.NameScope.Find("PART_btnPanelRight") as StackPanel;
+
+            _PART_btnPanelTop = e.NameScope.Find("PART_btnPanelTop") as StackPanel;
+
+            _PART_btnPanelBottom = e.NameScope.Find("PART_btnPanelBottom") as StackPanel;
+
+            _PART_gridDocking = e.NameScope.Find("PART_gridDocking") as VBDockingGrid;
+            if (_PART_gridDocking != null)
             {
-                _PART_BorderFreeze = ((Border)partObj);
+                _PART_gridDocking.PointerEntered += OnHideAutoHidePane;
+                _PART_gridDocking.PointerPressed += _PART_gridDocking_PointerPressed;
             }
 
-            partObj = (object)GetTemplateChild("PART_btnPanelLeft");
-            if ((partObj != null) && (partObj is StackPanel))
-            {
-                _PART_btnPanelLeft = ((StackPanel)partObj);
-            }
-
-            partObj = (object)GetTemplateChild("PART_btnPanelRight");
-            if ((partObj != null) && (partObj is StackPanel))
-            {
-                _PART_btnPanelRight = ((StackPanel)partObj);
-            }
-
-            partObj = (object)GetTemplateChild("PART_btnPanelTop");
-            if ((partObj != null) && (partObj is StackPanel))
-            {
-                _PART_btnPanelTop = ((StackPanel)partObj);
-            }
-
-            partObj = (object)GetTemplateChild("PART_btnPanelBottom");
-            if ((partObj != null) && (partObj is StackPanel))
-            {
-                _PART_btnPanelBottom = ((StackPanel)partObj);
-            }
-
-            partObj = (object)GetTemplateChild("PART_gridDocking");
-            if ((partObj != null) && (partObj is VBDockingGrid))
-            {
-                _PART_gridDocking = ((VBDockingGrid)partObj);
-                _PART_gridDocking.MouseEnter += OnHideAutoHidePane;
-                _PART_gridDocking.MouseDown += new MouseButtonEventHandler(_PART_gridDocking_MouseDown);
-            }
-
-            partObj = (object)GetTemplateChild("PART_panelFront");
-            if ((partObj != null) && (partObj is DockPanel))
-            {
-                _PART_panelFront = ((DockPanel)partObj);
-            }
+            _PART_panelFront = e.NameScope.Find("PART_panelFront") as DockPanel;
+            
             InitVBControl();
         }
 
@@ -138,10 +119,12 @@ namespace gip.core.layoutengine.avui
                     designEditor.DesignItemTreeView = logicalTreeView;
             }
 
-            Binding bindingVarioWPF = new Binding();
-            bindingVarioWPF.Source = this.Root().RootPageWPF;
-            bindingVarioWPF.Path = "VBDockingManagerFreezing";
-            bindingVarioWPF.Mode = BindingMode.OneWay;
+            var bindingVarioWPF = new Binding
+            {
+                Source = this.Root().RootPageWPF,
+                Path = "VBDockingManagerFreezing",
+                Mode = BindingMode.OneWay
+            };
             this.Bind(VBDockingManager.MasterPageFreezeProperty, bindingVarioWPF);
 
             AddSelectionChangedHandler();
@@ -170,8 +153,8 @@ namespace gip.core.layoutengine.avui
 
             if (PART_gridDocking != null)
             {
-                PART_gridDocking.MouseEnter -= OnHideAutoHidePane;
-                PART_gridDocking.MouseDown -= _PART_gridDocking_MouseDown;
+                PART_gridDocking.PointerEntered -= OnHideAutoHidePane;
+                PART_gridDocking.PointerPressed -= _PART_gridDocking_PointerPressed;
                 PART_gridDocking.DeInitVBControl();
             }
 
@@ -195,10 +178,8 @@ namespace gip.core.layoutengine.avui
             if (VBDesignList != null)
             {
                 VBDesignList.Clear();
-
             }
             RemoveSelectionChangedHandler();
-            BindingOperations.ClearBinding(this, VBDockingManager.MasterPageFreezeProperty);
             this.ClearAllBindings();
             _dockingBtnGroups = null;
             _overlayWindow = null;
@@ -221,24 +202,29 @@ namespace gip.core.layoutengine.avui
         {
             if (ContextACObject is IACComponent)
             {
-                Binding binding = new Binding();
-                binding.Source = ContextACObject;
-                binding.Path = Const.ACUrlCmdMessage;
-                binding.Mode = BindingMode.OneWay;
+                var binding = new Binding
+                {
+                    Source = ContextACObject,
+                    Path = Const.ACUrlCmdMessage,
+                    Mode = BindingMode.OneWay
+                };
                 this.Bind(VBDockingManager.ACUrlCmdMessageProperty, binding);
 
-                binding = new Binding();
-                binding.Source = ContextACObject;
-                binding.Path = Const.InitState;
-                binding.Mode = BindingMode.OneWay;
+                binding = new Binding
+                {
+                    Source = ContextACObject,
+                    Path = Const.InitState,
+                    Mode = BindingMode.OneWay
+                };
                 this.Bind(VBDockingManager.ACCompInitStateProperty, binding);
             }
         }
 
         protected void RemoveFromComponentReference()
         {
-            BindingOperations.ClearBinding(this, VBDockingManager.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBDockingManager.ACCompInitStateProperty);
+            //BindingOperations.ClearBinding(this, VBDockingManager.ACUrlCmdMessageProperty);
+            //BindingOperations.ClearBinding(this, VBDockingManager.ACCompInitStateProperty);
+            this.ClearAllBindings();
         }
 
         /// <summary>
@@ -300,7 +286,6 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-
         #region IACUrl Member
 
         public object ACUrlCommand(string acUrl, params object[] acParameter)
@@ -313,7 +298,6 @@ namespace gip.core.layoutengine.avui
             return this.ReflectACUrlCommand(acUrl, acParameter);
         }
 
-
         public bool IsEnabledACUrlCommand(string acUrl, params Object[] acParameter)
         {
             if (acUrl == Const.EventDeInit)
@@ -322,7 +306,6 @@ namespace gip.core.layoutengine.avui
             }
             return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
         }
-
 
         public bool ACUrlBinding(string acUrl, ref IACType acTypeInfo, ref object source, ref string path, ref Global.ControlModes rightControlMode)
         {
@@ -333,7 +316,6 @@ namespace gip.core.layoutengine.avui
         {
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
-
 
         public virtual string GetACUrl(IACObject rootACObject = null)
         {
@@ -446,7 +428,7 @@ namespace gip.core.layoutengine.avui
             if (uiElement is VBDesign)
             {
                 VBDesign uiElementAsDataDesign = (uiElement as VBDesign);
-                // Rechtepr�fung ob Design ge�ffnet werden darf
+                // Rechteprüfung ob Design geöffnet werden darf
                 if (uiElementAsDataContent != null && uiElementAsDataDesign.ContentACObject != null && uiElementAsDataDesign.ContentACObject is IACType)
                 {
                     if (uiElementAsDataContent.ContextACObject is IACComponent)
@@ -489,20 +471,22 @@ namespace gip.core.layoutengine.avui
                 //vbDialogRoot.WindowStyle = System.Windows.WindowStyle.None;
                 if (vbDialogRoot.Owner == null)
                 {
-                    AvaloniaObject dp = this;
+                    StyledElement dp = this;
                     while (dp != null)
                     {
-                        dp = VBLogicalTreeHelper.FindParentObjectInLogicalTree(dp, typeof(Window));
+                        var foundParent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(dp, typeof(Window));
+                        dp = foundParent as StyledElement;
                         if (dp != null)
                         {
                             Window ownerWindow = dp as Window;
-                            if (ownerWindow.IsLoaded)
+                            if (ownerWindow != null && ownerWindow.IsLoaded)
                             {
                                 //vbDialogRoot.Owner = ownerWindow;
                                 vbDialogRoot.Show(ownerWindow);
                                 break;
                             }
-                            dp = LogicalTreeHelper.GetParent(dp);
+                            var parent = LogicalTreeHelper.GetParent(dp);
+                            dp = parent as StyledElement;
                         }
                     }
                 }
@@ -544,7 +528,6 @@ namespace gip.core.layoutengine.avui
                 //vbDialogRoot.ShowDialog();
             }
         }
-
 
         public void SaveUserFloatingWindowSize(VBDockingContainerBase dockingContainer, Point ptFloatingWindow, Size sizeFloatingWindow)
         {
@@ -675,7 +658,6 @@ namespace gip.core.layoutengine.avui
                 ToolWindowContainerList.Add(container);
         }
 
-
         internal VBDockingPanelTabbedDoc AddDockingContainerToolWindow_GetDockingPanel(VBDockingContainerBase content)
         {
             System.Diagnostics.Debug.Assert(!ToolWindowContainerList.Contains(content));
@@ -690,7 +672,6 @@ namespace gip.core.layoutengine.avui
             return PART_gridDocking.vbDockingPanelTabbedDoc;
         }
 
-
         internal void RemoveDockingContainerToolWindow(VBDockingContainerBase container)
         {
             ToolWindowContainerList.Remove(container);
@@ -704,7 +685,6 @@ namespace gip.core.layoutengine.avui
             PART_gridDocking.Add(panel);
             AttachDockingPanelToolWindowEvents(panel);
         }
-
 
         internal void RemoveDockingPanelToolWindow(VBDockingPanelToolWindow panel)
         {
@@ -772,7 +752,6 @@ namespace gip.core.layoutengine.avui
             _overlayWindow.Close();
         }
 
-
         internal void AttachDockingPanelToolWindowEvents(VBDockingPanelToolWindow panel)
         {
             panel.OnStateChanged += new EventHandler(DockingPanelToolWindow_OnStateChanged);
@@ -780,14 +759,12 @@ namespace gip.core.layoutengine.avui
             PART_gridDocking.AttachDockingPanelToolWindowEvents(panel);
         }
 
-
         internal void DetachDockingPanelToolWindowEvents(VBDockingPanelToolWindow panel)
         {
             panel.OnStateChanged -= new EventHandler(DockingPanelToolWindow_OnStateChanged);
 
             PART_gridDocking.DetachDockingPanelToolWindowEvents(panel);
         }
-
 
         void DockingPanelToolWindow_OnStateChanged(object sender, EventArgs e)
         {
@@ -816,7 +793,6 @@ namespace gip.core.layoutengine.avui
             buttonGroup = new VBDockingButtonGroup();
             buttonGroup.Dock = panel.Dock;
 
-
             foreach (VBDockingContainerToolWindow container in panel.ContainerToolWindowsList)
             {
                 VBDockingButton btn = new VBDockingButton();
@@ -826,10 +802,6 @@ namespace gip.core.layoutengine.avui
                 if (_currentButton == null)
                     _currentButton = btn;
                 buttonGroup.Buttons.Add(btn);
-                //if (!isNewGroup)
-                //{
-                //    MakeNewDockingButtonVisible(buttonGroup, btn);
-                //}
             }
 
             {
@@ -840,18 +812,18 @@ namespace gip.core.layoutengine.avui
 
         private void MakeNewDockingButtonVisible(VBDockingButtonGroup group, VBDockingButton btn)
         {
-            btn.MouseEnter += new MouseEventHandler(OnShowAutoHidePanel);
+            btn.PointerEntered += new EventHandler<PointerEventArgs>(OnShowAutoHidePanel);
             Border br = new Border();
             br.Width = br.Height = 10;
             switch (group.Dock)
             {
                 case Dock.Left:
-                    btn.LayoutTransform = new RotateTransform(90);
+                    btn.RenderTransform = new RotateTransform(90);
                     PART_btnPanelLeft.Children.Add(btn);
                     PART_btnPanelLeft.Children.Add(br);
                     break;
                 case Dock.Right:
-                    btn.LayoutTransform = new RotateTransform(90);
+                    btn.RenderTransform = new RotateTransform(90);
                     PART_btnPanelRight.Children.Add(btn);
                     PART_btnPanelRight.Children.Add(br);
                     break;
@@ -873,7 +845,7 @@ namespace gip.core.layoutengine.avui
         private void MakeDockingButtonsVisible(VBDockingButtonGroup group)
         {
             foreach (VBDockingButton btn in group.Buttons)
-                btn.MouseEnter += new MouseEventHandler(OnShowAutoHidePanel);
+                btn.PointerEntered += new EventHandler<PointerEventArgs>(OnShowAutoHidePanel);
 
             Border br = new Border();
             br.Width = br.Height = 10;
@@ -882,7 +854,7 @@ namespace gip.core.layoutengine.avui
                 case Dock.Left:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
-                        btn.LayoutTransform = new RotateTransform(90);
+                        btn.RenderTransform = new RotateTransform(90);
                         PART_btnPanelLeft.Children.Add(btn);
                     }
                     PART_btnPanelLeft.Children.Add(br);
@@ -890,7 +862,7 @@ namespace gip.core.layoutengine.avui
                 case Dock.Right:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
-                        btn.LayoutTransform = new RotateTransform(90);
+                        btn.RenderTransform = new RotateTransform(90);
                         PART_btnPanelRight.Children.Add(btn);
                     }
                     PART_btnPanelRight.Children.Add(br);
@@ -906,8 +878,6 @@ namespace gip.core.layoutengine.avui
                     PART_btnPanelBottom.Children.Add(br);
                     break;
             }
-
-
         }
 
         /// <summary>
@@ -919,7 +889,7 @@ namespace gip.core.layoutengine.avui
             if (group.Buttons.Count <= 0)
                 return;
             foreach (VBDockingButton btn in group.Buttons)
-                btn.MouseEnter -= new MouseEventHandler(OnShowAutoHidePanel);
+                btn.PointerEntered -= new EventHandler<PointerEventArgs>(OnShowAutoHidePanel);
 
             switch (group.Dock)
             {
@@ -1013,8 +983,7 @@ namespace gip.core.layoutengine.avui
 
         VBDockingButton _currentButton;
 
-
-        void OnShowAutoHidePanel(object sender, MouseEventArgs e)
+        void OnShowAutoHidePanel(object sender, PointerEventArgs e)
         {
             if (_currentButton == sender)
                 return;
@@ -1026,12 +995,10 @@ namespace gip.core.layoutengine.avui
             ShowTempPanel(true);
         }
 
-
-        void OnHideAutoHidePane(object sender, MouseEventArgs e)
+        void OnHideAutoHidePane(object sender, PointerEventArgs e)
         {
             HideTempPanel(true);
         }
-
 
         private void HideTempPanel(bool smooth)
         {
@@ -1072,9 +1039,8 @@ namespace gip.core.layoutengine.avui
                 else
                 {
                     ForceHideOverlayPanel();
-                    PART_panelFront.BeginAnimation(DockPanel.OpacityProperty, null);
+                    _tempPane.Opacity = 0.0;
                     PART_panelFront.Children.Clear();
-                    PART_panelFront.Opacity = 0.0;
                     _tempPane.Close();
                 }
 
@@ -1082,20 +1048,17 @@ namespace gip.core.layoutengine.avui
                 _currentButton = null;
                 _tempPane = null;
             }
-
         }
-
 
         private void ShowTempPanel(bool smooth)
         {
-
             _tempPane = new VBDockingPanelToolWindowOverlay(this, _currentButton.DockingContainerToolWindow, _currentButton.DockingButtonGroup.Dock);
             _tempPane.OnStateChanged += new EventHandler(_tempPane_OnStateChanged);
 
             VBDockingPanelToolWindow pane = PART_gridDocking.GetVBDockingPanelFromContainer(_currentButton.DockingContainerToolWindow) as VBDockingPanelToolWindow;
             pane.SetDefaultWithFromVBDesign(_currentButton.DockingContainerToolWindow);
             PART_panelFront.Children.Clear();
-            _tempPane.SetValue(DockPanel.DockProperty, _currentButton.DockingButtonGroup.Dock);
+            DockPanel.SetDock(_tempPane, _currentButton.DockingButtonGroup.Dock);
             PART_panelFront.Children.Add(_tempPane);
             VBDockingSplitter splitter = null;
             bool right_left = false;
@@ -1126,7 +1089,7 @@ namespace gip.core.layoutengine.avui
                     break;
             }
 
-            splitter.SetValue(DockPanel.DockProperty, _currentButton.DockingButtonGroup.Dock);
+            DockPanel.SetDock(splitter, _currentButton.DockingButtonGroup.Dock);
             PART_panelFront.Children.Add(splitter);
 
             if (smooth)
@@ -1139,7 +1102,6 @@ namespace gip.core.layoutengine.avui
                     _tempPane.Height = length;
                 PART_panelFront.Opacity = 1.0;
             }
-
         }
 
         void _tempPane_OnStateChanged(object sender, EventArgs e)
@@ -1167,8 +1129,6 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-
-
             bool showOriginalPane = (_tempPane.State == VBDockingPanelState.Docked);
 
             HideTempPanel(false);
@@ -1179,7 +1139,6 @@ namespace gip.core.layoutengine.avui
                 panel.Hide();
         }
 
-
         #region Temporary pane animation methods
 
         bool _leftRightAnimation = false;
@@ -1188,8 +1147,7 @@ namespace gip.core.layoutengine.avui
 
         VBDockingPanelToolWindowOverlay _tempPanelAnimation;
 
-        DoubleAnimation _animation;
-
+        DoubleTransition _animation;
 
         void ShowOverlayPanel(double length, bool left_right)
         {
@@ -1199,47 +1157,47 @@ namespace gip.core.layoutengine.avui
             _tempPanelAnimation = _tempPane;
             _lengthAnimation = length;
 
-            _animation = new DoubleAnimation();
-            _animation.From = 0.0;
-            _animation.To = length;
-            _animation.Duration = new Duration(TimeSpan.FromMilliseconds(200));
-            _animation.Completed += new EventHandler(ShowOverlayPanel_Completed);
+            var transitions = new Transitions();
+
             if (_leftRightAnimation)
-                _tempPanelAnimation.BeginAnimation(Control.WidthProperty, _animation);
-            else
-                _tempPanelAnimation.BeginAnimation(Control.HeightProperty, _animation);
-
-            DoubleAnimation anOpacity = new DoubleAnimation();
-            anOpacity.From = 0.0;
-            anOpacity.To = 1.0;
-            anOpacity.Duration = new Duration(TimeSpan.FromMilliseconds(200));
-            PART_panelFront.BeginAnimation(DockPanel.OpacityProperty, anOpacity);
-        }
-
-
-        void ShowOverlayPanel_Completed(object sender, EventArgs e)
-        {
-            _animation.Completed -= new EventHandler(ShowOverlayPanel_Completed);
-
-            if (_tempPanelAnimation != null)
             {
-                if (_leftRightAnimation)
+                var widthTransition = new DoubleTransition
                 {
-                    _tempPanelAnimation.BeginAnimation(Control.WidthProperty, null);
-                    _tempPanelAnimation.Width = _lengthAnimation;
-                }
-                else
+                    Property = Control.WidthProperty,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    Easing = new LinearEasing()
+                };
+                transitions.Add(widthTransition);
+                _tempPanelAnimation.Width = 0;
+                _tempPanelAnimation.Width = length;
+            }
+            else
+            {
+                var heightTransition = new DoubleTransition
                 {
-                    _tempPanelAnimation.BeginAnimation(Control.HeightProperty, null);
-                    _tempPanelAnimation.Height = _lengthAnimation;
-                }
+                    Property = Control.HeightProperty,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    Easing = new LinearEasing()
+                };
+                transitions.Add(heightTransition);
+                _tempPanelAnimation.Height = 0;
+                _tempPanelAnimation.Height = length;
             }
 
-            _tempPanelAnimation = null;
+            var opacityTransition = new DoubleTransition
+            {
+                Property = Control.OpacityProperty,
+                Duration = TimeSpan.FromMilliseconds(200),
+                Easing = new LinearEasing()
+            };
+            transitions.Add(opacityTransition);
+
+            _tempPanelAnimation.Transitions = transitions;
+            PART_panelFront.Opacity = 0.0;
+            PART_panelFront.Opacity = 1.0;
 
             this.Focus();
         }
-
 
         void HideOverlayPanel(double length, bool left_right)
         {
@@ -1249,64 +1207,78 @@ namespace gip.core.layoutengine.avui
                 length = 200;
             _lengthAnimation = length;
 
-            _animation = new DoubleAnimation();
-            _animation.From = length;
-            _animation.To = 0.0;
-            _animation.Duration = new Duration(TimeSpan.FromMilliseconds(200));
-            _animation.Completed += new EventHandler(HideOverlayPanel_Completed);
+            var transitions = new Transitions();
 
             if (left_right)
-                _tempPanelAnimation.BeginAnimation(Control.WidthProperty, _animation);
+            {
+                var widthTransition = new DoubleTransition
+                {
+                    Property = Control.WidthProperty,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    Easing = new LinearEasing()
+                };
+                transitions.Add(widthTransition);
+                _tempPanelAnimation.Width = 0;
+            }
             else
-                _tempPanelAnimation.BeginAnimation(Control.HeightProperty, _animation);
-
-            DoubleAnimation anOpacity = new DoubleAnimation();
-            anOpacity.From = 1.0;
-            anOpacity.To = 0.0;
-            anOpacity.Duration = new Duration(TimeSpan.FromMilliseconds(200));
-            PART_panelFront.BeginAnimation(DockPanel.OpacityProperty, anOpacity);
-        }
-
-
-        void HideOverlayPanel_Completed(object sender, EventArgs e)
-        {
-            ForceHideOverlayPanel();
-            try
             {
-                if (PART_panelFront != null)
-                    PART_panelFront.Children.Clear();
+                var heightTransition = new DoubleTransition
+                {
+                    Property = Control.HeightProperty,
+                    Duration = TimeSpan.FromMilliseconds(200),
+                    Easing = new LinearEasing()
+                };
+                transitions.Add(heightTransition);
+                _tempPanelAnimation.Height = 0;
             }
-            catch (InvalidOperationException ec)
+
+            var opacityTransition = new DoubleTransition
             {
-                string msg = ec.Message;
-                if (ec.InnerException != null && ec.InnerException.Message != null)
-                    msg += " Inner:" + ec.InnerException.Message;
+                Property = Control.OpacityProperty,
+                Duration = TimeSpan.FromMilliseconds(200),
+                Easing = new LinearEasing()
+            };
+            transitions.Add(opacityTransition);
 
-                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogException("VBDockingManager", "HideOverlayPanel_Completed", msg);
-            }
-            //FocusManager.SetIsFocusScope(this, true);
-            this.Focus();
+            _tempPanelAnimation.Transitions = transitions;
+            PART_panelFront.Opacity = 0.0;
+
+            // Schedule cleanup after animation
+            Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                await System.Threading.Tasks.Task.Delay(200);
+                ForceHideOverlayPanel();
+                try
+                {
+                    if (PART_panelFront != null)
+                        PART_panelFront.Children.Clear();
+                }
+                catch (InvalidOperationException ec)
+                {
+                    string msg = ec.Message;
+                    if (ec.InnerException != null && ec.InnerException.Message != null)
+                        msg += " Inner:" + ec.InnerException.Message;
+
+                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                        datamodel.Database.Root.Messages.LogException("VBDockingManager", "HideOverlayPanel_Completed", msg);
+                }
+                this.Focus();
+            });
         }
-
 
         void ForceHideOverlayPanel()
         {
             if (_tempPanelAnimation != null)
             {
-                _animation.Completed -= new EventHandler(HideOverlayPanel_Completed);
-                _animation.Completed -= new EventHandler(ShowOverlayPanel_Completed);
+                _tempPanelAnimation.Transitions = null;
                 if (_leftRightAnimation)
                 {
-                    _tempPanelAnimation.BeginAnimation(Control.WidthProperty, null);
                     _tempPanelAnimation.Width = 0;
                 }
                 else
                 {
-                    _tempPanelAnimation.BeginAnimation(Control.HeightProperty, null);
                     _tempPanelAnimation.Height = 0;
                 }
-
             }
         }
         #endregion
@@ -1322,9 +1294,9 @@ namespace gip.core.layoutengine.avui
             {
                 if (_ParentWindow == null)
                 {
-                    AvaloniaObject rootObject = gip.core.layoutengine.avui.ControlManager.GetHighestControlInLogicalTree(this);
-                    if (rootObject is Window)
-                        _ParentWindow = rootObject as Window;
+                    var rootObject = gip.core.layoutengine.avui.ControlManager.GetHighestControlInLogicalTree(this);
+                    if (rootObject is Window window)
+                        _ParentWindow = window;
                 }
                 return _ParentWindow;
             }
@@ -1334,24 +1306,22 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-
         internal void MoveTo(VBDockingPanelToolWindow sourcePanel, VBDockingPanelBase destinationPanel, Dock relativeDock)
         {
             PART_gridDocking.MoveTo(sourcePanel, destinationPanel, relativeDock);
         }
-
 
         internal void MoveInto(VBDockingPanelToolWindow sourcePanel, VBDockingPanelBase destinationPanel)
         {
             PART_gridDocking.MoveInto(sourcePanel, destinationPanel);
         }
 
-
         public bool Drag(VBWindowDockingUndocked floatingWindow, Point point, Point offset)
         {
             if (!Focusable)
             {
-                e.Pointer.Capture(this);
+                // In Avalonia, we don't use Capture the same way
+                this.Focus();
                 {
                     if (ParentWindow is VBDockingContainerToolWindow)
                     {
@@ -1372,24 +1342,24 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-
-        protected override void OnPreviewMouseMove(MouseEventArgs e)
-        {
-            if (Focusable)
-                DragPanelServices.MoveDrag(this.PointToScreen(e.GetPosition(this)));
-            base.OnPreviewMouseMove(e);
-        }
-
-
-        protected override void OnPreviewMouseUp(MouseButtonEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
             if (Focusable)
             {
-                DragPanelServices.EndDrag(this.PointToScreen(e.GetPosition(this)));
-                if (e.Pointer.Captured == this)
-                    e.Pointer.Capture(null);
+                var screenPoint = this.PointToScreen(e.GetPosition(this));
+                DragPanelServices.MoveDrag(new Point(screenPoint.X, screenPoint.Y));
             }
-            base.OnPreviewMouseUp(e);
+            base.OnPointerMoved(e);
+        }
+
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
+        {
+            if (Focusable)
+            {
+                var screenPoint = this.PointToScreen(e.GetPosition(this));
+                DragPanelServices.EndDrag(new Point(screenPoint.X, screenPoint.Y));
+            }
+            base.OnPointerReleased(e);
         }
 
         VBDockDragPanelServices _dragPanelServices;
@@ -1408,15 +1378,14 @@ namespace gip.core.layoutengine.avui
 
         #region IDropSurface
 
-
         public Rect SurfaceRectangle
         {
             get
             {
-                return new Rect(this.PointToScreen(new Point(0, 0)).ToPoint(1), new Size(this.Bounds.Width, this.Bounds.Height));
+                var screenPoint = this.PointToScreen(new Point(0, 0));
+                return new Rect(new Point(screenPoint.X, screenPoint.Y), new Size(this.Bounds.Width, this.Bounds.Height));
             }
         }
-
 
         VBDockingOverlayWindow _overlayWindow;
         internal VBDockingOverlayWindow OverlayWindow
@@ -1427,21 +1396,19 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-
         public void OnDockDragEnter(Point point)
         {
-            OverlayWindow.Position = new PixelPoint(this.PointToScreen(new Point(0, 0)).X, this.PointToScreen(new Point(0, 0)).Y);
+            var screenPoint = this.PointToScreen(new Point(0, 0));
+            OverlayWindow.Position = new PixelPoint((int)screenPoint.X, (int)screenPoint.Y);
             OverlayWindow.Width = this.Bounds.Width;
             OverlayWindow.Height = this.Bounds.Height;
             OverlayWindow.Show(DragPanelServices.FloatingWindow);
         }
 
-
         public void OnDockDragOver(Point point)
         {
 
         }
-
 
         public void OnDockDragLeave(Point point)
         {
@@ -1452,7 +1419,6 @@ namespace gip.core.layoutengine.avui
             if (!IsFocused)
                 this.Focus();
         }
-
 
         public bool OnDockDrop(Point point)
         {
@@ -1474,7 +1440,7 @@ namespace gip.core.layoutengine.avui
         }
 
         // Double-Click for Freezing this
-        void _PART_gridDocking_MouseDown(object sender, MouseButtonEventArgs e)
+        void _PART_gridDocking_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             if (!FreezeActive || (ContextACObject == null))
                 return;

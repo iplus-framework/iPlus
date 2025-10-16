@@ -1,0 +1,42 @@
+﻿<ResourceDictionary
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+x:ClassModifier="internal">
+
+	<Color x:Key="MenuItemListLowColor">#19FFFFFF</Color>
+	<SolidColorBrush x:Key="MenuItemTransparentBrush" Color="Transparent" />
+	<SolidColorBrush x:Key="MenuItemHighlightListLowBrush" Color="{StaticResource MenuItemListLowColor}" />
+
+	<Color x:Key="MenuItemListMediumColor">#33000000</Color>
+	<SolidColorBrush x:Key="MenuItemHighlightListMediumBrush" Color="{StaticResource MenuItemListMediumColor}" />
+
+	<Color x:Key="MenuItemBaseHighColor">#FFFFFFFF</Color>
+	<SolidColorBrush x:Key="MenuItemForegroundBaseHighBrush" Color="{StaticResource MenuItemBaseHighColor}" />
+	<SolidColorBrush x:Key="MenuItemHighlightAltBaseHighBrush" Color="{StaticResource MenuItemBaseHighColor}" />
+
+	<Color x:Key="MenuItemBaseMediumLowColor">#66FFFFFF</Color>
+	<SolidColorBrush x:Key="MenuItemDisabledBaseMediumLowBrush" Color="{StaticResource MenuItemBaseMediumLowColor}" />
+
+	<Color x:Key="MenuItemBaseMediumHighColor">#CCFFFFFF</Color>
+	<SolidColorBrush x:Key="MenuItemForegroundBaseMediumHighBrush" Color="{StaticResource MenuItemBaseMediumHighColor}" />
+
+	<Color x:Key="MenuItemBaseMediumColor">#99FFFFFF</Color>
+	<SolidColorBrush x:Key="MenuItemForegroundBaseMediumBrush" Color="{StaticResource MenuItemBaseMediumColor}" />
+	<SolidColorBrush x:Key="MenuItemHighlightAltBaseMediumBrush" Color="{StaticResource MenuItemBaseMediumColor}" />
+
+	<Color x:Key="MenuItemChromeMediumLowColor">#FF2B2B2B</Color>
+	<SolidColorBrush x:Key="MenuItemTransientBackgroundBrush" Color="{StaticResource MenuItemChromeMediumLowColor}" />
+
+	<SolidColorBrush x:Key="MenuItemTransientBorderBrush" Color="#000000" Opacity="0.14" />
+
+	<SolidColorBrush x:Key="MenuItemSubMenuBackgroundBrush" Color="#EFC8C8C8"/>
+	<LinearGradientBrush x:Key="MenuItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+		<GradientStop Color="#4CFF6565" Offset="0"/>
+		<GradientStop Color="#7FFF0018" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="MenuItemPressedFill" EndPoint="0,1" StartPoint="0,0">
+		<GradientStop Color="#28FF6565" Offset="0"/>
+		<GradientStop Color="#CCFF0000" Offset="1"/>
+	</LinearGradientBrush>
+
+</ResourceDictionary>

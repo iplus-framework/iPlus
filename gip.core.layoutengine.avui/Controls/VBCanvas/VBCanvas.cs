@@ -188,6 +188,8 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized)
                 return;
+            if (DisableContextMenu)
+                ContextFlyout = null;
 
             if (!string.IsNullOrEmpty(VBContent))
             {

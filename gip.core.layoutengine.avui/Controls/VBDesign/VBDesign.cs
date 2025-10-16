@@ -108,6 +108,8 @@ namespace gip.core.layoutengine.avui
         internal override void InitVBControl()
         {
             base.InitVBControl();
+            if (DisableContextMenu)
+                ContextFlyout = null;
             InitBinding();
         }
 

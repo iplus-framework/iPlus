@@ -6,6 +6,7 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBContentControl/Themes/ContentControlStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ButtonStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/BarViewerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonMobileStyle.axaml"/>
@@ -14,7 +15,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonTrayStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenu/Themes/MenuStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuItem/Themes/MenuItemStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuItemMobile/Themes/MenuItemMobileStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuSeparator/Themes/MenuSeparatorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBContextMenu/Themes/ContextMenuStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTabControl/Themes/TabControlStyle.axaml"/>
@@ -27,7 +27,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBComboBox/Themes/ComboBoxStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBComboBoxItem/Themes/ComboBoxItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextBox/Themes/TextBoxStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBPasswordBox/Themes/PasswordBoxStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDataGrid/Themes/DataGridStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatePicker/Themes/DatePickerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBListBox/Themes/ListBoxStyle.axaml"/>
@@ -99,8 +98,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBProgramLogView/Themes/ProgramLogViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBProgramLogView/Themes/ProgramLogViewItemStyle.axaml"/>
 
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMultiSelectComboBox/Themes/VBMultiSelectComboBoxStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMultiSelectComboBox/Themes/VBMultiSelectComboBoxItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBCarousel/Themes/CarouselStyle.axaml"/>
         
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBFlipView/Themes/FlipViewStyle.axaml"/>

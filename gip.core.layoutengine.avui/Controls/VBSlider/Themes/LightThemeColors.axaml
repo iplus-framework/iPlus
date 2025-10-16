@@ -1,0 +1,84 @@
+﻿<ResourceDictionary
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+x:ClassModifier="internal">
+
+	<LinearGradientBrush x:Key="HorizontalSliderThumbHoverBackgroundInverted" EndPoint="0,0" StartPoint="0,1">
+		<GradientStop Color="white" Offset="0"/>
+		<GradientStop Color="#FFFFC3C0" Offset="0.5"/>
+		<GradientStop Color="#FFFF5757" Offset="1"/>
+	</LinearGradientBrush>
+	<SolidColorBrush x:Key="HorizontalSliderThumbHoverBorder" Color="#FFA10000"/>
+	<LinearGradientBrush x:Key="HorizontalSliderThumbPressedBackgroundInverted" EndPoint="0,0" StartPoint="0,1">
+		<GradientStop Color="#FFFABBB8" Offset="0.25"/>
+		<GradientStop Color="#FFF77575" Offset="0.5"/>
+		<GradientStop Color="#FFE40000" Offset="1"/>
+	</LinearGradientBrush>
+	<SolidColorBrush x:Key="HorizontalSliderThumbPressedBorder" Color="Red"/>
+
+	<LinearGradientBrush x:Key="HorizontalSliderThumbNormalBackgroundInverted" EndPoint="0,0" StartPoint="0,1">
+		<GradientStop Color="#FFC8C8C8" Offset="0"/>
+		<GradientStop Color="#FFA1A1A1" Offset="0.4"/>
+		<GradientStop Color="#FF646464" Offset=".8"/>
+	</LinearGradientBrush>
+
+	<LinearGradientBrush x:Key="HorizontalSliderThumbHoverBackground" EndPoint="0,1" StartPoint="0,0">
+		<GradientStop Color="white" Offset="0"/>
+		<GradientStop Color="#FFF9B8B8" Offset="0.5"/>
+		<GradientStop Color="#FFF8B0B0" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="HorizontalSliderThumbPressedBackground" EndPoint="0,1" StartPoint="0,0">
+		<GradientStop Color="#FFFAB8B8" Offset="0.25"/>
+		<GradientStop Color="#FFE35E5E" Offset="0.5"/>
+		<GradientStop Color="#FFB44C4C" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="HorizontalSliderThumbNormalBackground" EndPoint="0,1" StartPoint="0,0">
+		<GradientStop Color="#FFC8C8C8" Offset="0"/>
+		<GradientStop Color="#FFA1A1A1" Offset="0.4"/>
+		<GradientStop Color="#FF646464" Offset=".8"/>
+	</LinearGradientBrush>
+
+	<LinearGradientBrush x:Key="HorizontalSliderTrackNormalBorder" EndPoint="0,1" StartPoint="0,0">
+		<GradientStop Color="#FF646464" Offset="0.1"/>
+		<GradientStop Color="#FFCACACA" Offset=".9"/>
+	</LinearGradientBrush>
+	<SolidColorBrush x:Key="HorizontalSliderTrackNormalBackground" Color="#FFE7EAEA"/>
+
+	<LinearGradientBrush x:Key="VerticalSliderThumbHoverBackground" EndPoint="1,0" StartPoint="0,0">
+		<GradientStop Color="white" Offset="0"/>
+		<GradientStop Color="#FFF9B8B8" Offset="0.5"/>
+		<GradientStop Color="#FFF8B0B0" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="VerticalSliderThumbPressedBackground" EndPoint="1,0" StartPoint="0,0">
+		<GradientStop Color="#FFFAB8B8" Offset="0.25"/>
+		<GradientStop Color="#FFE35E5E" Offset="0.5"/>
+		<GradientStop Color="#FFB44C4C" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="VerticalSliderThumbNormalBackground" EndPoint="1,0" StartPoint="0,0">
+		<GradientStop Color="White" Offset="0"/>
+		<GradientStop Color="#F0EFEF" Offset="0.4"/>
+		<GradientStop Color="#D6D5D5" Offset=".8"/>
+	</LinearGradientBrush>
+
+	<LinearGradientBrush x:Key="VerticalSliderThumbHoverBackgroundInverted" EndPoint="0,0" StartPoint="1,0">
+		<GradientStop Color="white" Offset="0"/>
+		<GradientStop Color="#FFF9B8B8" Offset="0.5"/>
+		<GradientStop Color="#FFF8B0B0" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="VerticalSliderThumbPressedBackgroundInverted" EndPoint="0,0" StartPoint="1,0">
+		<GradientStop Color="#FFFAB8B8" Offset="0.25"/>
+		<GradientStop Color="#FFE35E5E" Offset="0.5"/>
+		<GradientStop Color="#FFB44C4C" Offset="1"/>
+	</LinearGradientBrush>
+	<LinearGradientBrush x:Key="VerticalSliderThumbNormalBackgroundInverted" EndPoint="0,0" StartPoint="1,0">
+		<GradientStop Color="White" Offset="0"/>
+		<GradientStop Color="#F0EFEF" Offset="0.4"/>
+		<GradientStop Color="#D6D5D5" Offset=".8"/>
+	</LinearGradientBrush>
+
+	<LinearGradientBrush x:Key="VerticalSliderTrackNormalBorder" EndPoint="1,0" StartPoint="0,0">
+		<GradientStop Color="#FFAEB1AF" Offset="0.1"/>
+		<GradientStop Color="White" Offset=".9"/>
+	</LinearGradientBrush>
+
+</ResourceDictionary>

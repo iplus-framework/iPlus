@@ -3,15 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Windows.Data;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Windows.Input;
+
 
 namespace gip.core.layoutengine.avui
 {

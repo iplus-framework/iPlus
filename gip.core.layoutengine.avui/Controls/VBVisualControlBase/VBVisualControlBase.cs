@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
+using Avalonia.Controls;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
@@ -32,9 +22,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACState.
         /// </summary>
-        public static readonly DependencyProperty ACStateProperty
-            = DependencyProperty.Register(Const.ACState, typeof(string), typeof(VBVisualControlBase), new PropertyMetadata(new PropertyChangedCallback(OnACStateChanged)));
-        
+        /// 
+        public static readonly StyledProperty<string> ACStateProperty = AvaloniaProperty.Register<VBVisualControlBase, string>(nameof(ACState));
+
         /// <summary>
         /// Gets or sets the ACState.
         /// </summary>
@@ -46,28 +36,26 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACStateProperty, value); }
         }
 
-        private static void OnACStateChanged(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (d is VBVisualControlBase)
-            {
-                VBVisualControlBase control = d as VBVisualControlBase;
-                control.OnACStateChanged(e);
-            }
+            base.OnPropertyChanged(change);
+            if (change.Property == ACStateProperty)
+                OnACStateChanged(change);
         }
 
         /// <summary>
         /// Invokes on ACState changed.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected virtual void OnACStateChanged(DependencyPropertyChangedEventArgs e)
+        protected virtual void OnACStateChanged(AvaloniaPropertyChangedEventArgs e)
         {
         }
         #endregion
 
 
 
-        public static readonly DependencyProperty AnimationOffProperty = ContentPropertyHandler.AnimationOffProperty.AddOwner(typeof(VBVisualControlBase), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly StyledProperty<bool> AnimationOffProperty = AvaloniaProperty.Register<VBVisualControlBase, bool>(nameof(AnimationOff));
+
         /// <summary>
         /// Dependency property to control if animations should be switched off to save gpu/rendering performance.
         /// </summary>

@@ -43,10 +43,11 @@ namespace gip.core.layoutengine.avui
 
         private List<VBMenuItem> _AppCommandsToRemove = new List<VBMenuItem>();
 
+        public static readonly StyledProperty<double> ZoomProperty = AvaloniaProperty.Register<VBContextMenu, double>(nameof(Zoom));
         public double Zoom
         {
-            get;
-            set;
+            get => GetValue(ZoomProperty);
+            set => SetValue(ZoomProperty, value);
         }
 
         private void FillContextMenu(ItemsControl itemsControl, IACInteractiveObject acElement, IEnumerable<ACMenuItem> acMenuItemList)

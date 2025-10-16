@@ -83,7 +83,7 @@ namespace gip.core.layoutengine.avui
             AvaloniaProperty.Register<VBAutoCompleteBox, string>(nameof(VBAccess));
 
         public static readonly AttachedProperty<IACBSO> BSOACComponentProperty =
-            AvaloniaProperty.RegisterAttached<VBAutoCompleteBox, Control, IACBSO>("BSOACComponent");
+            AvaloniaProperty.RegisterAttached<VBAutoCompleteBox, Control, IACBSO>(nameof(BSOACComponent));
 
         public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
             AvaloniaProperty.Register<VBAutoCompleteBox, ACInitState>(nameof(ACCompInitState));

@@ -385,7 +385,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Changes the syntax highlighting.
         /// </summary>
-        protected override void ChangeSyntaxHighlighting()
+        internal override void ChangeSyntaxHighlighting()
         {
             if (SyntaxHighlighting == null)
             {

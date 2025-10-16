@@ -1,117 +1,460 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <ResourceDictionary.MergedDictionaries>
-    <ResourceInclude Source="/Controls/VBTextBox/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBTextBlock/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBListBoxItem/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBListBox/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBComboBoxItem/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBComboBox/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBAutoCompleteBox/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBButton/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBRepeatButton/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBDateTimeUpDown/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBDateTimePicker/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBXMLEditor/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBTabItem/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBDocking/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBDocking/VBWindow/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBConnectionState/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBContentControl/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBContextMenu/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBControlSelectionIcon/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBExpander/Themes/LightThemeColors.axaml"/>
-    <ResourceInclude Source="/Controls/VBDataGrid/Themes/LightThemeColors.axaml"/>
-  </ResourceDictionary.MergedDictionaries>
-  
-  <Color x:Key="ColorCtrlTxtDisabled" A="#FF" B="#30" G="#30" R="#30"/>
-  <SolidColorBrush x:Key="CtrlTxtDisabled" Color="{StaticResource ColorCtrlTxtDisabled}"/>
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<ResourceDictionary.MergedDictionaries>
+		<ResourceInclude Source="/Controls/VBTextBox/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBTextBlock/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBListBoxItem/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBListBox/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBComboBoxItem/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBComboBox/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBAutoCompleteBox/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBButton/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBRepeatButton/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBDateTimeUpDown/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBDateTimePicker/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBXMLEditor/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBTabItem/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBDocking/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBDocking/VBWindow/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBConnectionState/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBContentControl/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBContextMenu/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBControlSelectionIcon/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBExpander/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBDataGrid/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBFlipView/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBMenu/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBMenuItem/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBRadioButton/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBTreeViewItem/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBTreeView/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBScrollViewer/Themes/SharedBrushes.axaml"/>
+		<ResourceInclude Source="/Controls/VBSlider/Themes/LightThemeColors.axaml"/>
+	</ResourceDictionary.MergedDictionaries>
 
-  <Color x:Key="ColorCtrlTxtEnabled" A="#FF" B="#00" G="#00" R="#00"/>
-  <SolidColorBrush x:Key="CtrlTxtEnabled" Color="{StaticResource ColorCtrlTxtEnabled}"/>
+	<Color x:Key="ColorCtrlTxtDisabled">#FF303030</Color>
+	<SolidColorBrush x:Key="CtrlTxtDisabled" Color="{StaticResource ColorCtrlTxtDisabled}"/>
 
-  <Color x:Key="ColorCtrlTxtWrong" A="#FF" B="#00" G="#00" R="#00"/>
-  <SolidColorBrush x:Key="CtrlTxtWrong" Color="{StaticResource ColorCtrlTxtWrong}"/>
+	<Color x:Key="ColorCtrlTxtEnabled">#FF000000</Color>
+	<SolidColorBrush x:Key="CtrlTxtEnabled" Color="{StaticResource ColorCtrlTxtEnabled}"/>
 
-  <Color x:Key="ColorCtrlTxtRequired" A="#FF" B="#00" G="#00" R="#00"/>
-  <SolidColorBrush x:Key="CtrlTxtRequired" Color="{StaticResource ColorCtrlTxtRequired}"/>
+	<Color x:Key="ColorCtrlTxtWrong">#FF000000</Color>
+	<SolidColorBrush x:Key="CtrlTxtWrong" Color="{StaticResource ColorCtrlTxtWrong}"/>
 
-  <Color x:Key="ColorCtrlBackDisabled" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="CtrlBackDisabled" Color="{StaticResource ColorCtrlBackDisabled}"/>
+	<Color x:Key="ColorCtrlTxtRequired">#FF000000</Color>
+	<SolidColorBrush x:Key="CtrlTxtRequired" Color="{StaticResource ColorCtrlTxtRequired}"/>
 
-  <Color x:Key="ColorCtrlBackEnabled" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="CtrlBackEnabled" Color="{StaticResource ColorCtrlBackEnabled}" />
+	<Color x:Key="ColorCtrlBackDisabled">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="CtrlBackDisabled" Color="{StaticResource ColorCtrlBackDisabled}"/>
 
-  <Color x:Key="ColorCtrlBackWrong" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="CtrlBackWrong" Color="{StaticResource ColorCtrlBackWrong}" />
+	<Color x:Key="ColorCtrlBackEnabled">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="CtrlBackEnabled" Color="{StaticResource ColorCtrlBackEnabled}" />
 
-  <Color x:Key="ColorCtrlBackRequired" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="CtrlBackRequired" Color="{StaticResource ColorCtrlBackRequired}" />
+	<Color x:Key="ColorCtrlBackWrong">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="CtrlBackWrong" Color="{StaticResource ColorCtrlBackWrong}" />
 
-  <Color x:Key="ColorCtrlFrmDisabled" A="#FF" B="#B3" G="#B3" R="#B3"/>
-  <SolidColorBrush x:Key="CtrlFrmDisabled" Color="{StaticResource ColorCtrlFrmDisabled}" />
+	<Color x:Key="ColorCtrlBackRequired">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="CtrlBackRequired" Color="{StaticResource ColorCtrlBackRequired}" />
 
-  <Color x:Key="ColorCtrlFrmEnabled" A="#FF" B="#00" G="#00" R="#00"/>
-  <SolidColorBrush x:Key="CtrlFrmEnabled" Color="{StaticResource ColorCtrlFrmEnabled}" />
+	<Color x:Key="ColorCtrlFrmDisabled">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="CtrlFrmDisabled" Color="{StaticResource ColorCtrlFrmDisabled}" />
 
-  <Color x:Key="ColorCtrlFrmRequired" A="#FF" B="0" G="0" R="#FF"/>
-  <SolidColorBrush x:Key="CtrlFrmRequired" Color="{StaticResource ColorCtrlFrmRequired}" />
+	<Color x:Key="ColorCtrlFrmEnabled">#FF000000</Color>
+	<SolidColorBrush x:Key="CtrlFrmEnabled" Color="{StaticResource ColorCtrlFrmEnabled}" />
 
-  <Color x:Key="ColorFrmDark" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="FrmDark" Color="{StaticResource ColorFrmDark}" />
+	<Color x:Key="ColorCtrlFrmRequired">#FFFF0000</Color>
+	<SolidColorBrush x:Key="CtrlFrmRequired" Color="{StaticResource ColorCtrlFrmRequired}" />
 
-  <Color x:Key="ColorFrmLight" A="#FF" R="#F3" G="#F3" B="#F3"/>
-  <SolidColorBrush x:Key="FrmLight" Color="{StaticResource ColorFrmLight}" />
+	<Color x:Key="ColorFrmDark">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="FrmDark" Color="{StaticResource ColorFrmDark}" />
 
-  <Color x:Key="ColorAppBack" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="AppBack" Color="{StaticResource ColorAppBack}" />
+	<Color x:Key="ColorFrmLight">#FFF3F3F3</Color>
+	<SolidColorBrush x:Key="FrmLight" Color="{StaticResource ColorFrmLight}" />
 
-  <Color x:Key="ColorAppDark" A="#FF" R="#B3" G="#B3" B="#B3"/>
-  <SolidColorBrush x:Key="AppDark" Color="{StaticResource ColorAppDark}" />
+	<Color x:Key="ColorAppBack">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="AppBack" Color="{StaticResource ColorAppBack}" />
 
-  <Color x:Key="ColorAppLight" A="#FF" R="#D3" G="#D3" B="#D3"/>
-  <SolidColorBrush x:Key="AppLight" Color="{StaticResource ColorAppLight}" />
+	<Color x:Key="ColorAppDark">#FFB3B3B3</Color>
+	<SolidColorBrush x:Key="AppDark" Color="{StaticResource ColorAppDark}" />
 
-  <Color x:Key="TabItemSelectedBorderColorAero"
-         A="#FF" R="#92" G="#92" B="#92"/>
-  <SolidColorBrush x:Key="TabItemSelectedBorderBrushAero" Color="{StaticResource TabItemSelectedBorderColorAero}"/>
+	<Color x:Key="ColorAppLight">#FFD3D3D3</Color>
+	<SolidColorBrush x:Key="AppLight" Color="{StaticResource ColorAppLight}" />
 
-  <!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFillAero" EndPoint="0,1" StartPoint="0,0">
-        <GradientStop Color="#4CFF6565" Offset="0"/>
-        <GradientStop Color="#7FFF0018" Offset="1"/>
-    </LinearGradientBrush>
-    <Border x:Key="ComboBoxSelectedItemTemplate" CornerRadius="2" Background="{StaticResource ComboBoxItemSelectionFillAero}" BorderBrush="#FF0000">
-        <StackPanel x:Name="ComboBoxSelectedItemPanel" Orientation="Horizontal"></StackPanel>
-    </Border>-->
+	<Color x:Key="TabItemSelectedBorderColorAero">#FF929292</Color>
+	<SolidColorBrush x:Key="TabItemSelectedBorderBrushAero" Color="{StaticResource TabItemSelectedBorderColorAero}"/>
 
-  <DrawingBrush x:Key="ConverterErrorBrush" Viewport="0,0,0.25,0.25" TileMode="Tile">
-    <DrawingBrush.Drawing>
-      <DrawingGroup>
-        <GeometryDrawing>
-          <GeometryDrawing.Brush>
-            <SolidColorBrush Color="#88FFFFFF"/>
-          </GeometryDrawing.Brush>
-          <GeometryDrawing.Geometry>
-            <RectangleGeometry Rect="0,0,20,20" />
-          </GeometryDrawing.Geometry>
-        </GeometryDrawing>
+	<!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFillAero" EndPoint="0,1" StartPoint="0,0">
+	<GradientStop Color="#4CFF6565" Offset="0"/>
+	<GradientStop Color="#7FFF0018" Offset="1"/>
+	</LinearGradientBrush>
+	<Border x:Key="ComboBoxSelectedItemTemplate" CornerRadius="2" Background="{StaticResource ComboBoxItemSelectionFillAero}" BorderBrush="#FF0000">
+	<StackPanel x:Name="ComboBoxSelectedItemPanel" Orientation="Horizontal"></StackPanel>
+	</Border>-->
 
-        <GeometryDrawing>
-          <GeometryDrawing.Geometry>
-            <GeometryGroup>
-              <RectangleGeometry Rect="0,0,10,10" />
-              <RectangleGeometry Rect="10,10,10,10" />
-            </GeometryGroup>
-          </GeometryDrawing.Geometry>
-          <GeometryDrawing.Brush>
-            <SolidColorBrush Color="#88FF0000"/>
-          </GeometryDrawing.Brush>
-        </GeometryDrawing>
-      </DrawingGroup>
-    </DrawingBrush.Drawing>
-  </DrawingBrush>
+	<DrawingBrush x:Key="ConverterErrorBrush" TileMode="Tile">
+		<DrawingBrush.Drawing>
+			<DrawingGroup>
+				<GeometryDrawing>
+					<GeometryDrawing.Brush>
+						<SolidColorBrush Color="#88FFFFFF"/>
+					</GeometryDrawing.Brush>
+					<GeometryDrawing.Geometry>
+						<RectangleGeometry Rect="0,0,20,20" />
+					</GeometryDrawing.Geometry>
+				</GeometryDrawing>
+
+				<GeometryDrawing>
+					<GeometryDrawing.Geometry>
+						<GeometryGroup>
+							<RectangleGeometry Rect="0,0,10,10" />
+							<RectangleGeometry Rect="10,10,10,10" />
+						</GeometryGroup>
+					</GeometryDrawing.Geometry>
+					<GeometryDrawing.Brush>
+						<SolidColorBrush Color="#88FF0000"/>
+					</GeometryDrawing.Brush>
+				</GeometryDrawing>
+			</DrawingGroup>
+		</DrawingBrush.Drawing>
+	</DrawingBrush>
+
+	<!-- Aero Colors -->
+	<Color x:Key="AeroForegroundColor">#FF000000</Color>
+	<Color x:Key="AeroDisabledForegroundColor">#FF7F7F7F</Color>
+
+
+	<Color x:Key="AeroWindowBackgroundColor">#FFFCFCFC</Color>
+
+
+	<Color x:Key="AeroToolTipBackgroundColor0">#FFFFFFFF</Color>
+	<Color x:Key="AeroToolTipBackgroundColor1">#FFF0E5E4</Color>
+
+	<Color x:Key="AeroToolTipBorderBrushColor">#FF767676</Color>
+
+
+	<Color x:Key="AeroButtonIdleBackgroundColor0">#FFF2F2F2</Color>
+	<Color x:Key="AeroButtonIdleBackgroundColor1">#FFEBEBEB</Color>
+	<Color x:Key="AeroButtonIdleBackgroundColor2">#FFDDDDDD</Color>
+	<Color x:Key="AeroButtonIdleBackgroundColor3">#FFCFCFCF</Color>
+
+	<Color x:Key="AeroButtonIdleOuterBorderBrushColor">#FF707070</Color>
+
+	<Color x:Key="AeroButtonIdleInnerBorderBrushColor0">#FFFCFCFC</Color>
+	<Color x:Key="AeroButtonIdleInnerBorderBrushColor1">#FFF3F3F3</Color>
+
+
+	<Color x:Key="AeroButtonHoverBackgroundColor0">#FFFDF6EA</Color>
+	<Color x:Key="AeroButtonHoverBackgroundColor1">#FFFCF0D9</Color>
+	<Color x:Key="AeroButtonHoverBackgroundColor2">#FFFDE6BE</Color>
+	<Color x:Key="AeroButtonHoverBackgroundColor3">#FFF5D9A7</Color>
+
+	<Color x:Key="AeroButtonHoverOuterBorderBrushColor">#FFB17F3C</Color>
+
+	<Color x:Key="AeroButtonHoverInnerBorderBrushColor0">#FFFEFDFE</Color>
+	<Color x:Key="AeroButtonHoverInnerBorderBrushColor1">#FFFCF5E8</Color>
+
+
+	<Color x:Key="AeroButtonPressedBackgroundColor0">#FFFCF4E5</Color>
+	<Color x:Key="AeroButtonPressedBackgroundColor1">#FFF6E5C4</Color>
+	<Color x:Key="AeroButtonPressedBackgroundColor2">#FFEFDA98</Color>
+	<Color x:Key="AeroButtonPressedBackgroundColor3">#FFDBB368</Color>
+
+	<Color x:Key="AeroButtonPressedOuterBorderBrushColor">#FF8B622C</Color>
+
+	<Color x:Key="AeroButtonPressedInnerBorderBrushColor0">#FFBAB09E</Color>
+	<Color x:Key="AeroButtonPressedInnerBorderBrushColor1">#FFCBBABF</Color>
+	<Color x:Key="AeroButtonPressedInnerBorderBrushColor2">#FFC5AA78</Color>
+	<Color x:Key="AeroButtonPressedInnerBorderBrushColor3">#FFDBB368</Color>
+
+
+	<Color x:Key="AeroButtonDisabledBackgroundColor">#FFF4F4F4</Color>
+
+	<Color x:Key="AeroButtonDisabledOuterBorderBrushColor">#FFB5B2AD</Color>
+
+	<Color x:Key="AeroButtonDisabledInnerBorderBrushColor">#FFFCFCFC</Color>
+
+	<Color x:Key="AeroButtonDisabledForegroundColor">#FF7F7F7F</Color>
+
+
+
+
+	<Color x:Key="AeroCheckBoxIdleOuterBorderBrushColor">#FF8F8E8F</Color>
+
+	<Color x:Key="AeroCheckBoxIdleMiddleBorderBrushColor">#FFF4F4F4</Color>
+
+	<Color x:Key="AeroCheckBoxIdleInnerBorderBrushColor0">#FFB9B3AE</Color>
+	<Color x:Key="AeroCheckBoxIdleInnerBorderBrushColor1">#FFEAE9E9</Color>
+
+	<Color x:Key="AeroCheckBoxIdleBackgroundColor0">#FFD5CFCB</Color>
+	<Color x:Key="AeroCheckBoxIdleBackgroundColor1">#FFF6F6F6</Color>
+
+	<Color x:Key="AeroCheckBoxIdleCheckMarkBrushColor">#FF965F49</Color>
+
+
+	<Color x:Key="AeroCheckBoxHoverOuterBorderBrushColor">#FFA38655</Color>
+
+	<Color x:Key="AeroCheckBoxHoverMiddleBorderBrushColor">#FFFAF9DE</Color>
+
+	<Color x:Key="AeroCheckBoxHoverInnerBorderBrushColor0">#FFF9C679</Color>
+	<Color x:Key="AeroCheckBoxHoverInnerBorderBrushColor1">#FFFDECFC</Color>
+
+	<Color x:Key="AeroCheckBoxHoverBackgroundColor0">#FFFDDFB1</Color>
+	<Color x:Key="AeroCheckBoxHoverBackgroundColor1">#FFFEF7E7</Color>
+
+	<Color x:Key="AeroCheckBoxHoverCheckMarkBrushColor">#FF712204</Color>
+
+
+	<Color x:Key="AeroCheckBoxPressedOuterBorderBrushColor">#FF8B622C</Color>
+
+	<Color x:Key="AeroCheckBoxPressedMiddleBorderBrushColor">#FFF6E4C2</Color>
+
+	<Color x:Key="AeroCheckBoxPressedInnerBorderBrushColor0">#FFF7B65E</Color>
+	<Color x:Key="AeroCheckBoxPressedInnerBorderBrushColor1">#FFFCE6C1</Color>
+
+	<Color x:Key="AeroCheckBoxPressedBackgroundColor0">#FFFCD59D</Color>
+	<Color x:Key="AeroCheckBoxPressedBackgroundColor1">#FFFEF4E0</Color>
+
+	<Color x:Key="AeroCheckBoxPressedCheckMarkBrushColor">#FF985B3A</Color>
+
+
+	<Color x:Key="AeroCheckBoxDisabledBorderBrushColor">#FFB1B1B1</Color>
+
+	<Color x:Key="AeroCheckBoxDisabledBackgroundColor0">#FFF0F0F0</Color>
+	<Color x:Key="AeroCheckBoxDisabledBackgroundColor1">#FFFBFBFB</Color>
+
+	<Color x:Key="AeroCheckBoxDisabledCheckMarkBrushColor">#FF985B3A</Color>
+
+
+
+
+	<Color x:Key="AeroRadioButtonIdleCircleFillColor0">#FFFDEBC7</Color>
+	<Color x:Key="AeroRadioButtonIdleCircleFillColor1">#FFC7820B</Color>
+
+
+	<Color x:Key="AeroRadioButtonHoverCircleFillColor0">#FFFFFF74</Color>
+	<Color x:Key="AeroRadioButtonHoverCircleFillColor1">#FFF2A311</Color>
+
+
+	<Color x:Key="AeroRadioButtonPressedCircleFillColor0">#FFFCD995</Color>
+	<Color x:Key="AeroRadioButtonPressedCircleFillColor1">#FF845609</Color>
+
+
+	<Color x:Key="AeroRadioButtonDisabledCircleFillColor0">#FFFDEBC7</Color>
+	<Color x:Key="AeroRadioButtonDisabledCircleFillColor1">#FFC7820B</Color>
+
+
+
+
+	<Color x:Key="AeroTabControlBackgroundColor">#FFFFFFFF</Color>
+
+	<Color x:Key="AeroTabControlOuterBorderBrushColor">#FFFFFFFF</Color>
+
+	<Color x:Key="AeroTabControlInnerBorderBrushColor">#FF958C89</Color>
+
+
+
+
+	<Color x:Key="AeroTextBoxIdleBackgroundColor">#FFF9F9F9</Color>
+
+	<Color x:Key="AeroTextBoxIdleBorderBrushColor0">#FF707070</Color>
+	<Color x:Key="AeroTextBoxIdleBorderBrushColor1">#FFC9C9C9</Color>
+
+
+	<Color x:Key="AeroTextBoxHoverBackgroundColor">#FFFFFFFF</Color>
+
+	<Color x:Key="AeroTextBoxHoverBorderBrushColor0">#FFB17F3C</Color>
+	<Color x:Key="AeroTextBoxHoverBorderBrushColor1">#FFFFB856</Color>
+
+
+	<Color x:Key="AeroTextBoxFocusBackgroundColor">#FFFFFFFF</Color>
+
+	<Color x:Key="AeroTextBoxFocusBorderBrushColor0">#FF8B622C</Color>
+	<Color x:Key="AeroTextBoxFocusBorderBrushColor1">#FFE5A449</Color>
+
+
+	<Color x:Key="AeroTextBoxDisabledBackgroundColor">#FFE9E9E9</Color>
+
+	<Color x:Key="AeroTextBoxDisabledBorderBrushColor">#FFB5B2AD</Color>
+
+
+	<Color x:Key="AeroTextBoxErrorBorderBrushColor0">#FF3B3BAF</Color>
+	<Color x:Key="AeroTextBoxErrorBorderBrushColor1">#FF5656FF</Color>
+
+
+
+
+
+	<Color x:Key="AeroScrollBarButtonForegroundColor0">#E0000000</Color>
+	<Color x:Key="AeroScrollBarButtonForegroundColor1">#A0000000</Color>
+
+
+	<Color x:Key="AeroScrollBarButtonIconStrokeColor">#40FFFFFF</Color>
+
+	<Color x:Key="AeroScrollBarThumbIconStrokeColor">#FFFFFFFF</Color>
+
+	<Color x:Key="AeroScrollBarTrackBackgroundColor0">#FFE3E3E3</Color>
+	<Color x:Key="AeroScrollBarTrackBackgroundColor1">#FFEFEFEF</Color>
+	<Color x:Key="AeroScrollBarTrackBackgroundColor2">#FFF2F2F2</Color>
+
+	<Color x:Key="AeroScrollBarTrackBorderBrushColor0">#FFF8F8F8</Color>
+	<Color x:Key="AeroScrollBarTrackBorderBrushColor1">#FFEAEAEA</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonIdleBackgroundColor0">#FFF2F2F2</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonIdleBackgroundColor1">#FFEBEBEB</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonIdleBackgroundColor2">#FFDDDDDD</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonIdleBackgroundColor3">#FFCFCFCF</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonIdleOuterBorderBrushColor">#FF707070</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonIdleInnerBorderBrushColor0">#FFFCFCFC</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonIdleInnerBorderBrushColor1">#FFF3F3F3</Color>
+
+
+	<Color x:Key="AeroVerticalScrollBarButtonHoverBackgroundColor0">#FFFDF6EA</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonHoverBackgroundColor1">#FFFCF0D9</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonHoverBackgroundColor2">#FFFDE6BE</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonHoverBackgroundColor3">#FFF5D9A7</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonHoverOuterBorderBrushColor">#FFB17F3C</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonHoverInnerBorderBrushColor0">#FFFEFDFE</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonHoverInnerBorderBrushColor1">#FFFCF5E8</Color>
+
+
+	<Color x:Key="AeroVerticalScrollBarButtonPressedBackgroundColor0">#FFFCF4E5</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonPressedBackgroundColor1">#FFF6E5C4</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonPressedBackgroundColor2">#FFEFDA98</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonPressedBackgroundColor3">#FFDBB368</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonPressedOuterBorderBrushColor">#FF8B622C</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonPressedInnerBorderBrushColor0">#FFBAB09E</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonPressedInnerBorderBrushColor1">#FFCBBABF</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonPressedInnerBorderBrushColor2">#FFC5AA78</Color>
+	<Color x:Key="AeroVerticalScrollBarButtonPressedInnerBorderBrushColor3">#FFDBB368</Color>
+
+
+	<Color x:Key="AeroVerticalScrollBarButtonDisabledBackgroundColor">#FFF4F4F4</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonDisabledOuterBorderBrushColor">#FFB5B2AD</Color>
+
+	<Color x:Key="AeroVerticalScrollBarButtonDisabledInnerBorderBrushColor">#FFFCFCFC</Color>
+
+
+	<Color x:Key="AeroScrollViewerCornerBackgroundColor">#FFFCFCFC</Color>
+
+
+
+
+	<Color x:Key="AeroToggleSwitchCheckedBackgroundColor">#FFF6DFC1</Color><!--FF3B83B8-->
+
+	<Color x:Key="AeroToggleSwitchCheckedBorderBrushColor0">#FF8B622C</Color>
+	<Color x:Key="AeroToggleSwitchCheckedBorderBrushColor1">#FFE5A449</Color>
+
+
+
+
+	<Color x:Key="AeroMenuBarBackgroundColor0">#FFEDDBD4</Color>
+	<Color x:Key="AeroMenuBarBackgroundColor1">#FFF6E1E1</Color>
+
+	<Color x:Key="AeroMenuBarShineColor0">#FAFFFFFF</Color>
+	<Color x:Key="AeroMenuBarShineColor1">#62FFFFFF</Color>
+
+	<Color x:Key="AeroMenuBarSideBorderBrushColor0">#FFF6ECE9</Color>
+	<Color x:Key="AeroMenuBarSideBorderBrushColor1">#FFFAF2F0</Color>
+
+	<Color x:Key="AeroMenuBarBottomOuterBorderBrushColor">#FFF0F0F0</Color>
+
+	<Color x:Key="AeroMenuBarBottomInnerBorderBrushColor">#FFCCB6B6</Color>
+
+
+
+
+	<Color x:Key="AeroMenuBarItemHoverBackgroundColor">#10FFFFFF</Color>
+	<Color x:Key="AeroMenuBarItemHoverBorderBrushColor">#40000000</Color>
+
+	<Color x:Key="AeroMenuBarItemSelectedBackgroundColor">#20000000</Color>
+	<Color x:Key="AeroMenuBarItemSelectedBorderBrushColor">#A0000000</Color>
+
+
+
+
+	<Color x:Key="AeroGroupBoxBorderBrushColor">#FFE5DFD5</Color>
+
+
+
+
+	<Color x:Key="AeroProgressBarFrameBackgroundColor0">#FFCACACA</Color>
+	<Color x:Key="AeroProgressBarFrameBackgroundColor1">#FFD5D5D5</Color>
+
+	<Color x:Key="AeroProgressBarFrameOuterBorderBrushColor0">#FFB2B2B2</Color>
+	<Color x:Key="AeroProgressBarFrameOuterBorderBrushColor1">#FF8C8C8C</Color>
+
+	<Color x:Key="AeroProgressBarFrameInnerBorderBrushColor0">#FFF1F1F1</Color>
+	<Color x:Key="AeroProgressBarFrameInnerBorderBrushColor1">#FFD1D1D1</Color>
+
+	<Color x:Key="AeroProgressBarStorageFrameBackgroundColor">#FFFBFBFB</Color>
+
+	<Color x:Key="AeroProgressBarStorageFrameInnerBorderBrushColor0">#FFF1F1F1</Color>
+	<Color x:Key="AeroProgressBarStorageFrameInnerBorderBrushColor1">#FFD1D1D1</Color>
+
+	<Color x:Key="AeroProgressBarFillColor">#FF28D300</Color>
+
+	<Color x:Key="AeroProgressBarFillFallbackColor0">#FFFF00FF</Color>
+	<Color x:Key="AeroProgressBarFillFallbackColor1">#FF00FF00</Color>
+
+	<Color x:Key="AeroProgressBarShineColor0">#DAFFFFFF</Color>
+	<Color x:Key="AeroProgressBarShineColor1">#A0FFFFFF</Color>
+
+
+
+
+	<Color x:Key="AeroListBoxBackgroundColor">#FFFFFFFF</Color>
+	<Color x:Key="AeroListBoxOuterBorderColor">#FF908782</Color>
+	<Color x:Key="AeroListBoxInnerBorderColor">#FFFFFFFF</Color>
+
+
+
+
+	<Color x:Key="AeroListBoxItemHoverBackgroundColor0">#C0FFF5FA</Color>
+	<Color x:Key="AeroListBoxItemHoverBackgroundColor1">#66FFE6D2</Color>
+
+	<Color x:Key="AeroListBoxItemHoverOuterBorderBrushColor">#ADFAC497</Color>
+
+	<Color x:Key="AeroListBoxItemHoverInnerBorderBrushColor0">#9CFFFFFB</Color>
+	<Color x:Key="AeroListBoxItemHoverInnerBorderBrushColor1">#9CFFF3EB</Color>
+
+
+	<Color x:Key="AeroListBoxItemSelectedBackgroundColor0">#BFFFF0E5</Color>
+	<Color x:Key="AeroListBoxItemSelectedBackgroundColor1">#BFFFDCC0</Color>
+
+	<Color x:Key="AeroListBoxItemSelectedOuterBorderBrushColor">#E6D9A276</Color>
+
+	<Color x:Key="AeroListBoxItemSelectedInnerBorderBrushColor0">#D4FFF6EF</Color>
+	<Color x:Key="AeroListBoxItemSelectedInnerBorderBrushColor1">#D4FFEAD8</Color>
+
+
+	<Color x:Key="AeroListBoxItemSelectedHoverBackgroundColor0">#BFFCE4D1</Color>
+	<Color x:Key="AeroListBoxItemSelectedHoverBackgroundColor1">#BFFCD1AD</Color>
+
+	<Color x:Key="AeroListBoxItemSelectedHoverOuterBorderBrushColor">#E6C8976E</Color>
+
+	<Color x:Key="AeroListBoxItemSelectedHoverInnerBorderBrushColor0">#DAFCE7E2</Color>
+	<Color x:Key="AeroListBoxItemSelectedHoverInnerBorderBrushColor1">#DAFCE6D4</Color>
 
 </ResourceDictionary>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

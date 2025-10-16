@@ -2,20 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml.Linq;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System.Transactions;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -41,9 +36,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -108,7 +103,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBUpdateInfo), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = AvaloniaProperty.RegisterAttached<VBUpdateInfo, Control, IACBSO>(nameof(BSOACComponent), null, true);
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -118,30 +113,10 @@ namespace gip.core.layoutengine.avui
             set { SetValue(BSOACComponentProperty, value); }
         }
 
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBUpdateInfo),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
-
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBUpdateInfo),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBUpdateInfo, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
@@ -152,21 +127,18 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBUpdateInfo thisControl = dependencyObject as VBUpdateInfo;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
         }
@@ -201,40 +173,6 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ucTextblock.ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ucTextblock.ToolTip = value;
-        //    }
-        //}
-
-
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
-        }
 
         private bool Enabled
         {
@@ -303,54 +241,41 @@ namespace gip.core.layoutengine.avui
             RightControlMode = Global.ControlModes.Disabled;
             if (VBContent == null || VBContent == "")
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
             else
             {
                 Binding binding1 = new Binding();
-                binding1.Path = new PropertyPath(VBContent + ".InsertName");
+                binding1.Path = VBContent + ".InsertName";
                 binding1.Mode = BindingMode.OneWay;
-                binding1.NotifyOnSourceUpdated = true;
-                binding1.NotifyOnTargetUpdated = true;
-                ucInsertName.SetBinding(TextBlock.TextProperty, binding1);
+                ucInsertName.Bind(TextBlock.TextProperty, binding1);
 
                 Binding binding2 = new Binding();
-                binding2.Path = new PropertyPath(VBContent + ".InsertDate");
+                binding2.Path = VBContent + ".InsertDate";
                 binding2.Mode = BindingMode.OneWay;
-                binding2.NotifyOnSourceUpdated = true;
-                binding2.NotifyOnTargetUpdated = true;
-                ucInsertDate.SetBinding(TextBlock.TextProperty, binding2);
+                ucInsertDate.Bind(TextBlock.TextProperty, binding2);
 
                 Binding binding3 = new Binding();
-                binding3.Path = new PropertyPath(VBContent + ".UpdateName");
+                binding3.Path = VBContent + ".UpdateName";
                 binding3.Mode = BindingMode.OneWay;
-                binding3.NotifyOnSourceUpdated = true;
-                binding3.NotifyOnTargetUpdated = true;
-                ucUpdateName.SetBinding(TextBlock.TextProperty, binding3);
+                ucUpdateName.Bind(TextBlock.TextProperty, binding3);
 
                 Binding binding4 = new Binding();
-                binding4.Path = new PropertyPath(VBContent + ".UpdateDate");
+                binding4.Path = VBContent + ".UpdateDate";
                 binding4.Mode = BindingMode.OneWay;
-                binding4.NotifyOnSourceUpdated = true;
-                binding4.NotifyOnTargetUpdated = true;
-                ucUpdateDate.SetBinding(TextBlock.TextProperty, binding4);
+                ucUpdateDate.Bind(TextBlock.TextProperty, binding4);
 
                 if (BSOACComponent != null)
                 {
                     Binding binding = new Binding();
                     binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.InitState);
+                    binding.Path = Const.InitState;
                     binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBUpdateInfo.ACCompInitStateProperty, binding);
+                    Bind(VBUpdateInfo.ACCompInitStateProperty, binding);
                 }
 
-                if (Visibility == Visibility.Visible)
-                {
-                    if (RightControlMode < Global.ControlModes.Disabled)
-                    {
-                        Visibility = Visibility.Collapsed;
-                    }
-                }
+                if (IsVisible && RightControlMode < Global.ControlModes.Disabled)
+                    IsVisible = false;
             }
         }
 
@@ -367,13 +292,11 @@ namespace gip.core.layoutengine.avui
                 return;
             _Loaded = false;
             _VBContentProprtyInfo = null;
-            
-            BindingOperations.ClearBinding(ucInsertName, TextBlock.TextProperty);
-            BindingOperations.ClearBinding(ucInsertDate, TextBlock.TextProperty);
-            BindingOperations.ClearBinding(ucUpdateName, TextBlock.TextProperty);
-            BindingOperations.ClearBinding(ucUpdateDate, TextBlock.TextProperty);
-            //BindingOperations.ClearBinding(this, VBUpdateInfo.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBUpdateInfo.ACCompInitStateProperty);
+
+            ucInsertName.ClearAllBindings();
+            ucInsertDate.ClearAllBindings();
+            ucUpdateName.ClearAllBindings();
+            ucUpdateDate.ClearAllBindings();
             this.ClearAllBindings();
         }
 

@@ -1,0 +1,131 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+
+    <StreamGeometry x:Key="TreeArrow">M0,0 L0,8 L8,0 z</StreamGeometry>
+
+    <ControlTheme x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20">
+                    <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#FF989898">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
+                        </Path.RenderTransform>
+                    </Path>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- Checked state -->
+        <Style Selector="^:checked /template/ Path#ExpandPath">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="180" CenterY="3" CenterX="3"/>
+            </Setter>
+        </Style>
+        
+        <!-- Mouse over and checked -->
+        <Style Selector="^:pointerover:checked /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFF0000"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+        </Style>
+        
+        <!-- Mouse over and not checked -->
+        <Style Selector="^:pointerover:not(:checked) /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFF0000"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+        </Style>
+        
+        <!-- Not mouse over and checked -->
+        <Style Selector="^:not(:pointerover):checked /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFFFFFF"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowCheckedFill}"/>
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type local:VBTreeViewItem}" TargetType="local:VBTreeViewItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Padding" Value="1,0,0,0"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="19" Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <ToggleButton x:Name="Expander" 
+                                ClickMode="Press" 
+                                IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" 
+                                Theme="{StaticResource ExpandCollapseToggleStyle}"/>
+                    <Border x:Name="Bd" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+                            BorderThickness="{TemplateBinding BorderThickness}" 
+                            Background="{TemplateBinding Background}" 
+                            Grid.Column="1" 
+                            CornerRadius="4"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter x:Name="PART_HeaderPresenter" 
+                                        Content="{TemplateBinding Header}" 
+                                        Margin="6,0,6,0" />
+                    </Border>
+                    <ItemsPresenter x:Name="PART_ItemsPresenter" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- IsExpanded = false -->
+        <Style Selector="^:not(:expanded) /template/ ItemsPresenter#PART_ItemsPresenter">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        
+        <!-- HasItems = false (empty) -->
+        <Style Selector="^:empty /template/ ToggleButton#Expander">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        
+        <!-- IsSelected = true -->
+        <Style Selector="^:selected /template/ Border#Bd">
+            <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionFill}"/>
+            <Setter Property="BorderBrush" Value="#FF0000"/>
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- IsSelected = true and IsSelectionActive = false -->
+        <Style Selector="^:selected:not(:focus-within) /template/ Border#Bd">
+            <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionNotActiveFill}"/>
+            <Setter Property="BorderBrush" Value="#FF0000"/>
+        </Style>
+        <Style Selector="^:selected:not(:focus-within)">
+            <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
+        </Style>
+        
+        <!-- IsEnabled = false -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="Gray"/>
+        </Style>
+        
+        <!-- VirtualizingStackPanel.IsVirtualizing = true -->
+        <Style Selector="^[(VirtualizingStackPanel.IsVirtualizing)=True]">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </Setter>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

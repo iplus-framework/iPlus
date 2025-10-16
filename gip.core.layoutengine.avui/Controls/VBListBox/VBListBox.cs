@@ -318,6 +318,9 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized || DataContext == null || ContextACObject == null)
                 return;
+            if (DisableContextMenu)
+                ContextFlyout = null;
+
             _Initialized = true;
             LoadCyclicDataRefreshProperty();
             if (String.IsNullOrEmpty(VBContent))
