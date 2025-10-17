@@ -30,6 +30,7 @@
 		<ResourceInclude Source="/Controls/VBTreeView/Themes/LightThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBScrollViewer/Themes/SharedBrushes.axaml"/>
 		<ResourceInclude Source="/Controls/VBSlider/Themes/LightThemeColors.axaml"/>
+		<ResourceInclude Source="/Controls/VBProgressBar/Themes/LightThemeColors.axaml"/>
 	</ResourceDictionary.MergedDictionaries>
 
 	<Color x:Key="ColorCtrlTxtDisabled">#FF303030</Color>

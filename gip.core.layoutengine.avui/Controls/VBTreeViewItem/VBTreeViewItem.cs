@@ -248,6 +248,10 @@ namespace gip.core.layoutengine.avui
             return new VBTreeViewItem();
         }
 
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+        {
+            return NeedsContainer<VBTreeViewItem>(item, out recycleKey);
+        }
 
         //protected bool _Loaded = false;
         //protected virtual void VBTreeViewItem_Loaded(object sender, RoutedEventArgs e)

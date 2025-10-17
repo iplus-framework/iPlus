@@ -1,13 +1,5 @@
-﻿using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+﻿using Avalonia;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 
@@ -36,9 +28,9 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the depnency property for Segments.
+        /// Represents the dependency property for Segments.
         /// </summary>
-        public static readonly DependencyProperty SegmentsProperty = DependencyProperty.Register("Segments", typeof(List<SegmentData>), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<List<SegmentData>> SegmentsProperty = AvaloniaProperty.Register<VBProgressBarSegmentedViewModel, List<SegmentData>>(nameof(Segments));
 
         /// <summary>
         /// Gets or sets the collection of segments (SegmentData).
@@ -91,7 +83,6 @@ namespace gip.core.layoutengine.avui
             }
             base.ComputeViewModelProperties();
         }
-
 
         /// <summary>
         /// The data for an individual segment.

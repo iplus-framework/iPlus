@@ -1,4 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.ganttchart;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -7,12 +11,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Media;
+
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -24,9 +23,9 @@ namespace gip.core.layoutengine.avui.timeline
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             Loaded += TimelineItem_Loaded;
         }
 
@@ -54,9 +53,9 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 Binding bind = new Binding();
                 bind.Source = this;
-                bind.Path = new PropertyPath("ToolTipContent");
+                bind.Path = nameof(ToolTipContent);
                 contentControl = new ContentControl();
-                contentControl.SetBinding(ContentControl.ContentProperty, bind);
+                contentControl.Bind(ContentControl.ContentProperty, bind);
             }
             if (VBTimelineChart.container.Children.Count == toolTipChildrenCount && contentControl != null)
                 VBTimelineChart.container.Children.Add(contentControl);
@@ -65,9 +64,9 @@ namespace gip.core.layoutengine.avui.timeline
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -83,18 +82,18 @@ namespace gip.core.layoutengine.avui.timeline
 
             Binding binding = new Binding();
             binding.Source = this.Content;
-            binding.Path = new PropertyPath(VBTimelineView.GanttStart.Replace("\\", "."));
-            this.SetBinding(TimelinePanel.StartDateProperty, binding);
+            binding.Path = VBTimelineView.GanttStart.Replace("\\", ".");
+            this.Bind(TimelinePanel.StartDateProperty, binding);
 
             Binding binding2 = new Binding();
             binding2.Source = this.Content;
-            binding2.Path = new PropertyPath(VBTimelineView.GanttEnd.Replace("\\", "."));
-            this.SetBinding(TimelinePanel.EndDateProperty, binding2);
+            binding2.Path = VBTimelineView.GanttEnd.Replace("\\", ".");
+            this.Bind(TimelinePanel.EndDateProperty, binding2);
 
             Binding binding3 = new Binding();
             binding3.Source = this.Content;
-            binding3.Path = new PropertyPath("DisplayOrder");
-            this.SetBinding(TimelinePanel.RowIndexProperty, binding3);
+            binding3.Path = "DisplayOrder";
+            this.Bind(TimelinePanel.RowIndexProperty, binding3);
 
             _IsInitialized = true;
         }
@@ -109,7 +108,7 @@ namespace gip.core.layoutengine.avui.timeline
             get
             {
                 if (_VBTimelineView == null)
-                    _VBTimelineView = Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineViewBase)) as VBTimelineViewBase;
+                    _VBTimelineView = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineViewBase)) as VBTimelineViewBase;
                 return _VBTimelineView;
             }
         }

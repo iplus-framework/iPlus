@@ -1,13 +1,13 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -29,17 +29,17 @@ namespace gip.core.layoutengine.avui
 
             Binding binding = new Binding();
             binding.Source = parent;
-            SetBinding(ParentSurfaceProperty, binding);
+            this.Bind(ParentSurfaceProperty, binding);
 
             Binding binding2 = new Binding();
             binding2.Source = iACEdge;
-            SetBinding(DataContextProperty, binding2);
+            this.Bind(DataContextProperty, binding2);
 
             VBContent = routeIdentifier;
             ParentSurface.OnEdgesChanged += ParentSurface_OnEdgesChanged;
 
             if (ParentSurface.GraphEdgeStyle != null)
-                this.Style = ParentSurface.GraphEdgeStyle;
+                this.Theme = ParentSurface.GraphEdgeStyle;
             else
                 Stroke = Brushes.LightGoldenrodYellow;
 
@@ -57,9 +57,6 @@ namespace gip.core.layoutengine.avui
             if(ParentSurface != null)
                 ParentSurface.OnEdgesChanged -= ParentSurface_OnEdgesChanged;
 
-            BindingOperations.ClearBinding(this, ToolTipProperty);
-            BindingOperations.ClearBinding(this, DataContextProperty);
-            BindingOperations.ClearBinding(this, ParentSurfaceProperty);
             this.ClearAllBindings();
 
             base.DeInitVBControl(bso);
@@ -77,8 +74,7 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ParentSurfaceProperty, value); }
         }
 
-        public static readonly DependencyProperty ParentSurfaceProperty =
-            DependencyProperty.Register("ParentSurface", typeof(VBGraphSurface), typeof(VBGraphEdge));
+        public static readonly StyledProperty<VBGraphSurface> ParentSurfaceProperty = AvaloniaProperty.Register<VBGraphSurface, VBGraphSurface>(nameof(ParentSurface));
 
 
         /// <summary>
@@ -90,22 +86,22 @@ namespace gip.core.layoutengine.avui
             get { return null; }
         }
 
-        public override FrameworkElement SourceElement
+        public override Control SourceElement
         {
             get
             {
                 if (Source != null)
-                    return Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(Source, typeof(VBGraphItem)) as FrameworkElement;
+                    return Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(Source, typeof(VBGraphItem)) as VBConnector;
                 return null;
             }
         }
 
-        public override FrameworkElement TargetElement
+        public override Control TargetElement
         {
             get
             {
                 if (Target != null)
-                    return Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(Target, typeof(VBGraphItem)) as FrameworkElement;
+                    return Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(Target, typeof(VBGraphItem)) as VBConnector;
                 return null;
             }
         }
@@ -122,13 +118,13 @@ namespace gip.core.layoutengine.avui
         public void SetEdgeInRoute()
         {
             IsSelected = true;
-            Canvas.SetZIndex(this, 2);
+            this.ZIndex = 2;
         }
 
         public void UnsetEdgeFromRoute()
         {
             IsSelected = false;
-            Canvas.SetZIndex(this, 1);
+            this.ZIndex = 1;
         }
 
         private void ParentSurface_OnEdgesChanged(object sender, EventArgs e)

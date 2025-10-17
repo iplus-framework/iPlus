@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.Windows.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -53,8 +52,8 @@ namespace gip.core.layoutengine.avui.timeline
                 sv2.ComputedHorizontalScrollBarVisibility == Visibility.Visible;
 
 
-            sv1.ScrollChanged += new ScrollChangedEventHandler(sv1_ScrollChanged);
-            sv2.ScrollChanged += new ScrollChangedEventHandler(sv2_ScrollChanged);
+            sv1.ScrollChanged += sv1_ScrollChanged;
+            sv2.ScrollChanged += sv2_ScrollChanged;
         }
 
         
@@ -62,10 +61,10 @@ namespace gip.core.layoutengine.avui.timeline
         public void DeInitControl()
         {
             if(sv1 != null)
-                sv1.ScrollChanged -= new ScrollChangedEventHandler(sv1_ScrollChanged);
+                sv1.ScrollChanged -= sv1_ScrollChanged;
 
             if(sv2 != null)
-                sv2.ScrollChanged -= new ScrollChangedEventHandler(sv2_ScrollChanged);
+                sv2.ScrollChanged -= sv2_ScrollChanged;
 
             sv1 = null;
             sv2 = null;
@@ -75,7 +74,8 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void sv2_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.OriginalSource != sv2) return;
+            if (e.Source != sv2) 
+                return;
 
             if (e.VerticalChange != 0)
             {
@@ -92,7 +92,8 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void sv1_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.OriginalSource != sv1) return;
+            if (e.Source != sv1) 
+                return;
 
             if (e.VerticalChange != 0)
             {

@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using Avalonia;
+using Avalonia.Controls;
 using gip.core.datamodel;
-using gip.core.layoutengine.avui;
 using QuickGraph;
+using System.Collections.Generic;
 
 namespace gip.core.layoutengine.avui.EfficientSugiyama
 {
     public partial class SugiLayoutAlgorithm<TVertex,TEdge> where TVertex : IACObject where TEdge : IACEdge
     {
-        public SugiLayoutAlgorithm(IEnumerable<TVertex> vertices, IEnumerable<TEdge> edges, Dictionary<TVertex,FrameworkElement> visualsMap, IEnumerable<VBEdge> vbEdges)
+        public SugiLayoutAlgorithm(IEnumerable<TVertex> vertices, IEnumerable<TEdge> edges, Dictionary<TVertex,Control> visualsMap, IEnumerable<VBEdge> vbEdges)
         {
             _OriginalVertices = vertices;
             _OriginalEdges = edges;
@@ -31,7 +27,7 @@ namespace gip.core.layoutengine.avui.EfficientSugiyama
 
         private Dictionary<TVertex, SugiVertex> _vertexMap = new Dictionary<TVertex, SugiVertex>();
 
-        private Dictionary<TVertex, FrameworkElement> _VisualsMap;
+        private Dictionary<TVertex, Control> _VisualsMap;
 
         private IEnumerable<VBEdge> _OriginalVisualEdges;
 
@@ -68,12 +64,9 @@ namespace gip.core.layoutengine.avui.EfficientSugiyama
             foreach (TVertex vertex in _OriginalVertices)
             {
                 Size size = new Size();
-                FrameworkElement frameworkElement;
-                if(_VisualsMap.TryGetValue(vertex, out frameworkElement))
-                {
-                    size.Height = frameworkElement.Height;
-                    size.Width = frameworkElement.Width;
-                }
+                Control frameworkElement;
+                if (_VisualsMap.TryGetValue(vertex, out frameworkElement))
+                    size = new Size(frameworkElement.Width, frameworkElement.Height);
 
                 var vertexWrapper = new SugiVertex(vertex, size);
                 _Graph.AddVertex(vertexWrapper);

@@ -1,0 +1,1 @@
+update ACClass  set AssemblyQualifiedName = 'bbAutomLP4.core.reporthandlerwpf.LP4Printer, bbAutomLP4.core.reporthandlerwpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null'  where ACIdentifier = 'LP4Printer' and assemblyQualifiedName like 'gip.core.reporthandler.%'

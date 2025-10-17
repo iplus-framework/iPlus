@@ -1,10 +1,9 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Threading;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Threading;
-using System.Windows;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -27,32 +26,5 @@ namespace gip.core.layoutengine.avui.timeline
 			((DispatcherFrame)obj).Continue = false;
 			return null;
 		}
-
-		public static TChildItem FindVisualChild<TChildItem>(DependencyObject obj) where TChildItem : DependencyObject
-        {
-			for (int i = 0; i < VisualTreeHelper.GetChildrenCount(obj); i++)
-            {
-				DependencyObject child = VisualTreeHelper.GetChild(obj, i);
-				if (child != null && child is TChildItem)
-					return (TChildItem)child;
-				else
-                {
-					TChildItem childOfTchild = FindVisualChild<TChildItem>(child);
-					if (childOfTchild != null)
-						return childOfTchild;
-				}
-			}
-			return null;
-		}
-
-		public static TParentItem FindVisualParent<TParentItem>(DependencyObject obj) where TParentItem : DependencyObject
-        {
-			DependencyObject current = obj;
-			while (current != null && !(current is TParentItem))
-				current = VisualTreeHelper.GetParent(current);
-			return (TParentItem)current;
-		}
-
-
 	}
 }

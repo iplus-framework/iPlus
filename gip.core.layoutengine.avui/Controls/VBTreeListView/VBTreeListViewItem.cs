@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.timeline;
 
@@ -16,32 +18,6 @@ namespace gip.core.layoutengine.avui
     public class VBTreeListViewItem : VBTreeViewItem
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList3 = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TreeListViewItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBVBTreeListView/Themes/TreeListViewItemStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TreeListViewItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBVBTreeListView/Themes/TreeListViewItemStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of a custom styles.
-        /// </summary>
-        public override List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList3;
-            }
-        }
-
-        static VBTreeListViewItem()
-        {
-            
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTreeListViewItem), new FrameworkPropertyMetadata(typeof(VBTreeListViewItem)));
-        }
-
         /// <summary>
         /// Creates a new instance of VBTreeListViewItem.
         /// </summary>
@@ -65,11 +41,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -86,9 +60,9 @@ namespace gip.core.layoutengine.avui
 
             Binding binding = new Binding();
             binding.Source = this.DataContext;
-            binding.Path = new PropertyPath("IsCollapsed");
+            binding.Path = "IsCollapsed";
             binding.Mode = BindingMode.OneWayToSource;
-            SetBinding(VBTreeListViewItem.IsExpandedProperty, binding);
+            this.Bind(VBTreeListViewItem.IsExpandedProperty, binding);
             IsVisibleChanged += VBTreeListViewItem_IsVisibleChanged;
 
             if (VBTimelineView == null)

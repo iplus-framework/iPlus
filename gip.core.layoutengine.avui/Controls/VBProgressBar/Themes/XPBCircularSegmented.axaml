@@ -2,7 +2,7 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <ControlTemplate x:Key="CircularSegmentedGip" TargetType="{x:Type local:VBProgressBar}">
+    <ControlTemplate x:Key="CircularSegmentedGip" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot">
             <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>
@@ -23,13 +23,13 @@
                             <local:VBPiePiece CentreX="{Binding Parent.CentreX}" CentreY="{Binding Parent.CentreY}"
                                 RotationAngle="{Binding StartAngle}" WedgeAngle="{Binding WedgeAngle}"
                                 Radius="{Binding Parent.Radius}" InnerRadius="{Binding Parent.InnerRadius}"
-                                Fill="LightGray" Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieStroke}" Opacity="0.5"/>
+                                Fill="LightGray" Stroke="{Binding $parent[local:VBProgressBar].PieStroke}" Opacity="0.5"/>
                             <!-- a blue segment, with an Opacity bound to the view model -->
                             <local:VBPiePiece CentreX="{Binding Parent.CentreX}" CentreY="{Binding Parent.CentreY}"
                                 RotationAngle="{Binding StartAngle}" WedgeAngle="{Binding WedgeAngle}"
                                 Radius="{Binding Parent.Radius}" InnerRadius="{Binding Parent.InnerRadius}"
-                                Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieFill}" 
-                                Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieStroke}" Opacity="{Binding Opacity}"/>
+                                Fill="{Binding $parent[local:VBProgressBar].PieFill}" 
+                                Stroke="{Binding $parent[local:VBProgressBar].PieStroke}" Opacity="{Binding Opacity}"/>
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

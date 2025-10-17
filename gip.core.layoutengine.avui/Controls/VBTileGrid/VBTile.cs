@@ -1,12 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using Avalonia.Controls;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -16,62 +20,28 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Stellt das Kachelobjekt in <see cref="VBTileGrid"/> dar.
     /// </summary>
+    [TemplatePart("PART_TextBox", typeof(TextBox))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTile'}de{'VBTile'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTile : Button, IACInteractiveObject, IACMenuBuilderWPFTree, IACObject, IVBTileGrid
     {
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TileStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTileGrid/Themes/TileStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "MenuStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTileGrid/Themes/TileStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBTile()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTile), new FrameworkPropertyMetadata(typeof(VBTile)));
-        }
-
         /// <summary>
         /// Creates a new instance of VBTile.
         /// </summary>
-        public VBTile()
+        public VBTile() : base()
         {
         }
 
-        /// <summary>
-        /// Overides the OnApplyTemplate method.
-        /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            //Grid grid = Template.FindName("TileItemGrid", this) as Grid;
-            //if (grid != null)
-            //{
-            //    var accentColor = new SolidColorBrush(AccentColorSet.ActiveSet["SystemAccent"]);
-                
-            //    if (accentColor != null)
-            //        grid.Background = accentColor;
-            //    else
-            //        grid.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString("#3385ff"));
-                
-            //}
-            base.OnApplyTemplate();
+            _PART_TextBox = e.NameScope.Find<TextBox>("PART_TextBox");
+            base.OnApplyTemplate(e);
         }
 
-        Point mouseOffset;
+
+        Point _PointerOffset;
         bool _NewRow = false;
         int _NewRowInsertIndex;
+        TextBox _PART_TextBox;
 
         private Grid _ParentGrid
         {
@@ -93,7 +63,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        #region Dependency prop
+        #region Styled Properties
 
         /// <summary>
         /// Gets or sets the Column. Determines in which column is placed.
@@ -101,15 +71,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int Column
         {
-            get { return (int)GetValue(ColumnProperty); }
-            set { SetValue(ColumnProperty, value); }
+            get => GetValue(ColumnProperty);
+            set => SetValue(ColumnProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the Column.
+        /// Represents the styled property for the Column.
         /// </summary>
-        public static readonly DependencyProperty ColumnProperty =
-            DependencyProperty.Register("Column", typeof(int), typeof(VBTile), new PropertyMetadata(0, OnDepPropChanged));
+        public static readonly StyledProperty<int> ColumnProperty =
+            AvaloniaProperty.Register<VBTile, int>(nameof(Column));
 
         /// <summary>
         /// Gets or sets the Row. Determines in which row is placed.
@@ -117,15 +87,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int Row
         {
-            get { return (int)GetValue(RowProperty); }
-            set { SetValue(RowProperty, value); }
+            get => GetValue(RowProperty);
+            set => SetValue(RowProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the Row.
+        /// Represents the styled property for the Row.
         /// </summary>
-        public static readonly DependencyProperty RowProperty =
-            DependencyProperty.Register("Row", typeof(int), typeof(VBTile), new PropertyMetadata(0, OnDepPropChanged));
+        public static readonly StyledProperty<int> RowProperty =
+            AvaloniaProperty.Register<VBTile, int>(nameof(Row));
 
         /// <summary>
         /// Gets or sets the title of VBTile.
@@ -133,30 +103,30 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string Title
         {
-            get { return (string)GetValue(TitleProperty); }
-            set { SetValue(TitleProperty, value); }
+            get => GetValue(TitleProperty);
+            set => SetValue(TitleProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the Title.
+        /// Represents the styled property for the Title.
         /// </summary>
-        public static readonly DependencyProperty TitleProperty =
-            DependencyProperty.Register("Title", typeof(string), typeof(VBTile));
+        public static readonly StyledProperty<string> TitleProperty =
+            AvaloniaProperty.Register<VBTile, string>(nameof(Title));
 
         /// <summary>
         /// Gets or sets the ACUrl. Represents the ACUrl of BSO which VBTile it starts.
         /// </summary>
         public string ACUrl
         {
-            get { return (string)GetValue(ACUrlProperty); }
-            set { SetValue(ACUrlProperty, value); }
+            get => GetValue(ACUrlProperty);
+            set => SetValue(ACUrlProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the ACUrl.
+        /// Represents the styled property for the ACUrl.
         /// </summary>
-        public static readonly DependencyProperty ACUrlProperty =
-            DependencyProperty.Register(Const.ACUrlPrefix, typeof(string), typeof(VBTile), new PropertyMetadata("", OnDepPropChanged));
+        public static readonly StyledProperty<string> ACUrlProperty =
+            AvaloniaProperty.Register<VBTile, string>(Const.ACUrlPrefix);
 
         /// <summary>
         /// Gets or sets the IconACUrl.
@@ -165,43 +135,47 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string IconACUrl
         {
-            get { return (string)GetValue(IconACUrlProperty); }
-            set { SetValue(IconACUrlProperty, value); }
+            get => GetValue(IconACUrlProperty);
+            set => SetValue(IconACUrlProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the IconACUrl.
+        /// Represents the styled property for the IconACUrl.
         /// </summary>
-        public static readonly DependencyProperty IconACUrlProperty =
-            DependencyProperty.Register("IconACUrl", typeof(string), typeof(VBTileGrid), new PropertyMetadata(""));
+        public static readonly StyledProperty<string> IconACUrlProperty =
+            AvaloniaProperty.Register<VBTile, string>(nameof(IconACUrl), defaultValue: "");
 
+        /// <summary>
+        /// Gets or sets the Parameters.
+        /// </summary>
         public ACValueList Parameters
         {
-            get;
-            set;
+            get => GetValue(ParametersProperty);
+            set => SetValue(ParametersProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ParametersProperty =
-            DependencyProperty.Register(nameof(Parameters), typeof(ACValueList), typeof(VBTile), new PropertyMetadata(null, OnDepPropChanged));
+        /// <summary>
+        /// Represents the styled property for the Parameters.
+        /// </summary>
+        public static readonly StyledProperty<ACValueList> ParametersProperty =
+            AvaloniaProperty.Register<VBTile, ACValueList>(nameof(Parameters));
 
-
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-                                             DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBTile vbTile = dependencyObject as VBTile;
-            if(args.Property == RowProperty)
+            if (change.Property == RowProperty)
             {
-                vbTile.Row = (int)args.NewValue;
-                Grid.SetRow(vbTile, (int)args.NewValue);
+                Row = (int)change.NewValue;
+                Grid.SetRow(this, (int)change.NewValue);
             }
-            else if(args.Property == ColumnProperty)
+            else if (change.Property == ColumnProperty)
             {
-                vbTile.Column = (int)args.NewValue;
-                Grid.SetColumn(vbTile, (int)args.NewValue);
-                if(vbTile != null && vbTile._VBTileGrid != null)
-                    vbTile._VBTileGrid.AlignTile(vbTile);
+                Column = (int)change.NewValue;
+                Grid.SetColumn(this, (int)change.NewValue);
+                if (_VBTileGrid != null)
+                    _VBTileGrid.AlignTile(this);
             }
+            base.OnPropertyChanged(change);
+
         }
 
         #endregion
@@ -214,13 +188,15 @@ namespace gip.core.layoutengine.avui
         /// <param name="col">The column.</param>
         /// <param name="row">The row.</param>
         /// <param name="dropPoint">The drop point.</param>
-        public void GetPositionAndInsertRow(out int col, out int row, Nullable<Point> dropPoint = null)
+        public void GetPositionAndInsertRow(RoutedEventArgs e, out int col, out int row, Nullable<Point> dropPoint = null)
         {
             _NewRowInsertIndex = 0;
-            Grid grid = Parent as Grid; 
-            Point point = Mouse.GetPosition(grid);
+            Grid grid = Parent as Grid;
+            Point point = new Point();
             if (dropPoint != null && dropPoint.HasValue)
                 point = dropPoint.Value;
+            else if (e is PointerEventArgs pe)
+                point = pe.GetPosition(grid);
             row = 0;
             col = 0;
             double accumulatedHeight = 0.0;
@@ -248,7 +224,7 @@ namespace gip.core.layoutengine.avui
             foreach (var columnDefinition in grid.ColumnDefinitions)
             {
                 accumulatedWidth += columnDefinition.ActualWidth;
-                if (accumulatedWidth >= point.X )
+                if (accumulatedWidth >= point.X)
                     break;
                 col++;
             }
@@ -295,10 +271,10 @@ namespace gip.core.layoutengine.avui
                     }
                 }
 
-                if(changeGroup)
+                if (changeGroup)
                 {
                     int groupRow = 0, spliterRow = 0;
-                    for(int g = row; g > 0; g--)
+                    for (int g = row; g > 0; g--)
                     {
                         if (parent.Children.OfType<TextBox>().FirstOrDefault(c => Grid.GetRow(c) == g) != null)
                         {
@@ -319,7 +295,7 @@ namespace gip.core.layoutengine.avui
                     VBTile freePos = null;
                     for (int i = col; i < parent.ColumnDefinitions.Count(); i++)
                     {
-                        for (int j = groupRow+1; j < spliterRow; j++)
+                        for (int j = groupRow + 1; j < spliterRow; j++)
                         {
                             if (parent.RowDefinitions[j].ActualHeight > 40)
                             {
@@ -334,7 +310,7 @@ namespace gip.core.layoutengine.avui
                         }
                     }
 
-                    if(freePos != null)
+                    if (freePos != null)
                     {
                         VBTileGrid.InsertRow(parent, _VBTileGrid.TileSize, parent.RowDefinitions[spliterRow]);
                         row = spliterRow;
@@ -356,7 +332,7 @@ namespace gip.core.layoutengine.avui
 
         private void CheckAndDeleteEmptyRow(Grid parent, int oldRow)
         {
-            if(!_VBTileGrid.Items.Any(c => c.TileRow == oldRow))
+            if (!_VBTileGrid.Items.Any(c => c.TileRow == oldRow))
             {
                 Border currentBorder = VBTileGrid.FindBorder(parent, oldRow);
                 Grid.SetRowSpan(currentBorder, Grid.GetRowSpan(currentBorder) - 1);
@@ -376,14 +352,14 @@ namespace gip.core.layoutengine.avui
             int correctFactor = 1;
             if (!correctPositive)
                 correctFactor = -1;
-            foreach (var element in grid.Children.OfType<FrameworkElement>().Where(c => Grid.GetRow(c) >= correctIndex))
+            foreach (var element in grid.Children.OfType<Control>().Where(c => Grid.GetRow(c) >= correctIndex))
             {
                 int oldRow = Grid.GetRow(element);
                 int row = oldRow + correctFactor;
                 Grid.SetRow(element, row);
                 if (element is VBTile)
                     ((VBTile)element).Row = row;
-                else if(element is TextBox)
+                else if (element is TextBox)
                 {
                     var item = ((VBTileGrid)grid.Parent).Items.FirstOrDefault(c => c.TileRow == oldRow && c.VBTileType == Global.VBTileType.Group);
                     item.TileRow = (short)row;
@@ -394,16 +370,15 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Renames the title of VBTile.
         /// </summary>
-        [ACMethodInteraction("", "en{'Rename'}de{'Rename'}",999,false)]
+        [ACMethodInteraction("", "en{'Rename'}de{'Rename'}", 999, false)]
         public void RenameTitle()
         {
-            TextBox tb = Template.FindName("PART_TextBox", this) as TextBox;
-            if (tb != null)
+            if (_PART_TextBox != null)
             {
-                tb.IsReadOnly = false;
-                tb.SelectAll();
-                tb.Focus();
-                tb.IsReadOnly = false;
+                _PART_TextBox.IsReadOnly = false;
+                _PART_TextBox.SelectAll();
+                _PART_TextBox.Focus();
+                _PART_TextBox.IsReadOnly = false;
             }
         }
 
@@ -422,7 +397,7 @@ namespace gip.core.layoutengine.avui
         [ACMethodInteraction("", "en{'Delete'}de{'Löschen'}", 999, false)]
         public void DeleteTile()
         {
-            if(!string.IsNullOrEmpty(_VBTileGrid.OnTileDeleted))
+            if (!string.IsNullOrEmpty(_VBTileGrid.OnTileDeleted))
             {
                 int tileRow = Grid.GetRow(this);
                 if (_VBTileGrid.Items.Count(c => c.TileRow == tileRow) == 1)
@@ -446,55 +421,72 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnPreviewMouseLeftButtonDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            mouseOffset = Mouse.GetPosition(this);
-            e.Pointer.Capture(this);
-            Panel.SetZIndex(this, 2);
-            base.OnPreviewMouseLeftButtonDown(e);
+            if (e.InitialPressMouseButton == MouseButton.Left)
+            {
+                // If Preview:
+                if (e.Route == RoutingStrategies.Tunnel)
+                {
+                    _PointerOffset = e.GetPosition(this);
+                    e.Pointer.Capture(this);
+                    this.ZIndex = 2;
+                }
+                else
+                {
+                    if (e.Pointer.Captured == this)
+                        e.Pointer.Capture(null);
+                    if (Math.Abs(Margin.Bottom) <= 3 && Math.Abs(Margin.Top) <= 3 && Math.Abs(Margin.Left) <= 3 && Math.Abs(Margin.Right) <= 3)
+                    {
+                        _VBTileGrid.OnTileClicked(this);
+                    }
+                    else
+                    {
+                        int oldRow = this.Row;
+                        int oldCol = this.Column;
+                        Margin = new Thickness();
+                        int col, row;
+                        GetPositionAndInsertRow(e, out col, out row);
+                        Grid grid = Parent as Grid;
+                        this.Column = col;
+                        this.Row = row;
+                        Grid.SetRow(this, Row);
+                        Grid.SetColumn(this, Column);
+                        CheckAndMoveTile(grid, oldCol, oldRow);
+                        CheckAndDeleteEmptyRow(grid, oldRow);
+                    }
+                    this.ZIndex = 1;
+                }
+            }
+            else if(e.InitialPressMouseButton == MouseButton.Right)
+            {
+                if (ContextACObject != null && e.Route == RoutingStrategies.Tunnel)
+                {
+                    Point point = e.GetPosition(this);
+                    ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                    ((IACComponent)ContextACObject).ACAction(actionArgs);
+                    if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
+                    {
+                        VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                        this.ContextMenu = vbContextMenu;
+                        //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                        if (vbContextMenu.PlacementTarget == null)
+                            vbContextMenu.PlacementTarget = this;
+                        ContextMenu.Open();
+                    }
+                    e.Handled = true;
+                }
+            }
+            base.OnPointerReleased(e);
         }
 
-        /// <summary>
-        /// Handles the OnPreviewMouseLeftButtonUp event.
-        /// </summary>
-        /// <param name="e"></param>
-        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
-        {
-            if (e.Pointer.Captured == this)
-                e.Pointer.Capture(null);
-            if (Math.Abs(Margin.Bottom) <= 3 && Math.Abs(Margin.Top) <= 3 && Math.Abs(Margin.Left) <= 3 && Math.Abs(Margin.Right) <= 3)
-            {
-                _VBTileGrid.OnTileClicked(this);
-            }
-            else
-            {
-                int oldRow = this.Row;
-                int oldCol = this.Column;
-                Margin = new Thickness();
-                int col, row;
-                GetPositionAndInsertRow(out col, out row);
-                Grid grid = Parent as Grid;
-                this.Column = col;
-                this.Row = row;
-                Grid.SetRow(this, Row);
-                Grid.SetColumn(this, Column);
-                CheckAndMoveTile(grid, oldCol, oldRow);
-                CheckAndDeleteEmptyRow(grid, oldRow);
-            }
-            Panel.SetZIndex(this, 1);
-            base.OnPreviewMouseLeftButtonUp(e);
-        }
 
-        /// <summary>
-        /// Handles the OnPreviewMouseMove event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnPreviewMouseMove(MouseEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
-            if (Focusable)
+            if (Focusable && e.Route == RoutingStrategies.Tunnel)
             {
-                Point mouseDelta = Mouse.GetPosition(this);
-                mouseDelta.Offset(-mouseOffset.X, -mouseOffset.Y);
+                Point mouseDelta = e.GetPosition(this);
+                //mouseDelta.Offset(-_PointerOffset.X, -_PointerOffset.Y);
 
                 Margin = new Thickness(
                     Margin.Left + mouseDelta.X,
@@ -502,8 +494,9 @@ namespace gip.core.layoutengine.avui
                     Margin.Right - mouseDelta.X,
                     Margin.Bottom - mouseDelta.Y);
             }
-            base.OnPreviewMouseMove(e);
+            base.OnPointerMoved(e);
         }
+
 
         /// <summary>
         /// Handles the OnLostFocus event.
@@ -511,11 +504,10 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         protected override void OnLostFocus(RoutedEventArgs e)
         {
-            TextBox tb = Template.FindName("PART_TextBox", this) as TextBox;
-            if (tb != null)
+            if (_PART_TextBox != null)
             {
-                tb.IsReadOnly = true;
-                tb.Background = new SolidColorBrush(Colors.Transparent);
+                _PART_TextBox.IsReadOnly = true;
+                _PART_TextBox.Background = new SolidColorBrush(Colors.Transparent);
             }
             base.OnLostFocus(e);
         }
@@ -528,40 +520,15 @@ namespace gip.core.layoutengine.avui
         {
             if (e.Key == Key.Enter)
             {
-                TextBox tb = Template.FindName("PART_TextBox", this) as TextBox;
-                if (tb != null)
+                if (_PART_TextBox != null)
                 {
-                    tb.IsReadOnly = true;
-                    tb.Background = new SolidColorBrush(Colors.Transparent);
+                    _PART_TextBox.IsReadOnly = true;
+                    _PART_TextBox.Background = new SolidColorBrush(Colors.Transparent);
                 }
             }
             base.OnKeyUp(e);
         }
 
-        /// <summary>
-        /// Handles the OnPreviewMouseRightButtonDown event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnPreviewMouseRightButtonDown(MouseButtonEventArgs e)
-        {
-            if (ContextACObject != null)
-            {
-                Point point = e.GetPosition(this);
-                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-                ((IACComponent)ContextACObject).ACAction(actionArgs);
-                if (actionArgs.ACMenuItemList != null && actionArgs.ACMenuItemList.Any())
-                {
-                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-                    this.ContextMenu = vbContextMenu;
-                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-                    if (vbContextMenu.PlacementTarget == null)
-                        vbContextMenu.PlacementTarget = this;
-                    ContextMenu.IsOpen = true;
-                }
-                e.Handled = true;
-            }
-            base.OnPreviewMouseRightButtonDown(e);
-        }
 
         #endregion
 
@@ -602,11 +569,11 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get;set;
+            get; set;
         }
 
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>
@@ -616,16 +583,18 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTile), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTile>();
+
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
+            get => GetValue(BSOACComponentProperty);
+            set => SetValue(BSOACComponentProperty, value);
         }
 
         /// <summary>
@@ -634,7 +603,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
         public void ACAction(ACActionArgs actionArgs)
         {
-            if(actionArgs.ElementAction == Global.ElementActionType.ACCommand)
+            if (actionArgs.ElementAction == Global.ElementActionType.ACCommand)
             {
                 var query = actionArgs.DropObject.ACContentList.Where(c => c is ACCommand);
                 if (query.Any())

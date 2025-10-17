@@ -15,6 +15,12 @@ namespace gip.core.layoutengine
     /// </summary>
     public class VBRoutingLogic
     {
+        IACComponent _aCComponent = null;
+        public VBRoutingLogic(IACComponent datamodel)
+        {
+            _aCComponent = datamodel;
+        }
+
         public void ClearVB(bool clearStorages = true)
         {
             _EdgeDesignItems = new List<FrameworkElement>();
@@ -198,7 +204,7 @@ namespace gip.core.layoutengine
                     counter++;
                     if (counter > 18)
                     {
-                        MessageBox.Show("The space between nodes is not enough. If is possible, please increase space between nodes!!!", "Edges routing", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _aCComponent?.Messages.Msg(new Msg(eMsgLevel.Warning, "The space between nodes is not enough. If is possible, please increase space between nodes!!!"), Global.MsgResult.OK, eMsgButton.OK);
                         terminate = true;
                         return null;
                     }

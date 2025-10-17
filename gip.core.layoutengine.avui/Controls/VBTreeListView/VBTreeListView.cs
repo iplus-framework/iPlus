@@ -7,6 +7,8 @@ using gip.core.layoutengine.avui.ganttchart;
 using System.Dynamic;
 using System.Reflection;
 using gip.core.layoutengine.avui.timeline;
+using Avalonia;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {

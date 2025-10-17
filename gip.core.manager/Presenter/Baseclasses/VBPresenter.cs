@@ -23,7 +23,7 @@ namespace gip.core.manager
         {
             if (Root == null || Root.WPFServices == null || Root.WPFServices.DesignerService == null)
                 throw new MemberAccessException("DesignerService is null");
-            Root.WPFServices.DesignerService.GenerateNewRoutingLogic();
+            Root.WPFServices.DesignerService.GenerateNewRoutingLogic(this);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)

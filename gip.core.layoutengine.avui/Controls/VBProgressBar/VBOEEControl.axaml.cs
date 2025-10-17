@@ -1,19 +1,13 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Media;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using static gip.core.layoutengine.avui.VBProgressBar;
 
 namespace gip.core.layoutengine.avui
@@ -28,112 +22,108 @@ namespace gip.core.layoutengine.avui
             InitializeComponent();
         }
 
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-        }
-
-        public static readonly DependencyProperty AvailabilityOEEProperty = DependencyProperty.Register("AvailabilityOEE", typeof(double), typeof(VBOEEControl));
+        public static readonly StyledProperty<double> AvailabilityOEEProperty = 
+            AvaloniaProperty.Register<VBOEEControl, double>(nameof(AvailabilityOEE));
         [Category("VBControl")]
         [Bindable(true)]
         public double AvailabilityOEE
         {
-            get { return (double)GetValue(AvailabilityOEEProperty); }
+            get { return GetValue(AvailabilityOEEProperty); }
             set { SetValue(AvailabilityOEEProperty, value); }
         }
 
-        public static readonly DependencyProperty PerformanceOEEProperty = DependencyProperty.Register("PerformanceOEE", typeof(double), typeof(VBOEEControl));
+        public static readonly StyledProperty<double> PerformanceOEEProperty = 
+            AvaloniaProperty.Register<VBOEEControl, double>(nameof(PerformanceOEE));
         [Category("VBControl")]
         [Bindable(true)]
         public double PerformanceOEE
         {
-            get { return (double)GetValue(PerformanceOEEProperty); }
+            get { return GetValue(PerformanceOEEProperty); }
             set { SetValue(PerformanceOEEProperty, value); }
         }
 
-        public static readonly DependencyProperty QualityOEEProperty = DependencyProperty.Register("QualityOEE", typeof(double), typeof(VBOEEControl));
+        public static readonly StyledProperty<double> QualityOEEProperty = 
+            AvaloniaProperty.Register<VBOEEControl, double>(nameof(QualityOEE));
         [Category("VBControl")]
         [Bindable(true)]
         public double QualityOEE
         {
-            get { return (double)GetValue(QualityOEEProperty); }
+            get { return GetValue(QualityOEEProperty); }
             set { SetValue(QualityOEEProperty, value); }
         }
 
-        public static readonly DependencyProperty TotalOEEProperty = DependencyProperty.Register("TotalOEE", typeof(double), typeof(VBOEEControl));
+        public static readonly StyledProperty<double> TotalOEEProperty = 
+            AvaloniaProperty.Register<VBOEEControl, double>(nameof(TotalOEE));
         [Category("VBControl")]
         [Bindable(true)]
         public double TotalOEE
         {
-            get { return (double)GetValue(TotalOEEProperty); }
+            get { return GetValue(TotalOEEProperty); }
             set { SetValue(TotalOEEProperty, value); }
         }
 
-        public static readonly DependencyProperty OEETextColorProperty
-            = DependencyProperty.Register("OEETextColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.White)));
+        public static readonly StyledProperty<SolidColorBrush> OEETextColorProperty =
+            AvaloniaProperty.Register<VBOEEControl, SolidColorBrush>(nameof(OEETextColor), new SolidColorBrush(Colors.White));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush OEETextColor
         {
-            get { return (SolidColorBrush)GetValue(OEETextColorProperty); }
+            get { return GetValue(OEETextColorProperty); }
             set { SetValue(OEETextColorProperty, value); }
         }
 
 
-        public static readonly DependencyProperty AvailabilityColorProperty
-            = DependencyProperty.Register("AvailabilityColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Lime)));
+        public static readonly StyledProperty<SolidColorBrush> AvailabilityColorProperty =
+            AvaloniaProperty.Register<VBOEEControl, SolidColorBrush>(nameof(AvailabilityColor), new SolidColorBrush(Colors.Lime));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush AvailabilityColor
         {
-            get { return (SolidColorBrush)GetValue(AvailabilityColorProperty); }
+            get { return GetValue(AvailabilityColorProperty); }
             set { SetValue(AvailabilityColorProperty, value); }
         }
 
 
-        public static readonly DependencyProperty PerformanceColorProperty
-            = DependencyProperty.Register("PerformanceColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Red)));
+        public static readonly StyledProperty<SolidColorBrush> PerformanceColorProperty =
+            AvaloniaProperty.Register<VBOEEControl, SolidColorBrush>(nameof(PerformanceColor), new SolidColorBrush(Colors.Red));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush PerformanceColor
         {
-            get { return (SolidColorBrush)GetValue(PerformanceColorProperty); }
+            get { return GetValue(PerformanceColorProperty); }
             set { SetValue(PerformanceColorProperty, value); }
         }
 
 
-        public static readonly DependencyProperty QualityColorProperty
-            = DependencyProperty.Register("QualityColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Yellow)));
+        public static readonly StyledProperty<SolidColorBrush> QualityColorProperty =
+            AvaloniaProperty.Register<VBOEEControl, SolidColorBrush>(nameof(QualityColor), new SolidColorBrush(Colors.Yellow));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush QualityColor
         {
-            get { return (SolidColorBrush)GetValue(QualityColorProperty); }
+            get { return GetValue(QualityColorProperty); }
             set { SetValue(QualityColorProperty, value); }
         }
 
 
-        public static readonly DependencyProperty TotalOEEColorProperty
-            = DependencyProperty.Register("TotalOEEColor", typeof(SolidColorBrush), typeof(VBOEEControl), new PropertyMetadata(new SolidColorBrush(Colors.Gray)));
+        public static readonly StyledProperty<SolidColorBrush> TotalOEEColorProperty =
+            AvaloniaProperty.Register<VBOEEControl, SolidColorBrush>(nameof(TotalOEEColor), new SolidColorBrush(Colors.Gray));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush TotalOEEColor
         {
-            get { return (SolidColorBrush)GetValue(TotalOEEColorProperty); }
+            get { return GetValue(TotalOEEColorProperty); }
             set { SetValue(TotalOEEColorProperty, value); }
         }
-
-
-
     }
 }

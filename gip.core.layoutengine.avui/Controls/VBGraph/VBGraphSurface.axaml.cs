@@ -1,19 +1,15 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Styling;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
@@ -22,7 +18,6 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public partial class VBGraphSurface : UserControl, IACObject
     {
-
         #region Events
 
         public event EventHandler OnGraphItemsChanged;
@@ -31,21 +26,18 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region ctor's
-        static VBGraphSurface()
-        {
-
-        }
-
         public VBGraphSurface()
         {
             InitializeComponent();
             InitVBControl();
         }
 
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnInitialized(e);
-
+            base.OnApplyTemplate(e);
+            GraphVisible(false);
+            InitVBControl();
+            GraphVisible(true);
         }
 
         #endregion
@@ -65,8 +57,8 @@ namespace gip.core.layoutengine.avui
                 {
                     Binding binding = new Binding();
                     binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    SetBinding(AvailablePathsProperty, binding);
+                    binding.Path = dcPath;
+                    Bind(AvailablePathsProperty, binding);
                 }
 
                 //InitGraphSurface();
@@ -76,29 +68,29 @@ namespace gip.core.layoutengine.avui
                     {
                         Binding binding = new Binding();
                         binding.Source = dcSource;
-                        binding.Path = new PropertyPath(dcPath);
-                        SetBinding(ActiveObjectsProperty, binding);
+                        binding.Path = dcPath;
+                        Bind(ActiveObjectsProperty, binding);
                     }
                     if (!string.IsNullOrEmpty(SelectedEdges) && ContextACObject.ACUrlBinding(SelectedEdges, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcCtrlModes))
                     {
                         Binding binding = new Binding();
                         binding.Source = dcSource;
-                        binding.Path = new PropertyPath(dcPath);
-                        SetBinding(ActiveEdgesProperty, binding);
+                        binding.Path = dcPath;
+                        Bind(ActiveEdgesProperty, binding);
                     }
                     if (!string.IsNullOrEmpty(SelectedGraphAction) && ContextACObject.ACUrlBinding(SelectedGraphAction, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcCtrlModes))
                     {
                         Binding binding = new Binding();
                         binding.Source = dcSource;
-                        binding.Path = new PropertyPath(dcPath);
-                        SetBinding(GraphActionProperty, binding);
+                        binding.Path = dcPath;
+                        Bind(GraphActionProperty, binding);
                     }
                     if (!string.IsNullOrEmpty(EdgeRouting) && ContextACObject.ACUrlBinding(EdgeRouting, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcCtrlModes))
                     {
                         Binding binding = new Binding();
                         binding.Source = dcSource;
-                        binding.Path = new PropertyPath(dcPath);
-                        SetBinding(UseEdgeRoutingProperty, binding);
+                        binding.Path = dcPath;
+                        Bind(UseEdgeRoutingProperty, binding);
                     }
                 }
             }
@@ -107,23 +99,11 @@ namespace gip.core.layoutengine.avui
             {
                 Binding binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
+                binding.Path = Const.ACUrlCmdMessage;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(ACUrlCmdMessageProperty, binding);
+                Bind(ACUrlCmdMessageProperty, binding);
             }
         }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            GraphVisible(false);
-            InitVBControl();
-            GraphVisible(true);
-        }
-
 
         #endregion
 
@@ -140,132 +120,167 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        [Category("VBControl")]
         public string SelectedItems
         {
-            get;
-            set;
+            get { return GetValue(SelectedItemsProperty); }
+            set { SetValue(SelectedItemsProperty, value); }
         }
 
-        [Category("VBControl")]
+        public static readonly StyledProperty<string> SelectedItemsProperty =
+            AvaloniaProperty.Register<VBGraphSurface, string>(nameof(SelectedItems));
+
         public string SelectedEdges
         {
-            get;
-            set;
+            get { return GetValue(SelectedEdgesProperty); }
+            set { SetValue(SelectedEdgesProperty, value); }
         }
 
-        [Category("VBControl")]
+        public static readonly StyledProperty<string> SelectedEdgesProperty =
+            AvaloniaProperty.Register<VBGraphSurface, string>(nameof(SelectedEdges));
+
         public string RelayoutMethod
         {
-            get; set;
+            get { return GetValue(RelayoutMethodProperty); }
+            set { SetValue(RelayoutMethodProperty, value); }
         }
 
-        [Category("VBControl")]
+        public static readonly StyledProperty<string> RelayoutMethodProperty =
+            AvaloniaProperty.Register<VBGraphSurface, string>(nameof(RelayoutMethod));
+
         public bool UseACCaption
         {
-            get; set;
+            get { return GetValue(UseACCaptionProperty); }
+            set { SetValue(UseACCaptionProperty, value); }
         }
 
-        [Category("VBControl")]
+        public static readonly StyledProperty<bool> UseACCaptionProperty =
+            AvaloniaProperty.Register<VBGraphSurface, bool>(nameof(UseACCaption));
+
         public double StrokeThickness
         {
-            get; set;
+            get { return GetValue(StrokeThicknessProperty); }
+            set { SetValue(StrokeThicknessProperty, value); }
         }
 
-        [Category("VBControl")]
+        public static readonly StyledProperty<double> StrokeThicknessProperty =
+            AvaloniaProperty.Register<VBGraphSurface, double>(nameof(StrokeThickness));
+
         public string SelectedGraphAction
         {
-            get; set;
+            get { return GetValue(SelectedGraphActionProperty); }
+            set { SetValue(SelectedGraphActionProperty, value); }
         }
 
-        [Category("VBControl")]
+        public static readonly StyledProperty<string> SelectedGraphActionProperty =
+            AvaloniaProperty.Register<VBGraphSurface, string>(nameof(SelectedGraphAction));
+
         public string EdgeRouting
         {
-            get;set;
+            get { return GetValue(EdgeRoutingProperty); }
+            set { SetValue(EdgeRoutingProperty, value); }
         }
 
-        [DefaultValue(60)]
-        public double GraphItemHeight { get; set; }
+        public static readonly StyledProperty<string> EdgeRoutingProperty =
+            AvaloniaProperty.Register<VBGraphSurface, string>(nameof(EdgeRouting));
 
-        [DefaultValue(200)]
-        public double GraphItemWidth { get; set; }
+        public double GraphItemHeight
+        {
+            get { return GetValue(GraphItemHeightProperty); }
+            set { SetValue(GraphItemHeightProperty, value); }
+        }
+
+        public static readonly StyledProperty<double> GraphItemHeightProperty =
+            AvaloniaProperty.Register<VBGraphSurface, double>(nameof(GraphItemHeight), defaultValue: 60.0);
+
+        public double GraphItemWidth
+        {
+            get { return GetValue(GraphItemWidthProperty); }
+            set { SetValue(GraphItemWidthProperty, value); }
+        }
+
+        public static readonly StyledProperty<double> GraphItemWidthProperty =
+            AvaloniaProperty.Register<VBGraphSurface, double>(nameof(GraphItemWidth), defaultValue: 200.0);
 
         #endregion
 
-        #region Dependency properties
+        #region Styled properties
 
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBGraphSurface), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty =
+            AvaloniaProperty.Register<VBGraphSurface, IACBSO>(nameof(BSOACComponent));
+
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBGraphSurface));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBGraphSurface, string>(nameof(VBContent));
+
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
         public IEnumerable<IEnumerable<IEnumerable<IACEdge>>> AvailablePaths
         {
-            get { return (IEnumerable<IEnumerable<IEnumerable<IACEdge>>>)GetValue(AvailablePathsProperty); }
+            get { return GetValue(AvailablePathsProperty); }
             set { SetValue(AvailablePathsProperty, value); }
         }
 
-        public static readonly DependencyProperty AvailablePathsProperty =
-            DependencyProperty.Register("AvailablePaths", typeof(IEnumerable<IEnumerable<IEnumerable<IACEdge>>>), typeof(VBGraphSurface), new PropertyMetadata(OnDepPropChanged));
+        public static readonly StyledProperty<IEnumerable<IEnumerable<IEnumerable<IACEdge>>>> AvailablePathsProperty =
+            AvaloniaProperty.Register<VBGraphSurface, IEnumerable<IEnumerable<IEnumerable<IACEdge>>>>(nameof(AvailablePaths));
 
         [Category("VBControl")]
         [Bindable(true)]
         public List<IACObject> ActiveObjects
         {
-            get { return (List<IACObject>)GetValue(ActiveObjectsProperty); }
+            get { return GetValue(ActiveObjectsProperty); }
             set { SetValue(ActiveObjectsProperty, value); }
         }
 
-        public static readonly DependencyProperty ActiveObjectsProperty =
-            DependencyProperty.Register("ActiveObjects", typeof(List<IACObject>), typeof(VBGraphSurface), new PropertyMetadata(OnDepPropChanged));
+        public static readonly StyledProperty<List<IACObject>> ActiveObjectsProperty =
+            AvaloniaProperty.Register<VBGraphSurface, List<IACObject>>(nameof(ActiveObjects));
 
         [Category("VBControl")]
         [Bindable(true)]
         public List<IACObject> ActiveEdges
         {
-            get { return (List<IACObject>)GetValue(ActiveEdgesProperty); }
+            get { return GetValue(ActiveEdgesProperty); }
             set { SetValue(ActiveEdgesProperty, value); }
         }
 
-        public static readonly DependencyProperty ActiveEdgesProperty =
-            DependencyProperty.Register("ActiveEdges", typeof(List<IACObject>), typeof(VBGraphSurface), new PropertyMetadata(OnDepPropChanged));
+        public static readonly StyledProperty<List<IACObject>> ActiveEdgesProperty =
+            AvaloniaProperty.Register<VBGraphSurface, List<IACObject>>(nameof(ActiveEdges));
 
         /// <summary>
-        /// Represents the dependency property for ACUrlCmdMessage.
+        /// Represents the styled property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage", typeof(ACUrlCmdMessage), typeof(VBGraphSurface), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBGraphSurface, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
         /// </summary>
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
-        public static readonly  DependencyProperty GraphActionProperty
-            = DependencyProperty.Register("GraphAction", typeof(Global.GraphAction), typeof(VBGraphSurface), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<Global.GraphAction> GraphActionProperty =
+            AvaloniaProperty.Register<VBGraphSurface, Global.GraphAction>(nameof(GraphAction));
+
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
@@ -273,43 +288,46 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.GraphAction)GetValue(GraphActionProperty);
+                return GetValue(GraphActionProperty);
             }
             set { SetValue(GraphActionProperty, value); }
         }
 
         public bool UseEdgeRouting
         {
-            get { return (bool)GetValue(UseEdgeRoutingProperty); }
+            get { return GetValue(UseEdgeRoutingProperty); }
             set { SetValue(UseEdgeRoutingProperty, value); }
         }
 
-        public static readonly DependencyProperty UseEdgeRoutingProperty =
-            DependencyProperty.Register("UseEdgeRouting", typeof(bool), typeof(VBGraphSurface), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> UseEdgeRoutingProperty =
+            AvaloniaProperty.Register<VBGraphSurface, bool>(nameof(UseEdgeRouting), defaultValue: true);
 
-        #region Dependency properties => DataTemplate, Styles
+        #region Styled properties => DataTemplate, Styles
 
-        public static readonly DependencyProperty GraphItemDataTemplateProperty =
-            DependencyProperty.Register("GraphItemDataTemplate", typeof(DataTemplate), typeof(VBGraphSurface));
+        public static readonly StyledProperty<DataTemplate> GraphItemDataTemplateProperty =
+            AvaloniaProperty.Register<VBGraphSurface, DataTemplate>(nameof(GraphItemDataTemplate));
+
         public DataTemplate GraphItemDataTemplate
         {
-            get { return (DataTemplate)GetValue(GraphItemDataTemplateProperty); }
+            get { return GetValue(GraphItemDataTemplateProperty); }
             set { SetValue(GraphItemDataTemplateProperty, value); }
         }
 
-        public static readonly DependencyProperty GraphItemDataTemplateSelectorProperty =
-            DependencyProperty.Register("GraphItemDataTemplateSelector", typeof(DataTemplateSelector), typeof(VBGraphSurface));
-        public DataTemplateSelector GraphItemDataTemplateSelector
+        public static readonly StyledProperty<VBGraphItemDataTemplateSelector> GraphItemDataTemplateSelectorProperty =
+            AvaloniaProperty.Register<VBGraphSurface, VBGraphItemDataTemplateSelector>(nameof(GraphItemDataTemplateSelector));
+
+        public VBGraphItemDataTemplateSelector GraphItemDataTemplateSelector
         {
-            get { return (DataTemplateSelector)GetValue(GraphItemDataTemplateSelectorProperty); }
+            get { return GetValue(GraphItemDataTemplateSelectorProperty); }
             set { SetValue(GraphItemDataTemplateSelectorProperty, value); }
         }
 
-        public static readonly DependencyProperty GraphEdgeStyleProperty =
-            DependencyProperty.Register("GraphEdgeStyle", typeof(Style), typeof(VBGraphSurface));
-        public Style GraphEdgeStyle
+        public static readonly StyledProperty<ControlTheme> GraphEdgeStyleProperty =
+            AvaloniaProperty.Register<VBGraphSurface, ControlTheme>(nameof(GraphEdgeStyle));
+
+        public ControlTheme GraphEdgeStyle
         {
-            get { return (Style)GetValue(GraphEdgeStyleProperty); }
+            get { return GetValue(GraphEdgeStyleProperty); }
             set { SetValue(GraphEdgeStyleProperty, value); }
         }
 
@@ -321,11 +339,6 @@ namespace gip.core.layoutengine.avui
 
         private void ClearBindings()
         {
-
-            BindingOperations.ClearBinding(this, ActiveEdgesProperty);
-            BindingOperations.ClearBinding(this, ActiveObjectsProperty);
-            BindingOperations.ClearBinding(this, AvailablePathsProperty);
-            BindingOperations.ClearBinding(this, ACUrlCmdMessageProperty);
             this.ClearAllBindings();
         }
 
@@ -343,7 +356,7 @@ namespace gip.core.layoutengine.avui
 
         #region Fields
 
-        private Dictionary<IACObject, FrameworkElement> _GraphItemsMap;
+        private Dictionary<IACObject, Control> _GraphItemsMap;
 
         private Dictionary<IACEdge, VBEdge> _EdgesMap;
 
@@ -460,31 +473,26 @@ namespace gip.core.layoutengine.avui
 
         #region Methods
 
-        public static void OnDepPropChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (dependencyObject is VBGraphSurface)
+            if (change.Property == ActiveEdgesProperty && ActiveEdges != null)
+                UpdateVBGraphEdgesState();
+            else if (change.Property == ActiveObjectsProperty && ActiveObjects != null)
+                UpdateVBGraphItemsState();
+            else if (change.Property == ACUrlCmdMessageProperty)
+                OnACUrlMessageReceived();
+            else if (change.Property == AvailablePathsProperty)
+                UpdateVBGraphAvailablePaths();
+            if (change.Property == GraphActionProperty)
             {
-                VBGraphSurface surface = dependencyObject as VBGraphSurface;
-                if (surface == null)
-                    return;
-                if (args.Property == ActiveEdgesProperty && surface.ActiveEdges != null)
-                    surface.UpdateVBGraphEdgesState();
-                else if (args.Property == ActiveObjectsProperty && surface.ActiveObjects != null)
-                    surface.UpdateVBGraphItemsState();
-                else if (args.Property == ACUrlCmdMessageProperty)
-                    surface.OnACUrlMessageReceived();
-                else if (args.Property == AvailablePathsProperty)
-                    surface.UpdateVBGraphAvailablePaths();
-                if (args.Property == GraphActionProperty)
+                Global.GraphAction graphAction = Global.GraphAction.None;
+                if (change.NewValue != null)
                 {
-                    Global.GraphAction graphAction = Global.GraphAction.None;
-                    if (args.NewValue != null)
-                    {
-                        Enum.TryParse(args.NewValue.ToString(), out graphAction);
-                        surface.SetGraphAction(graphAction);
-                    }
+                    Enum.TryParse(change.NewValue.ToString(), out graphAction);
+                    SetGraphAction(graphAction);
                 }
             }
+            base.OnPropertyChanged(change);
         }
 
         bool isGraphVisible;
@@ -495,13 +503,13 @@ namespace gip.core.layoutengine.avui
             isGraphVisible = isVisible;
             if (isVisible)
             {
-                progressBar.Visibility = Visibility.Collapsed;
-                graph.Visibility = Visibility.Visible;
+                progressBar.IsVisible = false;
+                graph.IsVisible = true;
             }
             else
             {
-                progressBar.Visibility = Visibility.Visible;
-                graph.Visibility = Visibility.Collapsed;
+                progressBar.IsVisible = true;
+                graph.IsVisible = false;
             }
         }
 
@@ -512,7 +520,7 @@ namespace gip.core.layoutengine.avui
 
             this.graph.Children.Clear();
 
-            _GraphItemsMap = new Dictionary<IACObject, FrameworkElement>();
+            _GraphItemsMap = new Dictionary<IACObject, Control>();
             _EdgesMap = new Dictionary<IACEdge, VBEdge>();
 
             _Edges = AvailablePaths.SelectMany(x => x, (k, v) => new { v }).Select(c => c.v).SelectMany(t => t, (m, n) => new { n })
@@ -547,7 +555,7 @@ namespace gip.core.layoutengine.avui
                 Console.WriteLine(ec.Message);
             }
 
-            _RoutingLogic = new VBRoutingLogic();
+            _RoutingLogic = new VBRoutingLogic(BSOACComponent);
             MarkSourcesAndTargets();
         }
 

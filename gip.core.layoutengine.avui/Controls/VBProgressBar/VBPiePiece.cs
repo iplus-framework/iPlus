@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Collections.ObjectModel;
-using System.Windows.Shapes;
-using System.Windows.Media;
 using System.ComponentModel;
+using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Controls.Shapes;
+using Avalonia;
+using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -24,7 +24,13 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        #region DP
+        #region StyledProperties
+
+        /// <summary>
+        /// Represents the styled property for Radius.
+        /// </summary>
+        public static readonly StyledProperty<double> RadiusProperty =
+           AvaloniaProperty.Register<VBPiePiece, double>(nameof(Radius));
 
         /// <summary>
         /// The radius of this pie piece
@@ -32,15 +38,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double Radius
         {
-            get { return (double)GetValue(RadiusProperty); }
+            get { return GetValue(RadiusProperty); }
             set { SetValue(RadiusProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Radius.
+        /// Represents the styled property for Fill.
         /// </summary>
-        public static readonly DependencyProperty RadiusProperty =
-           DependencyProperty.Register("Radius", typeof(double), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<Brush> FillProperty =
+           AvaloniaProperty.Register<VBPiePiece, Brush>(nameof(Fill));
 
         /// <summary>
         /// The fill color of this pie piece
@@ -48,15 +54,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public Brush Fill
         {
-            get { return (Brush)GetValue(FillProperty); }
+            get { return GetValue(FillProperty); }
             set { SetValue(FillProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Fill.
+        /// Represents the styled property for Stroke.
         /// </summary>
-        public static readonly DependencyProperty FillProperty =
-           DependencyProperty.Register("Fill", typeof(Brush), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<Brush> StrokeProperty =
+           AvaloniaProperty.Register<VBPiePiece, Brush>(nameof(Stroke));
 
         /// <summary>
         /// The fill color of this pie piece
@@ -64,15 +70,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public Brush Stroke
         {
-            get { return (Brush)GetValue(StrokeProperty); }
+            get { return GetValue(StrokeProperty); }
             set { SetValue(StrokeProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Stroke.
+        /// Represents the styled property for InnerRadius.
         /// </summary>
-        public static readonly DependencyProperty StrokeProperty =
-           DependencyProperty.Register("Stroke", typeof(Brush), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<double> InnerRadiusProperty =
+           AvaloniaProperty.Register<VBPiePiece, double>(nameof(InnerRadius));
 
         /// <summary>
         /// The inner radius of this pie piece
@@ -80,15 +86,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double InnerRadius
         {
-            get { return (double)GetValue(InnerRadiusProperty); }
+            get { return GetValue(InnerRadiusProperty); }
             set { SetValue(InnerRadiusProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for InnerRadius.
+        /// Represents the styled property for WedgeAngle.
         /// </summary>
-        public static readonly DependencyProperty InnerRadiusProperty =
-           DependencyProperty.Register("InnerRadius", typeof(double), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<double> WedgeAngleProperty =
+           AvaloniaProperty.Register<VBPiePiece, double>(nameof(WedgeAngle));
 
         /// <summary>
         /// The wedge angle of this pie piece in degrees
@@ -96,15 +102,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double WedgeAngle
         {
-            get { return (double)GetValue(WedgeAngleProperty); }
+            get { return GetValue(WedgeAngleProperty); }
             set { SetValue(WedgeAngleProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for WedgeAngle.
+        /// Represents the styled property for RotationAngle.
         /// </summary>
-        public static readonly DependencyProperty WedgeAngleProperty =
-           DependencyProperty.Register("WedgeAngle", typeof(double), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<double> RotationAngleProperty =
+           AvaloniaProperty.Register<VBPiePiece, double>(nameof(RotationAngle));
 
         /// <summary>
         /// The rotation, in degrees, from the Y axis vector of this pie piece.
@@ -112,15 +118,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double RotationAngle
         {
-            get { return (double)GetValue(RotationAngleProperty); }
+            get { return GetValue(RotationAngleProperty); }
             set { SetValue(RotationAngleProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for RotationAngle.
+        /// Represents the styled property for CentreY.
         /// </summary>
-        public static readonly DependencyProperty RotationAngleProperty =
-           DependencyProperty.Register("RotationAngle", typeof(double), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<double> CentreYProperty =
+           AvaloniaProperty.Register<VBPiePiece, double>(nameof(CentreY));
 
         /// <summary>
         /// The Y coordinate of centre of the circle from which this pie piece is cut.
@@ -128,15 +134,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double CentreY
         {
-            get { return (double)GetValue(CentreYProperty); }
+            get { return GetValue(CentreYProperty); }
             set { SetValue(CentreYProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for CentereY.
+        /// Represents the styled property for CentreX.
         /// </summary>
-        public static readonly DependencyProperty CentreYProperty =
-           DependencyProperty.Register("CentreY", typeof(double), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
+        public static readonly StyledProperty<double> CentreXProperty =
+           AvaloniaProperty.Register<VBPiePiece, double>(nameof(CentreX));
 
         /// <summary>
         /// The X coordinate of centre of the circle from which this pie piece is cut.
@@ -144,27 +150,26 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double CentreX
         {
-            get { return (double)GetValue(CentreXProperty); }
+            get { return GetValue(CentreXProperty); }
             set { SetValue(CentreXProperty, value); }
         }
 
-        /// <summary>
-        /// Represents the dependency property for CentreX.
-        /// </summary>
-        public static readonly DependencyProperty CentreXProperty =
-           DependencyProperty.Register("CentreX", typeof(double), typeof(VBPiePiece), new PropertyMetadata(OnDependencyPropertyChanged));
-
         #endregion
 
-        ///// <summary>
-        ///// The value that this pie piece represents.
-        ///// </summary>
-        //public double PieceValue { get; set; }
-
-        private static void OnDependencyPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBPiePiece source = d as VBPiePiece;
-            source.AddPathToCanvas();
+            if (change.Property == RadiusProperty ||
+                change.Property == FillProperty ||
+                change.Property == StrokeProperty ||
+                change.Property == InnerRadiusProperty ||
+                change.Property == WedgeAngleProperty ||
+                change.Property == RotationAngleProperty ||
+                change.Property == CentreXProperty ||
+                change.Property == CentreYProperty)
+            {
+                AddPathToCanvas();
+            }
+            base.OnPropertyChanged(change);
         }
 
         /// <summary>
@@ -173,27 +178,18 @@ namespace gip.core.layoutengine.avui
         public VBPiePiece()
         {
             AddPathToCanvas();
-            this.MouseLeftButtonUp += new System.Windows.Input.MouseButtonEventHandler(PiePiece_MouseLeftButtonUp);
         }
 
-        /// <summary>
-        /// Handle left mouse button click event, hit testing to see if the pie piece was hit.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        void PiePiece_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            //IEnumerable<UIElement> hits = VisualTreeHelper.FindElementsInHostCoordinates(e.GetPosition(null), this);
-            //HitTestResult result = VisualTreeHelper.HitTest(this, e.GetPosition(null));
-
-            //Path path = (Path)hits.First(element => element is Path);
-            //if (path != null)
+            if (e.InitialPressMouseButton == MouseButton.Left && e.Route == RoutingStrategies.Bubble)
             {
                 if (PiePieceClickedEvent != null)
                 {
                     PiePieceClickedEvent(this);
                 }
             }
+            base.OnPointerReleased(e);
         }
 
         private void AddPathToCanvas()
@@ -203,7 +199,7 @@ namespace gip.core.layoutengine.avui
             String tooltip = (WedgeAngle / 360.00).ToString("#0.##%");
 
             Path path = ConstructPath();
-            ToolTipService.SetToolTip(path, tooltip);
+            ToolTip.SetTip(path, tooltip);
             this.Children.Add(path);
         }
 
@@ -222,7 +218,7 @@ namespace gip.core.layoutengine.avui
                     StrokeThickness = 1,
                     Data = new GeometryGroup()
                     {
-                        FillRule = System.Windows.Media.FillRule.EvenOdd,
+                        FillRule = FillRule.EvenOdd,
                         Children = new GeometryCollection()
                         {
                           new EllipseGeometry()
@@ -259,7 +255,7 @@ namespace gip.core.layoutengine.avui
             PathFigure figure = new PathFigure()
             {
                 StartPoint = innerArcStartPoint,
-                Segments = new PathSegmentCollection()
+                Segments = new PathSegments()
               {
                   new LineSegment()
                   {
@@ -282,7 +278,7 @@ namespace gip.core.layoutengine.avui
                       Point = innerArcStartPoint,
                       Size = innerArcSize,
                       IsLargeArc = largeArc,
-                      SweepDirection = SweepDirection.Counterclockwise,
+                      SweepDirection = SweepDirection.CounterClockwise,
                       RotationAngle = 0
                   }
               }
@@ -295,7 +291,7 @@ namespace gip.core.layoutengine.avui
                 StrokeThickness = 1,
                 Data = new PathGeometry()
                 {
-                    Figures = new PathFigureCollection()
+                    Figures = new PathFigures()
                     {
                         figure
                     }

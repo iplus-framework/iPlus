@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using gip.ext.design.avui;
-using System.Windows.Media;
 using gip.core.datamodel;
+using Avalonia.Controls;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui
 {
@@ -15,14 +15,20 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBRoutingLogic
     {
+        IACComponent _aCComponent = null;
+        public VBRoutingLogic(IACComponent datamodel)
+        {
+            _aCComponent = datamodel;
+        }
+
         public void ClearVB(bool clearStorages = true)
         {
-            _EdgeDesignItems = new List<FrameworkElement>();
-            _NodeDesignItems = new List<FrameworkElement>();
+            _EdgeDesignItems = new List<Control>();
+            _NodeDesignItems = new List<Control>();
             //base.Clear(clearStorages);
         }
 
-        public void InitWithDesignItems(DesignItem rootCanvas, List<FrameworkElement> nodes, IEnumerable<FrameworkElement> edges, IEnumerable<DesignItem> designItemEdges = null)
+        public void InitWithDesignItems(DesignItem rootCanvas, List<Control> nodes, IEnumerable<Control> edges, IEnumerable<DesignItem> designItemEdges = null)
         {
             _RootDesignItem = rootCanvas;
             _NodeDesignItems = nodes;
@@ -30,8 +36,8 @@ namespace gip.core.layoutengine.avui
             _DesignItemEdges = designItemEdges;
         }
 
-        List<FrameworkElement> _NodeDesignItems = new List<FrameworkElement>();
-        public List<FrameworkElement> NodeDesignItems
+        List<Control> _NodeDesignItems = new List<Control>();
+        public List<Control> NodeDesignItems
         {
             get
             {
@@ -39,8 +45,8 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        List<FrameworkElement> _EdgeDesignItems = new List<FrameworkElement>();
-        public List<FrameworkElement> EdgeDesignItems
+        List<Control> _EdgeDesignItems = new List<Control>();
+        public List<Control> EdgeDesignItems
         {
             get
             {
@@ -72,7 +78,7 @@ namespace gip.core.layoutengine.avui
         /// Calculate edge route.
         /// </summary>
         /// <param name="rootElement">The root element of all elements.</param>
-        public void CalculateEdgeRoute(UIElement rootElement, int spaceFromNode = 5, bool checkEdgeCollision = true)
+        public void CalculateEdgeRoute(Control rootElement, int spaceFromNode = 5, bool checkEdgeCollision = true)
         {
             InitWithDesignItems(RootDesignItem, NodeDesignItems, EdgeDesignItems.Where(c => ((IEdge)c).SourceElement != null && ((IEdge)c).TargetElement != null), 
                                 _DesignItemEdges != null ? _DesignItemEdges.Where(c => ((IEdge)c.View).SourceElement != null && ((IEdge)c.View).TargetElement != null) : null);
@@ -80,9 +86,9 @@ namespace gip.core.layoutengine.avui
             _ListAllNodes.Clear();
             _ListRoutedEdges.Clear();
             TransformPoints(rootElement, true);
-            PointCollection points = new PointCollection();
+            IList<Point> points = new List<Point>();
             var sortedAsc = EdgeDesignItems.OrderBy(c => CalculateLineLenght(((IEdge)c).Points));
-            foreach (FrameworkElement designItem in sortedAsc)
+            foreach (Control designItem in sortedAsc)
             {
                 if (designItem is VBEdge)
                 {
@@ -111,44 +117,44 @@ namespace gip.core.layoutengine.avui
         /// <param name="rootCanvas">The root element(Canvas) for all edges and nodes.</param>
         /// <param name="iEdge">The VBEdge.</param>
         /// <returns>Return point collection of bypass edge.</returns>
-        PointCollection CalculateEdgeRoute(UIElement rootCanvas, IEdge iEdge, out bool terminate, bool invert = false)
+        IList<Point> CalculateEdgeRoute(Control rootCanvas, IEdge iEdge, out bool terminate, bool invert = false)
         {
             terminate = false;
             _ListNodes.Clear();
-            PointCollection points = new PointCollection();
-            IEnumerable<FrameworkElement> nodes = null;
+            List<Point> points = new List<Point>();
+            IEnumerable<Control> nodes = null;
             bool isSameParent = IsSameParent(iEdge);
             if (isSameParent)
             {
-                FrameworkElement parentElement = iEdge.SourceElement.Parent as FrameworkElement;
+                Control parentElement = iEdge.SourceElement.Parent as Control;
                 nodes = NodeDesignItems.Where(c => c.Parent == parentElement);
             }
             else
             {
-                FrameworkElement source = iEdge.SourceElement;
-                FrameworkElement target = iEdge.TargetElement;
+                Control source = iEdge.SourceElement;
+                Control target = iEdge.TargetElement;
                 try
                 {
-                    FrameworkElement parentSourceElement = ((FrameworkElement)source.Parent).Parent as FrameworkElement;
-                    FrameworkElement parentTargetElement = ((FrameworkElement)target.Parent).Parent as FrameworkElement;
+                    Control parentSourceElement = ((Control)source.Parent).Parent as Control;
+                    Control parentTargetElement = ((Control)target.Parent).Parent as Control;
 
-                    FrameworkElement rootVBCanvasInGroup = source.Parent as FrameworkElement;
-                    if (rootVBCanvasInGroup == null || ((FrameworkElement)rootVBCanvasInGroup.Parent).Parent != rootCanvas)
-                        rootVBCanvasInGroup = target.Parent as FrameworkElement;
+                    Control rootVBCanvasInGroup = source.Parent as Control;
+                    if (rootVBCanvasInGroup == null || ((Control)rootVBCanvasInGroup.Parent).Parent != rootCanvas)
+                        rootVBCanvasInGroup = target.Parent as Control;
 
-                    if (((FrameworkElement)rootVBCanvasInGroup.Parent).Parent != rootCanvas)
-                        rootVBCanvasInGroup = ((FrameworkElement)((FrameworkElement)rootVBCanvasInGroup).Parent).Parent as FrameworkElement;
+                    if (((Control)rootVBCanvasInGroup.Parent).Parent != rootCanvas)
+                        rootVBCanvasInGroup = ((Control)((Control)rootVBCanvasInGroup).Parent).Parent as Control;
 
                     if (rootVBCanvasInGroup != null && source.Parent == rootVBCanvasInGroup && parentTargetElement.Parent == rootVBCanvasInGroup)
-                        nodes = NodeDesignItems.Where(c => c.Parent == source.Parent || ((FrameworkElement)c.Parent).Parent == parentTargetElement);
+                        nodes = NodeDesignItems.Where(c => c.Parent == source.Parent || ((Control)c.Parent).Parent == parentTargetElement);
 
                     else if (rootVBCanvasInGroup != null && parentSourceElement.Parent == rootVBCanvasInGroup && target.Parent == rootVBCanvasInGroup)
-                        nodes = NodeDesignItems.Where(c => ((FrameworkElement)c.Parent).Parent == parentSourceElement || c.Parent == target.Parent);
+                        nodes = NodeDesignItems.Where(c => ((Control)c.Parent).Parent == parentSourceElement || c.Parent == target.Parent);
 
-                    else if (((FrameworkElement)((FrameworkElement)rootVBCanvasInGroup).Parent).Parent == rootCanvas)
+                    else if (((Control)((Control)rootVBCanvasInGroup).Parent).Parent == rootCanvas)
                         nodes = NodeDesignItems.Where(c => c.Parent == rootVBCanvasInGroup && c != parentSourceElement && c != parentTargetElement ||
-                                                           ((FrameworkElement)c.Parent).Parent == parentSourceElement ||
-                                                           ((FrameworkElement)c.Parent).Parent == parentTargetElement);
+                                                           ((Control)c.Parent).Parent == parentSourceElement ||
+                                                           ((Control)c.Parent).Parent == parentTargetElement);
                 }
                 catch (Exception e)
                 {
@@ -168,10 +174,10 @@ namespace gip.core.layoutengine.avui
 
             foreach (var designItem in nodes)
             {
-                FrameworkElement fwElement = designItem as FrameworkElement;
-                if(fwElement != null)
+                Control fwElement = designItem as Control;
+                if (fwElement != null)
                 {
-                    Point posRelativeToParent = fwElement.TransformToVisual(rootCanvas).Transform(new Point(0, 0));
+                    Point posRelativeToParent = fwElement.TransformToVisual(rootCanvas)?.Transform(new Point(0, 0)) ?? new Point(0, 0);
                     _ListNodes.Add(new Node(fwElement, posRelativeToParent));
                 }
             }
@@ -198,7 +204,7 @@ namespace gip.core.layoutengine.avui
                     counter++;
                     if (counter > 18)
                     {
-                        MessageBox.Show("The space between nodes is not enough. If is possible, please increase space between nodes!!!", "Edges routing", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        _aCComponent?.Messages.Msg(new Msg(eMsgLevel.Warning, "The space between nodes is not enough. If is possible, please increase space between nodes!!!"), Global.MsgResult.OK, eMsgButton.OK);
                         terminate = true;
                         return null;
                     }
@@ -214,7 +220,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="rootCanvas">The root element.</param>
         /// <param name="routedEdges">The routed edges.</param>
-        void CheckEdgesCollision(UIElement rootCanvas, List<IEdge> routedEdges, bool checkEdgeCollision)
+        void CheckEdgesCollision(Control rootCanvas, List<IEdge> routedEdges, bool checkEdgeCollision)
         {
             TransformPoints(rootCanvas);
             _ListAllNodes.Clear();
@@ -227,10 +233,10 @@ namespace gip.core.layoutengine.avui
                 int nCollPoints = CheckEdgesCollisionDetail(vbEdge, CheckPotentialEdgesCollision(vbEdge, rootCanvas), rootCanvas);
                 if (nCollPoints > 0)
                 {
-                    PointCollection tempPoints = CopyPoints(vbEdge.Points);
+                    IList<Point> tempPoints = CopyPoints(vbEdge.Points);
                     vbEdge.Points.Clear();
                     bool terminate = false;
-                    PointCollection points = CalculateEdgeRoute(rootCanvas, vbEdge, out terminate, true);
+                    IList<Point> points = CalculateEdgeRoute(rootCanvas, vbEdge, out terminate, true);
                     if (points != null)
                     {
                         vbEdge.Points = points;
@@ -268,17 +274,20 @@ namespace gip.core.layoutengine.avui
         /// <param name="iEdge">The edge.</param>
         /// <param name="rootCanvas">The root element.</param>
         /// <returns>List of edges that is in potential collision.</returns>
-        List<IEdge> CheckPotentialEdgesCollision(IEdge iEdge, UIElement rootCanvas)
+        List<IEdge> CheckPotentialEdgesCollision(IEdge iEdge, Control rootCanvas)
         {
+            if (iEdge == null || !(iEdge is Visual))
+                throw new ArgumentNullException("iEdge is not a Visual");
+
             List<IEdge> edgesToCheck = new List<IEdge>();
 
             if (iEdge.Points == null)
                 return edgesToCheck;
 
-            Point vbEdgePos = iEdge.TransformToVisual(rootCanvas).Transform(_NullPoint);
+            Point vbEdgePos = (iEdge as Visual).TransformToVisual(rootCanvas)?.Transform(_NullPoint) ?? _NullPoint;
             Point widthHeightPoint = GetWidthAndHeight(iEdge.Points);
             
-            foreach (FrameworkElement edgeDesignItem in EdgeDesignItems)
+            foreach (Control edgeDesignItem in EdgeDesignItems)
             {
                 VBEdge vbEdgeForCheck = edgeDesignItem as VBEdge;
                 if (iEdge != vbEdgeForCheck && vbEdgeForCheck.Points != null)
@@ -304,11 +313,13 @@ namespace gip.core.layoutengine.avui
         /// <param name="listEdges">The list of edges in potential collision.</param>
         /// <param name="rootCanvas">The root element.</param>
         /// <returns>Return number of collision.</returns>
-        int CheckEdgesCollisionDetail(IEdge iEdge, List<IEdge> listEdges, UIElement rootCanvas)
+        int CheckEdgesCollisionDetail(IEdge iEdge, List<IEdge> listEdges, Control rootCanvas)
         {
+            if (iEdge == null || !(iEdge is Visual))
+                throw new ArgumentNullException("iEdge is not a Visual");
             int countColl = 0;
             var mainEdgeAllPoints = GenerateAllPoints(iEdge.Points);
-            Point mainEdgePos = iEdge.TransformToVisual(rootCanvas).Transform(_NullPoint);
+            Point mainEdgePos = (iEdge as Visual).TransformToVisual(rootCanvas)?.Transform(_NullPoint) ?? _NullPoint;
 
             foreach (IEdge edge in listEdges)
                 countColl += mainEdgeAllPoints.Count(c => GenerateAllPoints(edge.Points).Any(x => Math.Round(c.X) + Math.Round(mainEdgePos.X, 0) == Math.Round(x.X, 0) &&
@@ -322,7 +333,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="points">The edge point collection.</param>
         /// <returns>All edge points.</returns>
-        List<Point> GenerateAllPoints(PointCollection points)
+        IList<Point> GenerateAllPoints(IList<Point> points)
         {
             List<Point> linePoints = new List<Point>();
             foreach (Point point in points)
@@ -352,7 +363,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="points">The edge point collection.</param>
         /// <returns>The point where X is edge width and Y is edge height.</returns>
-        Point GetWidthAndHeight(PointCollection points)
+        Point GetWidthAndHeight(IList<Point> points)
         {
             double width = 0, height = 0;
             foreach (Point p in points)
@@ -370,9 +381,9 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="points">The point collection for copy.</param>
         /// <returns>The point collection of copied points.</returns>
-        PointCollection CopyPoints(PointCollection points)
+        IList<Point> CopyPoints(IList<Point> points)
         {
-            PointCollection pc = new PointCollection();
+            List<Point> pc = new List<Point>();
             foreach (Point point in points)
                 pc.Add(new Point(point.X, point.Y));
             return pc;
@@ -382,9 +393,9 @@ namespace gip.core.layoutengine.avui
         /// Transform source and target points to root element for edges where is only 2 points. 
         /// </summary>
         /// <param name="rootCanvas">The root element.</param>
-        void TransformPoints(UIElement rootCanvas, bool isReset = false)
+        void TransformPoints(Control rootCanvas, bool isReset = false)
         {
-            foreach (FrameworkElement edgeDesignItem in EdgeDesignItems)
+            foreach (Control edgeDesignItem in EdgeDesignItems)
             {
                 VBEdge vbedge = edgeDesignItem as VBEdge;
                 if (vbedge.Points != null && (vbedge.Points.Count == 2 || isReset))
@@ -403,7 +414,7 @@ namespace gip.core.layoutengine.avui
         /// <returns>Return true if is same parent, else return false.</returns>
         private bool IsSameParent(IEdge vbEdge)
         {
-            FrameworkElement source, target = null;
+            Control source, target = null;
             source = vbEdge.SourceElement;
             target = vbEdge.TargetElement;
             if (source != null && target != null && source.Parent == target.Parent)
@@ -419,7 +430,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="rootElement">The root element of edges and nodes.</param>
         /// <param name="isSameParent">The VBEdge target and source element have same parent.</param>
         /// <returns>Return true if edge in collision, else return false.</returns>
-        private bool IsInCollision(IEdge vbEdge, UIElement rootElement, bool isSameParent)
+        private bool IsInCollision(IEdge vbEdge, Control rootElement, bool isSameParent)
         {
             var sourceElement = vbEdge.SourceElement;
             var targetElement = vbEdge.TargetElement;
@@ -453,8 +464,8 @@ namespace gip.core.layoutengine.avui
 
             if (vbEdge.Points.Count > 2)
             {
-                PointCollection linePointsSource = VBEdge.GetBresenhamLine(vbEdge.Points[0], vbEdge.Points[1]);
-                PointCollection linePointsTarget = VBEdge.GetBresenhamLine(vbEdge.Points[vbEdge.Points.Count - 2], vbEdge.Points[vbEdge.Points.Count - 1]);
+                IList<Point> linePointsSource = VBEdge.GetBresenhamLine(vbEdge.Points[0], vbEdge.Points[1]);
+                IList<Point> linePointsTarget = VBEdge.GetBresenhamLine(vbEdge.Points[vbEdge.Points.Count - 2], vbEdge.Points[vbEdge.Points.Count - 1]);
                 collision = CheckSourceOrTarget(sourceNode, sourceConnectorPosRoot, linePointsSource, collision);
                 collision = CheckSourceOrTarget(targetNode, targetConnectorPosRoot, linePointsTarget, collision);
 
@@ -462,7 +473,7 @@ namespace gip.core.layoutengine.avui
                 {
                     if (vbEdge.Points.Count() >= vbEdge.Points.IndexOf(point) + 2)
                     {
-                        PointCollection linePoints = VBEdge.GetBresenhamLine(point, vbEdge.Points[vbEdge.Points.IndexOf(point) + 1]);
+                        IList<Point> linePoints = VBEdge.GetBresenhamLine(point, vbEdge.Points[vbEdge.Points.IndexOf(point) + 1]);
 
                         foreach (var node in _ListNodes.OrderBy(c => c.NodePosition.Y))
                         {
@@ -474,7 +485,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                PointCollection linePoints = VBEdge.GetBresenhamLine(sourceConnectorPosRoot, targetConnectorPosRoot);
+                IList<Point> linePoints = VBEdge.GetBresenhamLine(sourceConnectorPosRoot, targetConnectorPosRoot);
 
                 collision = CheckSourceOrTarget(sourceNode, sourceConnectorPosRoot, linePoints, collision);
                 collision = CheckSourceOrTarget(targetNode, targetConnectorPosRoot, linePoints, collision);
@@ -494,10 +505,10 @@ namespace gip.core.layoutengine.avui
         /// <param name="vbEdge">The VBEdge.</param>
         /// <param name="insertIndex">Index for insert points in current point collection.</param>
         /// <returns>Return calculated points.</returns>
-        private PointCollection CalculatePoints(UIElement rootCanvas, IEdge vbEdge, out int insertIndex, bool invert = false)
+        private IList<Point> CalculatePoints(Control rootCanvas, IEdge vbEdge, out int insertIndex, bool invert = false)
         {
             insertIndex = 0;
-            PointCollection points = new PointCollection();
+            IList<Point> points = new List<Point>();
             Point sourceConnectorPos = vbEdge.GetSourceConnectorPointToContainer(rootCanvas);
             Point targetConnectorPos = vbEdge.GetTargetConnectorPointToContainer(rootCanvas);
 
@@ -547,7 +558,7 @@ namespace gip.core.layoutengine.avui
                 #region Vertical line
                 if (node.TopCollisionPoint != _NullPoint && node.BottomCollisionPoint != _NullPoint)
                 {
-                    double diffTopRight = node.NodePosition.X + node.NodeFWElement.ActualWidth - node.TopCollisionPoint.X;
+                    double diffTopRight = node.NodePosition.X + node.NodeFWElement.Bounds.Width - node.TopCollisionPoint.X;
                     double diffBottomLeft = node.BottomCollisionPoint.X - node.NodePosition.X;
                     bool rightSide = Math.Round(diffTopRight, 0) < Math.Round(diffBottomLeft, 0);
                     if (invert || _InvertFromSourceTarget)
@@ -559,9 +570,9 @@ namespace gip.core.layoutengine.avui
                     //line go around right side of node
                     if (rightSide)
                     {
-                        Point point1 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode + nodeForNearEdges.LinesNearRight, 
+                        Point point1 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode + nodeForNearEdges.LinesNearRight, 
                                                  -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
-                        Point point2 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode + nodeForNearEdges.LinesNearRight, 
+                        Point point2 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode + nodeForNearEdges.LinesNearRight, 
                                                  node.NodeFWElement.Height + (_SpaceFromNode -1) + nodeForNearEdges.LinesNearBottom);
                         if (edgeDirection == EdgeDirection.BottomTop || edgeDirection == EdgeDirection.LeftBottomRightTop || edgeDirection == EdgeDirection.RightBottomLeftTop)
                             ChangePoints(point1, point2, out point1, out point2);
@@ -587,14 +598,14 @@ namespace gip.core.layoutengine.avui
                 else if (node.LeftCollisionPoint != _NullPoint && node.RightCollisionPoint != _NullPoint)
                 {
                     double diffLeftTop = node.LeftCollisionPoint.Y - node.NodePosition.Y;
-                    double diffRightBottom = node.NodePosition.Y + node.NodeFWElement.ActualHeight - node.RightCollisionPoint.Y;
+                    double diffRightBottom = node.NodePosition.Y + node.NodeFWElement.Bounds.Height - node.RightCollisionPoint.Y;
 
-                    if (node.LeftCollisionPoint.Y - node.NodePosition.Y < node.NodePosition.Y + node.NodeFWElement.ActualHeight - node.LeftCollisionPoint.Y
-                            && node.RightCollisionPoint.Y - node.NodePosition.Y < node.NodePosition.Y + node.NodeFWElement.ActualHeight - node.RightCollisionPoint.Y
+                    if (node.LeftCollisionPoint.Y - node.NodePosition.Y < node.NodePosition.Y + node.NodeFWElement.Bounds.Height - node.LeftCollisionPoint.Y
+                            && node.RightCollisionPoint.Y - node.NodePosition.Y < node.NodePosition.Y + node.NodeFWElement.Bounds.Height - node.RightCollisionPoint.Y
                         || Math.Round(diffLeftTop, 0) < Math.Round(diffRightBottom, 0))
                     {
                         Point point1 = new Point(-_SpaceFromNode, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
-                        Point point2 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
+                        Point point2 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
                         if (edgeDirection == EdgeDirection.RightLeft || edgeDirection == EdgeDirection.RightTopLeftBottom || edgeDirection == EdgeDirection.RightBottomLeftTop)
                             ChangePoints(point1, point2, out point1, out point2);
                         nodeSide = Side.Top;
@@ -602,8 +613,8 @@ namespace gip.core.layoutengine.avui
                     }
                     else
                     {
-                        Point point1 = new Point(-_SpaceFromNode, node.NodeFWElement.ActualHeight + _SpaceFromNode + nodeForNearEdges.LinesNearBottom);
-                        Point point2 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode, node.NodeFWElement.ActualHeight + (_SpaceFromNode - 1) + nodeForNearEdges.LinesNearBottom);
+                        Point point1 = new Point(-_SpaceFromNode, node.NodeFWElement.Bounds.Height + _SpaceFromNode + nodeForNearEdges.LinesNearBottom);
+                        Point point2 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode, node.NodeFWElement.Bounds.Height + (_SpaceFromNode - 1) + nodeForNearEdges.LinesNearBottom);
                         if (edgeDirection == EdgeDirection.RightLeft || edgeDirection == EdgeDirection.RightTopLeftBottom || edgeDirection == EdgeDirection.RightBottomLeftTop)
                             ChangePoints(point1, point2, out point1, out point2);
                         nodeSide = Side.Bottom;
@@ -615,7 +626,7 @@ namespace gip.core.layoutengine.avui
                 else if (node.TopCollisionPoint != _NullPoint && node.LeftCollisionPoint != _NullPoint)
                 {
                     Point point1 = new Point((-2 - _SpaceFromNode) - nodeForNearEdges.LinesNearLeft, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
-                    Point point2 = new Point((-2 - _SpaceFromNode) - nodeForNearEdges.LinesNearLeft, node.NodeFWElement.ActualHeight + (_SpaceFromNode - 1) + nodeForNearEdges.LinesNearBottom);
+                    Point point2 = new Point((-2 - _SpaceFromNode) - nodeForNearEdges.LinesNearLeft, node.NodeFWElement.Bounds.Height + (_SpaceFromNode - 1) + nodeForNearEdges.LinesNearBottom);
                     bool _isTwoPointNeeded = IsTwoPointsNeeded(node, nextNode, vbEdge, rootCanvas, edgeDirection);
                     if (edgeDirection == EdgeDirection.LeftBottomRightTop && _isTwoPointNeeded)
                         ChangePoints(point1, point2, out point1, out point2);
@@ -624,8 +635,8 @@ namespace gip.core.layoutengine.avui
                 }
                 else if (node.TopCollisionPoint != _NullPoint && node.RightCollisionPoint != _NullPoint)
                 {
-                    Point point1 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode + nodeForNearEdges.LinesNearRight, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
-                    Point point2 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode + nodeForNearEdges.LinesNearRight, node.NodeFWElement.ActualHeight + (_SpaceFromNode-1) + nodeForNearEdges.LinesNearBottom);
+                    Point point1 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode + nodeForNearEdges.LinesNearRight, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
+                    Point point2 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode + nodeForNearEdges.LinesNearRight, node.NodeFWElement.Bounds.Height + (_SpaceFromNode-1) + nodeForNearEdges.LinesNearBottom);
                     bool _isTwoPointNeeded = IsTwoPointsNeeded(node, nextNode, vbEdge, rootCanvas, edgeDirection);
                     if (edgeDirection == EdgeDirection.RightBottomLeftTop && _isTwoPointNeeded)
                         ChangePoints(point1, point2, out point1, out point2);
@@ -635,7 +646,7 @@ namespace gip.core.layoutengine.avui
                 else if (node.BottomCollisionPoint != _NullPoint && node.LeftCollisionPoint != _NullPoint)
                 {
                     Point point1 = new Point((-2 - _SpaceFromNode) - nodeForNearEdges.LinesNearLeft, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
-                    Point point2 = new Point((-2 - _SpaceFromNode) - nodeForNearEdges.LinesNearLeft, node.NodeFWElement.ActualHeight + (_SpaceFromNode-1) + nodeForNearEdges.LinesNearBottom);
+                    Point point2 = new Point((-2 - _SpaceFromNode) - nodeForNearEdges.LinesNearLeft, node.NodeFWElement.Bounds.Height + (_SpaceFromNode-1) + nodeForNearEdges.LinesNearBottom);
                     bool _isTwoPointNeeded = IsTwoPointsNeeded(node, nextNode, vbEdge, rootCanvas, edgeDirection);
                     if (edgeDirection == EdgeDirection.RightBottomLeftTop && _isTwoPointNeeded)
                         ChangePoints(point1, point2, out point1, out point2);
@@ -644,8 +655,8 @@ namespace gip.core.layoutengine.avui
                 }
                 else if (node.BottomCollisionPoint != _NullPoint && node.RightCollisionPoint != _NullPoint)
                 {
-                    Point point1 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode + nodeForNearEdges.LinesNearRight, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
-                    Point point2 = new Point(node.NodeFWElement.ActualWidth + _SpaceFromNode + nodeForNearEdges.LinesNearRight, node.NodeFWElement.ActualHeight + _SpaceFromNode-1 + nodeForNearEdges.LinesNearBottom);
+                    Point point1 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode + nodeForNearEdges.LinesNearRight, -_SpaceFromNode - nodeForNearEdges.LinesNearTop);
+                    Point point2 = new Point(node.NodeFWElement.Bounds.Width + _SpaceFromNode + nodeForNearEdges.LinesNearRight, node.NodeFWElement.Bounds.Height + _SpaceFromNode-1 + nodeForNearEdges.LinesNearBottom);
                     bool _isTwoPointNeeded = IsTwoPointsNeeded(node, nextNode, vbEdge, rootCanvas, edgeDirection);
                     if (edgeDirection == EdgeDirection.LeftBottomRightTop && _isTwoPointNeeded)
                         ChangePoints(point1, point2, out point1, out point2);
@@ -668,24 +679,24 @@ namespace gip.core.layoutengine.avui
         /// <param name="rootCanvas">The root element of VBEdges.</param>
         /// <param name="edgeDirection">The edge direction parameter.</param>
         /// <returns>Return true if two points are needed, else return false.</returns>
-        private bool IsTwoPointsNeeded(NodeInCollision node, NodeInCollision nextNode, IEdge vbEdge, UIElement rootCanvas, EdgeDirection edgeDirection)
+        private bool IsTwoPointsNeeded(NodeInCollision node, NodeInCollision nextNode, IEdge vbEdge, Control rootCanvas, EdgeDirection edgeDirection)
         {
             if (nextNode != null)
             {
                 if (edgeDirection == EdgeDirection.LeftTopRightBottom || edgeDirection == EdgeDirection.RightTopLeftBottom)
                 {
-                    if (node.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y + node.NodeFWElement.ActualHeight + _SpaceFromNode <
-                        nextNode.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y - _SpaceFromNode
-                        && vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y - _SpaceFromNode -5 <= node.NodePosition.Y)
+                    if (node.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y + node.NodeFWElement.Bounds.Height + _SpaceFromNode <
+                        nextNode.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y - _SpaceFromNode
+                        && vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y - _SpaceFromNode - 5 <= node.NodePosition.Y)
                     {
                         return true;
                     }
                 }
                 else if (edgeDirection == EdgeDirection.LeftBottomRightTop || edgeDirection == EdgeDirection.RightBottomLeftTop)
                 {
-                    if (node.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y - _SpaceFromNode >
-                        nextNode.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y + nextNode.NodeFWElement.ActualHeight + _SpaceFromNode
-                        && vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y + _SpaceFromNode + 5 >= node.NodePosition.Y + node.NodeFWElement.ActualHeight)
+                    if (node.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y - _SpaceFromNode >
+                        nextNode.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y + nextNode.NodeFWElement.Bounds.Height + _SpaceFromNode
+                        && vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y + _SpaceFromNode + 5 >= node.NodePosition.Y + node.NodeFWElement.Bounds.Height)
                     {
                         return true;
                     }
@@ -695,16 +706,16 @@ namespace gip.core.layoutengine.avui
             {
                 if (edgeDirection == EdgeDirection.LeftTopRightBottom || edgeDirection == EdgeDirection.RightTopLeftBottom)
                 {
-                    if (node.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y - _SpaceFromNode > vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y + _SpaceFromNode &&
-                        node.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y + node.NodeFWElement.ActualHeight + _SpaceFromNode < vbEdge.GetTargetConnectorPointToContainer(rootCanvas).Y - _SpaceFromNode)
+                    if (node.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y - _SpaceFromNode > vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y + _SpaceFromNode &&
+                        node.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y + node.NodeFWElement.Bounds.Height + _SpaceFromNode < vbEdge.GetTargetConnectorPointToContainer(rootCanvas).Y - _SpaceFromNode)
                     {
                         return true;
                     }
                 }
                 else if (edgeDirection == EdgeDirection.LeftBottomRightTop || edgeDirection == EdgeDirection.RightBottomLeftTop)
                 {
-                    if (node.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y + node.NodeFWElement.ActualHeight + _SpaceFromNode < vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y - _SpaceFromNode &&
-                        node.NodeFWElement.TransformToVisual(rootCanvas).Transform(_NullPoint).Y - _SpaceFromNode > vbEdge.GetTargetConnectorPointToContainer(rootCanvas).Y + _SpaceFromNode)
+                    if (node.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y + node.NodeFWElement.Bounds.Height + _SpaceFromNode < vbEdge.GetSourceConnectorPointToContainer(rootCanvas).Y - _SpaceFromNode &&
+                        node.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(_NullPoint).Y - _SpaceFromNode > vbEdge.GetTargetConnectorPointToContainer(rootCanvas).Y + _SpaceFromNode)
                     {
                         return true;
                     }
@@ -800,12 +811,12 @@ namespace gip.core.layoutengine.avui
         /// <param name="point2">The second point for insert.</param>
         /// <param name="rootCanvas">The root element(Canvas).</param>
         /// <returns>Return generated points.</returns>
-        private PointCollection GeneratePoints(NodeInCollision nodeInCollision, PointCollection points,
-                                               Point point1, Point point2, UIElement rootCanvas)
+        private IList<Point> GeneratePoints(NodeInCollision nodeInCollision, IList<Point> points,
+                                               Point point1, Point point2, Control rootCanvas)
         {
-            Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point1);
+            Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point1) ?? new Point(0, 0);
             points.Add(firstPoint);
-            Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point2);
+            Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point2) ?? new Point(0, 0);
             points.Add(secondPoint);
             return points;
         }
@@ -821,48 +832,38 @@ namespace gip.core.layoutengine.avui
         /// <param name="isTwoPointsNeeded">Is two points need insert.</param>
         /// <param name="isPointInsertBefore">Is second point need insert before first point.</param>
         /// <returns>Return generated points.</returns>
-        private PointCollection GeneratePoints(NodeInCollision nodeInCollision, PointCollection points, Point point1, Point point2,
-                                               UIElement rootCanvas, bool isTwoPointsNeeded, bool isPointInsertBefore)
+        private IList<Point> GeneratePoints(NodeInCollision nodeInCollision, IList<Point> points, Point point1, Point point2,
+                                               Control rootCanvas, bool isTwoPointsNeeded, bool isPointInsertBefore)
         {
             if (isPointInsertBefore && isTwoPointsNeeded)
             {
-                Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point2);
+                Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point2) ?? new Point(0, 0);
                 points.Add(secondPoint);
-                Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point1);
+                Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point1) ?? new Point(0, 0);
                 points.Add(firstPoint);
             }
             else if (!isPointInsertBefore && isTwoPointsNeeded)
             {
-                Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point1);
+                Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point1) ?? new Point(0, 0);
                 points.Add(firstPoint);
-                Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point2);
+                Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point2) ?? new Point(0, 0);
                 points.Add(secondPoint);
             }
             else if (nodeInCollision.TopCollisionPoint != _NullPoint)
             {
-                Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point1);
+                Point firstPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point1) ?? new Point(0, 0);
                 points.Add(firstPoint);
             }
             else if (nodeInCollision.BottomCollisionPoint != _NullPoint)
             {
-                Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(point2);
+                Point secondPoint = nodeInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(point2) ?? new Point(0, 0);
                 points.Add(secondPoint);
             }
             return points;
         }
 
-        /// <summary>
-        /// Generate source or target points and insert them on right place.
-        /// </summary>
-        /// <param name="nodeNearEdges">The node with information about edges near.</param>
-        /// <param name="sourceTargetInCollision">The source or target node in collision.</param>
-        /// <param name="points">The point collection.</param>
-        /// <param name="rootCanvas">The root element(Canvas).</param>
-        /// <param name="connector">The connector point on node.</param>
-        /// <param name="isSource">Is source node parameter.</param>
-        /// <returns>Return generated points.</returns>
-        private PointCollection GenerateSourceTargetPoints(Node nodeNearEdges, SourceTargetInCollision sourceTargetInCollision, PointCollection points,
-                                                           UIElement rootCanvas, Point connector, bool isSource)
+        private IList<Point> GenerateSourceTargetPoints(Node nodeNearEdges, SourceTargetInCollision sourceTargetInCollision, IList<Point> points,
+                                                           Control rootCanvas, Point connector, bool isSource)
         {
             if (isSource)
                 nodeNearEdges.SourceConnSide = sourceTargetInCollision.EdgeExit;
@@ -872,26 +873,26 @@ namespace gip.core.layoutengine.avui
             Point exitPoint;
             if (sourceTargetInCollision.EdgeExit == Side.Top)
             {
-                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(new Point(0, -5 - nodeNearEdges.LinesNearTop));
-                exitPoint.X = connector.X;
+                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(new Point(0, -5 - nodeNearEdges.LinesNearTop)) ?? new Point(0, 0);
+                exitPoint = new Point(connector.X, exitPoint.Y); // Create new Point with desired X
                 points.Add(exitPoint);
             }
             else if (sourceTargetInCollision.EdgeExit == Side.Bottom)
             {
-                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(new Point(0, sourceTargetInCollision.NodeFWElement.ActualHeight + 4 + nodeNearEdges.LinesNearBottom));
-                exitPoint.X = connector.X;
+                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(new Point(0, sourceTargetInCollision.NodeFWElement.Bounds.Height + 4 + nodeNearEdges.LinesNearBottom)) ?? new Point(0, 0);
+                exitPoint = new Point(connector.X, exitPoint.Y); // Create new Point with desired X
                 points.Add(exitPoint);
             }
             else if (sourceTargetInCollision.EdgeExit == Side.Left)
             {
-                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(new Point(-7 - nodeNearEdges.LinesNearLeft, 0));
-                exitPoint.Y = connector.Y;
+                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(new Point(-7 - nodeNearEdges.LinesNearLeft, 0)) ?? new Point(0, 0);
+                exitPoint = new Point(exitPoint.X, connector.Y); // Create new Point with desired Y
                 points.Add(exitPoint);
             }
             else if (sourceTargetInCollision.EdgeExit == Side.Right)
             {
-                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas).Transform(new Point(sourceTargetInCollision.NodeFWElement.ActualWidth + 5 + nodeNearEdges.LinesNearRight, 0));
-                exitPoint.Y = connector.Y;
+                exitPoint = sourceTargetInCollision.NodeFWElement.TransformToVisual(rootCanvas)?.Transform(new Point(sourceTargetInCollision.NodeFWElement.Bounds.Width + 5 + nodeNearEdges.LinesNearRight, 0)) ?? new Point(0, 0);
+                exitPoint = new Point(exitPoint.X, connector.Y); // Create new Point with desired Y
                 points.Add(exitPoint);
             }
             return points;
@@ -918,12 +919,12 @@ namespace gip.core.layoutengine.avui
         /// <param name="linePoints">The all points of edge.</param>
         /// <param name="collision">The collision parameter</param>
         /// <returns>Retrun true if node and edge in collision, else return false.</returns>
-        private bool CheckCollisionPoints(INodeBase node, PointCollection linePoints, bool collision)
+        private bool CheckCollisionPoints(INodeBase node, IList<Point> linePoints, bool collision)
         {
             Point lt = new Point(node.NodePosition.X, node.NodePosition.Y);
-            Point rt = new Point(node.NodePosition.X + node.NodeFWElement.ActualWidth, node.NodePosition.Y);
-            Point lb = new Point(node.NodePosition.X, node.NodePosition.Y + node.NodeFWElement.ActualHeight);
-            Point rb = new Point(node.NodePosition.X + node.NodeFWElement.ActualWidth, node.NodePosition.Y + node.NodeFWElement.ActualHeight);
+            Point rt = new Point(node.NodePosition.X + node.NodeFWElement.Bounds.Width, node.NodePosition.Y);
+            Point lb = new Point(node.NodePosition.X, node.NodePosition.Y + node.NodeFWElement.Bounds.Height);
+            Point rb = new Point(node.NodePosition.X + node.NodeFWElement.Bounds.Width, node.NodePosition.Y + node.NodeFWElement.Bounds.Height);
 
             Point topPoint = linePoints.FirstOrDefault(c => Math.Round(c.Y, 0) == Math.Round(lt.Y, 0) && c.X >= lt.X && c.X <= rt.X);
             Point bottomPoint = linePoints.FirstOrDefault(c => Math.Round(c.Y, 0) == Math.Round(lb.Y, 0) && c.X >= lt.X && c.X <= rt.X);
@@ -952,13 +953,13 @@ namespace gip.core.layoutengine.avui
         /// <param name="insertIndex">The insert index.</param>
         /// <param name="collision">The collision parameter.</param>
         /// <returns>Retrun true if node and edge in collision, else return false</returns>
-        private bool CheckCollisionPoints(INodeBase node, PointCollection linePoints, UIElement rootElement, int insertIndex, bool collision)
+        private bool CheckCollisionPoints(INodeBase node, IList<Point> linePoints, Control rootElement, int insertIndex, bool collision)
         {
-            var nodePosToRoot = node.NodeFWElement.TransformToVisual(rootElement).Transform(new Point(0, 0));
+            var nodePosToRoot = node.NodeFWElement.TransformToVisual(rootElement)?.Transform(new Point(0, 0)) ?? new Point(0,0);
             Point lt = new Point(nodePosToRoot.X, nodePosToRoot.Y);
-            Point rt = new Point(nodePosToRoot.X + node.NodeFWElement.ActualWidth, nodePosToRoot.Y);
-            Point lb = new Point(nodePosToRoot.X, nodePosToRoot.Y + node.NodeFWElement.ActualHeight);
-            Point rb = new Point(nodePosToRoot.X + node.NodeFWElement.ActualWidth, nodePosToRoot.Y + node.NodeFWElement.ActualHeight);
+            Point rt = new Point(nodePosToRoot.X + node.NodeFWElement.Bounds.Width, nodePosToRoot.Y);
+            Point lb = new Point(nodePosToRoot.X, nodePosToRoot.Y + node.NodeFWElement.Bounds.Height);
+            Point rb = new Point(nodePosToRoot.X + node.NodeFWElement.Bounds.Width, nodePosToRoot.Y + node.NodeFWElement.Bounds.Height);
 
             Point topPoint = linePoints.FirstOrDefault(c => Math.Round(c.Y, 0) == Math.Round(lt.Y, 0) && c.X >= lt.X && c.X <= rt.X);
             Point bottomPoint = linePoints.FirstOrDefault(c => Math.Round(c.Y, 0) == Math.Round(lb.Y, 0) && c.X >= lt.X && c.X <= rt.X);
@@ -981,9 +982,9 @@ namespace gip.core.layoutengine.avui
         /// <param name="linePoints">The all points of edge.</param>
         /// <param name="collision">The collision parameter.</param>
         /// <returns>Return true if source or target node in collison, else return false.</returns>
-        private bool CheckSourceOrTarget(INodeBase node, Point connector, PointCollection linePoints, bool collision)
+        private bool CheckSourceOrTarget(INodeBase node, Point connector, IList<Point> linePoints, bool collision)
         {
-            if (node.NodeFWElement.ActualHeight > 12)
+            if (node.NodeFWElement.Bounds.Height > 12)
             {
                 Side side = DetermineSide(node, connector);
                 CheckCollisionPoints(node, linePoints, false);
@@ -1029,9 +1030,9 @@ namespace gip.core.layoutengine.avui
         {
             Dictionary<Side, double> dict = new Dictionary<Side, double>();
             dict.Add(Side.Top, connector.Y - node.NodePosition.Y);
-            dict.Add(Side.Bottom, node.NodePosition.Y + node.NodeFWElement.ActualHeight - connector.Y);
+            dict.Add(Side.Bottom, node.NodePosition.Y + node.NodeFWElement.Bounds.Height - connector.Y);
             dict.Add(Side.Left, connector.X - node.NodePosition.X);
-            dict.Add(Side.Right, node.NodePosition.X + node.NodeFWElement.ActualWidth - connector.X);
+            dict.Add(Side.Right, node.NodePosition.X + node.NodeFWElement.Bounds.Width - connector.X);
             return dict.OrderBy(c => c.Value).FirstOrDefault().Key;
         }
 
@@ -1066,8 +1067,8 @@ namespace gip.core.layoutengine.avui
         /// <param name="iEdge">The VBEdge.</param>
         private void SourceTargetNodeNearEdges(IEdge iEdge)
         {
-            FrameworkElement source = iEdge.SourceElement;
-            FrameworkElement target = iEdge.TargetElement;
+            Control source = iEdge.SourceElement;
+            Control target = iEdge.TargetElement;
 
             if (_ListAllNodes.Any(c => c.NodeFWElement == source))
             {
@@ -1093,7 +1094,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="edgeNearNode">The side where edge goes around node.</param>
         /// <param name="nodeNearEdges">The node which edge bypasses and save in ListAllNodes.</param>
         /// <param name="nodeFWElement">The Framework Element of node in collision.</param>
-        private void InsertOrUpdateNodeNearEdges(Side? edgeNearNode, Node nodeNearEdges, FrameworkElement nodeFWElement)
+        private void InsertOrUpdateNodeNearEdges(Side? edgeNearNode, Node nodeNearEdges, Control nodeFWElement)
         {
             if (!_ListAllNodes.Any(c => c.NodeFWElement == nodeFWElement))
             {
@@ -1136,7 +1137,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="points">The points collection.</param>
         /// <returns>Return line lenght if is two points, else return 0.0</returns>
-        public double CalculateLineLenght(PointCollection points)
+        public double CalculateLineLenght(IList<Point> points)
         {
             if (points != null && points.Count == 2)
             {

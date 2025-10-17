@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using Avalonia;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -7,7 +8,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public interface INodeBase
     {
-        FrameworkElement NodeFWElement { get; set; }
+        Control NodeFWElement { get; set; }
         Point NodePosition { get; set; }
     }
 
@@ -33,7 +34,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class Node : INodeBase
     {
-        public Node(FrameworkElement node, Point nodePosition, int linesLeft = 0, int linesRight = 0, int linesTop = 0, int linesBottom = 0, Side? sourceTargetConnSide = null)
+        public Node(Control node, Point nodePosition, int linesLeft = 0, int linesRight = 0, int linesTop = 0, int linesBottom = 0, Side? sourceTargetConnSide = null)
         {
             NodeFWElement = node;
             NodePosition = nodePosition;
@@ -44,7 +45,7 @@ namespace gip.core.layoutengine.avui
             SourceConnSide = sourceTargetConnSide;
         }
 
-        public FrameworkElement NodeFWElement { get; set; }
+        public Control NodeFWElement { get; set; }
 
         public Point NodePosition { get; set; }
 
@@ -66,7 +67,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class NodeInCollision : INodeBase
     {
-        public NodeInCollision(FrameworkElement node, Point nodePosition, Point topCollisionPoint, Point bottomCollisionPoint, Point leftCollisionPoint, Point rightCollisionPoint,
+        public NodeInCollision(Control node, Point nodePosition, Point topCollisionPoint, Point bottomCollisionPoint, Point leftCollisionPoint, Point rightCollisionPoint,
                                Point edgeInterStartPoint, Point edgeInterEndPoint, int lineIndex = 0)
         {
             NodeFWElement = node;
@@ -80,7 +81,7 @@ namespace gip.core.layoutengine.avui
             CollisonOnIndex = lineIndex;
         }
 
-        public FrameworkElement NodeFWElement
+        public Control NodeFWElement
         {
             get;
             set;
@@ -168,7 +169,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class SourceTargetInCollision : NodeInCollision
     {
-        public SourceTargetInCollision(FrameworkElement node, Point nodePosition, Point topCollisionPoint, Point bottomCollisionPoint, Point leftCollisionPoint, Point rightCollisionPoint,
+        public SourceTargetInCollision(Control node, Point nodePosition, Point topCollisionPoint, Point bottomCollisionPoint, Point leftCollisionPoint, Point rightCollisionPoint,
                                         Side edgeExit, int lineIndex = 0)
             : base(node, nodePosition, topCollisionPoint, bottomCollisionPoint, leftCollisionPoint, rightCollisionPoint, new Point(), new Point(), lineIndex = 0)
         {

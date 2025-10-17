@@ -115,7 +115,7 @@
                 <ColumnDefinition Width="1*" />
               </Grid.ColumnDefinitions>
               <Border BorderBrush="Black" BorderThickness="0.75" Margin="10" Grid.Column="0">
-                <local:VBListBox x:Name="PART_OutlineList" ItemsSource="{Binding}" IsSynchronizedWithCurrentItem="True" ShowCaption="False">
+                <local:VBListBox x:Name="PART_OutlineList" ItemsSource="{Binding}" ShowCaption="False">
                 </local:VBListBox>
               </Border>
               <StackPanel Grid.Column="1" Height="170" VerticalAlignment="Center" Margin="0,10,0,0">
@@ -128,7 +128,7 @@
               </StackPanel>
             </Grid>
             <Border Grid.Row="1" BorderBrush="Black" BorderThickness="0.75" Margin="10">
-              <ContentControl Content="{Binding /Editor}" />
+              <ContentControl Content="{Binding Editor}" />
             </Border>
           </local:VBGrid>
         </ControlTemplate>

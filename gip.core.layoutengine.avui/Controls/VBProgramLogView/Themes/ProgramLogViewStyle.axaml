@@ -1,0 +1,98 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:me="clr-namespace:gip.core.layoutengine.avui" >
+
+    <SolidColorBrush x:Key="ProgramLogViewBgEnabled" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgEnabled" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgEnabledFocus" Color="#FFFFFFFF"/>
+    <RadialGradientBrush x:Key="ProgramLogViewBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="ProgramLogViewBgDisabled" Color="{StaticResource ColorAppDark}"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgDisabled" Color="Silver"/>
+    <RadialGradientBrush x:Key="ProgramLogViewBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+        <GradientStop Color="#FF666666" Offset="0.548"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="ProgramLogViewBgRequired" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgRequired" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgRequiredFocus" Color="Yellow"/>
+    <RadialGradientBrush x:Key="ProgramLogViewBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFFEA00" Offset="0.116"/>
+        <GradientStop Color="#FFD1D261" Offset="0.3"/>
+        <GradientStop Color="Black" Offset="1"/>
+    </RadialGradientBrush>
+    <SolidColorBrush x:Key="ProgramLogViewBgWrong" Color="#FF1A1A1A"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgWrong" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ProgramLogViewFgWrongFocus" Color="#FFFF0000"/>
+    <RadialGradientBrush x:Key="ProgramLogViewBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+        <GradientStop Color="#FFFF0004" Offset="0.1116"/>
+        <GradientStop Color="#FFE43D3D" Offset="0.3"/>
+        <GradientStop Color="#FF020101" Offset="1"/>
+    </RadialGradientBrush>
+
+    <ControlTheme x:Key="{x:Type me:VBProgramLogView}" TargetType="me:VBProgramLogView">
+        <Setter Property="Foreground" Value="{StaticResource ProgramLogViewFgEnabled}"/>
+        <Setter Property="Background" Value="{StaticResource ProgramLogViewBgEnabled}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ProgramLogViewBorderEnabled}"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Padding" Value="1"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="Bd" Grid.Row="1"
+                        MinHeight="100" MinWidth="100"
+                        CornerRadius="3"
+                        BorderBrush="{TemplateBinding BorderBrush}" 
+                        BorderThickness="{TemplateBinding BorderThickness}" 
+                        Background="{TemplateBinding Background}" 
+                        Margin="{TemplateBinding Margin}">
+                    
+                    <ScrollViewer x:Name="_tv_scrollviewer_" Grid.IsSharedSizeScope="True"
+                                  HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                                  VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">               
+                        <ItemsPresenter x:Name="PART_ItemsPresenter" />                
+                    </ScrollViewer>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- IsEnabled = false -->
+        <Style Selector="^:disabled">
+            <Setter Property="Background" Value="{StaticResource ProgramLogViewBgDisabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ProgramLogViewFgDisabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgramLogViewBorderDisabled}"/>
+        </Style>
+        
+        <!-- IsKeyboardFocusWithin = true -->
+        <Style Selector="^:focus-within /template/ Border#Bd">
+            <Setter Property="BorderThickness" Value="2,2,2,2"/>
+        </Style>
+        
+        <!-- ControlMode = Enabled -->
+        <Style Selector="^[ControlMode=Enabled]">
+            <Setter Property="Background" Value="{StaticResource ProgramLogViewBgEnabled}"/>
+            <Setter Property="Foreground" Value="{StaticResource ProgramLogViewFgEnabled}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgramLogViewBorderEnabled}"/>
+        </Style>
+        
+        <!-- ControlMode = EnabledRequired -->
+        <Style Selector="^[ControlMode=EnabledRequired]">
+            <Setter Property="Background" Value="{StaticResource ProgramLogViewBgRequired}"/>
+            <Setter Property="Foreground" Value="{StaticResource ProgramLogViewFgRequired}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgramLogViewBorderRequired}"/>
+        </Style>
+        
+        <!-- ControlMode = EnabledWrong -->
+        <Style Selector="^[ControlMode=EnabledWrong]">
+            <Setter Property="Background" Value="{StaticResource ProgramLogViewBgWrong}"/>
+            <Setter Property="Foreground" Value="{StaticResource ProgramLogViewFgWrong}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource ProgramLogViewBorderWrong}"/>
+        </Style>
+    </ControlTheme>
+    
+</ResourceDictionary>

@@ -547,7 +547,7 @@ namespace gip.core.layoutengine
                 Console.WriteLine(ec.Message);
             }
 
-            _RoutingLogic = new VBRoutingLogic();
+            _RoutingLogic = new VBRoutingLogic(BSOACComponent);
             MarkSourcesAndTargets();
         }
 

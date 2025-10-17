@@ -1,0 +1,132 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <!-- Hidden Template -->
+  <ControlTemplate x:Key="TranslationTextHiddenGipTemplate" TargetType="local:VBTranslationText">
+    <Border x:Name="Border" 
+            CornerRadius="{TemplateBinding CornerRadius}" 
+            BorderBrush="{TemplateBinding BorderBrush}" 
+            BorderThickness="{TemplateBinding BorderThickness}" 
+            Background="{TemplateBinding Background}">
+      <TextBlock x:Name="TextBlock" 
+                 Text="{TemplateBinding Text}"
+                 BaselineOffset="{TemplateBinding BaselineOffset}"
+                 TextDecorations="{TemplateBinding TextDecorations}"
+                 LineHeight="{TemplateBinding LineHeight}"
+                 FontFeatures="{TemplateBinding FontFeatures}"
+                 TextAlignment="{TemplateBinding TextAlignment}"
+                 TextTrimming="{TemplateBinding TextTrimming}"
+                 TextWrapping="{TemplateBinding TextWrapping}"
+                 FontFamily="{TemplateBinding FontFamily}"
+                 FontSize="{TemplateBinding FontSize}"
+                 FontWeight="{TemplateBinding FontWeight}"
+                 FontStyle="{TemplateBinding FontStyle}"
+                 FontStretch="{TemplateBinding FontStretch}"/>
+    </Border>
+  </ControlTemplate>
+
+  <!-- Collapsed Template -->
+  <ControlTemplate x:Key="TranslationTextCollapsedGipTemplate" TargetType="local:VBTranslationText">
+    <Border x:Name="Border" 
+            CornerRadius="{TemplateBinding CornerRadius}" 
+            BorderBrush="{TemplateBinding BorderBrush}" 
+            BorderThickness="{TemplateBinding BorderThickness}" 
+            Background="{TemplateBinding Background}">
+      <TextBlock x:Name="TextBlock" 
+                 Text="{TemplateBinding Text}"
+                 BaselineOffset="{TemplateBinding BaselineOffset}"
+                 TextDecorations="{TemplateBinding TextDecorations}"
+                 LineHeight="{TemplateBinding LineHeight}"
+                 FontFeatures="{TemplateBinding FontFeatures}"
+                 TextAlignment="{TemplateBinding TextAlignment}"
+                 TextTrimming="{TemplateBinding TextTrimming}"
+                 TextWrapping="{TemplateBinding TextWrapping}"
+                 FontFamily="{TemplateBinding FontFamily}"
+                 FontSize="{TemplateBinding FontSize}"
+                 FontWeight="{TemplateBinding FontWeight}"
+                 FontStyle="{TemplateBinding FontStyle}"
+                 FontStretch="{TemplateBinding FontStretch}"/>
+    </Border>
+  </ControlTemplate>
+
+  <!-- VBTranslationText ControlTheme -->
+  <ControlTheme x:Key="{x:Type local:VBTranslationText}" TargetType="local:VBTranslationText">
+    <Setter Property="TextWrapping" Value="NoWrap"/>
+    <Setter Property="TextTrimming" Value="None"/>
+    <Setter Property="Template" Value="{StaticResource TranslationTextHiddenGipTemplate}"/>
+    
+    <!-- CollapsedMode = True -->
+    <Style Selector="^[CollapsedMode=True]">
+      <Setter Property="Template" Value="{StaticResource TranslationTextCollapsedGipTemplate}"/>
+    </Style>
+
+    <!-- Hidden Mode - All cases where RightControlMode=Hidden result in Hidden visibility -->
+    <Style Selector="^[RightControlMode=Hidden]">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <!-- Enabled Mode - ShowText=False, Blink=False, RightControlMode=Enabled -> Hidden -->
+    <Style Selector="^[ShowText=False][Blink=False][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <!-- Enabled Mode - ShowText=True, Blink=False, RightControlMode=Enabled -> Visible -->
+    <Style Selector="^[ShowText=True][Blink=False][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <!-- Enabled Mode - ShowText=False, Blink=True, RightControlMode=Enabled -> Hidden -->
+    <Style Selector="^[ShowText=False][Blink=True][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <!-- Enabled Mode - ShowText=True, Blink=True, RightControlMode=Enabled -> Visible with Animation -->
+    <Style Selector="^[ShowText=True][Blink=True][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="True"/>
+      <Style.Animations>
+        <Animation Duration="0:0:1" IterationCount="Infinite" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0.5"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1.0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- CollapsedMode specific visibility rules -->
+    <!-- When CollapsedMode=True, Hidden visibility becomes Collapsed -->
+    <Style Selector="^[CollapsedMode=True][RightControlMode=Hidden]">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="^[CollapsedMode=True][ShowText=False][Blink=False][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="^[CollapsedMode=True][ShowText=True][Blink=False][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="True"/>
+    </Style>
+
+    <Style Selector="^[CollapsedMode=True][ShowText=False][Blink=True][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+
+    <Style Selector="^[CollapsedMode=True][ShowText=True][Blink=True][RightControlMode=Enabled]">
+      <Setter Property="IsVisible" Value="True"/>
+      <Style.Animations>
+        <Animation Duration="0:0:1" IterationCount="Infinite" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0.5"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1.0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

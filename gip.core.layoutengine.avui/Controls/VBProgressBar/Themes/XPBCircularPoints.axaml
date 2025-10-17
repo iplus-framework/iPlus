@@ -2,12 +2,10 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <ControlTemplate x:Key="CircularPointsGip" TargetType="{x:Type local:VBProgressBar}">
+    <ControlTemplate x:Key="CircularPointsGip" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot">
-            <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>
-                <local:VBProgressBarSegmentedViewModel HoleSizeFactor="0.8"
-                                                             SegmentCount="14"/>
+                <local:VBProgressBarSegmentedViewModel HoleSizeFactor="0.8" SegmentCount="14"/>
             </local:VBProgressBarCircularViewModel.Attach>
 
             <Canvas>
@@ -21,7 +19,7 @@
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Ellipse Width="9" Height="9" Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:VBProgressBar}}, Path=PieFill}">
+                            <Ellipse Width="9" Height="9" Fill="{Binding $parent[local:VBProgressBar].PieFill}">
                                 <Ellipse.RenderTransform>
                                     <TransformGroup>
                                         <TranslateTransform X="-4" Y="-4"/>

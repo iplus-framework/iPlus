@@ -1,6 +1,8 @@
 ﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.Drawing.Imaging;
+using System;
+using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
 using System.Windows.Markup;
@@ -8,7 +10,10 @@ using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using BarcodeStandard;
+using gip.core.datamodel;
 using QRCoder.Xaml;
+using static gip.core.datamodel.GS1;
+using System.Linq;
 
 namespace gip.core.reporthandlerwpf.Flowdoc
 {
@@ -54,7 +59,8 @@ namespace gip.core.reporthandlerwpf.Flowdoc
         TELEPEN = 37,
         FIM = 38,
         PHARMACODE = 39,
-        QRCODE = 99
+        QRCODE = 99,
+        GS1 = 100
     }
 
 
@@ -106,9 +112,88 @@ namespace gip.core.reporthandlerwpf.Flowdoc
             DependencyProperty.Register("DrawQuietZones", typeof(bool), typeof(InlineBarcode), new PropertyMetadata(true));
 
 
+        #region ESC properties
+        //int desiredWidthDots, int heightPx, int minModule = 1, int maxModule = 6
+        //int ESCDesiredWidthDots, int ESCHeightPx, int ESCMinModule = 1, int ESCMaxModule = 6
+
+        public virtual int ESCDesiredWidthDots
+        {
+            get { return (int)GetValue(ESCDesiredWidthDotsProperty); }
+            set { SetValue(ESCDesiredWidthDotsProperty, value); }
+        }
+        public static readonly DependencyProperty ESCDesiredWidthDotsProperty =
+            DependencyProperty.Register(nameof(ESCDesiredWidthDots), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(3));
+
+        public virtual int ESCHeightPx
+        {
+            get { return (int)GetValue(ESCHeightPxProperty); }
+            set { SetValue(ESCHeightPxProperty, value); }
+        }
+        public static readonly DependencyProperty ESCHeightPxProperty =
+            DependencyProperty.Register(nameof(ESCHeightPx), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(250));
+
+        public virtual int ESCMinModule
+        {
+            get { return (int)GetValue(ESCMinModuleProperty); }
+            set { SetValue(ESCMinModuleProperty, value); }
+        }
+        public static readonly DependencyProperty ESCMinModuleProperty =
+            DependencyProperty.Register(nameof(ESCMinModule), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(1));
+
+        public virtual int ESCMaxModule
+        {
+            get { return (int)GetValue(ESCMaxModuleProperty); }
+            set { SetValue(ESCMaxModuleProperty, value); }
+        }
+        public static readonly DependencyProperty ESCMaxModuleProperty =
+            DependencyProperty.Register(nameof(ESCMaxModule), typeof(int), typeof(InlineBarcode), new UIPropertyMetadata(6));
+
+        public virtual bool ShowHRI
+        {
+            get { return (bool)GetValue(ShowHRIProperty); }
+            set { SetValue(ShowHRIProperty, value); }
+        }
+        public static readonly DependencyProperty ShowHRIProperty =
+            DependencyProperty.Register(nameof(ShowHRI), typeof(bool), typeof(InlineBarcode), new UIPropertyMetadata(false));
 
 
-        public BarcodeValueCollection BarcodeValues { get;set;} = new BarcodeValueCollection();
+        public virtual bool Rotate90
+        {
+            get { return (bool)GetValue(Rotate90Property); }
+            set { SetValue(Rotate90Property, value); }
+        }
+        public static readonly DependencyProperty Rotate90Property =
+            DependencyProperty.Register(nameof(Rotate90), typeof(bool), typeof(InlineBarcode), new UIPropertyMetadata(false));
+
+        #endregion
+
+        #region GS1 data input
+
+        public string VBShowColumns
+        {
+            get { return (string)GetValue(VBShowColumnsProperty); }
+            set { SetValue(VBShowColumnsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for VBShowColumns.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty VBShowColumnsProperty =
+            DependencyProperty.Register("VBShowColumns", typeof(string), typeof(InlineBarcode), new PropertyMetadata(null));
+
+
+        public string VBShowColumnsKeys
+        {
+            get { return (string)GetValue(VBShowColumnsKeysProperty); }
+            set { SetValue(VBShowColumnsKeysProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for VBShowColumnsKeys.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty VBShowColumnsKeysProperty =
+            DependencyProperty.Register("VBShowColumnsKeys", typeof(string), typeof(InlineBarcode), new PropertyMetadata(null));
+        #endregion
+
+
+
+        public BarcodeValueCollection BarcodeValues { get; set; } = new BarcodeValueCollection();
 
         public override object Value
         {
@@ -123,20 +208,40 @@ namespace gip.core.reporthandlerwpf.Flowdoc
             }
         }
 
+        public GS1Model GS1Model { get; private set; }
+
         private void RenderBarcode(object value)
         {
             if (value == null)
                 return;
-            if (!(value is System.IConvertible) && !(value is System.IFormattable))
-                return;
-            string strValue = value as string;
-            if (strValue == null)
+            string strValue = null;
+            if (!string.IsNullOrEmpty(VBShowColumns) && !string.IsNullOrEmpty(VBShowColumnsKeys))
             {
-                if (value is System.IConvertible)
-                    strValue = System.Convert.ChangeType(value, typeof(string)) as string;
-                else
-                    strValue = (value as System.IFormattable).ToString();
+                string[] strColumnKeys = VBShowColumnsKeys.Split(new char[] { ',', ';' }, System.StringSplitOptions.RemoveEmptyEntries);
+                string[] strValueIdentifiers = VBShowColumns.Split(new char[] { ',', ';' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+                if (strColumnKeys.Length == strValueIdentifiers.Length)
+                {
+                    List<(string ai, string val, bool variable)> input = GS1.GetGS1Data(value, strColumnKeys, strValueIdentifiers);
+                    GS1Model = GS1.GetGS1Model(strColumnKeys, input);
+                    strValue = GS1Model.RawGs1Value;
+                    SetValue(ValueProperty, strValue);
+                }
             }
+            else
+            {
+                if (!(value is System.IConvertible) && !(value is System.IFormattable))
+                    return;
+                strValue = value as string;
+                if (strValue == null)
+                {
+                    if (value is System.IConvertible)
+                        strValue = System.Convert.ChangeType(value, typeof(string)) as string;
+                    else
+                        strValue = (value as System.IFormattable).ToString();
+                }
+            }
+
             if (string.IsNullOrEmpty(strValue))
                 return;
 
@@ -154,15 +259,6 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                     wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
                     this.Child = wpfImage;
                 }
-
-                //using (QRCoder.QRCodeGenerator qrGenerator = new QRCoder.QRCodeGenerator())
-                //using (QRCoder.QRCodeData qrCodeData = qrGenerator.CreateQrCode(strValue, QRCoder.QRCodeGenerator.ECCLevel.Q))
-                //using (QRCoder.QRCode qrCode = new QRCoder.QRCode(qrCodeData))
-                //{
-                //    img = qrCode.GetGraphic(QRPixelsPerModule);
-                //    wpfImage.MaxHeight = MaxHeight > 0.1 ? MaxHeight : 200;
-                //    wpfImage.MaxWidth = MaxWidth > 0.1 ? MaxWidth : 200;
-                //}
             }
             else
             {
@@ -173,7 +269,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                         wpfImage.MaxHeight = MaxHeight;
                     if (MaxWidth > 0.1)
                         wpfImage.MaxWidth = MaxWidth;
-                    using (SkiaSharp.SKImage img = b.Encode((Type)BarcodeType, strValue, SkiaSharp.SKColorF.FromHsv(0,0,0), SkiaSharp.SKColorF.FromHsv(0, 0, 100), BarcodeWidth, BarcodeHeight))
+                    using (SkiaSharp.SKImage img = b.Encode((BarcodeStandard.Type)BarcodeType, strValue, SkiaSharp.SKColorF.FromHsv(0,0,0), SkiaSharp.SKColorF.FromHsv(0, 0, 100), BarcodeWidth, BarcodeHeight))
                     using (var ms = new MemoryStream())
                     {
                         //Skiasharp doesnt support saving to Bmp file format, saved to png instead, check this later
@@ -193,5 +289,6 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                 }
             }
         }
+
     }
 }

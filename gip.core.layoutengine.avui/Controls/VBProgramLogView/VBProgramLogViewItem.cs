@@ -1,64 +1,25 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Media;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBProgramLogViewItem'}de{'VBProgramLogViewItem'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBProgramLogViewItem : ItemsControl, IACObject
+    public class VBProgramLogViewItem : SelectingItemsControl, IACObject
     {
-        
-        #region ctor's  
-
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ProgramLogViewItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBProgramLogView/Themes/ProgramLogViewItemStyleGip.xaml" }
-            //new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-            //                             styleName = "VBProgramLogViewStyleAero", 
-            //                             styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBProgramLogView/Themes/VBProgramLogViewStyleAero.xaml" },
-        };
-
-        private bool _ThemeApplied = false;
-
-        static VBProgramLogViewItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(typeof(VBProgramLogViewItem)));  
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get { return _styleInfoList; }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get { return _styleInfoList; }
-        }
-
-        #endregion  
-
+ 
         #region Properties
-
         /// <summary>
         /// Gets or sets the Title.
         /// </summary>
         public string Title
         {
-            get { return (string)GetValue(TitleProperty); }
+            get { return GetValue(TitleProperty); }
             set { SetValue(TitleProperty, value); }
         }
 
@@ -67,7 +28,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public double Value
         {
-            get { return (double)GetValue(ValueProperty); }
+            get { return GetValue(ValueProperty); }
             set { SetValue(ValueProperty, value); }
         }
 
@@ -76,16 +37,16 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public double ValueOffset
         {
-            get { return (double)GetValue(ValueOffsetProperty); }
+            get { return GetValue(ValueOffsetProperty); }
             set { SetValue(ValueOffsetProperty, value); }
         }
 
         /// <summary>
         /// Gets or sets the ValueBrush.
         /// </summary>
-        public Brush ValueBrush
+        public IBrush ValueBrush
         {
-            get { return (Brush)GetValue(ValueBrushProperty); }
+            get { return GetValue(ValueBrushProperty); }
             set { SetValue(ValueBrushProperty, value); }
         }
 
@@ -94,120 +55,74 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public bool IsExpanded
         {
-            get { return (bool)GetValue(IsExpandedProperty); }
+            get { return GetValue(IsExpandedProperty); }
             set { SetValue(IsExpandedProperty, value); }
-        }
-
-        /// <summary>
-        /// Determines is selected or not.
-        /// </summary>
-        public bool IsSelected
-        {
-            get { return (bool)GetValue(IsSelectedProperty); }
-            set { SetValue(IsSelectedProperty, value); }
         }
 
         #endregion
 
-        #region DP
+        #region Styled Properties
 
         /// <summary>
-        /// Represents the dependency property for Title.
+        /// Represents the styled property for Title.
         /// </summary>
-        public static readonly DependencyProperty TitleProperty = DependencyProperty.Register("Title", typeof(string), typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(null));
+        public static readonly StyledProperty<string> TitleProperty = 
+            AvaloniaProperty.Register<VBProgramLogViewItem, string>(nameof(Title));
 
         /// <summary>
-        /// Represents the dependency property for Value.
+        /// Represents the styled property for Value.
         /// </summary>
-        public static readonly DependencyProperty ValueProperty = DependencyProperty.Register(Const.Value, typeof(double), typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(0.0));
+        public static readonly StyledProperty<double> ValueProperty = 
+            AvaloniaProperty.Register<VBProgramLogViewItem, double>(nameof(Value), 0.0);
 
         /// <summary>
-        /// Represents the dependency property for ValueOffset.
+        /// Represents the styled property for ValueOffset.
         /// </summary>
-        public static readonly DependencyProperty ValueOffsetProperty = DependencyProperty.Register("ValueOffset", typeof(double), typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(0.0));
+        public static readonly StyledProperty<double> ValueOffsetProperty = 
+            AvaloniaProperty.Register<VBProgramLogViewItem, double>(nameof(ValueOffset), 0.0);
 
         /// <summary>
-        /// Represents the dependency property for ValueBrush.
+        /// Represents the styled property for ValueBrush.
         /// </summary>
-        public static readonly DependencyProperty ValueBrushProperty = DependencyProperty.Register("ValueBrush", typeof(Brush), typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(Brushes.LightGray));
+        public static readonly StyledProperty<IBrush> ValueBrushProperty = 
+            AvaloniaProperty.Register<VBProgramLogViewItem, IBrush>(nameof(ValueBrush), Brushes.LightGray);
 
         /// <summary>
-        /// Represents the dependency property for IsExpanded.
+        /// Represents the styled property for IsExpanded.
         /// </summary>
-        public static readonly DependencyProperty IsExpandedProperty = TreeViewItem.IsExpandedProperty.AddOwner(typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+        public static readonly StyledProperty<bool> IsExpandedProperty = 
+            TreeViewItem.IsExpandedProperty.AddOwner<VBProgramLogViewItem>();
 
-        /// <summary>
-        /// Represents the dependency property for IsSelected.
-        /// </summary>
-        public static readonly DependencyProperty IsSelectedProperty = TreeViewItem.IsSelectedProperty.AddOwner(typeof(VBProgramLogViewItem), new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         #endregion
 
         #region Protected
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            base.OnInitialized(e);
-            if (!_ThemeApplied)
-                _ThemeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, false);
+            return CreateContainerItem(item);
         }
 
-        /// <summary>
-        /// Gets the container for item override.
-        /// </summary>
-        /// <returns>The new instance of VBProgramLogViewItem.</returns>
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            return new VBProgramLogViewItem();
+            return NeedsContainer<VBProgramLogViewItem>(item, out recycleKey);
         }
 
-        /// <summary>
-        /// Determines is item overrides it's own container.
-        /// </summary>
-        /// <param name="item">The item parameter.</param>
-        /// <returns>True if is item VBProgramLogViewItem, otherwise false.</returns>
-        protected override bool IsItemItsOwnContainerOverride(object item)
+        internal static VBProgramLogViewItem CreateContainerItem(object item)
         {
-            return item is VBProgramLogViewItem;
-        }
-
-        /// <summary>
-        /// Prepares container for item override.
-        /// </summary>
-        /// <param name="element">The element parameter.</param>
-        /// <param name="item">The item parameter.</param>
-        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
-        {
-            if (element != item)
-            {
-                base.PrepareContainerForItemOverride(element, item);
-                if (element is VBProgramLogViewItem)
-                    ((VBProgramLogViewItem)element).PrepareContainer((VBProgramLogViewItem)element, item);
-            }
-        }
-
-        #endregion
-
-        #region Friend
-
-        internal void PrepareContainer(VBProgramLogViewItem Element, object Item)
-        {
-            if (Item is ACProgramLog)
+            VBProgramLogViewItem element = new VBProgramLogViewItem();
+            if (item is ACProgramLog logItem)
             {
                 int Level = 0;
-                ACProgramLog LogItem = (ACProgramLog)Item;
-
-                Element.Title = LogItem.ACUrl;
-                Element.Value = LogItem.DurationSec * 10;
-                Element.ValueOffset = LogItem.StartDate.Value.Subtract(GetRootProgramLog(LogItem, ref Level).StartDate.Value).TotalSeconds * 10;
-                Element.ItemsSource = LogItem.ACProgramLog_ParentACProgramLog.OrderBy("StartDate", true);
-                Element.ValueBrush = Brushes.Lime;
+                element.Title = logItem.ACUrl;
+                element.Value = logItem.DurationSec * 10;
+                element.ValueOffset = logItem.StartDate.Value.Subtract(GetRootProgramLog(logItem, ref Level).StartDate.Value).TotalSeconds * 10;
+                element.ItemsSource = logItem.ACProgramLog_ParentACProgramLog.OrderBy("StartDate", true);
+                element.ValueBrush = Brushes.Lime;
             }
+            return element;
         }
+
 
         #endregion
 

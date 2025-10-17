@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.Spreadsheet;
+﻿using Avalonia.Controls;
 using gip.core.datamodel;
 using System;
 using System.Collections;
@@ -8,15 +8,10 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace gip.core.layoutengine.avui.timeline
 {
-    public abstract class VBTimelineChartBase : System.Windows.Controls.Control, IVBContent, IVBSource
+    public abstract class VBTimelineChartBase : Control, IVBContent, IVBSource
     {
         #region c'tors
 

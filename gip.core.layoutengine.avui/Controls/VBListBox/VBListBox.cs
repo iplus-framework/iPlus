@@ -94,6 +94,11 @@ namespace gip.core.layoutengine.avui
             return new VBListBoxItem();
         }
 
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+        {
+            return NeedsContainer<VBListBoxItem>(item, out recycleKey);
+        }
+
         /// <summary>
         /// Represents the dependency property for RightControlMode.
         /// </summary>

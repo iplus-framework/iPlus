@@ -2,7 +2,9 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <ControlTemplate x:Key="NormalPieGip" TargetType="{x:Type local:VBProgressBar}">
+        <local:ConverterVisibilityBool x:Key="ConverterVisibilityBool" />
+
+    <ControlTemplate x:Key="NormalPieGip" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot">
             <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>
@@ -23,7 +25,7 @@
             <Grid local:GridUtils.RowDefinitions="*,3.5*,*"
                     local:GridUtils.ColumnDefinitions="*,3.5*,*">
                 <TextBlock Text="{Binding Percent, StringFormat=0%}"
-                            Visibility="{TemplateBinding ValueVisibility}"
+                            IsVisible="{TemplateBinding ValueVisibility, Converter={StaticResource ConverterVisibilityBool}}"
                             Foreground="{TemplateBinding PieTextColor}"
                             FontWeight="Bold"
                             Grid.Row="1" Grid.Column="1"

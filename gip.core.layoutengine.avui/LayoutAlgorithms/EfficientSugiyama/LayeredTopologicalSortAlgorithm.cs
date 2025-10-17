@@ -1,8 +1,8 @@
-﻿using System;
+﻿using QuickGraph;
+using QuickGraph.Algorithms;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using QuickGraph;
-using QuickGraph.Algorithms;
 
 namespace gip.core.layoutengine.avui.EfficientSugiyama
 {

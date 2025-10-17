@@ -149,6 +149,11 @@ namespace gip.core.layoutengine.avui
             return vbItem;
         }
 
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+        {
+            return NeedsContainer<VBRadioButtonGroupItem>(item, out recycleKey);
+        }
+
         public enum ItemHostType : short
         {
             StackPanel = 0,

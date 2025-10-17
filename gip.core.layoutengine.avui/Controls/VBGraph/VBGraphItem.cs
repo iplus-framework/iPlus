@@ -1,18 +1,16 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Interactivity;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Input;
 using System.ComponentModel;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
-using gip.core.layoutengine.avui.Helperclasses;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -28,22 +26,17 @@ namespace gip.core.layoutengine.avui
     {
         #region c'tors
 
-        static VBGraphItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBGraphItem), new FrameworkPropertyMetadata(typeof(VBGraphItem)));
-        }
-
         public VBGraphItem(IACObject contextACObject, VBGraphSurface parent)
         {
             Binding binding = new Binding();
             binding.Source = contextACObject;
-            SetBinding(ContextACObjectProperty, binding);
+            this.Bind(ContextACObjectProperty, binding);
 
             Binding binding2 = new Binding();
             binding2.Source = parent;
-            SetBinding(ParentSurfaceProperty, binding2);
+            this.Bind(ParentSurfaceProperty, binding2);
 
-            if(ParentSurface != null)
+            if (ParentSurface != null)
                 ParentSurface.OnGraphItemsChanged += ParentSurface_OnGraphItemsChanged;
 
             VBDesignBase.IsSelectableEnum isSelectable = VBDesignBase.GetIsSelectable(this);
@@ -53,32 +46,32 @@ namespace gip.core.layoutengine.avui
             Name = ACUrlHelper.GetTrimmedName(ContextACObject.GetACUrl());
         }
 
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            object partObj = (object)GetTemplateChild("InL");
+            object partObj = (object)e.NameScope.Find("InL");
             if (partObj != null && partObj is VBConnector)
             {
                 connectors[0] = partObj as VBConnector;
                 connectors[0].OnConnectorArranged += OnConnectorArranged;
             }
 
-            partObj = (object)GetTemplateChild("InT");
+            partObj = (object)e.NameScope.Find("InT");
             if (partObj != null && partObj is VBConnector)
             {
                 connectors[1] = partObj as VBConnector;
                 connectors[1].OnConnectorArranged += OnConnectorArranged;
             }
 
-            partObj = (object)GetTemplateChild("OutR");
+            partObj = (object)e.NameScope.Find("OutR");
             if (partObj != null && partObj is VBConnector)
             {
                 connectors[2] = partObj as VBConnector;
                 connectors[2].OnConnectorArranged += OnConnectorArranged;
             }
 
-            partObj = (object)GetTemplateChild("OutB");
+            partObj = (object)e.NameScope.Find("OutB");
             if (partObj != null && partObj is VBConnector)
             {
                 connectors[3] = partObj as VBConnector;
@@ -114,30 +107,51 @@ namespace gip.core.layoutengine.avui
 
         public bool IsSelected
         {
-            get { return (bool)GetValue(IsSelectedProperty); }
+            get { return GetValue(IsSelectedProperty); }
             set { SetValue(IsSelectedProperty, value); }
         }
 
-        public static readonly DependencyProperty IsSelectedProperty =
-            DependencyProperty.Register("IsSelected", typeof(bool), typeof(VBGraphItem));
+        public static readonly StyledProperty<bool> IsSelectedProperty =
+            AvaloniaProperty.Register<VBGraphItem, bool>(nameof(IsSelected));
 
         public bool IsStartOrEndItem
         {
-            get { return (bool)GetValue(IsStartOrEndItemProperty); }
+            get { return GetValue(IsStartOrEndItemProperty); }
             set { SetValue(IsStartOrEndItemProperty, value); }
         }
 
-        public static readonly DependencyProperty IsStartOrEndItemProperty =
-            DependencyProperty.Register("IsStartOrEndItem", typeof(bool), typeof(VBGraphItem));
+        public static readonly StyledProperty<bool> IsStartOrEndItemProperty =
+            AvaloniaProperty.Register<VBGraphItem, bool>(nameof(IsStartOrEndItem));
 
         public VBGraphSurface ParentSurface
         {
-            get { return (VBGraphSurface)GetValue(ParentSurfaceProperty); }
+            get { return GetValue(ParentSurfaceProperty); }
             set { SetValue(ParentSurfaceProperty, value); }
         }
 
-        public static readonly DependencyProperty ParentSurfaceProperty =
-            DependencyProperty.Register("ParentSurface", typeof(VBGraphSurface), typeof(VBGraphItem));
+        public static readonly StyledProperty<VBGraphSurface> ParentSurfaceProperty =
+            AvaloniaProperty.Register<VBGraphItem, VBGraphSurface>(nameof(ParentSurface));
+
+        /// <summary>
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
+        /// </summary>
+        /// <value>The Data-Context as IACObject</value>
+        [ACPropertyInfo(999)]
+        public IACObject ContextACObject
+        {
+            get
+            {
+                return GetValue(ContextACObjectProperty);
+            }
+            set
+            {
+                SetValue(ContextACObjectProperty, value);
+            }
+        }
+
+        public static readonly StyledProperty<IACObject> ContextACObjectProperty =
+            AvaloniaProperty.Register<VBGraphItem, IACObject>(nameof(ContextACObject));
 
         private VBConnector[] connectors = new VBConnector[4];
 
@@ -176,23 +190,26 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override void OnPreviewMouseRightButtonDown(MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            Point point = e.GetPosition(this);
-            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            ParentSurface.BSOACComponent.ACAction(actionArgs);
-            IACInteractiveObject interactiveObject = ContextACObject as IACInteractiveObject;
-            if (interactiveObject != null)
-                interactiveObject.ACAction(actionArgs);
+            if (e.Route == RoutingStrategies.Tunnel && e.InitialPressMouseButton == MouseButton.Right)
+            {
+                Point point = e.GetPosition(this);
+                ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                ParentSurface.BSOACComponent.ACAction(actionArgs);
+                IACInteractiveObject interactiveObject = ContextACObject as IACInteractiveObject;
+                if (interactiveObject != null)
+                    interactiveObject.ACAction(actionArgs);
 
-            VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-            this.ContextMenu = vbContextMenu;
-            //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-            if (vbContextMenu.PlacementTarget == null)
-                vbContextMenu.PlacementTarget = this;
-            ContextMenu.IsOpen = true;
+                VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                this.ContextMenu = vbContextMenu;
+                //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                if (vbContextMenu.PlacementTarget == null)
+                    vbContextMenu.PlacementTarget = this;
+                ContextMenu.Open();
+            }
 
-            base.OnPreviewMouseRightButtonDown(e);
+            base.OnPointerReleased(e);
         }
         #endregion
 
@@ -248,28 +265,6 @@ namespace gip.core.layoutengine.avui
             get;
             set;
         }
-
-        /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
-        /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
-        /// </summary>
-        /// <value>The Data-Context as IACObject</value>
-        [ACPropertyInfo(999)]
-        public IACObject ContextACObject
-        {
-            get
-            {
-                return (IACObject)GetValue(ContextACObjectProperty);
-            }
-            set
-            {
-                SetValue(ContextACObjectProperty, value);
-            }
-        }
-
-        public static readonly DependencyProperty ContextACObjectProperty =
-            DependencyProperty.Register("ContextACObject", typeof(IACObject), typeof(VBGraphItem));
-
 
         /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
         /// <value>The Unique Identifier as string</value>

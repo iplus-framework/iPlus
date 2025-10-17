@@ -1,30 +1,28 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Controls.Templates;
+using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
+using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.layoutengine.avui.timeline
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTimelineViewBase'}de{'VBTimelineViewBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, false)]
-    public abstract class VBTimelineViewBase : Control, IVBContent, IVBSource, IACObject
+    public abstract class VBTimelineViewBase : TemplatedControl, IVBContent, IVBSource, IACObject
     {
         private ScrollViewerSyncer syncer;
 
         #region Loaded-Event
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
         }
 
         bool _IsInitialized = false;
@@ -54,28 +52,12 @@ namespace gip.core.layoutengine.avui.timeline
             //ZoomListFill();
 
             if (string.IsNullOrEmpty(SearchProperty))
-                PART_TextBoxSearch.Visibility = System.Windows.Visibility.Collapsed;
+                PART_TextBoxSearch.IsVisible = false;
             else
                 PART_TextBoxSearch.VBContent = SearchProperty;
 
             if (PART_TopContentControl != null && TreeViewTopRightControl != null)
                 PART_TopContentControl.Content = TreeViewTopRightControl;
-
-            //if (!string.IsNullOrEmpty(FilterProperty) && PART_TopContentControl != null)
-            //{
-            //    VBComboBox comboBox = PART_TopContentControl.TryFindResource("PART_ComboBoxFilter") as VBComboBox;
-            //    if (comboBox != null)
-            //    {
-            //        comboBox.VBContent = FilterProperty;
-            //        PART_TopContentControl.Content = comboBox;
-            //    }
-            //}
-            //    PART_ComboBoxFilter.Visibility = System.Windows.Visibility.Collapsed;
-            //else
-            //    PART_ComboBoxFilter.VBContent = FilterProperty;
-
-            //PART_CheckBoxRuler.VBContent = RulerProperty;
-            //PART_DateTimeRuler.VBContent = RulerDateTimeProperty;
 
             PART_TimelineChart.VBContent = this.VBSource;
             PART_TimelineChart.ApplyTemplate();
@@ -84,7 +66,7 @@ namespace gip.core.layoutengine.avui.timeline
             PART_TreeListView.Columns = TreeListViewColumns;
             PART_TreeListView.ApplyTemplate();
 
-            ItemToolTip.ForEach(c => ToolTipItems.Children.Add(c));
+            ItemToolTip?.ForEach(c => ToolTipItems.Children.Add(c));
 
             SyncScrollViewers();
 
@@ -92,24 +74,24 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 Binding binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.ACUrlCmdMessage);
+                binding.Path = Const.ACUrlCmdMessage;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(ACUrlCmdMessageProperty, binding);
+                this.Bind(ACUrlCmdMessageProperty, binding);
             }
 
             if (!string.IsNullOrEmpty(TimeFrameFrom) && !string.IsNullOrEmpty(TimeFrameTo))
             {
                 Binding binding = new Binding();
                 binding.Source = this.ContextACObject;
-                binding.Path = new PropertyPath(TimeFrameFrom);
+                binding.Path = TimeFrameFrom;
                 binding.Mode = BindingMode.OneWayToSource;
-                PART_TimelineChart.SetBinding(VBTimelineChartBase.TimeFrameFromProperty, binding);
+                PART_TimelineChart.Bind(VBTimelineChartBase.TimeFrameFromProperty, binding);
 
                 Binding binding2 = new Binding();
                 binding2.Source = this.ContextACObject;
-                binding2.Path = new PropertyPath(TimeFrameTo);
+                binding2.Path = TimeFrameTo;
                 binding2.Mode = BindingMode.OneWayToSource;
-                PART_TimelineChart.SetBinding(VBTimelineChartBase.TimeFrameToProperty, binding2);
+                PART_TimelineChart.Bind(VBTimelineChartBase.TimeFrameToProperty, binding2);
             }
 
             _IsInitialized = true;
@@ -118,17 +100,16 @@ namespace gip.core.layoutengine.avui.timeline
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            PART_TreeListView = Template.FindName("PART_TreeListView", this) as VBTreeListView;
-            PART_TimelineChart = Template.FindName("PART_TimelineChart", this) as VBTimelineChartBase;
-            PART_CheckBoxRuler = Template.FindName("PART_CheckBoxRuler", this) as VBCheckBox;
-            PART_TextBoxSearch = Template.FindName("PART_TextBoxSearch", this) as VBTextBox;
-            PART_TopContentControl = Template.FindName("PART_TopContentControl", this) as ContentControl;
-            //PART_ComboBoxFilter = Template.FindName("PART_ComboBoxFilter", this) as VBComboBox;
-            PART_DateTimeRuler = Template.FindName("PART_DateTimeRuler", this) as VBDateTimePicker;
+            PART_TreeListView = e.NameScope.Find("PART_TreeListView") as VBTreeListView;
+            PART_TimelineChart = e.NameScope.Find("PART_TimelineChart") as VBTimelineChartBase;
+            PART_CheckBoxRuler = e.NameScope.Find("PART_CheckBoxRuler") as VBCheckBox;
+            PART_TextBoxSearch = e.NameScope.Find("PART_TextBoxSearch") as VBTextBox;
+            PART_TopContentControl = e.NameScope.Find("PART_TopContentControl") as ContentControl;
+            PART_DateTimeRuler = e.NameScope.Find("PART_DateTimeRuler") as VBDateTimePicker;
 
             InitVBControl();
         }
@@ -167,13 +148,13 @@ namespace gip.core.layoutengine.avui.timeline
 
         #endregion
 
-        #region DependncyProp
+        #region StyledProperties
 
         /// <summary>
-        /// Represents the dependency property for GanttStart.
+        /// Represents the styled property for GanttStart.
         /// </summary>
-        public static readonly DependencyProperty GanttStartProperty
-            = DependencyProperty.Register("GanttStart", typeof(string), typeof(VBTimelineViewBase));
+        public static readonly StyledProperty<string> GanttStartProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, string>(nameof(GanttStart));
 
         /// <summary>
         /// Gets or sets the start date and time for Gantt chart.
@@ -181,15 +162,15 @@ namespace gip.core.layoutengine.avui.timeline
         [Category("VBControl")]
         public string GanttStart
         {
-            get { return (string)GetValue(GanttStartProperty); }
+            get { return GetValue(GanttStartProperty); }
             set { SetValue(GanttStartProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for GanttEnd.
+        /// Represents the styled property for GanttEnd.
         /// </summary>
-        public static readonly DependencyProperty GanttEndProperty
-            = DependencyProperty.Register("GanttEnd", typeof(string), typeof(VBTimelineViewBase));
+        public static readonly StyledProperty<string> GanttEndProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, string>(nameof(GanttEnd));
 
         /// <summary>
         /// Gets or sets the end date and time for Gantt chart.
@@ -197,47 +178,47 @@ namespace gip.core.layoutengine.avui.timeline
         [Category("VBControl")]
         public string GanttEnd
         {
-            get { return (string)GetValue(GanttEndProperty); }
+            get { return GetValue(GanttEndProperty); }
             set { SetValue(GanttEndProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for ItemToolTip.
+        /// Represents the attached property for ItemToolTip.
         /// </summary>
-        public static readonly DependencyProperty ItemToolTipProperty
-            = DependencyProperty.RegisterAttached("ItemToolTip", typeof(List<FrameworkElement>), typeof(VBTimelineViewBase));
+        public static readonly AttachedProperty<List<Control>> ItemToolTipProperty =
+            AvaloniaProperty.RegisterAttached<VBTimelineViewBase, Control, List<Control>>("ItemToolTip");
 
         /// <summary>
         /// Gets or sets the items(controls) which will be placed in ToolTip.
         /// </summary>
-        public List<FrameworkElement> ItemToolTip
+        public List<Control> ItemToolTip
         {
-            get { return (List<FrameworkElement>)GetValue(ItemToolTipProperty); }
+            get { return GetValue(ItemToolTipProperty); }
             set { SetValue(ItemToolTipProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for TreeListViewColumns.
+        /// Represents the styled property for TreeListViewColumns.
         /// </summary>
         [Category("VBControl")]
-        public static readonly DependencyProperty TreeListViewColumnsProperty
-            = DependencyProperty.Register("TreeListViewColumns", typeof(GridViewColumnCollection), typeof(VBTimelineViewBase));
+        public static readonly StyledProperty<object> TreeListViewColumnsProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, object>(nameof(TreeListViewColumns));
 
         /// <summary>
         /// Gets or sets the columns which will be shown in TreeListView.
         /// </summary>
         [Category("VBControl")]
-        public GridViewColumnCollection TreeListViewColumns
+        public object TreeListViewColumns
         {
-            get { return (GridViewColumnCollection)GetValue(TreeListViewColumnsProperty); }
+            get { return GetValue(TreeListViewColumnsProperty); }
             set { SetValue(TreeListViewColumnsProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for SearchProperty.
+        /// Represents the styled property for SearchProperty.
         /// </summary>
-        public static readonly DependencyProperty SearchPropertyProperty
-            = DependencyProperty.Register("SearchProperty", typeof(string), typeof(VBTimelineViewBase));
+        public static readonly StyledProperty<string> SearchPropertyProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, string>(nameof(SearchProperty));
 
         /// <summary>
         /// Gets or sets the name of property which is responsible for a search keyword.
@@ -245,156 +226,127 @@ namespace gip.core.layoutengine.avui.timeline
         [Category("VBControl")]
         public string SearchProperty
         {
-            get { return (string)GetValue(SearchPropertyProperty); }
+            get { return GetValue(SearchPropertyProperty); }
             set { SetValue(SearchPropertyProperty, value); }
         }
 
+        /// <summary>
+        /// Represents the styled property for TreeViewTopRightControl.
+        /// </summary>
+        public static readonly StyledProperty<Control> TreeViewTopRightControlProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, Control>(nameof(TreeViewTopRightControl));
 
         [Category("VBControl")]
-        public FrameworkElement TreeViewTopRightControl
+        public Control TreeViewTopRightControl
         {
-            get { return (FrameworkElement)GetValue(TreeViewTopRightControlProperty); }
+            get { return GetValue(TreeViewTopRightControlProperty); }
             set { SetValue(TreeViewTopRightControlProperty, value); }
         }
 
-        public static readonly DependencyProperty TreeViewTopRightControlProperty =
-            DependencyProperty.Register("TreeViewTopRightControl", typeof(FrameworkElement), typeof(VBTimelineChartBase), new PropertyMetadata(null));
-
-
-        ///// <summary>
-        ///// Represents the dependency property for RulerProperty.
-        ///// </summary>
-        //public static readonly DependencyProperty RulerPropertyProperty
-        //    = DependencyProperty.Register("RulerProperty", typeof(string), typeof(VBTimelineViewBase));
-
-        ///// <summary>
-        ///// Gets or sets the name of property which is responsible for a ruler visibility.
-        ///// </summary>
-        //[Category("VBControl")]
-        //public string RulerProperty
-        //{
-        //    get { return (string)GetValue(RulerPropertyProperty); }
-        //    set { SetValue(RulerPropertyProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Represents the dependency property for RulerDateTimeProperty.
-        ///// </summary>
-        //public static readonly DependencyProperty RulerDateTimePropertyProperty
-        //    = DependencyProperty.Register("RulerDateTimeProperty", typeof(string), typeof(VBTimelineViewBase));
-
-        ///// <summary>
-        ///// Gets or sets the name of property which is responsible for date and time on ruler.
-        ///// </summary>
-        //[Category("VBControl")]
-        //public string RulerDateTimeProperty
-        //{
-        //    get { return (string)GetValue(RulerDateTimePropertyProperty); }
-        //    set { SetValue(RulerDateTimePropertyProperty, value); }
-        //}
-
-        ///// <summary>
-        ///// Represents the dependency property for FilterProperty.
-        ///// </summary>
-        //public static readonly DependencyProperty FilterPropertyProperty
-        //    = DependencyProperty.Register("FilterProperty", typeof(string), typeof(VBTimelineViewBase));
-
-        ///// <summary>
-        ///// Gets or sets the name of property which is responsible for filter.
-        ///// </summary>
-        //[Category("VBControl")]
-        //public string FilterProperty
-        //{
-        //    get { return (string)GetValue(FilterPropertyProperty); }
-        //    set { SetValue(FilterPropertyProperty, value); }
-        //}
-
         /// <summary>
-        /// Represents the dependency property for ExpandCollapseAll.
+        /// Represents the styled property for ExpandCollapseAll.
         /// </summary>
-        public static readonly DependencyProperty ExpandCollapseAllProperty =
-            DependencyProperty.Register("ExpandCollapseAll", typeof(bool), typeof(VBTimelineViewBase), new PropertyMetadata(new PropertyChangedCallback(OnExpandCollapseAll)));
+        public static readonly StyledProperty<bool> ExpandCollapseAllProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, bool>(nameof(ExpandCollapseAll));
 
         /// <summary>
         /// Gets or sets expand or collapse all items in tree view.
         /// </summary>
         public bool ExpandCollapseAll
         {
-            get { return (bool)GetValue(ExpandCollapseAllProperty); }
+            get { return GetValue(ExpandCollapseAllProperty); }
             set { SetValue(ExpandCollapseAllProperty, value); }
         }
 
+        /// <summary>
+        /// Represents the styled property for ACUrlCmdMessage.
+        /// </summary>
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
+
         public ACUrlCmdMessage ACUrlCmdMessage
         {
-            get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
+            get { return GetValue(ACUrlCmdMessageProperty); }
             set { SetValue(ACUrlCmdMessageProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ACUrlCmdMessage.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ACUrlCmdMessageProperty =
-            DependencyProperty.Register("ACUrlCmdMessage", typeof(ACUrlCmdMessage), typeof(VBTimelineViewBase), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the attached property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTimelineViewBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTimelineViewBase>();
+        
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBTimelineViewBase thisControl = d as VBTimelineViewBase;
-            if(thisControl != null)
+            if (change.Property == ACUrlCmdMessageProperty)
             {
-                if(e.Property == ACUrlCmdMessageProperty)
+                ACUrlCmdMessage msg = change.NewValue as ACUrlCmdMessage;
+                if (msg != null && msg.ACUrl == "!ScrollToValue" && msg.ACParameter.Any() && msg.ACParameter[0] is DateTime)
                 {
-                    ACUrlCmdMessage msg = e.NewValue as ACUrlCmdMessage;
-                    if(msg != null && msg.ACUrl == "!ScrollToValue" && msg.ACParameter.Any() && msg.ACParameter[0] is DateTime)
-                    {
-                        DateTime dt = (DateTime)msg.ACParameter[0];
-                        thisControl.ScrollToValue(dt);
-                    }
+                    DateTime dt = (DateTime)msg.ACParameter[0];
+                    ScrollToValue(dt);
                 }
             }
+            else if (change.Property == ExpandCollapseAllProperty)
+            {
+                if ((bool)change.NewValue)
+                {
+                    // TODO Avalonia:
+                    using (new WaitCursor())
+                    {
+                        VBTreeListView.ExpandAll(PART_TreeListView);
+                    }
+                }
+                else
+                    VBTreeListView.CollapseAll(PART_TreeListView);
+            }
+            base.OnPropertyChanged(change);
         }
 
-        public DataTemplate TimelineItemTemplate
+        /// <summary>
+        /// Represents the styled property for TimelineItemTemplate.
+        /// </summary>
+        public static readonly StyledProperty<IDataTemplate> TimelineItemTemplateProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, IDataTemplate>(nameof(TimelineItemTemplate));
+
+        public IDataTemplate TimelineItemTemplate
         {
-            get { return (DataTemplate)GetValue(TimelineItemTemplateProperty); }
+            get { return GetValue(TimelineItemTemplateProperty); }
             set { SetValue(TimelineItemTemplateProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for TimelineItemTemplate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimelineItemTemplateProperty =
-            DependencyProperty.RegisterAttached("TimelineItemTemplate", typeof(DataTemplate), typeof(VBTimelineViewBase));
-
+        /// <summary>
+        /// Represents the styled property for TimelineItemHeight.
+        /// </summary>
+        public static readonly StyledProperty<double> TimelineItemHeightProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, double>(nameof(TimelineItemHeight), defaultValue: 18.0);
 
         public double TimelineItemHeight
         {
-            get { return (double)GetValue(TimelineItemHeightProperty); }
+            get { return GetValue(TimelineItemHeightProperty); }
             set { SetValue(TimelineItemHeightProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for RowHeight.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimelineItemHeightProperty =
-            DependencyProperty.Register("TimelineItemHeight", typeof(double), typeof(VBTimelineViewBase), new PropertyMetadata(18D));
-
+        /// <summary>
+        /// Represents the styled property for TimelineItemVerticalMargin.
+        /// </summary>
+        public static readonly StyledProperty<double> TimelineItemVerticalMarginProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, double>(nameof(TimelineItemVerticalMargin), defaultValue: 4.0);
 
         public double TimelineItemVerticalMargin
         {
-            get { return (double)GetValue(TimelineItemVerticalMarginProperty); }
+            get { return GetValue(TimelineItemVerticalMarginProperty); }
             set { SetValue(TimelineItemVerticalMarginProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for RowVerticalMargin.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimelineItemVerticalMarginProperty =
-            DependencyProperty.Register("TimelineItemVerticalMargin", typeof(double), typeof(VBTimelineViewBase), new PropertyMetadata(4D));
 
         /// <summary>
         /// Returns the sum of TimelineItemHeight and TimelineItemVerticalMargin (TimelineItemHeight + TimelineItemVerticalMargin)
@@ -404,28 +356,31 @@ namespace gip.core.layoutengine.avui.timeline
             get => TimelineItemHeight + TimelineItemVerticalMargin;
         }
 
+        /// <summary>
+        /// Represents the styled property for TreeListViewWidth.
+        /// </summary>
+        public static readonly StyledProperty<GridLength> TreeListViewWidthProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, GridLength>(nameof(TreeListViewWidth), 
+                defaultValue: new GridLength(1.5, GridUnitType.Star));
+
         public GridLength TreeListViewWidth
         {
-            get { return (GridLength)GetValue(TreeListViewWidthProperty); }
+            get { return GetValue(TreeListViewWidthProperty); }
             set { SetValue(TreeListViewWidthProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for TreeListViewWidth.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TreeListViewWidthProperty =
-            DependencyProperty.Register("TreeListViewWidth", typeof(GridLength), typeof(VBTimelineViewBase), new PropertyMetadata(new GridLength(1.5, GridUnitType.Star)));
-
-
+        /// <summary>
+        /// Represents the styled property for TimelineViewWidth.
+        /// </summary>
+        public static readonly StyledProperty<GridLength> TimelineViewWidthProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, GridLength>(nameof(TimelineViewWidth), 
+                defaultValue: new GridLength(3, GridUnitType.Star));
 
         public GridLength TimelineViewWidth
         {
-            get { return (GridLength)GetValue(TimelineViewWidthProperty); }
+            get { return GetValue(TimelineViewWidthProperty); }
             set { SetValue(TimelineViewWidthProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for TimelineViewWidth.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimelineViewWidthProperty =
-            DependencyProperty.Register("TimelineViewWidth", typeof(GridLength), typeof(VBTimelineViewBase), new PropertyMetadata(new GridLength(3, GridUnitType.Star)));
-
 
         #endregion
 
@@ -453,33 +408,13 @@ namespace gip.core.layoutengine.avui.timeline
 
         #region Methods
 
-        /// <summary>
-        /// Expands or collapses all items in tree view.
-        /// </summary>
-        /// <param name="o"></param>
-        /// <param name="e"></param>
-        public static void OnExpandCollapseAll(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            VBTimelineViewBase thisControl = o as VBTimelineViewBase;
-            if ((bool)e.NewValue)
-            {
-                // TODO Avalonia:
-                using (new WaitCursor())
-                {
-                    VBTreeListView.ExpandAll(thisControl.PART_TreeListView);
-                }
-            }
-            else
-                VBTreeListView.CollapseAll(thisControl.PART_TreeListView);
-        }
 
         private void SyncScrollViewers()
         {
             PART_TreeListView.ApplyTemplate();
             PART_TimelineChart.ApplyTemplate();
-            ScrollViewer treeSV = WpfUtility.FindVisualChild<ScrollViewer>(PART_TreeListView);
-            ScrollViewer timelineSV = WpfUtility.FindVisualChild<ScrollViewer>(PART_TimelineChart);
-
+            ScrollViewer treeSV = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TreeListView)?.FirstOrDefault();
+            ScrollViewer timelineSV = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TimelineChart)?.FirstOrDefault();
             if (treeSV != null && timelineSV != null)
             {
                 syncer = new ScrollViewerSyncer(treeSV, timelineSV);
@@ -497,10 +432,10 @@ namespace gip.core.layoutengine.avui.timeline
         #region IVBContent members
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-          = DependencyProperty.Register("VBContent", typeof(string), typeof(VBGanttChartView));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -509,7 +444,7 @@ namespace gip.core.layoutengine.avui.timeline
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -552,7 +487,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// <param name="bso">The bound BSOACComponent</param>
         public virtual void DeInitVBControl(IACComponent bso)
         {
-            TreeListViewColumns.Clear();
+            TreeListViewColumns?.GetType().GetMethod("Clear")?.Invoke(TreeListViewColumns, null);
             this.ClearAllBindings();
             syncer?.DeInitControl();
             _IsInitialized = false;
@@ -699,10 +634,10 @@ namespace gip.core.layoutengine.avui.timeline
         #region IVBSource members
 
         /// <summary>
-        /// Represents the dependency property for VBSource.
+        /// Represents the styled property for VBSource.
         /// </summary>
-        public static readonly DependencyProperty VBSourceProperty
-           = DependencyProperty.Register("VBSource", typeof(string), typeof(VBGanttChartView));
+        public static readonly StyledProperty<string> VBSourceProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, string>(nameof(VBSource));
 
         /// <summary>
         /// Gets or sets the VBSource.
@@ -710,22 +645,22 @@ namespace gip.core.layoutengine.avui.timeline
         [Category("VBControl")]
         public string VBSource
         {
-            get { return (string)GetValue(VBSourceProperty); }
+            get { return GetValue(VBSourceProperty); }
             set { SetValue(VBSourceProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for VBShowColumns.
+        /// Represents the styled property for VBShowColumns.
         /// </summary>
-        public static readonly DependencyProperty VBShowColumnsProperty
-            = DependencyProperty.Register("VBShowColumns", typeof(string), typeof(VBGanttChartView));
+        public static readonly StyledProperty<string> VBShowColumnsProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, string>(nameof(VBShowColumns));
 
         /// <summary>
         /// Gets or sets the VBShowColumns.
         /// </summary>
         public string VBShowColumns
         {
-            get { return (string)GetValue(VBShowColumnsProperty); }
+            get { return GetValue(VBShowColumnsProperty); }
             set { SetValue(VBShowColumnsProperty, value); }
         }
 

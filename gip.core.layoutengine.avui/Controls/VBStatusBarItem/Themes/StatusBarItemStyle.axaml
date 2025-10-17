@@ -1,0 +1,31 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <!-- VBStatusBarItem Template -->
+  <ControlTemplate x:Key="VBStatusBarItemTemplate" TargetType="local:VBStatusBarItem">
+    <Border BorderBrush="{TemplateBinding BorderBrush}" 
+            BorderThickness="{TemplateBinding BorderThickness}" 
+            Background="{TemplateBinding Background}" 
+            Padding="{TemplateBinding Padding}">
+      <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+    </Border>
+  </ControlTemplate>
+
+  <!-- VBStatusBarItem ControlTheme -->
+  <ControlTheme x:Key="{x:Type local:VBStatusBarItem}" TargetType="local:VBStatusBarItem">
+    <Setter Property="Padding" Value="3"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Template" Value="{StaticResource VBStatusBarItemTemplate}"/>
+    
+    <!-- Disabled State -->
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

@@ -1,0 +1,48 @@
+﻿<ResourceDictionary
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+	<!-- VBTile ControlTheme -->
+	<ControlTheme x:Key="{x:Type local:VBTile}" TargetType="local:VBTile">
+		<Setter Property="Template">
+			<ControlTemplate x:Key="VBTileTemplate" TargetType="local:VBTile">
+				<Border BorderThickness="2" DragDrop.AllowDrop="False" BorderBrush="Transparent">
+					<Grid x:Name="TileItemGrid">
+						<Grid.RowDefinitions>
+							<RowDefinition Height="1.5*"/>
+							<RowDefinition Height="2.3*"/>
+							<RowDefinition Height="2.2*"/>
+						</Grid.RowDefinitions>
+						<Grid.Background>
+							<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+								<GradientStop Color="#4CFF6565" Offset="0"/>
+								<GradientStop Color="#7FFF0018" Offset="1"/>
+							</LinearGradientBrush>
+						</Grid.Background>
+						<Image Grid.Row="1"
+							   HorizontalAlignment="Center"
+							   Source="{local:VBStaticResource VBContent=IconACUrl, Mode=FindAncestor, AncestorType=local:VBTile}"/>
+						<TextBox Grid.Row="2"
+								 HorizontalAlignment="Left"
+								 Background="Transparent"
+								 Foreground="White"
+								 x:Name="PART_TextBox"
+								 BorderThickness="0"
+								 Text="{Binding RelativeSource={RelativeSource AncestorType=local:VBTile,Mode=FindAncestor}, Path=Title, Mode=TwoWay}"
+								 IsReadOnly="True"
+								 TextWrapping="Wrap"
+								 VerticalAlignment="Bottom"
+								 Margin="0,0,0,3"/>
+					</Grid>
+				</Border>
+			</ControlTemplate>
+	</Setter>
+
+		<!-- Mouse Over State -->
+		<Style Selector="^:pointerover /template/ Border">
+			<Setter Property="BorderBrush" Value="White"/>
+		</Style>
+	</ControlTheme>
+
+</ResourceDictionary>

@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <local:ConverterDoubleOffset x:Key="LineOffset" Offset="6" />
 
-    <ControlTemplate x:Key="StopWatchGip" TargetType="{x:Type local:VBProgressBar}">
+    <ControlTemplate x:Key="StopWatchGip" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot" MinHeight="40" MinWidth="40">
             <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>
@@ -15,7 +15,7 @@
                         HorizontalAlignment="Center" VerticalAlignment="Center"
                        Fill="LightGray" Stroke="DarkGray">
                 <Ellipse.Effect>
-                    <DropShadowEffect Color="DarkGray" ShadowDepth="2"/>
+                    <DropShadowEffect Color="DarkGray" OffsetX="2" OffsetY="2" />
                 </Ellipse.Effect>
             </Ellipse>
 

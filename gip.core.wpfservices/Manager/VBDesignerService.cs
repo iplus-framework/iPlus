@@ -62,9 +62,9 @@ namespace gip.core.wpfservices
             }
         }
 
-        public void GenerateNewRoutingLogic()
+        public void GenerateNewRoutingLogic(IACComponent controller)
         {
-            _RoutingLogic = new VBRoutingLogic();
+            _RoutingLogic = new VBRoutingLogic(controller);
         }
 
         public object GetVBRoutingLogic()

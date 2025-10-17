@@ -1,10 +1,12 @@
 ﻿using System.Linq;
-using System.Windows;
-using System.Windows.Controls;
-using LinqToVisualTree;
-using System.Windows.Data;
+using gip.ext.designer.avui;
 using System.ComponentModel;
 using System;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -12,49 +14,53 @@ namespace gip.core.layoutengine.avui
     /// An attached view model that adapts a ProgressBar control to provide properties
     /// that assist in the creation of a circular template
     /// </summary>
-    public class VBProgressBarCircularViewModel : FrameworkElement
+    public class VBProgressBarCircularViewModel : Control
     {
         #region Attach attached property
 
         /// <summary>
-        /// Represents the dependency property for Attach.
+        /// Represents the attached property for Attach.
         /// </summary>
-        public static readonly DependencyProperty AttachProperty =
-            DependencyProperty.RegisterAttached("Attach", typeof(object), typeof(VBProgressBarCircularViewModel),
-                new PropertyMetadata(null, new PropertyChangedCallback(OnAttachChanged)));
+        public static readonly AttachedProperty<VBProgressBarCircularViewModel> AttachProperty =
+            AvaloniaProperty.RegisterAttached<VBProgressBarCircularViewModel, Control, VBProgressBarCircularViewModel>("Attach");
 
         /// <summary>
         /// Gets the Attach.
         /// </summary>
-        /// <param name="d">The dependency object.</param>
+        /// <param name="d">The avalonia object.</param>
         /// <returns>The VBProgressBarCircularViewModel object.</returns>
-        public static VBProgressBarCircularViewModel GetAttach(DependencyObject d)
+        public static VBProgressBarCircularViewModel GetAttach(AvaloniaObject d)
         {
-            return (VBProgressBarCircularViewModel)d.GetValue(AttachProperty);
+            return d.GetValue(AttachProperty);
         }
 
         /// <summary>
         /// Set the Attach.
         /// </summary>
-        /// <param name="d">The dependency object.</param>
+        /// <param name="d">The avalonia object.</param>
         /// <param name="value">The VBProgressBarCircularViewModel object.</param>
-        public static void SetAttach(DependencyObject d, VBProgressBarCircularViewModel value)
+        public static void SetAttach(AvaloniaObject d, VBProgressBarCircularViewModel value)
         {
             d.SetValue(AttachProperty, value);
         }
 
-        /// <summary>
-        /// Change handler for the Attach property
-        /// </summary>
-        private static void OnAttachChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        static VBProgressBarCircularViewModel()
+        {
+            AttachProperty.Changed.Subscribe(OnAttachChanged);
+        }
+
+        private static void OnAttachChanged(AvaloniaPropertyChangedEventArgs e)
         {
             // set the view model as the DataContext for the rest of the template
-            FrameworkElement targetElement = d as FrameworkElement;
+            Control targetElement = e.Sender as Control;
             VBProgressBarCircularViewModel viewModel = e.NewValue as VBProgressBarCircularViewModel;
-            targetElement.DataContext = viewModel;
+            if (targetElement != null && viewModel != null)
+            {
+                targetElement.DataContext = viewModel;
 
-            // handle the loaded event
-            targetElement.Loaded += new RoutedEventHandler(Element_Loaded);
+                // handle the loaded event
+                targetElement.Loaded += Element_Loaded;
+            }
         }
 
         /// <summary>
@@ -64,33 +70,20 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         static void Element_Loaded(object sender, RoutedEventArgs e)
         {
-            FrameworkElement targetElement = sender as FrameworkElement;
+            Control targetElement = sender as Control;
             VBProgressBarCircularViewModel attachedModel = GetAttach(targetElement);
 
-            // find the ProgressBar and associated it with the view model
-            var progressBar = targetElement.Ancestors<ProgressBar>().Single() as ProgressBar;
-            attachedModel.SetProgressBar(progressBar);
+            // find the ProgressBar using visual tree traversal
+            var progressBar = targetElement.GetVisualAncestors().OfType<ProgressBar>().FirstOrDefault();
+            if (progressBar != null)
+            {
+                attachedModel.SetProgressBar(progressBar);
+            }
         }
 
         #endregion
 
         #region fields
-
-        //private double _angle;
-
-        //private double _centreX;
-
-        //private double _centreY;
-
-        //private double _radius;
-
-        //private double _innerRadius;
-
-        //private double _diameter;
-
-        //private double _percent;
-
-        //private double _holeSizeFactor = 0.0;
 
         protected ProgressBar _progressBar;
 
@@ -99,9 +92,10 @@ namespace gip.core.layoutengine.avui
         #region properties
 
         /// <summary>
-        /// Represents the dependency property for Percent.
+        /// Represents the styled property for Percent.
         /// </summary>
-        public static readonly DependencyProperty PercentProperty = DependencyProperty.Register("Percent", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> PercentProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(Percent));
 
         /// <summary>
         /// Gets or sets the Percent.
@@ -109,14 +103,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double Percent
         {
-            get { return (double)GetValue(PercentProperty); }
+            get { return GetValue(PercentProperty); }
             set { SetValue(PercentProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Diameter.
+        /// Represents the styled property for Diameter.
         /// </summary>
-        public static readonly DependencyProperty DiameterProperty = DependencyProperty.Register("Diameter", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> DiameterProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(Diameter));
 
         /// <summary>
         /// Gets or sets the Diameter.
@@ -124,44 +119,47 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double Diameter
         {
-            get { return (double)GetValue(DiameterProperty); }
+            get { return GetValue(DiameterProperty); }
             set { SetValue(DiameterProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Radius.
+        /// Represents the styled property for Radius.
         /// </summary>
-        public static readonly DependencyProperty RadiusProperty = DependencyProperty.Register("Radius", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> RadiusProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(Radius));
 
         /// <summary>
-        /// Gets or sets the
+        /// Gets or sets the Radius.
         /// </summary>
         [Category("VBControl")]
         public double Radius
         {
-            get { return (double)GetValue(RadiusProperty); }
+            get { return GetValue(RadiusProperty); }
             set { SetValue(RadiusProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for InnerRadius.
+        /// Represents the styled property for InnerRadius.
         /// </summary>
-        public static readonly DependencyProperty InnerRadiusProperty = DependencyProperty.Register("InnerRadius", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> InnerRadiusProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(InnerRadius));
 
         /// <summary>
-        /// Gets or sets the
+        /// Gets or sets the InnerRadius.
         /// </summary>
         [Category("VBControl")]
         public double InnerRadius
         {
-            get { return (double)GetValue(InnerRadiusProperty); }
+            get { return GetValue(InnerRadiusProperty); }
             set { SetValue(InnerRadiusProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for CentreX.
+        /// Represents the styled property for CentreX.
         /// </summary>
-        public static readonly DependencyProperty CentreXProperty = DependencyProperty.Register("CentreX", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> CentreXProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(CentreX));
 
         /// <summary>
         /// Gets or sets the CentreX.
@@ -169,14 +167,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double CentreX
         {
-            get { return (double)GetValue(CentreXProperty); }
+            get { return GetValue(CentreXProperty); }
             set { SetValue(CentreXProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for CentreY.
+        /// Represents the styled property for CentreY.
         /// </summary>
-        public static readonly DependencyProperty CentreYProperty = DependencyProperty.Register("CentreY", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> CentreYProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(CentreY));
 
         /// <summary>
         /// Gets or sets the CentreY.
@@ -184,14 +183,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double CentreY
         {
-            get { return (double)GetValue(CentreYProperty); }
+            get { return GetValue(CentreYProperty); }
             set { SetValue(CentreYProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Angle.
+        /// Represents the styled property for Angle.
         /// </summary>
-        public static readonly DependencyProperty AngleProperty = DependencyProperty.Register("Angle", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> AngleProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(Angle));
 
         /// <summary>
         /// Gets or sets the Angle.
@@ -199,22 +199,23 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double Angle
         {
-            get { return (double)GetValue(AngleProperty); }
+            get { return GetValue(AngleProperty); }
             set { SetValue(AngleProperty, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for HoleSizeFactor.
+        /// Represents the styled property for HoleSizeFactor.
         /// </summary>
-        public static readonly DependencyProperty HoleSizeFactorProperty = DependencyProperty.Register("HoleSizeFactor", typeof(double), typeof(VBProgressBarCircularViewModel));
+        public static readonly StyledProperty<double> HoleSizeFactorProperty = 
+            AvaloniaProperty.Register<VBProgressBarCircularViewModel, double>(nameof(HoleSizeFactor));
 
         /// <summary>
-        /// Gets or sets the HoleSize.
+        /// Gets or sets the HoleSizeFactor.
         /// </summary>
         [Category("VBControl")]
         public double HoleSizeFactor
         {
-            get { return (double)GetValue(HoleSizeFactorProperty); }
+            get { return GetValue(HoleSizeFactorProperty); }
             set { SetValue(HoleSizeFactorProperty, value); }
         }
 
@@ -229,8 +230,8 @@ namespace gip.core.layoutengine.avui
                 return;
 
             Angle = (_progressBar.Value - _progressBar.Minimum) * 360 / (_progressBar.Maximum - _progressBar.Minimum);
-            CentreX = _progressBar.ActualWidth / 2;
-            CentreY = _progressBar.ActualHeight / 2;
+            CentreX = _progressBar.Bounds.Width / 2;
+            CentreY = _progressBar.Bounds.Height / 2;
             Radius = Math.Min(CentreX, CentreY);
             Diameter = Radius * 2;
             InnerRadius = Radius * HoleSizeFactor;
@@ -247,39 +248,12 @@ namespace gip.core.layoutengine.avui
             _progressBar = progressBar;
             _progressBar.SizeChanged += (s, e) => ComputeViewModelProperties();
             
-            //RegisterForNotification(Const.Value, progressBar, (d, e) => ComputeViewModelProperties());
-            DependencyPropertyDescriptor desc = DependencyPropertyDescriptor.FromProperty(ProgressBar.ValueProperty, typeof(ProgressBar));
-            desc.AddValueChanged(progressBar, new EventHandler(ProgressBarDepPropChanged));  
-
-            //RegisterForNotification("Maximum", progressBar, (d, e) => ComputeViewModelProperties());
-            desc = DependencyPropertyDescriptor.FromProperty(ProgressBar.MaximumProperty, typeof(ProgressBar));
-            desc.AddValueChanged(progressBar, new EventHandler(ProgressBarDepPropChanged));
-            
-            //RegisterForNotification("Minimum", progressBar, (d, e) => ComputeViewModelProperties());
-            desc = DependencyPropertyDescriptor.FromProperty(ProgressBar.MinimumProperty, typeof(ProgressBar));
-            desc.AddValueChanged(progressBar, new EventHandler(ProgressBarDepPropChanged));
+            // Subscribe to property changes using Avalonia's property change notifications
+            _progressBar.GetObservable(ProgressBar.ValueProperty).Subscribe(_ => ComputeViewModelProperties());
+            _progressBar.GetObservable(ProgressBar.MaximumProperty).Subscribe(_ => ComputeViewModelProperties());
+            _progressBar.GetObservable(ProgressBar.MinimumProperty).Subscribe(_ => ComputeViewModelProperties());
 
             ComputeViewModelProperties();
-        }
-
-        private void ProgressBarDepPropChanged(object sender, EventArgs e)
-        {
-            ComputeViewModelProperties();
-        }
-
-        /// Add a handler for a DP change
-        /// see: http://amazedsaint.blogspot.com/2009/12/silverlight-listening-to-dependency.html
-        private void RegisterForNotification(string propertyName, FrameworkElement element, PropertyChangedCallback callback)
-        {
-            //Bind to a dependency property  
-            Binding b = new Binding(propertyName) { Source = element };
-            var prop = System.Windows.DependencyProperty.RegisterAttached(
-                "ListenAttached" + propertyName,
-                typeof(object),
-                typeof(UserControl),
-                new PropertyMetadata(callback));
-
-            element.SetBinding(prop, b);
         }
     }
 }

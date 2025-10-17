@@ -1,13 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Collections.ObjectModel;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -27,16 +29,20 @@ namespace gip.core.layoutengine.avui
         {
             HorizontalScrollBarVisibility = ScrollBarVisibility.Hidden;
             VerticalScrollBarVisibility = ScrollBarVisibility.Hidden;
-            AllowDrop = true;
+            DragDrop.SetAllowDrop(this, true);
+            //AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
+            AddHandler(DragDrop.DragOverEvent, OnDragOver);
+            AddHandler(DragDrop.DropEvent, OnDrop);
+            //AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             InitVBControl();
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
         }
 
         bool _Initialized = false;
@@ -51,10 +57,8 @@ namespace gip.core.layoutengine.avui
 
             Binding bind = new Binding();
             bind.Source = this.ContextACObject;
-            bind.Path = new PropertyPath(VBSource);
-            bind.NotifyOnSourceUpdated = true;
-            bind.NotifyOnTargetUpdated = true;
-            SetBinding(ItemsProperty, bind);
+            bind.Path = VBSource;
+            this.Bind(ItemsProperty, bind);
 
             if(this.Content == null)
             {
@@ -66,8 +70,8 @@ namespace gip.core.layoutengine.avui
                 Col = Columns;
                 Grid grid = new Grid();
                 grid.MinWidth = TileSize * Columns + 20;
-                grid.HorizontalAlignment = HorizontalAlignment.Center;
-                grid.VerticalAlignment = VerticalAlignment.Top;
+                grid.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
+                grid.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Top;
                 grid.Background = Brushes.Transparent;
                
 
@@ -92,33 +96,37 @@ namespace gip.core.layoutengine.avui
 
         private void DeInitVBControl(IACComponent bso)
         {
+            RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
+            RemoveHandler(DragDrop.DropEvent, OnDrop);
             if (Content != null)
             {
-                foreach (FrameworkElement fe in ((Grid)Content).Children.OfType<FrameworkElement>())
-                    BindingOperations.ClearAllBindings(fe);
+                foreach (Control fe in ((Grid)Content).Children.OfType<Control>())
+                {
+                    fe.ClearAllBindings();
+                }
                 ((Grid)Content).Children.Clear();
             }
-            BindingOperations.ClearBinding(this, ItemsProperty);
+            this.ClearBinding(ItemsProperty);
             this.ClearAllBindings();
             _Initialized = false;
         }
 
-        #region DependencyProperties
+        #region StyledProperties
 
         /// <summary>
         /// Gets or sets the VBTileGrid items.
         /// </summary>
         public IEnumerable<IVBTileGrid> Items
         {
-            get { return (IEnumerable<IVBTileGrid>)GetValue(ItemsProperty); }
-            set { SetValue(ItemsProperty, value); }
+            get => GetValue(ItemsProperty);
+            set => SetValue(ItemsProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the Items.
+        /// Represents the styled property for the Items.
         /// </summary>
-        public static readonly DependencyProperty ItemsProperty =
-            DependencyProperty.Register("Items", typeof(IEnumerable<IVBTileGrid>), typeof(VBTileGrid), new PropertyMetadata(OnDepPropChanged));
+        public static readonly StyledProperty<IEnumerable<IVBTileGrid>> ItemsProperty =
+            AvaloniaProperty.Register<VBTileGrid, IEnumerable<IVBTileGrid>>(nameof(Items));
 
         /// <summary>
         /// Determines the nubmer of columns in the VBTileGrid (default:2).
@@ -126,15 +134,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public int Columns
         {
-            get { return (int)GetValue(ColumnsProperty); }
-            set { SetValue(ColumnsProperty, value); }
+            get => GetValue(ColumnsProperty);
+            set => SetValue(ColumnsProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the Columns.
+        /// Represents the styled property for the Columns.
         /// </summary>
-        public static readonly DependencyProperty ColumnsProperty =
-            DependencyProperty.Register("Columns", typeof(int), typeof(VBTileGrid), new PropertyMetadata(2));
+        public static readonly StyledProperty<int> ColumnsProperty =
+            AvaloniaProperty.Register<VBTileGrid, int>(nameof(Columns), defaultValue: 2);
 
         /// <summary>
         /// Determines the size of the VBTile.(default:100.0)
@@ -142,45 +150,45 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double TileSize
         {
-            get { return (double)GetValue(TileSizeProperty); }
-            set { SetValue(TileSizeProperty, value); }
+            get => GetValue(TileSizeProperty);
+            set => SetValue(TileSizeProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the TileSize
+        /// Represents the styled property for the TileSize
         /// </summary>
-        public static readonly DependencyProperty TileSizeProperty =
-            DependencyProperty.Register("TileSize", typeof(double), typeof(VBTileGrid), new PropertyMetadata(100.0));
+        public static readonly StyledProperty<double> TileSizeProperty =
+            AvaloniaProperty.Register<VBTileGrid, double>(nameof(TileSize), defaultValue: 100.0);
 
         /// <summary>
         /// Gets or sets the OnTileAdded.
         /// </summary>
         public string OnTileAdded
         {
-            get { return (string)GetValue(OnTileAddedProperty); }
-            set { SetValue(OnTileAddedProperty, value); }
+            get => GetValue(OnTileAddedProperty);
+            set => SetValue(OnTileAddedProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the OnTileAdded.
+        /// Represents the styled property for the OnTileAdded.
         /// </summary>
-        public static readonly DependencyProperty OnTileAddedProperty =
-            DependencyProperty.Register("OnTileAdded", typeof(string), typeof(VBTileGrid));
+        public static readonly StyledProperty<string> OnTileAddedProperty =
+            AvaloniaProperty.Register<VBTileGrid, string>(nameof(OnTileAdded));
 
         /// <summary>
         /// Gets or sets the OnTileDeleted.
         /// </summary>
         public string OnTileDeleted
         {
-            get { return (string)GetValue(OnTileDeletedProperty); }
-            set { SetValue(OnTileDeletedProperty, value); }
+            get => GetValue(OnTileDeletedProperty);
+            set => SetValue(OnTileDeletedProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the OnTileDeleted.
+        /// Represents the styled property for the OnTileDeleted.
         /// </summary>
-        public static readonly DependencyProperty OnTileDeletedProperty =
-            DependencyProperty.Register("OnTileDeleted", typeof(string), typeof(VBTileGrid));
+        public static readonly StyledProperty<string> OnTileDeletedProperty =
+            AvaloniaProperty.Register<VBTileGrid, string>(nameof(OnTileDeleted));
 
         /// <summary>
         /// Represents the property where you enter the name of Bso's property, which contains a list with items whcih will be shown in this control.
@@ -188,62 +196,62 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBSource
         {
-            get { return (string)GetValue(VBSourceProperty); }
-            set { SetValue(VBSourceProperty, value); }
+            get => GetValue(VBSourceProperty);
+            set => SetValue(VBSourceProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the VBSource.
+        /// Represents the styled property for the VBSource.
         /// </summary>
-        public static readonly DependencyProperty VBSourceProperty =
-            DependencyProperty.Register("VBSource", typeof(string), typeof(VBTileGrid));
+        public static readonly StyledProperty<string> VBSourceProperty =
+            AvaloniaProperty.Register<VBTileGrid, string>(nameof(VBSource));
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = 
-            ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTileGrid), new FrameworkPropertyMetadata(null, 
-                FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTileGrid>();
 
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
+            get => GetValue(BSOACComponentProperty);
+            set => SetValue(BSOACComponentProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBTileGrid),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBTileGrid, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
-            set { SetValue(ACCompInitStateProperty, value); }
+            get => GetValue(ACCompInitStateProperty);
+            set => SetValue(ACCompInitStateProperty, value);
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-              DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBTileGrid thisControl = dependencyObject as VBTileGrid;
-            if (args.Property == BSOACComponentProperty)
+            if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
+            else if (change.Property == ItemsProperty)
+            {
+                OnDepPropChanged(change);
+            }
+            base.OnPropertyChanged(change);
         }
 
         #endregion
@@ -254,9 +262,9 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnPreviewMouseRightButtonDown event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnPreviewMouseRightButtonDown(System.Windows.Input.MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (ContextACObject != null)
+            if (e.InitialPressMouseButton == MouseButton.Right && ContextACObject != null)
             {
                 _helperPoint = e.GetPosition(this.Content as Grid);
                 ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, _helperPoint.X, _helperPoint.Y, Global.ElementActionType.ContextMenu);
@@ -268,27 +276,23 @@ namespace gip.core.layoutengine.avui
                     //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
                     if (vbContextMenu.PlacementTarget == null)
                         vbContextMenu.PlacementTarget = this;
-                    ContextMenu.IsOpen = true;
+                    ContextMenu.Open();
                 }
                 //e.Handled = true;
             }
-            base.OnPreviewMouseRightButtonUp(e);
+            base.OnPointerReleased(e);
         }
 
-        /// <summary>
-        /// Handles the OnDragOver event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnDragOver(DragEventArgs e)
+
+        protected void OnDragOver(DragEventArgs e)
         {
-            base.OnDragOver(e);
         }
 
         /// <summary>
         /// Handles the OnDrop event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnDrop(DragEventArgs e)
+        protected void OnDrop(DragEventArgs e)
         {
             IACInteractiveObject item = VBDragDrop.GetDropObject(e);
             if(item != null && item.ACContentList != null && item.ACContentList.Any())
@@ -305,7 +309,7 @@ namespace gip.core.layoutengine.avui
                     if (containter is ACMenuItem && !string.IsNullOrEmpty(((ACMenuItem)containter).IconACUrl))
                         vbTile.IconACUrl = ((ACMenuItem)containter).IconACUrl;
                     ((Grid)this.Content).Children.Add(vbTile);
-                    vbTile.GetPositionAndInsertRow(out col, out row, e.GetPosition(this.Content as Grid));
+                    vbTile.GetPositionAndInsertRow(e, out col, out row, e.GetPosition(this.Content as Grid));
                     Grid.SetColumn(vbTile, col);
                     Grid.SetRow(vbTile, row);
                     vbTile.Column = col;
@@ -322,7 +326,6 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            base.OnDrop(e);
         }
 
         #endregion
@@ -397,14 +400,14 @@ namespace gip.core.layoutengine.avui
                 groupName.Foreground = Brushes.Black;
             groupName.FontSize = 16;
             groupName.BorderThickness = new Thickness();
-            Panel.SetZIndex(groupName, 1);
+            groupName.ZIndex = 1;
 
             Binding title = new Binding();
             title.Source = item;
-            title.Path = new PropertyPath("Title");
+            title.Path = "Title";
             title.Mode = BindingMode.TwoWay;
             title.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-            groupName.SetBinding(TextBox.TextProperty, title);
+            groupName.Bind(TextBox.TextProperty, title);
 
             Grid.SetRow(groupName, grid.RowDefinitions.IndexOf(grNameRow));
             Grid.SetColumn(groupName, 0);
@@ -420,37 +423,37 @@ namespace gip.core.layoutengine.avui
         {
             Binding col = new Binding();
             col.Source = item;
-            col.Path = new PropertyPath("TileColumn");
+            col.Path = "TileColumn";
             col.Mode = BindingMode.TwoWay;
-            vbTile.SetBinding(VBTile.ColumnProperty, col);
+            vbTile.Bind(VBTile.ColumnProperty, col);
 
             Binding row = new Binding();
             row.Source = item;
-            row.Path = new PropertyPath("TileRow");
+            row.Path = "TileRow";
             row.Mode = BindingMode.TwoWay;
-            vbTile.SetBinding(VBTile.RowProperty, row);
+            vbTile.Bind(VBTile.RowProperty, row);
 
             Binding title = new Binding();
             title.Source = item;
-            title.Path = new PropertyPath("Title");
+            title.Path = "Title";
             title.Mode = BindingMode.TwoWay;
-            vbTile.SetBinding(VBTile.TitleProperty, title);
+            vbTile.Bind(VBTile.TitleProperty, title);
 
             Binding acurl = new Binding();
             acurl.Source = item;
-            acurl.Path = new PropertyPath(Const.ACUrlPrefix);
+            acurl.Path = Const.ACUrlPrefix;
             acurl.Mode = BindingMode.TwoWay;
-            vbTile.SetBinding(VBTile.ACUrlProperty, acurl);
+            vbTile.Bind(VBTile.ACUrlProperty, acurl);
 
             Binding iconACurl = new Binding();
             iconACurl.Source = item;
-            iconACurl.Path = new PropertyPath("IconACUrl");
-            vbTile.SetBinding(VBTile.IconACUrlProperty, iconACurl);
+            iconACurl.Path = "IconACUrl";
+            vbTile.Bind(VBTile.IconACUrlProperty, iconACurl);
 
             Binding paramBinding = new Binding();
             paramBinding.Source = item;
-            paramBinding.Path = new PropertyPath(nameof(item.Parameters));
-            vbTile.SetBinding(VBTile.ParametersProperty, paramBinding);
+            paramBinding.Path = nameof(item.Parameters);
+            vbTile.Bind(VBTile.ParametersProperty, paramBinding);
 
             return vbTile;
         }
@@ -465,7 +468,7 @@ namespace gip.core.layoutengine.avui
             RowDefinition splitter = new RowDefinition();
             splitter.Height = new GridLength(40);
             grid.RowDefinitions.Add(splitter);
-            splitter.AllowDrop = true;
+            //DragDrop.SetAllowDrop(splitter, true);
             TextBlock tblock = new TextBlock();
             tblock.Text = "+";
             tblock.Margin = new Thickness(10, 5, 0, 0);
@@ -525,7 +528,7 @@ namespace gip.core.layoutengine.avui
             TextBox groupName = new TextBox();
             groupName.Margin = new Thickness(7, 3, 0, 0);
             groupName.Text = "Gruppe";
-            Panel.SetZIndex(groupName, 1);
+            groupName.ZIndex = 1;
             groupName.Background = Brushes.Transparent;
             if (ControlManager.WpfTheme == eWpfTheme.Gip)
                 groupName.Foreground = Brushes.White;
@@ -551,10 +554,10 @@ namespace gip.core.layoutengine.avui
                 {
                     Binding bind = new Binding();
                     bind.Source = item;
-                    bind.Path = new PropertyPath("Title");
+                    bind.Path = "Title";
                     bind.Mode = BindingMode.TwoWay;
                     bind.UpdateSourceTrigger = UpdateSourceTrigger.PropertyChanged;
-                    groupName.SetBinding(TextBox.TextProperty, bind);
+                    groupName.Bind(TextBox.TextProperty, bind);
                 }
             }
         }
@@ -583,7 +586,7 @@ namespace gip.core.layoutengine.avui
                 ((Grid)Content).Children.Remove(bd);
 
                 TextBox tb = ((Grid)Content).Children.OfType<TextBox>().FirstOrDefault(c => Grid.GetRow(c) == _RowIndex);
-                BindingOperations.ClearAllBindings(tb);
+                tb.ClearAllBindings();
                 ((Grid)Content).Children.Remove(tb);
 
                 ((Grid)Content).RowDefinitions.RemoveAt(_RowIndex);
@@ -608,7 +611,7 @@ namespace gip.core.layoutengine.avui
 
         private int GetGroupRow(Grid grid, Nullable<Point> dropPoint = null)
         {
-            Point point = Mouse.GetPosition(grid);
+            Point point = _helperPoint; // Mouse.GetPosition(grid);
             if (dropPoint != null && dropPoint.HasValue)
                 point = dropPoint.Value;
             int row = 0;
@@ -617,7 +620,7 @@ namespace gip.core.layoutengine.avui
             foreach (var rowDefinition in grid.RowDefinitions)
             {
                 accumulatedHeight += rowDefinition.ActualHeight;
-                if (accumulatedHeight - 35 <= point.Y && accumulatedHeight+2 >= point.Y && rowDefinition.ActualHeight == 30)
+                if (accumulatedHeight - 35 <= point.Y && accumulatedHeight + 2 >= point.Y && rowDefinition.ActualHeight == 30)
                     return row;
                 row++;
             }
@@ -631,11 +634,11 @@ namespace gip.core.layoutengine.avui
         public void AlignTile(VBTile vbTile)
         {
             if (vbTile.Column == 0 && this.Columns > 1)
-                vbTile.HorizontalAlignment = HorizontalAlignment.Right;
+                vbTile.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right;
             else if (vbTile.Column == VBTileGrid.Col - 1 && this.Columns > 1)
-                vbTile.HorizontalAlignment = HorizontalAlignment.Left;
+                vbTile.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Left;
             else
-                vbTile.HorizontalAlignment = HorizontalAlignment.Center;
+                vbTile.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center;
         }
 
         public void OnTileClicked(VBTile vbTile)
@@ -652,6 +655,14 @@ namespace gip.core.layoutengine.avui
                     ContextACObject.ACUrlCommand(VBContent, vbTile.ACUrl, vbTile.Parameters);
                 }
             }
+        }
+
+        /// <summary>
+        /// Property changed event handler for dependency properties
+        /// </summary>
+        private static void OnDepPropChanged(AvaloniaPropertyChangedEventArgs e)
+        {
+            // Handle property changed logic here if needed
         }
 
         #endregion
@@ -694,18 +705,18 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
+            get => GetValue(VBContentProperty);
+            set => SetValue(VBContentProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty =
-            DependencyProperty.Register("VBContent", typeof(string), typeof(VBTileGrid));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBTileGrid, string>(nameof(VBContent));
 
         /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the Control.DataContext-Property.
         /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
         /// </summary>
         /// <value>The Data-Context as IACObject</value>

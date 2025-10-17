@@ -64,6 +64,11 @@ namespace gip.core.layoutengine.avui
         {
             return new VBTreeViewItem();
         }
+
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+        {
+            return NeedsContainer<VBTreeViewItem>(item, out recycleKey);
+        }
         #endregion
 
 

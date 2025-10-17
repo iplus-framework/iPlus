@@ -1,9 +1,8 @@
-﻿using System;
+﻿using Avalonia.Controls;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -124,7 +123,7 @@ namespace gip.core.layoutengine.avui.timeline
 
         protected TimelineItem FindChildByDaya(object dep)
         {
-            foreach (UIElement element in Children)
+            foreach (Control element in Children)
             {
                 TimelineItem priorItem = element as TimelineItem;
                 if (priorItem != null)

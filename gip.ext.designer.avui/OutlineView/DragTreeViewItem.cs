@@ -109,8 +109,9 @@ namespace gip.ext.designer.avui.OutlineView
 
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            recycleKey = null;
-            return !(item is DragTreeViewItem);
+            return NeedsContainer<DragTreeViewItem>(item, out recycleKey);
+            //recycleKey = null;
+            //return !(item is DragTreeViewItem);
         }
 
         protected override void OnPointerPressed(PointerPressedEventArgs e)

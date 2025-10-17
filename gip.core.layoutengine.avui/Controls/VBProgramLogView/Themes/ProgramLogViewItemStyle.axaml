@@ -1,0 +1,181 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:me="clr-namespace:gip.core.layoutengine.avui" >
+
+
+    <me:ProgramLogViewItemMarginConverter x:Key="ProgramLogViewItemMarginConverter" />
+    
+    <RadialGradientBrush x:Key="TreeArrowFocusFillGip" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+        <GradientStop Color="#FFE99393" Offset="0.228"/>
+        <GradientStop Color="#FFFF0018" Offset="1"/>
+    </RadialGradientBrush>
+    
+    <RadialGradientBrush x:Key="TreeArrowCheckedFillGip" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+        <GradientStop Color="#FF505050"/>
+        <GradientStop Color="White" Offset="0.732"/>
+    </RadialGradientBrush>
+    
+    <StreamGeometry x:Key="TreeArrow">M0,0 L0,8 L8,0 z</StreamGeometry>
+    
+    <ControlTheme x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20">
+                    <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#FF989898">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
+                        </Path.RenderTransform>
+                    </Path>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- Checked state -->
+        <Style Selector="^:checked /template/ Path#ExpandPath">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="180" CenterY="3" CenterX="3"/>
+            </Setter>
+        </Style>
+        
+        <!-- Mouse over and checked -->
+        <Style Selector="^:pointerover:checked /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFF0000"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFillGip}"/>
+        </Style>
+        
+        <!-- Mouse over and not checked -->
+        <Style Selector="^:pointerover:not(:checked) /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFF0000"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFillGip}"/>
+        </Style>
+        
+        <!-- Not mouse over and checked -->
+        <Style Selector="^:not(:pointerover):checked /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFFFFFF"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowCheckedFillGip}"/>
+        </Style>
+    </ControlTheme>
+
+    <LinearGradientBrush x:Key="ProgramLogViewItemSelectionFillGip" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FF825555" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <LinearGradientBrush x:Key="ProgramLogViewItemSelectionNotActiveFillGip" EndPoint="0,1" StartPoint="0,0">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FF825555" Offset="1"/>
+    </LinearGradientBrush>
+    
+    <SolidColorBrush x:Key="ProgramLogViewItemSelectionFgGip" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="ProgramLogViewItemFgGip" Color="#FFFFFFFF"/>
+
+    <ControlTheme x:Key="ProgramLogViewItemStyleGip" TargetType="me:VBProgramLogViewItem">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="1,1,1,1"/>
+        <Setter Property="Padding" Value="0,0,0,0"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                                                                 
+                    <Border x:Name="Bd" 
+                            BorderBrush="{TemplateBinding BorderBrush}" 
+							BorderThickness="{TemplateBinding BorderThickness}" 
+							Background="{TemplateBinding Background}" 
+							Grid.Column="1" 
+							CornerRadius="4"
+                            Margin="{TemplateBinding Margin}"
+							Padding="{TemplateBinding Padding}">
+                        
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="Auto" SharedSizeGroup="TitleColumn" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <ToggleButton x:Name="Expander" 
+                                          Grid.Column="0"
+                                          ClickMode="Press" 
+                                          IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" 
+                                          Theme="{StaticResource ExpandCollapseToggleStyle}"/>
+                            
+                            <TextBlock Grid.Column="1"
+                                       TextWrapping="NoWrap" TextTrimming="None"
+                                       Padding="0" Margin="10,0,10,0"
+                                       Text="{TemplateBinding Title}" />
+                                       
+                            <Rectangle Grid.Column="2"
+                                       Width="{TemplateBinding Value}"
+                                       Margin="{TemplateBinding ValueOffset, Converter={StaticResource ProgramLogViewItemMarginConverter}, ConverterParameter=L}" 
+                                       Fill="{TemplateBinding ValueBrush}"
+                                       HorizontalAlignment="Left" />
+                            
+                        </Grid>
+                        
+                    </Border>
+                    
+                    <ItemsPresenter x:Name="ItemsHost" 
+                                    Grid.Row="1"/>
+                    
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- IsExpanded = false -->
+        <Style Selector="^:not(:expanded) /template/ ItemsPresenter#ItemsHost">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        
+        <!-- HasItems = false (empty) -->
+        <Style Selector="^:empty /template/ ToggleButton#Expander">
+            <Setter Property="IsVisible" Value="False"/>
+        </Style>
+        
+        <!-- IsSelected = true -->
+        <Style Selector="^:selected /template/ Border#Bd">
+            <Setter Property="Background" Value="{StaticResource ProgramLogViewItemSelectionFillGip}"/>
+            <Setter Property="BorderBrush" Value="#FF0000"/>
+        </Style>
+        <Style Selector="^:selected">
+            <Setter Property="Foreground" Value="{StaticResource ProgramLogViewItemSelectionFgGip}"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+        </Style>
+        
+        <!-- IsSelected = true and IsSelectionActive = false -->
+        <Style Selector="^:selected:not(:focus-within) /template/ Border#Bd">
+            <Setter Property="Background" Value="{StaticResource ProgramLogViewItemSelectionNotActiveFillGip}"/>
+            <Setter Property="BorderBrush" Value="#FF0000"/>
+        </Style>
+        <Style Selector="^:selected:not(:focus-within)">
+            <Setter Property="Foreground" Value="{StaticResource ProgramLogViewItemSelectionFgGip}"/>
+        </Style>
+        
+        <!-- IsEnabled = false -->
+        <Style Selector="^:disabled">
+            <Setter Property="Foreground" Value="Gray"/>
+        </Style>
+        
+        <!-- VirtualizingStackPanel.IsVirtualizing = true -->
+        <Style Selector="^[(VirtualizingStackPanel.IsVirtualizing)=True]">
+            <Setter Property="ItemsPanel">
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </Setter>
+        </Style>
+        
+        <!-- Focus visual styles (replacing WPF FocusVisualStyle) -->
+        <Style Selector="^:focus-visible">
+            <Setter Property="BorderBrush" Value="#FF007ACC"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

@@ -1,19 +1,19 @@
-﻿using System;
+﻿using Avalonia;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
 
 namespace gip.core.layoutengine.avui.timeline
 {
-    public class Timeline : DependencyObject
+    public class Timeline : AvaloniaObject
     {
-        public static Nullable<DateTime> GetMinimumDate(DependencyObject obj)
+        public static Nullable<DateTime> GetMinimumDate(AvaloniaObject obj)
         {
             return (Nullable<DateTime>)obj.GetValue(MinimumDateProperty);
         }
 
-        public static void SetMinimumDate(DependencyObject obj, Nullable<DateTime> value)
+        public static void SetMinimumDate(AvaloniaObject obj, Nullable<DateTime> value)
         {
             obj.SetValue(MinimumDateProperty, value);
         }
@@ -25,12 +25,12 @@ namespace gip.core.layoutengine.avui.timeline
 
 
 
-        public static Nullable<DateTime> GetMaximumDate(DependencyObject obj)
+        public static Nullable<DateTime> GetMaximumDate(AvaloniaObject obj)
         {
             return (Nullable<DateTime>)obj.GetValue(MaximumDateProperty);
         }
 
-        public static void SetMaximumDate(DependencyObject obj, DateTime value)
+        public static void SetMaximumDate(AvaloniaObject obj, DateTime value)
         {
             obj.SetValue(MaximumDateProperty, value);
         }
@@ -44,12 +44,12 @@ namespace gip.core.layoutengine.avui.timeline
 
         public static readonly TimeSpan TickTimeSpanDefaultValue = TimeSpan.FromDays(1);
 
-        public static TimeSpan GetTickTimeSpan(DependencyObject obj)
+        public static TimeSpan GetTickTimeSpan(AvaloniaObject obj)
         {
             return (TimeSpan)obj.GetValue(TickTimeSpanProperty);
         }
 
-        public static void SetTickTimeSpan(DependencyObject obj, TimeSpan value)
+        public static void SetTickTimeSpan(AvaloniaObject obj, TimeSpan value)
         {
             obj.SetValue(TickTimeSpanProperty, value);
         }
@@ -60,14 +60,14 @@ namespace gip.core.layoutengine.avui.timeline
                 typeof(Timeline), new FrameworkPropertyMetadata(TickTimeSpanDefaultValue, FrameworkPropertyMetadataOptions.Inherits));
 
 
-        public static double GetPixelsPerTick(DependencyObject obj)
+        public static double GetPixelsPerTick(AvaloniaObject obj)
         {
             TimeSpan tickTimeSpan = GetTickTimeSpan(obj);
             if (tickTimeSpan.Ticks == 0) return 1;
             return ((double)60 / tickTimeSpan.Ticks);
         }
 
-        public static double DateToOffset(DateTime current, DependencyObject owner)
+        public static double DateToOffset(DateTime current, AvaloniaObject owner)
         {
             Nullable<DateTime> min = GetMinimumDate(owner);
             Nullable<DateTime> max = GetMaximumDate(owner);
@@ -87,7 +87,7 @@ namespace gip.core.layoutengine.avui.timeline
             return offset;
         }
 
-        public static DateTime OffsetToDate(double offset, DependencyObject owner)
+        public static DateTime OffsetToDate(double offset, AvaloniaObject owner)
         {
             Nullable<DateTime> min = GetMinimumDate(owner);
             Nullable<DateTime> max = GetMaximumDate(owner);

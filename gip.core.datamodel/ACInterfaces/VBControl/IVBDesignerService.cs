@@ -82,7 +82,7 @@ namespace gip.core.datamodel
     public interface IVBDesignerService
     {
         #region VBPresenter
-        void GenerateNewRoutingLogic();
+        void GenerateNewRoutingLogic(IACComponent controller);
         object GetVBRoutingLogic();
         #endregion
 

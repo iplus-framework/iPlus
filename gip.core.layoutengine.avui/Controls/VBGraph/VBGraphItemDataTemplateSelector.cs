@@ -1,16 +1,13 @@
-﻿using gip.core.datamodel;
-using System.Windows;
-using System.Windows.Controls;
+﻿using Avalonia.Controls;
+using Avalonia.Controls.Templates;
+using Avalonia.Markup.Xaml.Templates;
+using gip.core.datamodel;
+
 
 namespace gip.core.layoutengine.avui
 {
-    public class VBGraphItemDataTemplateSelector : DataTemplateSelector
+    public class VBGraphItemDataTemplateSelector : IDataTemplate
     {
-
-        /*
-         * For now no idea how resolve this generic
-         * Can be array items used in binding
-         */
 
         #region DataTemplate
         public DataTemplate DataTemplate0 { get; set; }
@@ -66,13 +63,13 @@ namespace gip.core.layoutengine.avui
         #endregion
 
 
-        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        public Control Build(object param)
         {
-            if (item == null)
+            if (param == null)
                 return null;
 
-            IACObject contextObject = item as IACObject;
-            IACInteractiveObject acInteractiveObject = item as IACInteractiveObject;
+            IACObject contextObject = param as IACObject;
+            IACInteractiveObject acInteractiveObject = param as IACInteractiveObject;
             if (acInteractiveObject != null && acInteractiveObject.ContextACObject != null)
                 contextObject = acInteractiveObject.ContextACObject;
             if (contextObject == null)
@@ -81,35 +78,57 @@ namespace gip.core.layoutengine.avui
             string stringValue = "";
 
             if(!string.IsNullOrEmpty(DataTemplateValueACUrl))
-                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, item).ToString();
+                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, param).ToString();
             else
                 stringValue = contextObject.ToString();
 
             return stringValue switch
             {
-                var value when value == DataTemplate0Value => DataTemplate0,
-                var value when value == DataTemplate1Value => DataTemplate1,
-                var value when value == DataTemplate2Value => DataTemplate2,
-                var value when value == DataTemplate3Value => DataTemplate3,
-                var value when value == DataTemplate4Value => DataTemplate4,
-                var value when value == DataTemplate5Value => DataTemplate5,
-                var value when value == DataTemplate6Value => DataTemplate6,
-                var value when value == DataTemplate7Value => DataTemplate7,
-                var value when value == DataTemplate8Value => DataTemplate8,
-                var value when value == DataTemplate9Value => DataTemplate9,
-                var value when value == DataTemplate10Value => DataTemplate10,
-                var value when value == DataTemplate11Value => DataTemplate11,
-                var value when value == DataTemplate12Value => DataTemplate12,
-                var value when value == DataTemplate13Value => DataTemplate13,
-                var value when value == DataTemplate14Value => DataTemplate14,
-                var value when value == DataTemplate15Value => DataTemplate15,
-                var value when value == DataTemplate16Value => DataTemplate16,
-                var value when value == DataTemplate17Value => DataTemplate17,
-                var value when value == DataTemplate18Value => DataTemplate18,
-                var value when value == DataTemplate19Value => DataTemplate19,
-                var value when value == DataTemplate20Value => DataTemplate20,
-                _ => DataTemplate1
+                var value when value == DataTemplate0Value => DataTemplate0.Build(param),
+                var value when value == DataTemplate1Value => DataTemplate1.Build(param),
+                var value when value == DataTemplate2Value => DataTemplate2.Build(param),
+                var value when value == DataTemplate3Value => DataTemplate3.Build(param),
+                var value when value == DataTemplate4Value => DataTemplate4.Build(param),
+                var value when value == DataTemplate5Value => DataTemplate5.Build(param),
+                var value when value == DataTemplate6Value => DataTemplate6.Build(param),
+                var value when value == DataTemplate7Value => DataTemplate7.Build(param),
+                var value when value == DataTemplate8Value => DataTemplate8.Build(param),
+                var value when value == DataTemplate9Value => DataTemplate9.Build(param),
+                var value when value == DataTemplate10Value => DataTemplate10.Build(param),
+                var value when value == DataTemplate11Value => DataTemplate11.Build(param),
+                var value when value == DataTemplate12Value => DataTemplate12.Build(param),
+                var value when value == DataTemplate13Value => DataTemplate13.Build(param),
+                var value when value == DataTemplate14Value => DataTemplate14.Build(param),
+                var value when value == DataTemplate15Value => DataTemplate15.Build(param),
+                var value when value == DataTemplate16Value => DataTemplate16.Build(param),
+                var value when value == DataTemplate17Value => DataTemplate17.Build(param),
+                var value when value == DataTemplate18Value => DataTemplate18.Build(param),
+                var value when value == DataTemplate19Value => DataTemplate19.Build(param),
+                var value when value == DataTemplate20Value => DataTemplate20.Build(param),
+                _ => DataTemplate1.Build(param)
             };
+        }
+
+        public bool Match(object data)
+        {
+            if (data == null)
+                return false;
+
+            IACObject contextObject = data as IACObject;
+            IACInteractiveObject acInteractiveObject = data as IACInteractiveObject;
+            if (acInteractiveObject != null && acInteractiveObject.ContextACObject != null)
+                contextObject = acInteractiveObject.ContextACObject;
+            if (contextObject == null)
+                return false;
+
+            string stringValue = "";
+
+            if (!string.IsNullOrEmpty(DataTemplateValueACUrl))
+                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, data).ToString();
+            else
+                stringValue = contextObject.ToString();
+
+            return !string.IsNullOrEmpty(stringValue);
         }
     }
 }

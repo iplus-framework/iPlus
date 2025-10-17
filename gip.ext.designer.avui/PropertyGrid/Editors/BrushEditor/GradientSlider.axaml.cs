@@ -195,8 +195,10 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
 		protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
 		{
-			recycleKey = null;
-			return !(item is GradientThumb);
+            return NeedsContainer<GradientThumb>(item, out recycleKey);
+
+   //         recycleKey = null;
+			//return !(item is GradientThumb);
 		}
 	}
 

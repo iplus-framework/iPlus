@@ -152,6 +152,11 @@ namespace gip.core.layoutengine.avui
             return new ComboBoxItem(); // Use Avalonia's ComboBoxItem directly
         }
 
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
+        {
+            return NeedsContainer<ComboBoxItem>(item, out recycleKey);
+        }
+
         public static readonly StyledProperty<UpdateSourceTrigger> UpdateSourceTriggerProperty
             = AvaloniaProperty.Register<VBComboBox, UpdateSourceTrigger>(nameof(UpdateSourceTrigger), UpdateSourceTrigger.Default);
 

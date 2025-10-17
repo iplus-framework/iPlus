@@ -1,22 +1,14 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using System.Transactions;
-using gip.ext.designer.avui.PropertyGrid;
 
 namespace gip.core.layoutengine.avui
 {
@@ -30,44 +22,7 @@ namespace gip.core.layoutengine.avui
     public class VBProgressBar : ProgressBar, IVBContent, IACObject
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ProgressBarStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBProgressBar/Themes/ProgressBarStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ProgressBarStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBProgressBar/Themes/ProgressBarStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBProgressBar()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBProgressBar), new FrameworkPropertyMetadata(typeof(VBProgressBar)));
-        }
-
-        bool _themeApplied = false;
-        public VBProgressBar()
+        public VBProgressBar() : base()
         {
         }
 
@@ -75,36 +30,24 @@ namespace gip.core.layoutengine.avui
         /// The event hander for Initialized event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            base.OnInitialized(e);
+            base.OnInitialized();
             this.Loaded += VBProgressBar_Loaded;
             this.Unloaded += VBProgressBar_Unloaded;
-            ActualizeTheme(true);
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
         }
         #endregion
 
-        #region DependencyProperties
+        #region StyledProperties
 
         #region Appearance
 
@@ -126,10 +69,10 @@ namespace gip.core.layoutengine.avui
         }
         
         /// <summary>
-        /// Represents the dependency property for ProgressBarStyle.
+        /// Represents the styled property for ProgressBarStyle.
         /// </summary>
-        public static readonly DependencyProperty ProgressBarStyleProperty
-            = DependencyProperty.Register("ProgressBarStyle", typeof(ProgressBarStyles), typeof(VBProgressBar), new PropertyMetadata(ProgressBarStyles.DefaultBar));
+        public static readonly StyledProperty<ProgressBarStyles> ProgressBarStyleProperty =
+            AvaloniaProperty.Register<VBProgressBar, ProgressBarStyles>(nameof(ProgressBarStyle), ProgressBarStyles.DefaultBar);
         
         /// <summary>
         /// Gets or sets the progress bar style.
@@ -138,55 +81,55 @@ namespace gip.core.layoutengine.avui
         [Bindable(true)]
         public ProgressBarStyles ProgressBarStyle
         {
-            get { return (ProgressBarStyles)GetValue(ProgressBarStyleProperty); }
+            get { return GetValue(ProgressBarStyleProperty); }
             set { SetValue(ProgressBarStyleProperty, value); }
         }
 
 
-        public static readonly DependencyProperty ValueVisibilityProperty =
-            DependencyProperty.Register("ValueVisibility", typeof(Visibility), typeof(VBProgressBar), new PropertyMetadata(Visibility.Visible));
+        public static readonly StyledProperty<Visibility> ValueVisibilityProperty =
+            AvaloniaProperty.Register<VBProgressBar, Visibility>(nameof(ValueVisibility), Visibility.Visible);
 
         public Visibility ValueVisibility
         {
-            get { return (Visibility)GetValue(ValueVisibilityProperty); }
+            get { return GetValue(ValueVisibilityProperty); }
             set { SetValue(ValueVisibilityProperty, value); }
         }
 
 
-        public static readonly DependencyProperty PieFillProperty
-            = DependencyProperty.Register("PieFill", typeof(SolidColorBrush), typeof(VBProgressBar), new PropertyMetadata(new SolidColorBrush(Colors.Red)));
+        public static readonly StyledProperty<SolidColorBrush> PieFillProperty =
+            AvaloniaProperty.Register<VBProgressBar, SolidColorBrush>(nameof(PieFill), new SolidColorBrush(Colors.Red));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush PieFill
         {
-            get { return (SolidColorBrush)GetValue(PieFillProperty); }
+            get { return GetValue(PieFillProperty); }
             set { SetValue(PieFillProperty, value); }
         }
 
-        public static readonly DependencyProperty PieStrokeProperty
-            = DependencyProperty.Register("PieStroke", typeof(SolidColorBrush), typeof(VBProgressBar), new PropertyMetadata(new SolidColorBrush(Colors.DarkRed)));
+        public static readonly StyledProperty<SolidColorBrush> PieStrokeProperty =
+            AvaloniaProperty.Register<VBProgressBar, SolidColorBrush>(nameof(PieStroke), new SolidColorBrush(Colors.DarkRed));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush PieStroke
         {
-            get { return (SolidColorBrush)GetValue(PieStrokeProperty); }
+            get { return GetValue(PieStrokeProperty); }
             set { SetValue(PieStrokeProperty, value); }
         }
 
 
-        public static readonly DependencyProperty PieTextColorProperty
-            = DependencyProperty.Register("PieTextColor", typeof(SolidColorBrush), typeof(VBProgressBar), new PropertyMetadata(new SolidColorBrush(Colors.Black)));
+        public static readonly StyledProperty<SolidColorBrush> PieTextColorProperty =
+            AvaloniaProperty.Register<VBProgressBar, SolidColorBrush>(nameof(PieTextColor), new SolidColorBrush(Colors.Black));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public SolidColorBrush PieTextColor
         {
-            get { return (SolidColorBrush)GetValue(PieTextColorProperty); }
+            get { return GetValue(PieTextColorProperty); }
             set { SetValue(PieTextColorProperty, value); }
         }
 
@@ -198,10 +141,10 @@ namespace gip.core.layoutengine.avui
         #region IDataField Members
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBProgressBar));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBProgressBar, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -210,7 +153,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -257,67 +200,46 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the attached property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBProgressBar), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBProgressBar>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBProgressBar),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
-
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBProgressBar),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBProgressBar, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBProgressBar thisControl = dependencyObject as VBProgressBar;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
         }
@@ -352,50 +274,6 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-        //public string ToolTip
-        //{
-        //    get
-        //    {
-        //        return ucTextbox.ToolTip as string;
-        //    }
-        //    set
-        //    {
-        //        ucTextbox.ToolTip = value;
-        //    }
-        //}
-
-        private bool Visible
-        {
-            get
-            {
-                return Visibility == System.Windows.Visibility.Visible;
-            }
-            set
-            {
-                if (value)
-                {
-                    if (RightControlMode > Global.ControlModes.Hidden)
-                    {
-                        Visibility = Visibility.Visible;
-                    }
-                }
-                else
-                {
-                    Visibility = Visibility.Hidden;
-                }
-            }
-        }
-
-        private bool Enabled
-        {
-            get
-            {
-                return false;
-            }
-            set
-            {
-            }
-        }
 
         IACType _VBContentPropertyInfo = null;
         /// <summary>
@@ -410,37 +288,10 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Checks and corrects the control modes.
+        /// Represents the styled property for control mode.
         /// </summary>
-        public void ControlModeChanged()
-        {
-            if (Enabled)
-            {
-                if (VBContentPropertyInfo != null)
-                {
-                    if (VBContentPropertyInfo.IsNullable)
-                    {
-                        ControlMode = Global.ControlModes.Enabled;
-                    }
-                    else
-                    {
-                        ControlMode = Global.ControlModes.EnabledRequired;
-                    }
-                }
-                else
-                    ControlMode = Global.ControlModes.Disabled;
-            }
-            else
-            {
-                ControlMode = Global.ControlModes.Disabled;
-            }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for control mode.
-        /// </summary>
-        public static readonly DependencyProperty ControlModeProperty
-            = DependencyProperty.Register("ControlMode", typeof(Global.ControlModes), typeof(VBProgressBar));
+        public static readonly StyledProperty<Global.ControlModes> ControlModeProperty =
+            AvaloniaProperty.Register<VBProgressBar, Global.ControlModes>(nameof(ControlMode));
 
         /// <summary>
         /// Gets or sets the Control mode.
@@ -449,7 +300,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                return (Global.ControlModes)GetValue(ControlModeProperty);
+                return GetValue(ControlModeProperty);
             }
             set
             {
@@ -457,26 +308,6 @@ namespace gip.core.layoutengine.avui
             }
         }
         #endregion
-
-        /// <summary>
-        /// Determines is accepts return or not.
-        /// </summary>
-        [Category("VBControl")]
-        public bool AcceptsReturn
-        {
-            get
-            {
-                return false;
-            }
-            set
-            {
-                
-            }
-        }
-
-        private void InitPopUp()
-        {
-        }
 
         /// <summary>
         /// Determines is control initialized or not.
@@ -513,24 +344,22 @@ namespace gip.core.layoutengine.avui
 
             if (RightControlMode < Global.ControlModes.Disabled)
             {
-                Visibility = Visibility.Collapsed;
+                IsVisible = false;
             }
 
             Binding binding = new Binding();
             binding.Source = dcSource;
-            binding.Path = new PropertyPath(dcPath);
+            binding.Path = dcPath;
             binding.Mode = BindingMode.OneWay;
-            binding.NotifyOnSourceUpdated = true;
-            binding.NotifyOnTargetUpdated = true;
-            SetBinding(ProgressBar.ValueProperty, binding);
+            this.Bind(ProgressBar.ValueProperty, binding);
 
             if (BSOACComponent != null)
             {
                 binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBProgressBar.ACCompInitStateProperty, binding);
+                this.Bind(VBProgressBar.ACCompInitStateProperty, binding);
             }
         }
 
@@ -543,10 +372,10 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
             {
-                Binding boundedValue = BindingOperations.GetBinding(this, ProgressBar.ValueProperty);
+                BindingExpressionBase boundedValue = BindingOperations.GetBindingExpressionBase(this, ProgressBar.ValueProperty);
                 if (boundedValue != null)
                 {
-                    IACObject boundToObject = boundedValue.Source as IACObject;
+                    IACObject boundToObject = boundedValue.GetSource() as IACObject;
                     try
                     {
                         if (boundToObject != null)
@@ -595,9 +424,6 @@ namespace gip.core.layoutengine.avui
 
             try
             {
-                BindingOperations.ClearBinding(this, ProgressBar.ValueProperty);
-                //BindingOperations.ClearBinding(this, VBProgressBar.ACUrlCmdMessageProperty);
-                BindingOperations.ClearBinding(this, VBProgressBar.ACCompInitStateProperty);
                 this.ClearAllBindings();
             }
             catch 

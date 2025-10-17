@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
+using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -17,79 +18,34 @@ namespace gip.core.layoutengine.avui
     /// Steuerung für die Anzeige eines Übersetzungstextes.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTranslationText'}de{'VBTranslationText'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBTranslationText : Control, IVBContent, IACObject
+    public class VBTranslationText : TemplatedControl, IVBContent, IACObject
     {
         #region c'tors
 
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TranslationTextStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTranslationText/Themes/TranslationTextStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TranslationTextStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTranslationText/Themes/TranslationTextStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBTranslationText()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTranslationText), new FrameworkPropertyMetadata(typeof(VBTranslationText)));
-        }
-
-        bool _themeApplied = false;
         /// <summary>
         /// Create the instance of VBTranslationText.
         /// </summary>
-        public VBTranslationText()
+        public VBTranslationText() : base()
         {
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-            //Loaded += new RoutedEventHandler(InitVBControl);
         }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
         #endregion
 
-        #region DependencyProperties
+        #region StyledProperties
         /// <summary>
-        /// Represents the dependency property for the BaselineOffset.
+        /// Represents the styled property for the BaselineOffset.
         /// </summary>
-        public static readonly DependencyProperty BaselineOffsetProperty = TextBlock.BaselineOffsetProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<double> BaselineOffsetProperty = 
+            AvaloniaProperty.Register<VBTranslationText, double>(nameof(BaselineOffset));
 
         /// <summary> 
         /// The BaselineOffset property provides an adjustment to baseline offset  
@@ -97,31 +53,31 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double BaselineOffset 
         { 
-            get { return (double)GetValue(BaselineOffsetProperty); }  
-            set { SetValue(BaselineOffsetProperty, value); } 
+            get => GetValue(BaselineOffsetProperty);  
+            set => SetValue(BaselineOffsetProperty, value); 
         }
 
         /// <summary>
-        /// Represents the dependency property for the Text.
+        /// Represents the styled property for the Text.
         /// </summary>
-        [Category("VBControl")]
-        public static readonly DependencyProperty TextProperty = TextBlock.TextProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<string> TextProperty = 
+            AvaloniaProperty.Register<VBTranslationText, string>(nameof(Text));
 
         /// <summary> 
         /// The Text property defines the content (text) to be displayed.  
         /// </summary> 
         [Category("VBControl")]
-        [Localizability(LocalizationCategory.Text)] 
         public string Text 
         {  
-            get { return (string) GetValue(TextProperty); } 
-            set { SetValue(TextProperty, value); }  
+            get => GetValue(TextProperty); 
+            set => SetValue(TextProperty, value);  
         }
 
         /// <summary>
-        /// Represents the dependency property for the TextDecorations.
+        /// Represents the styled property for the TextDecorations.
         /// </summary>
-        public static readonly DependencyProperty TextDecorationsProperty = TextBlock.TextDecorationsProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<TextDecorationCollection> TextDecorationsProperty = 
+            AvaloniaProperty.Register<VBTranslationText, TextDecorationCollection>(nameof(TextDecorations));
 
         /// <summary>  
         /// The TextDecorations property specifies decorations that are added to the text of an element. 
@@ -129,29 +85,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public TextDecorationCollection TextDecorations
         {
-            get { return (TextDecorationCollection)GetValue(TextDecorationsProperty); }
-            set { SetValue(TextDecorationsProperty, value); }
+            get => GetValue(TextDecorationsProperty);
+            set => SetValue(TextDecorationsProperty, value);
         }
            
-        /// <summary>
-        /// Represents the dependency property for the TextEffects.
-        /// </summary>
-        public static readonly DependencyProperty TextEffectsProperty = TextBlock.TextEffectsProperty.AddOwner(typeof(VBTranslationText));
-
-        /// <summary> 
-        /// The TextEffects property specifies effects that are added to the text of an element. 
-        /// </summary> 
-        [Category("VBControl")]
-        public TextEffectCollection TextEffects
-        {
-            get { return (TextEffectCollection)GetValue(TextEffectsProperty); }
-            set { SetValue(TextEffectsProperty, value); }
-        }
 
         /// <summary>
-        /// Represents the dependency property for the LineHeight.
+        /// Represents the styled property for the LineHeight.
         /// </summary>
-        public static readonly DependencyProperty LineHeightProperty = TextBlock.LineHeightProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<double> LineHeightProperty = 
+            AvaloniaProperty.Register<VBTranslationText, double>(nameof(LineHeight));
 
         /// <summary>  
         /// The LineHeight property specifies the height of each generated line box. 
@@ -159,31 +102,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public double LineHeight
         {
-            get { return (double)GetValue(LineHeightProperty); }
-            set { SetValue(LineHeightProperty, value); }
-        }
-
-        /// <summary>
-        /// Represents the dependency property for the LineStackingStrategy.
-        /// </summary> 
-        public static readonly DependencyProperty LineStackingStrategyProperty = TextBlock.LineStackingStrategyProperty.AddOwner(typeof(VBTranslationText));
-
-
-        /// <summary> 
-        /// The LineStackingStrategy property specifies how lines are placed  
-        /// </summary> 
-        [Category("VBControl")]
-        public LineStackingStrategy LineStackingStrategy
-        {
-            get { return (LineStackingStrategy)GetValue(LineStackingStrategyProperty); }
-            set { SetValue(LineStackingStrategyProperty, value); }
+            get => GetValue(LineHeightProperty);
+            set => SetValue(LineHeightProperty, value);
         }
 
 
         /// <summary>
-        /// Represents the dependency property for the TextAlignment.
+        /// Represents the styled property for the TextAlignment.
         /// </summary> 
-        public static readonly DependencyProperty TextAlignmentProperty = TextBlock.TextAlignmentProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<TextAlignment> TextAlignmentProperty = 
+            AvaloniaProperty.Register<VBTranslationText, TextAlignment>(nameof(TextAlignment));
 
         /// <summary> 
         /// The TextAlignment property specifies horizontal alignment of the content.  
@@ -191,15 +119,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public TextAlignment TextAlignment
         {
-            get { return (TextAlignment)GetValue(TextAlignmentProperty); }
-            set { SetValue(TextAlignmentProperty, value); }
+            get => GetValue(TextAlignmentProperty);
+            set => SetValue(TextAlignmentProperty, value);
         }
 
 
         /// <summary>
-        /// Represents the dependency property for the TextTrimming.
+        /// Represents the styled property for the TextTrimming.
         /// </summary>
-        public static readonly DependencyProperty TextTrimmingProperty = TextBlock.TextTrimmingProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<TextTrimming> TextTrimmingProperty = 
+            AvaloniaProperty.Register<VBTranslationText, TextTrimming>(nameof(TextTrimming));
 
         /// <summary>  
         /// The TextTrimming property specifies the trimming behavior situation  
@@ -208,14 +137,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public TextTrimming TextTrimming
         {
-            get { return (TextTrimming)GetValue(TextTrimmingProperty); }
-            set { SetValue(TextTrimmingProperty, value); }
+            get => GetValue(TextTrimmingProperty);
+            set => SetValue(TextTrimmingProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the TextWrapping.
+        /// Represents the styled property for the TextWrapping.
         /// </summary> 
-        public static readonly DependencyProperty TextWrappingProperty = TextBlock.TextWrappingProperty.AddOwner(typeof(VBTranslationText));
+        public static readonly StyledProperty<TextWrapping> TextWrappingProperty = 
+            AvaloniaProperty.Register<VBTranslationText, TextWrapping>(nameof(TextWrapping));
 
         /// <summary> 
         /// The TextWrapping property controls whether or not text wraps  
@@ -224,67 +154,35 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public TextWrapping TextWrapping
         {
-            get { return (TextWrapping)GetValue(TextWrappingProperty); }
-            set { SetValue(TextWrappingProperty, value); }
+            get => GetValue(TextWrappingProperty);
+            set => SetValue(TextWrappingProperty, value);
         }
 
-        /// <summary>
-        /// Represents the dependency property for the HyphenationEnabled.
-        /// </summary>
-        public static readonly DependencyProperty IsHyphenationEnabledProperty = TextBlock.IsHyphenationEnabledProperty.AddOwner(typeof(VBTranslationText));
-
-        /// <summary> 
-        /// CLR property for hyphenation 
-        /// </summary> 
-        [Category("VBControl")]
-        public bool IsHyphenationEnabled
-        {
-            get { return (bool)GetValue(IsHyphenationEnabledProperty); }
-            set { SetValue(IsHyphenationEnabledProperty, value); }
-        }
 
         /// <summary>
-        /// Represents the dependency property for the CornerRadius.
+        /// Represents the styled property for the CollapsedMode.
         /// </summary>
-        public static readonly DependencyProperty CornerRadiusProperty = Border.CornerRadiusProperty.AddOwner(typeof(VBTranslationText));
-
-        ///  <summary>
-        /// The CornerRadius property allows users to control the roundness of the corners independently by 
-        /// setting a radius value for each corner.  Radius values that are too large are scaled so that they
-        /// smoothly blend from corner to corner. 
-        /// </summary>
-        [Category("VBControl")]
-        public CornerRadius CornerRadius
-        {
-            get { return (CornerRadius) GetValue(CornerRadiusProperty); } 
-            set { SetValue(CornerRadiusProperty, value); }
- 
-        }
-
-        /// <summary>
-        /// Represents the dependency property for the CollapsedMode.
-        /// </summary>
-        public static readonly DependencyProperty CollapsedModeProperty
-            = DependencyProperty.Register("CollapsedMode", typeof(Boolean), typeof(VBTranslationText));
+        public static readonly StyledProperty<bool> CollapsedModeProperty =
+            AvaloniaProperty.Register<VBTranslationText, bool>(nameof(CollapsedMode));
 
         /// <summary>
         /// Determines is in collapsed mode or not.
         /// </summary>
         [Category("VBControl")]
-        public Boolean CollapsedMode
+        public bool CollapsedMode
         {
-            get { return (Boolean)GetValue(CollapsedModeProperty); }
-            set { SetValue(CollapsedModeProperty, value); }
+            get => GetValue(CollapsedModeProperty);
+            set => SetValue(CollapsedModeProperty, value);
         }
         #endregion
 
         #region IDataField Members
 
         /// <summary>
-        /// Represents the dependency property for the VBContent.
+        /// Represents the styled property for the VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBTranslationText));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBTranslationText, string>(nameof(VBContent));
 
         /// <summary>
         /// Represents the property where you enter the ACIdentifier of text to display.
@@ -295,15 +193,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
+            get => GetValue(VBContentProperty);
+            set => SetValue(VBContentProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for the ShowText.
+        /// Represents the styled property for the ShowText.
         /// </summary>
-        public static readonly DependencyProperty ShowTextProperty
-            = DependencyProperty.Register("ShowText", typeof(Boolean), typeof(VBTranslationText), new PropertyMetadata(true));
+        public static readonly StyledProperty<bool> ShowTextProperty =
+            AvaloniaProperty.Register<VBTranslationText, bool>(nameof(ShowText), defaultValue: true);
 
         /// <summary>
         /// Gets or sets the ShowText.
@@ -311,15 +209,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool ShowText
         {
-            get { return (bool)GetValue(ShowTextProperty); }
-            set { SetValue(ShowTextProperty, value); }
+            get => GetValue(ShowTextProperty);
+            set => SetValue(ShowTextProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for ShowTextACUrl.
+        /// Represents the styled property for ShowTextACUrl.
         /// </summary>
-        public static readonly DependencyProperty ShowTextACUrlProperty
-            = DependencyProperty.Register("ShowTextACUrl", typeof(string), typeof(VBTranslationText));
+        public static readonly StyledProperty<string> ShowTextACUrlProperty =
+            AvaloniaProperty.Register<VBTranslationText, string>(nameof(ShowTextACUrl));
 
         /// <summary>
         /// Represents the property where you enter the ACUrl of text to display.
@@ -327,15 +225,15 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public string ShowTextACUrl
         {
-            get { return (string)GetValue(ShowTextACUrlProperty); }
-            set { SetValue(ShowTextACUrlProperty, value); }
+            get => GetValue(ShowTextACUrlProperty);
+            set => SetValue(ShowTextACUrlProperty, value);
         }
 
         /// <summary>
-        /// Represents the dependency property for Blink.
+        /// Represents the styled property for Blink.
         /// </summary>
-        public static readonly DependencyProperty BlinkProperty
-            = DependencyProperty.Register("Blink", typeof(Boolean), typeof(VBTranslationText), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> BlinkProperty =
+            AvaloniaProperty.Register<VBTranslationText, bool>(nameof(Blink), defaultValue: false);
 
         /// <summary>
         /// Determines is text blink enabled or disabled.
@@ -343,12 +241,11 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public bool Blink
         {
-            get { return (bool)GetValue(BlinkProperty); }
-            set { SetValue(BlinkProperty, value); }
+            get => GetValue(BlinkProperty);
+            set => SetValue(BlinkProperty, value);
         }
 
-        /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
-        /// <value>The Unique Identifier as string</value>
+
         public string ACIdentifier
         {
             get
@@ -377,25 +274,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /*private void SetTextProperty(string value)
-        {
-            if (String.IsNullOrEmpty(value))
-                Text = value;
-            else if (value.Contains("\\n"))
-            {
-                Inlines.Clear();
-                TextWrapping = TextWrapping.Wrap;
-                string[] stringSeparators = new string[] { "\\n" };
-                string[] split = ACCaption.Split(stringSeparators, StringSplitOptions.None);
-                foreach (string s in split)
-                {
-                    Inlines.Add(new Run(s));
-                    Inlines.Add(new LineBreak());
-                }
-            }
-            else
-                Text = value;
-        }*/
         #endregion
 
         #region IDataContent Members
@@ -414,67 +292,47 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTranslationText), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = 
+            AvaloniaProperty.Register<VBTranslationText, IACBSO>(nameof(BSOACComponent), inherits: true);
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
+            get => GetValue(BSOACComponentProperty);
+            set => SetValue(BSOACComponentProperty, value);
         }
 
-        ///// <summary>
-        ///// Represents the dependency property for ACUrlCmdMessage.
-        ///// </summary>
-        ////public static readonly DependencyProperty ACUrlCmdMessageProperty =
-        ////    DependencyProperty.Register("ACUrlCmdMessage",
-        ////        typeof(ACUrlCmdMessage), typeof(VBTranslationText),
-        ////        new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
-        ///// <summary>
-        ///// Gets or sets the ACUrlCmdMessage.
-        ///// </summary>
-        ////public ACUrlCmdMessage ACUrlCmdMessage
-        ////{
-        ////    get { return (ACUrlCmdMessage)GetValue(ACUrlCmdMessageProperty); }
-        ////    set { SetValue(ACUrlCmdMessageProperty, value); }
-        ////}
-
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBTranslationText),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = 
+            AvaloniaProperty.Register<VBTranslationText, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
-            set { SetValue(ACCompInitStateProperty, value); }
+            get => GetValue(ACCompInitStateProperty);
+            set => SetValue(ACCompInitStateProperty, value);
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBTranslationText thisControl = dependencyObject as VBTranslationText;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
         }
@@ -611,17 +469,17 @@ namespace gip.core.layoutengine.avui
 
                 Binding binding = new Binding();
                 binding.Source = dcSource;
-                binding.Path = new PropertyPath(dcPath);
+                binding.Path = dcPath;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBTranslationText.ShowTextProperty, binding);
+                this.Bind(VBTranslationText.ShowTextProperty, binding);
 
                 if (BSOACComponent != null)
                 {
                     binding = new Binding();
                     binding.Source = BSOACComponent;
-                    binding.Path = new PropertyPath(Const.InitState);
+                    binding.Path = Const.InitState;
                     binding.Mode = BindingMode.OneWay;
-                    SetBinding(VBTranslationText.ACCompInitStateProperty, binding);
+                    this.Bind(VBTranslationText.ACCompInitStateProperty, binding);
                 }
             }
         }
@@ -639,9 +497,6 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = false;
             _VBContentPropertyInfo = null;
-            BindingOperations.ClearBinding(this, VBTranslationText.ShowTextACUrlProperty);
-            //BindingOperations.ClearBinding(this, VBTranslationText.ACUrlCmdMessageProperty);
-            BindingOperations.ClearBinding(this, VBTranslationText.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -656,30 +511,11 @@ namespace gip.core.layoutengine.avui
                 DeInitVBControl(BSOACComponent);
         }
 
-        //void ElementACComponent_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        //{
-        //    if (e.PropertyName.StartsWith(Const.ACState))
-        //    {
-        //        if (e.PropertyName.Length < 8)
-        //        {
-        //            UpdateControlMode();
-        //        }
-        //        else
-        //        {
-        //            if (VBContent == e.PropertyName.Substring(8))
-        //            {
-        //                UpdateControlMode();
-        //            }
-        //        }
-        //    }
-        //}
-
-
         /// <summary>
-        /// The control mode property
+        /// The control mode styled property
         /// </summary>
-        public static readonly DependencyProperty RightControlModeProperty
-            = DependencyProperty.Register("RightControlMode", typeof(Global.ControlModes), typeof(VBTranslationText), new PropertyMetadata(Global.ControlModes.Enabled));
+        public static readonly StyledProperty<Global.ControlModes> RightControlModeProperty =
+            AvaloniaProperty.Register<VBTranslationText, Global.ControlModes>(nameof(RightControlMode), defaultValue: Global.ControlModes.Enabled);
 
         /// <summary>
         /// Gets or sets the control mode.
@@ -688,8 +524,8 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         public Global.ControlModes RightControlMode
         {
-            get { return (Global.ControlModes)GetValue(RightControlModeProperty); }
-            set { SetValue(RightControlModeProperty, value); }
+            get => GetValue(RightControlModeProperty);
+            set => SetValue(RightControlModeProperty, value);
         }
 
         private string _StringFormat;

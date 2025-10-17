@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -87,14 +86,6 @@ namespace gip.core.datamodel
         private static int maxLengthOfAI = 4;
         private static char groupSeparator = (char)29;
         private static string ean128StartCode = "]C1";
-        //private static bool hasCheckSum = true;
-
-        //public static bool HasCheckSum
-        //{
-        //    get { return GS1.hasCheckSum; }
-        //    set { GS1.hasCheckSum = value; }
-        //}
-
         public static char GroupSeparator
         {
             get { return GS1.groupSeparator; }
@@ -331,6 +322,113 @@ namespace gip.core.datamodel
                 }
             }
             return Generate(tmpImput, useEanStartCode);
+        }
+
+        public static string GenerateRawString(List<(string ai, string val, bool variable)> input, bool useEanStartCode)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            if (useEanStartCode)
+            {
+                sb.Append(EAN128StartCode);
+            }
+            bool notLast = true;
+            foreach (var item in input)
+            {
+                notLast = item.variable && (item.ai != input.Last().ai);
+                sb.Append(item.ai);
+                sb.Append(item.val);
+
+                if (item.variable && notLast)
+                {
+                    sb.Append(GroupSeparator);
+                }
+            }
+            return sb.ToString();
+        }
+
+        public static string BuildHriString(string[] aiOrder, List<(string ai, string val, bool variable)> input)
+        {
+            var parts = new List<string>(aiOrder.Length);
+            foreach (var ai in aiOrder)
+            {
+                (string ai, string val, bool variable) item = input.FirstOrDefault(el => el.ai == ai);
+
+                if (!string.IsNullOrEmpty(item.val))
+                {
+                    parts.Add($"({item.ai}){item.val}");
+                }
+            }
+            return string.Join(" ", parts);
+        }
+
+        public static List<(string ai, string val, bool variable)> GetGS1Data(object value, string[] strColumnKeys, string[] strValueIdentifiers)
+        {
+            List<(string ai, string val, bool variable)> input = new List<(string ai, string val, bool variable)>();
+            for (int i = 0; i < strColumnKeys.Count(); i++)
+            {
+                string columnKey = strColumnKeys[i];
+                AII ai = GS1.GetAII(columnKey);
+                // provide value
+                string valueIdentifier = strValueIdentifiers[i];
+                string strValue = GetObjectValue(value, valueIdentifier);
+
+                if (!string.IsNullOrEmpty(strValue))
+                {
+                    input.Add((ai.AI, strValue, ai.FNC1));
+                }
+            }
+            return input;
+        }
+
+        public static GS1Model GetGS1Model(string[] aiOrder, List<(string ai, string val, bool variable)> input)
+        {
+            GS1Model model = new GS1Model();
+            model.RawGs1Value = GS1.GenerateRawString(input, false);
+            model.EscPosPayload = "{B}{1}" + model.RawGs1Value.Replace(GS1Model.GS.ToString(), "{1}");
+            model.ZplPayload = ">8" + model.RawGs1Value.Replace(GS1Model.GS.ToString(), "_1D");
+            model.HriText = BuildHriString(aiOrder, input);
+            model.IsGs1 = true;
+            model.Items = input;
+            return model;
+        }
+
+        private static string GetObjectValue(object value, string valueIdentifier)
+        {
+            string returnValue = null;
+            if (value == null)
+            {
+                returnValue = string.Empty;
+            }
+            else
+            {
+#if NETFRAMEWORK
+                if (value is IACObject)
+                {
+                    object tempObject = (value as IACObject).ACUrlCommand(valueIdentifier);
+                    if (tempObject != null)
+                    {
+                        if (tempObject is DateTime)
+                        {
+                            returnValue = ((DateTime)tempObject).ToString("yyMMdd", System.Globalization.CultureInfo.InvariantCulture);
+                        }
+                        else
+                        {
+                            returnValue = tempObject.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
+                }
+#else
+                returnValue = value.GetType().GetProperty(valueIdentifier)?.GetValue(value)?.ToString();
+#endif
+
+            }
+
+            return returnValue;
         }
 
         /// <summary>
