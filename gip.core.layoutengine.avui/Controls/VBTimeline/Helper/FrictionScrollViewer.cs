@@ -1,10 +1,11 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Threading;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
-using System.Collections.Generic;
-using System.Windows.Threading;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-using System.Timers;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -13,52 +14,45 @@ namespace gip.core.layoutengine.avui.timeline
     /// allows user to apply friction, which in turn
     /// animates the ScrollViewer position, giving it
     /// the appearance of sliding into position
-		/// 
-		/// Code from the address http://www.codeproject.com/KB/WPF/SpiderControl.aspx
+    /// 
+    /// Code from the address http://www.codeproject.com/KB/WPF/SpiderControl.aspx
     /// </summary>
     public class FrictionScrollViewer : VBScrollViewer
     {
         #region Data
 
         // Used when manually scrolling.
-        private DispatcherTimer animationTimer = new DispatcherTimer();
-        private Point previousPoint;
-        private Point scrollStartOffset;
-        private Point scrollStartPoint;
-        private Point scrollTarget;
-        private Vector velocity;
-        private Point autoScrollTarget;
-        private bool shouldAutoScroll = false;
+        private DispatcherTimer _AnimationTimer = new DispatcherTimer();
+        private Point _PreviousPoint;
+        private Point _ScrollStartOffset;
+        private Point _ScrollStartPoint;
+        private Point _ScrollTarget;
+        private Vector _Velocity;
+        private Point _AutoScrollTarget;
+        private bool _ShouldAutoScroll = false;
+        private bool _isPointerCaptured = false;
         #endregion
 
         #region Ctor
-        /// <summary>
-        /// Overrides metadata
-        /// </summary>
-        static FrictionScrollViewer()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(
-            typeof(FrictionScrollViewer),
-            new FrameworkPropertyMetadata(typeof(FrictionScrollViewer)));
-        }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            PART_scp = Template.FindName("PART_ScrollContentPresenter",this) as ScrollContentPresenter;
-            PART_scp.SizeChanged += PART_scp_SizeChanged;
-            base.OnApplyTemplate();
+            PART_scp = e.NameScope.Find("PART_ScrollContentPresenter") as ScrollContentPresenter;
+            if (PART_scp != null)
+                PART_scp.SizeChanged += PART_scp_SizeChanged;
+            base.OnApplyTemplate(e);
         }
 
         void PART_scp_SizeChanged(object sender, SizeChangedEventArgs e)
         {
-           VBTimelineChartBase tc = WpfUtility.FindVisualParent<VBTimelineChartBase>(this);
-            if (tc != null && PART_scp.ActualHeight > 30)
+            VBTimelineChartBase tc = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineChartBase)) as VBTimelineChartBase;
+            if (tc != null && PART_scp.Bounds.Height > 30)
             {
-                tc.LineY2 = PART_scp.ActualHeight;
-                tc.LineXMax = PART_scp.ActualWidth -28;
+                tc.LineY2 = PART_scp.Bounds.Height;
+                tc.LineXMax = PART_scp.Bounds.Width - 28;
             }
         }
 
@@ -70,99 +64,102 @@ namespace gip.core.layoutengine.avui.timeline
         public FrictionScrollViewer()
         {
             Friction = 0.7;
-            animationTimer.Interval = new TimeSpan(0, 0, 0, 0, 10);
-            animationTimer.Tick += HandleWorldTimerTick;
-            animationTimer.Start();
+            _AnimationTimer.Interval = new TimeSpan(0, 0, 0, 0, 10);
+            _AnimationTimer.Tick += HandleWorldTimerTick;
+            _AnimationTimer.Start();
         }
         #endregion
 
-        #region DPs
+        #region StyledProperties
         /// <summary>
         /// The ammount of friction to use. Use the Friction property to set a 
         /// value between 0 and 1, 0 being no friction 1 is full friction 
-        /// meaning the panel won’t "auto-scroll".
+        /// meaning the panel won't "auto-scroll".
         /// </summary>
         public double Friction
         {
-            get { return (double)GetValue(FrictionProperty); }
+            get { return GetValue(FrictionProperty); }
             set { SetValue(FrictionProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for Friction.  
-        public static readonly DependencyProperty FrictionProperty =
-            DependencyProperty.Register("Friction", typeof(double),
-            typeof(FrictionScrollViewer), new UIPropertyMetadata(0.0));
+        /// <summary>
+        /// Represents the styled property for Friction.
+        /// </summary>
+        public static readonly StyledProperty<double> FrictionProperty =
+            AvaloniaProperty.Register<FrictionScrollViewer, double>(nameof(Friction), 0.0);
         #endregion
 
         #region overrides
         /// <summary>
-        /// Get position and CaptureMouse
+        /// Get position and capture pointer
         /// </summary>
         /// <param name="e"></param>
-        protected override void OnMouseDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (IsMouseOver && !Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
+            if (e.Properties.IsLeftButtonPressed && !e.KeyModifiers.HasFlag(KeyModifiers.Control) && !e.KeyModifiers.HasFlag(KeyModifiers.Shift))
             {
-                shouldAutoScroll = false;
+                _ShouldAutoScroll = false;
+                _isPointerCaptured = true;
                 // Save starting point, used later when determining how much to scroll.
-                scrollStartPoint = e.GetPosition(this);
-                scrollStartOffset.X = HorizontalOffset;
-                scrollStartOffset.Y = VerticalOffset;
+                _ScrollStartPoint = e.GetPosition(this);
+                _ScrollStartOffset = new Point(Offset.X, Offset.Y);
                 // Update the cursor if can scroll or not. 
-                Cursor = (ExtentWidth > ViewportWidth) ||
-                    (ExtentHeight > ViewportHeight) ?
-                    Cursors.ScrollAll : Cursors.Arrow;
+                Cursor = (Extent.Width > Viewport.Width) ||
+                    (Extent.Height > Viewport.Height) ?
+                    new Cursor(StandardCursorType.SizeAll) : new Cursor(StandardCursorType.Arrow);
                 e.Pointer.Capture(this);
-
             }
-            base.OnMouseDown(e);
+            base.OnPointerPressed(e);
         }
 
 
         /// <summary>
-        /// If IsMouseCaptured scroll to correct position. 
+        /// If pointer is captured scroll to correct position. 
         /// Where position is updated by animation timer
         /// </summary>
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
-            if (Focusable)
+            if (_isPointerCaptured && e.Pointer.Captured == this)
             {
-                shouldAutoScroll = false;
+                _ShouldAutoScroll = false;
                 Point currentPoint = e.GetPosition(this);
                 // Determine the new amount to scroll.
-                Point delta = new Point(scrollStartPoint.X -
-                    currentPoint.X, scrollStartPoint.Y - currentPoint.Y);
-                scrollTarget.X = scrollStartOffset.X + delta.X;
-                scrollTarget.Y = scrollStartOffset.Y + delta.Y;
+                Point delta = new Point(_ScrollStartPoint.X -
+                    currentPoint.X, _ScrollStartPoint.Y - currentPoint.Y);
+                _ScrollTarget = new Point(_ScrollStartOffset.X + delta.X, _ScrollStartOffset.Y + delta.Y);
                 // Scroll to the new position.
-                ScrollToHorizontalOffset(scrollTarget.X);
-                ScrollToVerticalOffset(scrollTarget.Y);
+                var newOffset = new Vector(_ScrollTarget.X, _ScrollTarget.Y);
+                SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
             }
-            base.OnMouseMove(e);
+            base.OnPointerMoved(e);
         }
 
-        protected override void OnMouseWheel(MouseWheelEventArgs e)
+        protected override void OnPointerWheelChanged(PointerWheelEventArgs e)
         {
-            if (Keyboard.IsKeyDown(Key.LeftCtrl))
-                ScrollToHorizontalOffset(this.HorizontalOffset + e.Delta);
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            {
+                var newOffset = new Vector(Offset.X + e.Delta.Y * 50, Offset.Y);
+                SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
+            }
             else
-                base.OnMouseWheel(e);
+                base.OnPointerWheelChanged(e);
         }
 
 
         /// <summary>
-        /// Release MouseCapture if its captured
+        /// Release pointer capture if its captured
         /// </summary>
         /// <param name="e"></param>
-        protected override void OnMouseUp(MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (Focusable)
+            if (_isPointerCaptured)
             {
-                Cursor = Cursors.Arrow;
+                Cursor = new Cursor(StandardCursorType.Arrow);
                 if (e.Pointer.Captured == this)
                     e.Pointer.Capture(null);
+                _isPointerCaptured = false;
             }
-            base.OnMouseUp(e);
+            base.OnPointerReleased(e);
         }
         #endregion
 
@@ -174,38 +171,37 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         private void HandleWorldTimerTick(object sender, EventArgs e)
         {
-            if (Focusable)
+            if (_isPointerCaptured)
             {
-                Point currentPoint = Mouse.GetPosition(this);
-                velocity = previousPoint - currentPoint;
-                previousPoint = currentPoint;
+                // Note: In Avalonia, we don't have a direct equivalent to Mouse.GetPosition(this)
+                // The pointer position tracking is handled in the pointer event handlers
+                _Velocity = _PreviousPoint - _ScrollStartPoint;
+                _PreviousPoint = _ScrollStartPoint;
             }
             else
             {
-                if (shouldAutoScroll)
+                if (_ShouldAutoScroll)
                 {
-                    Point currentScroll = new Point(ScrollInfo.HorizontalOffset + ScrollInfo.ViewportWidth / 2.0, ScrollInfo.VerticalOffset + ScrollInfo.ViewportHeight / 2.0);
-                    Vector offset = autoScrollTarget - currentScroll;
-                    shouldAutoScroll = offset.Length > 2.0;
+                    Point currentScroll = new Point(Offset.X + Viewport.Width / 2.0, Offset.Y + Viewport.Height / 2.0);
+                    Vector offset = _AutoScrollTarget - currentScroll;
+                    _ShouldAutoScroll = offset.Length > 2.0;
 
                     // FIXME: 10.0 here is the scroll speed factor, a higher value means slower auto-scroll, 1 means no animation
-                    ScrollToHorizontalOffset(HorizontalOffset + offset.X / 10);
-                    ScrollToVerticalOffset(VerticalOffset + offset.Y / 10);
+                    var newOffset = new Vector(Offset.X + offset.X / 10, Offset.Y + offset.Y / 10);
+                    SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
                 }
                 else
                 {
-                    if (velocity.Length > 1)
+                    if (_Velocity.Length > 1)
                     {
-                        ScrollToHorizontalOffset(scrollTarget.X);
-                        ScrollToVerticalOffset(scrollTarget.Y);
-                        scrollTarget.X += velocity.X;
-                        scrollTarget.Y += velocity.Y;
-                        velocity *= Friction;
-                        //System.Diagnostics.Debug.WriteLine("Scroll @ " + ScrollInfo.HorizontalOffset + ", " + ScrollInfo.VerticalOffset);
+                        var newOffset = new Vector(_ScrollTarget.X, _ScrollTarget.Y);
+                        SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
+                        _ScrollTarget = new Point(_Velocity.X, _Velocity.Y);
+                        _Velocity *= Friction;
+                        //System.Diagnostics.Debug.WriteLine("Scroll @ " + Offset.X + ", " + Offset.Y);
                     }
                 }
 
-                InvalidateScrollInfo();
                 InvalidateVisual();
             }
         }
@@ -213,20 +209,18 @@ namespace gip.core.layoutengine.avui.timeline
 
         public Point AutoScrollTarget
         {
-            set 
+            set
             {
-                autoScrollTarget = value;
-                shouldAutoScroll = true;
+                _AutoScrollTarget = value;
+                _ShouldAutoScroll = true;
             }
         }
 
 
         public void ScrollToCenterTarget(Point target)
         {
-            ScrollToHorizontalOffset(target.X - ScrollInfo.ViewportWidth / 2.0);
-            ScrollToVerticalOffset(target.Y - ScrollInfo.ViewportHeight / 2.0);
+            var newOffset = new Vector(target.X - Viewport.Width / 2.0, target.Y - Viewport.Height / 2.0);
+            SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
         }
-
-
     }
 }

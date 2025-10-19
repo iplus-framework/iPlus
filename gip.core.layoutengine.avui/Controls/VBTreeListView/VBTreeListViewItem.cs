@@ -4,6 +4,7 @@ using System.Text;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.layoutengine.avui.timeline;
 
 namespace gip.core.layoutengine.avui
@@ -70,7 +71,7 @@ namespace gip.core.layoutengine.avui
 
             int index = VBTimelineView.PART_TimelineChart.Items.IndexWhere(c => c == this.DataContext);
             //TimelineItemsPresenter itemsPresenter = WpfUtility.FindVisualChild<TimelineItemsPresenter>(VBGanttView.PART_GanttChart);
-            ItemsControl itemsPresenter = VBTimelineView.PART_TimelineChart.itemsPresenter as ItemsControl;
+            ItemsControl itemsPresenter = VBTimelineView.PART_TimelineChart._ItemsPresenter as ItemsControl;
             if (itemsPresenter == null || index < 0)
                 return;
             TimelineItemMap = itemsPresenter.ItemContainerGenerator.ContainerFromItem(VBTimelineView.PART_TimelineChart.Items[index]) as TimelineItemBase;
@@ -150,7 +151,7 @@ namespace gip.core.layoutengine.avui
             get 
             {
                 if (_VBTimelineView == null)
-                    _VBTimelineView = WpfUtility.FindVisualParent<VBTimelineViewBase>(this);
+                    _VBTimelineView = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineViewBase)) as VBTimelineViewBase;
                 return _VBTimelineView;
             }
         }
@@ -187,7 +188,7 @@ namespace gip.core.layoutengine.avui
         {
             base.PrepareContainerForItemOverride(element, item);
 
-            VBTreeListView parent = WpfUtility.FindVisualParent<VBTreeListView>(this);
+            VBTreeListView parent = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTreeListView)) as VBTreeListView;
             TreeViewItem child = element as TreeViewItem;
             if (parent != null && child != null)
             {

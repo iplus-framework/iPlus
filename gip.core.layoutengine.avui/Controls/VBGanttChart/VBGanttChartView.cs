@@ -1,17 +1,13 @@
 using System;
-using System.Windows;
-using System.Windows.Data;
-using System.Windows.Controls;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.ganttchart;
-using System.Windows.Media;
-using System.Windows.Input;
 using System.ComponentModel;
 using gip.core.layoutengine.avui.timeline;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,42 +21,7 @@ namespace gip.core.layoutengine.avui
     public class VBGanttChartView : VBTimelineViewBase
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo>
-        {
-            new CustomControlStyleInfo {wpfTheme = eWpfTheme.Gip, styleName = "GanttChartViewStyleGip",
-                                        styleUri = "/gip.core.layoutengine.avui; Component/Controls/VBGanttChart/Themes/GanttChartViewStyleGip.xaml",
-                                        hasImplicitStyles = false},
-            new CustomControlStyleInfo {wpfTheme = eWpfTheme.Aero, styleName = "GanttChartViewStyleAero",
-                                        styleUri = "/gip.core.layoutengine.avui; Component/Controls/VBGanttChart/Themes/GanttChartViewStyleAero.xaml",
-                                        hasImplicitStyles = false},
-        };
 
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBGanttChartView()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBGanttChartView), new FrameworkPropertyMetadata(typeof(VBTimelineViewBase)));
-        }
 
         /// <summary>
         /// Creates a new instance of VBGanttChartView.
@@ -68,37 +29,8 @@ namespace gip.core.layoutengine.avui
         public VBGanttChartView() : base()
         {
             TreeListViewColumns = new GridViewColumnCollection();
-            ItemToolTip = new List<FrameworkElement>();
+            ItemToolTip = new List<Control>();
         }
-        #endregion
-
-        #region Loaded-Event
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-        }
-
-        /// <summary>
-        /// Initializes the VBControl.
-        /// </summary>
-        public override  void InitVBControl()
-        {
-            base.InitVBControl();
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-        }
-
         #endregion
     }
 }

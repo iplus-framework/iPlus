@@ -1,131 +1,33 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using System.ComponentModel;
-using System.Windows.Data;
+using Avalonia.Controls;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
 using gip.core.datamodel;
-using System.Windows.Input;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.layoutengine.avui.timeline;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {
-    /// <summary>
-    /// The item on timeline.
-    /// </summary>
-    /// <summary xml:lang="de">
-    /// Das Element auf der Zeitleiste.
-    /// </summary>
+
+    [TemplatePart(Name = "PART_Left", Type = typeof(Connector))]
+    [TemplatePart(Name = "PART_Right", Type = typeof(Connector))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'TimelineItem'}de{'TimelineItem'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class TimelineGanttItem : TimelineItemBase
     {
-        #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TimelineItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineGanttItemStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TimelineItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineGanttItemStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static TimelineGanttItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineGanttItem),
-                new FrameworkPropertyMetadata(typeof(TimelineGanttItem)));
-        }
-
-        bool _themeApplied = false;
-        public TimelineGanttItem()
-        {
-            
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-           _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
-        #endregion
 
         #region Loaded-Event
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-            
-            ToolTipOpening += TimelineItem_ToolTipOpening;
+            _LeftConnector = e.NameScope.Find<Connector>("PART_Left");
+            _RightConnector = e.NameScope.Find<Connector>("PART_Right");
+            base.OnApplyTemplate(e);
         }
 
-        //void TimelineItem_Loaded(object sender, RoutedEventArgs e)
-        //{
-        //    if (container.Children.Count == 0 || (container.Children.Count == 3 && container.Children[2] != contentControl) && contentControl != null)
-        //    {
-        //        container.Children.Clear();
-        //        if (container.Children.Count == 0)
-        //        {
-        //            if (_ToolTipStatus == null && this.ContentTemplate != null)
-        //                _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
-
-        //            if (_ToolTipStatus != null)
-        //            {
-        //                container.Children.Add(_ToolTipStatus);
-        //                container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
-        //            }
-        //        }
-        //    }
-        //    else if (contentControl == null)
-        //    {
-        //        Binding bind = new Binding();
-        //        bind.Source = this;
-        //        bind.Path = new PropertyPath("ToolTipContent");
-        //        contentControl = new ContentControl();
-        //        contentControl.SetBinding(ContentControl.ContentProperty, bind);
-        //    }
-        //    if (container.Children.Count == 2 && contentControl != null)
-        //        container.Children.Add(contentControl);
-        //}
-
-        ///// <summary>
-        ///// Overides the OnApplyTemplate method and run VBControl initialization.
-        ///// </summary>
-        //public override void OnApplyTemplate()
-        //{
-        //    base.OnApplyTemplate();
-        //    if (!_themeApplied)
-        //        ActualizeTheme(false);
-        //    //leftConnector = Template.FindName("PART_Left", this) as Connector;
-        //    //rightConnector = Template.FindName("PART_Right", this) as Connector;
-        //    InitVBControl();
-        //}
-
-        //bool _IsInitialized = false;
-        //internal static StackPanel container = new StackPanel();
         StackPanel _ToolTipStatus;
         ContentControl contentControl;
+        Connector _LeftConnector;
+        Connector _RightConnector;
 
         public override void InitVBControl()
         {
@@ -133,34 +35,35 @@ namespace gip.core.layoutengine.avui.ganttchart
 
             ToolTipContent = VBGanttView.ToolTipItems;
 
-            if(VBTimelineChart.container.Children.Count == 0)
+            if (VBTimelineChart.container.Children.Count == 0)
             {
-                if (this.ContentTemplate != null)
-                {
-                    _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
-                    if (_ToolTipStatus != null)
-                    {
-                        VBTimelineChart.container.Children.Add(_ToolTipStatus);
-                        VBTimelineChart.container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
-                    }
-                }
+                // TODO Avalonia: Must be solved in XAML
+                //if (this.ContentTemplate != null)
+                //{
+                //    _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
+                //    if (_ToolTipStatus != null)
+                //    {
+                //        VBTimelineChart.container.Children.Add(_ToolTipStatus);
+                //        VBTimelineChart.container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
+                //    }
+                //}
             }
-            if(TimelinePanel.GetRowIndex(this) == 0)
+            if (TimelinePanel.GetRowIndex(this) == 0)
             {
                 Binding bind = new Binding();
                 bind.Source = this;
-                bind.Path = new PropertyPath("ToolTipContent");
+                bind.Path = nameof(ToolTipContent);
                 contentControl = new ContentControl();
-                contentControl.SetBinding(ContentControl.ContentProperty, bind);
+                contentControl.Bind(ContentControl.ContentProperty, bind);
                 if (VBTimelineChart.container.Children.Count == 2)
                     VBTimelineChart.container.Children.Add(contentControl);
             }
 
-            ToolTip = VBTimelineChart.container;
+            ToolTip.SetTip(this, VBTimelineChart.container);
 
             if (VBTreeListViewItemMap == null)
             {
-                VBTreeListViewItemMap = VBGanttView.PART_TreeListView.ItemContainerGenerator.ContainerFromItem(this.ContextACObject) as VBTreeListViewItem;
+                VBTreeListViewItemMap = VBGanttView.PART_TreeListView.ContainerFromItem(this.ContextACObject) as VBTreeListViewItem;
 
                 if (VBTreeListViewItemMap != null)
                 {
@@ -184,7 +87,7 @@ namespace gip.core.layoutengine.avui.ganttchart
             get 
             {
                 if (_VBGanttView == null)
-                    _VBGanttView = Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBGanttChartView)) as VBGanttChartView;
+                    _VBGanttView = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBGanttChartView)) as VBGanttChartView;
                 return _VBGanttView;
             }
         }
@@ -195,7 +98,7 @@ namespace gip.core.layoutengine.avui.ganttchart
             get
             {
                 if (_VBGantt == null)
-                    _VBGantt = WpfUtility.FindVisualParent<VBGanttChart>(this);
+                    _VBGantt = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBGanttChart)) as VBGanttChart;
                 return _VBGantt;
             }
         }
@@ -204,12 +107,7 @@ namespace gip.core.layoutengine.avui.ganttchart
         {
             get
             {
-                if (leftConnector == null)
-                {
-                    ApplyTemplate();
-                    leftConnector = Template.FindName("PART_Left", this) as Connector;
-                }
-                return leftConnector;
+                return _LeftConnector;
             }
         }
 
@@ -217,12 +115,7 @@ namespace gip.core.layoutengine.avui.ganttchart
         {
             get
             {
-                if (rightConnector == null)
-                {
-                    ApplyTemplate();
-                    rightConnector = Template.FindName("PART_Right", this) as Connector;
-                }
-                return rightConnector;
+                return _RightConnector;
             }
         }
 
@@ -233,15 +126,10 @@ namespace gip.core.layoutengine.avui.ganttchart
         public override bool DeInitVBControl()
         {
             if (contentControl != null)
-                BindingOperations.ClearBinding(contentControl, ContentControl.ContentProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.StartDateProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.EndDateProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.RowIndexProperty);
-            BindingOperations.ClearBinding(this, ToolTipContentProperty);
+                contentControl.ClearAllBindings();
             this.ClearAllBindings();
-            ToolTipOpening -= TimelineItem_ToolTipOpening;
-            Loaded -= TimelineItem_Loaded;
             VBTreeListViewItemMap = null;
+            base.DeInitVBControl();
             return true;
         }
 

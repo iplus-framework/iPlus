@@ -1,11 +1,15 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.ganttchart;
 using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +19,7 @@ using System.Text;
 
 namespace gip.core.layoutengine.avui.timeline
 {
-    public abstract class TimelineItemBase : ContentControl, INotifyPropertyChanged, IACInteractiveObject, IACObject, IACMenuBuilder
+    public abstract class TimelineItemBase : ContentControl, IACInteractiveObject, IACObject, IACMenuBuilder
     {
         #region Loaded-Event
 
@@ -27,38 +31,8 @@ namespace gip.core.layoutengine.avui.timeline
         {
             base.OnInitialized();
             Loaded += TimelineItem_Loaded;
-        }
-
-        internal virtual void TimelineItem_Loaded(object sender, RoutedEventArgs e)
-        {
-            int toolTipChildrenCount = 0;
-
-            if (VBTimelineChart.container.Children.Count == 0 || (VBTimelineChart.container.Children.Count == 3 && VBTimelineChart.container.Children[2] != contentControl) && contentControl != null)
-            {
-                VBTimelineChart.container.Children.Clear();
-                if (VBTimelineChart.container.Children.Count == 0)
-                {
-                    if (_ToolTipStatus == null && this.ContentTemplate != null)
-                        _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
-
-                    if (_ToolTipStatus != null)
-                    {
-                        VBTimelineChart.container.Children.Add(_ToolTipStatus);
-                        VBTimelineChart.container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
-                        toolTipChildrenCount = 2;
-                    }
-                }
-            }
-            else if (contentControl == null)
-            {
-                Binding bind = new Binding();
-                bind.Source = this;
-                bind.Path = nameof(ToolTipContent);
-                contentControl = new ContentControl();
-                contentControl.Bind(ContentControl.ContentProperty, bind);
-            }
-            if (VBTimelineChart.container.Children.Count == toolTipChildrenCount && contentControl != null)
-                VBTimelineChart.container.Children.Add(contentControl);
+            DoubleTapped += TimelineItemBase_DoubleTapped;
+            ToolTip.AddToolTipOpeningHandler(this, TimelineItem_ToolTipOpening);
         }
 
         /// <summary>
@@ -71,7 +45,7 @@ namespace gip.core.layoutengine.avui.timeline
         }
 
         bool _IsInitialized = false;
-        
+
         StackPanel _ToolTipStatus;
         ContentControl contentControl;
 
@@ -98,6 +72,76 @@ namespace gip.core.layoutengine.avui.timeline
             _IsInitialized = true;
         }
 
+        public virtual bool DeInitVBControl()
+        {
+            VBTimelineChart.container.Children.Clear();
+            if (contentControl != null)
+                contentControl.ClearAllBindings();
+            this.ClearAllBindings();
+            Loaded -= TimelineItem_Loaded;
+            DoubleTapped -= TimelineItemBase_DoubleTapped;
+            ToolTip.RemoveToolTipOpeningHandler(this, TimelineItem_ToolTipOpening);
+            VBTreeListViewItemMap = null;
+            _IsInitialized = false;
+            return true;
+        }
+
+        internal virtual void TimelineItem_Loaded(object sender, RoutedEventArgs e)
+        {
+            int toolTipChildrenCount = 0;
+
+            if (VBTimelineChart.container.Children.Count == 0 || (VBTimelineChart.container.Children.Count == 3 && VBTimelineChart.container.Children[2] != contentControl) && contentControl != null)
+            {
+                // TODO Avalonia: Change XAML in iPlus Designs of PeoprtyLogPresenter. ToolTip can be set directliy witohout this wrong Tooltip ContentTemplate-Resource-Approach.
+                //VBTimelineChart.container.Children.Clear();
+                //if (VBTimelineChart.container.Children.Count == 0)
+                //{
+                //    if (_ToolTipStatus == null && this.ContentTemplate != null)
+                //    {
+                //        _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
+                //    }
+
+                //    if (_ToolTipStatus != null)
+                //    {
+                //        VBTimelineChart.container.Children.Add(_ToolTipStatus);
+                //        VBTimelineChart.container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
+                //        toolTipChildrenCount = 2;
+                //    }
+                //}
+            }
+            else if (contentControl == null)
+            {
+                Binding bind = new Binding();
+                bind.Source = this;
+                bind.Path = nameof(ToolTipContent);
+                contentControl = new ContentControl();
+                contentControl.Bind(ContentControl.ContentProperty, bind);
+            }
+            if (VBTimelineChart.container.Children.Count == toolTipChildrenCount && contentControl != null)
+                VBTimelineChart.container.Children.Add(contentControl);
+        }
+
+        internal virtual void TimelineItem_ToolTipOpening(object sender, CancelRoutedEventArgs e)
+        {
+            // Avalonia Change Designs in iPlus
+            //if (!IsToolTipEnabled)
+            //{
+            //    ToolTip.SetTip(this, null);
+            //    return;
+            //}
+
+            //if (ToolTipContent != null)
+            //{
+            //    foreach (TemplatedControl element in ToolTipContent.Children)
+            //    {
+            //        element.DataContext = DataContext;
+            //        //element.OnApplyTemplate();
+            //    }
+            //    ToolTip.SetTip(this, VBTimelineChart.container);
+            //}
+        }
+
+
         #endregion
 
         #region Properties
@@ -119,7 +163,7 @@ namespace gip.core.layoutengine.avui.timeline
             get
             {
                 if (_VBTimelineChart == null)
-                    _VBTimelineChart = WpfUtility.FindVisualParent<VBTimelineChartBase>(this);
+                    _VBTimelineChart = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineChartBase)) as VBTimelineChartBase;
                 return _VBTimelineChart;
             }
         }
@@ -135,24 +179,28 @@ namespace gip.core.layoutengine.avui.timeline
 
         #endregion
 
-        #region DependencyProp
+        #region StyledProperties
 
+        /// <summary>
+        /// Represents the styled property for IsCollapsed.
+        /// </summary>
+        public static readonly StyledProperty<bool> IsCollapsedProperty =
+            AvaloniaProperty.Register<TimelineItemBase, bool>(nameof(IsCollapsed), true);
+
+        /// <summary>
+        /// Gets or sets whether this timeline item is collapsed.
+        /// </summary>
         public bool IsCollapsed
         {
-            get { return (bool)GetValue(IsCollapsedProperty); }
+            get { return GetValue(IsCollapsedProperty); }
             set { SetValue(IsCollapsedProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for IsCollapsed.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsCollapsedProperty =
-                DependencyProperty.Register("IsCollapsed", typeof(bool), typeof(TimelineItemBase),
-                new FrameworkPropertyMetadata(true, FrameworkPropertyMetadataOptions.AffectsParentMeasure, IsCollapsedChanged));
-
-        private static void IsCollapsedChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            TimelineItemBase item = (TimelineItemBase)o;
-            item.OnPropertyChanged("IsCollapsed");
-        }
+        /// <summary>
+        /// Represents the styled property for IsDisplayAsZero.
+        /// </summary>
+        public static readonly StyledProperty<bool> IsDisplayAsZeroProperty =
+            AvaloniaProperty.Register<TimelineItemBase, bool>(nameof(IsDisplayAsZero));
 
         /// <summary>
         /// Get or set indication that this timeline item should be display
@@ -162,67 +210,55 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public bool IsDisplayAsZero
         {
-            get { return (bool)GetValue(IsDisplayAsZeroProperty); }
+            get { return GetValue(IsDisplayAsZeroProperty); }
             set { SetValue(IsDisplayAsZeroProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for IsDisplayAsZero.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsDisplayAsZeroProperty =
-                DependencyProperty.Register("IsDisplayAsZero", typeof(bool), typeof(TimelineItemBase), new FrameworkPropertyMetadata(false, IsDisplayAsZeroChanged));
+        /// <summary>
+        /// Represents the styled property for IsSelected.
+        /// </summary>
+        public static readonly StyledProperty<bool> IsSelectedProperty =
+            AvaloniaProperty.Register<TimelineItemBase, bool>(nameof(IsSelected));
 
-        private static void IsDisplayAsZeroChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            TimelineItemBase item = (TimelineItemBase)o;
-            item.OnPropertyChanged("IsDisplayAsZero");
-        }
-
-        public static readonly DependencyProperty IsSelectedProperty
-            = DependencyProperty.Register("IsSelected", typeof(bool), typeof(TimelineItemBase), new PropertyMetadata(false, IsSelectedChanged));
+        /// <summary>
+        /// Gets or sets whether this timeline item is selected.
+        /// </summary>
         public bool IsSelected
         {
-            get { return (bool)GetValue(IsSelectedProperty); }
+            get { return GetValue(IsSelectedProperty); }
             set { SetValue(IsSelectedProperty, value); }
         }
 
-        public static void IsSelectedChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            TimelineItemBase item = (TimelineItemBase)o;
-            if (item.IsSelected)
-            {
-                item.VBTimelineChart.SelectedItem = item.DataContext;
-                if (Mouse.LeftButton == MouseButtonState.Pressed)
-                    item.ScrollToItemStart();
-            }
-        }
+        /// <summary>
+        /// Represents the styled property for ToolTipContent.
+        /// </summary>
+        public static readonly StyledProperty<StackPanel> ToolTipContentProperty =
+            AvaloniaProperty.Register<TimelineItemBase, StackPanel>(nameof(ToolTipContent));
 
-        public static readonly DependencyProperty ToolTipContentProperty = DependencyProperty.Register("ToolTipContent", typeof(StackPanel), typeof(TimelineItemBase));
-
+        /// <summary>
+        /// Gets or sets the tooltip content.
+        /// </summary>
         internal StackPanel ToolTipContent
         {
-            get { return (StackPanel)GetValue(ToolTipContentProperty); }
+            get { return GetValue(ToolTipContentProperty); }
             set { SetValue(ToolTipContentProperty, value); }
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            if (change.Property == IsSelectedProperty && (bool)change.NewValue)
+            {
+                VBTimelineChart.SelectedItem = DataContext;
+                if (_isPointerPressed)
+                    ScrollToItemStart();
+            }
+
+            base.OnPropertyChanged(change);
         }
 
         #endregion
 
         #region Methods
-
-        public virtual bool DeInitVBControl()
-        {
-            VBTimelineChart.container.Children.Clear();
-            if (contentControl != null)
-                BindingOperations.ClearBinding(contentControl, ContentControl.ContentProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.StartDateProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.EndDateProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.RowIndexProperty);
-            BindingOperations.ClearBinding(this, ToolTipContentProperty);
-            this.ClearAllBindings();
-            ToolTipOpening -= TimelineItem_ToolTipOpening;
-            Loaded -= TimelineItem_Loaded;
-            VBTreeListViewItemMap = null;
-            _IsInitialized = false;
-            return true;
-        }
 
         public virtual void SelectTreeItem()
         {
@@ -232,54 +268,95 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void ScrollToItemStart()
         {
+            //VBTimelineChart.ScrollViewer.ScrollToHome();
             if (VBTimelineChart.IsAncestorOf(this))
             {
-                VBTimelineChart.PART_AxesPanel._IsScrollFromZoom = false;
-                VBTimelineChart.ScrollViewer.ScrollToHorizontalOffset(VBTimelineChart.ScrollViewer.HorizontalOffset + TransformToAncestor(VBTimelineChart).Transform(new Point()).X - VBTimelineChart.ActualWidth / 2);
+                var relativePoint = this.TranslatePoint(new Point(0, 0), VBTimelineChart);
+                if (relativePoint.HasValue)
+                {
+                    VBTimelineChart.PART_AxesPanel._IsScrollFromZoom = false;
+                    var offset = VBTimelineChart.ScrollViewer.Offset;
+                    // Fix: Vector + double is not allowed, so add to X and keep Y
+                    var newOffset = new Vector(
+                        offset.X + relativePoint.Value.X - VBTimelineChart.Bounds.Width / 2,
+                        offset.Y
+                    );
+                    VBTimelineChart.ScrollViewer.SetCurrentValue(
+                        ScrollViewer.OffsetProperty,
+                        newOffset
+                    );
+                }
             }
         }
 
         private void ScrollToItemEnd()
         {
+            //VBTimelineChart.ScrollViewer.ScrollToEnd();
             if (VBTimelineChart.IsAncestorOf(this))
             {
-                VBTimelineChart.PART_AxesPanel._IsScrollFromZoom = false;
-                VBTimelineChart.ScrollViewer.ScrollToHorizontalOffset(VBTimelineChart.ScrollViewer.HorizontalOffset + TransformToAncestor(VBTimelineChart).Transform(new Point()).X + ActualWidth - VBTimelineChart.ActualWidth / 2);
+                var relativePoint = this.TranslatePoint(new Point(0, 0), VBTimelineChart);
+                if (relativePoint.HasValue)
+                {
+                    VBTimelineChart.PART_AxesPanel._IsScrollFromZoom = false;
+                    var offset = VBTimelineChart.ScrollViewer.Offset;
+                    // Fix: Vector + double is not allowed, so add to X and keep Y
+                    var newOffset = new Vector(
+                        offset.X + relativePoint.Value.X + Bounds.Width - VBTimelineChart.Bounds.Width / 2,
+                        offset.Y
+                    );
+                    VBTimelineChart.ScrollViewer.SetCurrentValue(
+                        ScrollViewer.OffsetProperty,
+                        newOffset
+                    );
+                }
             }
         }
 
-        protected override void OnMouseLeftButtonDown(System.Windows.Input.MouseButtonEventArgs e)
+        private bool _isPointerPressed = false;
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if(!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift))
-                SelectTreeItem();
-            base.OnMouseLeftButtonDown(e);
+            if (e.Properties.IsLeftButtonPressed)
+            {
+                _isPointerPressed = true;
+            }
+            base.OnPointerPressed(e);
         }
 
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.LeftShift) && VBTreeListViewItemMap != null)
+            _isPointerPressed = false;
+            if (e.InitialPressMouseButton == MouseButton.Left)
+            {
+                if (e.KeyModifiers != KeyModifiers.Control && e.KeyModifiers != KeyModifiers.Shift)
+                    SelectTreeItem();
+            }
+            else if (e.InitialPressMouseButton == MouseButton.Right)
+            {
+                if (e.Route == RoutingStrategies.Tunnel)
+                {
+                    if (VBTreeListViewItemMap != null)
+                        VBTreeListViewItemMap.IsSelected = true;
+                    Point point = e.GetPosition(this);
+                    ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
+                    VBTimelineChart.BSOACComponent.ACAction(actionArgs);
+                    VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
+                    this.ContextMenu = vbContextMenu;
+                    //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
+                    if (vbContextMenu.PlacementTarget == null)
+                        vbContextMenu.PlacementTarget = this;
+                    ContextMenu.Open();
+                }
+            }
+            base.OnPointerReleased(e);
+        }
+
+        private void TimelineItemBase_DoubleTapped(object sender, TappedEventArgs e)
+        {
+            if (e.KeyModifiers != KeyModifiers.Control && e.KeyModifiers != KeyModifiers.Shift && VBTreeListViewItemMap != null)
             {
                 VBTreeListViewItemMap.IsSelected = true;
                 VBTreeListViewItemMap.IsExpanded = !VBTreeListViewItemMap.IsExpanded;
             }
-            base.OnMouseDoubleClick(e);
-        }
-
-        protected override void OnPreviewMouseRightButtonDown(System.Windows.Input.MouseButtonEventArgs e)
-        {
-            if (VBTreeListViewItemMap != null)
-                VBTreeListViewItemMap.IsSelected = true;
-            Point point = e.GetPosition(this);
-            ACActionMenuArgs actionArgs = new ACActionMenuArgs(this, point.X, point.Y, Global.ElementActionType.ContextMenu);
-            VBTimelineChart.BSOACComponent.ACAction(actionArgs);
-            VBContextMenu vbContextMenu = new VBContextMenu(this, actionArgs.ACMenuItemList);
-            this.ContextMenu = vbContextMenu;
-            //@ihrastinski NOTE: Remote desktop context menu problem - added placement target
-            if (vbContextMenu.PlacementTarget == null)
-                vbContextMenu.PlacementTarget = this;
-            ContextMenu.IsOpen = true;
-            //e.Handled = true;
-            base.OnPreviewMouseRightButtonDown(e);
         }
 
         public ACMenuItemList GetMenu(string vbContent, string vbControl)
@@ -313,31 +390,6 @@ namespace gip.core.layoutengine.avui.timeline
             ScrollToItemEnd();
         }
 
-        internal virtual void TimelineItem_ToolTipOpening(object sender, ToolTipEventArgs e)
-        {
-            if (!IsToolTipEnabled)
-            {
-                ToolTip = null;
-                return;
-            }
-
-            if (ToolTipContent != null)
-                foreach (FrameworkElement element in ToolTipContent.Children)
-                {
-                    element.DataContext = DataContext;
-                    element.OnApplyTemplate();
-                }
-            ToolTip = VBTimelineChart.container;
-        }
-
-        internal void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            var handlers = PropertyChanged;
-            if (handlers != null)
-            {
-                handlers(this, new PropertyChangedEventArgs(propertyName));
-            }
-        }
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -492,7 +544,5 @@ namespace gip.core.layoutengine.avui.timeline
         }
 
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

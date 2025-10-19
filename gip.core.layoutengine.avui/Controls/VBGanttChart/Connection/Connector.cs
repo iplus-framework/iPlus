@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
 using System.ComponentModel;
-using System.Windows;
-using System.Windows.Media;
-using System.Runtime.CompilerServices;
+using Avalonia.Controls.Primitives;
+using Avalonia;
+using gip.core.layoutengine.avui.Helperclasses;
+using Avalonia.VisualTree;
+using gip.ext.design.avui;
+using Avalonia.Media;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {
@@ -14,84 +16,27 @@ namespace gip.core.layoutengine.avui.ganttchart
     /// Represent a connector of TimelineItem.
     /// Connector connect TimelineItems with Connection.
     /// </summary>
-    public class Connector : Control, INotifyPropertyChanged
+    public class Connector : TemplatedControl
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ConnectorStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ConnectorStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectorStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static Connector()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(Connector),
-                new FrameworkPropertyMetadata(typeof(Connector)));
-        }
-
-        bool _themeApplied = false;
         public Connector()
         {
             // fired when layout changes
-            base.LayoutUpdated += new EventHandler(Connector_LayoutUpdated);
+            base.LayoutUpdated += Connector_LayoutUpdated;
         }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
         #endregion
 
         // keep track of connections that link to this connector
-        private List<Connection> connections;
+        private List<Connection> _Connections;
         public List<Connection> Connections
         {
             get
             {
-                if (connections == null)
-                    connections = new List<Connection>();
-                return connections;
+                if (_Connections == null)
+                    _Connections = new List<Connection>();
+                return _Connections;
             }
         }
-
 
         // when the layout changes we update the position property
         void Connector_LayoutUpdated(object sender, EventArgs e)
@@ -100,60 +45,57 @@ namespace gip.core.layoutengine.avui.ganttchart
             if (surface != null)
             {
                 //get centre position of this Connector relative to the DesignerCanvas
-                this.Position = this.TransformToAncestor(surface).Transform(
-                    new Point(this.Width / 2, this.Height / 2));
+                Transform targetTransform = this.TransformToAncestor(surface);
+                this.Position = new Point(this.Width / 2, this.Height / 2).Transform(targetTransform.Value);
             }
         }
 
         private Visual GetMeasureParent()
         {
-            DependencyObject element = this;
+            Visual element = this;
             while (element != null && !(element is TimelineGanttItemsPresenter))
-                element = VisualTreeHelper.GetParent(element);
+            {
+                element = element.GetVisualParent();
+            }
 
-            if (element == null) return null;
-            return VisualTreeHelper.GetParent(element) as Visual;
+            if (element == null) 
+                return null;
+            return element.GetVisualParent() as Visual;
         }
 
+        #region Styled Properties
 
-        public ConnectorOrientation Orientation { get; set; }
+        /// <summary>
+        /// Defines the Orientation styled property.
+        /// </summary>
+        public static readonly StyledProperty<ConnectorOrientation> OrientationProperty =
+            AvaloniaProperty.Register<Connector, ConnectorOrientation>(nameof(Orientation), ConnectorOrientation.None);
 
-        // center position of this Connector relative to the DesignerCanvas
-        private Point position;
+        /// <summary>
+        /// Gets or sets the orientation of the connector.
+        /// </summary>
+        public ConnectorOrientation Orientation
+        {
+            get => GetValue(OrientationProperty);
+            set => SetValue(OrientationProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the Position styled property.
+        /// </summary>
+        public static readonly StyledProperty<Point> PositionProperty =
+            AvaloniaProperty.Register<Connector, Point>(nameof(Position), new Point());
+
+        /// <summary>
+        /// Gets or sets the center position of this Connector relative to the DesignerCanvas.
+        /// </summary>
         public Point Position
         {
-            get { return position; }
-            set
-            {
-                if (position != value)
-                {
-                    position = value;
-                    OnPropertyChanged("Position");
-                }
-            }
+            get => GetValue(PositionProperty);
+            set => SetValue(PositionProperty, value);
         }
 
-        // keep track of connections that link to this connector
-        //private List<Connection> connections;
-        //public List<Connection> Connections {
-        //  get {
-        //    if (connections == null)
-        //      connections = new List<Connection>();
-        //    return connections;
-        //  }
-        //}
-
-        // we could use DependencyProperties as well to inform others of property changes
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void OnPropertyChanged([CallerMemberName] string name = "")
-        {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
-            {
-                handler(this, new PropertyChangedEventArgs(name));
-            }
-        }
-
+        #endregion
     }
 
     public enum ConnectorOrientation

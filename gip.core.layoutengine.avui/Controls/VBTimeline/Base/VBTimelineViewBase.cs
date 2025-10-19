@@ -16,7 +16,7 @@ namespace gip.core.layoutengine.avui.timeline
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTimelineViewBase'}de{'VBTimelineViewBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, false)]
     public abstract class VBTimelineViewBase : TemplatedControl, IVBContent, IVBSource, IACObject
     {
-        private ScrollViewerSyncer syncer;
+        private ScrollViewerSyncer _Syncer;
 
         #region Loaded-Event
 
@@ -201,14 +201,14 @@ namespace gip.core.layoutengine.avui.timeline
         /// Represents the styled property for TreeListViewColumns.
         /// </summary>
         [Category("VBControl")]
-        public static readonly StyledProperty<object> TreeListViewColumnsProperty =
-            AvaloniaProperty.Register<VBTimelineViewBase, object>(nameof(TreeListViewColumns));
+        public static readonly StyledProperty<GridViewColumnCollection> TreeListViewColumnsProperty =
+            AvaloniaProperty.Register<VBTimelineViewBase, GridViewColumnCollection>(nameof(TreeListViewColumns));
 
         /// <summary>
         /// Gets or sets the columns which will be shown in TreeListView.
         /// </summary>
         [Category("VBControl")]
-        public object TreeListViewColumns
+        public GridViewColumnCollection TreeListViewColumns
         {
             get { return GetValue(TreeListViewColumnsProperty); }
             set { SetValue(TreeListViewColumnsProperty, value); }
@@ -417,7 +417,7 @@ namespace gip.core.layoutengine.avui.timeline
             ScrollViewer timelineSV = VBVisualTreeHelper.FindChildObjects<ScrollViewer>(PART_TimelineChart)?.FirstOrDefault();
             if (treeSV != null && timelineSV != null)
             {
-                syncer = new ScrollViewerSyncer(treeSV, timelineSV);
+                _Syncer = new ScrollViewerSyncer(treeSV, timelineSV);
             }
         }
 
@@ -489,7 +489,7 @@ namespace gip.core.layoutengine.avui.timeline
         {
             TreeListViewColumns?.GetType().GetMethod("Clear")?.Invoke(TreeListViewColumns, null);
             this.ClearAllBindings();
-            syncer?.DeInitControl();
+            _Syncer?.DeInitControl();
             _IsInitialized = false;
         }
 

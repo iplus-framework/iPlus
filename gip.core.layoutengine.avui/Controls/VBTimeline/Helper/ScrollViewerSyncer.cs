@@ -10,30 +10,30 @@ namespace gip.core.layoutengine.avui.timeline
     public class ScrollViewerSyncer
     {
 
-        private ScrollViewer sv1;
-        private ScrollViewer sv2;
+        private ScrollViewer _sv1;
+        private ScrollViewer _sv2;
 
-        private ScrollBar _sv1HSB;
-        private ScrollBar sv1HSB
-        {
-            get
-            {
-                if (_sv1HSB == null)
-                    _sv1HSB = sv1?.Template.FindName("PART_HorizontalScrollBar", sv1) as ScrollBar;
-                return _sv1HSB;
-            }
-        }
+        //private ScrollBar _sv1HSB;
+        //private ScrollBar sv1HSB
+        //{
+        //    get
+        //    {
+        //        if (_sv1HSB == null)
+        //            _sv1HSB = _sv1?.Template.FindName("PART_HorizontalScrollBar", _sv1) as ScrollBar;
+        //        return _sv1HSB;
+        //    }
+        //}
         
-        private ScrollBar _sv2HSB;
-        private ScrollBar sv2HSB
-        {
-            get
-            {
-                if(_sv2HSB == null)
-                    _sv2HSB = sv2?.Template.FindName("PART_HorizontalScrollBar", sv2) as ScrollBar;
-                return _sv2HSB;
-            }
-        }
+        //private ScrollBar _sv2HSB;
+        //private ScrollBar sv2HSB
+        //{
+        //    get
+        //    {
+        //        if(_sv2HSB == null)
+        //            _sv2HSB = _sv2?.Template.FindName("PART_HorizontalScrollBar", _sv2) as ScrollBar;
+        //        return _sv2HSB;
+        //    }
+        //}
 
         private bool sv1HorizontalVisible;
         private bool sv2HorizontalVisible;
@@ -43,13 +43,13 @@ namespace gip.core.layoutengine.avui.timeline
             if (sv1 == null) throw new ArgumentNullException("sv1");
             if (sv2 == null) throw new ArgumentNullException("sv2");
 
-            this.sv1 = sv1;
-            this.sv2 = sv2;
+            this._sv1 = sv1;
+            this._sv2 = sv2;
 
             sv1HorizontalVisible =
-                sv1.ComputedHorizontalScrollBarVisibility == Visibility.Visible;
+                sv1.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;
             sv2HorizontalVisible =
-                sv2.ComputedHorizontalScrollBarVisibility == Visibility.Visible;
+                sv2.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;
 
 
             sv1.ScrollChanged += sv1_ScrollChanged;
@@ -60,29 +60,29 @@ namespace gip.core.layoutengine.avui.timeline
 
         public void DeInitControl()
         {
-            if(sv1 != null)
-                sv1.ScrollChanged -= sv1_ScrollChanged;
+            if (_sv1 != null)
+                _sv1.ScrollChanged -= sv1_ScrollChanged;
 
-            if(sv2 != null)
-                sv2.ScrollChanged -= sv2_ScrollChanged;
+            if (_sv2 != null)
+                _sv2.ScrollChanged -= sv2_ScrollChanged;
 
-            sv1 = null;
-            sv2 = null;
-            _sv1HSB = null;
-            _sv2HSB = null;
+            _sv1 = null;
+            _sv2 = null;
+            //_sv1HSB = null;
+            //_sv2HSB = null;
         }
 
         private void sv2_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.Source != sv2) 
+            if (e.Source != _sv2) 
                 return;
 
-            if (e.VerticalChange != 0)
+            if (e.OffsetDelta != null && e.OffsetDelta.Y != 0)
             {
-                sv1.ScrollToVerticalOffset(sv2.VerticalOffset);
+                _sv1.Offset = _sv2.Offset;
             }
 
-            bool sv2NewHV = sv2.ComputedHorizontalScrollBarVisibility == Visibility.Visible && sv2HSB != null && sv2HSB.IsEnabled;
+            bool sv2NewHV = _sv2.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;// && sv2HSB != null && sv2HSB.IsEnabled;
             if (sv2HorizontalVisible != sv2NewHV)
             {
                 sv2HorizontalVisible = sv2NewHV;
@@ -92,15 +92,15 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void sv1_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if (e.Source != sv1) 
+            if (e.Source != _sv1) 
                 return;
 
-            if (e.VerticalChange != 0)
+            if (e.OffsetDelta != null && e.OffsetDelta.Y != 0)
             {
-                sv2.ScrollToVerticalOffset(sv1.VerticalOffset);
+                _sv2.Offset = _sv1.Offset;
             }
 
-            bool sv1NewHV = sv1.ComputedHorizontalScrollBarVisibility == Visibility.Visible && sv1HSB != null && sv1HSB.IsEnabled;
+            bool sv1NewHV = _sv1.HorizontalScrollBarVisibility == ScrollBarVisibility.Visible;// && sv1HSB != null && sv1HSB.IsEnabled;
             if (sv1HorizontalVisible != sv1NewHV)
             {
                 sv1HorizontalVisible = sv1NewHV;
@@ -113,16 +113,16 @@ namespace gip.core.layoutengine.avui.timeline
         {
                 if (!sv1HorizontalVisible && sv2HorizontalVisible)
                 {
-                    sv1.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+                    _sv1.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
                 }
                 else if (sv1HorizontalVisible && !sv2HorizontalVisible)
                 {
-                    sv2.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
+                    _sv2.HorizontalScrollBarVisibility = ScrollBarVisibility.Visible;
                 }
                 else if(!sv1HorizontalVisible && !sv2HorizontalVisible)
                 {
-                    sv1.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-                    sv2.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                    _sv1.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+                    _sv2.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
                 }
 
         }

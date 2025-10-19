@@ -1,11 +1,16 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Shapes;
+using Avalonia.Data;
+using Avalonia.Data.Converters;
+using Avalonia.Media;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.designer.avui.Converters;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Shapes;
+using System.Globalization;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -13,57 +18,24 @@ namespace gip.core.layoutengine.avui.timeline
     /// <summary>
     /// The Timeline Ruler control that displays date and time ruler.
     /// </summary>
-    public class TimelineRulerControl : Control
+    public class TimelineRulerControl : TemplatedControl
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TimelineRulerControlStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineRulerControlStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TimelineRulerControlStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineRulerControlStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
 
         static TimelineRulerControl()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineRulerControl),
-              new FrameworkPropertyMetadata(typeof(TimelineRulerControl)));
-
-            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(TimelineRulerControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure, TimeframeChanged));
-            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(TimelineRulerControl), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure, TimeframeChanged));
-            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(TimelineRulerControl), new FrameworkPropertyMetadata(Timeline.TickTimeSpanDefaultValue, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, TicksTimeSpanChanged, TicksTimeSpanCoerce));
+            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner<TimelineRulerControl>();
+            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner<TimelineRulerControl>();
+            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner<TimelineRulerControl>();
         }
 
-        bool _themeApplied = false;
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
 
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
 
             ScrollViewer viewer = this._headerSV;
             this._headerSV = base.Parent as ScrollViewer;
@@ -71,11 +43,11 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 if (viewer != null)
                 {
-                    viewer.ScrollChanged -= new ScrollChangedEventHandler(this.OnHeaderScrollChanged);
+                    viewer.ScrollChanged -= OnHeaderScrollChanged;
                 }
                 if (this._headerSV != null)
                 {
-                    this._headerSV.ScrollChanged += new ScrollChangedEventHandler(this.OnHeaderScrollChanged);
+                    this._headerSV.ScrollChanged += OnHeaderScrollChanged;
                 }
             }
             ScrollViewer viewer2 = this._mainSV;
@@ -84,94 +56,105 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 if (viewer2 != null)
                 {
-                    viewer2.ScrollChanged -= new ScrollChangedEventHandler(this.OnMasterScrollChanged);
+                    viewer2.ScrollChanged -= OnMasterScrollChanged;
                 }
                 if (this._mainSV != null)
                 {
-                    this._mainSV.ScrollChanged += new ScrollChangedEventHandler(this.OnMasterScrollChanged);
+                    this._mainSV.ScrollChanged += OnMasterScrollChanged;
                 }
             }
 
         }
+        #endregion
+
+        #region StyledProperties
 
         /// <summary>
-        /// Actualizes current theme.
+        /// Represents the styled property for MaximumDate.
         /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
+        public static readonly StyledProperty<DateTime?> MaximumDateProperty =
+            AvaloniaProperty.Register<TimelineRulerControl, DateTime?>(nameof(MaximumDate));
+
+        /// <summary>
+        /// Represents the styled property for MinimumDate.
+        /// </summary>
+        public static readonly StyledProperty<DateTime?> MinimumDateProperty =
+            AvaloniaProperty.Register<TimelineRulerControl, DateTime?>(nameof(MinimumDate));
+
+        /// <summary>
+        /// Represents the styled property for TickTimeSpan.
+        /// </summary>
+        public static readonly StyledProperty<TimeSpan> TickTimeSpanProperty =
+            AvaloniaProperty.Register<TimelineRulerControl, TimeSpan>(nameof(TickTimeSpan));
+
+        /// <summary>
+        /// Represents the styled property for BlockTimeSpan.
+        /// </summary>
+        public static readonly StyledProperty<TimeSpan> BlockTimeSpanProperty =
+            AvaloniaProperty.Register<TimelineRulerControl, TimeSpan>(nameof(BlockTimeSpan), TimeSpan.FromDays(1));
+
+        private static readonly StyledProperty<IList<RulerBlockItem>> RulerBlocksPropertyKey =
+            AvaloniaProperty.Register<TimelineRulerControl, IList<RulerBlockItem>>(nameof(RulerBlocks));
+
+        public static readonly StyledProperty<IList<RulerBlockItem>> RulerBlocksProperty = RulerBlocksPropertyKey;
+
+        private static readonly StyledProperty<double> DpiPerBlockPropertyKey =
+            AvaloniaProperty.Register<TimelineRulerControl, double>(nameof(DpiPerBlock), 1D);
+
+        public static readonly StyledProperty<double> DpiPerBlockProperty = DpiPerBlockPropertyKey;
+
+        /// <summary>
+        /// Represents the styled property for TimeLinesContent.
+        /// </summary>
+        public static readonly StyledProperty<Canvas> TimeLinesContentProperty =
+            AvaloniaProperty.Register<TimelineRulerControl, Canvas>(nameof(TimeLinesContent));
 
         #endregion
 
-        public static readonly DependencyProperty MaximumDateProperty;
-        public static readonly DependencyProperty MinimumDateProperty;
-        public static readonly DependencyProperty TickTimeSpanProperty;
-
         public Nullable<DateTime> MaximumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MaximumDateProperty); }
+            get { return GetValue(MaximumDateProperty); }
             set { SetValue(MaximumDateProperty, value); }
         }
 
         public Nullable<DateTime> MinimumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MinimumDateProperty); }
+            get { return GetValue(MinimumDateProperty); }
             set { SetValue(MinimumDateProperty, value); }
         }
 
         public TimeSpan TickTimeSpan
         {
-            get { return (TimeSpan)GetValue(TickTimeSpanProperty); }
+            get { return GetValue(TickTimeSpanProperty); }
             set { SetValue(TickTimeSpanProperty, value); }
         }
 
         private VBTimelineChartBase _vbTimelineChartBase;
         private VBTimelineChartBase _VBTimelineChartBase
         {
-            get 
+            get
             {
                 if (_vbTimelineChartBase == null)
-                    _vbTimelineChartBase = WpfUtility.FindVisualParent<VBTimelineChartBase>(this) as VBTimelineChartBase;
+                    _vbTimelineChartBase = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineChartBase)) as VBTimelineChartBase;
                 return _vbTimelineChartBase;
             }
         }
 
         public TimeSpan BlockTimeSpan
         {
-            get { return (TimeSpan)GetValue(BlockTimeSpanProperty); }
+            get { return GetValue(BlockTimeSpanProperty); }
             set { SetValue(BlockTimeSpanProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for BlockTimeSpan.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty BlockTimeSpanProperty =
-          DependencyProperty.Register("BlockTimeSpan", typeof(TimeSpan), typeof(TimelineRulerControl), new FrameworkPropertyMetadata(TimeSpan.FromDays(1)));
-
-
-        private static readonly DependencyPropertyKey RulerBlocksPropertyKey =
-        DependencyProperty.RegisterReadOnly("RulerBlocks", typeof(IList<RulerBlockItem>),
-        typeof(TimelineRulerControl), new FrameworkPropertyMetadata(null));
-
-        public static readonly DependencyProperty RulerBlocksProperty =
-        RulerBlocksPropertyKey.DependencyProperty;
-
         public IList<RulerBlockItem> RulerBlocks
         {
-            get { return (IList<RulerBlockItem>)GetValue(RulerBlocksProperty); }
+            get { return GetValue(RulerBlocksProperty); }
             private set { SetValue(RulerBlocksPropertyKey, value); }
         }
 
-        private static readonly DependencyPropertyKey DpiPerBlockPropertyKey =
-        DependencyProperty.RegisterReadOnly("DpiPerBlock", typeof(double),
-        typeof(TimelineRulerControl), new FrameworkPropertyMetadata(1D));
-
-        public static readonly DependencyProperty DpiPerBlockProperty =
-        DpiPerBlockPropertyKey.DependencyProperty;
-
         public double DpiPerBlock
         {
-            get { return (double)GetValue(DpiPerBlockProperty); }
+            get { return GetValue(DpiPerBlockProperty); }
             private set { SetValue(DpiPerBlockPropertyKey, value); }
         }
 
@@ -182,11 +165,24 @@ namespace gip.core.layoutengine.avui.timeline
 
         private bool blockUpdatePending = false;
 
-        private static void TimeframeChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            TimelineRulerControl ruler = (TimelineRulerControl)o;
-            ruler.blockUpdatePending = true;
-            //ruler.UpdateRulerBlocks();
+            base.OnPropertyChanged(change);
+
+            if (change.Property == MaximumDateProperty || change.Property == MinimumDateProperty)
+            {
+                blockUpdatePending = true;
+                //UpdateRulerBlocks();
+            }
+            else if (change.Property == TickTimeSpanProperty)
+            {
+                TimeSpan ts = (TimeSpan)change.NewValue;
+                if (ts.Ticks <= 0)
+                {
+                    SetValue(TickTimeSpanProperty, TimeSpan.FromMinutes(5));
+                }
+                updateDpiPerBlock = true;
+            }
         }
 
         protected override Size MeasureOverride(Size constraint)
@@ -207,41 +203,23 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void OnHeaderScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if ((this._mainSV != null) && (this._headerSV == e.OriginalSource))
+            if ((this._mainSV != null) && (this._headerSV == e.Source))
             {
-                this._mainSV.ScrollToHorizontalOffset(e.HorizontalOffset);
-
+                // Avalonia TODO: @Ivan - does this make sense?
+                //this._mainSV.ScrollToHorizontalOffset(e.HorizontalOffset);
                 _VBTimelineChartBase._PART_Line.CalculateDateTime();
             }
         }
 
         private void OnMasterScrollChanged(object sender, ScrollChangedEventArgs e)
         {
-            if ((this._headerSV != null) && (this._mainSV == e.OriginalSource))
+            if ((this._headerSV != null) && (this._mainSV == e.Source))
             {
-                this._headerSV.ScrollToHorizontalOffset(e.HorizontalOffset);
+                // Avalonia TODO: @Ivan - does this make sense?
+                //this._headerSV.ScrollToHorizontalOffset(e.HorizontalOffset);
 
                 _VBTimelineChartBase._PART_Line.CalculateDateTime();
             }
-        }
-
-        private static object TicksTimeSpanCoerce(DependencyObject d, object baseValue)
-        {
-            TimeSpan ts = (TimeSpan)baseValue;
-            if (ts.Ticks <= 0)
-            {
-                return TimeSpan.FromMinutes(5);
-            }
-            else
-            {
-                return baseValue;
-            }
-        }
-
-        private static void TicksTimeSpanChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-            TimelineRulerControl ruler = (TimelineRulerControl)o;
-            ruler.updateDpiPerBlock = true;
         }
 
         private Nullable<TimeSpan> effectiveBlockSpan;
@@ -343,7 +321,7 @@ namespace gip.core.layoutengine.avui.timeline
 
                     RulerBlockItem block = new RulerBlockItem(this, blockIdx);
                     block.Start = prev;
-                    block.Span =  EffectiveBlockTimeSpan;
+                    block.Span = EffectiveBlockTimeSpan;
                     //block.Text = prev.ToString();
                     blocks.Add(block);
 
@@ -373,19 +351,15 @@ namespace gip.core.layoutengine.avui.timeline
 
         public Canvas TimeLinesContent
         {
-            get { return (Canvas)GetValue(TimeLinesContentProperty); }
+            get { return GetValue(TimeLinesContentProperty); }
             set { SetValue(TimeLinesContentProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for TimeLinesContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimeLinesContentProperty =
-            DependencyProperty.Register("TimeLinesContent", typeof(Canvas), typeof(TimelineRulerControl));
 
         private int _RulerBlockCounter = 0;
 
         public void UpdateTimeLines(RulerBlockItem rbItem)
         {
-            if(RulerBlocks.Contains(rbItem))
+            if (RulerBlocks.Contains(rbItem))
                 _RulerBlockCounter++;
 
             if (RulerBlocks.Count != _RulerBlockCounter)
@@ -399,12 +373,19 @@ namespace gip.core.layoutengine.avui.timeline
 
                 foreach (var offset in rbi.RulerBlockTimeItemsOffsets)
                 {
-                    Line line = new Line() { Y1 = 0, Fill = Brushes.White, Stroke = Brushes.White, Stretch = Stretch.Fill };
+                    Line line = new Line() { StartPoint = new Point(0, 0), Fill = Brushes.White, Stroke = Brushes.White, Stretch = Stretch.Fill };
 
-                    Binding binding = new Binding();
+                    Binding binding = new Binding("Bounds.Height");
                     binding.Source = canvas;
-                    binding.Path = new PropertyPath("ActualHeight");
-                    line.SetBinding(Line.Y2Property, binding);
+                    MultiBinding multiBinding = new MultiBinding();
+                    multiBinding.Bindings.Add(binding);
+                    Binding staticBinding = new Binding();
+                    staticBinding.Source = 0;
+                    multiBinding.Bindings.Add(staticBinding); // X - Value
+                    multiBinding.Bindings.Add(binding); // Y - Value
+                    PointConverter pointConverter = new PointConverter();
+                    multiBinding.Converter = pointConverter;
+                    line.Bind(Line.EndPointProperty, multiBinding);
 
                     Canvas.SetLeft(line, offset);
                     canvas.Children.Add(line);
@@ -412,7 +393,6 @@ namespace gip.core.layoutengine.avui.timeline
             }
 
             TimeLinesContent = canvas;
-            OnPropertyChanged(new DependencyPropertyChangedEventArgs(TimeLinesContentProperty, null, canvas));
         }
 
         #endregion
@@ -421,12 +401,12 @@ namespace gip.core.layoutengine.avui.timeline
 
     public class RulerBlockSizeConverter : IMultiValueConverter
     {
-
-        public object Convert(object[] values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (values == null || values.Length < 2 ||
-              values[0] == DependencyProperty.UnsetValue ||
-              values[1] == DependencyProperty.UnsetValue)
+            if (values == null
+                || values.Count < 2
+                || values[0] == AvaloniaProperty.UnsetValue
+                || values[1] == AvaloniaProperty.UnsetValue)
             {
                 return 0.0d;
             }
@@ -439,6 +419,7 @@ namespace gip.core.layoutengine.avui.timeline
 
             return width;
         }
+
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
         {

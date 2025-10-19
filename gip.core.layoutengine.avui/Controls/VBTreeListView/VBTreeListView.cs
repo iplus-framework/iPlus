@@ -233,7 +233,7 @@ namespace gip.core.layoutengine.avui
                 var items = CollectionViewSource.GetDefaultView(Items);
                 items.SortDescriptions.Clear();
                 items.SortDescriptions.Add(new SortDescription(propertyName, sortDirection));
-                if(_VBTimelineView != null && !string.IsNullOrEmpty(_VBTimelineView.BSOUpdateDisplayOrderMethodName))
+                if (_VBTimelineView != null && !string.IsNullOrEmpty(_VBTimelineView.BSOUpdateDisplayOrderMethodName))
                     BSOACComponent.ExecuteMethod(_VBTimelineView.BSOUpdateDisplayOrderMethodName.StartsWith("!") ? _VBTimelineView.BSOUpdateDisplayOrderMethodName : "!"+_VBTimelineView.BSOUpdateDisplayOrderMethodName, items);
                 items.Refresh();
             }
@@ -417,7 +417,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         protected override void OnItemsChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            if(_VBTimelineView != null)
+            if (_VBTimelineView != null)
                 _VBTimelineView.ExpandCollapseAll = false;
             base.OnItemsChanged(e);
         }

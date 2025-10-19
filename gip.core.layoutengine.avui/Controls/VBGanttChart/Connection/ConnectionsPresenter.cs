@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows;
-using gip.core.layoutengine.avui;
+using Avalonia;
+using Avalonia.Controls;
 using gip.core.layoutengine.avui.timeline;
 
 namespace gip.core.layoutengine.avui.ganttchart
@@ -13,74 +7,20 @@ namespace gip.core.layoutengine.avui.ganttchart
     public class ConnectionsPresenter : ItemsControl
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ConnectionsPresenterStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectionsPresenterStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ConnectionsPresenterStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectionsPresenterStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
 
         static ConnectionsPresenter()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(ConnectionsPresenter),
-                new FrameworkPropertyMetadata(typeof(ConnectionsPresenter)));
-
             ItemContainerStyleSelectorProperty.AddOwner(typeof(ConnectionsPresenter),
                 new FrameworkPropertyMetadata(null, CoerceItemContainerStyleSelector));
 
         }
 
-        private static object CoerceItemContainerStyleSelector(DependencyObject d, object baseValue)
+        private static object CoerceItemContainerStyleSelector(AvaloniaObject d, object baseValue)
         {
             object value = baseValue ?? new StyleSelectorByItemType();
             return value;
         }
 
-        bool _themeApplied = false;
-        public ConnectionsPresenter()
-        {
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
         #endregion
 
         #region Properties
@@ -90,31 +30,60 @@ namespace gip.core.layoutengine.avui.ganttchart
         #region Attached Properties
 
         #region From
-        // Using a DependencyProperty as the backing store for FromItem.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty FromItemProperty =
-                DependencyProperty.RegisterAttached("FromItem", typeof(object), typeof(ConnectionsPresenter), new FrameworkPropertyMetadata(null));
-        public static object GetFromItem(DependencyObject obj)
+        /// <summary>
+        /// Defines the FromItem attached property.
+        /// </summary>
+        public static readonly AttachedProperty<object> FromItemProperty =
+            AvaloniaProperty.RegisterAttached<ConnectionsPresenter, AvaloniaObject, object>(
+                "FromItem", 
+                defaultValue: null);
+
+        /// <summary>
+        /// Gets the FromItem attached property value.
+        /// </summary>
+        /// <param name="obj">The target object.</param>
+        /// <returns>The FromItem value.</returns>
+        public static object GetFromItem(AvaloniaObject obj)
         {
-            return (object)obj.GetValue(FromItemProperty);
+            return obj.GetValue(FromItemProperty);
         }
 
-        public static void SetFromItem(DependencyObject obj, object value)
+        /// <summary>
+        /// Sets the FromItem attached property value.
+        /// </summary>
+        /// <param name="obj">The target object.</param>
+        /// <param name="value">The FromItem value to set.</param>
+        public static void SetFromItem(AvaloniaObject obj, object value)
         {
             obj.SetValue(FromItemProperty, value);
         }
         #endregion
 
         #region To
-        // Using a DependencyProperty as the backing store for ToItem.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ToItemProperty =
-                DependencyProperty.RegisterAttached("ToItem", typeof(object), typeof(ConnectionsPresenter), new FrameworkPropertyMetadata(null));
+        /// <summary>
+        /// Defines the ToItem attached property.
+        /// </summary>
+        public static readonly AttachedProperty<object> ToItemProperty =
+            AvaloniaProperty.RegisterAttached<ConnectionsPresenter, AvaloniaObject, object>(
+                "ToItem", 
+                defaultValue: null);
 
-        public static object GetToItem(DependencyObject obj)
+        /// <summary>
+        /// Gets the ToItem attached property value.
+        /// </summary>
+        /// <param name="obj">The target object.</param>
+        /// <returns>The ToItem value.</returns>
+        public static object GetToItem(AvaloniaObject obj)
         {
-            return (object)obj.GetValue(ToItemProperty);
+            return obj.GetValue(ToItemProperty);
         }
 
-        public static void SetToItem(DependencyObject obj, object value)
+        /// <summary>
+        /// Sets the ToItem attached property value.
+        /// </summary>
+        /// <param name="obj">The target object.</param>
+        /// <param name="value">The ToItem value to set.</param>
+        public static void SetToItem(AvaloniaObject obj, object value)
         {
             obj.SetValue(ToItemProperty, value);
         }
@@ -123,23 +92,16 @@ namespace gip.core.layoutengine.avui.ganttchart
         #endregion
 
         #region Methods
-        protected override bool IsItemItsOwnContainerOverride(object item)
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey) => new Connection();
+
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            return item is Connection;
+            return NeedsContainer<Connection>(item, out recycleKey);
         }
 
-        protected override System.Windows.DependencyObject GetContainerForItemOverride()
+        protected override void PrepareContainerForItemOverride(Control element, object item, int index)
         {
-            return new Connection();
-        }
-
-        protected override void PrepareContainerForItemOverride(
-            DependencyObject element, object item)
-        {
-
-            base.PrepareContainerForItemOverride(element, item);
-
-            if (Timeline != null)
+            if (element is Connection viewItem && Timeline != null)
             {
                 object fromItem = GetFromItem(element);
                 object toItem = GetToItem(element);
@@ -158,7 +120,9 @@ namespace gip.core.layoutengine.avui.ganttchart
                     }
                 }
             }
+            base.PrepareContainerForItemOverride(element, item, index);
         }
+
         #endregion
     }
 

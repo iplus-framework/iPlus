@@ -23,5 +23,5 @@ namespace gip.ext.design.avui
 				Math.Round(rect.Height, PlacementInformation.BoundsPrecision)
 			);
 		}
-	}
+    }
 }

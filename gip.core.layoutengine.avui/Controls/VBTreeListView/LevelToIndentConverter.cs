@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Data;
 using System.Globalization;
+using Avalonia.Data.Converters;
 
 namespace gip.core.layoutengine.avui
 {

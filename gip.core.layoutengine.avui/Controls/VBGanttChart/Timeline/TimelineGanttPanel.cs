@@ -1,10 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
+﻿using Avalonia;
+using Avalonia.Controls;
 using gip.core.layoutengine.avui.ganttchart;
 using gip.core.layoutengine.avui.timeline;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -23,20 +23,20 @@ namespace gip.core.layoutengine.avui
         {
             get 
             {
-                return WpfUtility.FindVisualParent<VBGanttChart>(this);
+                return Helperclasses.VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBGanttChart)) as VBGanttChart;
             }
         }
 
         protected override Size MeasureOverride(Size availableSize)
         {
             rowsCount = -1;
-            List<UIElement> measuredChildren = new List<UIElement>();
-            Dictionary<UIElement, int> logicalToActualMap = new Dictionary<UIElement, int>();
+            List<Control> measuredChildren = new List<Control>();
+            Dictionary<Control, int> logicalToActualMap = new Dictionary<Control, int>();
 
-            Children.OfType<FrameworkElement>().All(c => c.ApplyTemplate());
+            //Children.OfType<Control>().All(c => c.ApplyTemplate());
 
             var q =
-                from c in Children.OfType<UIElement>()
+                from c in Children.OfType<Control>()
                 let row = GetRowIndex(c)
                 orderby row
                 select new { Child = c, Row = row };
@@ -46,9 +46,9 @@ namespace gip.core.layoutengine.avui
             int nextActualRowIndex = 0;
             foreach (var childAndRow in q)
             {
-                ((FrameworkElement)childAndRow.Child).ApplyTemplate();
+                ((Control)childAndRow.Child).ApplyTemplate();
                 ClearActualRowIndex(childAndRow.Child);
-                childAndRow.Child.ClearValue(UIElement.VisibilityProperty);
+                childAndRow.Child.ClearValue(Control.IsVisibleProperty);
 
                 TimelineGanttItem tlChild = (TimelineGanttItem)childAndRow.Child;
 
@@ -60,7 +60,7 @@ namespace gip.core.layoutengine.avui
 
                 if (tlChild.IsCollapsed)
                 {
-                    childAndRow.Child.Visibility = Visibility.Collapsed;
+                    childAndRow.Child.IsVisible = false;
                 }
                 else
                 {
@@ -73,13 +73,10 @@ namespace gip.core.layoutengine.avui
 
                     SetActualRowIndex(childAndRow.Child, actualRowIndex);
 
-                    //SetChildRow(childAndRow.Child, measuredChildren);
-                    //measuredChildren.Add(childAndRow.Child);
-
-                    if (IsChildHasNoStartAndEndTime(childAndRow.Child))
-                    {
-                        //childAndRow.Child.Visibility = Visibility.Hidden;
-                    }
+                    //if (IsChildHasNoStartAndEndTime(childAndRow.Child))
+                    //{
+                    //    //childAndRow.Child.Visibility = Visibility.Hidden;
+                    //}
                 }
             }
 
@@ -91,10 +88,10 @@ namespace gip.core.layoutengine.avui
             double totalWidth = Math.Max(0, totalTimeSpan.Ticks * PixelsPerTick);
             double totalHeight = Math.Max(0, nextActualRowIndex * RowHeight + nextActualRowIndex * RowVerticalMargin);
 
-            return totalWidth <= 0 || totalHeight <= 0 ? Size.Empty : new Size(totalWidth, totalHeight);
+            return totalWidth <= 0 || totalHeight <= 0 ? new Size() : new Size(totalWidth, totalHeight);
         }
 
-        private bool IsChildHasNoStartAndEndTime(UIElement child)
+        private bool IsChildHasNoStartAndEndTime(Control child)
         {
             DateTime? childStartDate = GetStartDate(child);
             DateTime? childEndDate = GetEndDate(child);
@@ -103,9 +100,8 @@ namespace gip.core.layoutengine.avui
             return noTimes;
         }
 
-        protected virtual void SetChildRow(UIElement child, List<UIElement> measuredChildren)
-        {
-
-        }
+        //protected virtual void SetChildRow(Control child, List<Control> measuredChildren)
+        //{
+        //}
     }
 }

@@ -2,412 +2,402 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
 using System.ComponentModel;
-using System.Windows.Media;
-using System.Windows;
-using System.Runtime.CompilerServices;
+using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia;
+using Avalonia.Media;
+using Avalonia.Collections;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {
     /// <summary>
     /// Represent connection between two TimelineItems
     /// </summary>
-    public class Connection : Control, INotifyPropertyChanged
+    public class Connection : Control
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ConnectionStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectionStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ConnectionStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/ConnectionStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
 
-        static Connection()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(Connection), new FrameworkPropertyMetadata(typeof(Connection)));
-        }
-
-        bool _themeApplied = false;
         public Connection()
             : this(null, null)
         {
         }
 
-        public Connection(Connector source, Connector sink)
+        public Connection(Connector source, Connector sink) : base()
         {
             this.Source = source;
             this.Sink = sink;
 
-            Loaded += new RoutedEventHandler(Connection_Loaded);
-            Unloaded += new RoutedEventHandler(Connection_Unloaded);
+            Loaded += Connection_Loaded;
+            Unloaded += Connection_Unloaded;
+        }
+        #endregion
+
+        #region Styled Properties
+
+        /// <summary>
+        /// Defines the SourceItem styled property.
+        /// </summary>
+        public static readonly StyledProperty<TimelineGanttItem> SourceItemProperty =
+            AvaloniaProperty.Register<Connection, TimelineGanttItem>(nameof(SourceItem));
+
+        /// <summary>
+        /// Gets or sets the source timeline gantt item.
+        /// </summary>
+        public TimelineGanttItem SourceItem
+        {
+            get => GetValue(SourceItemProperty);
+            set => SetValue(SourceItemProperty, value);
         }
 
         /// <summary>
-        /// The event hander for Initialized event.
+        /// Defines the SinkItem styled property.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        public static readonly StyledProperty<TimelineGanttItem> SinkItemProperty =
+            AvaloniaProperty.Register<Connection, TimelineGanttItem>(nameof(SinkItem));
+
+        /// <summary>
+        /// Gets or sets the sink timeline gantt item.
+        /// </summary>
+        public TimelineGanttItem SinkItem
         {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            get => GetValue(SinkItemProperty);
+            set => SetValue(SinkItemProperty, value);
         }
 
         /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
+        /// Defines the Source styled property.
         /// </summary>
-        public override void OnApplyTemplate()
+        public static readonly StyledProperty<Connector> SourceProperty =
+            AvaloniaProperty.Register<Connection, Connector>(nameof(Source));
+
+        /// <summary>
+        /// Gets or sets the source connector.
+        /// </summary>
+        public Connector Source
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            get => GetValue(SourceProperty);
+            set => SetValue(SourceProperty, value);
         }
 
         /// <summary>
-        /// Actualizes current theme.
+        /// Defines the Sink styled property.
         /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
+        public static readonly StyledProperty<Connector> SinkProperty =
+            AvaloniaProperty.Register<Connection, Connector>(nameof(Sink));
+
+        /// <summary>
+        /// Gets or sets the sink connector.
+        /// </summary>
+        public Connector Sink
         {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            get => GetValue(SinkProperty);
+            set => SetValue(SinkProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the PathGeometry styled property.
+        /// </summary>
+        public static readonly StyledProperty<PathGeometry> PathGeometryProperty =
+            AvaloniaProperty.Register<Connection, PathGeometry>(nameof(PathGeometry));
+
+        /// <summary>
+        /// Gets or sets the connection path geometry.
+        /// </summary>
+        public PathGeometry PathGeometry
+        {
+            get => GetValue(PathGeometryProperty);
+            set => SetValue(PathGeometryProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the AnchorPositionSource styled property.
+        /// </summary>
+        public static readonly StyledProperty<Point> AnchorPositionSourceProperty =
+            AvaloniaProperty.Register<Connection, Point>(nameof(AnchorPositionSource));
+
+        /// <summary>
+        /// Gets or sets the anchor position source.
+        /// Between source connector position and the beginning of the path geometry we leave some space for visual reasons; 
+        /// so the anchor position source really marks the beginning of the path geometry on the source side.
+        /// </summary>
+        public Point AnchorPositionSource
+        {
+            get => GetValue(AnchorPositionSourceProperty);
+            set => SetValue(AnchorPositionSourceProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the AnchorAngleSource styled property.
+        /// </summary>
+        public static readonly StyledProperty<double> AnchorAngleSourceProperty =
+            AvaloniaProperty.Register<Connection, double>(nameof(AnchorAngleSource));
+
+        /// <summary>
+        /// Gets or sets the anchor angle source.
+        /// Slope of the path at the anchor position, needed for the rotation angle of the arrow.
+        /// </summary>
+        public double AnchorAngleSource
+        {
+            get => GetValue(AnchorAngleSourceProperty);
+            set => SetValue(AnchorAngleSourceProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the AnchorPositionSink styled property.
+        /// </summary>
+        public static readonly StyledProperty<Point> AnchorPositionSinkProperty =
+            AvaloniaProperty.Register<Connection, Point>(nameof(AnchorPositionSink));
+
+        /// <summary>
+        /// Gets or sets the anchor position sink.
+        /// Analogue to source side.
+        /// </summary>
+        public Point AnchorPositionSink
+        {
+            get => GetValue(AnchorPositionSinkProperty);
+            set => SetValue(AnchorPositionSinkProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the AnchorAngleSink styled property.
+        /// </summary>
+        public static readonly StyledProperty<double> AnchorAngleSinkProperty =
+            AvaloniaProperty.Register<Connection, double>(nameof(AnchorAngleSink));
+
+        /// <summary>
+        /// Gets or sets the anchor angle sink.
+        /// Analogue to source side.
+        /// </summary>
+        public double AnchorAngleSink
+        {
+            get => GetValue(AnchorAngleSinkProperty);
+            set => SetValue(AnchorAngleSinkProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the SourceArrowSymbol styled property.
+        /// </summary>
+        public static readonly StyledProperty<ArrowSymbol> SourceArrowSymbolProperty =
+            AvaloniaProperty.Register<Connection, ArrowSymbol>(nameof(SourceArrowSymbol), ArrowSymbol.None);
+
+        /// <summary>
+        /// Gets or sets the source arrow symbol.
+        /// </summary>
+        public ArrowSymbol SourceArrowSymbol
+        {
+            get => GetValue(SourceArrowSymbolProperty);
+            set => SetValue(SourceArrowSymbolProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the SinkArrowSymbol styled property.
+        /// </summary>
+        public static readonly StyledProperty<ArrowSymbol> SinkArrowSymbolProperty =
+            AvaloniaProperty.Register<Connection, ArrowSymbol>(nameof(SinkArrowSymbol), ArrowSymbol.Arrow);
+
+        /// <summary>
+        /// Gets or sets the sink arrow symbol.
+        /// </summary>
+        public ArrowSymbol SinkArrowSymbol
+        {
+            get => GetValue(SinkArrowSymbolProperty);
+            set => SetValue(SinkArrowSymbolProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the LabelPosition styled property.
+        /// </summary>
+        public static readonly StyledProperty<Point> LabelPositionProperty =
+            AvaloniaProperty.Register<Connection, Point>(nameof(LabelPosition));
+
+        /// <summary>
+        /// Gets or sets the label position.
+        /// Specifies a point at half path length.
+        /// </summary>
+        public Point LabelPosition
+        {
+            get => GetValue(LabelPositionProperty);
+            set => SetValue(LabelPositionProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the StrokeDashArray styled property.
+        /// </summary>
+        public static readonly StyledProperty<AvaloniaList<double>> StrokeDashArrayProperty =
+            AvaloniaProperty.Register<Connection, AvaloniaList<double>>(nameof(StrokeDashArray));
+
+        /// <summary>
+        /// Gets or sets the stroke dash array.
+        /// Pattern of dashes and gaps that is used to outline the connection path.
+        /// </summary>
+        public AvaloniaList<double> StrokeDashArray
+        {
+            get => GetValue(StrokeDashArrayProperty);
+            set => SetValue(StrokeDashArrayProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the LineStroke styled property.
+        /// </summary>
+        public static readonly StyledProperty<IBrush> LineStrokeProperty =
+            AvaloniaProperty.Register<Connection, IBrush>(nameof(LineStroke), Brushes.Black);
+
+        /// <summary>
+        /// Gets or sets the line stroke.
+        /// </summary>
+        public IBrush LineStroke
+        {
+            get => GetValue(LineStrokeProperty);
+            set => SetValue(LineStrokeProperty, value);
+        }
+
+        /// <summary>
+        /// Defines the LineStrokeThickness styled property.
+        /// </summary>
+        public static readonly StyledProperty<double> LineStrokeThicknessProperty =
+            AvaloniaProperty.Register<Connection, double>(nameof(LineStrokeThickness), 2.0);
+
+        /// <summary>
+        /// Gets or sets the line stroke thickness.
+        /// </summary>
+        public double LineStrokeThickness
+        {
+            get => GetValue(LineStrokeThicknessProperty);
+            set => SetValue(LineStrokeThicknessProperty, value);
         }
 
         #endregion
 
-        private TimelineGanttItem sourceItem;
-        public TimelineGanttItem SourceItem
+        #region Private Fields
+
+        // keep track of connections that link to this connector
+        private bool sourcePropChngReg;
+        private bool sinkPropChngReg;
+
+        #endregion
+
+        #region Property Changed Handling
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            get { return sourceItem; }
-            set
+            base.OnPropertyChanged(change);
+
+            if (change.Property == SourceItemProperty)
             {
-                if (sourceItem != value)
-                {
-                    if (sourceItem != null)
-                    {
-                        sourceItem.PropertyChanged -= OnItemPropertyChanged;
-                        sourceItem.IsVisibleChanged -= OnItemIsVisibleChanged;
-                        Source = null;
-                    }
-
-                    sourceItem = value;
-
-                    if (sourceItem != null)
-                    {
-                        sourceItem.PropertyChanged += OnItemPropertyChanged;
-                        sourceItem.IsVisibleChanged += OnItemIsVisibleChanged;
-                        Source = sourceItem.RightConnector;
-                    }
-                }
-
-                UpdateVisiblity();
+                OnSourceItemChanged(change.GetOldValue<TimelineGanttItem>(), change.GetNewValue<TimelineGanttItem>());
+            }
+            else if (change.Property == SinkItemProperty)
+            {
+                OnSinkItemChanged(change.GetOldValue<TimelineGanttItem>(), change.GetNewValue<TimelineGanttItem>());
+            }
+            else if (change.Property == SourceProperty)
+            {
+                OnSourceChanged(change.GetOldValue<Connector>(), change.GetNewValue<Connector>());
+            }
+            else if (change.Property == SinkProperty)
+            {
+                OnSinkChanged(change.GetOldValue<Connector>(), change.GetNewValue<Connector>());
+            }
+            else if (change.Property == PathGeometryProperty)
+            {
+                OnPathGeometryChanged(change.GetNewValue<PathGeometry>());
             }
         }
 
-        private TimelineGanttItem sinkItem;
-        public TimelineGanttItem SinkItem
+        private void OnSourceItemChanged(TimelineGanttItem oldValue, TimelineGanttItem newValue)
         {
-            get { return sinkItem; }
-            set
+            if (oldValue != null && oldValue is INotifyPropertyChanged oldNotifyProp)
             {
-                if (sinkItem != value)
-                {
-                    if (sinkItem != null)
-                    {
-                        sinkItem.PropertyChanged -= OnItemPropertyChanged;
-                        sinkItem.IsVisibleChanged -= OnItemIsVisibleChanged;
-                        Sink = null;
-                    }
-
-                    sinkItem = value;
-
-                    if (sinkItem != null)
-                    {
-                        sinkItem.PropertyChanged += OnItemPropertyChanged;
-                        sinkItem.IsVisibleChanged += OnItemIsVisibleChanged;
-                        Sink = sinkItem.LeftConnector;
-                    }
-                }
-
-                UpdateVisiblity();
+                oldNotifyProp.PropertyChanged -= OnItemPropertyChanged;
+                // Note: IsVisibleChanged event handling may need to be implemented differently in AvaloniaUI
+                // This depends on how TimelineGanttItem implements visibility change notifications
+                Source = null;
             }
-        }
 
-        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName.Equals("IsDisplayAsZero", StringComparison.InvariantCulture))
+            if (newValue != null && newValue is INotifyPropertyChanged newNotifyProp)
             {
-                UpdateVisiblity();
+                newNotifyProp.PropertyChanged += OnItemPropertyChanged;
+                // Note: IsVisibleChanged event handling may need to be implemented differently in AvaloniaUI
+                Source = newValue.RightConnector;
             }
-        }
-
-        private void OnItemIsVisibleChanged(object sender,
-            DependencyPropertyChangedEventArgs e)
-        {
 
             UpdateVisiblity();
         }
 
-        private void UpdateVisiblity()
+        private void OnSinkItemChanged(TimelineGanttItem oldValue, TimelineGanttItem newValue)
         {
-            if (sourceItem == null || sinkItem == null ||
-                sourceItem.Visibility != Visibility.Visible ||
-                sinkItem.Visibility != Visibility.Visible)
+            if (oldValue != null && oldValue is INotifyPropertyChanged oldNotifyProp)
             {
-
-                Visibility = Visibility.Collapsed;
+                oldNotifyProp.PropertyChanged -= OnItemPropertyChanged;
+                // Note: IsVisibleChanged event handling may need to be implemented differently in AvaloniaUI
+                Sink = null;
             }
-            else
+
+            if (newValue != null && newValue is INotifyPropertyChanged newNotifyProp)
             {
-                Visibility = Visibility.Visible;
+                newNotifyProp.PropertyChanged += OnItemPropertyChanged;
+                // Note: IsVisibleChanged event handling may need to be implemented differently in AvaloniaUI
+                Sink = newValue.LeftConnector;
+            }
+
+            UpdateVisiblity();
+        }
+
+        private void OnSourceChanged(Connector oldValue, Connector newValue)
+        {
+            if (oldValue != null)
+            {
+                UnregisterSource();
+                oldValue.Connections.Remove(this);
+            }
+
+            if (newValue != null)
+            {
+                newValue.Connections.Add(this);
+                RegisterSource();
+            }
+
+            UpdatePathGeometry();
+        }
+
+        private void OnSinkChanged(Connector oldValue, Connector newValue)
+        {
+            if (oldValue != null)
+            {
+                UnregisterSink();
+                oldValue.Connections.Remove(this);
+            }
+
+            if (newValue != null)
+            {
+                newValue.Connections.Add(this);
+                RegisterSink();
+            }
+
+            UpdatePathGeometry();
+        }
+
+        private void OnPathGeometryChanged(PathGeometry newValue)
+        {
+            UpdateAnchorPosition();
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private void OnItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName.Equals(nameof(TimelineGanttItem.IsDisplayAsZero), StringComparison.InvariantCulture))
+            {
+                UpdateVisiblity();
             }
         }
 
-        // source connector
-        private bool sourcePropChngReg;
-        private Connector source;
-        public Connector Source
+        private void OnItemIsVisibleChanged(object sender, AvaloniaPropertyChangedEventArgs e)
         {
-            get
-            {
-                return source;
-            }
-            set
-            {
-                if (source != value)
-                {
-                    if (source != null)
-                    {
-                        UnregisterSource();
-                        source.Connections.Remove(this);
-                    }
-
-                    source = value;
-
-                    if (source != null)
-                    {
-                        source.Connections.Add(this);
-                        RegisterSource();
-                    }
-
-                    UpdatePathGeometry();
-                }
-            }
-        }
-
-        private void RegisterSource()
-        {
-            if (!sourcePropChngReg && source != null)
-            {
-                sourcePropChngReg = true;
-                source.PropertyChanged += new PropertyChangedEventHandler(OnConnectorPositionChanged);
-            }
-        }
-
-        private void UnregisterSource()
-        {
-            if (sourcePropChngReg)
-            {
-                sourcePropChngReg = false;
-                source.PropertyChanged -= new PropertyChangedEventHandler(OnConnectorPositionChanged);
-            }
-        }
-
-        // sink connector
-        private bool sinkPropChngReg;
-        private Connector sink;
-        public Connector Sink
-        {
-            get { return sink; }
-            set
-            {
-                if (sink != value)
-                {
-                    if (sink != null)
-                    {
-                        UnregisterSink();
-                        sink.Connections.Remove(this);
-                    }
-
-                    sink = value;
-
-                    if (sink != null)
-                    {
-                        sink.Connections.Add(this);
-                        RegisterSink();
-                    }
-                    UpdatePathGeometry();
-                }
-            }
-        }
-
-        private void RegisterSink()
-        {
-            if (!sinkPropChngReg && sink != null)
-            {
-                sinkPropChngReg = true;
-                sink.PropertyChanged += new PropertyChangedEventHandler(OnConnectorPositionChanged);
-            }
-        }
-
-        private void UnregisterSink()
-        {
-            if (sinkPropChngReg)
-            {
-                sinkPropChngReg = false;
-                sink.PropertyChanged -= new PropertyChangedEventHandler(OnConnectorPositionChanged);
-            }
-        }
-
-        // connection path geometry
-        private PathGeometry pathGeometry;
-        public PathGeometry PathGeometry
-        {
-            get { return pathGeometry; }
-            set
-            {
-                if (pathGeometry != value)
-                {
-                    pathGeometry = value;
-                    UpdateAnchorPosition();
-                    OnPropertyChanged("PathGeometry");
-                }
-            }
-        }
-
-        // between source connector position and the beginning 
-        // of the path geometry we leave some space for visual reasons; 
-        // so the anchor position source really marks the beginning 
-        // of the path geometry on the source side
-        private Point anchorPositionSource;
-        public Point AnchorPositionSource
-        {
-            get { return anchorPositionSource; }
-            set
-            {
-                if (anchorPositionSource != value)
-                {
-                    anchorPositionSource = value;
-                    OnPropertyChanged("AnchorPositionSource");
-                }
-            }
-        }
-
-        // slope of the path at the anchor position
-        // needed for the rotation angle of the arrow
-        private double anchorAngleSource = 0;
-        public double AnchorAngleSource
-        {
-            get { return anchorAngleSource; }
-            set
-            {
-                if (anchorAngleSource != value)
-                {
-                    anchorAngleSource = value;
-                    OnPropertyChanged("AnchorAngleSource");
-                }
-            }
-        }
-
-        // analogue to source side
-        private Point anchorPositionSink;
-        public Point AnchorPositionSink
-        {
-            get { return anchorPositionSink; }
-            set
-            {
-                if (anchorPositionSink != value)
-                {
-                    anchorPositionSink = value;
-                    OnPropertyChanged("AnchorPositionSink");
-                }
-            }
-        }
-        // analogue to source side
-        private double anchorAngleSink = 0;
-        public double AnchorAngleSink
-        {
-            get { return anchorAngleSink; }
-            set
-            {
-                if (anchorAngleSink != value)
-                {
-                    anchorAngleSink = value;
-                    OnPropertyChanged("AnchorAngleSink");
-                }
-            }
-        }
-
-        private ArrowSymbol sourceArrowSymbol = ArrowSymbol.None;
-        public ArrowSymbol SourceArrowSymbol
-        {
-            get { return sourceArrowSymbol; }
-            set
-            {
-                if (sourceArrowSymbol != value)
-                {
-                    sourceArrowSymbol = value;
-                    OnPropertyChanged("SourceArrowSymbol");
-                }
-            }
-        }
-
-        public ArrowSymbol sinkArrowSymbol = ArrowSymbol.Arrow;
-        public ArrowSymbol SinkArrowSymbol
-        {
-            get { return sinkArrowSymbol; }
-            set
-            {
-                if (sinkArrowSymbol != value)
-                {
-                    sinkArrowSymbol = value;
-                    OnPropertyChanged("SinkArrowSymbol");
-                }
-            }
-        }
-
-        // specifies a point at half path length
-        private Point labelPosition;
-        public Point LabelPosition
-        {
-            get { return labelPosition; }
-            set
-            {
-                if (labelPosition != value)
-                {
-                    labelPosition = value;
-                    OnPropertyChanged("LabelPosition");
-                }
-            }
-        }
-
-        // pattern of dashes and gaps that is used to outline the connection path
-        private DoubleCollection strokeDashArray;
-        public DoubleCollection StrokeDashArray
-        {
-            get
-            {
-                return strokeDashArray;
-            }
-            set
-            {
-                if (strokeDashArray != value)
-                {
-                    strokeDashArray = value;
-                    OnPropertyChanged("StrokeDashArray");
-                }
-            }
+            UpdateVisiblity();
         }
 
         void OnConnectorPositionChanged(object sender, PropertyChangedEventArgs e)
@@ -418,63 +408,6 @@ namespace gip.core.layoutengine.avui.ganttchart
             {
                 UpdatePathGeometry();
             }
-        }
-
-        protected override Size ArrangeOverride(Size arrangeBounds)
-        {
-            return base.ArrangeOverride(arrangeBounds);
-        }
-
-        private void UpdatePathGeometry()
-        {
-            if (Source != null && Sink != null)
-            {
-                PathGeometry geometry = new PathGeometry();
-                PathFigure figure = new PathFigure();
-                figure.StartPoint = new Point(source.Position.X + 5, source.Position.Y);
-                figure.Segments.Add(new LineSegment(new Point(source.Position.X + 10, source.Position.Y), true));
-                figure.Segments.Add(new LineSegment(new Point(sink.Position.X - 10, sink.Position.Y), true));
-                figure.Segments.Add(new LineSegment(new Point(sink.Position.X - 5, sink.Position.Y), true));
-                geometry.Figures.Add(figure);
-                this.PathGeometry = geometry;
-                //List<Point> linePoints = PathFinder.GetConnectionLine(Source.GetInfo(), Sink.GetInfo(), true);
-                //if (linePoints.Count > 0) {
-                //  PathFigure figure = new PathFigure();
-                //  figure.StartPoint = linePoints[0];
-                //  linePoints.Remove(linePoints[0]);
-                //  figure.Segments.Add(new PolyLineSegment(linePoints, true));
-                //  geometry.Figures.Add(figure);
-
-                //  this.PathGeometry = geometry;
-                //}
-            }
-        }
-
-        private void UpdateAnchorPosition()
-        {
-            Point pathStartPoint, pathTangentAtStartPoint;
-            Point pathEndPoint, pathTangentAtEndPoint;
-            Point pathMidPoint, pathTangentAtMidPoint;
-
-            // the PathGeometry.GetPointAtFractionLength method gets the point and a tangent vector 
-            // on PathGeometry at the specified fraction of its length
-            this.pathGeometry.GetPointAtFractionLength(0, out pathStartPoint, out pathTangentAtStartPoint);
-            this.pathGeometry.GetPointAtFractionLength(1, out pathEndPoint, out pathTangentAtEndPoint);
-            this.pathGeometry.GetPointAtFractionLength(0.5, out pathMidPoint, out pathTangentAtMidPoint);
-
-            // get angle from tangent vector
-            //this.AnchorAngleSource = Math.Atan2(-pathTangentAtStartPoint.Y, -pathTangentAtStartPoint.X) * (180 / Math.PI);
-            //this.AnchorAngleSink = Math.Atan2(pathTangentAtEndPoint.Y, pathTangentAtEndPoint.X) * (180 / Math.PI);
-            this.AnchorAngleSource = 180;
-            this.AnchorAngleSink = 0;
-
-            // add some margin on source and sink side for visual reasons only
-            pathStartPoint.Offset(-pathTangentAtStartPoint.X * 5, -pathTangentAtStartPoint.Y * 5);
-            pathEndPoint.Offset(pathTangentAtEndPoint.X * 5, pathTangentAtEndPoint.Y * 5);
-
-            this.AnchorPositionSource = pathStartPoint;
-            this.AnchorPositionSink = pathEndPoint;
-            this.LabelPosition = pathMidPoint;
         }
 
         private void Connection_Loaded(object sender, RoutedEventArgs e)
@@ -492,43 +425,128 @@ namespace gip.core.layoutengine.avui.ganttchart
             UnregisterSink();
         }
 
-        // we could use DependencyProperties as well to inform others of property changes
-        public event PropertyChangedEventHandler PropertyChanged;
+        #endregion
 
-        protected void OnPropertyChanged([CallerMemberName] string name = "")
+        #region Private Methods
+
+        private void UpdateVisiblity()
         {
-            PropertyChangedEventHandler handler = PropertyChanged;
-            if (handler != null)
+            if (SourceItem == null 
+                || SinkItem == null 
+                || !SourceItem.IsVisible
+                || !SinkItem.IsVisible)
             {
-                handler(this, new PropertyChangedEventArgs(name));
+                IsVisible = false;
+            }
+            else
+            {
+                IsVisible = true;
             }
         }
 
-
-
-        public Brush LineStroke
+        private void RegisterSource()
         {
-            get { return (Brush)GetValue(LineStrokeProperty); }
-            set { SetValue(LineStrokeProperty, value); }
+            if (!sourcePropChngReg && Source != null && Source is INotifyPropertyChanged notifyProp)
+            {
+                sourcePropChngReg = true;
+                notifyProp.PropertyChanged += OnConnectorPositionChanged;
+            }
         }
 
-        // Using a DependencyProperty as the backing store for Stroke.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty LineStrokeProperty =
-                DependencyProperty.Register("LineStroke", typeof(Brush), typeof(Connection), new UIPropertyMetadata(Brushes.Black));
-
-
-
-
-        public double LineStrokeThickness
+        private void UnregisterSource()
         {
-            get { return (double)GetValue(LineStrokeThicknessProperty); }
-            set { SetValue(LineStrokeThicknessProperty, value); }
+            if (sourcePropChngReg && Source != null && Source is INotifyPropertyChanged notifyProp)
+            {
+                sourcePropChngReg = false;
+                notifyProp.PropertyChanged -= OnConnectorPositionChanged;
+            }
         }
 
-        // Using a DependencyProperty as the backing store for LineStrokeThickness.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty LineStrokeThicknessProperty =
-                DependencyProperty.Register("LineStrokeThickness", typeof(double), typeof(Connection), new FrameworkPropertyMetadata(2D));
+        private void RegisterSink()
+        {
+            if (!sinkPropChngReg && Sink != null && Sink is INotifyPropertyChanged notifyProp)
+            {
+                sinkPropChngReg = true;
+                notifyProp.PropertyChanged += OnConnectorPositionChanged;
+            }
+        }
 
+        private void UnregisterSink()
+        {
+            if (sinkPropChngReg && Sink != null && Sink is INotifyPropertyChanged notifyProp)
+            {
+                sinkPropChngReg = false;
+                notifyProp.PropertyChanged -= OnConnectorPositionChanged;
+            }
+        }
+
+        private void UpdatePathGeometry()
+        {
+            if (Source != null && Sink != null)
+            {
+                PathGeometry geometry = new PathGeometry();
+                PathFigure figure = new PathFigure();
+                figure.StartPoint = new Point(Source.Position.X + 5, Source.Position.Y);
+                
+                // In AvaloniaUI, LineSegment constructor only takes the Point parameter
+                figure.Segments.Add(new LineSegment { Point = new Point(Source.Position.X + 10, Source.Position.Y) });
+                figure.Segments.Add(new LineSegment { Point = new Point(Sink.Position.X - 10, Sink.Position.Y) });
+                figure.Segments.Add(new LineSegment { Point = new Point(Sink.Position.X - 5, Sink.Position.Y) });
+                
+                geometry.Figures.Add(figure);
+                this.PathGeometry = geometry;
+            }
+        }
+
+        private void UpdateAnchorPosition()
+        {
+            if (PathGeometry == null)
+                return;
+
+            // Note: AvaloniaUI's PathGeometry doesn't have GetPointAtFractionLength method
+            // We need to implement a simplified version or use alternative approach
+            // For now, we'll use the start and end points of the path
+
+            if (PathGeometry.Figures.Count > 0)
+            {
+                var figure = PathGeometry.Figures[0];
+                var startPoint = figure.StartPoint;
+                
+                Point endPoint = startPoint;
+                if (figure.Segments.Count > 0 && figure.Segments[^1] is LineSegment lastSegment)
+                {
+                    endPoint = lastSegment.Point;
+                }
+
+                // Calculate mid point
+                var midPoint = new Point(
+                    (startPoint.X + endPoint.X) / 2,
+                    (startPoint.Y + endPoint.Y) / 2);
+
+                // Set angles (simplified)
+                this.AnchorAngleSource = 180;
+                this.AnchorAngleSink = 0;
+
+                // Calculate anchor positions with offsets
+                var sourceOffset = new Point(startPoint.X - 5, startPoint.Y);
+                var sinkOffset = new Point(endPoint.X + 5, endPoint.Y);
+
+                this.AnchorPositionSource = sourceOffset;
+                this.AnchorPositionSink = sinkOffset;
+                this.LabelPosition = midPoint;
+            }
+        }
+
+        #endregion
+
+        #region Overrides
+
+        protected override Size ArrangeOverride(Size arrangeBounds)
+        {
+            return base.ArrangeOverride(arrangeBounds);
+        }
+
+        #endregion
     }
 
     public enum ArrowSymbol
@@ -537,5 +555,4 @@ namespace gip.core.layoutengine.avui.ganttchart
         Arrow,
         Diamond
     }
-
 }

@@ -1,16 +1,13 @@
-﻿using System.Runtime.CompilerServices;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Layout;
+using Avalonia.Media;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -20,9 +17,10 @@ namespace gip.core.layoutengine.avui.timeline
 
         static DateTimeAxesPanel()
         {
-            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(DateTimeAxesPanel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure, TimeframeChanged));
-            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(DateTimeAxesPanel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure, TimeframeChanged));
-            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(DateTimeAxesPanel), new FrameworkPropertyMetadata(Timeline.TickTimeSpanDefaultValue, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender, TicksTimeSpanChanged, TicksTimeSpanCoerce));
+            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(DateTimeAxesPanel), new StyledPropertyMetadata<DateTime?>(null));
+            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(DateTimeAxesPanel), new StyledPropertyMetadata<DateTime?>(null));
+            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(DateTimeAxesPanel), new StyledPropertyMetadata<TimeSpan>(Timeline.TickTimeSpanDefaultValue));
+            ScrollViewerHorizontalOffsetProperty.Changed.AddClassHandler<DateTimeAxesPanel>((x, e) => OnOffsetChanged(x, e));
         }
 
         public DateTimeAxesPanel()
@@ -32,16 +30,16 @@ namespace gip.core.layoutengine.avui.timeline
 
         internal void InitControl(bool forceInit = false)
         {
-            if (!MinimumDate.HasValue || !MaximumDate.HasValue || this.ActualWidth <= 0)
+            if (!MinimumDate.HasValue || !MaximumDate.HasValue || this.Bounds.Width <= 0)
                 return;
 
-            if (!forceInit && _LastWidth == this.ActualWidth && Children.Count > 0)
+            if (!forceInit && _LastWidth == this.Bounds.Width && Children.Count > 0)
                 return;
 
             Children.Clear();
             _TimeframeDateTimes = new List<DateTime>();
 
-            int numberOfAxes = (int)this.ActualWidth / _MinAxisOffset;
+            int numberOfAxes = (int)this.Bounds.Width / _MinAxisOffset;
 
             _DefaultTimeSpan = DetermineDateTimeSpan(numberOfAxes, TimelineChart.MinimumDate.Value, TimelineChart.MaximumDate.Value);
             _CurrentTimeSpan = _DefaultTimeSpan;
@@ -57,19 +55,19 @@ namespace gip.core.layoutengine.avui.timeline
 
             for (int i = 0; i < numberOfAxes; i++)
             {
-                if(lastDate.Date != calcDate.Date)
+                if (lastDate.Date != calcDate.Date)
                 {
                     dtAxisForeground = dtAxisForeground == _dtAxisColor1 ? _dtAxisColor2 : _dtAxisColor1;
                 }
 
-                DateTimeAxis axis = new DateTimeAxis(this) { AxisHeight = this.ActualHeight };
+                DateTimeAxis axis = new DateTimeAxis(this) { AxisHeight = this.Bounds.Height };
                 _TimeframeDateTimes.Add(calcDate);
                 axis.CurrentDateTime = calcDate;
                 axis.DateTimeTextBlock.Foreground = dtAxisForeground;
                 lastDate = calcDate;
 
                 if (defaultOffset < -(TextBlockWidth / 2))
-                    defaultOffset = this.ActualWidth;
+                    defaultOffset = this.Bounds.Width;
 
                 axis.SetPosition(defaultOffset, true);
                 Children.Add(axis);
@@ -85,13 +83,13 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 MaximumDate = EndAxis.CurrentDateTime;
                 TimelineChart.MaximumDate = MaximumDate;
-                TimelinePanel timelinePanel = WpfUtility.FindVisualChild<TimelinePanel>(TimelineChart.itemsPresenter);
+                TimelinePanel timelinePanel = VBVisualTreeHelper.FindChildObjects<TimelinePanel>(TimelineChart._ItemsPresenter)?.FirstOrDefault();
                 if (timelinePanel != null)
                     timelinePanel.MaximumDate = MaximumDate;
                 _IsFirstInit = false;
             }
 
-            _LastWidth = this.ActualWidth;
+            _LastWidth = this.Bounds.Width;
         }
 
         internal void ClearControl()
@@ -103,7 +101,9 @@ namespace gip.core.layoutengine.avui.timeline
         {
             this.ClearAllBindings();
             foreach (DateTimeAxis axis in Children)
+            {
                 axis.DeInitControl();
+            }
         }
 
         #endregion
@@ -132,7 +132,7 @@ namespace gip.core.layoutengine.avui.timeline
 
         static SolidColorBrush _dtAxisColor1 = new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Gip ? Colors.White : Colors.Black);
 
-        static SolidColorBrush _dtAxisColor2= new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Gip ? Colors.Orange : Colors.Blue);
+        static SolidColorBrush _dtAxisColor2 = new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Gip ? Colors.Orange : Colors.Blue);
 
         //temp fix 
         private double _TempZoomOffset = 0;
@@ -141,25 +141,25 @@ namespace gip.core.layoutengine.avui.timeline
 
         #region Properties
 
-        public static readonly DependencyProperty MaximumDateProperty;
-        public static readonly DependencyProperty MinimumDateProperty;
-        public static readonly DependencyProperty TickTimeSpanProperty;
+        public static readonly StyledProperty<DateTime?> MaximumDateProperty;
+        public static readonly StyledProperty<DateTime?> MinimumDateProperty;
+        public static readonly StyledProperty<TimeSpan> TickTimeSpanProperty;
 
         public Nullable<DateTime> MaximumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MaximumDateProperty); }
+            get { return GetValue(MaximumDateProperty); }
             set { SetValue(MaximumDateProperty, value); }
         }
 
         public Nullable<DateTime> MinimumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MinimumDateProperty); }
+            get { return GetValue(MinimumDateProperty); }
             set { SetValue(MinimumDateProperty, value); }
         }
 
         public TimeSpan TickTimeSpan
         {
-            get { return (TimeSpan)GetValue(TickTimeSpanProperty); }
+            get { return GetValue(TickTimeSpanProperty); }
             set { SetValue(TickTimeSpanProperty, value); }
         }
 
@@ -184,27 +184,30 @@ namespace gip.core.layoutengine.avui.timeline
             }
         }
 
+        public static readonly StyledProperty<double> AxesOffsetProperty =
+            AvaloniaProperty.Register<DateTimeAxesPanel, double>(nameof(AxesOffset), 0.0);
+
         public double AxesOffset
         {
-            get;
-            set;
+            get { return GetValue(AxesOffsetProperty); }
+            set { SetValue(AxesOffsetProperty, value); }
         }
+
+        public static readonly StyledProperty<double> ScrollViewerHorizontalOffsetProperty =
+            AvaloniaProperty.Register<DateTimeAxesPanel, double>(nameof(ScrollViewerHorizontalOffset), 0.0);
 
         public double ScrollViewerHorizontalOffset
         {
-            get { return (double)GetValue(ScrollViewerHorizontalOffsetProperty); }
+            get { return GetValue(ScrollViewerHorizontalOffsetProperty); }
             set { SetValue(ScrollViewerHorizontalOffsetProperty, value); }
         }
-
-        public static readonly DependencyProperty ScrollViewerHorizontalOffsetProperty =
-            DependencyProperty.Register("ScrollViewerHorizontalOffset", typeof(double), typeof(DateTimeAxesPanel), new PropertyMetadata(0.0, new PropertyChangedCallback(OnOffsetChanged)));
 
         private List<TimeSpan> _LogicalDateTimeSpans;
         private List<TimeSpan> LogicalDateTimeSpans
         {
             get
             {
-                if(_LogicalDateTimeSpans == null)
+                if (_LogicalDateTimeSpans == null)
                 {
                     _LogicalDateTimeSpans = new List<TimeSpan>
                     {
@@ -240,22 +243,31 @@ namespace gip.core.layoutengine.avui.timeline
             }
         }
 
+        public static readonly StyledProperty<Thickness> ZoomBorderMarginProperty =
+            AvaloniaProperty.Register<DateTimeAxesPanel, Thickness>(nameof(ZoomBorderMargin), new Thickness());
+
         public Thickness ZoomBorderMargin
         {
-            get;
-            set;
+            get { return GetValue(ZoomBorderMarginProperty); }
+            set { SetValue(ZoomBorderMarginProperty, value); }
         }
+
+        public static readonly StyledProperty<double> ZoomRectWidthProperty =
+            AvaloniaProperty.Register<DateTimeAxesPanel, double>(nameof(ZoomRectWidth), 0.0);
 
         public double ZoomRectWidth
         {
-            get;
-            set;
+            get { return GetValue(ZoomRectWidthProperty); }
+            set { SetValue(ZoomRectWidthProperty, value); }
         }
+
+        public static readonly StyledProperty<HorizontalAlignment> ZoomBorderAlignmentProperty =
+            AvaloniaProperty.Register<DateTimeAxesPanel, HorizontalAlignment>(nameof(ZoomBorderAlignment), HorizontalAlignment.Left);
 
         public HorizontalAlignment ZoomBorderAlignment
         {
-            get;
-            set;
+            get { return GetValue(ZoomBorderAlignmentProperty); }
+            set { SetValue(ZoomBorderAlignmentProperty, value); }
         }
 
         private VBTimelineChartBase TimelineChart
@@ -270,30 +282,17 @@ namespace gip.core.layoutengine.avui.timeline
 
         #region Methods
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            base.OnRenderSizeChanged(sizeInfo);
-            InitControl();
-        }
+            base.OnPropertyChanged(change);
 
-        private static void TimeframeChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
-        {
-        }
-
-        private static object TicksTimeSpanCoerce(DependencyObject d, object baseValue)
-        {
-            TimeSpan ts = (TimeSpan)baseValue;
-            if (ts.Ticks <= 0)
+            if (change.Property == BoundsProperty)
             {
-                return TimeSpan.FromMinutes(5);
-            }
-            else
-            {
-                return baseValue;
+                InitControl();
             }
         }
 
-        private static void TicksTimeSpanChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        private static void TimeframeChanged(AvaloniaObject o, AvaloniaPropertyChangedEventArgs e)
         {
         }
 
@@ -302,10 +301,8 @@ namespace gip.core.layoutengine.avui.timeline
             return _TimeframeDateTimes.FirstOrDefault(c => c >= currentDT);
         }
 
-        private static void OnOffsetChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnOffsetChanged(DateTimeAxesPanel thisControl, AvaloniaPropertyChangedEventArgs e)
         {
-            DateTimeAxesPanel thisControl = d as DateTimeAxesPanel;
-
             var newOffset = (double)e.NewValue - thisControl._LastOffset;
             if (newOffset == 0)
                 return;
@@ -315,17 +312,24 @@ namespace gip.core.layoutengine.avui.timeline
                 thisControl._IsScrollFromZoom = false;
                 thisControl._LastOffset = (double)e.NewValue;
 
-                if (thisControl._TempZoomOffset != thisControl.TimelineChart.ScrollViewer.HorizontalOffset)
-                    thisControl.TimelineChart.ScrollViewer.ScrollToHorizontalOffset(thisControl._TempZoomOffset);
+                if (thisControl._TempZoomOffset != thisControl.TimelineChart.ScrollViewer.Offset.X)
+                {
+                    var offset = thisControl.TimelineChart.ScrollViewer.Offset;
+                    var newOffsetVector = new Vector(thisControl._TempZoomOffset, offset.Y);
+                    thisControl.TimelineChart.ScrollViewer.SetCurrentValue(
+                        ScrollViewer.OffsetProperty,
+                        newOffsetVector
+                    );
+                }
 
                 return;
             }
 
             var newPosition = Canvas.GetLeft(thisControl.StartAxis) - newOffset;
 
-            if (newPosition - thisControl.StartAxis.DefaultPosition >= thisControl._MinAxisOffset-1 || newPosition - thisControl.StartAxis.DefaultPosition <= -thisControl._MinAxisOffset+1)
+            if (newPosition - thisControl.StartAxis.DefaultPosition >= thisControl._MinAxisOffset - 1 || newPosition - thisControl.StartAxis.DefaultPosition <= -thisControl._MinAxisOffset + 1)
             {
-                DateTime currentDT = Timeline.OffsetToDate((double)e.NewValue, thisControl.TimelineChart.itemsPresenter);
+                DateTime currentDT = Timeline.OffsetToDate((double)e.NewValue, thisControl.TimelineChart._ItemsPresenter);
                 DateTime startDT = thisControl.FindNearestLogicalDateTime(currentDT);
 
                 double offset = Timeline.DateToOffset(startDT, thisControl);
@@ -342,7 +346,7 @@ namespace gip.core.layoutengine.avui.timeline
                 }
 
                 SolidColorBrush dtAxisForeground = dtAxis != null ? dtAxis.DateTimeTextBlock.Foreground as SolidColorBrush : _dtAxisColor1;
-                if(reverse && dtAxis != null && startDT.Date != dtAxis.CurrentDateTime.Date)
+                if (reverse && dtAxis != null && startDT.Date != dtAxis.CurrentDateTime.Date)
                     dtAxisForeground = dtAxisForeground == _dtAxisColor1 ? _dtAxisColor2 : _dtAxisColor1;
 
                 foreach (DateTimeAxis axis in thisControl.Children)
@@ -352,7 +356,7 @@ namespace gip.core.layoutengine.avui.timeline
                     if (indexOfStartDT < maxTFDT)
                     {
                         DateTime current = thisControl._TimeframeDateTimes[indexOfStartDT];
-                        if(lastDate.HasValue && lastDate.Value.Date != current.Date)
+                        if (lastDate.HasValue && lastDate.Value.Date != current.Date)
                         {
                             dtAxisForeground = dtAxisForeground == _dtAxisColor1 ? _dtAxisColor2 : _dtAxisColor1;
                         }
@@ -379,19 +383,13 @@ namespace gip.core.layoutengine.avui.timeline
             thisControl._LastOffset = (double)e.NewValue;
         }
 
-        private void OnPropertyChanged([CallerMemberName] string propertyName = "")
-        {
-            if(PropertyChanged != null)
-                PropertyChanged.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         #region Methods => TimeSpan
 
         private TimeSpan DetermineDateTimeSpan(int maxAxis, DateTime start, DateTime end)
         {
             TimeSpan timeframe = end - start;
-            
-            foreach(TimeSpan logicalTS in LogicalDateTimeSpans)
+
+            foreach (TimeSpan logicalTS in LogicalDateTimeSpans)
             {
                 var lin = (timeframe.TotalSeconds / logicalTS.TotalSeconds) + 1;
                 if (lin < maxAxis)
@@ -409,17 +407,17 @@ namespace gip.core.layoutengine.avui.timeline
         double startMousePos = 0;
         bool _IsZoomCaptured = false;
 
-        internal void OnZoomStart(MouseButtonEventArgs e)
+        internal void OnZoomStart(PointerPressedEventArgs e)
         {
             _IsZoomCaptured = true;
             lastMousePos = e.GetPosition(this).X + 25;
-            startMousePos = e.GetPosition(TimelineChart.itemsPresenter).X + 25;
+            startMousePos = e.GetPosition(TimelineChart._ItemsPresenter).X + 25;
             ZoomRectWidth = 0;
-            OnPropertyChanged("ZoomRectWidth");
-            (this.Parent as FrameworkElement).Cursor = Cursors.SizeWE;
+            if (this.Parent is Control parentControl)
+                parentControl.Cursor = new Cursor(StandardCursorType.SizeWestEast);
         }
 
-        internal void OnZoomMove(MouseEventArgs e)
+        internal void OnZoomMove(PointerEventArgs e)
         {
             if (!_IsZoomCaptured)
                 return;
@@ -429,47 +427,34 @@ namespace gip.core.layoutengine.avui.timeline
 
             if (offset > 0)
             {
-                if (ZoomBorderAlignment != HorizontalAlignment.Left)
-                {
-                    ZoomBorderAlignment = HorizontalAlignment.Left;
-                    OnPropertyChanged("ZoomBorderAlignment");
-                }
-
+                ZoomBorderAlignment = HorizontalAlignment.Left;
                 ZoomBorderMargin = new Thickness(lastMousePos, 20, 0, 0);
-                OnPropertyChanged("ZoomBorderMargin");
             }
-            else if(offset < 0)
+            else if (offset < 0)
             {
-                if (ZoomBorderAlignment != HorizontalAlignment.Right)
-                {
-                    ZoomBorderAlignment = HorizontalAlignment.Right;
-                    OnPropertyChanged("ZoomBorderAlignment");
-                }
-
-                ZoomBorderMargin = new Thickness(0, 20, this.ActualWidth - lastMousePos, 0);
-                OnPropertyChanged("ZoomBorderMargin");
+                ZoomBorderAlignment = HorizontalAlignment.Right;
+                ZoomBorderMargin = new Thickness(0, 20, this.Bounds.Width - lastMousePos, 0);
             }
-            
+
             ZoomRectWidth = Math.Abs(offset);
-            OnPropertyChanged("ZoomRectWidth");
         }
 
-        internal void OnZoomEnd(MouseButtonEventArgs e)
+        internal void OnZoomEnd(PointerReleasedEventArgs e)
         {
             if (_IsZoomCaptured)
             {
                 ZoomRectWidth = 0;
-                OnPropertyChanged("ZoomRectWidth");
-                (this.Parent as FrameworkElement).Cursor = Cursors.Arrow;
-                var pos = e.GetPosition(TimelineChart.itemsPresenter).X;
+                if (this.Parent is Control parentControl)
+                    parentControl.Cursor = new Cursor(StandardCursorType.Arrow);
+                var pos = e.GetPosition(TimelineChart._ItemsPresenter).X;
                 DoZoom(startMousePos, pos);
                 _IsZoomCaptured = false;
             }
         }
 
-        internal void OnZoomOut(MouseButtonEventArgs e)
+        internal void OnZoomOut(PointerPressedEventArgs e)
         {
-            startMousePos = e.GetPosition(TimelineChart.itemsPresenter).X + 25;
+            startMousePos = e.GetPosition(TimelineChart._ItemsPresenter).X + 25;
             DateTime dt = Timeline.OffsetToDate(startMousePos, this);
 
             int indexOfLogicalTS = LogicalDateTimeSpans.IndexOf(_CurrentTimeSpan);
@@ -506,7 +491,7 @@ namespace gip.core.layoutengine.avui.timeline
 
             double? diff = null, diff2 = null;
 
-            foreach(DateTime dt in _TimeframeDateTimes)
+            foreach (DateTime dt in _TimeframeDateTimes)
             {
                 if (!diff2.HasValue)
                 {
@@ -525,7 +510,7 @@ namespace gip.core.layoutengine.avui.timeline
                 if (!(diff2.HasValue) || Math.Abs(dtDiff2.TotalSeconds) < diff2)
                 {
                     diff2 = Math.Abs(dtDiff2.TotalSeconds);
-                    
+
                 }
                 else
                 {
@@ -534,7 +519,7 @@ namespace gip.core.layoutengine.avui.timeline
                 }
             }
 
-            TimeSpan ts = DetermineDateTimeSpan((int)this.ActualWidth / _MinAxisOffset + 1, date1, date2);
+            TimeSpan ts = DetermineDateTimeSpan((int)this.Bounds.Width / _MinAxisOffset + 1, date1, date2);
 
             if (ts == _CurrentTimeSpan)
             {
@@ -558,7 +543,7 @@ namespace gip.core.layoutengine.avui.timeline
         {
             List<DateTime> datetimes = new List<DateTime>();
             DateTime current = start;
-            for(; ; )
+            for (; ; )
             {
                 if (current > end)
                     break;
@@ -574,17 +559,23 @@ namespace gip.core.layoutengine.avui.timeline
             if (_DefaultTimeSpan == _CurrentTimeSpan)
                 displayStart = _TimeframeDateTimes.FirstOrDefault();
 
-            _TempZoomOffset = Timeline.DateToOffset(displayStart, TimelineChart.itemsPresenter);
-            TimelineChart.ScrollViewer.ScrollToHorizontalOffset(_TempZoomOffset);
+            _TempZoomOffset = Timeline.DateToOffset(displayStart, TimelineChart._ItemsPresenter);
+
+            var offset = TimelineChart.ScrollViewer.Offset;
+            var newOffset = new Vector(_TempZoomOffset, offset.Y);
+            TimelineChart.ScrollViewer.SetCurrentValue(
+                ScrollViewer.OffsetProperty,
+                newOffset
+            );
             _LastOffset = _TempZoomOffset;
 
             DateTime current = displayStart;
-            double offset = 0;
+            double axisOffset = 0;
             DateTime lastDate = _TimeframeDateTimes.FirstOrDefault();
             SolidColorBrush dtAxisForeground = _dtAxisColor1;
 
             if (Children[0] is DateTimeAxis startAxis)
-                offset = Timeline.DateToOffset(current, TimelineChart.itemsPresenter) - _TempZoomOffset - (TextBlockWidth / 2);
+                axisOffset = Timeline.DateToOffset(current, TimelineChart._ItemsPresenter) - _TempZoomOffset - (TextBlockWidth / 2);
 
             foreach (DateTimeAxis dtAxis in Children)
             {
@@ -594,11 +585,11 @@ namespace gip.core.layoutengine.avui.timeline
                 }
                 dtAxis.CurrentDateTime = current;
                 dtAxis.DateTimeTextBlock.Foreground = dtAxisForeground;
-                Canvas.SetLeft(dtAxis, offset);
+                Canvas.SetLeft(dtAxis, axisOffset);
 
                 lastDate = current;
                 current += timeSpan;
-                offset += _MinAxisOffset;
+                axisOffset += _MinAxisOffset;
             }
 
             _IsScrollFromZoom = true;

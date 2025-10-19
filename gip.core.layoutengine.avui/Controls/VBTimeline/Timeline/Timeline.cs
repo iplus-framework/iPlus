@@ -10,7 +10,7 @@ namespace gip.core.layoutengine.avui.timeline
     {
         public static Nullable<DateTime> GetMinimumDate(AvaloniaObject obj)
         {
-            return (Nullable<DateTime>)obj.GetValue(MinimumDateProperty);
+            return obj.GetValue(MinimumDateProperty);
         }
 
         public static void SetMinimumDate(AvaloniaObject obj, Nullable<DateTime> value)
@@ -18,35 +18,35 @@ namespace gip.core.layoutengine.avui.timeline
             obj.SetValue(MinimumDateProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for MinimumDate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MinimumDateProperty =
-                DependencyProperty.RegisterAttached("MinimumDate", typeof(Nullable<DateTime>),
-                typeof(Timeline), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-
-
+        // Using an AttachedProperty as the backing store for MinimumDate. This enables animation, styling, binding, etc...
+        public static readonly AttachedProperty<Nullable<DateTime>> MinimumDateProperty =
+            AvaloniaProperty.RegisterAttached<Timeline, AvaloniaObject, Nullable<DateTime>>(
+                "MinimumDate", 
+                defaultValue: null, 
+                inherits: true);
 
         public static Nullable<DateTime> GetMaximumDate(AvaloniaObject obj)
         {
-            return (Nullable<DateTime>)obj.GetValue(MaximumDateProperty);
+            return obj.GetValue(MaximumDateProperty);
         }
 
-        public static void SetMaximumDate(AvaloniaObject obj, DateTime value)
+        public static void SetMaximumDate(AvaloniaObject obj, Nullable<DateTime> value)
         {
             obj.SetValue(MaximumDateProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for MaximumDate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MaximumDateProperty =
-                DependencyProperty.RegisterAttached("MaximumDate", typeof(Nullable<DateTime>),
-                typeof(Timeline), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-
-
+        // Using an AttachedProperty as the backing store for MaximumDate. This enables animation, styling, binding, etc...
+        public static readonly AttachedProperty<Nullable<DateTime>> MaximumDateProperty =
+            AvaloniaProperty.RegisterAttached<Timeline, AvaloniaObject, Nullable<DateTime>>(
+                "MaximumDate", 
+                defaultValue: null, 
+                inherits: true);
 
         public static readonly TimeSpan TickTimeSpanDefaultValue = TimeSpan.FromDays(1);
 
         public static TimeSpan GetTickTimeSpan(AvaloniaObject obj)
         {
-            return (TimeSpan)obj.GetValue(TickTimeSpanProperty);
+            return obj.GetValue(TickTimeSpanProperty);
         }
 
         public static void SetTickTimeSpan(AvaloniaObject obj, TimeSpan value)
@@ -54,11 +54,12 @@ namespace gip.core.layoutengine.avui.timeline
             obj.SetValue(TickTimeSpanProperty, value);
         }
 
-        // Using a DependencyProperty as the backing store for TickTimeSpan.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TickTimeSpanProperty =
-                DependencyProperty.RegisterAttached("TickTimeSpan", typeof(TimeSpan),
-                typeof(Timeline), new FrameworkPropertyMetadata(TickTimeSpanDefaultValue, FrameworkPropertyMetadataOptions.Inherits));
-
+        // Using an AttachedProperty as the backing store for TickTimeSpan. This enables animation, styling, binding, etc...
+        public static readonly AttachedProperty<TimeSpan> TickTimeSpanProperty =
+            AvaloniaProperty.RegisterAttached<Timeline, AvaloniaObject, TimeSpan>(
+                "TickTimeSpan", 
+                defaultValue: TickTimeSpanDefaultValue, 
+                inherits: true);
 
         public static double GetPixelsPerTick(AvaloniaObject obj)
         {

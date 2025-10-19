@@ -53,5 +53,10 @@ namespace gip.ext.chart.avui
 		{
 			return new DataRect(rect);
 		}
+
+		public static Rect Empty()
+		{
+			return new Rect(0, 0, 0, 0);
+        }
 	}
 }

@@ -2,14 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows.Controls;
-using System.Windows;
 using System.ComponentModel;
-using System.Windows.Data;
 using gip.core.datamodel;
-using System.Windows.Input;
 using gip.core.layoutengine.avui.Helperclasses;
-using System.Windows.Media;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.VisualTree;
+using Avalonia.Styling;
+using Avalonia;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -22,126 +23,27 @@ namespace gip.core.layoutengine.avui.timeline
     [ACClassInfo(Const.PackName_VarioSystem, "en{'TimelineItem'}de{'TimelineItem'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class TimelineItem : TimelineItemBase
     {
-        #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TimelineItemStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineItemStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TimelineItemStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTimeline/Themes/TimelineItemStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static TimelineItem()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineItem),
-                new FrameworkPropertyMetadata(typeof(TimelineItem)));
-        }
-
-        bool _themeApplied = false;
-        public TimelineItem()
-        {
-            
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-            ToolTipOpening += TimelineItem_ToolTipOpening;
-        }
-
-        #endregion
-
         #region Loaded-Event
-
-        ///// <summary>
-        ///// The event hander for Initialized event.
-        ///// </summary>
-        ///// <param name="e">The event arguments.</param>
-        //protected override void OnInitialized(EventArgs e)
-        //{
-        //    base.OnInitialized(e);
-        //    ActualizeTheme(true);
-        //    ToolTipOpening += TimelineItem_ToolTipOpening;
-        //    Loaded += TimelineItem_Loaded;
-        //}
-
-        ////void TimelineItem_Loaded(object sender, RoutedEventArgs e)
-        ////{
-        ////    if (container.Children.Count == 0 || (container.Children.Count == 3 && container.Children[2] != contentControl) && contentControl != null)
-        ////    {
-        ////        container.Children.Clear();
-        ////        if (container.Children.Count == 0)
-        ////        {
-        ////            if (_ToolTipStatus == null && this.ContentTemplate != null)
-        ////                _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
-
-        ////            if (_ToolTipStatus != null)
-        ////            {
-        ////                container.Children.Add(_ToolTipStatus);
-        ////                container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
-        ////            }
-        ////        }
-        ////    }
-        ////    else if (contentControl == null)
-        ////    {
-        ////        Binding bind = new Binding();
-        ////        bind.Source = this;
-        ////        bind.Path = new PropertyPath("ToolTipContent");
-        ////        contentControl = new ContentControl();
-        ////        contentControl.SetBinding(ContentControl.ContentProperty, bind);
-        ////    }
-        ////    if (container.Children.Count == 2 && contentControl != null)
-        ////        container.Children.Add(contentControl);
-        ////}
-
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-            //leftConnector = Template.FindName("PART_Left", this) as Connector;
-            //rightConnector = Template.FindName("PART_Right", this) as Connector;
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
-        StackPanel _ToolTipStatus;
-        ContentControl contentControl;
+        //StackPanel _ToolTipStatus;
+        //ContentControl _ContentControl;
 
         public override void InitVBControl()
         {
             base.InitVBControl();
 
-            Style timelineItemStyle = this.ContentTemplate.Resources["TimelineItemResource"] as Style;
-            if (timelineItemStyle != null)
-                this.Style = timelineItemStyle;
+            // TODO Avalonia: Must be solved in XAML
+            //Style timelineItemStyle = this.ContentTemplate.Resources["TimelineItemResource"] as Style;
+            //if (timelineItemStyle != null)
+            //    this.Style = timelineItemStyle;
 
             ToolTipContent = VBTimelineView.ToolTipItems;
             int toolTipChildrenCount = 0;
@@ -150,31 +52,32 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 if (this.ContentTemplate != null)
                 {
-                    _ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
-                    if (_ToolTipStatus != null)
-                    {
-                        VBTimelineChart.container.Children.Add(_ToolTipStatus);
-                        VBTimelineChart.container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
-                        toolTipChildrenCount = 2;
-                    }
+                    // TODO Avalonia: Must be solved in XAML
+                    //_ToolTipStatus = this.ContentTemplate.Resources["ToolTipStatus"] as StackPanel;
+                    //if (_ToolTipStatus != null)
+                    //{
+                    //    VBTimelineChart.container.Children.Add(_ToolTipStatus);
+                    //    VBTimelineChart.container.Children.Add(new Separator() { Height = 5, Background = Brushes.Transparent });
+                    //    toolTipChildrenCount = 2;
+                    //}
                 }
             }
             if (TimelinePanel.GetRowIndex(this) == 0)
             {
                 Binding bind = new Binding();
                 bind.Source = this;
-                bind.Path = new PropertyPath("ToolTipContent");
-                contentControl = new ContentControl();
-                contentControl.SetBinding(ContentControl.ContentProperty, bind);
+                bind.Path = nameof(ToolTipContent);
+                ContentControl contentControl = new ContentControl();
+                contentControl.Bind(ContentControl.ContentProperty, bind);
                 if (VBTimelineChart.container.Children.Count == toolTipChildrenCount)
                     VBTimelineChart.container.Children.Add(contentControl);
             }
 
-            ToolTip = VBTimelineChart.container;
+            ToolTip.SetTip(this, VBTimelineChart.container);
 
             if (VBTreeListViewItemMap == null)
             {
-                VBTreeListViewItemMap = VBTimelineView.PART_TreeListView.ItemContainerGenerator.ContainerFromItem(this.ContextACObject) as VBTreeListViewItem;
+                VBTreeListViewItemMap = VBTimelineView.PART_TreeListView.ContainerFromItem(this.ContextACObject) as VBTreeListViewItem;
 
                 if (VBTreeListViewItemMap != null)
                 {
@@ -184,7 +87,7 @@ namespace gip.core.layoutengine.avui.timeline
                 }
                 else
                 {
-                    TimelineItemPanel panel = this.VisualParent as TimelineItemPanel;
+                    TimelineItemPanel panel = this.GetVisualParent() as TimelineItemPanel;
                     if (panel != null)
                     {
                         var parentTimelineItem = panel.Children.OfType<TimelineItem>().FirstOrDefault(c => c.Content == this.ContextACObject.ParentACObject);
@@ -194,8 +97,8 @@ namespace gip.core.layoutengine.avui.timeline
 
                             Binding bind = new Binding();
                             bind.Source = parentTimelineItem;
-                            bind.Path = new PropertyPath("IsCollapsed");
-                            this.SetBinding(IsCollapsedProperty, bind);
+                            bind.Path = nameof(IsCollapsed);
+                            this.Bind(IsCollapsedProperty, bind);
                         }
                     }
                 }
@@ -217,15 +120,14 @@ namespace gip.core.layoutengine.avui.timeline
 
         #region DependencyProp
 
-        public Style TimelineItemStatus
+        public ControlTheme TimelineItemStatus
         {
-            get { return (Style)GetValue(TimelineItemStatusProperty); }
+            get { return (ControlTheme)GetValue(TimelineItemStatusProperty); }
             set { SetValue(TimelineItemStatusProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for TimelineItemStatus.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimelineItemStatusProperty =
-            DependencyProperty.Register("TimelineItemStatus", typeof(Style), typeof(TimelineItem));
+        public static readonly StyledProperty<ControlTheme> TimelineItemStatusProperty = AvaloniaProperty.Register<TimelineItem, ControlTheme>(nameof(TimelineItemStatus));
 
         public TimelineItemType TLItemType
         {
@@ -233,26 +135,16 @@ namespace gip.core.layoutengine.avui.timeline
             set { SetValue(TLItemTypeProperty, value); }
         }
 
-        public static readonly DependencyProperty TLItemTypeProperty =
-            DependencyProperty.Register("TLItemType", typeof(TimelineItemType), typeof(TimelineItem));
-
-
+        public static readonly StyledProperty<TimelineItemType> TLItemTypeProperty = AvaloniaProperty.Register<TimelineItem, TimelineItemType>(nameof(TLItemType));
         #endregion
 
         #region Methods
 
         public override bool DeInitVBControl()
         {
-            if (contentControl != null)
-                BindingOperations.ClearBinding(contentControl, ContentControl.ContentProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.StartDateProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.EndDateProperty);
-            BindingOperations.ClearBinding(this, TimelinePanel.RowIndexProperty);
-            BindingOperations.ClearBinding(this, ToolTipContentProperty);
             this.ClearAllBindings();
-            ToolTipOpening -= TimelineItem_ToolTipOpening;
-            Loaded -= TimelineItem_Loaded;
             VBTreeListViewItemMap = null;
+            base.DeInitVBControl();
             return true;
         }
 

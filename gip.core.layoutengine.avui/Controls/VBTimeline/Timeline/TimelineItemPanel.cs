@@ -1,12 +1,10 @@
-﻿using System;
+﻿using Avalonia;
+using Avalonia.Controls;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using gip.core.datamodel;
-using gip.core.layoutengine.avui.timeline;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -21,22 +19,20 @@ namespace gip.core.layoutengine.avui.timeline
         {
             get
             {
-                return WpfUtility.FindVisualParent<VBTimelineChart>(this);
+                return VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBTimelineChart)) as VBTimelineChart;
             }
         }
-
-        
-
+       
         protected override Size MeasureOverride(Size availableSize)
         {
             rowsCount = -1;
-            List<UIElement> measuredChildren = new List<UIElement>();
-            Dictionary<UIElement, int> logicalToActualMap = new Dictionary<UIElement, int>();
+            List<Control> measuredChildren = new List<Control>();
+            Dictionary<Control, int> logicalToActualMap = new Dictionary<Control, int>();
 
-            Children.OfType<FrameworkElement>().All(c => c.ApplyTemplate());
+            //Children.OfType<Control>().All(c => c.ApplyTemplate());
 
             var q =
-                from c in Children.OfType<UIElement>()
+                from c in Children.OfType<Control>()
                 let row = GetRowIndex(c)
                 orderby row
                 select new { Child = c, Row = row };
@@ -46,9 +42,9 @@ namespace gip.core.layoutengine.avui.timeline
 
             foreach (var childAndRow in q)
             {
-                ((FrameworkElement)childAndRow.Child).ApplyTemplate();
+                ((Control)childAndRow.Child).ApplyTemplate();
                 ClearActualRowIndex(childAndRow.Child);
-                childAndRow.Child.ClearValue(UIElement.VisibilityProperty);
+                childAndRow.Child.ClearValue(Control.IsVisibleProperty);
 
                 TimelineItem tlChild = (TimelineItem)childAndRow.Child;
 
@@ -59,7 +55,7 @@ namespace gip.core.layoutengine.avui.timeline
                 childAndRow.Child.Measure(calcChildSize.Size);
 
                 if (tlChild.IsCollapsed)
-                    childAndRow.Child.Visibility = Visibility.Collapsed;
+                    childAndRow.Child.IsVisible = false;
                 else
                 {
                     if(childAndRow.Row > lastItemRowIndex)
@@ -79,10 +75,10 @@ namespace gip.core.layoutengine.avui.timeline
             double totalHeight = Math.Max(0.0000001,
                 nextActualRowIndex * RowHeight + nextActualRowIndex * RowVerticalMargin);
 
-            return totalWidth <= 0 || totalHeight <= 0 ? Size.Empty : new Size(totalWidth, totalHeight);
+            return totalWidth <= 0 || totalHeight <= 0 ? new Size() : new Size(totalWidth, totalHeight);
         }
 
-        private bool IsChildHasNoStartAndEndTime(UIElement child)
+        private bool IsChildHasNoStartAndEndTime(Control child)
         {
             DateTime? childStartDate = GetStartDate(child);
             DateTime? childEndDate = GetEndDate(child);

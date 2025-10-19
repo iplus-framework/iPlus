@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Data;
+﻿using Avalonia.Data.Converters;
+using System;
 
 namespace gip.core.layoutengine.avui.timeline
 {

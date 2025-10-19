@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Media;
-using System.Windows.Shapes;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Shapes;
+using Avalonia.Data;
+using Avalonia.Layout;
+using Avalonia.Media;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.designer.avui.Converters;
+using System;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -15,25 +14,40 @@ namespace gip.core.layoutengine.avui.timeline
     {
         #region c'tors
 
+        static DateTimeAxis()
+        {
+            // Register styled properties
+        }
+
         public DateTimeAxis(DateTimeAxesPanel parent)
         {
             _ParentPanel = parent ?? throw new NullReferenceException();
 
-            SolidColorBrush axisColor = Brushes.Beige;
+            IBrush axisColor = Brushes.Beige;
 
-            if(ControlManager.WpfTheme == eWpfTheme.Aero)
+            if (ControlManager.WpfTheme == eWpfTheme.Aero)
             {
                 axisColor = Brushes.Gray;
             }
 
-            DateTimeTextBlock = new TextBlock() { Margin = new Thickness(0,5,0,2), TextAlignment = TextAlignment.Center};
+            DateTimeTextBlock = new TextBlock() { Margin = new Thickness(0, 5, 0, 2), TextAlignment = TextAlignment.Center };
             this.Width = DateTimeAxesPanel.TextBlockWidth;
 
-            Axis = new Line() { Stroke = axisColor, Fill = axisColor, Stretch = Stretch.Fill, HorizontalAlignment = System.Windows.HorizontalAlignment.Center };
+            Axis = new Line() { Stroke = axisColor, Fill = axisColor, Stretch = Stretch.Fill, HorizontalAlignment = HorizontalAlignment.Center };
+
             Binding binding = new Binding("ActualHeight");
             binding.Source = parent;
-            Axis.SetBinding(Line.Y2Property, binding);
-            SetBinding(HeightProperty, binding);
+            MultiBinding multiBinding = new MultiBinding();
+            multiBinding.Bindings.Add(binding);
+            // Add a static binding with value 0
+            Binding staticBinding = new Binding();
+            staticBinding.Source = 0;
+            multiBinding.Bindings.Add(staticBinding); // X - Value
+            multiBinding.Bindings.Add(binding); // Y - Value
+            PointConverter pointConverter = new PointConverter();
+            multiBinding.Converter = pointConverter;
+            Axis.Bind(Line.EndPointProperty, multiBinding);
+            Bind(HeightProperty, binding);
 
             Children.Add(DateTimeTextBlock);
             Children.Add(Axis);
@@ -43,52 +57,53 @@ namespace gip.core.layoutengine.avui.timeline
 
         #region Properties
 
+        public static readonly StyledProperty<TextBlock> DateTimeTextBlockProperty =
+            AvaloniaProperty.Register<DateTimeAxis, TextBlock>(nameof(DateTimeTextBlock));
+
         public TextBlock DateTimeTextBlock
         {
-            get;
-            set;
+            get { return GetValue(DateTimeTextBlockProperty); }
+            set { SetValue(DateTimeTextBlockProperty, value); }
         }
+
+        public static readonly StyledProperty<Line> AxisProperty =
+            AvaloniaProperty.Register<DateTimeAxis, Line>(nameof(Axis));
 
         private Line Axis
         {
-            get;
-            set;
+            get { return GetValue(AxisProperty); }
+            set { SetValue(AxisProperty, value); }
         }
+
+        public static readonly StyledProperty<double> AxisHeightProperty =
+            AvaloniaProperty.Register<DateTimeAxis, double>(nameof(AxisHeight), 0.0);
 
         public double AxisHeight
         {
-            get;
-            set;
+            get { return GetValue(AxisHeightProperty); }
+            set { SetValue(AxisHeightProperty, value); }
         }
 
-        private DateTime _CurrentDateTime;
+        public static readonly StyledProperty<DateTime> CurrentDateTimeProperty =
+            AvaloniaProperty.Register<DateTimeAxis, DateTime>(nameof(CurrentDateTime), DateTime.Now);
+
         public DateTime CurrentDateTime
         {
-            get => _CurrentDateTime;
-            set
-            {
-                _CurrentDateTime = value;
-                TimeSpan currentTS = _ParentPanel.TickTimeSpan;
-
-                if (currentTS < TimeSpan.FromMinutes(30))
-                    DateTimeTextBlock.Text = _CurrentDateTime.ToString("HH:mm:ss");
-                else if (currentTS < TimeSpan.FromDays(1))
-                    DateTimeTextBlock.Text = _CurrentDateTime.ToString("ddd HH:mm");
-                else if (currentTS < TimeSpan.FromDays(30))
-                    DateTimeTextBlock.Text = _CurrentDateTime.ToString("dd/MM/yy");
-                else if (currentTS < TimeSpan.FromDays(360))
-                    DateTimeTextBlock.Text = _CurrentDateTime.ToString("MM/yy");
-                else
-                    DateTimeTextBlock.Text = _CurrentDateTime.ToString("yyyy");
-
-                ToolTip = _CurrentDateTime.ToString();
+            get { return GetValue(CurrentDateTimeProperty); }
+            set 
+            { 
+                SetValue(CurrentDateTimeProperty, value);
+                UpdateDateTimeDisplay(value);
             }
         }
 
+        public static readonly StyledProperty<double> DefaultPositionProperty =
+            AvaloniaProperty.Register<DateTimeAxis, double>(nameof(DefaultPosition), 0.0);
+
         public double DefaultPosition
         {
-            get;
-            set;
+            get { return GetValue(DefaultPositionProperty); }
+            set { SetValue(DefaultPositionProperty, value); }
         }
 
         private DateTimeAxesPanel _ParentPanel;
@@ -96,6 +111,27 @@ namespace gip.core.layoutengine.avui.timeline
         #endregion
 
         #region Methods
+
+        private void UpdateDateTimeDisplay(DateTime dateTime)
+        {
+            if (_ParentPanel == null || DateTimeTextBlock == null)
+                return;
+
+            TimeSpan currentTS = _ParentPanel.TickTimeSpan;
+
+            if (currentTS < TimeSpan.FromMinutes(30))
+                DateTimeTextBlock.Text = dateTime.ToString("HH:mm:ss");
+            else if (currentTS < TimeSpan.FromDays(1))
+                DateTimeTextBlock.Text = dateTime.ToString("ddd HH:mm");
+            else if (currentTS < TimeSpan.FromDays(30))
+                DateTimeTextBlock.Text = dateTime.ToString("dd/MM/yy");
+            else if (currentTS < TimeSpan.FromDays(360))
+                DateTimeTextBlock.Text = dateTime.ToString("MM/yy");
+            else
+                DateTimeTextBlock.Text = dateTime.ToString("yyyy");
+
+            ToolTip.SetTip(this, dateTime.ToString());
+        }
 
         public void SetPosition(double offset, bool isDefault = false)
         {
@@ -111,12 +147,21 @@ namespace gip.core.layoutengine.avui.timeline
 
         public void DeInitControl()
         {
-            BindingOperations.ClearBinding(Axis, Line.Y2Property);
-            BindingOperations.ClearBinding(this, HeightProperty);
+            this.ClearAllBindings();
             Children.Clear();
             Axis = null;
             DateTimeTextBlock = null;
             _ParentPanel = null;
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == CurrentDateTimeProperty)
+            {
+                UpdateDateTimeDisplay((DateTime)change.NewValue);
+            }
         }
 
         #endregion

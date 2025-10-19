@@ -1,4 +1,6 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using gip.ext.design.avui.UIExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,9 +16,9 @@ namespace gip.core.layoutengine.avui.timeline
 
         static TimelinePanel()
         {
-            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(TimelinePanel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange));
-            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(TimelinePanel), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange));
-            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(TimelinePanel), new FrameworkPropertyMetadata(Timeline.TickTimeSpanDefaultValue, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsRender));
+            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner<TimelinePanel>();
+            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner<TimelinePanel>();
+            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner<TimelinePanel>();
         }
 
         public TimelinePanel()
@@ -24,100 +26,101 @@ namespace gip.core.layoutengine.avui.timeline
 
         }
 
-        #region DP
+        #region StyledProperties and AttachedProperties
 
-        public static readonly DependencyProperty MaximumDateProperty;
-        public static readonly DependencyProperty MinimumDateProperty;
-        public static readonly DependencyProperty TickTimeSpanProperty;
+        public static readonly StyledProperty<DateTime?> MaximumDateProperty =
+            AvaloniaProperty.Register<TimelinePanel, DateTime?>(nameof(MaximumDate));
+        
+        public static readonly StyledProperty<DateTime?> MinimumDateProperty =
+            AvaloniaProperty.Register<TimelinePanel, DateTime?>(nameof(MinimumDate));
+        
+        public static readonly StyledProperty<TimeSpan> TickTimeSpanProperty =
+            AvaloniaProperty.Register<TimelinePanel, TimeSpan>(nameof(TickTimeSpan));
 
+        public static readonly AttachedProperty<DateTime?> StartDateProperty =
+            AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, DateTime?>("StartDate");
+        
+        public static readonly AttachedProperty<DateTime?> EndDateProperty =
+            AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, DateTime?>("EndDate");
+        
+        public static readonly AttachedProperty<int> RowIndexProperty =
+            AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, int>("RowIndex");
 
-        public static readonly DependencyProperty StartDateProperty =
-                DependencyProperty.RegisterAttached("StartDate", typeof(DateTime?), typeof(TimelinePanel),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsParentMeasure));
-        public static readonly DependencyProperty EndDateProperty =
-                DependencyProperty.RegisterAttached("EndDate", typeof(DateTime?), typeof(TimelinePanel),
-        new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsParentMeasure));
-        public static readonly DependencyProperty RowIndexProperty =
-        DependencyProperty.RegisterAttached("RowIndex", typeof(int), typeof(TimelinePanel),
-        new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.AffectsParentMeasure));
+        private static readonly AttachedProperty<int> ActualRowIndexPropertyKey =
+            AvaloniaProperty.RegisterAttached<TimelinePanel, AvaloniaObject, int>("ActualRowIndex");
 
-        private static readonly DependencyPropertyKey ActualRowIndexPropertyKey =
-              DependencyProperty.RegisterAttachedReadOnly("ActualRowIndex", typeof(int), typeof(TimelinePanel),
-        new FrameworkPropertyMetadata(0));
+        public static readonly AttachedProperty<int> ActualRowIndexProperty = ActualRowIndexPropertyKey;
 
-        public static readonly DependencyProperty ActualRowIndexProperty =
-            ActualRowIndexPropertyKey.DependencyProperty;
-
-        public static int GetActualRowIndex(DependencyObject obj)
+        public static int GetActualRowIndex(AvaloniaObject obj)
         {
-            return (int)obj.GetValue(ActualRowIndexProperty);
+            return obj.GetValue(ActualRowIndexProperty);
         }
 
-        protected static void SetActualRowIndex(DependencyObject obj, int value)
+        protected static void SetActualRowIndex(AvaloniaObject obj, int value)
         {
             obj.SetValue(ActualRowIndexPropertyKey, value);
         }
 
-        protected static void ClearActualRowIndex(DependencyObject obj)
+        protected static void ClearActualRowIndex(AvaloniaObject obj)
         {
             obj.ClearValue(ActualRowIndexPropertyKey);
         }
 
-        public static DateTime? GetStartDate(DependencyObject obj)
+        public static DateTime? GetStartDate(AvaloniaObject obj)
         {
             // Return start time and if null end time.
-            return (DateTime?)obj.GetValue(StartDateProperty) ??
-                            (DateTime?)obj.GetValue(EndDateProperty);
+            return obj.GetValue(StartDateProperty) ??
+                   obj.GetValue(EndDateProperty);
         }
 
-        public static void SetStartDate(DependencyObject obj, DateTime? value)
+        public static void SetStartDate(AvaloniaObject obj, DateTime? value)
         {
             obj.SetValue(StartDateProperty, value);
         }
 
-        public static DateTime? GetEndDate(DependencyObject obj)
+        public static DateTime? GetEndDate(AvaloniaObject obj)
         {
             // Return end time, and if null start time.
-            return (DateTime?)obj.GetValue(EndDateProperty) ??
-                            (DateTime?)obj.GetValue(StartDateProperty);
+            return obj.GetValue(EndDateProperty) ??
+                   obj.GetValue(StartDateProperty);
         }
 
-        public static void SetEndDate(DependencyObject obj, DateTime? value)
+        public static void SetEndDate(AvaloniaObject obj, DateTime? value)
         {
             obj.SetValue(EndDateProperty, value);
         }
 
-        public static int GetRowIndex(DependencyObject obj)
+        public static int GetRowIndex(AvaloniaObject obj)
         {
-            return (int)obj.GetValue(RowIndexProperty);
+            return obj.GetValue(RowIndexProperty);
         }
 
-        public static void SetRowIndex(DependencyObject obj, int value)
+        public static void SetRowIndex(AvaloniaObject obj, int value)
         {
             obj.SetValue(RowIndexProperty, value);
         }
 
         public Nullable<DateTime> MaximumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MaximumDateProperty); }
+            get { return GetValue(MaximumDateProperty); }
             set { SetValue(MaximumDateProperty, value); }
         }
 
         public Nullable<DateTime> MinimumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MinimumDateProperty); }
+            get { return GetValue(MinimumDateProperty); }
             set { SetValue(MinimumDateProperty, value); }
         }
 
         public int RowIndex
         {
-            get { return (int)GetValue(RowIndexProperty); }
+            get { return GetValue(RowIndexProperty); }
             set { SetValue(RowIndexProperty, value); }
         }
 
         public TimeSpan TickTimeSpan
         {
-            get { return (TimeSpan)GetValue(TickTimeSpanProperty); }
+            get { return GetValue(TickTimeSpanProperty); }
             set { SetValue(TickTimeSpanProperty, value); }
         }
 
@@ -143,36 +146,35 @@ namespace gip.core.layoutengine.avui.timeline
             }
         }
 
+        /// <summary>
+        /// Represents the styled property for RowHeight.
+        /// </summary>
+        public static readonly StyledProperty<double> RowHeightProperty =
+            AvaloniaProperty.Register<TimelinePanel, double>(nameof(RowHeight), 18D);
 
         /// <summary>
         /// Get or set the height of each row in the timeline panel
         /// </summary>
         public double RowHeight
         {
-            get { return (double)GetValue(RowHeightProperty); }
+            get { return GetValue(RowHeightProperty); }
             set { SetValue(RowHeightProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for RowHeight.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RowHeightProperty =
-                DependencyProperty.Register("RowHeight", typeof(double), typeof(TimelinePanel),
-                new FrameworkPropertyMetadata(18D, FrameworkPropertyMetadataOptions.AffectsMeasure));
-
+        /// <summary>
+        /// Represents the styled property for RowVerticalMargin.
+        /// </summary>
+        public static readonly StyledProperty<double> RowVerticalMarginProperty =
+            AvaloniaProperty.Register<TimelinePanel, double>(nameof(RowVerticalMargin), 5D);
 
         /// <summary>
         /// Get or set the vertical margin between two rows.
         /// </summary>
         public double RowVerticalMargin
         {
-            get { return (double)GetValue(RowVerticalMarginProperty); }
+            get { return GetValue(RowVerticalMarginProperty); }
             set { SetValue(RowVerticalMarginProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for RowVerticalMargin.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RowVerticalMarginProperty =
-                DependencyProperty.Register("RowVerticalMargin", typeof(double), typeof(TimelinePanel),
-                new FrameworkPropertyMetadata(5D, FrameworkPropertyMetadataOptions.AffectsMeasure));
-
 
         protected double MinimumDisplayMultiplier
         {
@@ -191,7 +193,7 @@ namespace gip.core.layoutengine.avui.timeline
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement child in Children)
+            foreach (Control child in Children)
             {
                 ArrangeChild(child);
             }
@@ -199,16 +201,16 @@ namespace gip.core.layoutengine.avui.timeline
             return finalSize;
         }
 
-        protected virtual void ArrangeChild(UIElement child)
+        protected virtual void ArrangeChild(Control child)
         {
             int rowIndex = GetActualRowIndex(child);
             ArrangeChild(child, rowIndex);
         }
 
-        protected virtual void ArrangeChild(UIElement child, int rowIndex)
+        protected virtual void ArrangeChild(Control child, int rowIndex)
         {
             Rect childRect = CalcChildRect((TimelineItemBase)child, rowIndex);
-            if (!childRect.IsEmpty)
+            if (!childRect.IsEmpty())
             {
                 child.Arrange(childRect);
             }
@@ -218,7 +220,7 @@ namespace gip.core.layoutengine.avui.timeline
         {
 
             if (/*child.Visibility == Visibility.Collapsed || */child.IsCollapsed)
-                return Rect.Empty;
+                return RectExtensions.Empty();
 
             Rect desiredSize;
             if (child.IsDisplayAsZero)
@@ -262,7 +264,7 @@ namespace gip.core.layoutengine.avui.timeline
 
             if (MinimumDate == null || MaximumDate == null)
             {
-                return Rect.Empty;
+                return RectExtensions.Empty();
             }
 
             if (!(childStartDate.HasValue && childEndDate.HasValue))
@@ -302,7 +304,7 @@ namespace gip.core.layoutengine.avui.timeline
         {
             if (GetStartDate(child) == null || GetEndDate(child) == null || MinimumDate == null)
             {
-                return Rect.Empty;
+                return RectExtensions.Empty();
             }
 
             DateTime childStartDate = GetStartDate(child) ?? MinimumDate.Value;

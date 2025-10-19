@@ -164,6 +164,11 @@ namespace gip.ext.design.avui
             return false;
         }
 
+        public static bool IsAncestorOf(this Visual ancestor, Visual element, bool visualTree = false)
+        {
+            return element.IsDescendantOf(ancestor, visualTree);
+        }
+
         public static Transform TransformToAncestor(this Visual element, Visual ancestor)
         {
             ArgumentNullException.ThrowIfNull(ancestor);

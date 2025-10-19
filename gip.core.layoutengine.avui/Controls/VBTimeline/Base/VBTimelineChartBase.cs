@@ -1,25 +1,39 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
+using Avalonia.Data;
+using Avalonia.Input;
+using Avalonia.Styling;
 using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui.timeline
 {
-    public abstract class VBTimelineChartBase : Control, IVBContent, IVBSource
+    public abstract class VBTimelineChartBase : TemplatedControl, IVBContent, IVBSource
     {
         #region c'tors
 
         static VBTimelineChartBase()
         {
-            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null, MinimumMaximumDateChanged));
-            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null, MinimumMaximumDateChanged));
-            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(Timeline.TickTimeSpanDefaultValue, FrameworkPropertyMetadataOptions.Inherits | FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, TickTimeSpanChanged));
+            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(VBTimelineChartBase), new StyledPropertyMetadata<DateTime?>(null));
+            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(VBTimelineChartBase), new StyledPropertyMetadata<DateTime?>(null));
+            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(VBTimelineChartBase), new StyledPropertyMetadata<TimeSpan>(Timeline.TickTimeSpanDefaultValue));
+            
+            MinimumDateProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => MinimumMaximumDateChanged(x, e));
+            MaximumDateProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => MinimumMaximumDateChanged(x, e));
+            TickTimeSpanProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => TickTimeSpanChanged(x, e));
+            CurrentTimeProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => CurrentTimeChanged(x, e));
+            ItemsSourceProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => ItemsSourceChanged(x, e));
+            ZoomProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => ZoomChanged(x, e));
+            ACCompInitStateProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => OnDepPropChanged(x, e));
+            BSOACComponentProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => OnDepPropChanged(x, e));
         }
 
         #endregion
@@ -29,13 +43,13 @@ namespace gip.core.layoutengine.avui.timeline
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
+            base.OnApplyTemplate(e);
 
-            scrollViewer = Template.FindName("PART_ScrollViewer", this) as FrictionScrollViewer;
-            _PART_Line = Template.FindName("PART_Line", this) as RulerLine;
-            PART_AxesPanel = Template.FindName("PART_DateTimeAxesPanel", this) as DateTimeAxesPanel;
+            _ScrollViewer = e.NameScope.Find("PART_ScrollViewer") as FrictionScrollViewer;
+            _PART_Line = e.NameScope.Find("PART_Line") as RulerLine;
+            PART_AxesPanel = e.NameScope.Find("PART_DateTimeAxesPanel") as DateTimeAxesPanel;
 
             InitVBControl();
 
@@ -55,9 +69,9 @@ namespace gip.core.layoutengine.avui.timeline
             {
                 Binding bindingACComp = new Binding();
                 bindingACComp.Source = BSOACComponent;
-                bindingACComp.Path = new PropertyPath(Const.InitState);
+                bindingACComp.Path = Const.InitState;
                 bindingACComp.Mode = BindingMode.OneWay;
-                SetBinding(VBTimelineChartBase.ACCompInitStateProperty, bindingACComp);
+                this.Bind(VBTimelineChartBase.ACCompInitStateProperty, bindingACComp);
             }
 
             IACType dcACTypeInfo = null;
@@ -81,33 +95,30 @@ namespace gip.core.layoutengine.avui.timeline
             if (!ContextACObject.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00004", "VBGanttChart", VBSource + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00004", "VBComboBox", VBSource, VBContent);
                 return;
             }
 
             Binding binding = new Binding();
             binding.Source = dcSource;
             binding.Mode = BindingMode.TwoWay;
-            binding.Path = new PropertyPath(dcPath, null);
-            SetBinding(VBTimelineChartBase.SelectedItemProperty, binding);
+            binding.Path = dcPath;
+            this.Bind(VBTimelineChartBase.SelectedItemProperty, binding);
 
             Binding binding2 = new Binding();
             binding2.Source = dsSource;
-            binding2.Path = new PropertyPath(dsPath, null);
+            binding2.Path = dsPath;
             binding2.Mode = BindingMode.OneWay;
-            SetBinding(VBTimelineChartBase.ItemsSourceProperty, binding2);
-
+            this.Bind(VBTimelineChartBase.ItemsSourceProperty, binding2);
 
             _IsInitialized = true;
-            ApplyTemplate();
         }
 
         #endregion
 
         #region PARTs
 
-        internal ItemsControl itemsPresenter;
-        internal FrictionScrollViewer scrollViewer;
+        internal ItemsControl _ItemsPresenter;
+        internal FrictionScrollViewer _ScrollViewer;
         internal RulerLine _PART_Line;
         internal DateTimeAxesPanel PART_AxesPanel;
 
@@ -116,7 +127,7 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public ScrollViewer ScrollViewer
         {
-            get { return scrollViewer; }
+            get { return _ScrollViewer; }
         }
 
         #endregion
@@ -144,50 +155,49 @@ namespace gip.core.layoutengine.avui.timeline
 
         #endregion
 
-        #region DP
+        #region Avalonia Properties
 
         /// <summary>
-        /// Represents the dependency property key for Items.
+        /// Represents the styled property for Items.
         /// </summary>
-        private static readonly DependencyPropertyKey ItemsPropertyKey =
-          DependencyProperty.RegisterReadOnly(nameof(Items), typeof(IList<IACTimeLog>), typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null));
+        public static readonly DirectProperty<VBTimelineChartBase, IList<IACTimeLog>> ItemsProperty =
+            AvaloniaProperty.RegisterDirect<VBTimelineChartBase, IList<IACTimeLog>>(
+                nameof(Items),
+                o => o.Items,
+                (o, v) => o.Items = v);
 
-        /// <summary>
-        /// Represents the dependency property for Items.
-        /// </summary>
-        public static readonly DependencyProperty ItemsProperty = ItemsPropertyKey.DependencyProperty;
+        private IList<IACTimeLog> _items = new List<IACTimeLog>();
 
         /// <summary>
         /// Gets or sets the Items.
         /// </summary>
         public IList<IACTimeLog> Items
         {
-            get { return (IList<IACTimeLog>)GetValue(ItemsProperty); }
-            internal set { SetValue(ItemsPropertyKey, value); }
+            get { return _items; }
+            internal set { SetAndRaise(ItemsProperty, ref _items, value); }
         }
 
         /// <summary>
-        /// Represents the dependency property for the ItemsSource.
+        /// Represents the styled property for the ItemsSource.
         /// </summary>
-        public static readonly DependencyProperty ItemsSourceProperty =
-            DependencyProperty.Register("ItemsSource", typeof(IEnumerable), typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null, ItemsSourceChanged));
+        public static readonly StyledProperty<IEnumerable> ItemsSourceProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, IEnumerable>(nameof(ItemsSource));
 
         /// <summary>
         /// Gets or sets the ItemsSource.
         /// </summary>
         public IEnumerable ItemsSource
         {
-            get { return (IEnumerable)GetValue(ItemsSourceProperty); }
+            get { return GetValue(ItemsSourceProperty); }
             set { SetValue(ItemsSourceProperty, value); }
         }
 
-        private static void ItemsSourceChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        private static void ItemsSourceChanged(VBTimelineChartBase self, AvaloniaPropertyChangedEventArgs e)
         {
-            VBTimelineChartBase self = (VBTimelineChartBase)o;
             self.ItemsSourceChanged(e);
         }
 
-        private void ItemsSourceChanged(DependencyPropertyChangedEventArgs e)
+        private void ItemsSourceChanged(AvaloniaPropertyChangedEventArgs e)
         {
             Items.Clear();
             if (e.NewValue != null)
@@ -229,14 +239,13 @@ namespace gip.core.layoutengine.avui.timeline
                 MinimumDate = null;
                 MaximumDate = null;
             }
-
         }
 
         /// <summary>
-        /// Represents the dependency property for the SelectedItem.
+        /// Represents the styled property for the SelectedItem.
         /// </summary>
-        public static readonly DependencyProperty SelectedItemProperty
-            = DependencyProperty.Register("SelectedItem", typeof(object), typeof(VBTimelineChartBase));
+        public static readonly StyledProperty<object> SelectedItemProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, object>(nameof(SelectedItem));
 
         /// <summary>
         /// Gets or sets the SelectedItem.
@@ -248,103 +257,85 @@ namespace gip.core.layoutengine.avui.timeline
         }
 
         /// <summary>
-        /// Represents the dependecy property key for the Connections.
+        /// Represents the styled property for the ItemsPanel.
         /// </summary>
-        private static readonly DependencyPropertyKey ConnectionsPropertyKey =
-            DependencyProperty.RegisterReadOnly("Connections", typeof(IList<object>), typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null));
-
-        /// <summary>
-        /// Represents the dependecy property for the ItemsPanel.
-        /// </summary>
-        public static readonly DependencyProperty ItemsPanelProperty =
-            DependencyProperty.Register("ItemsPanel", typeof(ItemsPanelTemplate), typeof(VBTimelineChartBase), ItemsPanelMetadata());
+        public static readonly StyledProperty<ITemplate<Panel>> ItemsPanelProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, ITemplate<Panel>>(nameof(ItemsPanel), ItemsPanelTemplate());
 
         /// <summary>
         /// Gets or sets the ItemsPanel.
         /// </summary>
-        public ItemsPanelTemplate ItemsPanel
+        public ITemplate<Panel> ItemsPanel
         {
-            get { return (ItemsPanelTemplate)GetValue(ItemsPanelProperty); }
+            get { return GetValue(ItemsPanelProperty); }
             set { SetValue(ItemsPanelProperty, value); }
         }
 
-        private static FrameworkPropertyMetadata ItemsPanelMetadata()
+        private static ITemplate<Panel> ItemsPanelTemplate()
         {
-            var defaultPanelTemplate =
-              new ItemsPanelTemplate(
-                new FrameworkElementFactory(typeof(TimelineItemPanel))
-                );
-            var md = new FrameworkPropertyMetadata(defaultPanelTemplate);
-            return md;
+            return new FuncTemplate<Panel>(() => new TimelineItemPanel());
         }
 
         /// <summary>
         /// Gets or sets the style selector of item container.
         /// </summary>
-        public StyleSelector ItemContainerStyleSelector
+        public static readonly StyledProperty<Selector> ItemContainerStyleSelectorProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, Selector>(nameof(ItemContainerStyleSelector));
+
+        public Selector ItemContainerStyleSelector
         {
-            get { return (StyleSelector)GetValue(ItemContainerStyleSelectorProperty); }
+            get { return GetValue(ItemContainerStyleSelectorProperty); }
             set { SetValue(ItemContainerStyleSelectorProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ItemContainerStyleSelector.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ItemContainerStyleSelectorProperty =
-            DependencyProperty.Register("ItemContainerStyleSelector", typeof(StyleSelector), typeof(VBTimelineChartBase),
-            new FrameworkPropertyMetadata(null));
+        public static readonly StyledProperty<IStyle> ItemContainerStyleProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, IStyle>(nameof(ItemContainerStyle));
 
-        public Style ItemContainerStyle
+        public IStyle ItemContainerStyle
         {
-            get { return (Style)GetValue(ItemContainerStyleProperty); }
+            get { return GetValue(ItemContainerStyleProperty); }
             set { SetValue(ItemContainerStyleProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for ItemContainerStyle.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ItemContainerStyleProperty =
-            DependencyProperty.RegisterAttached("ItemContainerStyle", typeof(Style), typeof(VBTimelineChartBase), new PropertyMetadata(null));
 
         /// <summary>
         /// Gets or sets the MaximumDate.
         /// </summary>
+        public static readonly StyledProperty<DateTime?> MaximumDateProperty;
+
         public Nullable<DateTime> MaximumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MaximumDateProperty); }
+            get { return GetValue(MaximumDateProperty); }
             set { SetValue(MaximumDateProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for MaximumDate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MaximumDateProperty;
 
         /// <summary>
         /// Gets or sets the MinimumDate.
         /// </summary>
+        public static readonly StyledProperty<DateTime?> MinimumDateProperty;
+
         public Nullable<DateTime> MinimumDate
         {
-            get { return (Nullable<DateTime>)GetValue(MinimumDateProperty); }
+            get { return GetValue(MinimumDateProperty); }
             set { SetValue(MinimumDateProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for MinimumDate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty MinimumDateProperty;
 
         /// <summary>
         /// Gets or sets the Tick TimeSpan.
         /// </summary>
+        public static readonly StyledProperty<TimeSpan> TickTimeSpanProperty;
+
         public TimeSpan TickTimeSpan
         {
-            get { return (TimeSpan)GetValue(TickTimeSpanProperty); }
+            get { return GetValue(TickTimeSpanProperty); }
             set { SetValue(TickTimeSpanProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for TickTimeSpan.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TickTimeSpanProperty;
-
-        private static void TickTimeSpanChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        private static void TickTimeSpanChanged(VBTimelineChartBase self, AvaloniaPropertyChangedEventArgs e)
         {
-            VBTimelineChartBase self = (VBTimelineChartBase)o;
             self.TickTimeSpanChanged(e);
         }
 
-        private void TickTimeSpanChanged(DependencyPropertyChangedEventArgs e)
+        private void TickTimeSpanChanged(AvaloniaPropertyChangedEventArgs e)
         {
             setCurrentTimePending = true;
             UpdateDisplayTimeSpan();
@@ -353,39 +344,37 @@ namespace gip.core.layoutengine.avui.timeline
         /// <summary>
         /// Gets or sets the CurrentTime.
         /// </summary>
+        public static readonly StyledProperty<DateTime> CurrentTimeProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, DateTime>(nameof(CurrentTime), DateTime.MinValue);
+
         public DateTime CurrentTime
         {
-            get { return (DateTime)GetValue(CurrentTimeProperty); }
+            get { return GetValue(CurrentTimeProperty); }
             set { SetValue(CurrentTimeProperty, value); }
         }
 
-        public static readonly DependencyProperty CurrentTimeProperty =
-            DependencyProperty.Register("CurrentTime", typeof(DateTime), typeof(VBGanttChart), new FrameworkPropertyMetadata(DateTime.MinValue, CurrentTimeChanged));
-
-        private static void CurrentTimeChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        private static void CurrentTimeChanged(VBTimelineChartBase self, AvaloniaPropertyChangedEventArgs e)
         {
-            VBTimelineChartBase self = (VBTimelineChartBase)o;
             self.CurrentTimeChanged(e);
         }
 
         private bool ignoreCurrentChanged = false;
 
-        private void CurrentTimeChanged(DependencyPropertyChangedEventArgs e)
+        private void CurrentTimeChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (ignoreCurrentChanged) return;
 
             GoToDate((DateTime)e.NewValue);
         }
 
-        private static readonly DependencyPropertyKey MaximumTickTimeSpanPropertyKey =
-          DependencyProperty.RegisterReadOnly("MaximumTickTimeSpan", typeof(TimeSpan),
-          typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(TimeSpan.FromDays(1)));
+        public static readonly DirectProperty<VBTimelineChartBase, TimeSpan> MaximumTickTimeSpanProperty =
+            AvaloniaProperty.RegisterDirect<VBTimelineChartBase, TimeSpan>(
+                nameof(MaximumTickTimeSpan),
+                o => o.MaximumTickTimeSpan,
+                (o, v) => o.MaximumTickTimeSpan = v,
+                TimeSpan.FromDays(1));
 
-        /// <summary>
-        /// Represents the dependency property for MaximumTickTimeSpan
-        /// </summary>
-        public static readonly DependencyProperty MaximumTickTimeSpanProperty =
-          MaximumTickTimeSpanPropertyKey.DependencyProperty;
+        private TimeSpan _maximumTickTimeSpan = TimeSpan.FromDays(1);
 
         /// <summary>
         /// Get the maxinimum tick time span allowed.
@@ -393,19 +382,18 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public TimeSpan MaximumTickTimeSpan
         {
-            get { return (TimeSpan)GetValue(MaximumTickTimeSpanProperty); }
-            internal set { SetValue(MaximumTickTimeSpanPropertyKey, value); }
+            get { return _maximumTickTimeSpan; }
+            internal set { SetAndRaise(MaximumTickTimeSpanProperty, ref _maximumTickTimeSpan, value); }
         }
 
-        private static readonly DependencyPropertyKey MinimumTickTimeSpanPropertyKey =
-          DependencyProperty.RegisterReadOnly("MinimumTickTimeSpan", typeof(TimeSpan),
-          typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(TimeSpan.FromDays(1)));
+        public static readonly DirectProperty<VBTimelineChartBase, TimeSpan> MinimumTickTimeSpanProperty =
+            AvaloniaProperty.RegisterDirect<VBTimelineChartBase, TimeSpan>(
+                nameof(MinimumTickTimeSpan),
+                o => o.MinimumTickTimeSpan,
+                (o, v) => o.MinimumTickTimeSpan = v,
+                TimeSpan.FromDays(1));
 
-        /// <summary>
-        /// Represents the dependency property for MaximumTickTimeSpan
-        /// </summary>
-        public static readonly DependencyProperty MinimumTickTimeSpanProperty =
-          MinimumTickTimeSpanPropertyKey.DependencyProperty;
+        private TimeSpan _minimumTickTimeSpan = TimeSpan.FromDays(1);
 
         /// <summary>
         /// Get the minimum tick time allowed.
@@ -413,19 +401,18 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public TimeSpan MinimumTickTimeSpan
         {
-            get { return (TimeSpan)GetValue(MinimumTickTimeSpanProperty); }
-            internal set { SetValue(MinimumTickTimeSpanPropertyKey, value); }
+            get { return _minimumTickTimeSpan; }
+            internal set { SetAndRaise(MinimumTickTimeSpanProperty, ref _minimumTickTimeSpan, value); }
         }
 
-        private static readonly DependencyPropertyKey DisplayTimeSpanPropertyKey =
-          DependencyProperty.RegisterReadOnly("DisplayTimeSpan", typeof(TimeSpan),
-          typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(TimeSpan.FromDays(1)));
+        public static readonly DirectProperty<VBTimelineChartBase, TimeSpan> DisplayTimeSpanProperty =
+            AvaloniaProperty.RegisterDirect<VBTimelineChartBase, TimeSpan>(
+                nameof(DisplayTimeSpan),
+                o => o.DisplayTimeSpan,
+                (o, v) => o.DisplayTimeSpan = v,
+                TimeSpan.FromDays(1));
 
-        /// <summary>
-        /// Represents the dependency property for DisplayTimeSpan.
-        /// </summary>
-        public static readonly DependencyProperty DisplayTimeSpanProperty =
-          DisplayTimeSpanPropertyKey.DependencyProperty;
+        private TimeSpan _displayTimeSpan = TimeSpan.FromDays(1);
 
         /// <summary>
         /// Get the time span display by the timeline control.
@@ -437,175 +424,128 @@ namespace gip.core.layoutengine.avui.timeline
         /// </remarks>
         public TimeSpan DisplayTimeSpan
         {
-            get { return (TimeSpan)GetValue(DisplayTimeSpanProperty); }
-            internal set { SetValue(DisplayTimeSpanPropertyKey, value); }
+            get { return _displayTimeSpan; }
+            internal set { SetAndRaise(DisplayTimeSpanProperty, ref _displayTimeSpan, value); }
         }
 
+        public static readonly DirectProperty<VBTimelineChartBase, bool> IsNoBoundsProperty =
+            AvaloniaProperty.RegisterDirect<VBTimelineChartBase, bool>(
+                nameof(IsNoBounds),
+                o => o.IsNoBounds,
+                (o, v) => o.IsNoBounds = v,
+                true);
+
+        private bool _isNoBounds = true;
 
         /// <summary>
         /// Get indication weather there are bounds to the timeline control or not.
         /// </summary>
         public bool IsNoBounds
         {
-            get { return (bool)GetValue(IsNoBoundsProperty); }
-            internal set { SetValue(IsNoBoundsPropertyKey, value); }
+            get { return _isNoBounds; }
+            internal set { SetAndRaise(IsNoBoundsProperty, ref _isNoBounds, value); }
         }
-
-        // Using a DependencyProperty as the backing store for IsNoBounds.  This enables animation, styling, binding, etc...
-        private static readonly DependencyPropertyKey IsNoBoundsPropertyKey =
-          DependencyProperty.RegisterReadOnly("IsNoBounds", typeof(bool), typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(true));
-
-        /// <summary>
-        /// Represents the dependency property for IsNoBounds.
-        /// </summary>
-        public static readonly DependencyProperty IsNoBoundsProperty =
-            IsNoBoundsPropertyKey.DependencyProperty;
 
         /// <summary>
         /// Gets or sets NoBounds.
         /// </summary>
+        public static readonly StyledProperty<object> NoBoundsProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, object>(nameof(NoBounds), "No bounds are set");
+
         public object NoBounds
         {
-            get { return (object)GetValue(NoBoundsProperty); }
+            get { return GetValue(NoBoundsProperty); }
             set { SetValue(NoBoundsProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for NoBoundsContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty NoBoundsProperty =
-            DependencyProperty.Register("NoBounds", typeof(object), typeof(VBTimelineChartBase), new UIPropertyMetadata("No bounds are set"));
 
         /// <summary>
         /// Gets or sets the data template for NoBoundsContent
         /// </summary>
-        public DataTemplate NoBoundsContentTemplate
+        public static readonly StyledProperty<IDataTemplate> NoBoundsContentTemplateProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, IDataTemplate>(nameof(NoBoundsContentTemplate));
+
+        public IDataTemplate NoBoundsContentTemplate
         {
-            get { return (DataTemplate)GetValue(NoBoundsContentTemplateProperty); }
+            get { return GetValue(NoBoundsContentTemplateProperty); }
             set { SetValue(NoBoundsContentTemplateProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for NoBoundsContentTemplate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty NoBoundsContentTemplateProperty =
-            DependencyProperty.Register("NoBoundsContentTemplate", typeof(DataTemplate), typeof(VBTimelineChartBase), new UIPropertyMetadata(null));
-
 
         /// <summary>
         /// Gets the data template selector for NooBoundsContent.
         /// </summary>
-        public DataTemplateSelector NoBoundsContentTemplateSelector
+        public static readonly StyledProperty<IDataTemplate> NoBoundsContentTemplateSelectorProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, IDataTemplate>(nameof(NoBoundsContentTemplateSelector));
+
+        public IDataTemplate NoBoundsContentTemplateSelector
         {
-            get { return (DataTemplateSelector)GetValue(NoBoundsContentTemplateSelectorProperty); }
+            get { return GetValue(NoBoundsContentTemplateSelectorProperty); }
             set { SetValue(NoBoundsContentTemplateSelectorProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for NoBoundsContentTemplateSelector.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty NoBoundsContentTemplateSelectorProperty =
-            DependencyProperty.Register("NoBoundsContentTemplateSelector", typeof(DataTemplateSelector), typeof(VBTimelineChartBase), new UIPropertyMetadata(null));
-
 
         /// <summary>
         /// Gets or sets the string format for NoBounds.
         /// </summary>
+        public static readonly StyledProperty<string> NoBoundsStringFormatProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, string>(nameof(NoBoundsStringFormat));
+
         public string NoBoundsStringFormat
         {
-            get { return (string)GetValue(NoBoundsStringFormatProperty); }
+            get { return GetValue(NoBoundsStringFormatProperty); }
             set { SetValue(NoBoundsStringFormatProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for NoBoundsStringFormat.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty NoBoundsStringFormatProperty =
-            DependencyProperty.Register("NoBoundsStringFormat", typeof(string), typeof(VBGanttChart), new UIPropertyMetadata(null));
-
         /// <summary>
-        /// Represents the dependency property for LineY2.
+        /// Represents the styled property for LineY2.
         /// </summary>
-        public static readonly DependencyProperty LineY2Property
-           = DependencyProperty.Register("LineY2", typeof(double), typeof(VBTimelineChartBase));
+        public static readonly StyledProperty<double> LineY2Property =
+            AvaloniaProperty.Register<VBTimelineChartBase, double>(nameof(LineY2));
 
         /// <summary>
         /// Gets or sets the LineY2.
         /// </summary>
         public double LineY2
         {
-            get { return (double)GetValue(LineY2Property); }
+            get { return GetValue(LineY2Property); }
             set { SetValue(LineY2Property, value + 27); }
         }
 
         /// <summary>
-        /// Represents the dependency property for Zoom.
+        /// Represents the styled property for Zoom.
         /// </summary>
-        public static readonly DependencyProperty ZoomProperty
-            = DependencyProperty.Register("Zoom", typeof(string), typeof(VBTimelineChartBase), new PropertyMetadata(new PropertyChangedCallback(ZoomChanged)));
+        public static readonly StyledProperty<string> ZoomProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, string>(nameof(Zoom));
 
         /// <summary>
         /// Gets or sets the Zoom.
         /// </summary>
         public string Zoom
         {
-            get { return (string)GetValue(ZoomProperty); }
+            get { return GetValue(ZoomProperty); }
             set { SetValue(ZoomProperty, value); }
         }
 
-        public static void ZoomChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        public static void ZoomChanged(VBTimelineChartBase timelineChart, AvaloniaPropertyChangedEventArgs e)
         {
-            //if (e.NewValue == null)
-            //    return;
-
-            //VBTimelineChartBase timelineChart = o as VBTimelineChartBase;
-
-            //switch (e.NewValue.ToString())
-            //{
-            //    case "Min":
-            //        timelineChart.TickTimeSpan = TimeSpan.FromSeconds(1);
-            //        break;
-
-            //    case "30 min":
-            //        timelineChart.TickTimeSpan = TimeSpan.FromSeconds(16);
-            //        break;
-
-            //    case "45 min":
-            //        timelineChart.TickTimeSpan = TimeSpan.FromSeconds(31);
-            //        break;
-
-            //    case "60 min":
-            //        timelineChart.TickTimeSpan = TimeSpan.FromSeconds(46);
-            //        break;
-
-            //    case "90 min":
-            //        timelineChart.TickTimeSpan = TimeSpan.FromSeconds(61);
-            //        break;
-
-            //    case "120 min":
-            //        timelineChart.TickTimeSpan = TimeSpan.FromSeconds(100);
-            //        break;
-
-            //    case "Default":
-            //        timelineChart.TickTimeSpan = timelineChart.MaximumTickTimeSpan;
-            //        break;
-            //}
+            // Zoom change logic can be implemented here if needed
         }
 
-
         /// <summary>
-        /// Represents the dependency property for ACCompInitState.
+        /// Represents the styled property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-           DependencyProperty.Register("ACCompInitState",
-               typeof(ACInitState), typeof(VBGanttChart),
-               new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
         public ACInitState ACCompInitState
         {
-            get { return (ACInitState)GetValue(ACCompInitStateProperty); }
+            get { return GetValue(ACCompInitStateProperty); }
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        private static void OnDepPropChanged(VBTimelineChartBase thisControl, AvaloniaPropertyChangedEventArgs args)
         {
-            VBTimelineChartBase thisControl = dependencyObject as VBTimelineChartBase;
             if (thisControl == null)
                 return;
             if (args.Property == ACCompInitStateProperty)
@@ -621,39 +561,32 @@ namespace gip.core.layoutengine.avui.timeline
             }
         }
 
+        public static readonly StyledProperty<IDataTemplate> TimelineItemTemplateProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, IDataTemplate>(nameof(TimelineItemTemplate));
 
-
-        public DataTemplate TimelineItemTemplate
+        public IDataTemplate TimelineItemTemplate
         {
-            get { return (DataTemplate)GetValue(TimelineItemTemplateProperty); }
+            get { return GetValue(TimelineItemTemplateProperty); }
             set { SetValue(TimelineItemTemplateProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimelineItemTemplateProperty =
-            DependencyProperty.RegisterAttached("TimelineItemTemplate", typeof(DataTemplate), typeof(VBTimelineChartBase), new PropertyMetadata(null));
-
+        public static readonly StyledProperty<DateTime?> TimeFrameFromProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, DateTime?>(nameof(TimeFrameFrom));
 
         public DateTime? TimeFrameFrom
         {
-            get { return (DateTime?)GetValue(TimeFrameFromProperty); }
+            get { return GetValue(TimeFrameFromProperty); }
             set { SetValue(TimeFrameFromProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for FromTimeFrame.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimeFrameFromProperty =
-            DependencyProperty.Register("TimeFrameFrom", typeof(DateTime?), typeof(VBTimelineChartBase), new PropertyMetadata(null));
-
+        public static readonly StyledProperty<DateTime?> TimeFrameToProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, DateTime?>(nameof(TimeFrameTo));
 
         public DateTime? TimeFrameTo
         {
-            get { return (DateTime?)GetValue(TimeFrameToProperty); }
+            get { return GetValue(TimeFrameToProperty); }
             set { SetValue(TimeFrameToProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for ToDateTime.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty TimeFrameToProperty =
-            DependencyProperty.Register("TimeFrameTo", typeof(DateTime?), typeof(VBTimelineChartBase), new PropertyMetadata(null));
 
         #endregion
 
@@ -706,11 +639,10 @@ namespace gip.core.layoutengine.avui.timeline
 
         private void UpdateDisplayTimeSpan()
         {
-            if (ActualWidth > 0 && TickTimeSpan.Ticks > 0)
+            if (Bounds.Width > 0 && TickTimeSpan.Ticks > 0)
             {
                 double pixelPerTick = Timeline.GetPixelsPerTick(this);
-                DisplayTimeSpan = TimeSpan.FromTicks((long)(ActualWidth / pixelPerTick));
-                //DisplayTimeSpan = TimeSpan.FromSeconds(1);
+                DisplayTimeSpan = TimeSpan.FromTicks((long)(Bounds.Width / pixelPerTick));
             }
             else
             {
@@ -718,17 +650,22 @@ namespace gip.core.layoutengine.avui.timeline
             }
         }
 
-        protected override void OnRenderSizeChanged(SizeChangedInfo sizeInfo)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (_PART_Line != null)
-                _PART_Line.ArrangeLine();
-            base.OnRenderSizeChanged(sizeInfo);
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == BoundsProperty)
+            {
+                if (_PART_Line != null)
+                    _PART_Line.ArrangeLine();
+                UpdateDisplayTimeSpan();
+            }
         }
 
         internal void UpdateDisplayOrder(ICollectionView items)
         {
             BSOACComponent.ExecuteMethod("UpdateDisplayOrder", items, Items);
-            itemsPresenter.InvalidateMeasure();
+            _ItemsPresenter.InvalidateMeasure();
         }
 
         /// <summary>
@@ -750,11 +687,10 @@ namespace gip.core.layoutengine.avui.timeline
                 MinimumDate = new DateTime(minDate.Year, minDate.Month, minDate.Day, minDate.Hour, 0, 0);
                 MaximumDate = new DateTime(maxDate.Year, maxDate.Month, maxDate.Day, maxDate.Hour, 0, 0);
 
-                PART_AxesPanel.InitControl(true);
+                PART_AxesPanel?.InitControl(true);
             }
             else
-                PART_AxesPanel.ClearControl();
-
+                PART_AxesPanel?.ClearControl();
         }
 
         /// <summary>
@@ -770,7 +706,6 @@ namespace gip.core.layoutengine.avui.timeline
                 {
                     var minDate = tempStart.Value.AddMinutes(-20);
                     MinimumDate = new DateTime(minDate.Year, minDate.Month, minDate.Day, minDate.Hour, minDate.Minute, 30);
-
                 }
 
                 DateTime? tempEnd = newItem.GetValue(_VBTimelineView.GanttEnd) as DateTime?;
@@ -779,48 +714,34 @@ namespace gip.core.layoutengine.avui.timeline
                     var maxDate = tempEnd.Value.AddMinutes(20);
                     MaximumDate = new DateTime(maxDate.Year, maxDate.Month, maxDate.Day, maxDate.Hour, maxDate.Minute, 0);
                 }
-                PART_AxesPanel.InitControl(true);
+                PART_AxesPanel?.InitControl(true);
             }
         }
 
         private void SetZoom()
         {
-            //Zoom = "";
-            //if (MaximumDate.HasValue && MinimumDate.HasValue)
-            //{
-            //    TimeSpan diff = MaximumDate.Value - MinimumDate.Value;
-            //    if (diff.TotalHours <= 12)
-            //        Zoom = "60 min";
-            //    else if (diff.TotalHours <= 24)
-            //        Zoom = "120 min";
-            //    else
-            //        Zoom = "Max";
-            //}
-            //else
             Zoom = "Default";
         }
 
         protected bool recalcMaxZoom = true;
 
-        private static void MinimumMaximumDateChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private static void MinimumMaximumDateChanged(VBTimelineChartBase self, AvaloniaPropertyChangedEventArgs e)
         {
-            VBTimelineChartBase self = (VBTimelineChartBase)sender;
             bool newIsNoBound = (self.MinimumDate == null && self.MaximumDate == null);
             bool isNoBoundChanged = self.IsNoBounds != newIsNoBound;
             self.IsNoBounds = newIsNoBound;
-            //if the are no bounds, we leave the process as is
             if (isNoBoundChanged)
             {
-                //self.TickTimeSpan = Timeline.TickTimeSpanDefaultValue;
+                // Handle no bounds change if needed
             }
             self.recalcMaxZoom = true;
         }
 
         private void WireScrollViewer()
         {
-            if (scrollViewer != null)
+            if (_ScrollViewer != null)
             {
-                scrollViewer.ScrollChanged += new ScrollChangedEventHandler(ScrollViewer_ScrollChanged);
+                _ScrollViewer.ScrollChanged += ScrollViewer_ScrollChanged;
             }
         }
 
@@ -831,10 +752,10 @@ namespace gip.core.layoutengine.avui.timeline
                 setCurrentTimePending = false;
                 GoToDate(CurrentTime);
             }
-            else if (e.HorizontalChange != 0)
+            else if (e.OffsetDelta.X != 0)
             {
                 ignoreCurrentChanged = true;
-                CurrentTime = Timeline.OffsetToDate(e.HorizontalOffset, this);
+                CurrentTime = Timeline.OffsetToDate(e.OffsetDelta.X, this);
                 ignoreCurrentChanged = false;
             }
         }
@@ -845,22 +766,16 @@ namespace gip.core.layoutengine.avui.timeline
         /// <param name="date"></param>
         public void GoToDate(DateTime date)
         {
-            if (scrollViewer == null) return;
+            if (_ScrollViewer == null) return;
 
             double offset = Timeline.DateToOffset(date, this);
             if (offset >= 0)
             {
-                scrollViewer.ScrollToHorizontalOffset(offset);
+                var currentOffset = _ScrollViewer.Offset;
+                var newOffset = new Vector(offset, currentOffset.Y);
+                _ScrollViewer.SetCurrentValue(ScrollViewer.OffsetProperty, newOffset);
             }
         }
-
-        // add to derivations
-        //internal TimelineItem ContainerFromItem(object item)
-        //{
-        //    if (itemsPresenter == null) return null;
-
-        //    return itemsPresenter.ContainerFromItem(item);
-        //}
 
         protected Nullable<Size> lastActualBounds;
 
@@ -890,7 +805,6 @@ namespace gip.core.layoutengine.avui.timeline
                 TimeSpan timeframe = MaximumDate.Value - MinimumDate.Value;
                 double tickPerTimeSpan = timeframe.Ticks / MathUtil.ReduceUntilOne(actualSize.Width, maxZoomMargin);
                 MaximumTickTimeSpan = TimeSpan.FromTicks((long)(tickPerTimeSpan));
-                //MinimumTickTimeSpan = TimeSpan.FromTicks((long)tickPerTimeSpan / 10);
             }
             else
             {
@@ -898,82 +812,6 @@ namespace gip.core.layoutengine.avui.timeline
                 MinimumTickTimeSpan = TimeSpan.Zero;
             }
             SetZoom();
-        }
-
-        //add to derivations
-        ///// <summary>
-        ///// Brings item into view.
-        ///// </summary>
-        ///// <param name="item">The item parameter.</param>
-        //public void BringItemIntoView(object item)
-        //{
-        //    TimelineItem container = ContainerFromItem(item);
-        //    if (container != null)
-        //    {
-        //        Nullable<DateTime> start = TimelineCompactPanel.GetStartDate(container);
-        //        if (start.HasValue)
-        //        {
-        //            GoToDate(start.Value);
-        //        }
-        //    }
-        //}
-
-        // add to derivations
-        ///// <summary>
-        ///// Brings into view.
-        ///// </summary>
-        ///// <param name="mode">The mode parameter.</param>
-        ///// <param name="dataItem">The data item parameter.</param>
-        //public void BringIntoView(VBGanttChartBringIntoViewMode mode, object dataItem)
-        //{
-        //    TimelineItem container = ContainerFromItem(dataItem);
-        //    if (container != null)
-        //    {
-        //        Nullable<DateTime> start = TimelineCompactPanel.GetStartDate(container);
-        //        Nullable<DateTime> end = TimelineCompactPanel.GetEndDate(container);
-
-        //        if (IsSetZoomToFit(mode) && start.HasValue && end.HasValue)
-        //        {
-        //            TimeSpan duration = end.Value - start.Value;
-        //            double pixelPerTick = (ActualWidth / 2) / duration.Ticks;
-        //            TimeSpan newTickTimeSpan = TimeSpan.FromTicks((long)(1D / pixelPerTick));
-
-        //            if (newTickTimeSpan.TotalMinutes < 1)
-        //            {
-        //                newTickTimeSpan = TimeSpan.FromMinutes(1);
-        //            }
-
-        //            if (newTickTimeSpan < TickTimeSpan)
-        //            {
-        //                TickTimeSpan = newTickTimeSpan;
-        //            }
-        //            else
-        //            {
-        //                if (ActualWidth / 2 < duration.Ticks * Timeline.GetPixelsPerTick(this))
-        //                {
-        //                    TickTimeSpan = newTickTimeSpan;
-        //                }
-        //            }
-
-        //            WpfUtility.WaitForPriority(DispatcherPriority.Background);
-        //        }
-
-        //        if (IsSetCurrentTime(mode))
-        //        {
-        //            if (start.HasValue) CurrentTime = start.Value;
-        //            else if (end.HasValue) CurrentTime = end.Value;
-        //        }
-        //    }
-        //}
-
-        private static bool IsSetZoomToFit(VBGanttChartBringIntoViewMode mode)
-        {
-            return ((mode & VBGanttChartBringIntoViewMode.SetZoomToFit) != 0);
-        }
-
-        private static bool IsSetCurrentTime(VBGanttChartBringIntoViewMode mode)
-        {
-            return ((mode & VBGanttChartBringIntoViewMode.SetCurrentTime) != 0);
         }
 
         /// <summary>
@@ -1034,20 +872,18 @@ namespace gip.core.layoutengine.avui.timeline
         /// <param name="bso">The bound BSOACComponent</param>
         public virtual void DeInitVBControl(IACComponent bso)
         {
-            PART_AxesPanel.DeInitControl();
-            BindingOperations.ClearBinding(this, ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, SelectedItemProperty);
+            PART_AxesPanel?.DeInitControl();
             this.ClearAllBindings();
-            container.Children.Clear();
+            container?.Children.Clear();
             container = null;
             _IsInitialized = false;
         }
 
         /// <summary>
-        /// Represents the dependency property for VBContent.
+        /// Represents the styled property for VBContent.
         /// </summary>
-        public static DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBGanttChart));
+        public static readonly StyledProperty<string> VBContentProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -1056,7 +892,7 @@ namespace gip.core.layoutengine.avui.timeline
         [Category("VBControl")]
         public string VBContent
         {
-            get { return (string)GetValue(VBContentProperty); }
+            get { return GetValue(VBContentProperty); }
             set { SetValue(VBContentProperty, value); }
         }
 
@@ -1192,39 +1028,34 @@ namespace gip.core.layoutengine.avui.timeline
         #endregion
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBTimelineChartBase), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty =  ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTimelineChartBase>();
+
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
         public IACBSO BSOACComponent
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            get { return GetValue(BSOACComponentProperty); }
             set { SetValue(BSOACComponentProperty, value); }
         }
 
         #region IVBSource members
 
         /// <summary>
-        /// Represents the dependency property for the VBSource.
+        /// Represents the styled property for the VBSource.
         /// </summary>
-        public static readonly DependencyProperty VBSourceProperty
-            = DependencyProperty.Register("VBSource", typeof(string), typeof(VBGanttChart));
+        public static readonly StyledProperty<string> VBSourceProperty =
+            AvaloniaProperty.Register<VBTimelineChartBase, string>(nameof(VBSource));
 
         /// <summary>
         /// Gets or sets the VBSource.
         /// </summary>
         public string VBSource
         {
-            get
-            {
-                return (string)GetValue(VBSourceProperty);
-            }
-            set
-            {
-                SetValue(VBSourceProperty, value);
-            }
+            get { return GetValue(VBSourceProperty); }
+            set { SetValue(VBSourceProperty, value); }
         }
 
         /// <summary>
@@ -1232,14 +1063,8 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public string VBShowColumns
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -1247,14 +1072,8 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public string VBDisabledColumns
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -1262,14 +1081,8 @@ namespace gip.core.layoutengine.avui.timeline
         /// </summary>
         public string VBChilds
         {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
+            get { throw new NotImplementedException(); }
+            set { throw new NotImplementedException(); }
         }
 
         /// <summary>
@@ -1282,34 +1095,29 @@ namespace gip.core.layoutengine.avui.timeline
 
         #endregion
 
-        #region Mouse events - overrides
+        #region Pointer events - overrides
 
-        protected override void OnMouseLeftButtonDown(MouseButtonEventArgs e)
+        protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if(Keyboard.IsKeyDown(Key.LeftCtrl))
-                PART_AxesPanel.OnZoomStart(e);
-            else if (Keyboard.IsKeyDown(Key.LeftShift))
-                PART_AxesPanel.OnZoomOut(e);
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                PART_AxesPanel?.OnZoomStart(e);
+            else if (e.KeyModifiers.HasFlag(KeyModifiers.Shift))
+                PART_AxesPanel?.OnZoomOut(e);
 
-            base.OnMouseLeftButtonDown(e);
+            base.OnPointerPressed(e);
         }
 
-        protected override void OnMouseMove(MouseEventArgs e)
+        protected override void OnPointerMoved(PointerEventArgs e)
         {
-            if(e.LeftButton == MouseButtonState.Pressed && Keyboard.IsKeyDown(Key.LeftCtrl))
-                PART_AxesPanel.OnZoomMove(e);
-            base.OnMouseMove(e);
+            if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed && e.KeyModifiers.HasFlag(KeyModifiers.Control))
+                PART_AxesPanel?.OnZoomMove(e);
+            base.OnPointerMoved(e);
         }
 
-        protected override void OnMouseLeftButtonUp(MouseButtonEventArgs e)
+        protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
-            PART_AxesPanel.OnZoomEnd(e);
-            base.OnMouseLeftButtonUp(e);
-        }
-
-        protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
-        {
-            base.OnMouseDoubleClick(e);
+            PART_AxesPanel?.OnZoomEnd(e);
+            base.OnPointerReleased(e);
         }
 
         #endregion

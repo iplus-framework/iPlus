@@ -1,88 +1,34 @@
+using Avalonia;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Primitives;
+using Avalonia.Threading;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.ganttchart;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.core.layoutengine.avui.timeline;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
-using System.Windows.Shapes;
-using System.Windows;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using System.Windows.Threading;
-using gip.core.datamodel;
-using System.Windows.Data;
-using System.Windows.Documents;
-using gip.core.layoutengine.avui.ganttchart;
-using System.Windows.Media;
-using gip.ext.graphics.avui.shapes;
-using gip.core.layoutengine.avui.timeline;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
-    /// <summary>
-    /// Represents the Gantt chart control.
-    /// </summary>
-    /// <summary xml:lang="de">
-    /// Stellt die Gantt-Diagrammsteuerung dar.
-    /// </summary>
+    [TemplatePart("PART_ItemsPresenter", typeof(TimelineGanttItemsPresenter))]
+    [TemplatePart("PART_ConnectionsPresenter", typeof(ConnectionsPresenter))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBGanttChart'}de{'VBGanttChart'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBGanttChart : VBTimelineChartBase
     {
         #region c'tors
         
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "GanttChartStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/GanttChartStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "GanttChartStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/GanttChartStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        bool _themeApplied = false;
-
-        static VBGanttChart()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBGanttChart), new FrameworkPropertyMetadata(typeof(VBTimelineChartBase)));
-        }
-
         /// <summary>
         /// Creates a new instance of VBGanttChart.
         /// </summary>
         public VBGanttChart()
         {
             Items = new ObservableCollection<IACTimeLog>();
-            Connections = new ObservableCollection<object>();
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
+            _Connections = new ObservableCollection<object>();
         }
 
         #endregion
@@ -92,14 +38,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
 
-            itemsPresenter = Template.FindName("PART_ItemsPresenter", this) as TimelineGanttItemsPresenter;
-            connectionsPresenter = Template.FindName("PART_ConnectionsPresenter", this) as ConnectionsPresenter;
+            _ItemsPresenter = e.NameScope.Find("PART_ItemsPresenter") as TimelineGanttItemsPresenter;
+            _ConnectionsPresenter = e.NameScope.Find("PART_ConnectionsPresenter") as ConnectionsPresenter;
 
             WireConnectionsPresenter();
         }
@@ -121,10 +65,8 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            (itemsPresenter as TimelineGanttItemsPresenter).DeInitControl();
+            (_ItemsPresenter as TimelineGanttItemsPresenter).DeInitControl();
             Items.All(c => ContainerFromItem(c).DeInitVBControl());
-            BindingOperations.ClearBinding(this, ItemsSourceProperty);
-            BindingOperations.ClearBinding(this, SelectedItemProperty);
             this.ClearAllBindings();
             base.DeInitVBControl(bso);
         }
@@ -133,13 +75,13 @@ namespace gip.core.layoutengine.avui
 
         #region PARTs
 
-        private ConnectionsPresenter connectionsPresenter;
+        private ConnectionsPresenter _ConnectionsPresenter;
 
         #endregion
 
         #region Properties
 
-        private VBGanttChartView _VBGanttChartView
+        private VBGanttChartView GanttChartView
         {
             get
             {
@@ -149,50 +91,57 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        #region DP
+        #region Styled Properties
 
         /// <summary>
-        /// Represents the dependecy property key for the Connections.
+        /// Defines the Connections styled property (read-only).
         /// </summary>
-        private static readonly DependencyPropertyKey ConnectionsPropertyKey = 
-            DependencyProperty.RegisterReadOnly("Connections", typeof(IList<object>), typeof(VBGanttChart), new FrameworkPropertyMetadata(null));
-
-        /// <summary>
-        /// Represents the dependecy property for the Connections.
-        /// </summary>
-        public static readonly DependencyProperty ConnectionsProperty = ConnectionsPropertyKey.DependencyProperty;
+        public static readonly DirectProperty<VBGanttChart, IList<object>> ConnectionsProperty =
+            AvaloniaProperty.RegisterDirect<VBGanttChart, IList<object>>(
+                nameof(Connections),
+                o => o.Connections,
+                (o, v) => o.Connections = v);
 
         /// <summary>
         /// Gets or sets the connections.
         /// </summary>
         public IList<object> Connections
         {
-            get { return (IList<object>)GetValue(ConnectionsProperty); }
-            private set { SetValue(ConnectionsPropertyKey, value); }
+            get => _Connections;
+            private set => SetAndRaise(ConnectionsProperty, ref _Connections, value);
         }
+        private IList<object> _Connections;
 
         /// <summary>
-        /// Represents the dependecy property for the ConnectionsSource.
+        /// Defines the ConnectionsSource styled property.
         /// </summary>
-        public static readonly DependencyProperty ConnectionsSourceProperty =
-            DependencyProperty.Register("ConnectionsSource", typeof(IEnumerable), typeof(VBGanttChart), new FrameworkPropertyMetadata(null, ConnectionsSourceChanged));
+        public static readonly StyledProperty<IEnumerable> ConnectionsSourceProperty =
+            AvaloniaProperty.Register<VBGanttChart, IEnumerable>(nameof(ConnectionsSource));
 
         /// <summary>
         /// Gets or sets the ConnectionsSource
         /// </summary>
         public IEnumerable ConnectionsSource
         {
-            get { return (IEnumerable)GetValue(ConnectionsSourceProperty); }
-            set { SetValue(ConnectionsSourceProperty, value); }
+            get => GetValue(ConnectionsSourceProperty);
+            set => SetValue(ConnectionsSourceProperty, value);
         }
 
-        private static void ConnectionsSourceChanged(DependencyObject o, DependencyPropertyChangedEventArgs e)
+        #endregion
+
+        #region Property Changed Handling
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBGanttChart self = (VBGanttChart)o;
-            self.ConnectionsSourceChanged(e);
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ConnectionsSourceProperty)
+            {
+                ConnectionsSourceChanged(change);
+            }
         }
 
-        private void ConnectionsSourceChanged(DependencyPropertyChangedEventArgs e)
+        private void ConnectionsSourceChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (e.NewValue != null)
             {
@@ -229,9 +178,6 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-       
-
-
         /// <summary>
         /// Gets the style selector of connection.
         /// </summary>
@@ -246,11 +192,9 @@ namespace gip.core.layoutengine.avui
             DependencyProperty.Register("ConnectionStyleSelector", typeof(StyleSelector), typeof(VBGanttChart),
             new FrameworkPropertyMetadata(null));
 
-       
-
         private bool ignoreCurrentChanged = false;
 
-        private void CurrentTimeChanged(DependencyPropertyChangedEventArgs e)
+        private void CurrentTimeChanged(AvaloniaPropertyChangedEventArgs e)
         {
             if (ignoreCurrentChanged) return;
 
@@ -260,51 +204,6 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region Methods
-
-        //private void CalculateDefaultTickTimeSpan()
-        //{
-        //    if (MinimumDate.HasValue && MaximumDate.HasValue)
-        //    {
-        //        TimeSpan diff = MaximumDate.Value - MinimumDate.Value;
-        //        if (diff.TotalMinutes < 60)
-        //            _defaultTimeTickSpanValue = TimeSpan.FromSeconds(5);
-        //        else
-        //            _defaultTimeTickSpanValue = TimeSpan.FromSeconds(60);
-        //    }
-        //    TickTimeSpan = _defaultTimeTickSpanValue;
-        //}
-
-        //private void AddItemsInternal(IEnumerable items)
-        //{
-        //    foreach (object item in items)
-        //    {
-        //        AddItemInternal(item);
-        //    }
-        //    SetMinMaxBounds();
-        //}
-
-        //private void AddItemInternal(object item)
-        //{
-        //    Items.Add(item);
-        //}
-
-        //private void RemoveItemsInternal(IEnumerable items)
-        //{
-        //    foreach (object item in items)
-        //    {
-        //        RemoveItemInternal(item);
-        //    }
-        //}
-
-        //private void RemoveItemInternal(object item)
-        //{
-        //    Items.Remove(item);
-        //}
-
-        //private void RemoveAllItemsInternal()
-        //{
-        //    Items.Clear();
-        //}
 
         private void RemoveAllConnectionsInternal()
         {
@@ -337,32 +236,20 @@ namespace gip.core.layoutengine.avui
             Connections.Remove(item);
         }
 
-        //private void UpdateDisplayTimeSpan()
-        //{
-        //    if (ActualWidth > 0 && TickTimeSpan.Ticks > 0)
-        //    {
-        //        double pixelPerTick = Timeline.GetPixelsPerTick(this);
-        //        DisplayTimeSpan = TimeSpan.FromTicks((long)(ActualWidth / pixelPerTick));
-        //    }
-        //    else
-        //    {
-        //        DisplayTimeSpan = TimeSpan.Zero;
-        //    }
-        //}
-
         private void WireConnectionsPresenter()
         {
-            if (connectionsPresenter != null)
+            if (_ConnectionsPresenter != null)
             {
-                connectionsPresenter.Timeline = this;
+                _ConnectionsPresenter.Timeline = this;
             }
         }
 
         internal TimelineGanttItem ContainerFromItem(object item)
         {
-            if (itemsPresenter == null) return null;
+            if (_ItemsPresenter == null) 
+                return null;
 
-            return (itemsPresenter as TimelineGanttItemsPresenter).ContainerFromItem(item);
+            return (_ItemsPresenter as TimelineGanttItemsPresenter).ContainerFromItem(item);
         }
 
         /// <summary>
@@ -387,7 +274,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="mode">The mode parameter.</param>
         /// <param name="dataItem">The data item parameter.</param>
-        public void BringIntoView(VBGanttChartBringIntoViewMode mode, object dataItem)
+        public async void BringIntoView(VBGanttChartBringIntoViewMode mode, object dataItem)
         {
             TimelineGanttItem container = ContainerFromItem(dataItem);
             if (container != null)
@@ -398,7 +285,7 @@ namespace gip.core.layoutengine.avui
                 if (IsSetZoomToFit(mode) && start.HasValue && end.HasValue)
                 {
                     TimeSpan duration = end.Value - start.Value;
-                    double pixelPerTick = (ActualWidth / 2) / duration.Ticks;
+                    double pixelPerTick = (Bounds.Width / 2) / duration.Ticks;
                     TimeSpan newTickTimeSpan = TimeSpan.FromTicks((long)(1D / pixelPerTick));
 
                     if (newTickTimeSpan.TotalMinutes < 1)
@@ -412,13 +299,13 @@ namespace gip.core.layoutengine.avui
                     }
                     else
                     {
-                        if (ActualWidth / 2 < duration.Ticks * Timeline.GetPixelsPerTick(this))
+                        if (Bounds.Width / 2 < duration.Ticks * Timeline.GetPixelsPerTick(this))
                         {
                             TickTimeSpan = newTickTimeSpan;
                         }
                     }
 
-                    WpfUtility.WaitForPriority(DispatcherPriority.Background);
+                    await WpfUtility.WaitForPriorityAsync(DispatcherPriority.Background);
                 }
 
                 if (IsSetCurrentTime(mode))

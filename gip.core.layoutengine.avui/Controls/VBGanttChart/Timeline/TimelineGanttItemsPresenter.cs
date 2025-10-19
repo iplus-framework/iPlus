@@ -1,11 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Controls;
-using System.Windows;
-using gip.core.layoutengine.avui;
-using gip.core.layoutengine.avui.timeline;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Templates;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {
@@ -15,70 +10,14 @@ namespace gip.core.layoutengine.avui.ganttchart
     public class TimelineGanttItemsPresenter : ItemsControl
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TimelineItemsPresenterStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineGanttItemsPresenterStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TimelineItemsPresenterStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBGanttChart/Themes/TimelineGanttItemsPresenterStyleAero.xaml" },
-        };
-        /// <summary>
-        /// Gets the list of custom styles.
-        /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
 
+        private static readonly FuncTemplate<Panel> DefaultPanel = new(() => new TimelineCompactPanel());
         static TimelineGanttItemsPresenter()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(TimelineGanttItemsPresenter),
-                new FrameworkPropertyMetadata(typeof(TimelineGanttItemsPresenter)));
-
-            ItemsPanelTemplate defaultPanel =
-                new ItemsPanelTemplate(
-                    new FrameworkElementFactory(typeof(TimelineCompactPanel))
-                    );
-
-            ItemsPanelProperty.OverrideMetadata(typeof(TimelineGanttItemsPresenter),
-                new FrameworkPropertyMetadata(defaultPanel));
+            ItemsPanelProperty.OverrideMetadata(typeof(TimelineGanttItemsPresenter), new StyledPropertyMetadata<ITemplate<Panel>>(DefaultPanel));
 
             ItemContainerStyleSelectorProperty.AddOwner(typeof(TimelineGanttItemsPresenter),
                 new FrameworkPropertyMetadata(null, CoerceItemContainerStyleSelector));
-        }
-
-        bool _themeApplied = false;
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
         }
 
         #endregion
@@ -93,21 +32,21 @@ namespace gip.core.layoutengine.avui.ganttchart
             return value;
         }
 
-        protected override bool IsItemItsOwnContainerOverride(object item)
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            return (item is TimelineGanttItem);
+            return new TimelineGanttItem();
         }
 
-        protected override System.Windows.DependencyObject GetContainerForItemOverride()
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            TimelineGanttItem timelineItem = new TimelineGanttItem();
-            return timelineItem;
+            return NeedsContainer<TimelineGanttItem>(item, out recycleKey);
         }
 
-        internal TimelineGanttItem ContainerFromItem(object item)
+
+        internal new TimelineGanttItem ContainerFromItem(object item)
         {
-            return base.ItemContainerGenerator.ContainerFromItem(item)
-                as TimelineGanttItem;
+            return base.ContainerFromItem(item) as TimelineGanttItem;
         }
     }
+
 }
