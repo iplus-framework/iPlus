@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Avalonia.Media;
+using AvaloniaEdit.Highlighting;
 using RoslynPad.Editor;
-using ICSharpCode.AvalonEdit.Highlighting;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui
 {

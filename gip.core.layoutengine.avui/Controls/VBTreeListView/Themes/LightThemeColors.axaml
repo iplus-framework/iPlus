@@ -1,0 +1,48 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+
+  <RadialGradientBrush x:Key="TreeArrowFocusFill" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <GradientStop Color="#FFE99393" Offset="0.228"/>
+    <GradientStop Color="#FFFF0018" Offset="1"/>
+  </RadialGradientBrush>
+  <RadialGradientBrush x:Key="TreeArrowCheckedFill" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <GradientStop Color="#FF505050"/>
+    <GradientStop Color="Black" Offset="0.732"/>
+  </RadialGradientBrush>
+
+  <LinearGradientBrush x:Key="TreeViewItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#4CFF6565" Offset="0"/>
+    <GradientStop Color="#7FFF0018" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="TreeViewItemSelectionNotActiveFill" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#4CFF6565" Offset="0"/>
+    <GradientStop Color="#7FFF0018" Offset="1"/>
+  </LinearGradientBrush>
+  <SolidColorBrush x:Key="TreeViewItemSelectionFg" Color="#FF000000"/>
+  <SolidColorBrush x:Key="TreeViewItemFg" Color="#FF000000"/>
+
+  <SolidColorBrush x:Key="NormalBrush" Color="#FFA2A2A2" />
+  <SolidColorBrush x:Key="NormalBorderBrush" Color="#FFC9C9C9" />
+  <SolidColorBrush x:Key="DataGridLineBrush" Color="#FF5D5D5D" />
+
+  <LinearGradientBrush x:Key="ShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+    <GradientStop Color="#59FFFFFF" Offset="0" />
+    <GradientStop Color="#00FFFFFF" Offset="1" />
+    <GradientStop Color="#26FFFFFF" Offset="0.467" />
+    <GradientStop Color="#00FFFFFF" Offset="0.475" />
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+    <GradientStop Color="#6CFF2020" Offset="0" />
+    <GradientStop Color="#46FF2020" Offset="1" />
+    <GradientStop Color="#46FF2020" Offset="0.467" />
+    <GradientStop Color="#26FF2020" Offset="0.475" />
+    <GradientStop Color="#26FF2020" Offset="0.856" />
+  </LinearGradientBrush>
+
+  <SolidColorBrush x:Key="TreeViewBgEnabled" Color="#FFFAFAFA"/>
+  <SolidColorBrush x:Key="TreeViewFgEnabled" Color="#FF000000"/>
+  <SolidColorBrush x:Key="TreeViewFgEnabledFocus" Color="#FF000000"/>
+  
+</ResourceDictionary>

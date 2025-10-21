@@ -37,30 +37,6 @@ namespace gip.core.layoutengine.avui
     {
         #region c'tors
         /// <summary>
-        /// The _style info list3
-        /// </summary>
-        private static List<CustomControlStyleInfo> _styleInfoList3 = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TextBox3StyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleGip.xaml" },
-            //new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-            //                             styleName = "TextBox2StyleAero", 
-            //                             styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleAero.xaml" },
-        };
-
-        /// <summary>
-        /// Gets my style info list.
-        /// </summary>
-        /// <value>My style info list.</value>
-        public override List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList3;
-            }
-        }
-
-        /// <summary>
         /// Initializes static members of the <see cref="VBTextBox3"/> class.
         /// </summary>
         static VBTextBox3()

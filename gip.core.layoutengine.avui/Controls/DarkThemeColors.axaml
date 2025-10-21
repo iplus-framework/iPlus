@@ -31,7 +31,11 @@
 		<ResourceInclude Source="/Controls/VBScrollViewer/Themes/SharedBrushes.axaml"/>
 		<ResourceInclude Source="/Controls/VBSlider/Themes/DarkThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBProgressBar/Themes/SharedBrushes.axaml"/>
-	</ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/VBGanttChart/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBTimeline/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBTreeListView/Themes/DarkThemeColors.axaml"/>
+
+  </ResourceDictionary.MergedDictionaries>
 
 	<Color x:Key="ColorCtrlTxtDisabled">#FFB0B0B0</Color>
 	<SolidColorBrush x:Key="CtrlTxtDisabled" Color="{StaticResource ColorCtrlTxtDisabled}"/>

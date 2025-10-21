@@ -17,9 +17,9 @@ namespace gip.core.layoutengine.avui.timeline
 
         static DateTimeAxesPanel()
         {
-            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(DateTimeAxesPanel), new StyledPropertyMetadata<DateTime?>(null));
-            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(DateTimeAxesPanel), new StyledPropertyMetadata<DateTime?>(null));
-            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(DateTimeAxesPanel), new StyledPropertyMetadata<TimeSpan>(Timeline.TickTimeSpanDefaultValue));
+            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner<DateTimeAxesPanel>(new StyledPropertyMetadata<DateTime?>(null));
+            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner<DateTimeAxesPanel>(new StyledPropertyMetadata<DateTime?>(null));
+            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner<DateTimeAxesPanel>(new StyledPropertyMetadata<TimeSpan>(Timeline.TickTimeSpanDefaultValue));
             ScrollViewerHorizontalOffsetProperty.Changed.AddClassHandler<DateTimeAxesPanel>((x, e) => OnOffsetChanged(x, e));
         }
 
@@ -601,7 +601,5 @@ namespace gip.core.layoutengine.avui.timeline
         #endregion
 
         #endregion
-
-        public event PropertyChangedEventHandler PropertyChanged;
     }
 }

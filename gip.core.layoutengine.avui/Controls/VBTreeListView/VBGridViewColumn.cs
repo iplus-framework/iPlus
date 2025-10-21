@@ -1,3 +1,4 @@
+using Avalonia;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -14,7 +15,7 @@ namespace gip.core.layoutengine.avui
     {
         static VBGridViewColumn()
         {
-            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner(typeof(VBGridViewColumn), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+            StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBGridViewColumn>();
         }
 
         /// <summary>
@@ -28,8 +29,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBGridViewColumn));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBGridViewColumn, string>(nameof(VBContent));
 
         /// <summary>
         /// Gets or sets the VBContent.
@@ -44,7 +44,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
-        public static readonly DependencyProperty StringFormatProperty;
+        public static readonly AttachedProperty<string> StringFormatProperty;
         /// <summary>
         /// Gets or sets the string format for the control.
         /// </summary>

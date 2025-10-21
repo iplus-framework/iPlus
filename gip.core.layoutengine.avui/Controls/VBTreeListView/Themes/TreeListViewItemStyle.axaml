@@ -1,0 +1,140 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <local:LevelToIndentConverter x:Key="LevelToIndentConverter"/>
+
+  <StreamGeometry x:Key="TreeArrow">M0,0 L0,8 L8,0 z</StreamGeometry>
+
+  <ControlTheme x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="Width" Value="20"/>
+    <Setter Property="Height" Value="20"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20">
+          <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#FF989898">
+            <Path.RenderTransform>
+              <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
+            </Path.RenderTransform>
+          </Path>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- Checked state -->
+    <Style Selector="^:checked /template/ Path#ExpandPath">
+      <Setter Property="RenderTransform">
+        <RotateTransform Angle="180" CenterY="3" CenterX="3"/>
+      </Setter>
+    </Style>
+    
+    <!-- Mouse over and checked -->
+    <Style Selector="^:pointerover:checked /template/ Path#ExpandPath">
+      <Setter Property="Stroke" Value="#FFFF0000"/>
+      <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+    </Style>
+    
+    <!-- Mouse over and not checked -->
+    <Style Selector="^:pointerover:not(:checked) /template/ Path#ExpandPath">
+      <Setter Property="Stroke" Value="#FFFF0000"/>
+      <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+    </Style>
+    
+    <!-- Not mouse over and checked -->
+    <Style Selector="^:not(:pointerover):checked /template/ Path#ExpandPath">
+      <Setter Property="Stroke" Value="#FFFFFFFF"/>
+      <Setter Property="Fill" Value="{StaticResource TreeArrowCheckedFill}"/>
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type local:VBTreeListViewItem}" TargetType="local:VBTreeListViewItem">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+    <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+    <Setter Property="BorderThickness" Value="1,1,1,1"/>
+    <Setter Property="Padding" Value="1,0,0,0"/>
+    <Setter Property="Foreground" Value="White"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid x:Name="itemGrid">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:VBTreeListViewItem}, Path=VBTimelineView.TimelineItemTotalHeight}"/>
+            <RowDefinition/>
+          </Grid.RowDefinitions>
+
+          <Border x:Name="item" BorderBrush="{TemplateBinding BorderBrush}" CornerRadius="2" BorderThickness="{TemplateBinding BorderThickness}" Background="Transparent">
+            <Border CornerRadius="1" BorderThickness="1" Name="InnerBorder" VerticalAlignment="Center">
+              <Grid>
+                <Grid.RowDefinitions>
+                  <RowDefinition MaxHeight="11" />
+                  <RowDefinition />
+                </Grid.RowDefinitions>
+                <Rectangle IsVisible="False" Fill="#75FFFFFF" Name="UpperHighlight" />
+                <local:VBTreeGridViewRowPresenter x:Name="PART_Header" Grid.RowSpan="2"
+            FirstColumnIndent="{Binding Level,Converter={StaticResource LevelToIndentConverter},RelativeSource={RelativeSource AncestorType={x:Type local:VBTreeListViewItem}},ConverterParameter=16}"
+            Content="{TemplateBinding Header}"
+            Columns="{Binding Path=Columns,RelativeSource={RelativeSource AncestorType={x:Type local:VBTreeListView}}}">
+                  <local:VBTreeGridViewRowPresenter.Expander>
+                    <Grid>
+                      <ToggleButton x:Name="Expander"
+          ClickMode="Press"
+          IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
+          Theme="{StaticResource ExpandCollapseToggleStyle}"/>
+                    </Grid>
+                  </local:VBTreeGridViewRowPresenter.Expander>
+                </local:VBTreeGridViewRowPresenter>
+              </Grid>
+            </Border>
+          </Border>
+
+          <ItemsPresenter Grid.Row="1" Name="ItemsHost" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- IsExpanded = false -->
+    <Style Selector="^:not(:expanded) /template/ ItemsPresenter#ItemsHost">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    
+    <!-- HasItems = false (empty) -->
+    <Style Selector="^:empty /template/ ToggleButton#Expander">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    
+    <!-- IsSelected = true -->
+    <Style Selector="^:selected /template/ Border#item">
+      <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionFill}"/>
+      <Setter Property="BorderBrush" Value="#FF0000"/>
+    </Style>
+    <Style Selector="^:selected">
+      <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+    
+    <!-- IsSelected = true and IsSelectionActive = false -->
+    <Style Selector="^:selected:not(:focus-within) /template/ Border#item">
+      <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionNotActiveFill}"/>
+      <Setter Property="BorderBrush" Value="#FF0000"/>
+    </Style>
+    <Style Selector="^:selected:not(:focus-within)">
+      <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
+    </Style>
+    
+    <!-- IsEnabled = false -->
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="Gray"/>
+    </Style>
+    
+    <!-- Focus pseudo-class for focus visual (replaces FocusVisualStyle) -->
+    <Style Selector="^:focus-visible">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundChromeHighBrush}"/>
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

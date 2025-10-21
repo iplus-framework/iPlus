@@ -23,23 +23,6 @@ namespace gip.core.layoutengine.avui
     public class VBTextBox2 : VBTextBox
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList3 = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TextBox2StyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TextBox2StyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBTextBox/Themes/TextBoxStyleAero.xaml" },
-        };
-
-        public override List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList3;
-            }
-        }
-
         static VBTextBox2()
         {
             WidthContentProperty.OverrideDefaultValue<VBTextBox2>(new GridLength(16, GridUnitType.Star));

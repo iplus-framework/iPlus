@@ -1,0 +1,213 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+
+
+  <ControlTheme x:Key="ColumnHeaderGripperStyle" TargetType="Thumb">
+    <Setter Property="Width" Value="8"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Cursor" Value="SizeWestEast"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Padding="{TemplateBinding Padding}"
+                Background="{TemplateBinding Background}"/>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="CustomHeaderStyle" TargetType="GridViewColumnHeader">
+    <Setter Property="Height" Value="22" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Padding" Value="4,4,5,4" />
+    <Setter Property="Foreground" Value="Black" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="FontWeight" Value="Bold" />
+    <Setter Property="Height" Value="Auto" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="GridViewColumnHeader">
+        <Grid>
+          <Border BorderThickness="0,0,1,1" BorderBrush="{StaticResource DataGridLineBrush}"
+                  Background="{StaticResource NormalBrush}">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition />
+                <ColumnDefinition />
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <Rectangle x:Name="BackgroundRectangle" Grid.RowSpan="2" Grid.ColumnSpan="2" 
+                         Fill="{StaticResource NormalBrush}"
+                         Stretch="Fill" Stroke="{StaticResource NormalBorderBrush}" StrokeThickness="1" />
+              <Rectangle x:Name="HoverRectangle" Grid.RowSpan="2" Grid.ColumnSpan="2" Stretch="Fill"
+                         Fill="{StaticResource HoverShineBrush}" Opacity="0" />
+
+              <ContentPresenter Grid.ColumnSpan="2"
+                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                Margin="{TemplateBinding Padding}" />
+              <Rectangle x:Name="ShineRectangle"
+                         Fill="{StaticResource ShineBrush}"
+                         Stretch="Fill"
+                         Stroke="{StaticResource NormalBorderBrush}"
+                         StrokeThickness="1" Grid.RowSpan="2" Grid.ColumnSpan="2" />
+              <Path x:Name="SortArrow" Grid.Column="1" IsVisible="False"
+                    VerticalAlignment="Top" Width="8" HorizontalAlignment="Right" Margin="0,2,3,0"
+                    Fill="Black"
+                    Stretch="Uniform"
+                    Data="M -5.215,6.099L 5.215,6.099L 0,0L -5.215,6.099 Z ">
+                <Path.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform ScaleX=".9" ScaleY=".9" x:Name="SortIconTransform" />
+                  </TransformGroup>
+                </Path.RenderTransform>
+              </Path>
+            </Grid>
+          </Border>
+          <Thumb x:Name="PART_HeaderGripper"
+                 HorizontalAlignment="Right"
+                 Theme="{StaticResource ColumnHeaderGripperStyle}"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- Mouse over animations -->
+    <Style Selector="^:pointerover /template/ Rectangle#HoverRectangle">
+      <Style.Animations>
+        <Animation Duration="0:0:0.2">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="1"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    
+    <Style Selector="^:not(:pointerover) /template/ Rectangle#HoverRectangle">
+      <Style.Animations>
+        <Animation Duration="0:0:0.2">
+          <KeyFrame Cue="0%">
+            <Setter Property="Opacity" Value="1"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="Opacity" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="TreeListViewScroll" TargetType="ScrollViewer">
+    <Setter Property="Focusable" Value="False"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Background="{TemplateBinding Background}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          
+          <!-- Header Row -->
+          <ScrollViewer Grid.Row="0" Grid.Column="0"
+                        Margin="{TemplateBinding Padding}"
+                        HorizontalScrollBarVisibility="Hidden"
+                        VerticalScrollBarVisibility="Hidden"
+                        Focusable="false">
+            <GridViewHeaderRowPresenter Margin="2,0,2,0" x:Name="PART_GWHRPresenter"
+                                        Columns="{Binding Path=Columns,RelativeSource={RelativeSource AncestorType={x:Type local:VBTreeListView}}}"
+                                        ColumnHeaderContainerStyle="{StaticResource CustomHeaderStyle}">
+            </GridViewHeaderRowPresenter>
+          </ScrollViewer>
+          
+          <!-- Content Area -->
+          <ScrollContentPresenter Grid.Row="1" Grid.Column="0" Name="PART_ScrollContentPresenter"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  CanHorizontallyScroll="{TemplateBinding CanHorizontallyScroll}"
+                                  CanVerticallyScroll="{TemplateBinding CanVerticallyScroll}"/>
+          
+          <!-- Horizontal ScrollBar -->
+          <ScrollBar Name="PART_HorizontalScrollBar"
+                     Orientation="Horizontal"
+                     Grid.Row="2" Grid.Column="0"
+                     Minimum="0.0"
+                     Maximum="{TemplateBinding ScrollableWidth}"
+                     ViewportSize="{TemplateBinding ViewportWidth}"
+                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.HorizontalOffsetConverter}}"
+                     IsVisible="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility), Converter={x:Static ScrollViewer.HorizontalScrollBarVisibilityConverter}}"
+                     Cursor="Arrow"/>
+                     
+          <!-- Vertical ScrollBar -->
+          <ScrollBar Name="PART_VerticalScrollBar"
+                     Orientation="Vertical"
+                     Grid.Row="1" Grid.Column="1"
+                     Minimum="0.0"
+                     Maximum="{TemplateBinding ScrollableHeight}"
+                     ViewportSize="{TemplateBinding ViewportHeight}"
+                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.VerticalOffsetConverter}}"
+                     IsVisible="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility), Converter={x:Static ScrollViewer.VerticalScrollBarVisibilityConverter}}"
+                     Cursor="Arrow">
+          </ScrollBar>
+          
+          <!-- Corner Rectangle -->
+          <Panel Grid.Column="1" Grid.Row="2"
+                 Background="{Binding #PART_VerticalScrollBar.Background}">
+            <Rectangle Width="1" Fill="White"
+                       HorizontalAlignment="Left"
+                       IsVisible="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility), Converter={x:Static ScrollViewer.VerticalScrollBarVisibilityConverter}}"/>
+            <Rectangle Height="1" Fill="White"
+                       VerticalAlignment="Top"
+                       IsVisible="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility), Converter={x:Static ScrollViewer.HorizontalScrollBarVisibilityConverter}}"/>
+          </Panel>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type local:VBTreeListView}" TargetType="local:VBTreeListView">
+    <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="#FF828790"/>
+    <Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabled}"/>
+    <Setter Property="Background" Value="{StaticResource TreeViewBgEnabled}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Foreground" Value="#FF042271"/>
+    <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+    <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border BorderBrush="{TemplateBinding BorderBrush}" 
+                BorderThickness="{TemplateBinding BorderThickness}" 
+                Name="Bd" 
+                Background="{TemplateBinding Background}">
+          <ScrollViewer Theme="{StaticResource TreeListViewScroll}" 
+                        Background="{TemplateBinding Background}"
+                        Focusable="false"
+                        CanHorizontallyScroll="false"
+                        HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                        VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                        Padding="{TemplateBinding Padding}">
+            <ItemsPresenter />
+          </ScrollViewer>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- IsEnabled = false -->
+    <Style Selector="^:disabled /template/ Border#Bd">
+      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}"/>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

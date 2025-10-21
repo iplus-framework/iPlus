@@ -1,0 +1,125 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:gantt="clr-namespace:gip.core.layoutengine.avui.ganttchart"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+    xmlns:timeline="clr-namespace:gip.core.layoutengine.avui.timeline">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <ControlTheme x:Key="GanttChartScrollViewerStyle" TargetType="ScrollViewer">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Background="{TemplateBinding Background}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <!-- Header Row -->
+          <timeline:FrictionScrollViewer Grid.Row="0" Grid.Column="0"
+                        Margin="{TemplateBinding Padding}"
+                        HorizontalScrollBarVisibility="Hidden"
+                        VerticalScrollBarVisibility="Hidden"
+                        Focusable="false" >
+            <!--<timeline:TimelineRulerControl />-->
+          </timeline:FrictionScrollViewer>
+
+          <!-- Content Area -->
+          <ScrollContentPresenter Grid.Row="1" Grid.Column="0" Name="PART_ScrollContentPresenter"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  CanHorizontallyScroll="True" 
+                                  CanVerticallyScroll="False"/>
+
+          <!-- Horizontal ScrollBar -->
+          <ScrollBar Name="PART_HorizontalScrollBar"
+                     Orientation="Horizontal"
+                     Grid.Row="2" Grid.Column="0"
+                     Maximum="{TemplateBinding ScrollableWidth}"
+                     ViewportSize="{TemplateBinding ViewportWidth}"
+                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.HorizontalOffsetConverter}}"
+                     IsVisible="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility), Converter={x:Static ScrollViewer.HorizontalScrollBarVisibilityConverter}}"/>
+
+          <!-- Vertical ScrollBar -->
+          <ScrollBar Name="PART_VerticalScrollBar"
+                     Orientation="Vertical"
+                     Grid.Row="1" Grid.Column="1"
+                     Maximum="{TemplateBinding ScrollableHeight}"
+                     ViewportSize="{TemplateBinding ViewportHeight}"
+                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.VerticalOffsetConverter}}"
+                     IsVisible="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility), Converter={x:Static ScrollViewer.VerticalScrollBarVisibilityConverter}}"/>
+
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type local:VBGanttChart}" TargetType="local:VBGanttChart">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}">
+
+          <Grid ClipToBounds="True">
+
+            <timeline:DateTimeAxesPanel x:Name="PART_DateTimeAxesPanel" 
+                                        VerticalAlignment="Top" 
+                                        HorizontalAlignment="Left"
+                                        Height="{Binding $parent[Grid].Bounds.Height}"
+                                        Width="{Binding $parent[Grid].Bounds.Width}"
+                                        ScrollViewerHorizontalOffset="{Binding #PART_ScrollViewer.Offset.X}" 
+                                        Margin="25,0,0,0"/>
+
+            <Border x:Name="ZoomRectBorder"
+                    Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}"
+                    Width="{Binding #PART_DateTimeAxesPanel.ZoomRectWidth}"
+                    BorderBrush="Black" BorderThickness="1" Background="White" Opacity="0.2"
+                    Margin="{Binding #PART_DateTimeAxesPanel.ZoomBorderMargin}"
+                    HorizontalAlignment="{Binding #PART_DateTimeAxesPanel.ZoomBorderAlignment}"
+                    IsVisible="{Binding #PART_DateTimeAxesPanel.ZoomRectWidth, Converter={x:Static ObjectConverters.IsNotNull}}">
+            </Border>
+
+            <Border Height="{Binding #PART_DateTimeAxesPanel.Bounds.Height}" 
+                    Margin="0,23,0,0" 
+                    VerticalAlignment="Top" 
+                    HorizontalAlignment="Left"
+                    Width="{Binding #PART_ScrollViewer.Bounds.Width}" 
+                    BorderThickness="24,0,0,0"
+                    BorderBrush="{DynamicResource ThemeBackgroundBrush}"/>
+
+            <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer" 
+                            Margin="25,25,0,0"
+                            Theme="{StaticResource GanttChartScrollViewerStyle}"
+                            VerticalScrollBarVisibility="Auto"
+                            HorizontalScrollBarVisibility="Auto">
+
+              <Grid>
+
+                <gantt:TimelineGanttItemsPresenter x:Name="PART_ItemsPresenter"
+                          Margin="0,1,0,0"
+                          ItemsSource="{TemplateBinding Items}"
+                          ItemsPanel="{TemplateBinding ItemsPanel}"
+                          ItemContainerTheme="{TemplateBinding ItemContainerTheme}"
+                          ItemThemeSelector="{TemplateBinding ItemThemeSelector}"
+                          ItemTemplate="{TemplateBinding TimelineItemTemplate}"/>
+
+                <gantt:ConnectionsPresenter x:Name="PART_ConnectionsPresenter"
+                            ItemsSource="{TemplateBinding Connections}"
+                            ItemThemeSelector="{TemplateBinding ConnectionThemeSelector}"/>
+
+              </Grid>
+
+            </timeline:FrictionScrollViewer>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+
+    </Setter>
+  </ControlTheme>
+</ResourceDictionary>

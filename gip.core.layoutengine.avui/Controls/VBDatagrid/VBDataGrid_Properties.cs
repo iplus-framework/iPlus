@@ -766,10 +766,8 @@ namespace gip.core.layoutengine.avui
         #endregion
     }
 
-    public class VBDataGridSumDictionary : AvaloniaList<KeyValuePair<string, string>>, INotifyPropertyChanged
+    public class VBDataGridSumDictionary : AvaloniaList<KeyValuePair<string, string>>
     {
-        public event PropertyChangedEventHandler PropertyChanged;
-
         public string this[string key]
         {
             get
@@ -797,7 +795,6 @@ namespace gip.core.layoutengine.avui
                 {
                     this.Add(new KeyValuePair<string, string>(key, value));
                 }
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
             }
         }
 

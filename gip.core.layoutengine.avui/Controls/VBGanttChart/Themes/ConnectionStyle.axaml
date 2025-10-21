@@ -1,0 +1,104 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.ganttchart"
+    xmlns:timeline="clr-namespace:gip.core.layoutengine.avui.timeline">
+
+  <timeline:AddDoubleConverter x:Key="AddDoubleConverter" />
+
+  <!-- Arrow Grid Style -->
+  <ControlTheme x:Key="ArrowGridStyle" TargetType="Grid">
+    <Setter Property="Width" Value="10"/>
+    <Setter Property="Height" Value="10"/>
+    <Setter Property="RenderTransform">
+      <TranslateTransform X="-5" Y="-5"/>
+    </Setter>
+  </ControlTheme>
+
+  <!-- base style for all arrow shapes -->
+  <ControlTheme x:Key="ArrowSymbolBaseStyleGip" TargetType="Path">
+    <Setter Property="Fill" Value="{Binding LineStroke}"/>
+    <Setter Property="Stretch" Value="Fill"/>
+  </ControlTheme>
+
+  <!-- None (Line) -->
+  <ControlTheme x:Key="SymbolNoneGip" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyleGip}">
+    <!-- TODO: DOES NOT WORK! -->
+    <Setter Property="Data" Value="M0,5 5,5 Z"/>
+  </ControlTheme>
+
+  <!-- Arrow -->
+  <ControlTheme x:Key="SymbolArrow" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyleGip}">
+    <Setter Property="Data" Value="M0,0 8,4 0,8 Z"/>
+  </ControlTheme>
+
+  <!-- Diamond  -->
+  <ControlTheme x:Key="SymbolDiamond" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyleGip}">
+    <Setter Property="Data" Value="M-5,0 0,-5 5,0 0,5 Z"/>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type local:Connection}" TargetType="local:Connection">
+    <Setter Property="LineStroke" Value="#60000000" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Canvas DataContext="{TemplateBinding}">
+          <Path Name="PART_ConnectionPath"
+                StrokeThickness="{TemplateBinding LineStrokeThickness}"
+                Stroke="{TemplateBinding LineStroke}"
+                StrokeLineCap="Round"
+                StrokeLineJoin="Round"
+                StrokeDashArray="{Binding StrokeDashArray}"
+                Data="{Binding PathGeometry}">
+          </Path>
+          <Path StrokeThickness="{TemplateBinding LineStrokeThickness, Converter={StaticResource AddDoubleConverter}, ConverterParameter=3}"
+                Stroke="Transparent"
+                StrokeLineCap="Round"
+                StrokeLineJoin="Round"
+                Data="{Binding PathGeometry}">
+          </Path>
+          <Grid Theme="{StaticResource ArrowGridStyle}"
+                Canvas.Left="{Binding AnchorPositionSource.X}"
+                Canvas.Top="{Binding AnchorPositionSource.Y}">
+            <Path Name="PART_SourceAnchorPath"/>
+            <Grid.RenderTransform>
+              <RotateTransform Angle="{Binding AnchorAngleSource}"/>
+            </Grid.RenderTransform>
+          </Grid>
+          <Grid Theme="{StaticResource ArrowGridStyle}"
+                Canvas.Left="{Binding AnchorPositionSink.X}"
+                Canvas.Top="{Binding AnchorPositionSink.Y}">
+            <Path Name="PART_SinkAnchorPath"/>
+            <Grid.RenderTransform>
+              <RotateTransform Angle="{Binding AnchorAngleSink}"/>
+            </Grid.RenderTransform>
+          </Grid>
+        </Canvas>
+      </ControlTemplate>
+    </Setter>
+    
+    <!-- Data trigger styles for arrow symbols - converted to pseudo-classes -->
+    <Style Selector="^[SourceArrowSymbol=None] /template/ Path#PART_SourceAnchorPath">
+      <Setter Property="Theme" Value="{StaticResource SymbolNoneGip}"/>
+    </Style>
+    <Style Selector="^[SourceArrowSymbol=Arrow] /template/ Path#PART_SourceAnchorPath">
+      <Setter Property="Theme" Value="{StaticResource SymbolArrow}"/>
+    </Style>
+    <Style Selector="^[SourceArrowSymbol=Diamond] /template/ Path#PART_SourceAnchorPath">
+      <Setter Property="Theme" Value="{StaticResource SymbolDiamond}"/>
+    </Style>
+    <Style Selector="^[SinkArrowSymbol=None] /template/ Path#PART_SinkAnchorPath">
+      <Setter Property="Theme" Value="{StaticResource SymbolNoneGip}"/>
+    </Style>
+    <Style Selector="^[SinkArrowSymbol=Arrow] /template/ Path#PART_SinkAnchorPath">
+      <Setter Property="Theme" Value="{StaticResource SymbolArrow}"/>
+    </Style>
+    <Style Selector="^[SinkArrowSymbol=Diamond] /template/ Path#PART_SinkAnchorPath">
+      <Setter Property="Theme" Value="{StaticResource SymbolDiamond}"/>
+    </Style>
+    
+    <!-- Mouse over state -->
+    <Style Selector="^:pointerover">
+      <Setter Property="LineStroke" Value="Black" />
+      <!-- Note: DropShadowEffect equivalent would need to be handled differently in AvaloniaUI -->
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

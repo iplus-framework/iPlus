@@ -4,6 +4,11 @@ using System.Text;
 using System.Diagnostics;
 using System.Reflection;
 using gip.core.layoutengine.avui;
+using Avalonia.Collections;
+using Avalonia.Controls;
+using Avalonia;
+using Avalonia.VisualTree;
+using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.layoutengine.avui
 {
@@ -18,7 +23,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public VBTreeGridViewRowPresenter()
         {
-            _Childs = new UIElementCollection(this, this);
+            _Childs = new AvaloniaList<Control>(this, this);
         }
         #endregion
 
@@ -27,7 +32,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for the FirstColumnIndent.
         /// </summary>
-        public static DependencyProperty FirstColumnIndentProperty = DependencyProperty.Register("FirstColumnIndent", typeof(Double), typeof(VBTreeGridViewRowPresenter), new PropertyMetadata(0d));
+        public static readonly StyledProperty<Double> FirstColumnIndentProperty = AvaloniaProperty.Register<VBTreeGridViewRowPresenter, Double>(nameof(FirstColumnIndent), 0d);
 
         /// <summary>
         /// Gets or sets the FirstColumn indent.
@@ -41,21 +46,21 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for the Expander.
         /// </summary>
-        public static DependencyProperty ExpanderProperty = DependencyProperty.Register("Expander", typeof(UIElement), typeof(VBTreeGridViewRowPresenter), new FrameworkPropertyMetadata(null, new PropertyChangedCallback(OnExpanderChanged)));
+        public static readonly StyledProperty<Control> ExpanderProperty = AvaloniaProperty.Register<VBTreeGridViewRowPresenter, Control>(nameof(Expander));
 
         /// <summary>
         /// Gets or sets the Expander.
         /// </summary>
-        public UIElement Expander
+        public Control Expander
         {
-            get { return (UIElement)this.GetValue(ExpanderProperty); }
+            get { return (Control)this.GetValue(ExpanderProperty); }
             set { this.SetValue(ExpanderProperty, value); }
         }
 
-        private static PropertyInfo ActualIndexProperty = typeof(GridViewColumn).GetProperty("ActualIndex", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static PropertyInfo DesiredWidthProperty = typeof(GridViewColumn).GetProperty("DesiredWidth", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static PropertyInfo ActualIndexProperty = typeof(GridViewColumn).GetProperty(nameof(GridViewColumn.ActualIndex), BindingFlags.NonPublic | BindingFlags.Instance);
+        private static PropertyInfo DesiredWidthProperty = typeof(GridViewColumn).GetProperty(nameof(GridViewColumn.DesiredWidth), BindingFlags.NonPublic | BindingFlags.Instance);
 
-        private UIElementCollection _Childs;
+        private AvaloniaList<Control> _Childs;
         #endregion
 
         #region Methods
@@ -70,7 +75,7 @@ namespace gip.core.layoutengine.avui
             Size s = base.ArrangeOverride(arrangeSize);
 
             if (this.Columns == null || this.Columns.Count == 0) return s;
-            UIElement expander = this.Expander;
+            Control expander = this.Expander;
 
             double current = 0;
             double max = arrangeSize.Width;
@@ -79,7 +84,7 @@ namespace gip.core.layoutengine.avui
                 GridViewColumn column = this.Columns[x];
 
                 // Actual index needed for column reorder
-                FrameworkElement uiColumn = (FrameworkElement)base.GetVisualChild((int)ActualIndexProperty.GetValue(column, null));
+                Control uiColumn = GetVisualChild((int)ActualIndexProperty.GetValue(column, null)) as Control;
 
                 // Compute column width
                 double w = Math.Min(max, (Double.IsNaN(column.Width)) ? (double)DesiredWidthProperty.GetValue(column, null) : column.Width);
@@ -117,13 +122,13 @@ namespace gip.core.layoutengine.avui
             Size s = base.MeasureOverride(constraint);
 
             // Measure expander
-            UIElement expander = this.Expander;
+            Control expander = this.Expander;
             if (expander != null)
             {
                 // Compute max measure
                 expander.Measure(constraint);
-                s.Width = Math.Max(s.Width, expander.DesiredSize.Width);
-                s.Height = Math.Max(s.Height, expander.DesiredSize.Height);
+                s = new Size(Math.Max(s.Width, expander.DesiredSize.Width),
+                             Math.Max(s.Height, expander.DesiredSize.Height));
             }
             return s;
         }
@@ -133,39 +138,41 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="index">The index parameter.</param>
         /// <returns>The visual child.</returns>
-        protected override System.Windows.Media.Visual GetVisualChild(int index)
+        protected Visual GetVisualChild(int index)
         {
             // Last element is always the expander
             // called by render engine
-            if (index < base.VisualChildrenCount)
-                return base.GetVisualChild(index);
+            if (index < base.VisualChildren.Count)
+                return VisualChildren[index];
             else
                 return this.Expander;
         }
 
-        /// <summary>
-        /// Gets the visual children count.
-        /// </summary>
-        protected override int VisualChildrenCount
+        ///// <summary>
+        ///// Gets the visual children count.
+        ///// </summary>
+        //protected override int VisualChildrenCount
+        //{
+        //    get
+        //    {
+        //        // Last element is always the expander
+        //        if (this.Expander != null)
+        //            return base.VisualChildrenCount + 1;
+        //        else
+        //            return base.VisualChildrenCount;
+        //    }
+        //}
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            get
+            if (change.Property == ExpanderProperty)
             {
-                // Last element is always the expander
-                if (this.Expander != null)
-                    return base.VisualChildrenCount + 1;
-                else
-                    return base.VisualChildrenCount;
+                this._Childs.Remove(change.OldValue as Control);
+                this._Childs.Add((Control)change.NewValue);
             }
+            base.OnPropertyChanged(change);
         }
 
-        private static void OnExpanderChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            // Use a second UIElementCollection so base methods work as original
-            VBTreeGridViewRowPresenter p = (VBTreeGridViewRowPresenter)d;
-
-            p._Childs.Remove(e.OldValue as UIElement);
-            p._Childs.Add((UIElement)e.NewValue);
-        }
         #endregion
 
     }

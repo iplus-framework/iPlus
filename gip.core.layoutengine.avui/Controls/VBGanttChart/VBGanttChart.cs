@@ -1,3 +1,6 @@
+// Copyright (c) 2024, gipSoft d.o.o.
+// Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+
 using Avalonia;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
@@ -12,6 +15,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -179,18 +183,18 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Gets the style selector of connection.
+        /// Gets or sets the theme selector of connection.
+        /// This replaces WPF's ConnectionStyleSelector.
         /// </summary>
-        public StyleSelector ConnectionStyleSelector
+        public IItemThemeSelector ConnectionThemeSelector
         {
-            get { return (StyleSelector)GetValue(ConnectionStyleSelectorProperty); }
-            set { SetValue(ConnectionStyleSelectorProperty, value); }
+            get { return GetValue(ConnectionThemeSelectorProperty); }
+            set { SetValue(ConnectionThemeSelectorProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ConnectionStyleSelector.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ConnectionStyleSelectorProperty =
-            DependencyProperty.Register("ConnectionStyleSelector", typeof(StyleSelector), typeof(VBGanttChart),
-            new FrameworkPropertyMetadata(null));
+        // Using a StyledProperty as the backing store for ConnectionThemeSelector.
+        public static readonly StyledProperty<IItemThemeSelector> ConnectionThemeSelectorProperty =
+            AvaloniaProperty.Register<VBGanttChart, IItemThemeSelector>(nameof(ConnectionThemeSelector));
 
         private bool ignoreCurrentChanged = false;
 

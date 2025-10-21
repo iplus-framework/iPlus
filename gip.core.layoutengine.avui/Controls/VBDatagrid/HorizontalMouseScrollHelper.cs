@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,14 +13,14 @@ namespace gip.core.layoutengine.avui
 	public class HorizontalMouseScrollHelper
 	{
 		ScrollViewer scrollViewer;
-		HwndSource source;
+		//HwndSource source;
 
-		public HorizontalMouseScrollHelper(ScrollViewer scrollviewer, DependencyObject d)
+		public HorizontalMouseScrollHelper(ScrollViewer scrollviewer, AvaloniaObject d)
 		{
 			scrollViewer = scrollviewer;
-			source = (HwndSource)PresentationSource.FromDependencyObject(d);
-			if (source != null)
-				source.AddHook(WindowProc);
+			//source = (HwndSource)PresentationSource.FromDependencyObject(d);
+			//if (source != null)
+			//	source.AddHook(WindowProc);
 		}
 
 		IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)

@@ -9,6 +9,13 @@ using System.Reflection;
 using gip.core.layoutengine.avui.timeline;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.Controls.Shapes;
+using gip.core.layoutengine.avui.Helperclasses;
+using Avalonia.Controls.Primitives;
+using Avalonia.VisualTree;
+using Avalonia.Media;
 
 namespace gip.core.layoutengine.avui
 {
@@ -36,26 +43,12 @@ namespace gip.core.layoutengine.avui
         #region Loaded-Event
 
 
-        bool _themeApplied = false;
-        new bool _Initialized = false;
-
-        /// <summary>
-        /// Actualizes the theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public new void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
-
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>
-        public override void OnApplyTemplate()
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
+            base.OnApplyTemplate(e);
             InitVBControl();
         }
 
@@ -99,8 +92,8 @@ namespace gip.core.layoutengine.avui
 
             Binding binding2 = new Binding();
             binding2.Source = sourceOfBindingForItmSrc;
-            binding2.Path = new PropertyPath(pathOfBindingForItmSrc);
-            SetBinding(VBTreeListView.ItemsSourceProperty, binding2);
+            binding2.Path = pathOfBindingForItmSrc;
+            this.Bind(VBTreeListView.ItemsSourceProperty, binding2);
 
             if (_VBTimelineView != null && _VBTimelineView.TreeListViewColumns.Count == 0 && !string.IsNullOrEmpty(VBShowColumns))
             {
@@ -120,7 +113,7 @@ namespace gip.core.layoutengine.avui
                     GridViewColumn col = new GridViewColumn();
                     Columns.Add(col);
                     Binding binding = new Binding();
-                    binding.Path = new PropertyPath(dsColPath);
+                    binding.Path = dsColPath;
                     binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture;
                     col.DisplayMemberBinding = binding;
                     col.Header = dsColACTypeInfo.ACCaption;
@@ -147,7 +140,7 @@ namespace gip.core.layoutengine.avui
                         if (column.CellTemplate == null)
                         {
                             Binding binding = new Binding();
-                            binding.Path = new PropertyPath(dsColPath);
+                            binding.Path = dsColPath;
                             binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture;
                             if (column.StringFormat != null)
                                 binding.StringFormat = column.StringFormat;
@@ -166,13 +159,12 @@ namespace gip.core.layoutengine.avui
             if (_IsColumnHeadersInitialized)
                 return;
 
-            GridViewHeaderRowPresenter presenter = Helperclasses.VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(GridViewHeaderRowPresenter)) as GridViewHeaderRowPresenter;
+            GridViewHeaderRowPresenter presenter = VBVisualTreeHelper.FindChildObjectInVisualTree(this, typeof(GridViewHeaderRowPresenter)) as GridViewHeaderRowPresenter;
             if (presenter != null)
             {
-                int childrenCount = VisualTreeHelper.GetChildrenCount(presenter);
-                for(int i=0; i< childrenCount; i++)
+                foreach (Visual child in presenter.GetVisualChildren())
                 {
-                    GridViewColumnHeader header = VisualTreeHelper.GetChild(presenter, i) as GridViewColumnHeader;
+                    GridViewColumnHeader header = child as GridViewColumnHeader;
                     if (header != null && header.Content != null)
                     {
                         Path sortIcon = Helperclasses.VBVisualTreeHelper.FindChildObjectInVisualTree(header, "SortArrow") as Path;
@@ -195,12 +187,12 @@ namespace gip.core.layoutengine.avui
                 ListSortDirection sortDirection = ListSortDirection.Ascending;
                 string propertyName = header.Content != null ? header.Content.ToString() : "";
 
-                if(Items.SortDescriptions.Count > 0 && _CurrentSortColumnHeader == header)
-                {
-                    SortDescription sortDesc = Items.SortDescriptions[0];
-                    if (sortDesc.Direction == sortDirection)
-                        sortDirection = ListSortDirection.Descending;
-                }
+                //if (Items.SortDescriptions.Count > 0 && _CurrentSortColumnHeader == header)
+                //{
+                //    SortDescription sortDesc = Items.SortDescriptions[0];
+                //    if (sortDesc.Direction == sortDirection)
+                //        sortDirection = ListSortDirection.Descending;
+                //}
 
                 int index = Columns.IndexWhere(c => c.Header.ToString() == propertyName);
                 VBGridViewColumn col = Columns[index] as VBGridViewColumn;
@@ -213,7 +205,7 @@ namespace gip.core.layoutengine.avui
                     Path sortIcon = null;
                     if (_ColumnHeaders.TryGetValue(_CurrentSortColumnHeader, out sortIcon))
                     {
-                        sortIcon.Visibility = Visibility.Hidden;
+                        sortIcon.IsVisible = false;
                         sortIcon.RenderTransform = null;
                     }
                 }
@@ -224,18 +216,18 @@ namespace gip.core.layoutengine.avui
                     Path sortIcon = null;
                     if (_ColumnHeaders.TryGetValue(_CurrentSortColumnHeader, out sortIcon))
                     {
-                        sortIcon.Visibility = Visibility.Visible;
+                        sortIcon.IsVisible = true;
                         if (sortDirection == ListSortDirection.Ascending)
                             sortIcon.RenderTransform = new RotateTransform(180);
                     }
                 }
 
-                var items = CollectionViewSource.GetDefaultView(Items);
-                items.SortDescriptions.Clear();
-                items.SortDescriptions.Add(new SortDescription(propertyName, sortDirection));
+                var items = ItemsView;
+                //items.SortDescriptions.Clear();
+                //items.SortDescriptions.Add(new SortDescription(propertyName, sortDirection));
                 if (_VBTimelineView != null && !string.IsNullOrEmpty(_VBTimelineView.BSOUpdateDisplayOrderMethodName))
                     BSOACComponent.ExecuteMethod(_VBTimelineView.BSOUpdateDisplayOrderMethodName.StartsWith("!") ? _VBTimelineView.BSOUpdateDisplayOrderMethodName : "!"+_VBTimelineView.BSOUpdateDisplayOrderMethodName, items);
-                items.Refresh();
+                //items.Refresh();
             }
         }
 
@@ -310,31 +302,31 @@ namespace gip.core.layoutengine.avui
 
         #region SortDescriptions
 
-        /// <summary>
-        /// Represents the dependency property for SortDescriptions.
-        /// </summary>
-        public static readonly DependencyProperty SortDescriptionsProperty =
-                DependencyProperty.Register("SortDescriptions", typeof(IEnumerable<SortDescription>), typeof(VBTreeListView), new FrameworkPropertyMetadata(null, SortDescriptionsChanged));
+        ///// <summary>
+        ///// Represents the dependency property for SortDescriptions.
+        ///// </summary>
+        //public static readonly DependencyProperty SortDescriptionsProperty =
+        //        DependencyProperty.Register("SortDescriptions", typeof(IEnumerable<SortDescription>), typeof(VBTreeListView), new FrameworkPropertyMetadata(null, SortDescriptionsChanged));
 
-        /// <summary>
-        /// Gets or sets the SortDescriptions.
-        /// </summary>
-        public IEnumerable<SortDescription> SortDescriptions
-        {
-            get { return (IEnumerable<SortDescription>)GetValue(SortDescriptionsProperty); }
-            set { SetValue(SortDescriptionsProperty, value); }
-        }
+        ///// <summary>
+        ///// Gets or sets the SortDescriptions.
+        ///// </summary>
+        //public IEnumerable<SortDescription> SortDescriptions
+        //{
+        //    get { return (IEnumerable<SortDescription>)GetValue(SortDescriptionsProperty); }
+        //    set { SetValue(SortDescriptionsProperty, value); }
+        //}
 
-        private static void SortDescriptionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            var self = (VBTreeListView)d;
-            self.SortDescriptionsChanged(e);
-        }
+        //private static void SortDescriptionsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        //{
+        //    var self = (VBTreeListView)d;
+        //    self.SortDescriptionsChanged(e);
+        //}
 
-        private void SortDescriptionsChanged(DependencyPropertyChangedEventArgs e)
-        {
-            ApplySorting(Items);
-        }
+        //private void SortDescriptionsChanged(DependencyPropertyChangedEventArgs e)
+        //{
+        //    ApplySorting(Items);
+        //}
         #endregion
 
         #endregion
@@ -350,7 +342,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            BindingOperations.ClearBinding(this, ItemsSourceProperty);
+            //this.ClearBinding(ItemsSourceProperty);
             this.ClearAllBindings();
 
             if (_ColumnHeaders != null)
@@ -361,7 +353,7 @@ namespace gip.core.layoutengine.avui
 
             foreach (GridViewColumn col in Columns)
             {
-                BindingOperations.ClearAllBindings(col);
+                col.ClearAllBindings();
                 col.DisplayMemberBinding = null;
             }
 
@@ -375,93 +367,71 @@ namespace gip.core.layoutengine.avui
             base.DeInitVBControl(bso);
         }
 
-        /// <summary>
-        /// Gets the container for item override.
-        /// </summary>
-        /// <returns>The new instance of VBTreeListView.</returns>
-        protected override DependencyObject GetContainerForItemOverride()
+        protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
             return new VBTreeListViewItem();
         }
 
-        /// <summary>
-        /// Determines is item overrides it's own container.
-        /// </summary>
-        /// <param name="item">The item to check.</param>
-        /// <returns>True if item overrides, otherwise false.</returns>
-        protected override bool IsItemItsOwnContainerOverride(object item)
+        protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            return item is VBTreeListViewItem;
+            return NeedsContainer<VBTreeListViewItem>(item, out recycleKey);
         }
 
-        /// <summary>
-        /// Handles the OnItemsSourceChanged.
-        /// </summary>
-        /// <param name="oldValue">The old value.</param>
-        /// <param name="newValue">The new value.</param>
-        protected override void OnItemsSourceChanged(System.Collections.IEnumerable oldValue, System.Collections.IEnumerable newValue)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            base.OnItemsSourceChanged(oldValue, newValue);
-            if(_CurrentSortColumnHeader != null)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ItemsSourceProperty)
             {
-                Items.SortDescriptions.Clear();
-                Path sortIcon = null;
-                if (_ColumnHeaders.TryGetValue(_CurrentSortColumnHeader, out sortIcon))
-                    sortIcon.Visibility = Visibility.Hidden;
-            }
-        }
-
-        /// <summary>
-        /// Handles the OnItemsChanged.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnItemsChanged(System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            if (_VBTimelineView != null)
-                _VBTimelineView.ExpandCollapseAll = false;
-            base.OnItemsChanged(e);
-        }
-
-
-        internal void ApplySorting(ItemCollection items)
-        {
-            // Set sort descriptions for the current list.
-            items.SortDescriptions.Clear();
-
-            if (SortDescriptions != null)
-            {
-                foreach (var sortDesc in SortDescriptions)
+                if (_CurrentSortColumnHeader != null)
                 {
-                    items.SortDescriptions.Add(sortDesc);
+                    //Items.SortDescriptions.Clear();
+                    Path sortIcon = null;
+                    if (_ColumnHeaders.TryGetValue(_CurrentSortColumnHeader, out sortIcon))
+                        sortIcon.IsVisible = false;
                 }
             }
-
-            // Set sort description for child lists
-            foreach (var item in items)
+            else if (change.Property == ItemCountProperty)
             {
-                TreeViewItem tvi =
-                    ItemContainerGenerator.ContainerFromItem(item) as TreeViewItem;
-                if (tvi != null)
-                {
-                    ApplySorting(tvi.Items);
-                }
+                if (_VBTimelineView != null)
+                    _VBTimelineView.ExpandCollapseAll = false;
             }
         }
 
-        /// <summary>
-        /// Prepares container for the item override.
-        /// </summary>
-        /// <param name="element">The element parameter.</param>
-        /// <param name="item">The item to prepare.</param>
-        protected override void PrepareContainerForItemOverride(DependencyObject element, object item)
-        {
-            base.PrepareContainerForItemOverride(element, item);
 
-            TreeViewItem tvi = element as TreeViewItem;
-            if (tvi != null)
-            {
-                ApplySorting(tvi.Items);
-            }
+        //internal void ApplySorting(ItemCollection items)
+        //{
+        //    // Set sort descriptions for the current list.
+        //    items.SortDescriptions.Clear();
+
+        //    if (SortDescriptions != null)
+        //    {
+        //        foreach (var sortDesc in SortDescriptions)
+        //        {
+        //            items.SortDescriptions.Add(sortDesc);
+        //        }
+        //    }
+
+        //    // Set sort description for child lists
+        //    foreach (var item in items)
+        //    {
+        //        TreeViewItem tvi = ItemContainerGenerator.ContainerFromItem(item) as TreeViewItem;
+        //        if (tvi != null)
+        //        {
+        //            ApplySorting(tvi.Items);
+        //        }
+        //    }
+        //}
+
+        protected override void PrepareContainerForItemOverride(Control container, object item, int index)
+        {
+            base.PrepareContainerForItemOverride(container, item, index);
+
+            //TreeViewItem tvi = element as TreeViewItem;
+            //if (tvi != null)
+            //{
+            //    ApplySorting(tvi.Items);
+            //}
         }
 
         /// <summary>
@@ -473,17 +443,14 @@ namespace gip.core.layoutengine.avui
             if (items == null)
                 return;
 
-            var frameworkElement = items as FrameworkElement;
+            var frameworkElement = items as Control;
             if (frameworkElement != null)
             {
                 frameworkElement.ApplyTemplate();
             }
 
-            Visual child = null;
-            for (int i = 0, count = VisualTreeHelper.GetChildrenCount(items); i < count; i++)
+            foreach (Visual child in items.GetVisualChildren())
             {
-                child = VisualTreeHelper.GetChild(items, i) as Visual;
-
                 var treeViewItem = child as TreeViewItem;
                 if (treeViewItem != null)
                 {
@@ -505,7 +472,7 @@ namespace gip.core.layoutengine.avui
         {
             foreach (object obj in items.Items)
             {
-                ItemsControl childControl = items.ItemContainerGenerator.ContainerFromItem(obj) as ItemsControl;
+                ItemsControl childControl = items.ContainerFromItem(obj) as ItemsControl;
                 if (childControl != null)
                 {
                     CollapseAll(childControl);

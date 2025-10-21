@@ -3,47 +3,31 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
 
-  <!-- Timeline item brushes-->
-  <LinearGradientBrush x:Key="GreenBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
-    <LinearGradientBrush.GradientStops>
-      <GradientStop Color="#FF5B5749" Offset="0"/>
-      <GradientStop Color="#FF849F50" Offset="0.370726"/>
-      <GradientStop Color="#FFAEE757" Offset="0.49569"/>
-      <GradientStop Color="#FF849F50" Offset="0.660818"/>
-      <GradientStop Color="#FF5B5749" Offset="1"/>
-    </LinearGradientBrush.GradientStops>
+  <SolidColorBrush x:Key="NormalBrush" Color="#FFA2A2A2" />
+  <SolidColorBrush x:Key="NormalBorderBrush" Color="#FFC9C9C9" />
+  <SolidColorBrush x:Key="DataGridLineBrush" Color="#FF5D5D5D" />
+
+  <LinearGradientBrush x:Key="ShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+    <GradientStop Color="#59FFFFFF" Offset="0" />
+    <GradientStop Color="#00FFFFFF" Offset="1" />
+    <GradientStop Color="#26FFFFFF" Offset="0.467" />
+    <GradientStop Color="#00FFFFFF" Offset="0.475" />
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="OrangeBrush" StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
-    <LinearGradientBrush.GradientStops>
-      <GradientStop Color="#967706" Offset="0"/>
-      <GradientStop Color="#F1BF09" Offset="0.370726"/>
-      <GradientStop Color="#F1D77A" Offset="0.49569"/>
-      <GradientStop Color="#F1BF09" Offset="0.660818"/>
-      <GradientStop Color="#967706" Offset="1"/>
-    </LinearGradientBrush.GradientStops>
-  </LinearGradientBrush>
-  <LinearGradientBrush x:Key="BlueBrush" StartPoint="0.5,-2" EndPoint="0.5,3">
-    <LinearGradientBrush.GradientStops>
-      <GradientStop Color="#FF41A9FF" Offset="0"/>
-      <GradientStop Color="#FF62B7FF" Offset="0.422414"/>
-      <GradientStop Color="#FF83C5FF" Offset="0.5"/>
-      <GradientStop Color="#FF66B5F8" Offset="0.594828"/>
-      <GradientStop Color="#FF49A5F1" Offset="0.99569"/>
-    </LinearGradientBrush.GradientStops>
-  </LinearGradientBrush>
-  <LinearGradientBrush x:Key="RedBrush"  StartPoint="0.5,3.27778" EndPoint="0.5,-2.27778">
-    <LinearGradientBrush.GradientStops>
-      <GradientStop Color="#FF5B4A49" Offset="0"/>
-      <GradientStop Color="#FFE66457" Offset="0.335"/>
-      <GradientStop Color="Red" Offset="0.49569"/>
-      <GradientStop Color="#FFCD6960" Offset="0.660818"/>
-      <GradientStop Color="#FF5B4949" Offset="1"/>
-    </LinearGradientBrush.GradientStops>
-  </LinearGradientBrush>
-  <LinearGradientBrush x:Key="DarkGreenBrush" EndPoint="0.5,1" StartPoint="0.5,0">
-    <GradientStop Color="#FF115B00" Offset="0.059"/>
-    <GradientStop Color="#FF115B00" Offset="0.933"/>
-    <GradientStop Color="#FF29E400" Offset="0.494"/>
+  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+    <GradientStop Color="#6CFF2020" Offset="0" />
+    <GradientStop Color="#46FF2020" Offset="1" />
+    <GradientStop Color="#46FF2020" Offset="0.467" />
+    <GradientStop Color="#26FF2020" Offset="0.475" />
+    <GradientStop Color="#26FF2020" Offset="0.856" />
   </LinearGradientBrush>
 
+  <RadialGradientBrush x:Key="TreeArrowFocusFill" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <GradientStop Color="#FFE99393" Offset="0.228"/>
+    <GradientStop Color="#FFFF0018" Offset="1"/>
+  </RadialGradientBrush>
+  <RadialGradientBrush x:Key="TreeArrowCheckedFill" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <GradientStop Color="#FF505050"/>
+    <GradientStop Color="White" Offset="0.732"/>
+  </RadialGradientBrush>
+  
 </ResourceDictionary>

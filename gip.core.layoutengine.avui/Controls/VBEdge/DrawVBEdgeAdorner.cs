@@ -48,7 +48,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public virtual void DrawPath(AvaloniaObject hitObject, PointerEventArgs e)
+        public override void DrawPath(AvaloniaObject hitObject, PointerEventArgs e)
         {
             if ((hitObject != null) && !(hitObject is VBConnector))
             {

@@ -28,7 +28,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -865,14 +864,14 @@ namespace gip.core.layoutengine.avui
         }
 
         [ACMethodInteraction("", "en{'Clear'}de{'Löschen'}", (short)MISort.Clear, false)]
-        public void Clear()
+        new public void Clear()
         {
             if (VBContentPropertyInfo == null)
                 return;
             if (VBContentPropertyInfo.IsNullable)
-                this.SelectedDate = null;
+                base.Clear();
             else
-                this.SelectedDate = DateTime.MinValue;
+                this.SetCurrentValue(SelectedDateProperty, DateTime.MinValue);
             var b = BindingOperations.GetBindingExpressionBase(this, SelectedDateProperty);
             if (b != null)
                 b.UpdateSource();

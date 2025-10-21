@@ -21,11 +21,21 @@ namespace gip.core.layoutengine.avui.timeline
         static TimelineItemsPresenter()
         {
             ItemsPanelProperty.OverrideMetadata(typeof(TimelineItemsPresenter), new StyledPropertyMetadata<ITemplate<Panel>>(DefaultPanel));
-
-            ItemContainerStyleSelectorProperty.AddOwner(typeof(TimelineItemsPresenter),
-                new FrameworkPropertyMetadata(null, CoerceItemContainerStyleSelector));
         }
         #endregion
+
+        /// <summary>
+        /// Gets or sets the theme selector for item containers.
+        /// This replaces WPF's ItemContainerStyleSelector.
+        /// </summary>
+        public static readonly StyledProperty<IItemThemeSelector> ItemThemeSelectorProperty =
+            AvaloniaProperty.Register<TimelineItemsPresenter, IItemThemeSelector>(nameof(ItemThemeSelector), new ItemTypeThemeSelector());
+
+        public IItemThemeSelector ItemThemeSelector
+        {
+            get => GetValue(ItemThemeSelectorProperty);
+            set => SetValue(ItemThemeSelectorProperty, value);
+        }
 
         public void DeInitControl()
         {
@@ -41,10 +51,20 @@ namespace gip.core.layoutengine.avui.timeline
             return NeedsContainer<TimelineItem>(item, out recycleKey);
         }
 
-        private static object CoerceItemContainerStyleSelector(DependencyObject d, object baseValue)
+        protected override void PrepareContainerForItemOverride(Control container, object item, int index)
         {
-            object value = baseValue ?? new StyleSelectorByItemType();
-            return value;
+            base.PrepareContainerForItemOverride(container, item, index);
+            
+            // Apply theme based on item type if selector is available
+            var themeSelector = ItemThemeSelector;
+            if (themeSelector != null)
+            {
+                var theme = themeSelector.SelectTheme(item, container);
+                if (theme != null)
+                {
+                    container.Theme = theme;
+                }
+            }
         }
     }
 }

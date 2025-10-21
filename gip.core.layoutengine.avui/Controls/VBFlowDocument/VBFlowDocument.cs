@@ -40,10 +40,10 @@ namespace gip.core.layoutengine.avui
 
         #region Properties Custom
 
-        private string? _custom01;
+        private string _custom01;
 
-        public static readonly DirectProperty<VBFlowDocument, string?> Custom01Property =
-            AvaloniaProperty.RegisterDirect<VBFlowDocument, string?>(
+        public static readonly DirectProperty<VBFlowDocument, string> Custom01Property =
+            AvaloniaProperty.RegisterDirect<VBFlowDocument, string>(
                 nameof(Custom01),
                 o => o.Custom01,
                 (o, v) => o.Custom01 = v);
@@ -51,16 +51,16 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public string? Custom01
+        public string Custom01
         {
             get { return _custom01; }
             set { SetAndRaise(Custom01Property, ref _custom01, value); }
         }
 
-        private string? _custom02;
+        private string _custom02;
 
-        public static readonly DirectProperty<VBFlowDocument, string?> Custom02Property =
-            AvaloniaProperty.RegisterDirect<VBFlowDocument, string?>(
+        public static readonly DirectProperty<VBFlowDocument, string> Custom02Property =
+            AvaloniaProperty.RegisterDirect<VBFlowDocument, string>(
                 nameof(Custom02),
                 o => o.Custom02,
                 (o, v) => o.Custom02 = v);
@@ -68,7 +68,7 @@ namespace gip.core.layoutengine.avui
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public string? Custom02
+        public string Custom02
         {
             get { return _custom02; }
             set { SetAndRaise(Custom02Property, ref _custom02, value); }

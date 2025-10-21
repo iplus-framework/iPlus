@@ -1,0 +1,133 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+                    xmlns:localTimeline="clr-namespace:gip.core.layoutengine.avui.timeline">
+
+
+    <StreamGeometry x:Key="TreeArrow">M0,0 L0,8 L8,0 z</StreamGeometry>
+    
+    <ControlTheme x:Key="ExpandCollapseToggleStyle" TargetType="ToggleButton">
+        <Setter Property="Focusable" Value="False"/>
+        <Setter Property="Width" Value="20"/>
+        <Setter Property="Height" Value="20"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20"
+                        ToolTip.Tip="Expand/Collapse all">
+                    <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#F5F5F5">
+                        <Path.RenderTransform>
+                            <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
+                        </Path.RenderTransform>
+                    </Path>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+        
+        <!-- Checked state -->
+        <Style Selector="^:checked /template/ Path#ExpandPath">
+            <Setter Property="RenderTransform">
+                <RotateTransform Angle="180" CenterY="3" CenterX="3"/>
+            </Setter>
+        </Style>
+        
+        <!-- Mouse over and checked -->
+        <Style Selector="^:pointerover:checked /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFF0000"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+        </Style>
+        
+        <!-- Mouse over and not checked -->
+        <Style Selector="^:pointerover:not(:checked) /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFF0000"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
+        </Style>
+        
+        <!-- Not mouse over and checked -->
+        <Style Selector="^:not(:pointerover):checked /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FFFFFFFF"/>
+            <Setter Property="Fill" Value="{StaticResource TreeArrowCheckedFill}"/>
+        </Style>
+    </ControlTheme>
+
+    <ControlTheme x:Key="{x:Type local:VBTimelineView}" TargetType="local:VBTimelineView">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid.Resources>
+                        <localTimeline:DoubleToTimeSpanFromMinutesConverter x:Key="DoubleToTimeSpanFromMinutes"/>
+                    </Grid.Resources>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{Binding $parent[local:VBTimelineView].TreeListViewWidth}" />
+                        <ColumnDefinition Width="5"/>
+                        <ColumnDefinition Width="{Binding $parent[local:VBTimelineView].TimelineViewWidth}"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="30"/>
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    
+                    <Grid Grid.Column="0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+
+                        <ToggleButton Grid.Column="0" Theme="{StaticResource ExpandCollapseToggleStyle}" Margin="0,0,10,0"
+                                      IsChecked="{TemplateBinding ExpandCollapseAll, Mode=TwoWay}" />
+                        <local:VBTextBox Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Left" AutoFocus="True" 
+                                     local:WidthCaptionMax="50"  x:Name="PART_TextBoxSearch" Width="200" Height="23" />
+                        <ContentControl Grid.Column="2" Margin="15,0,0,0" x:Name="PART_TopContentControl"  Height="23" />
+                    </Grid>
+
+                    <local:VBTreeListView Grid.Column="0" Grid.Row="1" x:Name="PART_TreeListView">
+                        <local:VBTreeListView.ItemTemplate>
+                            <TreeDataTemplate ItemsSource="{Binding Items}" />
+                        </local:VBTreeListView.ItemTemplate>
+                    </local:VBTreeListView>
+
+                    <local:VBGridSplitter Grid.Column="1" Grid.Row="1" Width="3" HorizontalAlignment="Stretch" />
+
+                    <Grid Grid.Column="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto"  />
+                            <ColumnDefinition Width="Auto"  />
+                            <ColumnDefinition Width="Auto"  />
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto"  />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="25"/>
+                        </Grid.RowDefinitions>
+                        <local:VBTextBox Grid.Column="0" ACCaption="Time interval" Text="{Binding #PART_TimelineChart.TickTimeSpan}" 
+                                         IsReadOnly="True" />
+                        <!--<local:VBCheckBox x:Name="PART_CheckBoxRuler" Margin="15,0,0,0" Grid.Column="2" VerticalAlignment="Center"/>
+                        <local:VBDateTimePicker x:Name="PART_DateTimeRuler" Margin="10,0,0,0" Grid.Column="3" VerticalAlignment="Center">
+                            <local:VBDateTimePicker.Styles>
+                                <Style Selector="local|VBDateTimePicker">
+                                    <Setter Property="RightControlMode" Value="Hidden" />
+                                </Style>
+                                <Style Selector="local|VBDateTimePicker[IsChecked=True]">
+                                    <Setter Property="RightControlMode" Value="Enabled" />
+                                </Style>
+                            </local:VBDateTimePicker.Styles>
+                        </local:VBDateTimePicker>-->
+                    </Grid>
+                    
+                    <local:VBTimelineChart Grid.Column="2" Grid.Row="1" x:Name="PART_TimelineChart"
+                                        Zoom="{Binding #PART_Combo.SelectedValue}" TimelineItemTemplate="{TemplateBinding TimelineItemTemplate}">
+                        <local:VBTimelineChart.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <localTimeline:TimelineItemPanel 
+                                    RowVerticalMargin="{Binding $parent[local:VBTimelineView].TimelineItemVerticalMargin}" 
+                                    RowHeight="{Binding $parent[local:VBTimelineView].TimelineItemHeight}" />
+                            </ItemsPanelTemplate>
+                        </local:VBTimelineChart.ItemsPanel>
+                    </local:VBTimelineChart>
+                </Grid>
+            </ControlTemplate>
+        </Setter>    
+    </ControlTheme>
+    
+</ResourceDictionary>

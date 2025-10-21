@@ -4,6 +4,7 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 using System;
@@ -14,7 +15,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
     /// <summary>
     /// Represents a view editor for tranformations.
     /// </summary>
-    public partial class VBTransformEditorView : UserControl, INotifyPropertyChanged //: ITypeEditorInitItem
+    public partial class VBTransformEditorView : UserControl
     {
 		/// <summary>
         /// Create a new VBTransformEditorView instance.
@@ -35,22 +36,30 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             _Loaded = true;
         }
 
+        /// <summary>
+        /// Defines the Property styled property.
+        /// </summary>
+        public static readonly StyledProperty<IPropertyNode> PropertyProperty =
+            AvaloniaProperty.Register<VBTransformEditorView, IPropertyNode>(nameof(Property));
 
-        IPropertyNode property;
+        /// <summary>
+        /// Gets or sets the property node.
+        /// </summary>
         public IPropertyNode Property
         {
-            get
-            {
-                return property;
-            }
-            set
-            {
-                property = value;
-                RefreshView();
-                RaisePropertyChanged("Property");
-            }
+            get => GetValue(PropertyProperty);
+            set => SetValue(PropertyProperty, value);
         }
 
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            
+            if (change.Property == PropertyProperty)
+            {
+                RefreshView();
+            }
+        }
 
         protected DesignItem DesignObject
         {
@@ -81,11 +90,6 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                     (PART_TransformEditor.Content as VBTransformEditorSingleView).Property = this.Property;
                 }
             }
-
-            //RaisePropertyChanged("GlobalFunction");
-            //RaisePropertyChanged("ACUrlCommand");
-            //RaisePropertyChanged("Expression");
-            //RaisePropertyChanged("ConversionBy");
         }
 
         private void ButtonReset_Click(object sender, RoutedEventArgs e)
@@ -94,16 +98,6 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
                 return;
             Property.Reset();
             RefreshView();
-        }
-
-
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void RaisePropertyChanged(string name)
-        {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(name));
-            }
         }
 
         private void PART_One_Click(object sender, RoutedEventArgs e)

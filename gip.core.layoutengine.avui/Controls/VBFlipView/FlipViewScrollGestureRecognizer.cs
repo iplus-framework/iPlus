@@ -34,10 +34,10 @@ namespace gip.core.layoutengine.avui
 
         private bool _scrolling;
         private Point _trackedRootPoint;
-        private IPointer? _tracking;
+        private IPointer _tracking;
         private int _gestureId;
         private Point _pointerPressedPoint;
-        private Visual? _rootTarget;
+        private Visual _rootTarget;
 
         /// <summary>
         /// Defines the <see cref="CanHorizontallyScroll"/> property.
