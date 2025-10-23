@@ -462,7 +462,7 @@ namespace gip.bso.iplus
             {
                 if (CurrentVisualisation == null)
                     return null;
-                return CurrentVisualisation.XMLDesign;
+                return CurrentVisualisation.XAMLDesign;
             }
         }
         #endregion
@@ -872,7 +872,7 @@ namespace gip.bso.iplus
             if (wpfRefs)
             {
                 foundImage = CurrentVisualisation;
-                if (foundImage != null && !foundImage.XMLDesign.Contains(findPattern))
+                if (foundImage != null && !foundImage.XAMLDesign.Contains(findPattern))
                     foundImage = null;
             }
 
@@ -880,12 +880,12 @@ namespace gip.bso.iplus
             if (foundImage == null)
             {
                 // Try to find exact url in current visualisation
-                if (CurrentVisualisation != null && CurrentVisualisation.XMLDesign.Contains(findPattern))
+                if (CurrentVisualisation != null && CurrentVisualisation.XAMLDesign.Contains(findPattern))
                     foundImage = CurrentVisualisation;
                 else
                 {
                     // Does any Image exist with the exact url?
-                    ACClassDesign designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
+                    ACClassDesign designWithComp = VisualisationList.Where(c => c.XAMLDesign.Contains(findPattern)
                                                                         && c.ValueTypeACClassID.HasValue
                                                                         && c.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName)
                                                                     .FirstOrDefault();
@@ -893,7 +893,7 @@ namespace gip.bso.iplus
                         foundImage = designWithComp;
                     else
                     {
-                        designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
+                        designWithComp = VisualisationList.Where(c => c.XAMLDesign.Contains(findPattern)
                                                                 && (!c.ValueTypeACClassID.HasValue || c.ValueTypeACClass.ACIdentifier != Const.VBDesign_ClassName))
                                                             .FirstOrDefault();
                         if (designWithComp != null)
@@ -914,7 +914,7 @@ namespace gip.bso.iplus
                                 if (CurrentVisualisation != null
                                     && CurrentVisualisation.ValueTypeACClassID.HasValue
                                     && CurrentVisualisation.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName
-                                    && CurrentVisualisation.XMLDesign.Contains(findPattern))
+                                    && CurrentVisualisation.XAMLDesign.Contains(findPattern))
                                 {
                                     _HighlightParentOnSwitch = parentUrl;
                                     foundImage = CurrentVisualisation;
@@ -922,7 +922,7 @@ namespace gip.bso.iplus
                                 }
                                 else
                                 {
-                                    designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
+                                    designWithComp = VisualisationList.Where(c => c.XAMLDesign.Contains(findPattern)
                                                                             && c.ValueTypeACClassID.HasValue
                                                                             && c.ValueTypeACClass.ACIdentifier == Const.VBDesign_ClassName)
                                                                       .FirstOrDefault();
@@ -934,7 +934,7 @@ namespace gip.bso.iplus
                                     }
                                     else
                                     {
-                                        designWithComp = VisualisationList.Where(c => c.XMLDesign.Contains(findPattern)
+                                        designWithComp = VisualisationList.Where(c => c.XAMLDesign.Contains(findPattern)
                                                                                         && (!c.ValueTypeACClassID.HasValue || c.ValueTypeACClass.ACIdentifier != Const.VBDesign_ClassName))
                                                                         .FirstOrDefault();
                                         if (designWithComp != null)

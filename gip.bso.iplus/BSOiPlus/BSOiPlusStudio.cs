@@ -3000,7 +3000,7 @@ namespace gip.bso.iplus
                     }
                     break;
                 case "CurrentACClass\\IsAbstract":
-                    if (CurrentACClass != null && !string.IsNullOrEmpty(CurrentACClass.AssemblyQualifiedName) && CurrentACClass.IsAbstract)
+                    if (CurrentACClass != null && !string.IsNullOrEmpty(CurrentACClass.FinalAssemblyQualifiedName) && CurrentACClass.IsAbstract)
                         return Global.ControlModes.Disabled;
                     else
                         return Global.ControlModes.Hidden;
@@ -3080,7 +3080,7 @@ namespace gip.bso.iplus
                         return Global.ControlModes.Hidden;
                 case "CurrentACClass\\ACIdentifier":
                 case "CurrentACClass\\ACPackage":
-                    if (CurrentACClass != null && !string.IsNullOrEmpty(CurrentACClass.AssemblyQualifiedName))
+                    if (CurrentACClass != null && !string.IsNullOrEmpty(CurrentACClass.FinalAssemblyQualifiedName))
                         return Global.ControlModes.Disabled;
                     else
                         return Global.ControlModes.Enabled;
@@ -3428,7 +3428,7 @@ namespace gip.bso.iplus
             }
             if (variobatchMenuDesginItem == null)
                 return;
-            using (StringReader tr = new StringReader(variobatchMenuDesginItem.XMLDesign))
+            using (StringReader tr = new StringReader(variobatchMenuDesginItem.XAMLDesign))
             {
                 rootMenuItem = (ACMenuItemLight)xmlSerializer.Deserialize(tr);
 
@@ -3658,7 +3658,7 @@ namespace gip.bso.iplus
                     acItem.IsAbstract = acClassItem.IsAbstract;
                     acItem.IsInterface = acClassItem.IsInterface;
                     acItem.Comment = acClassItem.Comment;
-                    acItem.AssemblyQualifiedName = acClassItem.AssemblyQualifiedName;
+                    acItem.AssemblyQualifiedName = acClassItem.FinalAssemblyQualifiedName;
                     acItem.ACUrl = acClassItem.ACUrl;
                     acItem.ACTypeACIdentifier = "ACClass";
                 }

@@ -61,11 +61,11 @@ namespace gip.core.autocomponent
                 string layoutXAML = null;
                 if (acClassDesign == null)
                 {
-                    layoutXAML = ACType.GetDesign("Unknown").XMLDesign + _Update;
+                    layoutXAML = ACType.GetDesign("Unknown").XAMLDesign + _Update;
                 }
                 else
                 {
-                    layoutXAML = acClassDesign.XMLDesign + _Update;
+                    layoutXAML = acClassDesign.XAMLDesign + _Update;
                 }
 
                 // Sonst reagiert das Steuerelement nicht aufs PropertyChanged

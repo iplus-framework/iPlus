@@ -297,9 +297,9 @@ namespace gip.core.layoutengine.avui
                                         return new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/QuestionMark.JPG")));
                                     }
                                 }
-                                else if (needBrush && !String.IsNullOrEmpty(acClassDesign.XMLDesign))
+                                else if (needBrush && !String.IsNullOrEmpty(acClassDesign.XAMLDesign))
                                 {
-                                    Brush brushRes = Layoutgenerator.LoadXAMLResource(acClassDesign.XMLDesign) as Brush;
+                                    Brush brushRes = Layoutgenerator.LoadXAMLResource(acClassDesign.XAMLDesign) as Brush;
                                     if (brushRes != null)
                                     {
                                         if (wpfApplication != null)

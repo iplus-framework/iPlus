@@ -28,7 +28,7 @@ namespace gip.core.reporthandler.avui
             try
             {
                 // FlowDocument generate (separate thread)
-                using (ReportDocument reportDocument = new ReportDocument(aCClassDesign.XMLDesign))
+                using (ReportDocument reportDocument = new ReportDocument(aCClassDesign.XAMLDesign))
                 {
                     FlowDocument flowDoc = reportDocument.CreateFlowDocument(reportData);
                     printJob = GetPrintJob(aCClassDesign.ACIdentifier, flowDoc);

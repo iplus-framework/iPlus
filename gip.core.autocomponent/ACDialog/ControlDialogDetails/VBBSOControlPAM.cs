@@ -379,7 +379,7 @@ namespace gip.core.autocomponent
                 string layoutXAML = "";
                 ACClassDesign acClassDesign = SelectedFunction.ACType.GetDesign(SelectedFunction, Global.ACUsages.DUControl, Global.ACKinds.DSDesignLayout);
                 if (acClassDesign != null)
-                    layoutXAML += acClassDesign.XMLDesign + _Update2;
+                    layoutXAML += acClassDesign.XAMLDesign + _Update2;
 
                 // Sonst reagiert das Steuerelement nicht aufs PropertyChanged
                 _Update2 = _Update2 == "" ? " " : "";
@@ -399,7 +399,7 @@ namespace gip.core.autocomponent
                 string layoutXAML = "";
                 ACClassDesign acClassDesign = SelectedFunction.ACType.GetDesign(SelectedFunction, Global.ACUsages.DUControlDialog, Global.ACKinds.DSDesignLayout);
                 if (acClassDesign != null)
-                    layoutXAML = acClassDesign.XMLDesign + _Update;
+                    layoutXAML = acClassDesign.XAMLDesign + _Update;
 
                 // Sonst reagiert das Steuerelement nicht aufs PropertyChanged
                 _Update = _Update == "" ? " " : "";

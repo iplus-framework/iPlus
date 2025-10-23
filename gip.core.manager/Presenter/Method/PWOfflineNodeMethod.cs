@@ -220,7 +220,7 @@ namespace gip.core.manager
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
-        public override string XMLDesign
+        public override string XAMLDesign
         {
             get
             {

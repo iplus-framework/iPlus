@@ -1828,6 +1828,19 @@ namespace gip.core.datamodel
             }
             return acClassDesign;
         }
+
+        [NotMapped]
+        public string XAMLDesign
+        {
+            get
+            {
+                return XMLDesign;
+            }
+            set
+            {
+                XMLDesign = value;
+            }
+        }
         #endregion
 
 

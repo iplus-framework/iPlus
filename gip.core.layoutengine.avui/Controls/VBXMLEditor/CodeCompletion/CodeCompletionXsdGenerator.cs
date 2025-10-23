@@ -21,7 +21,7 @@ namespace gip.core.layoutengine.avui
     {
         internal static string xsNs = "http://www.w3.org/2001/XMLSchema";
         public static XmlQualifiedName vbNs = new XmlQualifiedName("http://www.iplus-framework.com/xaml", "vb");
-        public static XmlQualifiedName msNs = new XmlQualifiedName("http://schemas.microsoft.com/winfx/2006/xaml/presentation","");
+        public static XmlQualifiedName msNs = new XmlQualifiedName(ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace,"");
         public static string baseDir = "";
         internal static string vbSchemaPath = @"\gip.core.layoutengine.avui\VBXMLEditorSchemas\VBSchema.xsd";
         internal static string msSchemaPath = @"\gip.core.layoutengine.avui\VBXMLEditorSchemas\XamlPresentation2006.xsd";

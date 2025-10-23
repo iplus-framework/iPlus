@@ -211,7 +211,7 @@ namespace gip.core.layoutengine.avui
                                 //            DataContext = selDlg.CurrentSelection;
                                 //    }
                                 //}
-                                xaml = design.XMLDesign;
+                                xaml = design.XAMLDesign;
                             }
                         }
                     }
@@ -265,7 +265,7 @@ namespace gip.core.layoutengine.avui
                                     vbContentUrl += ACUrlHelper.Delimiter_DirSeperator + Const.Value;
 
                             string controlName = design.ValueTypeACClass.ACIdentifier;
-                            if (String.IsNullOrWhiteSpace(design.XMLDesign))
+                            if (String.IsNullOrWhiteSpace(design.XAMLDesign))
                             {
                                 switch (acValue.ValueTypeACClass.ACKind)
                                 {
@@ -350,7 +350,7 @@ namespace gip.core.layoutengine.avui
                                             {
                                                 newDataContextForChild = newDataContextForChild.GetValue(Const.Value);
                                             }
-                                            xaml = design.XMLDesign;
+                                            xaml = design.XAMLDesign;
                                         }
                                         break;
                                 }
@@ -367,7 +367,7 @@ namespace gip.core.layoutengine.avui
                                 {
                                     newDataContextForChild = newDataContextForChild.GetValue(Const.Value);
                                 }
-                                xaml = design.XMLDesign;
+                                xaml = design.XAMLDesign;
                             }
                         }
                     }
@@ -377,7 +377,7 @@ namespace gip.core.layoutengine.avui
                     var design = VBContentPropertyInfo.ValueTypeACClass.GetDesign(VBContentPropertyInfo.ValueTypeACClass, Global.ACUsages.DUControl, Global.ACKinds.DSDesignLayout);
                     if (design != null && design.ValueTypeACClass != null)
                     {
-                        xaml = design.XMLDesign;
+                        xaml = design.XAMLDesign;
                     }
                     else if (BSOACComponent != null && !String.IsNullOrEmpty(this.VBContent))
                     {
@@ -391,7 +391,7 @@ namespace gip.core.layoutengine.avui
                                 design = VBContentPropertyInfo.ValueTypeACClass.GetDesign(valueType, Global.ACUsages.DUControl, Global.ACKinds.DSDesignLayout);
                                 if (design != null && design.ValueTypeACClass != null)
                                 {
-                                    xaml = design.XMLDesign;
+                                    xaml = design.XAMLDesign;
                                 }
                             }
                         }
@@ -429,7 +429,7 @@ namespace gip.core.layoutengine.avui
                             var design = valueType.GetDesign(valueType, Global.ACUsages.DUControl, Global.ACKinds.DSDesignLayout);
                             if (design != null && design.ValueTypeACClass != null)
                             {
-                                xaml = design.XMLDesign;
+                                xaml = design.XAMLDesign;
                                 newDataContextForChild = DesignVBContent;
                             }
                         }

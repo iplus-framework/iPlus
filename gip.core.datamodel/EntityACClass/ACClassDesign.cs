@@ -50,6 +50,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, "DesignBinary", "en{'Binary code'}de{'Binärcode'}","", "", true)]
     [ACPropertyEntity(9999, "DesignNo", "en{'Design No.'}de{'Designnr.'}","", "", true)]
     [ACPropertyEntity(9999, "XMLDesign", "en{'Design'}de{'Design'}")]
+    [ACPropertyEntity(9999, "XMLDesign2", "en{'Design Avalonia'}de{'Design Avalonia'}")]
     [ACPropertyEntity(9999, "FilterIndex", "en{'Filter'}de{'Filter'}","", "", true)]
     [ACPropertyEntity(9999, "IsResourceStyle", "en{'Resourcestyle'}de{'WPF-Resource'}","", "", true)]
     [ACPropertyEntity(9999, "ACValueType", "en{'Valuetype'}de{'Werttyp'}","", "", true)]
@@ -92,6 +93,7 @@ namespace gip.core.datamodel
             entity.UpdateVBControlACClass(database);
             entity.SortIndex = 999;
             entity.XMLDesign = "";
+            entity.XMLDesign2 = "";
             entity.DesignNo = secondaryKey;
             entity.BranchNo = 0;
 
@@ -119,7 +121,7 @@ namespace gip.core.datamodel
             entity.ACKind = Global.ACKinds.DSDesignLayout;
             entity.ACUsage = Global.ACUsages.DUVisualisation;
 //            entity.XMLDesign = "<?xml version=\"1.0\" encoding=\"utf-16\"?><Grid " + ACxmlnsResolver.XMLNamespaces + "><vb:VBScrollViewer VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Auto\"><vb:VBCanvas Background=\"#FF000000\"></vb:VBCanvas></vb:VBScrollViewer></Grid>";
-            entity.XMLDesign = "<?xml version=\"1.0\" encoding=\"utf-16\"?><vb:VBScrollViewer  " + ACxmlnsResolver.XMLNamespaces + " VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Auto\"><vb:VBCanvas Height=\"100\" Width=\"100\" Background=\"#FF000000\"></vb:VBCanvas></vb:VBScrollViewer>";
+            entity.XAMLDesign = "<?xml version=\"1.0\" encoding=\"utf-16\"?><vb:VBScrollViewer  " + ACxmlnsResolver.XMLNamespaces + " VerticalScrollBarVisibility=\"Auto\" HorizontalScrollBarVisibility=\"Auto\"><vb:VBCanvas Height=\"100\" Width=\"100\" Background=\"#FF000000\"></vb:VBCanvas></vb:VBScrollViewer>";
             return entity;
         }
 
@@ -547,7 +549,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (this.ACKind != Global.ACKinds.DSDesignMenu || XMLDesign == null || XMLDesign == "")
+                if (this.ACKind != Global.ACKinds.DSDesignMenu || string.IsNullOrEmpty(XMLDesign))
                 {
                     return new ACMenuItem(null, "", "", 0, null);
                 }
@@ -1183,9 +1185,46 @@ namespace gip.core.datamodel
             }
         }
 
-#endregion
+        [NotMapped]
+        public string XAMLDesign
+        {
+            get
+            {
+                if (Database.Root.IsAvaloniaUI)
+                {
+                    if (!string.IsNullOrEmpty(XMLDesign2))
+                        return XMLDesign2;
+                    else
+                    {
+                        string avaloniaXAML = XMLDesign;
+                        foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
+                        {
+                            avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
+                        }
+                        return avaloniaXAML;
+                    }
+                }
+                else
+                {
+                    return XMLDesign;
+                }
+            }
+            set
+            {
+                if (Database.Root.IsAvaloniaUI)
+                {
+                    XMLDesign2 = value;
+                }
+                else
+                {
+                    XMLDesign = value;
+                }
+            }
+        }
 
-#region Clone
+        #endregion
+
+        #region Clone
         public object Clone()
         {
             ACClassDesign clonedObject = new ACClassDesign();
@@ -1202,6 +1241,7 @@ namespace gip.core.datamodel
             toDesign.ACCaptionTranslation = this.ACCaptionTranslation;
             toDesign.ACGroup = this.ACGroup;
             toDesign.XMLDesign = this.XMLDesign;
+            toDesign.XMLDesign2 = this.XMLDesign2;
             toDesign.DesignBinary = this.DesignBinary;
             toDesign.DesignNo = this.DesignNo;
             toDesign.ValueTypeACClassID = this.ValueTypeACClassID;

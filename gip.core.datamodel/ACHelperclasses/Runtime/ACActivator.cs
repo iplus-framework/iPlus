@@ -454,14 +454,14 @@ namespace gip.core.datamodel
                     root.Messages.LogError(acClass.GetACUrl(), "ACActivator.GetACObjectType()", String.Format("acClass.MyAssemblyACClass is null of {0}", acClass.GetACUrl()));
                 return null;
             }
-            if (acClass.BaseClassWithASQN.AssemblyQualifiedName.Length <= 0)
+            if (acClass.BaseClassWithASQN.FinalAssemblyQualifiedName.Length <= 0)
             {
                 IRoot root = Database.Root;
                 if (root != null)
                     root.Messages.LogError(acClass.GetACUrl(), "ACActivator.GetACObjectType()", String.Format("acClass.MyAssemblyACClass.AssemblyQualifiedName is Empty of {0}", acClass.GetACUrl()));
                 return null;
             }
-            return Type.GetType(acClass.BaseClassWithASQN.AssemblyQualifiedName);
+            return Type.GetType(acClass.BaseClassWithASQN.FinalAssemblyQualifiedName);
         }
 
         #region public Members

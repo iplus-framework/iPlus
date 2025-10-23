@@ -618,7 +618,7 @@ namespace gip.core.autocomponent
 
                 ACClassDesign acClassDesign = CurrentACComponent.ACType.GetDesign(CurrentACComponent, Global.ACUsages.DUControlDialog, Global.ACKinds.DSDesignLayout);
                 if (acClassDesign != null)
-                    layoutXAML += acClassDesign.XMLDesign + _Update;
+                    layoutXAML += acClassDesign.XAMLDesign + _Update;
 
                 // Sonst reagiert das Steuerelement nicht aufs PropertyChanged
                 _Update = _Update == "" ? " " : "";

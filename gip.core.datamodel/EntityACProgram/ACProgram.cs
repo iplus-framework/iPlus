@@ -366,7 +366,7 @@ namespace gip.core.datamodel
         /// XAML-Code for Presentation
         /// </value>
         [NotMapped]
-        public String XMLDesign
+        public string XAMLDesign
         {
             get
             {
@@ -377,9 +377,10 @@ namespace gip.core.datamodel
                 throw new NotSupportedException();
             }
         }
-#endregion
 
-#region Applicationdata
+        #endregion
+
+        #region Applicationdata
         [ACPropertyInfo(9999, "en{'Applicationdata'}de{'Anwendungsdaten'}", "gip.core.autocomponent.ApplicationdataConfig", "en{'Applicationdata'}de{'Anwendungsdaten'}")]
         [NotMapped]
         public ACProgramConfig Applicationdata

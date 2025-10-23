@@ -459,21 +459,21 @@ namespace gip.bso.iplus
                 {
                     case Global.ACKinds.DSDesignLayout:
                     case Global.ACKinds.DSDesignReport:
-                        if (CurrentACClassDesign.XMLDesign != null)
+                        if (CurrentACClassDesign.XAMLDesign != null)
                         {
-                            string layout = CurrentACClassDesign.XMLDesign; //.FormatXML() muss nicht aufgerufen werden, weil Editor dies per "XmlWriterSettings.Indent = true" selsbt macht
+                            string layout = CurrentACClassDesign.XAMLDesign; //.FormatXML() muss nicht aufgerufen werden, weil Editor dies per "XmlWriterSettings.Indent = true" selsbt macht
                             if (layout == null)
                             {
                                 Messages.Error(this, "Error00001");
                             }
 
-                            if (!string.IsNullOrEmpty(layout) && layout != CurrentACClassDesign.XMLDesign)
-                                CurrentACClassDesign.XMLDesign = layout;
+                            if (!string.IsNullOrEmpty(layout) && layout != CurrentACClassDesign.XAMLDesign)
+                                CurrentACClassDesign.XAMLDesign = layout;
 
                         }
                         else
                         {
-                            CurrentACClassDesign.XMLDesign = "";
+                            CurrentACClassDesign.XAMLDesign = "";
                         }
                         break;
                     case Global.ACKinds.DSDesignMenu:
@@ -613,7 +613,7 @@ namespace gip.bso.iplus
             }
 
             if (!String.IsNullOrEmpty(defaultXAML))
-                CurrentNewACClassDesign.XMLDesign = defaultXAML;
+                CurrentNewACClassDesign.XAMLDesign = defaultXAML;
             CurrentNewACClassDesign.UpdateVBControlACClass(Database.ContextIPlus);
 
             CurrentACClassDesign = CurrentNewACClassDesign;
@@ -824,7 +824,7 @@ namespace gip.bso.iplus
         [ACMethodInteraction("ACClassDesign", "en{'Compile Design'}de{'Design kompilieren'}", 9999, false, "SelectedACClassDesign")]
         public void CompileACClassDesign()
         {
-            if (!string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign) && CurrentACClassDesign.ACUsage != Global.ACUsages.DUBitmap)
+            if (!string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) && CurrentACClassDesign.ACUsage != Global.ACUsages.DUBitmap)
             {
                 //byte[] bamlDesign = VarioBatch.Helper.BamlWriter.Save(CurrentACClassDesign.XMLDesign);
                 byte[] bamlDesign = null;
@@ -1090,16 +1090,16 @@ namespace gip.bso.iplus
                 {
                     case Global.ACKinds.DSDesignReport:
                     case Global.ACKinds.DSDesignLayout:
-                        layoutXAML = ACType.GetDesign("TabDesignLayout").XMLDesign;
+                        layoutXAML = ACType.GetDesign("TabDesignLayout").XAMLDesign;
                         break;
                     case Global.ACKinds.DSDesignMenu:
-                        layoutXAML = ACType.GetDesign("TabDesignMenu").XMLDesign;
+                        layoutXAML = ACType.GetDesign("TabDesignMenu").XAMLDesign;
                         break;
                     //case Global.ACKinds.DSDesignReport:
                     //    layoutXAML = ACType.MyACClassDesign("TabDesignReport").XMLDesign;
                     //    break;
                     case Global.ACKinds.DSBitmapResource:
-                        layoutXAML = ACType.GetDesign("TabDesignBitmap").XMLDesign;
+                        layoutXAML = ACType.GetDesign("TabDesignBitmap").XAMLDesign;
                         break;
                 }
                 return layoutXAML;

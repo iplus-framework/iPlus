@@ -18,16 +18,26 @@ namespace gip.core.datamodel
             foreach (var acClassDesign in acClass.ACSelect(qryACClassDesign))
             {
                 OnExportReportProgress(0, string.Format(@"Export ACClassDesign: {0}", (acClassDesign as ACClassDesign).ACIdentifier));
-                ACClassDesign dbDesing = acClassDesign as ACClassDesign;
-                database.Entry(dbDesing).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
-                string xmlDesign = dbDesing.XMLDesign;
-                dbDesing.XMLDesign = "";
+                ACClassDesign dbDesign = acClassDesign as ACClassDesign;
+                database.Entry(dbDesign).State = Microsoft.EntityFrameworkCore.EntityState.Detached;
+                string xmlDesign = dbDesign.XMLDesign;
+                dbDesign.XMLDesign = "";
                 XElement element = aCEntitySerializer.SerializeACObject(acClassDesign as IACObject, qryACClassDesign, folderPath, false);
                 string xmlACClassDesign = element != null ? element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassDesign))
                 {
                     WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
                     File.WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + ".xml", xmlDesign);
+                }
+
+                xmlDesign = dbDesign.XMLDesign2;
+                dbDesign.XMLDesign2 = "";
+                element = aCEntitySerializer.SerializeACObject(acClassDesign as IACObject, qryACClassDesign, folderPath, false);
+                xmlACClassDesign = element != null ? element.ToString() : "";
+                if (!string.IsNullOrEmpty(xmlACClassDesign))
+                {
+                    WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
+                    File.WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + ".axaml", xmlDesign);
                 }
             }
             return true;

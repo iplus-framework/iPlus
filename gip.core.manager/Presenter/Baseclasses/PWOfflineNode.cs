@@ -34,7 +34,7 @@ namespace gip.core.manager
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
-        public abstract string XMLDesign { get; set; }
+        public abstract string XAMLDesign { get; set; }
 
         /// <summary>
         /// Root-Workflownode

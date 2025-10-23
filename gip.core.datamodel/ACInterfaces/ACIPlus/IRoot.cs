@@ -50,6 +50,8 @@ namespace gip.core.datamodel
             set;
         }
 
+        bool IsAvaloniaUI { get; }
+
         IWPFServices WPFServices { get; }
 
         #endregion

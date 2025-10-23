@@ -169,7 +169,7 @@ namespace gip.core.layoutengine.avui.CodeCompletion
         /// </summary>
         public ICompletionData[] GetElementCompletionData(string namespacePrefix, XmlSchema targetSchema)
         {
-            string ns = declaredNamespaces != null ? declaredNamespaces.FirstOrDefault(c => c.Value == namespacePrefix).Key : "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+            string ns = declaredNamespaces != null ? declaredNamespaces.FirstOrDefault(c => c.Value == namespacePrefix).Key : ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace;
 
             if (targetSchema.TargetNamespace == ns)
             {

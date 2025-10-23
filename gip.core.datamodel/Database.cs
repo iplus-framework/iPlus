@@ -1467,7 +1467,7 @@ namespace gip.core.datamodel
             {
                 using (ACMonitor.Lock(QueryLock_1X000))
                 {
-                    return ACClass.Where(c => !string.IsNullOrEmpty(c.AssemblyQualifiedName)).OrderBy(c => c.ACIdentifier).ToArray();
+                    return ACClass.Where(c => !string.IsNullOrEmpty(c.AssemblyQualifiedName) || !string.IsNullOrEmpty(c.AssemblyQualifiedName2)).OrderBy(c => c.ACIdentifier).ToArray();
                 }
             }
         }
@@ -1607,7 +1607,7 @@ namespace gip.core.datamodel
                             .Include("ACClass_ParentACClass")
                 .Where(c => c.ACProject.ACProjectTypeIndex == (short)Global.ACProjectTypes.ClassLibrary
                 && c.ParentACClassID == null
-                && c.AssemblyQualifiedName == assQName).FirstOrDefault()
+                && (c.AssemblyQualifiedName == assQName || c.AssemblyQualifiedName2 == assQName)).FirstOrDefault()
             );
 
         private ConcurrentDictionary<string, ACClass> _TypesClassName = new ConcurrentDictionary<string, ACClass>();
@@ -1687,7 +1687,7 @@ namespace gip.core.datamodel
                             .Include("ACClass1_PWMethodACClass")
                             .Include("ACClass_BasedOnACClass")
                             .Include("ACClass_ParentACClass")
-                            .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName).FirstOrDefault()
+                            .Where(c => c.AssemblyQualifiedName == assemblyQualifiedName || c.AssemblyQualifiedName2 == assemblyQualifiedName).FirstOrDefault()
             );
 
         public static readonly Func<Database, string, IEnumerable<ACClass>> s_cQry_FindInstancesOfClass =
@@ -1786,8 +1786,8 @@ namespace gip.core.datamodel
 
                 ACClass result = null;
 
-                if (!_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
-                    _TypesAssQlfName.TryAdd(acClass.AssemblyQualifiedName, acClass);
+                if (!_TypesAssQlfName.TryGetValue(type.AssemblyQualifiedName, out result))
+                    _TypesAssQlfName.TryAdd(type.AssemblyQualifiedName, acClass);
 
                 if (!_TypesClassName.TryGetValue(acClass.ACIdentifier, out result))
                     _TypesClassName.TryAdd(acClass.ACIdentifier, acClass);
@@ -1810,8 +1810,8 @@ namespace gip.core.datamodel
 
                 ACClass result = null;
 
-                if (!_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
-                    _TypesAssQlfName.TryAdd(acClass.AssemblyQualifiedName, acClass);
+                if (!_TypesAssQlfName.TryGetValue(genericType.AssemblyQualifiedName, out result))
+                    _TypesAssQlfName.TryAdd(genericType.AssemblyQualifiedName, acClass);
 
                 if (!_TypesClassName.TryGetValue(acClass.ACIdentifier, out result))
                     _TypesClassName.TryAdd(acClass.ACIdentifier, acClass);
@@ -1851,8 +1851,8 @@ namespace gip.core.datamodel
 
                 ACClass result = null;
 
-                if (!_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
-                    _TypesAssQlfName.TryAdd(acClass.AssemblyQualifiedName, acClass);
+                if (!_TypesAssQlfName.TryGetValue(acClass.FinalAssemblyQualifiedName, out result))
+                    _TypesAssQlfName.TryAdd(acClass.FinalAssemblyQualifiedName, acClass);
 
                 Type objectFullType = acClass.ObjectFullType;
                 if (objectFullType != null)
@@ -1892,8 +1892,8 @@ namespace gip.core.datamodel
 
                 ACClass result = null;
 
-                if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName) && !_TypesAssQlfName.TryGetValue(acClass.AssemblyQualifiedName, out result))
-                    _TypesAssQlfName.TryAdd(acClass.AssemblyQualifiedName, acClass);
+                if (!string.IsNullOrEmpty(acClass.FinalAssemblyQualifiedName) && !_TypesAssQlfName.TryGetValue(acClass.FinalAssemblyQualifiedName, out result))
+                    _TypesAssQlfName.TryAdd(acClass.FinalAssemblyQualifiedName, acClass);
 
                 Type objectFullType = acClass.ObjectFullType;
                 if (objectFullType != null)

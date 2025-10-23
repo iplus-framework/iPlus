@@ -18,6 +18,7 @@ using System.Xml.Linq;
 using System.Xml;
 using System.Globalization;
 using System.Printing;
+using gip.core.datamodel;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -728,11 +729,11 @@ namespace gip.core.reporthandler.avui.Flowdoc
 
 
                 XDocument newXDoc = XDocument.Parse(newXAML);
-                var queryImages = newXDoc.Descendants("{http://schemas.microsoft.com/winfx/2006/xaml/presentation}Image");
+                var queryImages = newXDoc.Descendants(string.Format("{0}Image", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace));
                 foreach (XElement xElImage in queryImages)
                 {
                     XAttribute xAttrTag = xElImage.Attribute("Tag");
-                    XElement xBitmapImage = xElImage.Elements("{http://schemas.microsoft.com/winfx/2006/xaml/presentation}Image.Source").FirstOrDefault();
+                    XElement xBitmapImage = xElImage.Elements(string.Format("{0}Image.Source", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace)).FirstOrDefault();
                     if (xAttrTag != null && xBitmapImage != null)
                     {
                         xBitmapImage.Remove();

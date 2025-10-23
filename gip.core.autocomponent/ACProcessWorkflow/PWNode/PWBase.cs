@@ -647,7 +647,7 @@ namespace gip.core.autocomponent
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
-        public string XMLDesign
+        public string XAMLDesign
         {
             get
             {

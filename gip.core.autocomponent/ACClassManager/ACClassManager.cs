@@ -92,17 +92,20 @@ namespace gip.core.autocomponent
 
         static readonly Func<Database, String, IEnumerable<ACClass>> s_compiledQueryACClass_AssemblyName =
         EF.CompileQuery<Database, String, IEnumerable<ACClass>>(
-            (ctx, assemblyQualifiedName) => from c in ctx.ACClass where c.AssemblyQualifiedName == assemblyQualifiedName select c
+            (ctx, assemblyQualifiedName) => from c in ctx.ACClass where c.AssemblyQualifiedName == assemblyQualifiedName || c.AssemblyQualifiedName2 == assemblyQualifiedName select c
         );
 
         static readonly Func<Database, String, IEnumerable<ACClass>> s_compiledQueryACClass_StartsWithAssemblyName =
         EF.CompileQuery<Database, String, IEnumerable<ACClass>>(
-            (ctx, name) => from c in ctx.ACClass where c.AssemblyQualifiedName.StartsWith(name) select c
+            (ctx, name) => from c in ctx.ACClass where c.AssemblyQualifiedName.StartsWith(name) || c.AssemblyQualifiedName2.StartsWith(name) select c
         );
 
         static readonly Func<Database, IEnumerable<ACClass>> s_compiledQueryACClass_CheckAssemblyName =
         EF.CompileQuery<Database, IEnumerable<ACClass>>(
-            (ctx) => from c in ctx.ACClass where !string.IsNullOrEmpty(c.AssemblyQualifiedName) && !c.AssemblyQualifiedName.StartsWith("System.") select c
+            (ctx) => from c in ctx.ACClass where 
+                        (!string.IsNullOrEmpty(c.AssemblyQualifiedName) && !c.AssemblyQualifiedName.StartsWith("System.")) 
+                     || (!string.IsNullOrEmpty(c.AssemblyQualifiedName2) && !c.AssemblyQualifiedName2.StartsWith("System.")) 
+                     select c
         );
 
 
@@ -170,6 +173,8 @@ namespace gip.core.autocomponent
 
                 string[] patterns = AssemblyNameSearchPattern.Split(',');
                 ACFileItems = new ACFileItemList();
+                var wpfDlls = ACxmlnsResolver.C_AvaloniaAssemblyMapping.Select(c => c.WpfNamespace).ToList();
+                var avaloniaDlls = ACxmlnsResolver.C_AvaloniaAssemblyMapping.Select(c => c.AvaloniaNamespace).ToList();
                 foreach (var pattern in patterns)
                 {
                     foreach (var fileName in Directory.GetFiles(MainDir, pattern).Where(c => !c.Contains("unittest")))
@@ -197,6 +202,12 @@ namespace gip.core.autocomponent
                         }
                         else
                         {
+                            // Prevent loading incompatible UI assemblies
+                            if (   (Database.Root.IsAvaloniaUI && wpfDlls.Where(c => acFileItem.Filename.Contains(c)).Any())
+                                || (!Database.Root.IsAvaloniaUI && avaloniaDlls.Where(c => acFileItem.Filename.Contains(c)).Any()))
+                            {
+                                continue;
+                            }
                             ACFileItems.Add(acFileItem);
                         }
                     }
@@ -382,7 +393,8 @@ namespace gip.core.autocomponent
                     var query = s_compiledQueryACClass_CheckAssemblyName.Invoke(_Database);
                     foreach (var acClass in query)
                     {
-                        if (!_CheckedAssemblyACClassList.ContainsKey(acClass.AssemblyQualifiedName))
+                        if (   (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName) && !_CheckedAssemblyACClassList.ContainsKey(acClass.AssemblyQualifiedName))
+                            || (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName2) && !_CheckedAssemblyACClassList.ContainsKey(acClass.AssemblyQualifiedName2)))
                         {
 #if DEBUG
                             if (acClass.ObjectType == null)
@@ -619,7 +631,10 @@ namespace gip.core.autocomponent
                 acClass.ACIdentifier = acClassName.Length > 100 ? acClassName.Substring(0, 100) : acClassName;
 
 
-                acClass.AssemblyQualifiedName = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
+                if (assemblyQualifiedName.Contains("Avalonia") || assemblyQualifiedName.Contains(".avui"))
+                    acClass.AssemblyQualifiedName2 = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
+                else
+                    acClass.AssemblyQualifiedName = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
                 acClass.ACKind = acClassInfo.ACKind;
                 acClass.SortIndex = acClassInfo.SortIndex;
                 acClass.IsAbstract = dotNETType.IsAbstract;
@@ -651,7 +666,10 @@ namespace gip.core.autocomponent
 
                 if (acClass.EntityState == EntityState.Detached)
                     _Database.ACClass.Add(acClass);
-                _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName, acClass);
+                if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName))
+                    _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName, acClass);
+                if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName2))
+                    _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName2, acClass);
                 if (acProject.ACProjectType == Global.ACProjectTypes.Root)
                     acClass.ACClass1_ParentACClass = GetManagerACClass(acClass.ACKind, dotNETType);
 
@@ -677,10 +695,20 @@ namespace gip.core.autocomponent
             else
             {
 #if EFCR
-                if (acClass.AssemblyQualifiedName != assemblyQualifiedName && !(assemblyQualifiedName.Contains("Microsoft.EntityFrameworkCore") && assemblyQualifiedName.Contains("Version=42.42.42.42")))
+                if (assemblyQualifiedName.Contains("Avalonia") || assemblyQualifiedName.Contains(".avui"))
+                {
+                    if (acClass.AssemblyQualifiedName2 != assemblyQualifiedName)
+                        acClass.AssemblyQualifiedName2 = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
+                }
+                else if (acClass.AssemblyQualifiedName != assemblyQualifiedName && !(assemblyQualifiedName.Contains("Microsoft.EntityFrameworkCore") && assemblyQualifiedName.Contains("Version=42.42.42.42")))
                     acClass.AssemblyQualifiedName = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
 #else
-                if (acClass.AssemblyQualifiedName != assemblyQualifiedName)
+                if (assemblyQualifiedName.Contains("Avalonia") || assemblyQualifiedName.Contains(".avui"))
+                {
+                    if (acClass.AssemblyQualifiedName2 != assemblyQualifiedName)
+                        acClass.AssemblyQualifiedName2 = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
+                }
+                else if (acClass.AssemblyQualifiedName != assemblyQualifiedName)
                     acClass.AssemblyQualifiedName = assemblyQualifiedName.Length > 250 ? assemblyQualifiedName.Substring(0, 250) : assemblyQualifiedName;
 #endif
 
@@ -872,11 +900,11 @@ namespace gip.core.autocomponent
             }
 
 
-            if (!_CheckedAssemblyACClassList.ContainsKey(acClass.AssemblyQualifiedName))
-            {
+            if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName) && !_CheckedAssemblyACClassList.ContainsKey(acClass.AssemblyQualifiedName))
                 _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName, acClass);
-            }
 
+            if (!string.IsNullOrEmpty(acClass.AssemblyQualifiedName2) && !_CheckedAssemblyACClassList.ContainsKey(acClass.AssemblyQualifiedName2))
+                _CheckedAssemblyACClassList.Add(acClass.AssemblyQualifiedName2, acClass);
 
             UpdateACClassConstructorInfo(acClass, dotNETType);
             //UpdateACClassConstructorInfo2(acClass, classType);
@@ -1552,7 +1580,7 @@ namespace gip.core.autocomponent
                     DetermineDataType(T, ref AssemblyQualifiedName, ref GenericTypeString, ref GenericType, ref DataType);
 
                     // Check if parameter type is registered in database
-                    if (!DataType.IsGenericParameter && !_Database.ACClass.Where(c => c.AssemblyQualifiedName == DataType.AssemblyQualifiedName).Any())
+                    if (!DataType.IsGenericParameter && !_Database.ACClass.Where(c => c.AssemblyQualifiedName == DataType.AssemblyQualifiedName || c.AssemblyQualifiedName2 == DataType.AssemblyQualifiedName).Any())
                     {
                         InsertOrUpdateValueTypeACClass(DataType, false, true, recursionDepth);
 
@@ -1574,7 +1602,7 @@ namespace gip.core.autocomponent
                     // Check if return type is registered in database
                     DetermineDataType(Method.ReturnType, ref AssemblyQualifiedName, ref GenericTypeString, ref GenericType, ref DataType);
 
-                    if (!_Database.ACClass.Where(c => c.AssemblyQualifiedName == DataType.AssemblyQualifiedName).Any())
+                    if (!_Database.ACClass.Where(c => c.AssemblyQualifiedName == DataType.AssemblyQualifiedName || c.AssemblyQualifiedName2 == DataType.AssemblyQualifiedName).Any())
                     {
                         InsertOrUpdateValueTypeACClass(DataType, false, true, recursionDepth);
 
@@ -1966,7 +1994,7 @@ namespace gip.core.autocomponent
                 {
                     acClassConfig.ValueTypeACClass = valueTypeACClass;
                     if (valueTypeACClass == null)
-                        throw new Exception(String.Format("Could not determine ValueTypeACClass for type {3} at ACClassConfig {0} at class {1} ASQN:{2}", propertyInfo.Name, acClass.ACIdentifier, acClass.AssemblyQualifiedName, propertyInfo.DeclaringType != null ? propertyInfo.DeclaringType.ToString() : ""));
+                        throw new Exception(String.Format("Could not determine ValueTypeACClass for type {3} at ACClassConfig {0} at class {1} ASQN:{2}", propertyInfo.Name, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, propertyInfo.DeclaringType != null ? propertyInfo.DeclaringType.ToString() : ""));
                     if (acPropertyConfig.DefaultValue != null)
                     {
                         acClassConfig[Const.Value] = acPropertyConfig.DefaultValue;
@@ -1977,7 +2005,7 @@ namespace gip.core.autocomponent
                     }
                 }
                 if (acClassConfig.ValueTypeACClass == null)
-                    throw new Exception(String.Format("Could not determine ValueTypeACClass for type {3} at ACClassConfig {0} at class {1} ASQN:{2}", propertyInfo.Name, acClass.ACIdentifier, acClass.AssemblyQualifiedName, propertyInfo.DeclaringType != null ? propertyInfo.DeclaringType.ToString() : ""));
+                    throw new Exception(String.Format("Could not determine ValueTypeACClass for type {3} at ACClassConfig {0} at class {1} ASQN:{2}", propertyInfo.Name, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, propertyInfo.DeclaringType != null ? propertyInfo.DeclaringType.ToString() : ""));
 
                 if (acClassConfig.Comment != acPropertyConfig.ACCaptionTranslation)
                     acClassConfig.Comment = acPropertyConfig.ACCaptionTranslation;
@@ -2332,7 +2360,7 @@ namespace gip.core.autocomponent
                         if (acClassProperty.ValueTypeACClass != configACClass)
                         {
                             if (valueTypeACClass == null)
-                                throw new Exception(String.Format("Could not determine configACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.AssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
+                                throw new Exception(String.Format("Could not determine configACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
                             acClassProperty.ValueTypeACClass = configACClass;
                         }
                         if (acClassProperty.ConfigACClass != null)
@@ -2345,7 +2373,7 @@ namespace gip.core.autocomponent
                         {
                             acClassProperty.ValueTypeACClass = configACClass;
                             if (valueTypeACClass == null)
-                                throw new Exception(String.Format("Could not determine configACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.AssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
+                                throw new Exception(String.Format("Could not determine configACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
                         }
                         if (acClassProperty.ConfigACClass != null)
                             acClassProperty.ConfigACClass = null;
@@ -2357,7 +2385,7 @@ namespace gip.core.autocomponent
                         {
                             acClassProperty.ValueTypeACClass = valueTypeACClass;
                             if (valueTypeACClass == null)
-                                throw new Exception(String.Format("Could not determine ValueTypeACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.AssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
+                                throw new Exception(String.Format("Could not determine ValueTypeACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
                         }
                         if (acClassProperty.ConfigACClass != configACClass)
                             acClassProperty.ConfigACClass = configACClass;
@@ -2369,14 +2397,14 @@ namespace gip.core.autocomponent
                     {
                         acClassProperty.ValueTypeACClass = valueTypeACClass;
                         if (valueTypeACClass == null)
-                            throw new Exception(String.Format("Could not determine ValueTypeACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.AssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
+                            throw new Exception(String.Format("Could not determine ValueTypeACClass for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
                     }
                     if (acClassProperty.ConfigACClass != null)
                         acClassProperty.ConfigACClass = null;
                 }
 
                 if (acClassProperty.ValueTypeACClass == null)
-                    throw new Exception(String.Format("ValueTypeACClass is null for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.AssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
+                    throw new Exception(String.Format("ValueTypeACClass is null for type {4} at property {0} ASQN:{1} at class {2} ASQN:{3}", acClassProperty.ACIdentifier, assemblyQualifiedName, acClass.ACIdentifier, acClass.FinalAssemblyQualifiedName, dataType != null ? dataType.ToString() : ""));
 
                 bool isDBColumn = false;
                 if (acClass.ACKind == Global.ACKinds.TACDBA)
@@ -2650,7 +2678,7 @@ namespace gip.core.autocomponent
         {
             foreach (var acClassItem in acClassItemWithChilds)
             {
-                ACClass parentACClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassItem.ParentType.AssemblyQualifiedName).FirstOrDefault();
+                ACClass parentACClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassItem.ParentType.AssemblyQualifiedName || c.AssemblyQualifiedName2 == acClassItem.ParentType.AssemblyQualifiedName).FirstOrDefault();
                 if (parentACClass == null)
                     continue;
                 foreach (var acClassChild in acClassItem.ACClassInfo.ACClassChilds)
@@ -2662,7 +2690,7 @@ namespace gip.core.autocomponent
 
         void InsertOrUpdateACClassItemWithChild(ACClass parentACClass, ACClassChild acClassChild)
         {
-            ACClass baseACClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassChild.BaseAssemblyQualifiedName).FirstOrDefault();
+            ACClass baseACClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassChild.BaseAssemblyQualifiedName || c.AssemblyQualifiedName2 == acClassChild.BaseAssemblyQualifiedName).FirstOrDefault();
             if (baseACClass == null)
                 return;
             ACClass acClass = parentACClass.ACClass_ParentACClass.Where(c => c.ACIdentifier == acClassChild.ACIdentifier).FirstOrDefault();
@@ -2676,6 +2704,7 @@ namespace gip.core.autocomponent
                 //acClass.ACFilterColumns = acClassInfo.ACFilterColumns;
                 //acClass.ACSortColumns = acClassInfo.ACSortColumns;
                 acClass.AssemblyQualifiedName = "";
+                acClass.AssemblyQualifiedName2 = "";
                 acClass.IsAssembly = true;
                 acClass.ACKind = baseACClass.ACKind;
                 acClass.IsAbstract = false;
@@ -2797,6 +2826,7 @@ namespace gip.core.autocomponent
                 acClass.ACFilterColumns = acQueryInfo.ACFilterColumns;
                 acClass.ACSortColumns = acQueryInfo.ACSortColumns;
                 acClass.AssemblyQualifiedName = "";
+                acClass.AssemblyQualifiedName2 = "";
                 acClass.ACKind = Global.ACKinds.TACQRY;
                 acClass.IsAbstract = false;
                 acClass.IsAssembly = true;
@@ -2920,7 +2950,7 @@ namespace gip.core.autocomponent
         {
             foreach (var acClassItem in acClassItemList)
             {
-                ACClass acClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassItem.ParentType.AssemblyQualifiedName).FirstOrDefault();
+                ACClass acClass = _Database.ACClass.Where(c => c.AssemblyQualifiedName == acClassItem.ParentType.AssemblyQualifiedName || c.AssemblyQualifiedName2 == acClassItem.ParentType.AssemblyQualifiedName).FirstOrDefault();
                 if (acClass == null)
                     continue;
                 if (!string.IsNullOrEmpty(acClassItem.ACClassInfo.QRYConfig))

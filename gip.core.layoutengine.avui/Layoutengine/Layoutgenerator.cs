@@ -232,7 +232,7 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                return LoadXAML(acClassDesign.XMLDesign, dataContext, bso, layoutName) as Visual;
+                return LoadXAML(acClassDesign.XAMLDesign, dataContext, bso, layoutName) as Visual;
             }
         }
 
@@ -313,7 +313,7 @@ namespace gip.core.layoutengine.avui
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("Layoutgenerator", "LoadBAML", msg);
 
-                return LoadXAML(acClassDesign.XMLDesign, dataContext, bso, acClassDesign.ACIdentifier);
+                return LoadXAML(acClassDesign.XAMLDesign, dataContext, bso, acClassDesign.ACIdentifier);
             }
         }
 

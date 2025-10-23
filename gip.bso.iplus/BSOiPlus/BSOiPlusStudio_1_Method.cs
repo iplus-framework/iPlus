@@ -483,7 +483,7 @@ namespace gip.bso.iplus
             if (!IsEnabledCompileACClassMethod())
                 return;
 
-            if (Type.GetType(CurrentACClass.BaseClassWithASQN.AssemblyQualifiedName) == null)
+            if (Type.GetType(CurrentACClass.BaseClassWithASQN.FinalAssemblyQualifiedName) == null)
             {
                 Messages.Error(this, "Error00006");
                 return;

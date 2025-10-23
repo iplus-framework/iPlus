@@ -883,7 +883,7 @@ namespace gip.core.reporthandler.avui
             if (acClassDesign == null || data == null)
                 return null;
 
-            using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign))
+            using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XAMLDesign))
             { 
                 if (reportDoc == null)
                     return null;
@@ -1510,7 +1510,7 @@ namespace gip.core.reporthandler.avui
                 try
                 {
                     CurrentReportConfiguration = null;
-                    ResourceDictionary rd = XamlReader.Parse(GlobalReportConfig.XMLDesign) as ResourceDictionary;
+                    ResourceDictionary rd = XamlReader.Parse(GlobalReportConfig.XAMLDesign) as ResourceDictionary;
                     if (rd != null && rd.Contains("Config"))
                         CurrentReportConfiguration = rd["Config"] as ReportConfiguration;
                 }
@@ -1533,7 +1533,7 @@ namespace gip.core.reporthandler.avui
                 ResourceDictionary rd = new ResourceDictionary();
                 rd.Add("Config", CurrentReportConfiguration);
                 string xaml = XamlWriter.Save(rd);
-                GlobalReportConfig.XMLDesign = xaml;
+                GlobalReportConfig.XAMLDesign = xaml;
                 SaveFlowDoc();
             }
         }

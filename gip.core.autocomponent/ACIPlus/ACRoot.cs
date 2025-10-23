@@ -604,6 +604,9 @@ namespace gip.core.autocomponent
         }
 
         public IWPFServices WPFServices { get; internal set; }
+
+        public bool IsAvaloniaUI { get { return WPFServices != null ? WPFServices.IsAvaloniaUI : false; } }
+
         #endregion
 
         #region IACInteractiveObject

@@ -187,7 +187,7 @@ namespace gip.core.autocomponent
                 if (changed)
                 {
                     OnPropertyChanged("ContentACClassWF");
-                    OnPropertyChanged("XMLDesign");
+                    OnPropertyChanged(nameof(XAMLDesign));
                     OnPropertyChanged("WFContext");
                 }
             }
@@ -297,7 +297,7 @@ namespace gip.core.autocomponent
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
-        public string XMLDesign
+        public string XAMLDesign
         {
             get
             {

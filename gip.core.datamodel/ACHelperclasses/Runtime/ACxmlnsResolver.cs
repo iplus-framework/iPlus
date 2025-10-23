@@ -174,6 +174,31 @@ namespace gip.core.datamodel
             }
         }
 
+        public static readonly (string WpfNamespace, string AvaloniaNamespace)[] C_AvaloniaNamespaceMapping = new[]
+        {
+            ("http://schemas.microsoft.com/winfx/2006/xaml/presentation", "https://github.com/avaloniaui"),
+            ("http://www.iplus-framework.com/shapes/xaml", "http://www.iplus-framework.com/shapes/axaml"),
+            ("http://www.iplus-framework.com/xaml", "http://www.iplus-framework.com/axaml"),
+            ("http://www.iplus-framework.com/report/xaml", "http://www.iplus-framework.com/report/axaml"),
+            ("http://www.iplus-framework.com/visual/xaml", "http://www.iplus-framework.com/visual/axaml")
+        };
+
+        public static readonly (string WpfNamespace, string AvaloniaNamespace)[] C_AvaloniaAssemblyMapping = new[]
+        {
+            ("gip.ext.chart.dll", "gip.ext.chart.avui.dll"),
+            ("gip.ext.design.dll", "gip.ext.design.avui.dll"),
+            ("gip.ext.designer.dll", "gip.ext.designer.avui.dll"),
+            ("gip.ext.fluent.dll", "gip.ext.fluent.avui.dll"),
+            ("gip.ext.graphics.dll", "gip.ext.graphics.avui.dll"),
+            ("gip.ext.xamldom.dll", "gip.ext.xamldom.avui.dll"),
+            ("gip.core.layoutengine.dll", "gip.core.layoutengine.avui.dll"),
+            ("gip.core.reporthandler.dll", "gip.core.reporthandler.avui.dll"),
+            ("gip.core.scichart.dll", "gip.core.scichart.avui.dll"),
+            ("gip.core.visualcontrols.dll", "gip.core.visualcontrols.avui.dll"),
+            ("gip.core.wpfservices.dll", "gip.core.wpfservices.avui.dll"),
+            ("gip.mes.wpfservices.dll", "gip.mes.wpfservices.avui.dll")
+        };
+
         /// <summary>
         /// The _ namespace dict
         /// </summary>
@@ -189,7 +214,10 @@ namespace gip.core.datamodel
                 if (_NamespaceDict == null)
                 {
                     _NamespaceDict = new Dictionary<string, ACxmlnsInfo>();
-                    _NamespaceDict.Add(" ", new ACxmlnsInfo("http://schemas.microsoft.com/winfx/2006/xaml/presentation", "http://schemas.microsoft.com/winfx/2006/xaml/presentation"));
+                    if (Database.Root.IsAvaloniaUI)
+                        _NamespaceDict.Add(" ", new ACxmlnsInfo(C_AvaloniaNamespaceMapping[0].AvaloniaNamespace, C_AvaloniaNamespaceMapping[0].AvaloniaNamespace));
+                    else
+                        _NamespaceDict.Add(" ", new ACxmlnsInfo(C_AvaloniaNamespaceMapping[0].WpfNamespace, C_AvaloniaNamespaceMapping[0].WpfNamespace));
                     _NamespaceDict.Add("x", new ACxmlnsInfo("http://schemas.microsoft.com/winfx/2006/xaml", "http://schemas.microsoft.com/winfx/2006/xaml"));
                 }
                 return _NamespaceDict;

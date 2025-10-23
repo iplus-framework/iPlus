@@ -1591,13 +1591,13 @@ namespace gip.bso.iplus
                 switch (CurrentPropertyModeEnum)
                 {
                     case Global.PropertyModes.Bindings:
-                        return ACType.GetDesign("PropertyBindings").XMLDesign;
+                        return ACType.GetDesign("PropertyBindings").XAMLDesign;
                     case Global.PropertyModes.Connections:
-                        return ACType.GetDesign("PropertyConnectionpoints").XMLDesign;
+                        return ACType.GetDesign("PropertyConnectionpoints").XAMLDesign;
                     case Global.PropertyModes.Events:
-                        return ACType.GetDesign("PropertyEvents").XMLDesign;
+                        return ACType.GetDesign("PropertyEvents").XAMLDesign;
                     case Global.PropertyModes.Livevalues:
-                        return ACType.GetDesign("PropertyLivevalues").XMLDesign;
+                        return ACType.GetDesign("PropertyLivevalues").XAMLDesign;
                     //case Global.PropertyModes.Configuration:
                     case Global.PropertyModes.Joblists:
                     case Global.PropertyModes.Properties:

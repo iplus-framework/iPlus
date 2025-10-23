@@ -87,7 +87,7 @@ namespace gip.core.manager
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
-        public override string XMLDesign
+        public override string XAMLDesign
         {
             get
             {
@@ -1036,7 +1036,7 @@ namespace gip.core.manager
                 {
                     pwOfflineNode.ContentACClassWF.PWACClass = PWClassToSwitch;
                     pwOfflineNode.OnPropertyChanged("ContentACClassWF");
-                    pwOfflineNode.OnPropertyChanged("XMLDesign");
+                    pwOfflineNode.OnPropertyChanged(nameof(XAMLDesign));
                     ACClassMethod acClassMethod = CurrentDesign as ACClassMethod;
                     if (acClassMethod != null)
                         acClassMethod.UpdateDate = DateTime.Now;
@@ -1258,16 +1258,16 @@ namespace gip.core.manager
                 if (CurrentDesign == null)
                     return "";
 
-                return CurrentDesign.XMLDesign;
+                return CurrentDesign.XAMLDesign;
             }
             set
             {
                 if (CurrentDesign == null)
                     return;
 
-                if (CurrentDesign.XMLDesign != value)
+                if (CurrentDesign.XAMLDesign != value)
                 {
-                    CurrentDesign.XMLDesign = value;
+                    CurrentDesign.XAMLDesign = value;
                     OnPropertyChanged("DesignXAML");
                 }
             }

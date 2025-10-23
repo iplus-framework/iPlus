@@ -27,7 +27,7 @@ namespace gip.core.manager
             get
             {
                 var workflowDesign = this.GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
-                return workflowDesign != null ? workflowDesign.XMLDesign : null;
+                return workflowDesign != null ? workflowDesign.XAMLDesign : null;
             }
         }
 

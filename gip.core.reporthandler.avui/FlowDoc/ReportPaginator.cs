@@ -483,7 +483,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
                         {
                             try
                             {
-                                ResourceDictionary rd = XamlReader.Parse(globalReportConfig.XMLDesign) as ResourceDictionary;
+                                ResourceDictionary rd = XamlReader.Parse(globalReportConfig.XAMLDesign) as ResourceDictionary;
                                 if (rd.Contains("Config"))
                                     _ReportConfig = rd["Config"] as ReportConfiguration;
                             }

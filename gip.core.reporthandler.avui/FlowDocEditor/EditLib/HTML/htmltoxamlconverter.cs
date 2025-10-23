@@ -2658,7 +2658,7 @@ namespace HTMLConverter
 
         #region Private Fields
 
-        static string _xamlNamespace = "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+        static string _xamlNamespace = ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace;
 
         #endregion Private Fields
     }

@@ -29,7 +29,7 @@ namespace gip.core.datamodel
         /// <value>
         /// XAML-Code for Presentation
         /// </value>
-        String XMLDesign { get; set; }
+        String XAMLDesign { get; set; }
     }
 }
 

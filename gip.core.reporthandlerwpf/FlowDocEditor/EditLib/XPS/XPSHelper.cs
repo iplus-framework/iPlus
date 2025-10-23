@@ -56,7 +56,7 @@ namespace DocEdLib.XPS
                 using (FileStream fs = new FileStream(path, FileMode.Create))
                 {
                     byte[] dta = new byte[stm.Length];
-                    stm.Read(dta, 0, dta.Length);
+                    stm.ReadExactly(dta);
                     if (font.IsObfuscated)
                     {
                         string guid = new Guid(font.Uri.GetFileName().Split('.')[0]).ToString("N");

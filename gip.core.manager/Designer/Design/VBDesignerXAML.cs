@@ -363,7 +363,7 @@ namespace gip.core.manager
             {
                 if (CurrentDesign == null)
                     return null;
-                return CurrentDesign.XMLDesign;
+                return CurrentDesign.XAMLDesign;
 // ???                return CurrentDesign.GetDesignXAML(this.ElementACComponent, VBContentDesign);
             }
             set
@@ -371,9 +371,9 @@ namespace gip.core.manager
                 if (CurrentDesign == null || !(CurrentDesign is ACClassDesign))
                     return;
                 bool valueChanged = false;
-                if (CurrentDesign.XMLDesign != value)
+                if (CurrentDesign.XAMLDesign != value)
                     valueChanged = true;
-                (CurrentDesign as ACClassDesign).XMLDesign = value;
+                (CurrentDesign as ACClassDesign).XAMLDesign = value;
                 ACClassDesign acClassDesign = (CurrentDesign as ACClassDesign);
                 if (valueChanged && acClassDesign != null)
                 {
@@ -534,7 +534,7 @@ namespace gip.core.manager
                         return;
 
                     ACClassDesign acClassDesign = CurrentDesign as ACClassDesign;
-                    XElement x1 = WPFProxyXAML.LayoutGeneratorLoadLayoutAsXElement(acClassDesign.XMLDesign);
+                    XElement x1 = WPFProxyXAML.LayoutGeneratorLoadLayoutAsXElement(acClassDesign.XAMLDesign);
                     //x1.Elements();
 
                     //CurrentACVisualItem = _ACProjectManager.NewACVisualItem(CurrentVisualisation);

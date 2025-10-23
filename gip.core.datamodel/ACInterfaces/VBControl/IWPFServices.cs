@@ -28,5 +28,7 @@ namespace gip.core.datamodel
         IVBWFLayoutCalculatorService WFLayoutCalculatorService { get; }
 
         void AddXamlNamespacesFromAssembly(Assembly classAssembly);
+
+        bool IsAvaloniaUI { get; }
     }
 }

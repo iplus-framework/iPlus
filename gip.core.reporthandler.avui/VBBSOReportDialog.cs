@@ -957,9 +957,9 @@ namespace gip.core.reporthandler.avui
             //UpdateName(newDesign);
             newDesign.ACKind = Global.ACKinds.DSDesignReport;
             if (parentReport != null && parentReport.ACUsage == newDesign.ACUsage)
-                newDesign.XMLDesign = parentReport.XMLDesign;
+                newDesign.XAMLDesign = parentReport.XAMLDesign;
             else if (newDesign.ACUsage == Global.ACUsages.DUReport)
-                newDesign.XMLDesign = "<?xml version=\"1.0\" encoding=\"utf-8\"?><FlowDocument PageWidth=\"816\" PageHeight=\"1056\" PagePadding=\"96,96,96,96\" AllowDrop=\"True\" NumberSubstitution.CultureSource=\"User\" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"><Paragraph LineHeight=\"1.15\"><Run xml:lang=\"de-de\" xml:space=\"preserve\" /></Paragraph></FlowDocument>";
+                newDesign.XAMLDesign = string.Format("<?xml version=\"1.0\" encoding=\"utf-8\"?><FlowDocument PageWidth=\"816\" PageHeight=\"1056\" PagePadding=\"96,96,96,96\" AllowDrop=\"True\" NumberSubstitution.CultureSource=\"User\" xmlns=\"{0}\"><Paragraph LineHeight=\"1.15\"><Run xml:lang=\"de-de\" xml:space=\"preserve\" /></Paragraph></FlowDocument>", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace);
 
 
 

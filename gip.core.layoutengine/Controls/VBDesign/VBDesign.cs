@@ -467,7 +467,7 @@ namespace gip.core.layoutengine
 
             if (ContentACObject != null)
             {
-                xaml = ContentACObject.XMLDesign;
+                xaml = ContentACObject.XAMLDesign;
                 if (!String.IsNullOrEmpty(xaml))
                 {
                     if (ContextACObject != null && ContentACObject is ACClassDesign)
@@ -542,7 +542,7 @@ namespace gip.core.layoutengine
                 return;
             if (!(ContentACObject is ACClassDesign))
                 return;
-            string designXAML = ContentACObject.XMLDesign;
+            string designXAML = ContentACObject.XAMLDesign;
             if (String.IsNullOrEmpty(designXAML))
                 return;
             XElement xDefaultContent = Layoutgenerator.LoadLayoutAsXElement(designXAML);

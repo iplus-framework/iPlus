@@ -40,6 +40,7 @@ namespace gip.core.datamodel
     [ACPropertyEntity(5, "IsRightmanagement", "en{'Rightmanagement'}de{'Rechteverwaltung'}", "", "", true)]
     [ACPropertyEntity(9999, "ACCaptionTranslation", "en{'Translation'}de{'Übersetzung'}", "", "", true)]
     [ACPropertyEntity(9999, "AssemblyQualifiedName", "en{'Assembly-qualified name'}de{'Assembly qualifizierter Name'}", "", "", true)]
+    [ACPropertyEntity(9999, "AssemblyQualifiedName2", "en{'Assembly-qualified name 2'}de{'Assembly qualifizierter Name 2'}", "", "", true)]
     [ACPropertyEntity(9999, "IsMultiInstance", "en{'Multiinstance'}de{'Mehrf.Instanzen'}", "", "", true)]
     [ACPropertyEntity(9999, ACPackage.ClassName, "en{'Package'}de{'Paket'}", Const.ContextDatabaseIPlus + "\\" + ACPackage.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, "ACStartTypeIndex", "en{'Starttype'}de{'ACStarttyp'}", typeof(Global.ACStartTypes), Const.ContextDatabaseIPlus + "\\ACStartTypeList", "", true)]
@@ -98,6 +99,7 @@ namespace gip.core.datamodel
             entity.ACClassID = Guid.NewGuid();
             entity.IsAbstract = false;
             entity.AssemblyQualifiedName = "";
+            entity.AssemblyQualifiedName2 = "";
             entity.ACStartType = Global.ACStartTypes.Manually;
             entity.ACStorableType = Global.ACStorableTypes.NotStorable;
             entity.IsAssembly = false;
@@ -172,6 +174,7 @@ namespace gip.core.datamodel
             ACKindIndex = from.ACKindIndex;
             SortIndex = from.SortIndex;
             AssemblyQualifiedName = from.AssemblyQualifiedName;
+            AssemblyQualifiedName2 = from.AssemblyQualifiedName2;
             Comment = from.Comment;
             IsAutostart = from.IsAutostart;
             IsAbstract = from.IsAbstract;
@@ -444,6 +447,7 @@ namespace gip.core.datamodel
             ACKindIndex = fromACClass.ACKindIndex;
             ACPackage = fromACClass.ACPackage;
             AssemblyQualifiedName = fromACClass.AssemblyQualifiedName;
+            AssemblyQualifiedName2 = fromACClass.AssemblyQualifiedName2;
             PWACClassID = fromACClass.PWACClassID;
             Comment = fromACClass.Comment;
             IsAbstract = fromACClass.IsAbstract;
@@ -484,7 +488,7 @@ namespace gip.core.datamodel
                 if (_IsPackageLicensed.HasValue && !_IsPackageLicensed.Value)
                     return false;
 
-                if (!_IsPackageLicensed.HasValue && !string.IsNullOrEmpty(this.AssemblyQualifiedName) && ObjectType != null && ObjectType.GetCustomAttributes(typeof(ACClassInfo), false).Any())
+                if (!_IsPackageLicensed.HasValue && !string.IsNullOrEmpty(this.FinalAssemblyQualifiedName) && ObjectType != null && ObjectType.GetCustomAttributes(typeof(ACClassInfo), false).Any())
                 {
                     ACClassInfo acClassInfo = ObjectType.GetCustomAttributes(typeof(ACClassInfo), false).First() as ACClassInfo;
                     if (acClassInfo.ACPackageName == Const.PackName_VarioSystem || acClassInfo.ACPackageName == Const.PackName_System)
@@ -1175,7 +1179,7 @@ namespace gip.core.datamodel
 
                         using (ACMonitor.Lock(this.Database.QueryLock_1X000))
                         {
-                            interfaceACType = this.Database.ACClass.Where(c => c.AssemblyQualifiedName == interfaceType.AssemblyQualifiedName).FirstOrDefault();
+                            interfaceACType = this.Database.ACClass.Where(c => c.AssemblyQualifiedName == interfaceType.AssemblyQualifiedName || c.AssemblyQualifiedName2 == interfaceType.AssemblyQualifiedName).FirstOrDefault();
                         }
                         if (interfaceACType != null && !acClassList.Contains(interfaceACType))
                             acClassList.Add(interfaceACType);
@@ -1196,7 +1200,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (!string.IsNullOrEmpty(this.AssemblyQualifiedName))
+                if (!string.IsNullOrEmpty(this.FinalAssemblyQualifiedName))
                 {
                     return this;
                 }
@@ -1259,7 +1263,7 @@ namespace gip.core.datamodel
             get
             {
                 var baseClassWithASQN = BaseClassWithASQN;
-                return baseClassWithASQN != null ? baseClassWithASQN.AssemblyQualifiedName : "";
+                return baseClassWithASQN != null ? baseClassWithASQN.FinalAssemblyQualifiedName : "";
             }
         }
 
@@ -3168,7 +3172,7 @@ namespace gip.core.datamodel
                 if (myAssemblyClass == null)
                     return null;
 
-                Type type = Type.GetType(myAssemblyClass.AssemblyQualifiedName);
+                Type type = Type.GetType(myAssemblyClass.FinalAssemblyQualifiedName);
                 using (ACMonitor.Lock(_10020_LockValue))
                 {
                     _ObjectType = type;
@@ -3199,6 +3203,26 @@ namespace gip.core.datamodel
             get
             {
                 return ObjectType; // ACClass.ObjectType;
+            }
+        }
+
+        [ACPropertyInfo(9999, "", "en{'AssemblyQualifiedName'}de{'AssemblyQualifiedName'}", "", true)]
+        [NotMapped]
+        public string FinalAssemblyQualifiedName
+        {
+            get
+            {
+                if (Database.Root != null && Database.Root.IsAvaloniaUI)
+                {
+                    if (!string.IsNullOrEmpty(AssemblyQualifiedName2))
+                        return AssemblyQualifiedName2;
+                    else
+                        return AssemblyQualifiedName;
+                }
+                else
+                {
+                    return AssemblyQualifiedName;
+                }
             }
         }
 
@@ -3463,7 +3487,7 @@ namespace gip.core.datamodel
 
             if (ACIdentifier == Const.UnknownClass)
                 return;
-            if (!string.IsNullOrEmpty(this.AssemblyQualifiedName))
+            if (!string.IsNullOrEmpty(this.FinalAssemblyQualifiedName))
             {
                 acKindIndex = this.ACKindIndex;
             }

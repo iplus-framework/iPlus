@@ -11,6 +11,7 @@ using System.Text;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using Microsoft.Data.SqlClient;
+using gip.core.datamodel;
 
 namespace gip.core.dbsyncer.Command
 {
@@ -112,7 +113,7 @@ namespace gip.core.dbsyncer.Command
             return list;
         }
 
-        public static List<gip.core.datamodel.DbSyncerInfoContext> DatabaseContexts(gip.core.datamodel.Database db)
+        public static List<gip.core.datamodel.DbSyncerInfoContext> DatabaseContexts(iPlusV5Context db)
         {
             return db.DbSyncerInfoContext.FromSql<gip.core.datamodel.DbSyncerInfoContext>(FormattableStringFactory.Create(SQLScripts.DbSyncerInfoContextSelect)).ToList<gip.core.datamodel.DbSyncerInfoContext>();
         }
@@ -121,7 +122,7 @@ namespace gip.core.dbsyncer.Command
         /// Build a list of missing contexts
         /// </summary>
         /// <returns></returns>
-        public static List<gip.core.dbsyncer.model.DbSyncerInfoContext> MissingContexts(gip.core.datamodel.Database db, string rootFolder)
+        public static List<gip.core.dbsyncer.model.DbSyncerInfoContext> MissingContexts(iPlusV5Context db, string rootFolder)
         {
             List<gip.core.dbsyncer.model.DbSyncerInfoContext> fileContexts = FileContexts(rootFolder);
             List<gip.core.datamodel.DbSyncerInfoContext> dbContexts = DatabaseContexts(db);
@@ -133,7 +134,7 @@ namespace gip.core.dbsyncer.Command
         /// Inserting new context info into database
         /// </summary>
         /// <param name="dbInfoContext"></param>
-        public static void InsertContext(gip.core.datamodel.Database db, gip.core.dbsyncer.model.DbSyncerInfoContext dbInfoContext)
+        public static void InsertContext(iPlusV5Context db, gip.core.dbsyncer.model.DbSyncerInfoContext dbInfoContext)
         {
             string sql = "";
             try

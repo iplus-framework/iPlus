@@ -120,7 +120,7 @@ namespace gip.bso.iplus
                 string layoutXAML = null;
                 if (acClassDesign != null && acClassDesign.ACIdentifier != "UnknowMainlayout")
                 {
-                    layoutXAML = acClassDesign.XMLDesign;
+                    layoutXAML = acClassDesign.XAMLDesign;
                 }
                 else
                 {
