@@ -1,31 +1,27 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <Style x:Key="IconDesignConnectorStyleGip" TargetType="{x:Type ContentControl}">
+    
+    <ControlTheme x:Key="IconDesignConnectorStyle" TargetType="ContentControl">
         <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ContentControl}">
-                    <Viewbox Stretch="Uniform">
-                        <Canvas x:Name="Ebene_1_16" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                            <Rectangle x:Name="Point2" Width="6" Height="6" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FF686868"
-                                       Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}">
-                            </Rectangle>
-                            <Rectangle x:Name="Point1" Width="6" Height="6" Canvas.Left="17" Canvas.Top="17" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FF686868"
-                                       Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}">
-                            </Rectangle>
-                            <Path x:Name="Line" Width="18" Height="14" Canvas.Left="3" Canvas.Top="5" Stretch="Fill" StrokeThickness="2" 
-                                  StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
-                                  Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                                  Data="M 4,6L 4,12L 20,12L 20,18"/>
-                        </Canvas>
-                    </Viewbox>
-                </ControlTemplate>
-            </Setter.Value>
+            <ControlTemplate TargetType="ContentControl">
+                <Viewbox Stretch="Uniform">
+                    <Canvas x:Name="Ebene_1_16" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                        <Rectangle x:Name="Point2" Width="6" Height="6" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FF686868"
+                                   Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}">
+                        </Rectangle>
+                        <Rectangle x:Name="Point1" Width="6" Height="6" Canvas.Left="17" Canvas.Top="17" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FF686868"
+                                   Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}">
+                        </Rectangle>
+                        <Path x:Name="Line" Width="18" Height="14" Canvas.Left="3" Canvas.Top="5" Stretch="Fill" StrokeThickness="2" 
+                              StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                              Data="M 4,6L 4,12L 20,12L 20,18"/>
+                    </Canvas>
+                </Viewbox>
+            </ControlTemplate>
         </Setter>
-    </Style>
-
-    <Style x:Key="IconDesignConnectorStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconDesignConnectorStyleGip}">
-    </Style>
+    </ControlTheme>
 </ResourceDictionary>
 
 

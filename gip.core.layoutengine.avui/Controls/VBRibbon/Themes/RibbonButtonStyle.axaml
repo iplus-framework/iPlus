@@ -1,0 +1,83 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <!-- VBRibbonButton ControlTheme -->
+  <ControlTheme x:Key="{x:Type local:VBRibbonButton}" TargetType="local:VBRibbonButton">
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Padding" Value="1"/>
+    <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonNormalContentStroke}"/>
+    <Setter Property="ContentFill" Value="{StaticResource RibbonButtonNormalContentFill}"/>
+    <Setter Property="Template">
+      <ControlTemplate TargetType="local:VBRibbonButton">
+        <Viewbox HorizontalAlignment="Center"
+                 VerticalAlignment="Center"
+                 Stretch="Uniform"
+                 Height="{TemplateBinding Height}"
+                 Width="{TemplateBinding Width}">
+          <Canvas Width="32" Height="32">
+            <Path x:Name="BdButtonBack"
+                  Width="30" Height="30"
+                  Canvas.Left="0" Canvas.Top="0"
+                  Stretch="Fill"
+                  Stroke="{StaticResource RibbonButtonDisabledBg}"
+                  Fill="{StaticResource RibbonButtonDisabledBg}"
+                  Data="F1 M 6.49999,0.499966L 24.5,0.499966C 27.8137,0.499966 30.5,3.18627 30.5,6.49996L 30.5,24.4991C 30.5,27.8128 27.8137,30.4991 24.5,30.4991L 6.49999,30.4991C 3.1863,30.4991 0.499999,27.8128 0.499999,24.4991L 0.499999,6.49996C 0.499999,3.18627 3.1863,0.499966 6.49999,0.499966 Z " StrokeThickness="1" StrokeLineJoin="Round">
+            </Path>
+            <Path x:Name="BdButtonFront"
+                  Width="30" Height="30"
+                  Canvas.Left="0" Canvas.Top="0"
+                  Stretch="Fill"
+                  Stroke="{StaticResource RibbonButtonNormalBg}"
+                  Fill="{StaticResource RibbonButtonNormalBg}"
+                  Data="F1 M 6.00002,-5.72205e-006L 24,-5.72205e-006C 27.3137,-5.72205e-006 30,2.68629 30,5.99999L 30,23.9991C 30,27.3128 27.3137,29.9991 24,29.9991L 6.00002,29.9991C 2.6863,29.9991 -3.63623e-007,27.3128 -3.63623e-007,23.9991L -3.63623e-007,5.99999C -3.63623e-007,2.68629 2.6863,-5.72205e-006 6.00002,-5.72205e-006 Z " StrokeThickness="0" StrokeLineJoin="Round">
+            </Path>
+            <ContentPresenter x:Name="ContentPresenter" Width="24" Height="24"
+                              Canvas.Left="3" Canvas.Top="3"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              RecognizesAccessKey="True"/>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Mouse Over State -->
+    <Style Selector="^:pointerover /template/ Path#BdButtonFront">
+      <Setter Property="Stroke" Value="{StaticResource RibbonButtonFocusBg}" />
+      <Setter Property="Fill" Value="{StaticResource RibbonButtonFocusBg}" />
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonFocusContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonFocusContentFill}"/>
+    </Style>
+
+    <!-- Pressed State -->
+    <Style Selector="^:pressed /template/ Path#BdButtonFront">
+      <Setter Property="Stroke" Value="{StaticResource RibbonButtonPressedBg}" />
+      <Setter Property="Fill" Value="{StaticResource RibbonButtonPressedBg}" />
+      <Setter Property="Canvas.Left" Value="1"/>
+      <Setter Property="Canvas.Top" Value="1"/>
+    </Style>
+    <Style Selector="^:pressed /template/ ContentPresenter#ContentPresenter">
+      <Setter Property="Canvas.Left" Value="4"/>
+      <Setter Property="Canvas.Top" Value="4"/>
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonPressedContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonPressedContentFill}"/>
+    </Style>
+
+    <!-- Disabled State -->
+    <Style Selector="^:disabled /template/ Path#BdButtonFront">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^:disabled">
+      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonDisabledContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonDisabledContentFill}"/>
+    </Style>
+  </ControlTheme>
+
+</ResourceDictionary>

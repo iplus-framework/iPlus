@@ -1,0 +1,38 @@
+﻿<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	<Styles.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>      
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/SplitButtonControl.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonGallery.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonButton.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonComboBox.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonDropDownItem.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonDropDownSeperator.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonDropDownItemsPresenter.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/Ribbon.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonTab.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonMenu.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonMenuItem.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonDropDownButton.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonToggleButton.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonGroupBox.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonContextualTabGroup.axaml" />
+        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/RibbonSplitButton.axaml" />
+      </ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</Styles.Resources>
+
+	<StyleInclude Source="/Controls/VBRibbon/AvaloniaRibbon/ThemesKeyTip.axaml" />
+
+	<Style Selector="SplitButtonControl[Size=Large]">
+		<Setter Property="Theme" Value="{StaticResource LargeSplitButton}" />
+	</Style>
+
+	<Style Selector="SplitButtonControl[Size=Medium]">
+		<Setter Property="Theme" Value="{StaticResource MediumSplitButton}" />
+	</Style>
+
+	<Style Selector="SplitButtonControl[Size=Small]">
+		<Setter Property="Theme" Value="{StaticResource SmallSplitButton}" />
+	</Style>
+</Styles>

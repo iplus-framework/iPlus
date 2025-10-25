@@ -1,0 +1,119 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
+    xmlns:converters="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon.Converters">
+
+  <!-- Add Resources Here -->
+  <ControlTheme x:Key="{x:Type local:RibbonToggleButton}" TargetType="local:RibbonToggleButton">
+    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Classes="RibbonToggleButtonBackgroundBorder">
+          <DockPanel>
+            <ContentPresenter Foreground="{TemplateBinding Foreground}" Content="{TemplateBinding Icon}"
+                              DockPanel.Dock="Left" />
+            <ContentPresenter Foreground="{TemplateBinding Foreground}" Classes="MediumContentPresenter"
+                              Content="{TemplateBinding Content}"
+                              Margin="3,0,0,0" />
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="QuickAccessTemplate">
+      <ControlTemplate>
+        <ToggleButton Classes="quickAccessButton" Command="{Binding Command}" IsChecked="{Binding IsChecked}"
+                      CommandParameter="{Binding CommandParameter}" ToolTip.Tip="{Binding ToolTip.Tip}"
+                      KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34"
+                      Focusable="False">
+          <ContentPresenter Content="{TemplateBinding QuickAccessIcon}" Width="16" Height="16" />
+        </ToggleButton>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Large size style -->
+    <Style Selector="^[Size=Large]">
+      <Setter Property="Padding" Value="9,4" />
+      <Setter Property="MaxWidth" Value="66" />
+      <Setter Property="Height" Value="72" />
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Classes="RibbonToggleButtonBackgroundBorder">
+            <DockPanel VerticalAlignment="Stretch">
+              <ContentPresenter Foreground="{TemplateBinding Foreground}"
+                                Content="{TemplateBinding LargeIcon}" DockPanel.Dock="Top" />
+              <ContentPresenter Foreground="{TemplateBinding Foreground}" Content="{TemplateBinding Content}"
+                                Margin="0,3,0,0"
+                                VerticalAlignment="Stretch" />
+            </DockPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- Large size TextBlock styling -->
+    <Style Selector="^[Size=Large] /template/ ContentPresenter TextBlock">
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="TextAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,-3" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Medium size style -->
+    <Style Selector="^[Size=Medium]">
+      <Setter Property="Height" Value="24" />
+    </Style>
+
+    <!-- Small size style -->
+    <Style Selector="^[Size=Small]">
+      <Setter Property="Width" Value="24" />
+      <Setter Property="Height" Value="24" />
+      <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Classes="RibbonToggleButtonBackgroundBorder">
+            <ContentPresenter Foreground="{TemplateBinding Foreground}" Content="{TemplateBinding Icon}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- Background border styles -->
+    <Style Selector="^ /template/ Border.RibbonToggleButtonBackgroundBorder">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}" />
+      <Setter Property="Padding" Value="{TemplateBinding Padding}" />
+      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    </Style>
+
+    <!-- Pointer over state -->
+    <Style Selector="^:pointerover /template/ Border.RibbonToggleButtonBackgroundBorder">
+      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPointerOver}" />
+    </Style>
+
+    <!-- Pressed state -->
+    <Style Selector="^:pressed /template/ Border.RibbonToggleButtonBackgroundBorder">
+      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushDisabled}" />
+    </Style>
+
+    <!-- Checked state -->
+    <Style Selector="^:checked /template/ Border.RibbonToggleButtonBackgroundBorder">
+      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundChecked}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBackgroundChecked}" />
+    </Style>
+  </ControlTheme>
+
+  <!-- Quick access button style -->
+  <ControlTheme x:Key="QuickAccessToggleButton" TargetType="ToggleButton">
+    <Style Selector="^.quickAccessButton:not(:pointerover):not(:pressed):not(:checked)">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

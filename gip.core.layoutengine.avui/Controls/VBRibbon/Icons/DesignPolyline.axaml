@@ -1,30 +1,27 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <Style x:Key="IconDesignPolylineStyleGip" TargetType="{x:Type ContentControl}">
+    
+    <ControlTheme x:Key="IconDesignPolylineStyle" TargetType="ContentControl">
         <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ContentControl}">
-                    <Viewbox Stretch="Uniform">
-                        <Canvas x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                            <Path x:Name="PolyBack" Width="21" Height="21.9702" Canvas.Left="2.32107" Canvas.Top="1.5938" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF000000" Data="M 22.3211,2.5938L 3.32107,9.5938L 18.3924,22.564L 15.3211,11.5938"/>
-                            <Path x:Name="PolyFront" Width="22" Height="23" Canvas.Left="0.5" Canvas.Top="0.500002" 
-                              Stretch="Fill" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                              Data="M 21,2L 2,9L 17,22L 14,11"/>
-                            <Ellipse x:Name="P1" Width="3.99999" Height="4" Canvas.Left="19" Canvas.Top="5.72205e-006" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
-                            <Ellipse x:Name="P2" Width="3.99999" Height="4" Canvas.Left="-1.78814e-007" Canvas.Top="7" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
-                            <Ellipse x:Name="P3" Width="3.99999" Height="4" Canvas.Left="12" Canvas.Top="9" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
-                            <Ellipse x:Name="P4" Width="3.99999" Height="4" Canvas.Left="15" Canvas.Top="20" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
-                        </Canvas>
-                    </Viewbox>
-                </ControlTemplate>
-            </Setter.Value>
+            <ControlTemplate TargetType="ContentControl">
+                <Viewbox Stretch="Uniform">
+                    <Canvas x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                        <Path x:Name="PolyBack" Width="21" Height="21.9702" Canvas.Left="2.32107" Canvas.Top="1.5938" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" Stroke="#FF000000" Data="M 22.3211,2.5938L 3.32107,9.5938L 18.3924,22.564L 15.3211,11.5938"/>
+                        <Path x:Name="PolyFront" Width="22" Height="23" Canvas.Left="0.5" Canvas.Top="0.500002" 
+                          Stretch="Fill" StrokeThickness="3" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                          Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                          Data="M 21,2L 2,9L 17,22L 14,11"/>
+                        <Ellipse x:Name="P1" Width="3.99999" Height="4" Canvas.Left="19" Canvas.Top="5.72205e-006" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
+                        <Ellipse x:Name="P2" Width="3.99999" Height="4" Canvas.Left="-1.78814e-007" Canvas.Top="7" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
+                        <Ellipse x:Name="P3" Width="3.99999" Height="4" Canvas.Left="12" Canvas.Top="9" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
+                        <Ellipse x:Name="P4" Width="3.99999" Height="4" Canvas.Left="15" Canvas.Top="20" Stretch="Fill" StrokeThickness="2" StrokeStartLineCap="Square" StrokeEndLineCap="Square" StrokeMiterLimit="2.75" Stroke="#FFE5E5E5"/>
+                    </Canvas>
+                </Viewbox>
+            </ControlTemplate>
         </Setter>
-    </Style>
+    </ControlTheme>
 
-    <Style x:Key="IconDesignPolylineStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconDesignPolylineStyleGip}">
-    </Style>
 </ResourceDictionary>
 
 

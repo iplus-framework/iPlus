@@ -1,0 +1,217 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon">
+
+  <!-- Add Resources Here -->
+  <ControlTheme x:Key="{x:Type local:RibbonDropDownButton}" TargetType="local:RibbonDropDownButton">
+    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="Foreground" Value="{Binding $parent[Ribbon].Foreground}" />
+    <Setter Property="Padding" Value="3" />
+    <Setter Property="QuickAccessTemplate">
+      <ControlTemplate>
+        <RibbonDropDownButton
+            Height="34"
+            Classes="quickAccessButton"
+            Focusable="False"
+            Icon="{Binding QuickAccessIcon}"
+            ItemsSource="{Binding ItemsSource}"
+            KeyTip.KeyTipKeys="{Binding KeyTip.Tip}"
+            MaxSize="Small"
+            MinSize="Small"
+            Size="Small"
+            ToolTip.Tip="{Binding ToolTip.Tip}" />
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Quick access button styles -->
+    <Style Selector="^.quickAccessButton:not(:pointerover):not(:pressed)">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
+    <!-- Large size style -->
+    <Style Selector="^[Size=Large]">
+      <Setter Property="Padding" Value="9" />
+      <Setter Property="MaxWidth" Value="66" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Classes="RibbonButtonBackgroundBorder">
+            <Button
+                Name="PART_PrimaryButton"
+                Padding="{TemplateBinding Padding}"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                Background="{TemplateBinding Background}"
+                BorderThickness="0"
+                ClickMode="Press"
+                Focusable="False"
+                FontSize="12.5"
+                Foreground="{TemplateBinding Foreground}">
+              <StackPanel Orientation="Vertical">
+                <ContentPresenter Margin="0,0,0,4" Content="{TemplateBinding LargeIcon}" />
+                <StackPanel HorizontalAlignment="Center" Orientation="Horizontal">
+                  <ContentPresenter Content="{TemplateBinding Content}" />
+                  <Path
+                      Margin="4,0,0,0"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Data="M 0 0 L 3 3 L 6 0"
+                      Stroke="{Binding (TextBlock.Foreground), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentPresenter}}"
+                      StrokeThickness="1" />
+                </StackPanel>
+              </StackPanel>
+              <Button.Flyout>
+                <Flyout FlyoutPresenterClasses="PaddingLess" ShowMode="TransientWithDismissOnPointerMoveAway">
+                  <ScrollViewer>
+                    <ItemsPresenter
+                        Name="PART_ItemsPresenter"
+                        Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                        ItemsPanel="{TemplateBinding ItemsPanel}" />
+                  </ScrollViewer>
+                </Flyout>
+              </Button.Flyout>
+            </Button>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- Medium size style -->
+    <Style Selector="^[Size=Medium]">
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Classes="RibbonButtonBackgroundBorder">
+            <DockPanel VerticalAlignment="Center">
+              <Button
+                  Name="PART_PrimaryButton"
+                  Padding="{TemplateBinding Padding}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="{TemplateBinding Background}"
+                  BorderThickness="0"
+                  ClickMode="Press"
+                  DockPanel.Dock="Right"
+                  Focusable="False"
+                  FontSize="12.5">
+                <StackPanel Orientation="Horizontal">
+                  <ContentPresenter Content="{TemplateBinding Icon}" />
+                  <ContentPresenter Margin="3,0,0,0" Content="{TemplateBinding Content}" />
+                  <Path
+                      Margin="4,0,0,0"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Data="M 0 0 L 3 3 L 6 0"
+                      Stroke="{Binding (TextBlock.Foreground), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentPresenter}}"
+                      StrokeThickness="1" />
+                </StackPanel>
+                <Button.Flyout>
+                  <Flyout
+                      FlyoutPresenterClasses="PaddingLess"
+                      Placement="BottomEdgeAlignedLeft"
+                      ShowMode="TransientWithDismissOnPointerMoveAway">
+                    <ScrollViewer>
+                      <ItemsPresenter
+                          Name="PART_ItemsPresenter"
+                          Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+                    </ScrollViewer>
+                  </Flyout>
+                </Button.Flyout>
+              </Button>
+            </DockPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- Small size style -->
+    <Style Selector="^[Size=Small]">
+      <Setter Property="Width" Value="42" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border Classes="RibbonButtonBackgroundBorder">
+            <DockPanel VerticalAlignment="Center">
+              <Button
+                  Name="PART_PrimaryButton"
+                  Padding="{TemplateBinding Padding}"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch"
+                  Background="{TemplateBinding Background}"
+                  BorderThickness="0"
+                  ClickMode="Press"
+                  DockPanel.Dock="Right"
+                  Focusable="False"
+                  FontSize="12.5">
+                <StackPanel Orientation="Horizontal">
+                  <ContentPresenter Margin="0,0,4,0" Content="{TemplateBinding Icon}" />
+                  <Path
+                      Margin="4,0,0,0"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Data="M 0 0 L 3 3 L 6 0"
+                      Stroke="{Binding (TextBlock.Foreground), RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ContentPresenter}}"
+                      StrokeThickness="1" />
+                </StackPanel>
+                <Button.Flyout>
+                  <Flyout FlyoutPresenterClasses="PaddingLess" ShowMode="TransientWithDismissOnPointerMoveAway">
+                    <ScrollViewer>
+                      <ItemsPresenter
+                          Name="PART_ItemsPresenter"
+                          Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+                    </ScrollViewer>
+                  </Flyout>
+                </Button.Flyout>
+              </Button>
+            </DockPanel>
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <!-- Interaction states -->
+    <Style Selector="^:pointerover /template/ Border#border">
+      <Setter Property="BorderBrush" Value="{DynamicResource HoveredBorderBackgroundColorBrush}" />
+    </Style>
+
+    <!-- RibbonButton image margin in dropdown -->
+    <!--<Style Selector="^ RibbonButton /template/ Image">
+            <Setter Property="Margin" Value="0" />
+        </Style>-->
+
+    <!-- Background border styles -->
+    <Style Selector="^ /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}" />
+    </Style>
+    <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+    </Style>
+    <Style Selector="^[IsDropDownOpen=True] /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+    </Style>
+    <Style Selector="^:disabled /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+    </Style>
+
+    <!-- Split button styles -->
+    <Style Selector="^ /template/ Button#RibbonSplitButtonTopButton:not(:pointerover):not(:pressed)">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^ /template/ Button#RibbonSplitButtonTopButton:pointerover">
+      <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+    </Style>
+    <Style Selector="^ /template/ Button#RibbonSplitButtonTopButton:pressed">
+      <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+    </Style>
+  </ControlTheme>
+
+  <!-- FlyoutPresenter style for PaddingLess class -->
+  <ControlTheme x:Key="PaddingLessFlyoutPresenter" TargetType="FlyoutPresenter">
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Padding" Value="0" />
+  </ControlTheme>
+</ResourceDictionary>

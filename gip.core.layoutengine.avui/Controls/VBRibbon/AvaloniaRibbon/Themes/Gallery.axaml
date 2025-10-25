@@ -1,0 +1,302 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon;assembly=gip.core.layoutengine.avui.AvaloniaRibbon">
+    <Design.PreviewWith>
+        <Grid Height="90">
+            <Gallery>
+                <GalleryItem Content="Item 1">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Red" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 2">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="OrangeRed" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 3">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Orange" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 4">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Yellow" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 5">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="GreenYellow" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 6">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="YellowGreen" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 7">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Green" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 8">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Turquoise" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 9">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Cyan" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 10">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="SkyBlue" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 11">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="Blue" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+                <GalleryItem Content="Item 12">
+                    <GalleryItem.Icon>
+                        <ControlTemplate>
+                            <Rectangle Width="16" Height="16" Fill="BlueViolet" />
+                        </ControlTemplate>
+                    </GalleryItem.Icon>
+                </GalleryItem>
+            </Gallery>
+        </Grid>
+    </Design.PreviewWith>
+
+    <Style Selector="local|Gallery">
+        <Setter Property="Height" Value="62" />
+        <Setter Property="Background" Value="{DynamicResource SystemControlDisabledChromeDisabledHighBrush}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource SystemControlDisabledChromeDisabledHighBrush}" />
+        <Setter Property="BorderThickness" Value="1" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="ItemHeight" Value="20" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Panel>
+                    <Border x:Name="BodyBorder" Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            CornerRadius="{DynamicResource ControlCornerRadius}">
+                        <DockPanel>
+                            <UniformGrid Width="18" Columns="1" DockPanel.Dock="Right">
+                                <RepeatButton Name="PART_UpButton" Focusable="False">
+                                    <Path Data="M 0 3 L 3 0 L 6 3" Stroke="{Binding $parent[RepeatButton].Foreground}"
+                                          StrokeThickness="1" HorizontalAlignment="Center" Width="6" Height="3"
+                                          ClipToBounds="True" />
+                                </RepeatButton>
+                                <RepeatButton Name="PART_DownButton" Focusable="False">
+                                    <Path Data="M 0 0 L 3 3 L 6 0" Stroke="{Binding $parent[RepeatButton].Foreground}"
+                                          StrokeThickness="1" HorizontalAlignment="Center" Width="6" Height="3"
+                                          ClipToBounds="True" />
+                                </RepeatButton>
+                                <ToggleButton x:Name="PART_FlyoutButton" HorizontalAlignment="Right"
+                                              IsChecked="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay}">
+                                    <StackPanel Width="6" Spacing="1" Orientation="Vertical"
+                                                HorizontalAlignment="Center" VerticalAlignment="Center">
+                                        <Rectangle Fill="{Binding $parent[ToggleButton].Foreground}" Height="1"
+                                                   HorizontalAlignment="Stretch" />
+                                        <Path Data="M 0 0 L 3 3 L 6 0"
+                                              Stroke="{Binding $parent[ToggleButton].Foreground}" StrokeThickness="1"
+                                              HorizontalAlignment="Center" Width="6" Height="3" ClipToBounds="True" />
+                                    </StackPanel>
+                                </ToggleButton>
+                            </UniformGrid>
+                            <GalleryScrollContentPresenter x:Name="PART_ScrollContentPresenter"
+                                                           CanVerticallyScroll="True"
+                                                           Margin="{TemplateBinding Padding}">
+                                <GalleryScrollContentPresenter.Content>
+                                    <ContentControl x:Name="PART_ItemsPresenterHolder" />
+                                </GalleryScrollContentPresenter.Content>
+                            </GalleryScrollContentPresenter>
+                        </DockPanel>
+                    </Border>
+                    <Popup Placement="Center"
+                           IsOpen="{Binding Path=IsDropDownOpen, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay}">
+                        <Border x:Name="PART_FlyoutRoot" Background="{DynamicResource ThemeBackgroundBrush}"
+                                BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                                BorderThickness="{DynamicResource ThemeBorderThickness}"
+                                Width="{Binding Width, RelativeSource={RelativeSource Mode=TemplatedParent}}">
+                            <ScrollViewer x:Name="PART_FlyoutScrollViewer"
+                                          Height="{Binding Bounds.Height, RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                                          Padding="{TemplateBinding Padding}">
+                                <ContentControl x:Name="PART_FlyoutItemsPresenterHolder" />
+                            </ScrollViewer>
+                        </Border>
+                    </Popup>
+                    <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}" />
+                </Panel>
+            </ControlTemplate>
+        </Setter>
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate>
+                <UniformGrid x:Name="GalleryItemsUniformGrid" />
+            </ItemsPanelTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="local|Ribbon[Orientation=Horizontal] local|Gallery[Size=Large]">
+        <Setter Property="Width" Value="345" />
+    </Style>
+    <Style Selector="local|Ribbon[Orientation=Horizontal] local|Gallery[Size=Medium]">
+        <Setter Property="Width" Value="230" />
+    </Style>
+    <Style Selector="local|Ribbon[Orientation=Horizontal] local|Gallery[Size=Small]">
+        <Setter Property="Width" Value="115" />
+    </Style>
+    <Style
+        Selector="local|Ribbon[Orientation=Horizontal] local|Gallery[Size=Large] /template/ UniformGrid#GalleryItemsUniformGrid">
+        <Setter Property="Columns" Value="3" />
+    </Style>
+    <Style
+        Selector="local|Ribbon[Orientation=Horizontal] local|Gallery[Size=Medium] /template/ UniformGrid#GalleryItemsUniformGrid">
+        <Setter Property="Columns" Value="2" />
+    </Style>
+    <Style
+        Selector="local|Ribbon[Orientation=Horizontal] local|Gallery[Size=Small] /template/ UniformGrid#GalleryItemsUniformGrid">
+        <Setter Property="Columns" Value="1" />
+    </Style>
+
+    <Style Selector="local|Ribbon[Orientation=Vertical] local|Gallery /template/ UniformGrid#GalleryItemsUniformGrid">
+        <Setter Property="Columns" Value="2" />
+    </Style>
+
+    <Style Selector="local|Ribbon[Orientation=Vertical] local|Gallery[Size=Small]">
+        <Setter Property="Height" Value="62" />
+    </Style>
+    <Style Selector="local|Ribbon[Orientation=Vertical] local|Gallery[Size=Medium]">
+        <Setter Property="Height" Value="122" />
+    </Style>
+    <Style Selector="local|Ribbon[Orientation=Vertical] local|Gallery[Size=Large]">
+        <Setter Property="Height" Value="182" />
+    </Style>
+
+    <Style Selector="local|Gallery[Size=Large] local|GalleryItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="2,1" />
+        <Setter Property="Height" Value="{Binding $parent[Gallery].ItemHeight}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="BackgroundBorder" Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                               Margin="{TemplateBinding Padding}">
+                        <ContentPresenter Width="32" Height="32" DockPanel.Dock="Left" VerticalAlignment="Center"
+                                          Content="{TemplateBinding Icon}" Margin="0,0,4,0" Background="Transparent" />
+                        <ContentPresenter x:Name="PART_ContentPresenter" VerticalAlignment="Center"
+                                          VerticalContentAlignment="Center" Content="{TemplateBinding Content}"
+                                          HorizontalContentAlignment="Left" Background="Transparent" />
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="local|Gallery[Size=Medium] local|GalleryItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="Transparent" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Padding" Value="2,1" />
+        <Setter Property="Height" Value="{Binding $parent[Gallery].ItemHeight}" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border x:Name="BackgroundBorder" Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}">
+                    <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                               Margin="{TemplateBinding Padding}">
+                        <ContentPresenter Width="16" Height="16" DockPanel.Dock="Left" VerticalAlignment="Center"
+                                          Content="{TemplateBinding Icon}" Margin="0,0,4,0" Background="Transparent" />
+                        <ContentPresenter x:Name="PART_ContentPresenter" VerticalAlignment="Center"
+                                          VerticalContentAlignment="Center" Content="{TemplateBinding Content}"
+                                          HorizontalContentAlignment="Left" Background="Transparent" />
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="local|GalleryItem:pointerover /template/ Border#BackgroundBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
+    </Style>
+
+    <Style Selector="local|GalleryItem:selected /template/ Border#BackgroundBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush4}" />
+    </Style>
+
+    <Style Selector="local|GalleryItem:selected:focus /template/ Border#BackgroundBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}" />
+    </Style>
+
+    <Style Selector="local|GalleryItem:selected:pointerover /template/ Border#BackgroundBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}" />
+    </Style>
+
+    <Style Selector="local|GalleryItem:selected:focus:pointerover /template/ Border#BackgroundBorder">
+        <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush2}" />
+    </Style>
+
+    <Style Selector="local|Gallery /template/ RepeatButton,
+                  local|Gallery /template/ ToggleButton">
+        <Setter Property="BorderBrush"
+                Value="{Binding BorderBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VerticalAlignment" Value="Stretch" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+    <Style
+        Selector="local|Gallery /template/ RepeatButton:not(:pointerover):not(:pressed),
+                  local|Gallery /template/ ToggleButton:not(:pointerover):not(:pressed):not(:checked)">
+        <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
+    </Style>
+    <Style Selector="local|Gallery /template/ RepeatButton">
+        <Setter Property="BorderThickness" Value="1,0,0,1" />
+    </Style>
+    <Style
+        Selector="local|Gallery /template/ RepeatButton#PART_UpButton /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="CornerRadius" Value="0,3,0,0" />
+    </Style>
+    <Style
+        Selector="local|Gallery /template/ RepeatButton#PART_DownButton /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="CornerRadius" Value="0" />
+    </Style>
+    <Style Selector="local|Gallery /template/ ToggleButton#PART_FlyoutButton">
+        <Setter Property="BorderThickness" Value="1,0,0,0" />
+    </Style>
+    <Style
+        Selector="local|Gallery /template/ ToggleButton#PART_FlyoutButton /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="CornerRadius" Value="0,0,3,0" />
+    </Style>
+</ResourceDictionary>

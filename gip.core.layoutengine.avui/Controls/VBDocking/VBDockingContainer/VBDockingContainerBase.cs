@@ -260,7 +260,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public VBRibbon _VBRibbon;
+        public VBRibbonBSODefault _VBRibbon;
         public void GenerateContentLayout(VBDockPanel dockPanel)
         {
             dockPanel.DataContext = ContextACObject;
@@ -271,10 +271,10 @@ namespace gip.core.layoutengine.avui
                 || (DockManager == null))
                 return;
 
-            // Ribbon-Bar
+            // Standardbar
             if (VBDockingManager.GetRibbonBarVisibility(VBDesignContent) != Global.ControlModes.Hidden)
             {
-                _VBRibbon = new VBRibbon();
+                _VBRibbon = new VBRibbonBSODefault();
                 _VBRibbon.SetValue(DockPanel.DockProperty, Dock.Top);
                 if (VBDockingManager.GetRibbonBarVisibility(VBDesignContent) == Global.ControlModes.Collapsed)
                     _VBRibbon.IsVisible = false;
@@ -282,6 +282,10 @@ namespace gip.core.layoutengine.avui
                     _VBRibbon.IsVisible = true;
                 dockPanel.Children.Add(_VBRibbon);
             }
+            // VBRibbon has to be declared in XAML of VBDesignContent
+            //else
+            //{
+            //}
 
             // Content
             if (VBDesignContent is VBDesign)

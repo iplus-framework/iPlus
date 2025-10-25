@@ -34,6 +34,8 @@
     <ResourceInclude Source="/Controls/VBGanttChart/Themes/LightThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBTimeline/Themes/LightThemeColors.axaml"/>
     <ResourceInclude Source="/Controls/VBTreeListView/Themes/LightThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/Themes/LightThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBRibbon/Themes/LightThemeColors.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
 	<Color x:Key="ColorCtrlTxtDisabled">#FF303030</Color>

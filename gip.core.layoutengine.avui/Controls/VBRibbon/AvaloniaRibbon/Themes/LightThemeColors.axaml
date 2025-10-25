@@ -1,0 +1,48 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:sys="clr-namespace:System;assembly=netstandard"
+   x:ClassModifier="internal">
+
+  <LinearGradientBrush x:Key="RibbonBarHorizontalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
+    <GradientStop Color="#FFFFFF" Offset="0"/>
+    <GradientStop Color="#FFFBFF" Offset="0.5"/>
+    <GradientStop Color="#F7F7F7" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="RibbonBarVerticalBackground" EndPoint="100%,0%" StartPoint="0%,0%">
+    <GradientStop Color="#FFFFFF" Offset="0"/>
+    <GradientStop Color="#FFFBFF" Offset="0.5"/>
+    <GradientStop Color="#F7F7F7" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="RibbonBarDisabledBg" StartPoint="50%,100%" EndPoint="50%,0%">
+    <GradientStop Color="#FFE8E8E8" Offset="0"/>
+    <GradientStop Color="#FFB3B3B3" Offset="0.152"/>
+    <GradientStop Color="#FFB3B3B3" Offset="0.852"/>
+    <GradientStop Color="#FF929292" Offset="0.996"/>
+  </LinearGradientBrush>
+
+  <RadialGradientBrush x:Key="RibbonBarBorder" Center="80%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
+    <GradientStop Color="#FFEFEFEF" Offset="0.092"/>
+    <GradientStop Color="#FFC1C1C1" Offset="0.548"/>
+    <GradientStop Color="#FFA7A7A7" Offset="1"/>
+  </RadialGradientBrush>
+
+  <RadialGradientBrush x:Key="RibbonTrayBorder" Center="80%,80%" GradientOrigin="80%,80%" RadiusX="80%" RadiusY="80%">
+    <GradientStop Color="#FFE5E5E5" Offset="0.208"/>
+    <GradientStop Color="#FFA6A6A6" Offset="0.548"/>
+    <GradientStop Color="#FF808080" Offset="1"/>
+  </RadialGradientBrush>
+
+  <SolidColorBrush x:Key="RibbonTrayBack" Color="#FF808080" />
+
+  <SolidColorBrush x:Key="AccentBrushLow" Color="{DynamicResource SystemAccentColor}" />
+  <SolidColorBrush x:Key="AccentBrushMed" Color="{DynamicResource SystemAccentColorLight1}" />
+  <SolidColorBrush x:Key="AccentBrushHigh" Color="{DynamicResource SystemAccentColorDark1}" />
+  <SolidColorBrush x:Key="AccentForegroundBrush" Color="{DynamicResource SystemAltHighColor}" />
+  <SolidColorBrush x:Key="AccentBrushIndicator" Color="{DynamicResource SystemAccentColor}" />
+
+  <sys:Double x:Key="FontSizeNormal">12</sys:Double>
+
+</ResourceDictionary>

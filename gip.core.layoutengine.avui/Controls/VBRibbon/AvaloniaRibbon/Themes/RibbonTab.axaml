@@ -1,0 +1,68 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
+    xmlns:converters="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon.Converters">
+
+  <!-- Add Resources Here -->
+  <ControlTheme x:Key="{x:Type local:RibbonTab}" TargetType="local:RibbonTab">
+    <Setter Property="FontSize" Value="12.5" />
+    <Setter Property="Height" Value="30" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{Binding $parent[Ribbon].Foreground}" />
+    <Setter Property="BorderBrush" Value="Transparent" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Padding" Value="10,0" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}" HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch">
+          <Panel x:Name="ContentPanel" HorizontalAlignment="Center" Margin="{TemplateBinding Padding}">
+            <ContentPresenter
+                Name="PART_ContentPresenter"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Content="{TemplateBinding Header}"
+                TextBlock.Foreground="{TemplateBinding Foreground}"
+                ContentTemplate="{TemplateBinding HeaderTemplate}" />
+            <Border x:Name="SelectedBorder" BorderThickness="0" MinWidth="3" MinHeight="3"
+                    IsVisible="{TemplateBinding IsSelected}" CornerRadius="1.5"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-2,3" />
+          </Panel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Template styles for text emphasis rectangle -->
+    <Style Selector="^ /template/ Rectangle.textEmphasis">
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Stroke" Value="{Binding $parent[RibbonTab].Foreground}" />
+      <Setter Property="ZIndex" Value="-1" />
+    </Style>
+
+    <!-- Hide text emphasis when not selected and not hovered -->
+    <Style Selector="^[IsSelected=False]:not(:pointerover) /template/ Rectangle.textEmphasis">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+
+    <!-- Disabled state -->
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+    </Style>
+
+    <!-- Contextual tab selected border -->
+    <Style Selector="^[IsContextual=True] /template/ Border#SelectedBorder">
+      <Setter Property="Background" Value="{Binding $parent[RibbonContextualTabGroup].Background}" />
+    </Style>
+
+    <!-- Non-contextual tab selected border -->
+    <Style Selector="^[IsContextual=False] /template/ Border#SelectedBorder">
+      <Setter Property="Background" Value="{DynamicResource TabItemHeaderSelectedPipeFill}" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

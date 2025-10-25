@@ -1,38 +1,21 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <Style x:Key="IconUndoStyleGip" TargetType="{x:Type ContentControl}">
+    
+    <ControlTheme x:Key="IconUndoStyle" TargetType="ContentControl">
         <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ContentControl}">
-                    <Viewbox Stretch="Uniform">
-                        <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_48" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                            <Path x:Name="Path_49" Width="22.9392" Height="16.9051" Canvas.Left="0.760284" Canvas.Top="3.50008" Stretch="Fill" StrokeLineJoin="Round" 
-				    Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-				    Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
-                  Data="F1 M 17.0874,19.9051C 18.0739,15.6512 19.0604,11.3972 17.72,9.79512C 16.3797,8.19305 12.7124,9.2429 9.04516,10.2928L 9.94588,13.4391L 1.26028,10.8193L 7.24371,4.00008L 7.69408,5.57324L 8.14444,7.14641C 12.6266,5.86326 17.1088,4.58012 19.618,6.41495C 22.1272,8.24978 22.6633,13.2026 23.1995,18.1554L 17.0874,19.9051 Z "/>
-                        </Canvas>
-                    </Viewbox>
-                    <!--<ControlTemplate.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
-                            <Setter TargetName="Part2" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart2}"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
-                            <Setter TargetName="Part2" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart2}"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
-                        </DataTrigger>
-                    </ControlTemplate.Triggers>-->
-                </ControlTemplate>
-            </Setter.Value>
+            <ControlTemplate TargetType="ContentControl">
+                <Viewbox Stretch="Uniform">
+                    <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_48" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                        <Path x:Name="Path_49" Width="22.9392" Height="16.9051" Canvas.Left="0.760284" Canvas.Top="3.50008" Stretch="Fill" StrokeLineJoin="Round" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
+                              Data="F1 M 17.0874,19.9051C 18.0739,15.6512 19.0604,11.3972 17.72,9.79512C 16.3797,8.19305 12.7124,9.2429 9.04516,10.2928L 9.94588,13.4391L 1.26028,10.8193L 7.24371,4.00008L 7.69408,5.57324L 8.14444,7.14641C 12.6266,5.86326 17.1088,4.58012 19.618,6.41495C 22.1272,8.24978 22.6633,13.2026 23.1995,18.1554L 17.0874,19.9051 Z "/>
+                    </Canvas>
+                </Viewbox>
+            </ControlTemplate>
         </Setter>
-    </Style>
-    <Style x:Key="IconUndoStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconUndoStyleGip}">
-    </Style>
-
+    </ControlTheme>
 </ResourceDictionary>
 
 

@@ -1,0 +1,36 @@
+﻿<local:VBRibbon x:Class="gip.core.layoutengine.avui.VBRibbonBSODefault"
+                xmlns="https://github.com/avaloniaui"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <local:VBRibbon.Resources>
+      <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/NavPrev.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/NavNext.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/NavFirst.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/NavLast.axaml"/>
+
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Editcut.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Editcopy.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Editpaste.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Undo.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Redo.axaml"/>               
+
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/AddNew.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/LoadRefresh.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Filesave.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Filesaveundo.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Delete.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Restore.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Print.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Preview.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Design.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/DataExport.axaml"/>
+
+                <ResourceInclude Source="/Controls/VBRibbon/Icons/Find.axaml"/>
+                <ResourceInclude Source="/Controls/VBRibbon/Themes/RibbonTrayBorderStyle.axaml"/>
+
+        </ResourceDictionary.MergedDictionaries>
+      </ResourceDictionary>
+    </local:VBRibbon.Resources>
+</local:VBRibbon>

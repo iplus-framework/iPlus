@@ -6,6 +6,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Labs.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
 using gip.core.datamodel;
@@ -48,7 +49,7 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Initialized = false;
-        private Avalonia.Labs.Input.CommandBinding _CmdBindingExecute;
+        private CommandBinding _CmdBindingExecute;
 
         /// <summary>
         /// Initializes the VB control.
@@ -130,11 +131,11 @@ namespace gip.core.layoutengine.avui
                             _RemoveACCommand = true;
 
                         this.Command = AppCommands.AddApplicationCommand(ACCommand);
-                        _CmdBindingExecute = new Avalonia.Labs.Input.CommandBinding();
+                        _CmdBindingExecute = new CommandBinding();
                         _CmdBindingExecute.Command = this.Command;
                         _CmdBindingExecute.Executed += ucButton_Click;
                         _CmdBindingExecute.CanExecute += ucButton_IsEnabled;
-                        Avalonia.Labs.Input.CommandManager.SetCommandBindings(this, new List<Avalonia.Labs.Input.CommandBinding> { _CmdBindingExecute });
+                        CommandManager.SetCommandBindings(this, new List<CommandBinding> { _CmdBindingExecute });
 
                         // Falls Binding im XAML, dann keine Caption setzen
                         // TODO: Check if there's an Avalonia equivalent for IsDataBound
@@ -1014,7 +1015,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The RoutedEvent agruments.</param>
-        protected virtual void ucButton_Click(object sender, Avalonia.Labs.Input.ExecutedRoutedEventArgs e)
+        protected virtual void ucButton_Click(object sender, ExecutedRoutedEventArgs e)
         {
             RoutedUICommandEx vbCommand = null;
             if (e != null)
@@ -1055,7 +1056,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void ucButton_IsEnabled(object sender, Avalonia.Labs.Input.CanExecuteRoutedEventArgs e)
+        private void ucButton_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
         {
             if (!this.IsVisible
                 || this.RightControlMode <= Global.ControlModes.Disabled)

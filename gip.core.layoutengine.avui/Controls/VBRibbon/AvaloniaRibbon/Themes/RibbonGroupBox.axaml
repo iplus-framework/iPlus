@@ -1,0 +1,205 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
+		xmlns:converters="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon.Converters">	
+  
+  <ResourceDictionary.MergedDictionaries>
+		<ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/Themes/SizeResources.axaml" />
+	</ResourceDictionary.MergedDictionaries>
+
+  <!-- Add Resources Here -->
+  <ControlTheme x:Key="{x:Type local:RibbonGroupBox}" TargetType="local:RibbonGroupBox">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundChromeMediumBrush}" />
+    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseMediumBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="Padding" Value="5" />
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid x:Name="Grid" Margin="5,0,0,0">
+          <!-- Main border matching VBRibbonBar MainPanelBorder -->
+          <Border x:Name="MainPanelBorder"
+							Margin="1"
+							BorderThickness="1"
+							CornerRadius="6"
+							BorderBrush="{StaticResource RibbonBarBorder}"
+							Background="{StaticResource RibbonBarDisabledBg}">
+            <DockPanel Background="{TemplateBinding Background}" LastChildFill="True">
+              <Border
+                  x:Name="VerticalSeparator"
+                  Height="{StaticResource LargeControlHeight}"
+                  Margin="4,0"
+                  BorderBrush="{DynamicResource SystemControlHighlightAltBaseLowBrush}"
+                  BorderThickness="0.5"
+                  DockPanel.Dock="Right">
+                <Interaction.Behaviors>
+                  <DataTriggerBehavior
+                      Binding="{Binding $parent[Ribbon].Orientation}"
+                      ComparisonCondition="Equal"
+                      Value="{x:Static Orientation.Vertical}">
+                    <ChangePropertyAction
+                        PropertyName="IsVisible"
+                        TargetObject="VerticalSeparator"
+                        Value="{x:False}" />
+                    <ChangePropertyAction
+                        PropertyName="IsVisible"
+                        TargetObject="HorizontalSeparator"
+                        Value="{x:True}" />
+                  </DataTriggerBehavior>
+                  <DataTriggerBehavior
+                      Binding="{Binding $parent[Ribbon].Orientation}"
+                      ComparisonCondition="Equal"
+                      Value="{x:Static Orientation.Horizontal}">
+                    <ChangePropertyAction
+                        PropertyName="IsVisible"
+                        TargetObject="VerticalSeparator"
+                        Value="{x:True}" />
+                    <ChangePropertyAction
+                        PropertyName="IsVisible"
+                        TargetObject="HorizontalSeparator"
+                        Value="{x:False}" />
+                  </DataTriggerBehavior>
+                </Interaction.Behaviors>
+              </Border>
+              <Border
+                  x:Name="HorizontalSeparator"
+                  Margin="10,4"
+                  HorizontalAlignment="Stretch"
+                  BorderBrush="{DynamicResource SystemControlHighlightAltBaseLowBrush}"
+                  BorderThickness="0.5"
+                  DockPanel.Dock="Bottom" />
+              <DockPanel>
+                <DockPanel Margin="6,0,6,1" DockPanel.Dock="Bottom">
+                  <Button
+                      x:Name="PART_CommandButton"
+                      Height="14"
+                      Padding="0"
+                      HorizontalAlignment="Right"
+                      Background="Transparent"
+                      Command="{TemplateBinding Command}"
+                      CommandParameter="{TemplateBinding CommandParameter}"
+                      DockPanel.Dock="Right"
+                      Focusable="False"
+                      Foreground="{DynamicResource SystemControlBackgroundBaseMediumHighBrush}">
+                    <Button.IsVisible>
+                      <Binding
+                          Converter="{x:Static ObjectConverters.IsNotNull}"
+                          Mode="OneWay"
+                          Path="Command"
+                          RelativeSource="{RelativeSource Mode=TemplatedParent}" />
+                    </Button.IsVisible>
+                    <Border
+                        Width="7"
+                        Height="7"
+                        BorderBrush="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+                        BorderThickness="1,1,0,0">
+                      <Grid
+                          Width="5"
+                          Height="5"
+                          Margin="0,0,-1,-1"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Bottom">
+                        <Border BorderBrush="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}" BorderThickness="0,0,1,1" />
+                        <Line
+                            Margin="-1,-1,1,1"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Stroke="{Binding Foreground, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}}"
+                            StrokeThickness="1"
+                            StartPoint="1,1"
+                            EndPoint="5,5" />
+                      </Grid>
+                    </Border>
+                  </Button>
+                  <ContentPresenter
+                      x:Name="PART_HeaderPresenter"
+                      HorizontalContentAlignment="Center"
+                      Content="{TemplateBinding Header}"
+                      FontSize="11"
+                      Foreground="{TemplateBinding Foreground}" />
+                </DockPanel>
+                <ItemsPresenter
+                    x:Name="PART_ItemsPresenter"
+                    Margin="{TemplateBinding Padding}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch">
+                  <ItemsPresenter.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <RibbonGroupWrapPanel
+                          x:Name="PART_ItemsPanel"
+                          HorizontalAlignment="Stretch"
+                          VerticalAlignment="Stretch"
+                          DisplayMode="{Binding DisplayMode, RelativeSource={RelativeSource TemplatedParent}}" />
+                    </ItemsPanelTemplate>
+                  </ItemsPresenter.ItemsPanel>
+                </ItemsPresenter>
+              </DockPanel>
+            </DockPanel>
+          </Border>
+          <Border x:Name="BorderGroupName" Height="18" VerticalAlignment="Bottom"
+                  BorderBrush="#60FF0000"
+                  Background="#15FF0000"
+                  BorderThickness="0,1,0,0"
+                  CornerRadius="0,0,6,6"
+                  Margin="2,0,2,0"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Separator styles for different orientations -->
+    <Style Selector="local|Ribbon[Orientation=Horizontal] ^ /template/ Rectangle#Separator">
+      <Setter Property="HorizontalAlignment" Value="Right" />
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+      <Setter Property="Margin" Value="0,4" />
+    </Style>
+    <Style Selector="local|Ribbon[Orientation=Vertical] ^ /template/ Rectangle#Separator">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="VerticalAlignment" Value="Bottom" />
+      <Setter Property="Margin" Value="4,0" />
+    </Style>
+
+    <!-- ItemsPanel orientation styles using attached property -->
+    <Style Selector="^[(local|RibbonGroupBox.ParentRibbonOrientation)=Horizontal] /template/ local|RibbonGroupWrapPanel#PART_ItemsPanel">
+      <Setter Property="Orientation" Value="Vertical" />
+      <Setter Property="Height" Value="72" />
+    </Style>
+    <Style Selector="^[(local|RibbonGroupBox.ParentRibbonOrientation)=Vertical] /template/ local|RibbonGroupWrapPanel#PART_ItemsPanel">
+      <Setter Property="Orientation" Value="Horizontal" />
+      <Setter Property="Width" Value="132" />
+    </Style>
+
+    <!-- Alignment styles for different orientations using attached property -->
+    <Style Selector="^[(local|RibbonGroupBox.ParentRibbonOrientation)=Horizontal]">
+      <Setter Property="VerticalAlignment" Value="Stretch" />
+    </Style>
+    <Style Selector="^[(local|RibbonGroupBox.ParentRibbonOrientation)=Vertical]">
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+    </Style>
+
+    <!-- Separator visibility styles using attached property -->
+    <Style Selector="^[(local|RibbonGroupBox.ParentRibbonOrientation)=Vertical] /template/ Border#Separator">
+      <Setter Property="IsVisible" Value="False" />
+    </Style>
+    <Style Selector="^[(local|RibbonGroupBox.ParentRibbonOrientation)=Horizontal] /template/ Border#Separator">
+      <Setter Property="IsVisible" Value="True" />
+    </Style>
+
+    <!-- Command button styles -->
+    <Style Selector="^ /template/ Button#PART_CommandButton">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+    <Style Selector="^ /template/ Button#PART_CommandButton[IsVisible=True]">
+      <Setter Property="Width" Value="14" />
+    </Style>
+    <Style Selector="^ /template/ Button#PART_CommandButton[IsVisible=False]">
+      <Setter Property="Width" Value="0" />
+    </Style>
+    <Style Selector="^ /template/ Button#PART_CommandButton:pointerover">
+      <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

@@ -1,40 +1,36 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <Style x:Key="IconDesignMirrorHorzStyleGip" TargetType="{x:Type ContentControl}">
+    
+    <ControlTheme x:Key="IconDesignMirrorHorzStyle" TargetType="ContentControl">
         <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ContentControl}">
-                    <Viewbox Stretch="Uniform">
-                        <Canvas x:Name="Ebene_1_6" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                            <Path x:Name="Right" Width="9" Height="17" Canvas.Left="14.5" Canvas.Top="3.5" Stretch="Fill" StrokeLineJoin="Round" 
-                                  Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" Data="M 15,4L 15,20L 18.5556,20L 23,4L 15,4 Z "
-                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" />
-                            <Path x:Name="Left" Width="9" Height="17" Canvas.Left="0.499999" Canvas.Top="3.5" Stretch="Fill" StrokeLineJoin="Round" 
-                                  Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" Data="M 9,4L 9,20L 5.44444,20L 0.999999,4L 9,4 Z "
-                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" />
-                            <Viewbox x:Name="Arrow" Width="15.7991" Height="8.50287" Canvas.Left="4.20086" Canvas.Top="8.67827">
-                                <Canvas Width="15.7991" Height="8.50287">
-                                    <Path x:Name="Path_7" Width="15" Height="6.14346" Canvas.Left="0.799143" Canvas.Top="0" Stretch="Fill" StrokeThickness="2" StrokeLineJoin="Round" 
-                                          Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                                          Data="M 14.7991,5.14346C 14.2185,2.78405 11.5291,1 8.29914,1C 5.06917,1 2.3798,2.78405 1.79914,5.14346"/>
-                                    <Path x:Name="Path_8" Width="4.96969" Height="5.23337" Canvas.Left="0" Canvas.Top="1.29272" Stretch="Fill" StrokeLineJoin="Round" 
-                                          Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                                          Fill="#FF000000" Data="M 0.5,6.02609L 4.46969,4.13882L 1.6827,1.79272L 0.5,6.02609 Z "/>
-                                </Canvas>
-                        </Viewbox>
-                        <Path x:Name="Mirr3" Width="3" Height="7" Canvas.Left="10.5" Canvas.Top="0.500008" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,1.00001L 12,1.00001C 12.5523,1.00001 13,1.44773 13,2.00001L 13,6.00001C 13,6.55229 12.5523,7 12,7L 12,7C 11.4477,7 11,6.55229 11,6.00001L 11,2.00001C 11,1.44773 11.4477,1.00001 12,1.00001 Z "/>
-                        <Path x:Name="Mirr2" Width="3" Height="7.00001" Canvas.Left="10.5" Canvas.Top="8.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,9L 12,9C 12.5523,9 13,9.44772 13,10L 13,14C 13,14.5523 12.5523,15 12,15L 12,15C 11.4477,15 11,14.5523 11,14L 11,10C 11,9.44772 11.4477,9 12,9 Z "/>
-                        <Path x:Name="Mirr1" Width="3" Height="7" Canvas.Left="10.5" Canvas.Top="16.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,17L 12,17C 12.5523,17 13,17.4477 13,18L 13,22C 13,22.5523 12.5523,23 12,23L 12,23C 11.4477,23 11,22.5523 11,22L 11,18C 11,17.4477 11.4477,17 12,17 Z "/>
-                    </Canvas>                    
+            <ControlTemplate TargetType="ContentControl">
+                <Viewbox Stretch="Uniform">
+                    <Canvas x:Name="Ebene_1_6" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                        <Path x:Name="Right" Width="9" Height="17" Canvas.Left="14.5" Canvas.Top="3.5" Stretch="Fill" StrokeLineJoin="Round" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" Data="M 15,4L 15,20L 18.5556,20L 23,4L 15,4 Z "
+                          Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" />
+                        <Path x:Name="Left" Width="9" Height="17" Canvas.Left="0.499999" Canvas.Top="3.5" Stretch="Fill" StrokeLineJoin="Round" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" Data="M 9,4L 9,20L 5.44444,20L 0.999999,4L 9,4 Z "
+                          Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" />
+                        <Viewbox x:Name="Arrow" Width="15.7991" Height="8.50287" Canvas.Left="4.20086" Canvas.Top="8.67827">
+                            <Canvas Width="15.7991" Height="8.50287">
+                                <Path x:Name="Path_7" Width="15" Height="6.14346" Canvas.Left="0.799143" Canvas.Top="0" Stretch="Fill" StrokeThickness="2" StrokeLineJoin="Round" 
+                                      Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                                      Data="M 14.7991,5.14346C 14.2185,2.78405 11.5291,1 8.29914,1C 5.06917,1 2.3798,2.78405 1.79914,5.14346"/>
+                                <Path x:Name="Path_8" Width="4.96969" Height="5.23337" Canvas.Left="0" Canvas.Top="1.29272" Stretch="Fill" StrokeLineJoin="Round" 
+                                      Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                                      Fill="#FF000000" Data="M 0.5,6.02609L 4.46969,4.13882L 1.6827,1.79272L 0.5,6.02609 Z "/>
+                            </Canvas>
                     </Viewbox>
-                </ControlTemplate>
-            </Setter.Value>
+                    <Path x:Name="Mirr3" Width="3" Height="7" Canvas.Left="10.5" Canvas.Top="0.500008" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,1.00001L 12,1.00001C 12.5523,1.00001 13,1.44773 13,2.00001L 13,6.00001C 13,6.55229 12.5523,7 12,7L 12,7C 11.4477,7 11,6.55229 11,6.00001L 11,2.00001C 11,1.44773 11.4477,1.00001 12,1.00001 Z "/>
+                    <Path x:Name="Mirr2" Width="3" Height="7.00001" Canvas.Left="10.5" Canvas.Top="8.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,9L 12,9C 12.5523,9 13,9.44772 13,10L 13,14C 13,14.5523 12.5523,15 12,15L 12,15C 11.4477,15 11,14.5523 11,14L 11,10C 11,9.44772 11.4477,9 12,9 Z "/>
+                    <Path x:Name="Mirr1" Width="3" Height="7" Canvas.Left="10.5" Canvas.Top="16.5" Stretch="Fill" StrokeLineJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,17L 12,17C 12.5523,17 13,17.4477 13,18L 13,22C 13,22.5523 12.5523,23 12,23L 12,23C 11.4477,23 11,22.5523 11,22L 11,18C 11,17.4477 11.4477,17 12,17 Z "/>
+                </Canvas>                    
+                </Viewbox>
+            </ControlTemplate>
         </Setter>
-    </Style>
-
-    <Style x:Key="IconDesignMirrorHorzStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconDesignMirrorHorzStyleGip}">
-    </Style>
+    </ControlTheme>
 </ResourceDictionary>
 
 

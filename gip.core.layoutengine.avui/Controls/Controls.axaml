@@ -9,10 +9,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/BarViewerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonMobileStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonBarStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonBarMobileStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonTrayStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenu/Themes/MenuStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuItem/Themes/MenuItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuSeparator/Themes/MenuSeparatorStyle.axaml"/>
@@ -76,7 +72,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBHeader/Themes/HeaderStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeListView/Themes/TreeListViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeListView/Themes/TreeListViewItemStyle.axaml"/>
-        
+
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/ConnectionsPresenterStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/ConnectionStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/ConnectorStyle.axaml"/>
@@ -91,7 +87,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineItemsPresenterStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineRulerControlStyle.axaml"/>
-        
+
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTranslationText/Themes/TranslationTextStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBExpander/Themes/ExpanderStyle.axaml"/>
 
@@ -99,7 +95,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBProgramLogView/Themes/ProgramLogViewItemStyle.axaml"/>
 
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBCarousel/Themes/CarouselStyle.axaml"/>
-        
+
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBFlipView/Themes/FlipViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTileGrid/Themes/TileStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGraph/Themes/VBGraphItemStyle.axaml"/>
@@ -107,8 +103,49 @@
 
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBXMLEditor/Themes/XMLEditorStyle.axaml"/>
 
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/AddNew.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DataExport.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Delete.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignConnector.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignEditPoints.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignEllipse.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignLine.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignMirrorHorz.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignMirrorVert.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignPointer.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignPolygon.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignPolyline.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignRect.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignRotate.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/DesignTransfReset.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Editcopy.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Editcut.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Editpaste.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Filesave.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Filesaveundo.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Find.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/LoadRefresh.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/NavFirst.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/NavLast.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/NavNext.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/NavPrev.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Pause.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Play.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Plug.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Preview.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Print.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Redo.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Restore.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Stop.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/TimeFrom.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/TimeTo.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Undo.axaml"/>
+
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>
+
+  <StyleInclude Source="/Controls/VBRibbon/AvaloniaRibbon/AvaloniaRibbon.axaml" />
 </Styles>
 

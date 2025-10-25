@@ -1,0 +1,58 @@
+﻿<ResourceDictionary
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="using:System"
+    xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
+    xmlns:converters="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon.Converters">
+
+  <ControlTheme x:Key="{x:Type local:RibbonMenuItem}" TargetType="local:RibbonMenuItem">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <StackPanel Orientation="Vertical">
+          <Button
+              x:Name="PART_ContentButton"
+              HorizontalAlignment="Stretch"
+              VerticalAlignment="Stretch"
+              HorizontalContentAlignment="Stretch"
+              VerticalContentAlignment="Center"
+              Command="{TemplateBinding Command}"
+              CommandParameter="{TemplateBinding CommandParameter}">
+            <StackPanel>
+              <DockPanel
+                  Margin="15,4"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Center">
+                <ContentPresenter
+                    Margin="0,0,4,0"
+                    Background="Transparent"
+                    Content="{TemplateBinding Icon}"
+                    DockPanel.Dock="Left" />
+                <ContentPresenter
+                    VerticalAlignment="Center"
+                    HorizontalContentAlignment="Left"
+                    VerticalContentAlignment="Center"
+                    Background="Transparent"
+                    Content="{TemplateBinding Header}" />
+              </DockPanel>
+            </StackPanel>
+          </Button>
+          <!--  Conditional Separator Line  -->
+          <Border
+              Height="1"
+              Margin="25,4"
+              Background="{DynamicResource SystemControlHighlightAltBaseLowBrush}"
+              IsVisible="{TemplateBinding IsLastItem}" />
+        </StackPanel>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Default button state when not selected or hovered -->
+    <Style Selector="^[IsSelected=False]:not(:pointerover) /template/ :is(Button):not(:pointerover):not(:pressed):not(:checked)">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderBrush" Value="Transparent" />
+    </Style>
+
+    <!-- Pointer over state -->
+    <Style Selector="^:pointerover /template/ Button:pointerover" />
+  </ControlTheme>
+</ResourceDictionary>
