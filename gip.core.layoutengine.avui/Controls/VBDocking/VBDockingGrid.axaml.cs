@@ -211,7 +211,7 @@ namespace gip.core.layoutengine.avui
       
         private void Clear(Grid grid)
         {
-            foreach (UIElement child in grid.Children)
+            foreach (var child in grid.Children)
             {
                 if (child is Grid)
                     Clear(child as Grid);

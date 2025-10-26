@@ -144,11 +144,11 @@ public class Ribbon : TabControl, IRibbon
 
     private ObservableCollection<RibbonGroupBox> _selectedGroups = new();
 
-    private CompositeDisposable _selectedItemSubscriptions;
+    //private CompositeDisposable _selectedItemSubscriptions;
 
     private ObservableCollection<Control> _tabs = new();
-    private InputPaneState _state;
-    private Rect _occludedRect;
+    //private InputPaneState _state;
+    //private Rect _occludedRect;
 
     #endregion Fields
 

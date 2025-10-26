@@ -642,29 +642,29 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            if (OpenDesignOnClick != null && !firstTimeOpened)
-            {
-                if (this.Parent is VBDesign designParent)
-                {
-                    var p = designParent.Parent as Grid;
-                    if (p?.TemplatedParent is VBPage page)
-                    {
-                        var frame = page.FrameController;
-                        frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
-                    }
-                }
-                if (this.Parent is VBGrid gridParent)
-                {
-                    var designParentGrid = gridParent.Parent as VBDesign;
-                    var p = designParentGrid.Parent as Grid;
-                    if (p?.TemplatedParent is VBPage page)
-                    {
-                        var frame = page.FrameController;
-                        frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
-                    }
-                }
-            }
-            firstTimeOpened = false;
+            //if (OpenDesignOnClick != null && !firstTimeOpened)
+            //{
+            //    if (this.Parent is VBDesign designParent)
+            //    {
+            //        var p = designParent.Parent as Grid;
+            //        if (p?.TemplatedParent is VBPage page)
+            //        {
+            //            var frame = page.FrameController;
+            //            frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
+            //        }
+            //    }
+            //    if (this.Parent is VBGrid gridParent)
+            //    {
+            //        var designParentGrid = gridParent.Parent as VBDesign;
+            //        var p = designParentGrid.Parent as Grid;
+            //        if (p?.TemplatedParent is VBPage page)
+            //        {
+            //            var frame = page.FrameController;
+            //            frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
+            //        }
+            //    }
+            //}
+            //firstTimeOpened = false;
 
             base.OnSelectionChanged(e);
         }

@@ -41,7 +41,6 @@ namespace gip.core.layoutengine.avui
 
         #region fields
 
-        bool _themeApplied = false;
         protected DispatcherTimer _FoldingUpdateTimer;
         protected CommandBinding _CmdBindingFind;
         protected KeyBinding _ibFind;
@@ -346,7 +345,6 @@ namespace gip.core.layoutengine.avui
         {
             if (foldingStrategy != null && foldingManager != null)
             {
-                int firstErrorOffset;
                 // Use the AvaloniaEdit Document directly since VBScriptEditorBraceFoldingStrategy expects ICSharpCode types
                 // We need to create a compatible approach or use FoldingManager.UpdateFoldings directly
                 if (Document != null)

@@ -17,8 +17,7 @@ namespace gip.core.layoutengine.avui
     [TemplatePart(Name = "PART_Lense_Fill", Type = typeof(Control))]
     public class VBControlSelectionIcon : Button
     {
-        bool _themeApplied = false;
-        public VBControlSelectionIcon()
+        public VBControlSelectionIcon() : base()
         {
             // Animation is now handled declaratively in XAML
         }

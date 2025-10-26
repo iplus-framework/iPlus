@@ -261,7 +261,7 @@ namespace gip.core.layoutengine.avui
         public void DeInitVBControl(IACComponent bso)
         {
             Content = null;
-            _documentControl = null;
+            //_documentControl = null;
             Loaded -= VBFlowDocumentScrollViewer_Loaded;
             this.ClearAllBindings();
         }

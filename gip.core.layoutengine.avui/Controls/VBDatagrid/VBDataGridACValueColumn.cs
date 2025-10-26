@@ -370,8 +370,8 @@ namespace gip.core.layoutengine.avui
 
         #region Data 
 
-        private static Style _defaultElementStyle;
-        private static Style _defaultEditingElementStyle;
+        //private static Style _defaultElementStyle;
+        //private static Style _defaultEditingElementStyle;
 
         #endregion
 

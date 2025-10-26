@@ -23,9 +23,9 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <UseWindowsForms>false</UseWindowsForms>
+    <UseWPF>false</UseWPF>
+    <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
@@ -83,33 +83,10 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
-    <ProjectReference Include="..\gip.ext.chart.avui\gip.ext.chart.avui.csproj" />
     <ProjectReference Include="..\gip.ext.designer.avui\gip.ext.designer.avui.csproj" />
     <ProjectReference Include="..\gip.ext.design.avui\gip.ext.design.avui.csproj" />
     <ProjectReference Include="..\gip.ext.graphics.avui\gip.ext.graphics.avui.csproj" />
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
-      <Visible>False</Visible>
-      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\unpinned.bmp" />
@@ -180,6 +157,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
     <PackageReference Include="QuickGraphCore" Version="1.0.0" />
     <PackageReference Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
@@ -192,15 +170,11 @@
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />
     <Compile Remove="Controls\VBButton.xaml.cs" />
-    <Compile Remove="Controls\VBComboBox\VBComboBoxOld.cs" />
     <Compile Remove="Controls\VBDatagrid\VBDataGridColumnHeadersPresenter2.cs" />
     <Compile Remove="Controls\VBDocking\VBDockableContent.cs" />
-    <Compile Remove="Controls\VBListBox\VBListBoxOld.cs" />
     <Compile Remove="Controls\VBTabitemRoot.cs" />
-    <Compile Remove="Controls\VBTextBox\VBTextBoxOldWPF.cs" />
     <Page Remove="Controls\VBButton.xaml" />
     <Page Remove="Controls\VBButton\Themes\buttontestxaml.xaml" />
-    <Page Remove="Controls\VBComboBox\Themes\ComboBoxStyleOldWPF.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">
@@ -212,10 +186,6 @@
       <PackagePath>\</PackagePath>
     </None>
     <Content Include="appsettings.json" />
-    <Content Include="Controls\VBComboBox\Themes\ComboBoxStyleOldWPF.xaml" />
-    <Content Include="Controls\VBComboBox\VBComboBoxOld.cs" />
-    <Content Include="Controls\VBListBox\VBListBoxOld.cs" />
-    <Content Include="Controls\VBTextBox\VBTextBoxOldWPF.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Themes\IPlusTheme.axaml.cs">

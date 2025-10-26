@@ -23,9 +23,7 @@ namespace gip.core.layoutengine.avui
         private DispatcherTimer _cyclickDataRefreshDispTimer;
 
         // VBContent Interface Properties backing fields
-        string _DataShowColumns;
         string _DataChilds;
-        bool _Loaded = false;
         protected bool _Initialized = false;
         
         ACQueryDefinition _ACQueryDefinition = null;

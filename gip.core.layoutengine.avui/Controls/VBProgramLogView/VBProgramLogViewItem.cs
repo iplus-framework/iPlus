@@ -113,10 +113,11 @@ namespace gip.core.layoutengine.avui
             VBProgramLogViewItem element = new VBProgramLogViewItem();
             if (item is ACProgramLog logItem)
             {
-                int Level = 0;
+                int level = 0;
                 element.Title = logItem.ACUrl;
                 element.Value = logItem.DurationSec * 10;
-                element.ValueOffset = logItem.StartDate.Value.Subtract(GetRootProgramLog(logItem, ref Level).StartDate.Value).TotalSeconds * 10;
+                // Fix: Call GetRootProgramLog on the new element instance
+                element.ValueOffset = logItem.StartDate.Value.Subtract(element.GetRootProgramLog(logItem, ref level).StartDate.Value).TotalSeconds * 10;
                 element.ItemsSource = logItem.ACProgramLog_ParentACProgramLog.OrderBy("StartDate", true);
                 element.ValueBrush = Brushes.Lime;
             }

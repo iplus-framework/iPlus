@@ -41,7 +41,6 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        bool _themeApplied = false;
         /// <summary>
         /// Overides the OnApplyTemplate method and run VBControl initialization.
         /// </summary>

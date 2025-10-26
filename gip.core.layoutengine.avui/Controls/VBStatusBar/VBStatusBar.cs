@@ -127,7 +127,6 @@ namespace gip.core.layoutengine.avui
 
     public class VBStatusBar : StatusBar
     {
-        bool _themeApplied = false;
         public VBStatusBar() : base()
         {
         }

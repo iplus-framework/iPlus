@@ -230,16 +230,14 @@ namespace gip.core.layoutengine.avui
                     dt.Rows.Add(row);
                 }
 
-                System.Windows.Forms.SaveFileDialog dlg = new System.Windows.Forms.SaveFileDialog();
-                dlg.Filter = "Excel Files (*.xlsx)|*.xlsx";
-                dlg.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-                if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                string fileName = Database.Root.RootPageWPF.SaveFileDialog("Excel Files (*.xlsx)|*.xlsx", Environment.GetFolderPath(Environment.SpecialFolder.Desktop));
+                if (!string.IsNullOrEmpty(fileName))
                 {
                     XLWorkbook workBook = new XLWorkbook();
                     var worksheet = workBook.Worksheets.Add(dt, BSOACComponent.ACCaption);
                     if (worksheet != null)
                         worksheet.Columns().AdjustToContents();
-                    workBook.SaveAs(dlg.FileName);
+                    workBook.SaveAs(fileName);
                 }
             }
             catch (Exception e)

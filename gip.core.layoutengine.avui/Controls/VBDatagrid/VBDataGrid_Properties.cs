@@ -676,8 +676,6 @@ namespace gip.core.layoutengine.avui
             set { SetValue(OpenDesignOnClickProperty, value); }
         }
 
-        private bool firstTimeOpened = true;
-
         #endregion
 
         #region IACObject

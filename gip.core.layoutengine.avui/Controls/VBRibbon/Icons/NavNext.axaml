@@ -6,7 +6,7 @@
         <Setter Property="Template">
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
-                    <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_6" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                    <Canvas x:Name="Ebene_1_6" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path x:Name="Path_8" Width="12" Height="21" Canvas.Left="4.5" Canvas.Top="1.5" Stretch="Fill" StrokeStartLineCap="Round" 
                               StrokeEndLineCap="Round" StrokeLineJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 

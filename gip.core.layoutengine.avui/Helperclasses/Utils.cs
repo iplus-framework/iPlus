@@ -30,7 +30,7 @@ namespace gip.core.layoutengine.avui
             return new Point(point.X + X, point.Y + Y);
         }
 
-        private static Nullable<bool> _HasTouchDev;
+        //private static Nullable<bool> _HasTouchDev;
         public static bool HasTouchDevices
         {
             get
@@ -55,7 +55,7 @@ namespace gip.core.layoutengine.avui
 
     public class WaitCursor : IDisposable
     {
-        private Cursor _previousCursor;
+        //private Cursor _previousCursor;
 
         public WaitCursor()
         {

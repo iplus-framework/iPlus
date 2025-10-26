@@ -29,9 +29,6 @@ namespace gip.core.layoutengine.avui
         private const int WM_SYSCOMMAND = 0x0112;
 
         internal VBDockingPanelToolWindowUndocked HostedPane;
-        //public readonly DockablePane ReferencedPane;
-
-        bool _themeApplied = false;
 
         /// <summary>
         /// Creates a new instance of VBWindowDockingUndocked.
@@ -71,7 +68,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
         protected override void OnInitialized()
         {
             base.OnInitialized();

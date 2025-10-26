@@ -1,17 +1,8 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
-using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Diagnostics;
-using System.Windows.Controls;
-using System.Windows.Media;
-
 using gip.ext.design.avui;
-using gip.ext.design.avui.Adorners;
 using gip.ext.design.avui.Extensions;
-using gip.ext.designer.avui.Controls;
 using gip.ext.designer.avui.Extensions;
 
 namespace gip.core.layoutengine.avui

@@ -33,18 +33,6 @@ namespace gip.core.layoutengine.avui
 
 		static VBClockDisplay()
 		{
-			TimeInfoProperty = AvaloniaProperty.Register<VBClockDisplay, VBClockTimeInfo>
-				( nameof(TimeInfo), defaultValue: null );
-
-			NowProperty = AvaloniaProperty.Register<VBClockDisplay, DateTime>
-				( nameof(Now), defaultValue: default(DateTime) );
-
-			ClockZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>
-				( nameof(ClockZoom), defaultValue: 1.0 );
-
-			TextZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>
-				( nameof(TextZoom), defaultValue: 1.0 );
-
 			TimeInfoProperty.Changed.AddClassHandler<VBClockDisplay>((sender, e) => TimeInfo_Changed(sender, e));
 		}
 
@@ -111,9 +99,10 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents styled properties for TimeInfo, Now, ClockZoom, TextZoom.
         /// </summary>
-		public static StyledProperty<VBClockTimeInfo> TimeInfoProperty;
-		public static StyledProperty<DateTime> NowProperty;
-		public static StyledProperty<double> ClockZoomProperty, TextZoomProperty;
+		public static StyledProperty<VBClockTimeInfo> TimeInfoProperty = AvaloniaProperty.Register<VBClock, VBClockTimeInfo> (nameof(TimeInfo), defaultValue: null);
+		public static StyledProperty<DateTime> NowProperty = AvaloniaProperty.Register<VBClockDisplay, DateTime> (nameof(Now), defaultValue: default(DateTime));
+        public static StyledProperty<double> ClockZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>(nameof(ClockZoom), defaultValue: 1.0);
+        public static StyledProperty<double> TextZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>(nameof(TextZoom), defaultValue: 1.0 );
 
 		private DispatcherTimer _timer;
 	}

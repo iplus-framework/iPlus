@@ -24,7 +24,7 @@ namespace gip.core.layoutengine.avui.ganttchart
             base.OnApplyTemplate(e);
         }
 
-        StackPanel _ToolTipStatus;
+        //StackPanel _ToolTipStatus;
         ContentControl contentControl;
         Connector _LeftConnector;
         Connector _RightConnector;
@@ -78,8 +78,8 @@ namespace gip.core.layoutengine.avui.ganttchart
 
         #region Properties
 
-        private Connector leftConnector;    
-        private Connector rightConnector;
+        //private Connector leftConnector;    
+        //private Connector rightConnector;
 
         private VBGanttChartView _VBGanttView;
         public VBGanttChartView VBGanttView

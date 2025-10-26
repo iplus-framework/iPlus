@@ -1105,6 +1105,9 @@ namespace gip.core.layoutengine.avui
                 using (var ms = new MemoryStream())
                 {
                     bitmap.Save(ms);
+                    //DataTransfer dataTransfer = new DataTransfer();
+                    //DataTransferItem dataTransferItem = new DataTransferItem("image/png", ms.ToArray());
+                    //dataTransfer.Add("image/png", ms.ToArray());
                     var dataObject = new DataObject();
                     dataObject.Set("image/png", ms.ToArray());
                     topLevel.Clipboard.SetDataObjectAsync(dataObject);

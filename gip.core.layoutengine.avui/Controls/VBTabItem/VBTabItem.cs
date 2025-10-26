@@ -37,7 +37,6 @@ namespace gip.core.layoutengine.avui
         }
 
         protected Control _parentObject = null;
-        private bool _themeApplied = false;
 
         public VBTabItem()
             : base()
@@ -253,17 +252,6 @@ namespace gip.core.layoutengine.avui
             if (BSOACComponent != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
                 DeInitVBControl(BSOACComponent);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            // In Avalonia, theme handling is different - we'll implement this based on available API
-            // For now, just set the flag
-            _themeApplied = true;
         }
 
         public static readonly StyledProperty<bool> IsDragableProperty

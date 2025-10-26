@@ -127,8 +127,6 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        bool _themeApplied = false;
-
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>

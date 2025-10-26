@@ -24,13 +24,10 @@ namespace gip.core.layoutengine.avui.CodeCompletion
     /// </summary>
     public interface ICompletionDataProvider
     {
-        /// <summary>
-        /// Gets the image list.
-        /// </summary>
-        ImageList ImageList
-        {
-            get;
-        }
+        //ImageList ImageList
+        //{
+        //    get;
+        //}
 
         /// <summary>
         /// Gets the pre selection.
@@ -277,24 +274,24 @@ namespace gip.core.layoutengine.avui.CodeCompletion
             return completionData;
         }
 
-        ImageList _ImageList;
-        /// <summary>
-        /// Gets the image list;
-        /// </summary>
-        public ImageList ImageList
-        {
-            get
-            {
-                if (_ImageList == null)
-                {
-                    _ImageList = new ImageList();
-                    //_ImageList.Images.Add(new System.Drawing.Bitmap(@"C:\element2.png"));
+        //ImageList _ImageList;
+        ///// <summary>
+        ///// Gets the image list;
+        ///// </summary>
+        //public ImageList ImageList
+        //{
+        //    get
+        //    {
+        //        if (_ImageList == null)
+        //        {
+        //            _ImageList = new ImageList();
+        //            //_ImageList.Images.Add(new System.Drawing.Bitmap(@"C:\element2.png"));
 
-                }
+        //        }
 
-                return _ImageList;
-            }
-        }
+        //        return _ImageList;
+        //    }
+        //}
 
         /// <summary>
         /// The insert action.

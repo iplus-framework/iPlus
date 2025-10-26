@@ -421,21 +421,30 @@ namespace gip.core.datamodel
                 if (_ArchiveLogList != null)
                     _InterpolArchiveLogList = ApplyMovingAverageFilter(_ArchiveLogList, Range);
                 else if (_LiveLogList != null)
+                {
                     _InterpolLiveLogList = ApplyMovingAverageFilter(_LiveLogList, Range);
+                    OnPropertyChanged(nameof(PropertyLogList));
+                }
             }
             else if (InterpolationMethod == Global.InterpolationMethod.WeightedForewardedAverage)
             {
                 if (_ArchiveLogList != null)
                     _InterpolArchiveLogList = ApplyFLAFilter(_ArchiveLogList, Range, Decay);
                 else if (_LiveLogList != null)
+                {
                     _InterpolLiveLogList = ApplyFLAFilter(_LiveLogList, Range, Decay);
+                    OnPropertyChanged(nameof(PropertyLogList));
+                }
             }
             else if(InterpolationMethod == Global.InterpolationMethod.Median)
             {
                 if (_ArchiveLogList != null)
                     _InterpolArchiveLogList = ApplyMedianFilter(_ArchiveLogList, Range);
                 else if (_LiveLogList != null)
+                {
                     _InterpolLiveLogList = ApplyMedianFilter(_LiveLogList, Range);
+                    OnPropertyChanged(nameof(PropertyLogList));
+                }
             }
         }
 

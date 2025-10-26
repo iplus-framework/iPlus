@@ -4,7 +4,9 @@
 // All other rights reserved.
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
@@ -186,9 +188,9 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static bool IsDefaultValue(AvaloniaObject d, AvaloniaObject dp)
+        public static bool IsDefaultValue(AvaloniaObject d, AvaloniaProperty dp)
         {
-            return DependencyPropertyHelper.GetValueSource(d, dp).BaseValueSource == BaseValueSource.Default;
+            return d.IsSet(dp);
         }
 
         internal static void RefreshReadOnlyProperty(IGriColumn col, short newReadOnlyState)
@@ -222,65 +224,67 @@ namespace gip.core.layoutengine.avui
 
         public static T GetVisualChild<T>(Visual parent) where T : Visual
         {
-            T child = default(T);
-            int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
-            for (int i = 0; i < numVisuals; i++)
-            {
-                Visual v = (Visual)VisualTreeHelper.GetChild(parent, i);
-                child = v as T;
-                if (child == null)
-                {
-                    child = GetVisualChild<T>(v);
-                }
-                if (child != null)
-                {
-                    break;
-                }
-            }
-            return child;
+            return parent.TryFindChild<T>();
+
+            //T child = default(T);
+            //int numVisuals = VisualTreeHelper.GetChildrenCount(parent);
+            //for (int i = 0; i < numVisuals; i++)
+            //{
+            //    Visual v = (Visual)VisualTreeHelper.GetChild(parent, i);
+            //    child = v as T;
+            //    if (child == null)
+            //    {
+            //        child = GetVisualChild<T>(v);
+            //    }
+            //    if (child != null)
+            //    {
+            //        break;
+            //    }
+            //}
+            //return child;
         }
 
-        public static DataGridRow GetSelectedRow(this DataGrid grid)
-        {
-            return (DataGridRow)grid.ItemContainerGenerator.ContainerFromItem(grid.SelectedItem);
-        }
+        //public static DataGridRow GetSelectedRow(this DataGrid grid)
+        //{
+        //    return (DataGridRow)grid.ItemContainerGenerator.ContainerFromItem(grid.SelectedItem);
+        //}
 
-        public static DataGridRow GetRow(this DataGrid grid, int index)
-        {
-            DataGridRow row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
-            if (row == null)
-            {
-                // May be virtualized, bring into view and try again.
-                grid.UpdateLayout();
-                grid.ScrollIntoView(grid.Items[index]);
-                row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
-            }
-            return row;
-        }
+        //public static DataGridRow GetRow(this DataGrid grid, int index)
+        //{
+        //    DataGridRow row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
+        //    if (row == null)
+        //    {
+        //        // May be virtualized, bring into view and try again.
+        //        grid.UpdateLayout();
+        //        grid.ScrollIntoView(grid.Items[index]);
+        //        row = (DataGridRow)grid.ItemContainerGenerator.ContainerFromIndex(index);
+        //    }
+        //    return row;
+        //}
 
-        public static DataGridCell GetCell(this DataGrid grid, DataGridRow row, int column)
-        {
-            if (row != null)
-            {
-                DataGridCellsPresenter presenter = GetVisualChild<DataGridCellsPresenter>(row);
+        //public static DataGridCell GetCell(this DataGrid grid, DataGridRow row, int column)
+        //{
+        //    if (row != null)
+        //    {
+        //        DataGridCellsPresenter presenter = GetVisualChild<DataGridCellsPresenter>(row);
 
-                if (presenter == null)
-                {
-                    grid.ScrollIntoView(row, grid.Columns[column]);
-                    presenter = GetVisualChild<DataGridCellsPresenter>(row);
-                }
+        //        if (presenter == null)
+        //        {
+        //            grid.ScrollIntoView(row, grid.Columns[column]);
+        //            presenter = GetVisualChild<DataGridCellsPresenter>(row);
+        //        }
 
-                DataGridCell cell = (DataGridCell)presenter.ItemContainerGenerator.ContainerFromIndex(column);
-                return cell;
-            }
-            return null;
-        }
+        //        DataGridCell cell = (DataGridCell)presenter.ItemContainerGenerator.ContainerFromIndex(column);
+        //        return cell;
+        //    }
+        //    return null;
+        //}
 
-        public static DataGridCell GetCell(this DataGrid grid, int row, int column)
-        {
-            DataGridRow rowContainer = grid.GetRow(row);
-            return grid.GetCell(rowContainer, column);
-        }
+        //public static DataGridCell GetCell(this DataGrid grid, int row, int column)
+        //{
+        //    DataGridRow rowContainer = grid.GetRow(row);
+        //    return grid.GetCell(rowContainer, column);
+        //}
         #endregion
     }  
 }

@@ -87,7 +87,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles a OnInitialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
 		protected override void OnInitialized()
 		{
 			base.OnInitialized();
@@ -173,8 +172,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents styled properties for TimeInfo, HourAngle, MinuteAngle and SecondAngle.
         /// </summary>
-		public static StyledProperty<VBClockTimeInfo> TimeInfoProperty;
-		public static StyledProperty<double> HourAngleProperty, MinuteAngleProperty, SecondAngleProperty;
+		public static readonly StyledProperty<VBClockTimeInfo> TimeInfoProperty;
+		public static readonly StyledProperty<double> HourAngleProperty, MinuteAngleProperty, SecondAngleProperty;
 
 		private DispatcherTimer _timer = new DispatcherTimer();
 	}

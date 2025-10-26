@@ -22,9 +22,9 @@ namespace gip.core.layoutengine.avui.timeline
 
         static VBTimelineChartBase()
         {
-            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner(typeof(VBTimelineChartBase), new StyledPropertyMetadata<DateTime?>(null));
-            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner(typeof(VBTimelineChartBase), new StyledPropertyMetadata<DateTime?>(null));
-            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner(typeof(VBTimelineChartBase), new StyledPropertyMetadata<TimeSpan>(Timeline.TickTimeSpanDefaultValue));
+            MinimumDateProperty = Timeline.MinimumDateProperty.AddOwner<VBTimelineChartBase>(new StyledPropertyMetadata<DateTime?>(null));
+            MaximumDateProperty = Timeline.MaximumDateProperty.AddOwner<VBTimelineChartBase>(new StyledPropertyMetadata<DateTime?>(null));
+            TickTimeSpanProperty = Timeline.TickTimeSpanProperty.AddOwner<VBTimelineChartBase>(new StyledPropertyMetadata<TimeSpan>(Timeline.TickTimeSpanDefaultValue));
             
             MinimumDateProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => MinimumMaximumDateChanged(x, e));
             MaximumDateProperty.Changed.AddClassHandler<VBTimelineChartBase>((x, e) => MinimumMaximumDateChanged(x, e));

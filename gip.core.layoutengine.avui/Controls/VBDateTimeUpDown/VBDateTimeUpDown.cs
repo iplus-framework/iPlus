@@ -21,7 +21,6 @@ namespace gip.core.layoutengine.avui
             ValueTypeProperty.OverrideDefaultValue<VBDateTimeUpDown>(typeof(Nullable<DateTime>));
         }
 
-        bool _themeApplied = false;
         /// <summary>
         /// Creates a new instance of VBDateTimeUpDown.
         /// </summary>

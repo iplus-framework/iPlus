@@ -1,12 +1,12 @@
+using Avalonia;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using gip.ext.chart.avui;
-using gip.core.datamodel;
 using System.ComponentModel;
-using Avalonia.Controls.Primitives;
-using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
@@ -22,14 +22,6 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-        }
 
         /// <summary>
         /// Determines is control initialized or not.
@@ -50,7 +42,7 @@ namespace gip.core.layoutengine.avui
                     return;
                 Binding binding = new Binding();
                 binding.Source = acComponent;
-                this.SetBinding(FrameworkElement.DataContextProperty, binding);
+                this.Bind(DataContextProperty, binding);
             }
             _Initialized = true;
 
@@ -60,9 +52,9 @@ namespace gip.core.layoutengine.avui
             {
                 Binding binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBChartItem.ACCompInitStateProperty, binding);
+                Bind(VBChartItem.ACCompInitStateProperty, binding);
 
                 if (ACProperty != null)
                 {
@@ -87,17 +79,17 @@ namespace gip.core.layoutengine.avui
         /// <param name="bsoContext">The BSO context.</param>
         public void SetVBBindings(object dataContext, IACBSO bsoContext)
         {
-            if (!BindingOperations.IsDataBound(this, FrameworkElement.DataContextProperty))
+            if (BindingOperations.GetBindingExpressionBase(this, DataContextProperty) == null)
             {
                 Binding binding = new Binding();
                 binding.Source = dataContext;
-                this.SetBinding(FrameworkElement.DataContextProperty, binding);
+                this.Bind(DataContextProperty, binding);
             }
-            if (!BindingOperations.IsDataBound(this, VBChartItem.BSOACComponentProperty))
+            if (BindingOperations.GetBindingExpressionBase(this, VBChartItem.BSOACComponentProperty) == null)
             {
                 Binding binding = new Binding();
                 binding.Source = bsoContext;
-                this.SetBinding(VBChartItem.BSOACComponentProperty, binding);
+                this.Bind(VBChartItem.BSOACComponentProperty, binding);
             }
         }
 
@@ -283,7 +275,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBChartItem), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty =
+            ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBChartItem>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -475,8 +468,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty = DependencyProperty.Register("ACCompInitState", typeof(ACInitState), typeof(VBChartItem), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
-
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
+            AvaloniaProperty.Register<VBChartItem, ACInitState>(nameof(ACCompInitState));
         /// <summary>
         /// Gets or sets the ACCompInitState.
         /// </summary>
@@ -486,21 +479,19 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBChartItem thisControl = dependencyObject as VBChartItem;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
+                    IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                        DeInitVBControl(bso);
                 }
             }
         }
@@ -522,14 +513,27 @@ namespace gip.core.layoutengine.avui
         {
             if (String.IsNullOrEmpty(chartItem.LineColor))
             {
-                Color color = ColorHelper.CreateRandomHsbColor();
+                Color color = GetRandomColor();
                 chartItem.LineColor = color.ToString();
                 return color;
             }
             else
             {
-                return (Color)ColorConverter.ConvertFromString(chartItem.LineColor);
+                return (Color)Color.Parse(chartItem.LineColor);
             }
+        }
+
+        public static Color GetRandomColor()
+        {
+            Random random = new Random(DateTime.Now.Millisecond);
+
+            Color rgb = new Color(
+                255,
+                (byte)random.Next(0, 255),
+                (byte)random.Next(0, 255),
+                (byte)random.Next(0, 255));
+
+            return rgb;
         }
     }
 }

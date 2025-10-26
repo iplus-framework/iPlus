@@ -1,14 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows.Media;
-using gip.ext.chart.avui;
+using Avalonia.Media;
 using gip.core.datamodel;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.ComponentModel;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
@@ -70,13 +62,13 @@ namespace gip.core.layoutengine.avui
         {
             if (String.IsNullOrEmpty(chartItem.LineColor))
             {
-                Color color = ColorHelper.CreateRandomHsbColor();
+                Color color = VBChartItemExtension.GetRandomColor();
                 chartItem.LineColor = color.ToString();
                 return color;
             }
             else
             {
-                return (Color)ColorConverter.ConvertFromString(chartItem.LineColor);
+                return (Color)Color.Parse(chartItem.LineColor);
             }
         }
     }

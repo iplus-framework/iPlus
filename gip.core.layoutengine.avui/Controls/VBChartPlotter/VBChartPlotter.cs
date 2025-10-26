@@ -1,16 +1,21 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
+using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Threading;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using OxyPlot;
+using OxyPlot.Avalonia;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.IO;
-using gip.ext.chart.avui;
-using gip.ext.chart.avui.Common.Auxiliary;
-using gip.core.datamodel;
-using System.Transactions;
-using gip.ext.chart.avui.DataSources;
-using gip.ext.chart.avui.Charts;
+using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -21,138 +26,512 @@ namespace gip.core.layoutengine.avui
     /// Steuerelement zum plotten.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBChartPlotter'}de{'VBChartPlotter'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBChartPlotter : ChartPlotter, IACInteractiveObject, IACObject, IVBChart, IVBSource
+    public class VBChartPlotter : Plot, IACInteractiveObject, IACObject, IVBChart
     {
-        string _DataSource;
-        string _DataShowColumns;
-        string _DataChilds;
-
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "ChartPlotterStyleGip", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBChartPlotter/Themes/ChartPlotterStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "ChartPlotterStyleAero", 
-                                         styleUri = "/gip.core.layoutengine.avui;Component/Controls/VBChartPlotter/Themes/ChartPlotterStyleAero.xaml" },
-        };
         /// <summary>
-        /// Gets the list of custom styles.
+        /// This class map PropertyLogRing and FastLineRenderableSeries.
         /// </summary>
-        public static List<CustomControlStyleInfo> StyleInfoList
+        /// 
+        private abstract class LineMap
         {
-            get
+            public LineMap(PropertyLogListInfo logListInfo, VBChartItem chartItem, LineSeries line)
             {
-                return _styleInfoList;
+                _ChartItem = chartItem;
+                _LogListInfo = logListInfo;
+                _TupleValues = null;
+                Line = line;
             }
+
+            public LineMap(VBChartItem chartItem, IEnumerable<IVBChartTuple> tupleValues, LineSeries line)
+            {
+                _ChartItem = chartItem;
+                _TupleValues = tupleValues;
+                _LogListInfo = null;
+                Line = line;
+            }
+
+            private VBChartItem _ChartItem;
+            public VBChartItem ChartItem
+            {
+                get
+                {
+                    return _ChartItem;
+                }
+            }
+
+            private PropertyLogListInfo _LogListInfo;
+            public PropertyLogListInfo LogListInfo
+            {
+                get
+                {
+                    return _LogListInfo;
+                }
+            }
+
+            public PropertyLogRing PropertyLogRing
+            {
+                get
+                {
+                    return LogListInfo.LiveLogList;
+                }
+            }
+
+            IEnumerable<IVBChartTuple> _TupleValues;
+            public IEnumerable<IVBChartTuple> TupleValues
+            {
+                get
+                {
+                    return _TupleValues;
+                }
+                set
+                {
+                    _TupleValues = value;
+                }
+            }
+
+            public LineSeries Line
+            {
+                get;
+                set;
+            }
+
+            public bool IsInterpolationMode
+            {
+                get;
+                set;
+            }
+
+
+            public abstract void Append(object valueX, object valueY);
+
+            //public void ClearDataSeries()
+            //{
+            //    Line.DataSeries.Clear();
+            //}
         }
 
-        static VBChartPlotter()
+        private class LineMapT<TX, TY> : LineMap
+            where TX : global::System.IComparable
+            where TY : global::System.IComparable
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBChartPlotter), new FrameworkPropertyMetadata(typeof(VBChartPlotter)));
+            public LineMapT(PropertyLogListInfo logListInfo, VBChartItem chartItem, LineSeries line)
+                : base(logListInfo, chartItem, line)
+            {
+            }
+
+            public LineMapT(VBChartItem chartItem, IEnumerable<IVBChartTuple> tupleValues, LineSeries line)
+                : base(chartItem, tupleValues, line)
+            {
+            }
+
+            public override void Append(object valueX, object valueY)
+            {
+                //XyDataSeries<TX, TY> dataSeries = Line.DataSeries as XyDataSeries<TX, TY>;
+                //if (dataSeries == null)
+                //    return;
+                //if (valueY is Boolean)
+                //    valueY = Convert.ToByte((Boolean)valueY);
+                //if (valueX is TX && valueY is TY)
+                //    dataSeries.Append((TX)valueX, (TY)valueY);
+                //else
+                //    dataSeries.Append((TX)Convert.ChangeType(valueX, typeof(TX)), (TY)Convert.ChangeType(valueY, typeof(TY)));
+            }
+
+            //public override void Append(DateTime dt, object value)
+            //{
+            //    XyDataSeries<DateTime, TY> dataSeries = Line.DataSeries as XyDataSeries<DateTime, TY>;
+            //    if (dataSeries == null)
+            //        return;
+            //    if (value is Boolean)
+            //        value = Convert.ToByte((Boolean)value);
+            //    dataSeries.Append(dt, (TY)value);
+            //}
         }
 
-        bool _themeApplied = false;
-        /// <summary>
-        /// Creates a new instance of VBChartPlotter.
-        /// </summary>
+
         public VBChartPlotter()
         {
             PropertyLogItems = new ObservableCollection<IVBChartItem>();
         }
 
-        /// <summary>
-        /// Updates UI parts.
-        /// </summary>
-        protected override void UpdateUIParts()
+        protected override void OnInitialized()
         {
-            ResourceDictionary dict = new ResourceDictionary
-            {
-                Source = new Uri(StyleInfoList[0].styleUri, UriKind.Relative)
-            };
-
-            Style = (Style)dict[StyleInfoList[0].styleName];
-
-            //ControlTemplate template = (ControlTemplate)dict[Plotter.templateKey];
-            //Template = template;
-            ApplyTemplate();
-        }
-
-        /// <summary>
-        /// The event hander for Initialized event.
-        /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
             this.Loaded += VBChartPlotter_Loaded;
             this.Unloaded += VBChartPlotter_Unloaded;
         }
 
-        /// <summary>
-        /// Overides the OnApplyTemplate method and run VBControl initialization.
-        /// </summary>
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        /// <summary>
-        /// Actualizes current theme.
-        /// </summary>
-        /// <param name="bInitializingCall">Determines is initializing call or not.</param>
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, StyleInfoList, bInitializingCall);
-        }
-
         VBPropertyLogChart _VBPropertyLogChart = null;
 
+        private Nullable<bool> _DisplayAsArchive;
+        public bool DisplayAsArchive
+        {
+            get
+            {
+                if (_DisplayAsArchive.HasValue)
+                    return _DisplayAsArchive.Value;
+                return false;
+            }
+            set
+            {
+                if (_DisplayAsArchive.HasValue)
+                    return;
+                _DisplayAsArchive = value;
+            }
+        }
+
         /// <summary>
-        /// Determines is control initialized or not.
+        /// Represents the dependency property for BSOACComponent.
+        /// </summary>
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBChartPlotter>();
+        /// <summary>
+        /// Gets or sets the BSOACComponent.
+        /// </summary>
+        public IACBSO BSOACComponent
+        {
+            get { return (IACBSO)GetValue(BSOACComponentProperty); }
+            set { SetValue(BSOACComponentProperty, value); }
+        }
+
+
+        private ObservableCollection<IVBChartItem> _PropertyLogItems;
+        public ObservableCollection<IVBChartItem> PropertyLogItems
+        {
+            get { return _PropertyLogItems; }
+            set { _PropertyLogItems = value; }
+        }
+
+        public static readonly StyledProperty<VBChartItemDisplayMode> DisplayModeProperty = AvaloniaProperty.Register<VBCheckBox, VBChartItemDisplayMode>(nameof(DisplayMode));
+        
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public VBChartItemDisplayMode DisplayMode
+        {
+            get { return (VBChartItemDisplayMode)GetValue(DisplayModeProperty); }
+            set { SetValue(DisplayModeProperty, value); }
+        }
+
+
+        /// <summary>
+        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
+        /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
+        /// </summary>
+        /// <value>The Data-Context as IACObject</value>
+        public IACObject ContextACObject
+        {
+            get
+            {
+                return DataContext as IACObject;
+            }
+        }
+
+        public ACClassProperty VBContentPropertyInfo
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        public Global.ControlModes RightControlMode
+        {
+            get
+            {
+                return Global.ControlModes.Collapsed;
+            }
+        }
+
+        public string DisabledModes
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
+        /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
+        /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
+        /// <value>Relative or absolute ACUrl</value>
+        [Category("VBControl")]
+        public string VBContent
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
+        /// <value>The Unique Identifier as string</value>
+        public string ACIdentifier
+        {
+            get
+            {
+                return this.Name;
+            }
+        }
+
+        /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
+        /// <value>  Translated description</value>
+        public string ACCaption
+        {
+            get;
+        }
+
+        /// <summary>
+        /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
+        /// </summary>
+        /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
+        public IACType ACType
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
+        /// </summary>
+        /// <value> A nullable list ob IACObjects.</value>
+        public IEnumerable<IACObject> ACContentList
+        {
+            get
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Returns the parent object
+        /// </summary>
+        /// <value>Reference to the parent object</value>
+        public IACObject ParentACObject
+        {
+            get
+            {
+                return Parent as IACObject;
+            }
+        }
+
+        List<LineMap> _LineMapList = new List<LineMap>();
+
+        /// <summary>
+        /// This method initialize chart. Add lines to chart and fill lines with dataSeries. 
         /// </summary>
         protected bool _Initialized = false;
-        /// <summary>
-        /// This method initialize chart and add horizontal date time axis.
-        /// </summary>
         private void InitVBControl()
         {
-            if (_Initialized)
+            if (PropertyLogItems == null || _Initialized)
                 return;
             _Initialized = true;
-            _VBPropertyLogChart = FindName("ucChart") as VBPropertyLogChart;
-
-            if (ContextACObject != null)
+            foreach (VBChartItem chartItem in PropertyLogItems)
             {
-                // Falls Nutzung per Dependency-Property (ACComponent gibt an was auf dem Plotter dargestellt werden soll) 
-                if (!String.IsNullOrEmpty(VBContent))
-                {
-                    // Seal Property
-                    if (!_DisplayAsArchive.HasValue)
-                        DisplayAsArchive = false;
+                chartItem.SetVBBindings(this.DataContext, this.BSOACComponent);
+                chartItem.InitVBControl(ContextACObject);
+                VBPropertyLogChartItem logChartItem = chartItem as VBPropertyLogChartItem;
+                if (logChartItem == null && chartItem.ACProperty != null)
+                    chartItem.ACProperty.PropertyChanged += ACProperty_PropertyChanged;
+                InitLine(chartItem);
+            }
+            InitializeAutoRangeOfAxes();
+        }
 
-                    Binding binding = new Binding();
-                    binding.Source = ContextACObject;
-                    binding.Path = new PropertyPath(VBContent);
-                    binding.Mode = BindingMode.OneWay;
-                    binding.NotifyOnSourceUpdated = true;
-                    binding.NotifyOnTargetUpdated = true;
-                    this.SetBinding(VBChartPlotter.BindableChartItemsProperty, binding);
+        private void ACProperty_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Invoke(new Action(delegate { ACProperty_PropertyChanged(sender, e); }), DispatcherPriority.Background);
+            }
+            else
+            {
+                LineMap lineMap = _LineMapList.Where(c => c.ChartItem.ACProperty == sender).FirstOrDefault();
+                if (lineMap == null)
+                {
+                    if (PropertyLogItems == null || !PropertyLogItems.Any())
+                        return;
+                    VBChartItem chartItem = PropertyLogItems.Where(c => c.ACProperty == sender).FirstOrDefault() as VBChartItem;
+                    if (chartItem != null)
+                        InitLine(chartItem);
                 }
-                else if (!DisplayAsArchive)
-                    RefreshPlotterWithStaticItems();
+                //else
+                //{
+                //    IEnumerable<IVBChartTuple> chartSeries = lineMap.ChartItem.DataSeries;
+                //    if (chartSeries != null)
+                //    {
+                //        if (chartSeries == lineMap.TupleValues)
+                //            return;
+                //    }
+
+                //    INotifyCollectionChanged notifyCollectionChangedCollection = lineMap.TupleValues as INotifyCollectionChanged;
+                //    if (notifyCollectionChangedCollection != null)
+                //        notifyCollectionChangedCollection.CollectionChanged -= NotifyableCollectionChanged;
+
+                //    lineMap.ClearDataSeries();
+                //    if (chartSeries != null)
+                //    {
+                //        lineMap.TupleValues = chartSeries;
+
+                //        if (chartSeries.Any())
+                //        {
+                //            foreach (var tupleValue in chartSeries)
+                //            {
+                //                if (lineMap.ChartItem.DisplayMode == VBChartItemDisplayMode.MapTupleValue2ToX)
+                //                    lineMap.Append(tupleValue.Value2, tupleValue.Value1);
+                //                else
+                //                    lineMap.Append(tupleValue.Value1, tupleValue.Value2);
+                //            }
+                //        }
+                //        notifyCollectionChangedCollection = chartSeries as INotifyCollectionChanged;
+                //        if (notifyCollectionChangedCollection != null)
+                //            notifyCollectionChangedCollection.CollectionChanged += NotifyableCollectionChanged;
+                //    }
+                //    AutoZoomExtents();
+                //}
+            }
+        }
+
+        private void InitLine(VBChartItem chartItem)
+        {
+            //_CountAutoExtents = 0;
+            VBPropertyLogChartItem logChartItem = chartItem as VBPropertyLogChartItem;
+
+            Type typeOfYAxis = null;
+            Type typeOfXAxis = null;
+            IEnumerable<IVBChartTuple> chartSeries = null;
+            PropertyLogRing propertyLogRing = null;
+            PropertyLogListInfo logListInfo = null;
+            // X-Axis is DateTime
+            if (logChartItem != null && chartItem.ACProperty != null)
+            {
+                typeOfXAxis = typeof(DateTime);
+                typeOfYAxis = chartItem.ACProperty.ACType.ObjectType;
+                if (!typeOfYAxis.IsValueType || !typeof(IComparable).IsAssignableFrom(typeOfYAxis))
+                    return;
+                if (typeof(Boolean).IsAssignableFrom(typeOfYAxis))
+                    typeOfYAxis = typeof(byte);
+                else if (typeOfYAxis.IsEnum)
+                    typeOfYAxis = Enum.GetUnderlyingType(typeOfYAxis);
+                logListInfo = logChartItem.GetLiveLogList();
+
+                IEnumerable<PropertyLogItem> propertyLog = logListInfo.PropertyLogList;
+                if (propertyLog == null)
+                    return;
+
+                propertyLogRing = logListInfo.LiveLogList;
+            }
+            else
+            {
+                chartSeries = chartItem.DataSeries;
+                if (chartSeries != null)
+                {
+                    IVBChartTuple tuple = chartSeries.FirstOrDefault();
+                    if (tuple != null)
+                    {
+                        typeOfXAxis = tuple.Value1.GetType();
+                        typeOfYAxis = tuple.Value2.GetType();
+                    }
+                }
+                else if (chartItem.ACProperty != null)
+                {
+                    typeOfYAxis = chartItem.ACProperty.ACType.ObjectFullType;
+                    Type typeOfChartTuple = typeof(IEnumerable<>).MakeGenericType(typeof(IVBChartTuple));
+                    if (!typeOfChartTuple.IsAssignableFrom(typeOfYAxis))
+                        return;
+                    typeOfXAxis = typeof(Double);
+                    typeOfYAxis = typeof(Double);
+                }
+                if (chartItem.DisplayMode == VBChartItemDisplayMode.MapTupleValue2ToX)
+                {
+                    Type tmp = typeOfXAxis;
+                    typeOfXAxis = typeOfYAxis;
+                    typeOfYAxis = tmp;
+                }
+            }
+            if (typeOfXAxis == null || typeOfYAxis == null)
+                return;
+
+            if (logListInfo == null && chartSeries == null)
+                return;
+
+            bool bExists = false;
+            LineSeries line = CreateOrGetLine(chartItem, out bExists);
+            if (line == null)
+                return;
+
+            if (logListInfo != null)
+            {
+                line.Mapping = item => new DataPoint(((PropertyLogItem)item).Time.Ticks, Convert.ToDouble(((PropertyLogItem)item).Value));
+                Binding binding = new Binding();
+                binding.Source = logListInfo;
+                binding.Path = nameof(PropertyLogListInfo.PropertyLogList);
+                binding.Mode = BindingMode.OneWay;
+                line.Bind(ItemsControl.ItemsSourceProperty, binding);
+            }
+            else if (chartSeries != null)
+            {
+                line.ItemsSource = chartSeries;
+                if (chartItem.DisplayMode == VBChartItemDisplayMode.MapTupleValue1ToX)
+                    line.Mapping = item => new DataPoint(Convert.ToDouble(((IVBChartTuple)item).Value1), Convert.ToDouble(((IVBChartTuple)item).Value2));
+                else
+                    line.Mapping = item => new DataPoint(Convert.ToDouble(((IVBChartTuple)item).Value2), Convert.ToDouble(((IVBChartTuple)item).Value1));
+
+                Binding binding = new Binding();
+                binding.Source = chartItem;
+                binding.Path = nameof(VBChartItem.DataSeries);
+                binding.Mode = BindingMode.OneWay;
+                line.Bind(ItemsControl.ItemsSourceProperty, binding);
             }
 
+
+            Type typeOfLineMap = typeof(LineMapT<,>).MakeGenericType(typeOfXAxis, typeOfYAxis);
+            LineMap lineMap = null;
+
+            if (logListInfo != null)
+                lineMap = (LineMap)Activator.CreateInstance(typeOfLineMap, logListInfo, chartItem, line);
+            else if (chartSeries != null)
+                lineMap = (LineMap)Activator.CreateInstance(typeOfLineMap, chartItem, chartSeries, line);
+
+            if (lineMap == null)
+                return;
+            _LineMapList.Add(lineMap);
+
+            if (propertyLogRing != null)
+            {
+                propertyLogRing.CollectionChanged += NotifyableCollectionChanged;
+                if ((chartItem.ACProperty != null) && (chartItem.ACProperty.LiveLog != null))
+                    chartItem.ACProperty.LiveLog.PropertyChanged += LiveLog_PropertyChanged;
+            }
+            else if (chartSeries != null)
+            {
+                INotifyCollectionChanged notifyCollectionChangedCollection = chartSeries as INotifyCollectionChanged;
+                if (notifyCollectionChangedCollection != null)
+                    notifyCollectionChangedCollection.CollectionChanged += NotifyableCollectionChanged;
+            }
+
+            if (!bExists)
+            {
+                this.Series.Add(line);
+            }
         }
 
         bool _Loaded = false;
+        /// <summary>
+        /// Loading control and refresh live console.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The Routed event arguments.</param>
         void VBChartPlotter_Loaded(object sender, RoutedEventArgs e)
         {
-            InitVBControl();
+            if (!DisplayAsArchive)
+                InitVBControl();
             if (_Loaded)
                 return;
+            _VBPropertyLogChart = this.FindLogicalAncestorOfType<VBPropertyLogChart>();
+            //_VBPropertyLogChart = this.FindControl<VBPropertyLogChart>("ucChart") as VBPropertyLogChart;
+            if (_VBPropertyLogChart != null)
+                _VBPropertyLogChart.RefreshLiveConsole();
             _Loaded = true;
         }
 
@@ -176,112 +555,306 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = false;
 
-            if (PropertyLogItems != null)
+            foreach (VBChartItem chartItem in PropertyLogItems)
             {
-                foreach (IVBChartItem chartItem in PropertyLogItems)
+                if (chartItem.ACProperty == null)
+                    continue;
+
+                VBPropertyLogChartItem logChartItem = chartItem as VBPropertyLogChartItem;
+                if (logChartItem != null)
                 {
-                    IPropertyLogChartItem logChartItem = chartItem as IPropertyLogChartItem;
-                    if (logChartItem != null && !DisplayAsArchive)
-                    {
-                        if ((chartItem.ACProperty != null) && (chartItem.ACProperty.LiveLog != null))
-                            chartItem.ACProperty.LiveLog.PropertyChanged -= LiveLog_PropertyChanged;
-                    }
+                    if (logChartItem.ACProperty != null && logChartItem.ACProperty.LiveLog != null && logChartItem.ACProperty.LiveLog.LiveLogList != null)
+                        logChartItem.ACProperty.LiveLog.LiveLogList.CollectionChanged -= NotifyableCollectionChanged;
+                    if (chartItem.ACProperty != null && chartItem.ACProperty.LiveLog != null)
+                        chartItem.ACProperty.LiveLog.PropertyChanged -= LiveLog_PropertyChanged;
+                }
+                else
+                {
                     if (chartItem.ACProperty != null)
-                        chartItem.DeInitVBControl(bso);
+                        chartItem.ACProperty.PropertyChanged -= ACProperty_PropertyChanged;
+                    INotifyCollectionChanged chartSeries = chartItem.DataSeries as INotifyCollectionChanged;
+                    if (chartSeries != null)
+                        chartSeries.CollectionChanged -= NotifyableCollectionChanged;
                 }
-            }
-            BindingOperations.ClearBinding(this, VBChartPlotter.BindableChartItemsProperty);
-            this.ClearAllBindings();
 
+                chartItem.DeInitVBControl(bso);
+            }
             this.Loaded -= VBChartPlotter_Loaded;
-            this.Unloaded -= VBChartPlotter_Unloaded;
+            this.Loaded -= VBChartPlotter_Unloaded;
         }
 
 
         /// <summary>
-        /// Clear lines in graph.
+        /// Refresh live console when live log changed.
         /// </summary>
-        public void RemoveUserLineGraphElements()
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The Property changed event arguments.</param>
+        void LiveLog_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            List<IPlotterElement> items = Children.ToList();
-            var query = items.Where(c => c is LineGraph);
-            if (query.Any())
+            if (e.PropertyName == "LogState")
             {
-                foreach (IPlotterElement item in query)
+                if (_VBPropertyLogChart != null)
+                    _VBPropertyLogChart.RefreshLiveConsole();
+            }
+        }
+
+        /// <summary>
+        /// This method initialize chart when is in archive mode. Add lines to chart and fill lines with dataSeries from archive.
+        /// </summary>
+        /// <param name="from">Show archive from date.</param>
+        /// <param name="to">Show archive to date.</param>
+        public void InitializeChartArchive(DateTime from, DateTime to, Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null)
+        {
+            if (!DisplayAsArchive || PropertyLogItems == null)
+                return;
+
+            _Initialized = true;
+
+            bool bForceRedraw = false;
+            foreach (var dataSeries in this.Series.Where(c => c is LineSeries && String.IsNullOrEmpty((c as LineSeries).Name)).ToArray())
+            {
+                bForceRedraw = true;
+                this.Series.Remove(dataSeries);
+            }
+
+            bool bAnyLines = false;
+            foreach (VBPropertyLogChartItem propertylogitem in PropertyLogItems)
+            {
+                if (propertylogitem == null)
+                    continue;
+                propertylogitem.SetVBBindings(this.DataContext, this.BSOACComponent);
+                propertylogitem.InitVBControl(ContextACObject);
+
+                Type typeOfValue = null;
+                if (propertylogitem.ACProperty != null)
                 {
-                    Children.Remove(item);
+                    typeOfValue = propertylogitem.ACProperty.ACType.ObjectType;
+                    if (!typeOfValue.IsValueType || !typeof(IComparable).IsAssignableFrom(typeOfValue))
+                        continue;
+                    if (typeof(Boolean).IsAssignableFrom(typeOfValue))
+                        typeOfValue = typeof(byte);
+                    else if (typeOfValue.IsEnum)
+                        typeOfValue = Enum.GetUnderlyingType(typeOfValue);
+                }
+                else
+                    continue;
+
+                bool bExists = false;
+                LineSeries line = CreateOrGetLine(propertylogitem, out bExists);
+                if (line == null)
+                    continue;
+                if (bExists && line.ItemsSource != null)
+                {
+                    line.ClearBinding(ItemsControl.ItemsSourceProperty);
+                    line.ClearValue(ItemsControl.ItemsSourceProperty);
+                }
+
+                PropertyLogListInfo logListInfo = propertylogitem.GetArchiveLogList(from, to);
+                if (logListInfo != null)
+                {
+                    if (interpolation != Global.InterpolationMethod.None && logListInfo != null)
+                    {
+                        logListInfo.SetInterpolationParams(interpolation, range, decay);
+                        logListInfo.Interpolate();
+                    }
+
+                    line.Mapping = item => new DataPoint(((PropertyLogItem)item).Time.Ticks, Convert.ToDouble(((PropertyLogItem)item).Value));
+                    Binding binding = new Binding();
+                    binding.Source = logListInfo;
+                    binding.Path = nameof(PropertyLogListInfo.PropertyLogList);
+                    binding.Mode = BindingMode.OneWay;
+                    line.Bind(ItemsControl.ItemsSourceProperty, binding);
+                }
+
+                if (!bExists)
+                    Series.Add(line);
+                bAnyLines = true;
+            }
+            if (bAnyLines)
+                AutoZoomExtents(bForceRedraw);
+        }
+
+
+        protected IEnumerable<Axis> YAxes
+        {
+            get
+            {
+                return this.Axes.Where(c => c.Position == OxyPlot.Axes.AxisPosition.Left || c.Position == OxyPlot.Axes.AxisPosition.Right);
+            }
+        }
+
+        protected IEnumerable<Axis> XAxes
+        {
+            get
+            {
+                return this.Axes.Where(c => c.Position == OxyPlot.Axes.AxisPosition.Bottom || c.Position == OxyPlot.Axes.AxisPosition.Top);
+            }
+        }
+
+        /// <summary>
+        /// Create line from VBPropertyLogChartItem.
+        /// </summary>
+        /// <param name="vbChartItem">The vbPropertyLogChartItem.</param>
+        /// <returns></returns>
+        private LineSeries CreateOrGetLine(VBChartItem vbChartItem, out bool bExists)
+        {
+            bExists = false;
+            if (vbChartItem == null || !YAxes.Any())
+                return null;
+            LineSeries line = null;
+            if (!String.IsNullOrEmpty(vbChartItem.LineId))
+            {
+                line = Series.Where(c => c is LineSeries && (c as LineSeries).YAxisKey == vbChartItem.LineId).FirstOrDefault() as LineSeries;
+                if (line != null)
+                {
+                    bExists = true;
+                    return line;
                 }
             }
-        }
-
-        #region IACInteractiveObject Member
-        public IACType VBContentValueType
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Represents the dependency property for VBContent.
-        /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBChartPlotter));
-
-        /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
-        /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
-        /// ACUrl's can be either absolute or relative to the DataContext of the parent WPFControl (or the ContextACObject of the parent IACInteractiveObject)</summary>
-        /// <value>Relative or absolute ACUrl</value>
-        [Category("VBControl")]
-        public string VBContent
-        {
-            get { return (string)GetValue(VBContentProperty); }
-            set { SetValue(VBContentProperty, value); }
-        }
-
-        /// <summary>
-        /// ContextACObject is used by WPF-Controls and mostly it equals to the FrameworkElement.DataContext-Property.
-        /// IACInteractiveObject-Childs in the logical WPF-tree resolves relative ACUrl's to this ContextACObject-Property.
-        /// </summary>
-        /// <value>The Data-Context as IACObject</value>
-        public IACObject ContextACObject
-        {
-            get
+            if (line == null)
             {
-                return DataContext as IACObject;
+                line = new LineSeries();
+                //line.IsDigitalLine = vbChartItem.IsDigitalLine;
+            }
+
+            if (string.IsNullOrEmpty(vbChartItem.AxisId) || string.IsNullOrWhiteSpace(vbChartItem.AxisId) || !YAxes.Any(c => c.Key == vbChartItem.AxisId))
+                line.YAxisKey = YAxes.FirstOrDefault().Key;
+            else
+                line.YAxisKey = vbChartItem.AxisId;
+            if (bExists)
+                return line;
+
+            line.StrokeThickness = 1;
+            //(line as FastLineRenderableSeries).Name = vbPropertyLogChartItem.VBContent;
+            line.Color = vbChartItem.GetLineColor();
+            return line;
+        }
+
+
+        /// <summary>
+        /// Add data or clear chart data in runtime.
+        /// </summary>
+        /// <param name="sender">The sender.</param>
+        /// <param name="e">The collection changed event arguments.</param>
+        void NotifyableCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            if (!Avalonia.Threading.Dispatcher.UIThread.CheckAccess())
+            {
+                Avalonia.Threading.Dispatcher.UIThread.Invoke(new Action(delegate { NotifyableCollectionChanged(sender, e); }), DispatcherPriority.Background);
+            }
+            else
+            {
+                PropertyLogRing propertyLogRing = sender as PropertyLogRing;
+                if (propertyLogRing != null)
+                {
+                    if (e.NewItems != null && e.NewItems[0] != null && e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                    {
+                        PropertyLogItem newItem = e.NewItems[0] as PropertyLogItem;
+                        LineMap lineMap = _LineMapList.FirstOrDefault(k => k.PropertyLogRing == propertyLogRing);
+                        if (lineMap == null)
+                            return;
+                        bool isInterpolationMode = lineMap.LogListInfo.IsInterpolationOn;
+                        if (isInterpolationMode
+                            || !isInterpolationMode && lineMap.IsInterpolationMode)
+                        {
+                            lineMap.IsInterpolationMode = isInterpolationMode;
+                            //lineMap.ClearDataSeries();
+                            if (isInterpolationMode)
+                                lineMap.LogListInfo.Interpolate();
+                            AutoZoomExtents();
+                        }
+                        else
+                        {
+                            lineMap.Append(newItem.Time, newItem.Value);
+                            AutoZoomExtents();
+                        }
+                    }
+                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                    {
+                        LineMap lineMap = _LineMapList.FirstOrDefault(k => k.PropertyLogRing == propertyLogRing);
+                        if (lineMap == null)
+                            return;
+                        //lineMap.ClearDataSeries();
+                        AutoZoomExtents();
+                    }
+                }
+                //else
+                //{
+                //    IEnumerable<IVBChartTuple> chartSeries = sender as IEnumerable<IVBChartTuple>;
+                //    if (chartSeries != null)
+                //    {
+                //        if (e.NewItems != null && e.NewItems[0] != null && e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                //        {
+                //            IVBChartTuple newItem = e.NewItems[0] as IVBChartTuple;
+                //            LineMap lineMap = _LineMapList.FirstOrDefault(k => k.TupleValues == chartSeries);
+                //            if (lineMap == null)
+                //                return;
+                //            bool isInterpolationMode = lineMap.LogListInfo.IsInterpolationOn;
+                //            if (isInterpolationMode
+                //                || !isInterpolationMode && lineMap.IsInterpolationMode)
+                //            {
+                //                lineMap.IsInterpolationMode = isInterpolationMode;
+                //                AutoZoomExtents();
+                //            }
+                //        }
+                //        else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                //        {
+                //            LineMap lineMap = _LineMapList.FirstOrDefault(k => k.TupleValues == chartSeries);
+                //            if (lineMap == null)
+                //                return;
+                //            //lineMap.ClearDataSeries();
+                //            AutoZoomExtents();
+                //        }
+                //    }
+                //}
+            }
+        }
+
+        //Brush _NormalModeBrush = null;
+        private bool _IsPrintingMode = false;
+        /// <summary>
+        /// Switch to normal mode or print mode.
+        /// </summary>
+        public void SwitchNormalPrintingMode()
+        {
+            if (!_IsPrintingMode)
+            {
+                //this.ActualThemeVariant;
+                //if (_NormalModeBrush == null)
+                //    _NormalModeBrush = ((GridLinesPanel)GridLinesPanel).Background;
+                //((GridLinesPanel)GridLinesPanel).Background = Brushes.White;
+                //Background = Brushes.White;
+                //ThemeManager.SetTheme(this, "BrightSpark");
+                _IsPrintingMode = true;
+            }
+            else
+            {
+                //((GridLinesPanel)GridLinesPanel).Background = _NormalModeBrush;
+                //Background = _NormalModeBrush;
+                //ThemeManager.SetTheme(this, "");
+                _IsPrintingMode = false;
             }
         }
 
         /// <summary>
-        /// Represents the dependency property for BSOACComponent.
+        /// This method create bitmap source from chart.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBChartPlotter), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
-        /// <summary>
-        /// Gets or sets the BSOACComponent.
-        /// </summary>
-        public IACBSO BSOACComponent
+        /// <returns>Created bitmap source.</returns>
+        public Bitmap CreatePrintableBitmap()
         {
-            get { return (IACBSO)GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
+            return this.ToBitmap();
         }
 
-        /// <summary>Translated Label/Description of this instance (depends on the current logon)</summary>
-        /// <value>  Translated description</value>
-        [Category("VBControl")]
-        public string ACCaption
-        {
-            get;
-            set;
-        }
 
-        /// <summary>
-        /// A "content list" contains references to the most important data that this instance primarily works with. It is primarily used to control the interaction between users, visual objects, and the data model in a generic way. For example, drag-and-drop or context menu operations. A "content list" can also be null.
-        /// </summary>
-        /// <value> A nullable list ob IACObjects.</value>
-        public IEnumerable<IACObject> ACContentList
+        public void InterpolationParamsChangedInView(Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null)
         {
-            get
+            if (PropertyLogItems == null || DisplayAsArchive)
+                return;
+            foreach (VBPropertyLogChartItem propertylogitem in PropertyLogItems)
             {
-                return null;
+                PropertyLogListInfo listInfo = propertylogitem.GetLiveLogList();
+                if (listInfo != null)
+                    listInfo.SetInterpolationParams(interpolation, range, decay);
             }
         }
 
@@ -302,89 +875,6 @@ namespace gip.core.layoutengine.avui
         {
             return false;
         }
-        #endregion
-
-        #region Screenshots & copy to clipboard
-
-        public static readonly DependencyProperty InPrintingModeProperty
-            = DependencyProperty.Register("InPrintingMode", typeof(bool), typeof(VBChartPlotter));
-
-        [Category("VBControl")]
-        public bool InPrintingMode
-        {
-            get
-            {
-                return (bool)GetValue(InPrintingModeProperty);
-            }
-            set
-            {
-                SetValue(InPrintingModeProperty, value);
-            }
-        }
-
-        public override BitmapSource CreateScreenshot()
-        {
-            BitmapSource result = base.CreateScreenshot();
-            return result;
-        }
-
-        public virtual BitmapSource CreatePrintableBitmap()
-        {
-            UIElement parent = (UIElement)Parent;
-
-            Rect renderBounds = new Rect(RenderSize);
-
-            Point p1 = renderBounds.TopLeft;
-            Point p2 = renderBounds.BottomRight;
-
-            if (parent != null)
-            {
-                p1 = TranslatePoint(p1, parent);
-                p2 = TranslatePoint(p2, parent);
-            }
-
-            Int32Rect rect = new Rect(p1, p2).ToInt32Rect();
-
-            return ScreenshotHelper.CreatePrintableBitmap(this, rect, 300);
-        }
-
-        /// <summary>Saves screenshot to file.</summary>
-        /// <param name="filePath">File path.</param>
-        public override void SaveScreenshot(string filePath)
-        {
-            base.SaveScreenshot(filePath);
-        }
-
-        /// <summary>
-        /// Saves screenshot to stream.
-        /// </summary>
-        /// <param name="stream">The stream.</param>
-        /// <param name="fileExtension">The file type extension.</param>
-        public override void SaveScreenshotToStream(Stream stream, string fileExtension)
-        {
-            base.SaveScreenshotToStream(stream, fileExtension);
-        }
-
-        /// <summary>Copies the screenshot to clipboard.</summary>
-        public override void CopyScreenshotToClipboard()
-        {
-            base.CopyScreenshotToClipboard();
-        }
-
-        #endregion
-
-        #region IACObject
-        /// <summary>
-        /// Metadata (iPlus-Type) of this instance. ATTENTION: IACType are EF-Objects. Therefore the access to Navigation-Properties must be secured using the QueryLock_1X000 of the Global Database-Context!
-        /// </summary>
-        /// <value>  iPlus-Type (EF-Object from ACClass*-Tables)</value>
-        public IACType ACType
-        {
-            get
-            {
-                return this.ReflectACType();
-            }
-        }
 
         /// <summary>
         /// The ACUrlCommand is a universal method that can be used to query the existence of an instance via a string (ACUrl) to:
@@ -399,34 +889,13 @@ namespace gip.core.layoutengine.avui
         /// <returns>Result if a property was accessed or a method was invoked. Void-Methods returns null.</returns>
         public object ACUrlCommand(string acUrl, params object[] acParameter)
         {
-            return this.ReflectACUrlCommand(acUrl, acParameter);
+            return null;
         }
 
-        /// <summary>
-        /// Determines is ACUrlCommand is enabled or disabled.
-        /// </summary>
-        /// <param name="acUrl">The acUrl of command.</param>
-        /// <param name="acParameter">The command parameters.</param>
-        ///<returns>Returns true if is ACUrlCommand is enabled, otherwise false.</returns>
-        public bool IsEnabledACUrlCommand(string acUrl, params Object[] acParameter)
+        public bool IsEnabledACUrlCommand(string acUrl, params object[] acParameter)
         {
-            return this.ReflectIsEnabledACUrlCommand(acUrl, acParameter);
+            return false;
         }
-
-        /// <summary>
-        /// Returns the parent object
-        /// </summary>
-        /// <value>Reference to the parent object</value>
-        public IACObject ParentACObject
-        {
-            get
-            {
-                return Parent as IACObject;
-            }
-        }
-        #endregion
-
-        #region IACObject Member
 
         /// <summary>
         /// Returns a ACUrl relatively to the passed object.
@@ -437,13 +906,6 @@ namespace gip.core.layoutengine.avui
         public string GetACUrl(IACObject rootACObject = null)
         {
             return ACIdentifier;
-        }
-
-        /// <summary>Unique Identifier in a Parent-/Child-Relationship.</summary>
-        /// <value>The Unique Identifier as string</value>
-        public string ACIdentifier
-        {
-            get { return this.Name;  }
         }
 
         /// <summary>
@@ -464,459 +926,109 @@ namespace gip.core.layoutengine.avui
         {
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
-        #endregion
 
-        public static readonly DependencyProperty BindableChartItemsProperty
-            = DependencyProperty.Register("BindableChartItems", typeof(IEnumerable<IVBChartItem>), typeof(VBChartPlotter), new PropertyMetadata(new PropertyChangedCallback(BindableChartItems_Changed)));
+        //public AutoRange CanAutoExtendXAxis
+        //{
+        //    get
+        //    {
+        //        if (this.XAxis != null)
+        //            return this.XAxis.AutoRange;
+        //        else if (this.XAxes != null)
+        //        {
+        //            if (this.XAxes.Where(c => c.AutoRange == AutoRange.Always).Any())
+        //                return AutoRange.Always;
+        //            else if (this.XAxes.Where(c => c.AutoRange == AutoRange.Once).Any())
+        //                return this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
+        //        }
+        //        return AutoRange.Never;
+        //    }
+        //}
 
-        /// <summary>
-        /// PropertyLogs which shoud be displayed
-        /// DisplayMode must be set to PropertyLog
-        /// </summary>
-        [Category("VBControl")]
-        [Bindable(true)]
-        [ACPropertyInfo(9999)]
-        public IEnumerable<IVBChartItem> BindableChartItems
+        //public AutoRange CanAutoExtendYAxis
+        //{
+        //    get
+        //    {
+        //        if (this.YAxis != null)
+        //            return this.YAxis.AutoRange;
+        //        else if (this.YAxes != null)
+        //        {
+        //            if (this.YAxes.Where(c => c.AutoRange == AutoRange.Always).Any())
+        //                return AutoRange.Always;
+        //            else if (this.YAxes.Where(c => c.AutoRange == AutoRange.Once).Any())
+        //                return this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
+        //        }
+        //        return AutoRange.Never;
+        //    }
+        //}
+
+        protected void InitializeAutoRangeOfAxes()
         {
-            get
+            //if (this.XAxis != null)
+            //    InitializeAutoRangeOfAxis(this.XAxis);
+            if (this.XAxes != null)
             {
-                return (IEnumerable<IVBChartItem>)GetValue(BindableChartItemsProperty);
-            }
-            set
-            {
-                SetValue(BindableChartItemsProperty, value);
-            }
-        }
-
-        private static void BindableChartItems_Changed(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBChartPlotter)
-            {
-                VBChartPlotter vbChartPlotter = d as VBChartPlotter;
-                vbChartPlotter.RefreshPlotterWithBindableItems();
-            }
-        }
-
-        public static readonly DependencyProperty DisplayModeProperty
-            = DependencyProperty.Register("DisplayMode", typeof(VBChartItemDisplayMode), typeof(VBChartPlotter), new PropertyMetadata(VBChartItemDisplayMode.PropertyLog));
-
-        /// <summary>
-        /// Defines if PropertyLogItems or BindableChartSeries are used for displaying the chart
-        /// </summary>
-        [Category("VBControl")]
-        [Bindable(true)]
-        [ACPropertyInfo(9999)]
-        public VBChartItemDisplayMode DisplayMode
-        {
-            get { return (VBChartItemDisplayMode)GetValue(DisplayModeProperty); }
-            set { SetValue(DisplayModeProperty, value); }
-        }
-
-
-
-        [Category("VBControl")]
-        public string VBShowColumns
-        {
-            get
-            {
-                return _DataShowColumns;
-            }
-            set
-            {
-                _DataShowColumns = value;
-            }
-        }
-
-        private ObservableCollection<IVBChartItem> _PropertyLogItems;
-        public ObservableCollection<IVBChartItem> PropertyLogItems
-        {
-            get
-            {
-                return _PropertyLogItems;
-            }
-            set
-            {
-                _PropertyLogItems = value;
-            }
-        }
-
-        //private bool _InternalCollectionLock = false;
-        private Nullable<bool> _DisplayAsArchive;
-        public bool DisplayAsArchive
-        {
-            get
-            {
-                if (_DisplayAsArchive.HasValue)
-                    return _DisplayAsArchive.Value;
-                return false;
-            }
-            set
-            {
-                if (_DisplayAsArchive.HasValue)
-                    return;
-                _DisplayAsArchive = value;
-            }
-        }
-
-        private void RefreshPlotterWithStaticItems()
-        {
-            // Sonst Nutzung des Controls per XAML-Deklaration
-            if ((PropertyLogItems.Count > 0) || !String.IsNullOrEmpty(VBShowColumns))
-            {
-                RemoveUserLineGraphElements();
-                // Seal Property
-                if (!_DisplayAsArchive.HasValue)
-                    DisplayAsArchive = false;
-
-                if (PropertyLogItems.Count > 0)
+                foreach (Axis axis in this.XAxes)
                 {
-                    foreach (VBChartItem chartItem in PropertyLogItems)
-                    {
-                        chartItem.SetVBBindings(this.DataContext, this.BSOACComponent);
-                        chartItem.InitVBControl(ContextACObject);
-                        try
-                        {
-                            if (BSOACComponent != null)
-                                BSOACComponent.AddWPFRef(chartItem.GetHashCode(), chartItem.ACProperty);
-                        }
-                        catch (Exception exw)
-                        {
-                            this.Root().Messages.LogDebug("VBCharPlotter", "RemoveWPFRef", exw.Message);
-                        }
-                    }
-                }
-                else
-                {
-                    //_InternalCollectionLock = true;
-                    string[] acURLs = VBShowColumns.Split(',');
-                    foreach (string acURL in acURLs)
-                    {
-                        VBChartItem logChartItem = DisplayMode == VBChartItemDisplayMode.PropertyLog ? new VBPropertyLogChartItem() : new VBChartItem();
-                        logChartItem.VBContent = acURL;
-                        logChartItem.SetVBBindings(this.DataContext, this.BSOACComponent);
-                        logChartItem.InitVBControl(ContextACObject);
-                        PropertyLogItems.Add(logChartItem);
-                    }
-                    //_InternalCollectionLock = false;
-                }
-
-                if (!DisplayAsArchive)
-                {
-                    foreach (IVBChartItem chartItem in PropertyLogItems)
-                    {
-                        if (chartItem is IPropertyLogChartItem && chartItem.ACProperty != null && chartItem.ACProperty.LiveLog != null)
-                            chartItem.ACProperty.LiveLog.PropertyChanged += LiveLog_PropertyChanged;
-                    }
-                }
-
-                PlotLogs(PropertyLogItems);
-                if (_VBPropertyLogChart != null)
-                    _VBPropertyLogChart.RefreshLiveConsole();
-            }
-        }
-
-        private void RefreshPlotterWithBindableItems()
-        {
-            foreach (IVBChartItem chartItem in PropertyLogItems)
-            {
-                if (BSOACComponent != null)
-                    BSOACComponent.RemoveWPFRef(chartItem.GetHashCode());
-                IPropertyLogChartItem logChartItem = chartItem as IPropertyLogChartItem;
-                if (logChartItem != null && !DisplayAsArchive)
-                {
-                    if ((chartItem.ACProperty != null) && (chartItem.ACProperty.LiveLog != null))
-                        chartItem.ACProperty.LiveLog.PropertyChanged -= LiveLog_PropertyChanged;
+                    InitializeAutoRangeOfAxis(axis);
                 }
             }
 
-            this.RemoveUserLineGraphElements();
-
-            int countLogs = BindableChartItems.Count();
-            if (countLogs <= 0)
-                return;
-            //_InternalCollectionLock = true;
-            foreach (IVBChartItem chartItem in BindableChartItems)
+            //if (this.YAxis != null)
+            //    InitializeAutoRangeOfAxis(this.YAxis);
+            if (this.YAxes != null)
             {
-                chartItem.InitVBControl(ContextACObject);
-                try
+                foreach (Axis axis in this.YAxes)
                 {
-                    if (BSOACComponent != null)
-                        BSOACComponent.AddWPFRef(chartItem.GetHashCode(), chartItem.ACProperty);
-                    PropertyLogItems.Add(chartItem);
-                    IPropertyLogChartItem logChartItem = chartItem as IPropertyLogChartItem;
-                    if (logChartItem != null && !DisplayAsArchive)
-                    {
-                        if (chartItem.ACProperty != null && chartItem.ACProperty.LiveLog != null)
-                            chartItem.ACProperty.LiveLog.PropertyChanged += new PropertyChangedEventHandler(LiveLog_PropertyChanged);
-                    }
-                }
-                catch (Exception exw)
-                {
-                    this.Root().Messages.LogDebug("VBCharPlotter", "RemoveWPFRef", exw.Message);
+                    InitializeAutoRangeOfAxis(axis);
                 }
             }
-            //_InternalCollectionLock = false;
-            PlotLogs(PropertyLogItems);
         }
 
-        private void PlotLogs(IEnumerable<IVBChartItem> chartItems)
+        protected void InitializeAutoRangeOfAxis(Axis axis)
         {
-            if (chartItems == null)
-                return;
-
-            try
-            {
-                if (chartItems.Where(c => c is IPropertyLogChartItem).Any() && !(this.HorizontalAxis is HorizontalDateTimeAxis))
-                {
-                    HorizontalDateTimeAxis horizontalDTAxis = new HorizontalDateTimeAxis();
-                    horizontalDTAxis.Name = "XAxis";
-                    this.HorizontalAxis = horizontalDTAxis;
-                }
-
-                // TODO: Start/Stop: Logging Live-Wert
-                int countLogs = chartItems.Count();
-                if (countLogs <= 0)
-                    return;
-                foreach (IVBChartItem chartItem in chartItems)
-                {
-                    if (chartItem.ACProperty == null)
-                        continue;
-
-                    IPropertyLogChartItem logChartItem = chartItem as IPropertyLogChartItem;
-                    if (logChartItem != null)
-                    {
-                        PropertyLogListInfo logListInfo = logChartItem.GetLiveLogList();
-                        IEnumerable<PropertyLogItem> propertyLog = logListInfo.PropertyLogList;
-
-                        if (propertyLog == null)
-                            continue;
-                        EnumerableDataSource<PropertyLogItem> ds = CreateChartDataSource(propertyLog);
-                        this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
-                    }
-                    else
-                    {
-                        IEnumerable<IVBChartTuple> chartSeries = chartItem.DataSeries;
-                        if (chartSeries != null)
-                        {
-                            EnumerableDataSource<IVBChartTuple> ds = CreateChartDataSource(chartSeries, chartItem.DisplayMode);
-                            this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
-                        }
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                this.Root().Messages.LogException("VBChartPlotter", "PlotLogs", ex);
-            }
+            //axis.MaximumRange = double.NaN;
+            //axis.MinimumRange = double.NaN;
+            //AxisBase axisBase = axis as AxisBase;
+            //if (axisBase != null)
+            //{
+            //    ValueSource valueSource = DependencyPropertyHelper.GetValueSource(axisBase, AxisBase.AutoRangeProperty);
+            //    if ((valueSource.BaseValueSource != BaseValueSource.Local) && (valueSource.BaseValueSource != BaseValueSource.Style))
+            //    {
+            //        axis.AutoRange = AutoRange.Always; // this.DisplayAsArchive ? AutoRange.Once : AutoRange.Always;
+            //    }
+            //}
         }
 
-        private void PlotLogs(IEnumerable<IVBChartItem> chartItems, DateTime from, DateTime to, Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null)
+        //private int _CountAutoExtents = 0;
+        public void AutoZoomExtents(bool forceRedraw = false)
         {
-            if (chartItems == null)
-                return;
+            this.UpdateModel();
+            //AutoRange autoExtendXAxis = CanAutoExtendXAxis;
+            //AutoRange autoExtendYAxis = CanAutoExtendYAxis;
 
-            _Initialized = true;
+            //bool extendX = autoExtendXAxis == AutoRange.Always || autoExtendXAxis == AutoRange.Once && _CountAutoExtents == 0;
+            //bool extendY = autoExtendYAxis == AutoRange.Always || autoExtendYAxis == AutoRange.Once && _CountAutoExtents == 0;
 
-            // TODO: Start/Stop: Logging Live-Wert
-            int countLogs = chartItems.Count();
-            if (countLogs <= 0)
-                return;
-
-            if (chartItems.Where(c => c is IPropertyLogChartItem).Any() && !(this.HorizontalAxis is HorizontalDateTimeAxis))
-            {
-                HorizontalDateTimeAxis horizontalDTAxis = new HorizontalDateTimeAxis();
-                horizontalDTAxis.Name = "XAxis";
-                this.HorizontalAxis = horizontalDTAxis;
-            }
-
-            foreach (IVBChartItem chartItem in chartItems)
-            {
-                VBPropertyLogChartItem propertylogitem = chartItem as VBPropertyLogChartItem;
-                if (propertylogitem == null)
-                    continue;
-                if (propertylogitem != null)
-                {
-                    propertylogitem.SetVBBindings(this.DataContext, this.BSOACComponent);
-                }
-                chartItem.InitVBControl(ContextACObject);
-
-                if (chartItem.ACProperty == null)
-                    continue;
-                PropertyLogListInfo logListInfo = null;
-                // ArchiveLog
-                if (DisplayAsArchive)
-                    logListInfo = propertylogitem.GetArchiveLogList(from, to);
-                // LiveLog
-                else
-                    logListInfo = propertylogitem.GetLiveLogList();
-                if (logListInfo == null)
-                    continue;
-                if (interpolation != Global.InterpolationMethod.None && logListInfo != null)
-                {
-                    logListInfo.SetInterpolationParams(interpolation, range, decay);
-                    logListInfo.Interpolate();
-                }
-                IEnumerable<PropertyLogItem> propertyLog = logListInfo.PropertyLogList;
-                if (propertyLog == null)
-                    continue;
-                EnumerableDataSource<PropertyLogItem> ds = CreateChartDataSource(propertyLog);
-                if (ds == null)
-                    continue;
-                this.AddLineGraph(ds, chartItem.GetLineColor(), chartItem.LineThickness, chartItem.ACCaption);
-            }
+            //if ((extendX && extendY) || forceRedraw)
+            //{
+            //    ZoomExtents();
+            //    _CountAutoExtents++;
+            //}
+            //else if (extendX)
+            //{
+            //    ZoomExtentsX();
+            //    _CountAutoExtents++;
+            //}
+            //else if (extendY)
+            //{
+            //    ZoomExtentsY();
+            //    _CountAutoExtents++;
+            //}
         }
 
-        /// <summary>
-        /// Initialize and fill chart when is in archive mode.
-        /// </summary>
-        /// <param name="from">Show archive from date.</param>
-        /// <param name="to">Show archive to date.</param>
-        /// <param name="interpolation">The interpolation method.</param>
-        /// <param name="range">The range parameter.</param>
-        /// <param name="decay">The decay parameter.</param>
-        public void InitializeChartArchive(DateTime from, DateTime to, Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null)
+        Bitmap IVBChart.CreatePrintableBitmap()
         {
-            RemoveUserLineGraphElements();
-            PlotLogs(PropertyLogItems, from, to, interpolation, range, decay);
-        }
-
-        private EnumerableDataSource<PropertyLogItem> CreateChartDataSource(IEnumerable<PropertyLogItem> propertyLog)
-        {
-            if (propertyLog == null)
-                return null;
-            var ds = new EnumerableDataSource<PropertyLogItem>(propertyLog);
-            if (HorizontalAxis == null || HorizontalAxis is HorizontalAxis)
-                return null;
-            ds.SetXMapping(pi => ((HorizontalDateTimeAxis)HorizontalAxis).ConvertToDouble(pi.Time));
-            ds.SetYMapping(pi => Convert.ToDouble(pi.Value));
-            return ds;
-        }
-
-        private EnumerableDataSource<IVBChartTuple> CreateChartDataSource(IEnumerable<IVBChartTuple> chartSeries, VBChartItemDisplayMode displayMode)
-        {
-            if (chartSeries == null)
-                return null;
-            var ds = new EnumerableDataSource<IVBChartTuple>(chartSeries);
-            if (DisplayMode == VBChartItemDisplayMode.MapTupleValue2ToX)
-            {
-                ds.SetXMapping(pi => Convert.ToDouble(pi.Value2));
-                ds.SetYMapping(pi => Convert.ToDouble(pi.Value1));
-            }
-            else
-            {
-                ds.SetXMapping(pi => Convert.ToDouble(pi.Value1));
-                ds.SetYMapping(pi => Convert.ToDouble(pi.Value2));
-            }
-            return ds;
-        }
-
-        void LiveLog_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            if (e.PropertyName == "LogState")
-                if (_VBPropertyLogChart != null)
-                    _VBPropertyLogChart.RefreshLiveConsole();
-        }
-
-        /// <summary>
-        /// Switch chart to normal mode or to printing mode.
-        /// </summary>
-        public void SwitchNormalPrintingMode()
-        {
-            InPrintingMode = !InPrintingMode;
-        }
-
-        #region IVBContent members
-        IACType _VBContentPropertyInfo = null;
-        /// <summary>
-        /// Gets the ACClassProperty which describes a bounded property by VBContent.
-        /// </summary>
-        public ACClassProperty VBContentPropertyInfo
-        {
-            get { return _VBContentPropertyInfo as ACClassProperty; }
-        }
-
-        /// <summary>
-        /// Gets or sets the right control mode.
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Liest oder setzt den richtigen Kontrollmodus.
-        /// </summary>
-        public Global.ControlModes RightControlMode
-        {
-            get;
-            set;
-        }
-
-        /// <summary>
-        /// Disables the control. XAML sample: DisabledModes="Disabled"
-        /// </summary>
-        /// <summary xml:lang="de">
-        /// Deaktiviert die Steuerung. XAML-Probe: DisabledModes="Disabled"
-        /// </summary>
-        [Category("VBControl")]
-        public string DisabledModes
-        {
-            get;
-            set;
-        }
-        #endregion
-
-        #region IVBSource members
-
-        public string VBSource
-        {
-            get
-            {
-                return _DataSource;
-            }
-            set
-            {
-                _DataSource = value;
-            }
-        }
-
-        public string VBDisabledColumns
-        {
-            get;
-            set;
-        }
-
-        public string VBChilds
-        {
-            get
-            {
-                return _DataChilds;
-            }
-            set
-            {
-                _DataChilds = value;
-            }
-        }
-
-        public ACQueryDefinition ACQueryDefinition
-        {
-            get;
-            set;
-        }
-
-        #endregion
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="interpolation"></param>
-        /// <param name="range"></param>
-        /// <param name="decay"></param>
-        public void InterpolationParamsChangedInView(Global.InterpolationMethod interpolation = Global.InterpolationMethod.None, int? range = null, double? decay = null)
-        {
-            if (PropertyLogItems == null || DisplayAsArchive)
-                return;
-            foreach (VBPropertyLogChartItem propertylogitem in PropertyLogItems)
-            {
-                PropertyLogListInfo listInfo = propertylogitem.GetLiveLogList();
-                if (listInfo != null)
-                    listInfo.SetInterpolationParams(interpolation, range, decay);
-            }
+            throw new NotImplementedException();
         }
     }
 }

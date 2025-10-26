@@ -176,7 +176,7 @@ namespace gip.core.layoutengine.avui
             InitDesignContentOfTabItem(container, vbTabItem, true);
         }
 
-        void container_VBDesignLoaded(object sender, RoutedEventArgs e)
+        void container_VBDesignLoaded(object sender, EventArgs e)
         {
             if (sender is VBDockingContainerBase)
             {

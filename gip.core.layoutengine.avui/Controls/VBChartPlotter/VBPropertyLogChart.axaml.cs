@@ -2,27 +2,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Xml.Linq;
 using System.ComponentModel;
-using System.Windows.Markup;
-using gip.ext.chart.avui;
-using gip.ext.chart.avui.DataSources;
 using System.IO;
-using System.Windows.Xps;
-using System.Windows.Xps.Packaging;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
 using System.Collections.ObjectModel;
 using System.Transactions;
+using Avalonia.Interactivity;
+using Avalonia.Controls;
+using Avalonia.Data;
+using Avalonia;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui
 {
@@ -50,12 +41,11 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
             Loaded += VBPropertyLogChart_Loaded;
             Unloaded += VBPropertyLogChart_Unloaded;
-            base.OnInitialized(e);
+            base.OnInitialized();
         }
 
         /// <summary>
@@ -71,19 +61,18 @@ namespace gip.core.layoutengine.avui
             {
                 Binding binding = new Binding();
                 binding.Source = BSOACComponent;
-                binding.Path = new PropertyPath(Const.InitState);
+                binding.Path = Const.InitState;
                 binding.Mode = BindingMode.OneWay;
-                SetBinding(VBPropertyLogChart.ACCompInitStateProperty, binding);
+                Bind(VBPropertyLogChart.ACCompInitStateProperty, binding);
             }
 
             if (SmoothingOn != null)
             {
-                SmoothingOn.DisplayMemberPath = "ACCaption";
-
+                SmoothingOn.DisplayMemberBinding = new Binding("ACCaption");
                 Binding binding = new Binding();
                 binding.Source = Global.InterpolationMethodList;
                 binding.Mode = BindingMode.OneWay;
-                SmoothingOn.SetBinding(VBComboBox.ItemsSourceProperty, binding);
+                SmoothingOn.Bind(VBComboBox.ItemsSourceProperty, binding);
 
             }
 
@@ -118,8 +107,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ChartControl.
         /// </summary>
-        public static readonly DependencyProperty ChartControlProperty = DependencyProperty.Register("ChartControl", typeof(IVBChart), typeof(VBPropertyLogChart));
-
+        public static readonly StyledProperty<IVBChart> ChartControlProperty = AvaloniaProperty.Register<VBPropertyLogChart, IVBChart>(nameof(ChartControl));
         /// <summary>
         /// Gets or sets the ChartControl.
         /// </summary>
@@ -153,8 +141,6 @@ namespace gip.core.layoutengine.avui
 
             if (ChartControl != null)
                 ChartControl.DeInitVBControl(bso);
-
-            BindingOperations.ClearBinding(this, VBPropertyLogChart.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 
@@ -171,10 +157,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly DependencyProperty ACCompInitStateProperty =
-            DependencyProperty.Register("ACCompInitState",
-                typeof(ACInitState), typeof(VBPropertyLogChart),
-                new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBPropertyLogChart, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
@@ -185,21 +168,19 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject,
-               DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBPropertyLogChart thisControl = dependencyObject as VBPropertyLogChart;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACCompInitStateProperty)
-                thisControl.InitStateChanged();
-            else if (args.Property == BSOACComponentProperty)
+            base.OnPropertyChanged(change);
+
+            if (change.Property == ACCompInitStateProperty)
+                InitStateChanged();
+            else if (change.Property == BSOACComponentProperty)
             {
-                if (args.NewValue == null && args.OldValue != null)
+                if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = args.OldValue as IACBSO;
-                    if (bso != null && thisControl != null)
-                        thisControl.DeInitVBControl(bso);
+                    IACBSO bso = change.OldValue as IACBSO;
+                    if (bso != null)
+                        DeInitVBControl(bso);
                 }
             }
         }
@@ -210,8 +191,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for VBContent.
         /// </summary>
-        public static readonly DependencyProperty VBContentProperty
-            = DependencyProperty.Register("VBContent", typeof(string), typeof(VBPropertyLogChart));
+        public static readonly StyledProperty<string> VBContentProperty = AvaloniaProperty.Register<VBPropertyLogChart, string>(nameof(VBContent));
 
         /// <summary>By setting a ACUrl in XAML, the Control resolves it by calling the IACObject.ACUrlBinding()-Method. 
         /// The ACUrlBinding()-Method returns a Source and a Path which the Control use to create a WPF-Binding to bind the right value and set the WPF-DataContext.
@@ -358,7 +338,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly DependencyProperty BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner(typeof(VBPropertyLogChart), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits, new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBPropertyLogChart>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>
@@ -544,91 +524,91 @@ namespace gip.core.layoutengine.avui
             ChartControl.SwitchNormalPrintingMode();
         }
 
-        private XpsDocument _CurrentXpsDoc;
+        //private XpsDocument _CurrentXpsDoc;
         private void ucButtonPrint_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                BitmapSource bitmapSource = ChartControl.CreatePrintableBitmap();
-                FixedDocumentSequence _fSeq = new FixedDocumentSequence();
-                FixedDocument fDoc = new FixedDocument();
+            //try
+            //{
+            //    BitmapSource bitmapSource = ChartControl.CreatePrintableBitmap();
+            //    FixedDocumentSequence _fSeq = new FixedDocumentSequence();
+            //    FixedDocument fDoc = new FixedDocument();
 
-                DocumentReference docRef = new DocumentReference();
-                docRef.SetDocument(fDoc);
-                _fSeq.References.Add(docRef);
+            //    DocumentReference docRef = new DocumentReference();
+            //    docRef.SetDocument(fDoc);
+            //    _fSeq.References.Add(docRef);
 
-                FixedPage fPage = new FixedPage();
-                // Für A4, Querformat
-                fPage.Width = 11.69 * 96;
-                fPage.Height = 8.27 * 96;
+            //    FixedPage fPage = new FixedPage();
+            //    // Für A4, Querformat
+            //    fPage.Width = 11.69 * 96;
+            //    fPage.Height = 8.27 * 96;
 
-                Grid grid = new Grid();
-                grid.RowDefinitions.Add(new RowDefinition());
-                grid.RowDefinitions.Add(new RowDefinition());
-                fPage.Children.Add(grid);
+            //    Grid grid = new Grid();
+            //    grid.RowDefinitions.Add(new RowDefinition());
+            //    grid.RowDefinitions.Add(new RowDefinition());
+            //    fPage.Children.Add(grid);
 
-                TextBlock txt = new TextBlock();
-                txt.Text = ContextACObject.ACCaption;
-                if (WorkChartItems != null)
-                {
-                    if (WorkChartItems.Any())
-                    {
-                        IPropertyLogChartItem item = WorkChartItems.First();
-                        if ((item.ACProperty != null) && (item.ACProperty.ParentACComponent != null))
-                            txt.Text = WorkChartItems.First().ACProperty.ParentACComponent.ACCaption;
-                    }
-                }
-                txt.SetValue(Grid.RowProperty, 0);
-                txt.FontSize = 20;
-                grid.Children.Add(txt);
+            //    TextBlock txt = new TextBlock();
+            //    txt.Text = ContextACObject.ACCaption;
+            //    if (WorkChartItems != null)
+            //    {
+            //        if (WorkChartItems.Any())
+            //        {
+            //            IPropertyLogChartItem item = WorkChartItems.First();
+            //            if ((item.ACProperty != null) && (item.ACProperty.ParentACComponent != null))
+            //                txt.Text = WorkChartItems.First().ACProperty.ParentACComponent.ACCaption;
+            //        }
+            //    }
+            //    txt.SetValue(Grid.RowProperty, 0);
+            //    txt.FontSize = 20;
+            //    grid.Children.Add(txt);
 
-                Image img = new Image();
-                img.Source = bitmapSource;
-                img.SetValue(Grid.RowProperty, 1);
-                double scaleF = 0;
-                double scaleFWidth = fPage.Width / bitmapSource.Width;
-                double scaleFHeight = fPage.Height / bitmapSource.Height;
-                if (scaleFWidth > scaleFHeight)
-                    scaleF = scaleFHeight;
-                else
-                    scaleF = scaleFWidth;
-                img.Width = bitmapSource.Width * scaleF;
-                img.Height = bitmapSource.Height * scaleF;
-                img.Stretch = Stretch.Fill;
-                grid.Children.Add(img);
+            //    Image img = new Image();
+            //    img.Source = bitmapSource;
+            //    img.SetValue(Grid.RowProperty, 1);
+            //    double scaleF = 0;
+            //    double scaleFWidth = fPage.Width / bitmapSource.Width;
+            //    double scaleFHeight = fPage.Height / bitmapSource.Height;
+            //    if (scaleFWidth > scaleFHeight)
+            //        scaleF = scaleFHeight;
+            //    else
+            //        scaleF = scaleFWidth;
+            //    img.Width = bitmapSource.Width * scaleF;
+            //    img.Height = bitmapSource.Height * scaleF;
+            //    img.Stretch = Stretch.Fill;
+            //    grid.Children.Add(img);
 
-                PageContent pageContent = new PageContent();
-                ((IAddChild)pageContent).AddChild(fPage);
+            //    PageContent pageContent = new PageContent();
+            //    ((IAddChild)pageContent).AddChild(fPage);
 
-                fDoc.Pages.Add(pageContent);
+            //    fDoc.Pages.Add(pageContent);
 
-                string fileName = "chart.xps";
-                if (File.Exists(fileName))
-                    File.Delete(fileName);
+            //    string fileName = "chart.xps";
+            //    if (File.Exists(fileName))
+            //        File.Delete(fileName);
 
-                _CurrentXpsDoc = new XpsDocument(fileName, FileAccess.ReadWrite);
-                XpsDocumentWriter writer = XpsDocument.CreateXpsDocumentWriter(_CurrentXpsDoc);
-                writer.Write(_fSeq);
+            //    _CurrentXpsDoc = new XpsDocument(fileName, FileAccess.ReadWrite);
+            //    XpsDocumentWriter writer = XpsDocument.CreateXpsDocumentWriter(_CurrentXpsDoc);
+            //    writer.Write(_fSeq);
 
-                VBWindowDialog vbDialog = new VBWindowDialog(this);
-                vbDialog.Content = new DocumentViewer();
-                vbDialog.Loaded += new RoutedEventHandler(vbDialog_Loaded);
-                vbDialog.Show();
-                vbDialog.Loaded -= vbDialog_Loaded;
-                _CurrentXpsDoc.Close();
-            }
-            catch (Exception ex)
-            {
-                this.Root().Messages.LogDebug("Message00002", "", ex.Message);
-            }
+            //    VBWindowDialog vbDialog = new VBWindowDialog(this);
+            //    vbDialog.Content = new DocumentViewer();
+            //    vbDialog.Loaded += new RoutedEventHandler(vbDialog_Loaded);
+            //    vbDialog.Show();
+            //    vbDialog.Loaded -= vbDialog_Loaded;
+            //    _CurrentXpsDoc.Close();
+            //}
+            //catch (Exception ex)
+            //{
+            //    this.Root().Messages.LogDebug("Message00002", "", ex.Message);
+            //}
         }
 
         void vbDialog_Loaded(object sender, RoutedEventArgs e)
         {
-            if (sender is VBWindowDialog)
-            {
-                ((sender as VBWindowDialog).Content as DocumentViewer).Document = _CurrentXpsDoc.GetFixedDocumentSequence();
-            }
+            //if (sender is VBWindowDialog)
+            //{
+            //    ((sender as VBWindowDialog).Content as DocumentViewer).Document = _CurrentXpsDoc.GetFixedDocumentSequence();
+            //}
         }
 
         private bool _CurrentLogStateInit = true;
@@ -639,7 +619,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public void RefreshLiveConsole()
         {
-            if (ucLiveConsole.Visibility == System.Windows.Visibility.Collapsed || WorkChartItems == null)
+            if (!ucLiveConsole.IsVisible || WorkChartItems == null)
                 return;
             PropertyLogListInfo.PropertyLogState logState = PropertyLogListInfo.PropertyLogState.Stopped;
             if (WorkChartItems.Any())
@@ -827,12 +807,12 @@ namespace gip.core.layoutengine.avui
             InterpolationChanged();
         }
 
-        private void SmoothingRange_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SmoothingRange_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             InterpolationChanged();
         }
 
-        private void SmootingDecay_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        private void SmootingDecay_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             InterpolationChanged();
         }

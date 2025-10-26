@@ -6,7 +6,7 @@
         <Setter Property="Template">
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
-                    <Canvas xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" x:Name="Ebene_1_59" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
+                    <Canvas x:Name="Ebene_1_59" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path x:Name="Path_60" Width="19" Height="21" Canvas.Left="0.499992" Canvas.Top="0.249998" Stretch="Fill" StrokeLineJoin="Round" 
                               Stroke="#FFB2B2B2" 
                               Data="F1 M 5.90909,0.749998L 19,0.749998L 19,20.75L 0.999996,20.75L 0.999992,5.36538L 5.90909,0.749998 Z ">

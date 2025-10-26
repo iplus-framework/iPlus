@@ -2,26 +2,7 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
-    xmlns:ddd="clr-namespace:gip.ext.chart.avui;assembly=gip.ext.chart.avui"
-    xmlns:ddd1="clr-namespace:gip.ext.chart.avui.Common;assembly=gip.ext.chart.avui"
-    xmlns:ddd2="clr-namespace:gip.ext.chart.avui.Charts;assembly=gip.ext.chart.avui"
-     Background="Transparent" x:Name="ucChart">
-    <UserControl.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Themes/RibbonBarStyleAero.xaml" />
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/TimeTo.xaml" />
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/TimeFrom.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Pause.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Stop.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Play.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Preview.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/Print.xaml"/>
-                <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBRibbon/Icons/LoadRefresh.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </UserControl.Resources>
+    Background="Transparent" x:Name="ucChart">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -50,13 +31,13 @@
                 <ColumnDefinition Width="90"/>
             </local:VBGrid.ColumnDefinitions>
             <local:VBButton Grid.Column="1" x:Name="ucButtonPlay" Click="ucButtonPlay_Click" >
-                <ContentControl Style="{StaticResource IconPlayStyleGip}"/>
+                <ContentControl Style="{StaticResource IconPlayStyle}"/>
             </local:VBButton>
             <local:VBButton Grid.Column="3" x:Name="ucButtonPause" Click="ucButtonPause_Click" >
-                <ContentControl Style="{StaticResource IconPauseStyleGip}"/>
+                <ContentControl Style="{StaticResource IconPauseStyle}"/>
             </local:VBButton>
             <local:VBButton Grid.Column="5" x:Name="ucButtonStop" Click="ucButtonStop_Click" >
-                <ContentControl Style="{StaticResource IconStopStyleGip}"/>
+                <ContentControl Style="{StaticResource IconStopStyle}"/>
             </local:VBButton>
         </local:VBGrid>
 
@@ -77,25 +58,15 @@
             </local:VBGrid.ColumnDefinitions>
 
             <local:VBContentControlIcon local:VBGrid.Column="1">
-                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeFromStyleGip}"/>
+                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeFromStyle}"/>
             </local:VBContentControlIcon>
             <local:VBDateTimePicker local:VBGrid.Column="2" Visibility="Visible" Margin="0,0,10,0" x:Name="ucDatepickerFrom" ShowCaption="False"></local:VBDateTimePicker>
             <local:VBContentControlIcon local:VBGrid.Column="3">
-                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeToStyleGip}"/>
+                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeToStyle}"/>
             </local:VBContentControlIcon>
             <local:VBDateTimePicker local:VBGrid.Column="4" Visibility="Visible" Margin="0,0,10,0" x:Name="ucDatepickerTo" ShowCaption="False"></local:VBDateTimePicker>
-            <!--<StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="7">
-                <local:VBComboBox x:Name="SmoothingOn" MinWidth="100" MaxWidth="300" ShowCaption="False" />
-                <local:VBTextBlock Text="Range" ACIdentifier="Range" ACCaption="en{'Range'}de{'Bereich'}" VerticalAlignment="Center" Margin="20,0,0,0"/>
-                <local:VBSlider x:Name="SmoothingRange" Maximum="10" Minimum="1" Value="5" Width="100" Ticks="1,2,3,4,5,6,7,8,9,10" Margin="5,0,0,0" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                <local:VBTextBlock Text="{Binding ElementName=SmoothingRange, Path=Value}" Width="20" VerticalAlignment="Center" Margin="5,0,0,0" />
-
-                <local:VBTextBlock Text="Decay" ACIdentifier="Decay" ACCaption="en{'Decay'}de{'Dämpfung'}"  VerticalAlignment="Center" Margin="10,0,0,0"/>
-                <local:VBSlider x:Name="SmootingDecay" Maximum="1.0" Minimum="0.1" Value="0.8" Width="100" Ticks="0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0" Margin="5,0,0,0" TickPlacement="BottomRight" IsSnapToTickEnabled="True"/>
-                <local:VBTextBlock Text="{Binding ElementName=SmootingDecay, Path=Value}" Width="20" VerticalAlignment="Center" Margin="5,0,0,0" />
-            </StackPanel>-->
             <local:VBButton x:Name="ucButtonLoadArchive" Grid.Column="5" Click="ucButtonLoadArchive_Click" >
-                <ContentControl Style="{StaticResource IconLoadRefreshStyleGip}"/>
+                <ContentControl Style="{StaticResource IconLoadRefreshStyle}"/>
             </local:VBButton>
         </local:VBGrid>
 
@@ -140,10 +111,10 @@
             </local:VBGrid.RowDefinitions>
 
             <local:VBButton x:Name="ucButtonPrintMode" Grid.Column="1" Click="ucButtonPrintMode_Click" >
-                <ContentControl Style="{StaticResource IconPreviewStyleGip}"/>
+                <ContentControl Style="{StaticResource IconPreviewStyle}"/>
             </local:VBButton>
             <local:VBButton x:Name="ucButtonPrint" Grid.Column="3" Click="ucButtonPrint_Click" >
-                <ContentControl Style="{StaticResource IconPrintStyleGip}"/>
+                <ContentControl Style="{StaticResource IconPrintStyle}"/>
             </local:VBButton>
         </local:VBGrid>
     </Grid>

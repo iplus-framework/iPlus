@@ -26,7 +26,6 @@ namespace gip.core.layoutengine.avui.timeline
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -46,7 +45,6 @@ namespace gip.core.layoutengine.avui.timeline
 
         bool _IsInitialized = false;
 
-        StackPanel _ToolTipStatus;
         ContentControl contentControl;
 
         public virtual void InitVBControl()

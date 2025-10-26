@@ -34,7 +34,6 @@ namespace gip.core.layoutengine.avui
         public event EventHandler OnInitVBControlFinished;
 
         #region c'tors
-        bool _themeApplied = false;
         public VBDockingManager() : base()
         {
         }
@@ -1146,8 +1145,6 @@ namespace gip.core.layoutengine.avui
         double _lengthAnimation = 0;
 
         VBDockingPanelToolWindowOverlay _tempPanelAnimation;
-
-        DoubleTransition _animation;
 
         void ShowOverlayPanel(double length, bool left_right)
         {

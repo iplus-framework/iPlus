@@ -51,7 +51,7 @@ namespace gip.core.layoutengine.avui
             if (_isInitialized)
                 return;
 
-            if (!string.IsNullOrEmpty(ACaption))
+            if (!string.IsNullOrEmpty(ACCaption))
                 this.Content = Translator.GetTranslation(null, ACCaption, this.Root().Environment.VBLanguageCode);
 
             UpdatePushButtonClass();
@@ -103,22 +103,13 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for PushButtonStyle.
         /// </summary>
-        public static readonly StyledProperty<bool> PushButtonStyleProperty
-            = AvaloniaProperty.Register<VBRadioButton, bool>(nameof(PushButtonStyle), false, false, false, OnPushButtonStyleChanged);
+        public static readonly StyledProperty<bool> PushButtonStyleProperty = AvaloniaProperty.Register<VBRadioButton, bool>(nameof(PushButtonStyle));
 
         [Category("VBControl")]
         public bool PushButtonStyle
         {
             get { return GetValue(PushButtonStyleProperty); }
             set { SetValue(PushButtonStyleProperty, value); }
-        }
-
-        private static void OnPushButtonStyleChanged(AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.Sender is VBRadioButton radioButton)
-            {
-                radioButton.UpdatePushButtonClass();
-            }
         }
 
         private void UpdatePushButtonClass()
@@ -138,8 +129,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for IsMouseOverParent.
         /// </summary>
-        public static readonly StyledProperty<bool> IsMouseOverParentProperty
-            = AvaloniaProperty.Register<VBRadioButton, bool>(nameof(IsMouseOverParent), false, false, false, OnIsMouseOverParentChanged);
+        public static readonly StyledProperty<bool> IsMouseOverParentProperty = AvaloniaProperty.Register<VBRadioButton, bool>(nameof(IsMouseOverParent));
 
         public bool IsMouseOverParent
         {
@@ -147,13 +137,6 @@ namespace gip.core.layoutengine.avui
             set { SetValue(IsMouseOverParentProperty, value); }
         }
 
-        private static void OnIsMouseOverParentChanged(AvaloniaPropertyChangedEventArgs e)
-        {
-            if (e.Sender is VBRadioButton radioButton)
-            {
-                radioButton.UpdateMouseOverParentClass();
-            }
-        }
 
         private void UpdateMouseOverParentClass()
         {
@@ -167,6 +150,19 @@ namespace gip.core.layoutengine.avui
             {
                 Classes.Remove("mouseover-parent");
             }
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            if (change.Property == IsMouseOverParentProperty)
+            {
+                UpdateMouseOverParentClass();
+            }
+            else if (change.Property == PushButtonStyleProperty)
+            {
+                UpdatePushButtonClass();
+            }
+            base.OnPropertyChanged(change);
         }
 
         #endregion

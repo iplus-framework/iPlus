@@ -50,8 +50,8 @@ namespace gip.core.layoutengine.avui
             if (Offset.X >= _wnd.Width)
                 Offset = new Point(_wnd.Width / 2, Offset.Y);
             
-            _wnd.Left = point.X - Offset.X;
-            _wnd.Top = point.Y - Offset.Y;
+            PixelPoint wndPosition = new PixelPoint((int)(point.X - Offset.X), (int)(point.Y - Offset.Y));
+            _wnd.Position = wndPosition;
             _wnd.Show();
 
             foreach (IVBDockDropSurface surface in Surfaces)
@@ -69,8 +69,8 @@ namespace gip.core.layoutengine.avui
             if (_wnd == null)
                 return;
 
-            _wnd.Left = point.X - Offset.X;
-            _wnd.Top = point.Y - Offset.Y;
+            PixelPoint wndPosition = new PixelPoint((int)(point.X - Offset.X), (int)(point.Y - Offset.Y));
+            _wnd.Position = wndPosition;
 
             List<IVBDockDropSurface> enteringSurfaces = new List<IVBDockDropSurface>();
             foreach (IVBDockDropSurface surface in Surfaces)

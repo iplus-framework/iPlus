@@ -8,12 +8,12 @@ namespace gip.core.layoutengine.avui.ganttchart
     {
         #region c'tors
 
-        static ConnectionsPresenter()
-        {
-            ItemContainerStyleSelectorProperty.AddOwner(typeof(ConnectionsPresenter),
-                new FrameworkPropertyMetadata(null, CoerceItemContainerStyleSelector));
+        //static ConnectionsPresenter()
+        //{
+        //    ItemContainerStyleSelectorProperty.AddOwner(typeof(ConnectionsPresenter),
+        //        new FrameworkPropertyMetadata(null, CoerceItemContainerStyleSelector));
 
-        }
+        //}
 
         private static object CoerceItemContainerStyleSelector(AvaloniaObject d, object baseValue)
         {

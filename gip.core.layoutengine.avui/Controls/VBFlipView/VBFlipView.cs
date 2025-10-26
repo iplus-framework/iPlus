@@ -158,8 +158,8 @@ namespace gip.core.layoutengine.avui
 
         private Control PART_Root;
         private Control PART_Container;
-        private double fromValue = 0.0;
-        private double elasticFactor = 1.0;
+        //private double fromValue = 0.0;
+        //private double elasticFactor = 1.0;
         #endregion
 
         #region Additional Dependenc-Properties

@@ -34,17 +34,10 @@ namespace gip.core.layoutengine.avui
         string _DataShowColumns;
         string _DataChilds;
 
-        static VBCarousel()
-        {
-            // Avalonia equivalent - no direct equivalent but this is handled by themes
-        }
-
-        bool _themeApplied = false;
-
         /// <summary>
         /// Createas a new instance of VBCarousel.
         /// </summary>
-        public VBCarousel()
+        public VBCarousel() : base()
         {
         
         }
@@ -52,7 +45,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
         protected override void OnInitialized()
         {
             base.OnInitialized();
