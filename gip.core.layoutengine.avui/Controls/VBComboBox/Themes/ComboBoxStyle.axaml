@@ -11,9 +11,9 @@
   <ControlTemplate x:Key="ComboBoxReadonlyTemplate" TargetType="local:VBComboBox">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -45,7 +45,7 @@
                     BoxShadow="2 5 10 0 #71000000">
               <Grid>
                 <Grid.RowDefinitions>
-                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border x:Name="FilterRowBorder" 
@@ -104,9 +104,9 @@
   <ControlTemplate x:Key="ComboBoxEditableTemplate" TargetType="local:VBComboBox">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -139,7 +139,7 @@
                     BoxShadow="2 5 10 0 #71000000">
               <Grid>
                 <Grid.RowDefinitions>
-                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border x:Name="FilterRowBorder" 
@@ -208,10 +208,10 @@
   <ControlTemplate x:Key="ComboBox2ReadonlyTemplate" TargetType="local:VBComboBox2">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-        <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -243,7 +243,7 @@
                     BoxShadow="2 5 10 0 #71000000">
               <Grid>
                 <Grid.RowDefinitions>
-                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border x:Name="FilterRowBorder" 
@@ -307,10 +307,10 @@
   <ControlTemplate x:Key="ComboBox2EditableTemplate" TargetType="local:VBComboBox2">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-        <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -343,7 +343,7 @@
                     BoxShadow="2 5 10 0 #71000000">
               <Grid>
                 <Grid.RowDefinitions>
-                  <RowDefinition x:Name="FilterRow" Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
                   <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Border x:Name="FilterRowBorder" 
@@ -426,11 +426,11 @@
     <Setter Property="Template" Value="{StaticResource ComboBoxReadonlyTemplate}"/>
 
     <!-- ShowCaption = False -->
-    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-    <Style Selector="^[ShowCaption=False] /template/ Border#ComboBoxBorderEdit">
-      <Setter Property="Margin" Value="0,0,0,0"/>
+    <Style Selector="^[ShowCaption=False]">
+      <Setter Property="WidthCaption" Value="0"/>
+      <Style Selector="^ /template/ Border#ComboBoxBorderEdit">
+        <Setter Property="Margin" Value="0,0,0,0"/>
+      </Style>
     </Style>
 
     <!-- HasItems = false -->
@@ -460,7 +460,7 @@
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
     </Style>
-    <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+    <Style Selector="^[ControlMode=Disabled]">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
@@ -472,19 +472,19 @@
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabledFocus}"/>
     </Style>
-    <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+    <Style Selector="^[ControlMode=Enabled]">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
     </Style>
 
     <!-- EnabledRequired + Focus -->
-    <Style Selector="^:focus-within[ControlMode=EnabledRequired]:not([SelectedValue=x:Null])">
+    <Style Selector="^:focus-within:has-value[ControlMode=EnabledRequired]">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequiredFocus}"/>
     </Style>
-    <Style Selector="^:not(:focus-within)[ControlMode=EnabledRequired]:not([SelectedValue=x:Null])">
+    <Style Selector="^[ControlMode=EnabledRequired]:has-value">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
@@ -496,7 +496,7 @@
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrongFocus}"/>
     </Style>
-    <Style Selector="^:not(:focus-within)[ControlMode=EnabledWrong]">
+    <Style Selector="^[ControlMode=EnabledWrong]">
       <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
       <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrong}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
@@ -550,11 +550,11 @@
     <Setter Property="Template" Value="{StaticResource ComboBox2ReadonlyTemplate}"/>
 
     <!-- ShowCaption2 = False -->
-    <Style Selector="^[ShowCaption2=False] /template/ ColumnDefinition#ColCaption2">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-    <Style Selector="^[ShowCaption2=False] /template/ local|VBTextBlock#PART_Caption2">
-      <Setter Property="Margin" Value="0,0,0,0"/>
+    <Style Selector="^[ShowCaption2=False]">
+      <Setter Property="WidthCaption2" Value="0"/>
+      <Style Selector="^ /template/ local|VBTextBlock#PART_Caption2">
+        <Setter Property="Margin" Value="0,0,0,0"/>
+      </Style>
     </Style>
 
     <!-- Editable Style -->

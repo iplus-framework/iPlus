@@ -12,15 +12,13 @@ namespace gip.core.layoutengine.avui
     {
         public static ProgressBarAnimationConverter Instance { get; } = new();
         private ProgressBarAnimationConverter()
-        {}
-
-
+        {
+        }
 
 
         static bool TryGetAs<T>(IEnumerable<object> values, int index, out T value)
         {
-            if (values.Count() <= index);
-            else if (values.ElementAt(index) is T ret)
+            if ((values.Count() <= index) && (values.ElementAt(index) is T ret))
             {
                 value = ret;
                 return true;

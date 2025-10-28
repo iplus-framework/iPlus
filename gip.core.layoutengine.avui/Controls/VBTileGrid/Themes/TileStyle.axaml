@@ -6,7 +6,7 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 	<!-- VBTile ControlTheme -->
 	<ControlTheme x:Key="{x:Type local:VBTile}" TargetType="local:VBTile">
 		<Setter Property="Template">
-			<ControlTemplate x:Key="VBTileTemplate" TargetType="local:VBTile">
+			<ControlTemplate>
 				<Border BorderThickness="2" DragDrop.AllowDrop="False" BorderBrush="Transparent">
 					<Grid x:Name="TileItemGrid">
 						<Grid.RowDefinitions>

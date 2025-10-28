@@ -65,43 +65,14 @@ namespace gip.core.layoutengine.avui
     public class ControlManager
     {
         private static List<List<CustomControlStyleInfo>> _listOfImplicitStyles = new List<List<CustomControlStyleInfo>> {
-            new List<CustomControlStyleInfo> { 
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                                     styleName = "{x:Type ScrollViewer}", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyleGip.xaml" },
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                                     styleName = "{x:Type ScrollViewer}", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyleAero.xaml" },
-                },
-            new List<CustomControlStyleInfo> { 
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                                     styleName = "{x:Type ToggleButton}", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ToggleButtonStyleGip.xaml" },
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                                     styleName = "{x:Type ToggleButton}", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ToggleButtonStyleGip.xaml" },
-                },
-            new List<CustomControlStyleInfo> { 
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                                     styleName = "WpfDesignStyle", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.xaml" },
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                                     styleName = "WpfDesignStyle", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.xaml" },
-                },
-            new List<CustomControlStyleInfo> { 
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                                     styleName = "sharedtestdamir", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/SharedResourceTest.xaml" },
-                },
-            /*new List<CustomControlStyleInfo> { 
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                                     styleName = "TextBlockStyleGip", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBTextBlock/Themes/TextBlockStyleGip.xaml" },
-                        new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                                     styleName = "TextBlockStyleAero", 
-                                                     styleUri = "avares://gip.core.layoutengine.avui/Controls/VBTextBlock/Themes/TextBlockStyleAero.xaml" },
-                    },*/
+            //new List<CustomControlStyleInfo> { 
+            //            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
+            //                                         styleName = "WpfDesignStyle", 
+            //                                         styleUri = "avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.xaml" },
+            //            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
+            //                                         styleName = "WpfDesignStyle", 
+            //                                         styleUri = "avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.xaml" },
+            //    }
         };
 
         //#region private members

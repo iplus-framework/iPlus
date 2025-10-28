@@ -17,17 +17,15 @@
     </Setter>
   </ControlTheme>
 
-  <ControlTheme x:Key="CustomHeaderStyle" TargetType="GridViewColumnHeader">
+  <ControlTheme x:Key="CustomHeaderStyle" TargetType="{x:Type local:GridViewColumnHeader}">
     <Setter Property="Height" Value="22" />
-    <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="Padding" Value="4,4,5,4" />
     <Setter Property="Foreground" Value="Black" />
     <Setter Property="HorizontalContentAlignment" Value="Center" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="FontWeight" Value="Bold" />
-    <Setter Property="Height" Value="Auto" />
     <Setter Property="Template">
-      <ControlTemplate TargetType="GridViewColumnHeader">
+      <ControlTemplate>
         <Grid>
           <Border BorderThickness="0,0,1,1" BorderBrush="{StaticResource DataGridLineBrush}"
                   Background="{StaticResource NormalBrush}">
@@ -61,9 +59,7 @@
                     Stretch="Uniform"
                     Data="M -5.215,6.099L 5.215,6.099L 0,0L -5.215,6.099 Z ">
                 <Path.RenderTransform>
-                  <TransformGroup>
-                    <ScaleTransform ScaleX=".9" ScaleY=".9" x:Name="SortIconTransform" />
-                  </TransformGroup>
+                    <ScaleTransform ScaleX=".9" ScaleY=".9" />
                 </Path.RenderTransform>
               </Path>
             </Grid>
@@ -103,7 +99,7 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="TreeListViewScroll" TargetType="ScrollViewer">
+  <!--<ControlTheme x:Key="TreeListViewScroll" TargetType="ScrollViewer">
     <Setter Property="Focusable" Value="False"/>
     <Setter Property="Template">
       <ControlTemplate>
@@ -118,86 +114,62 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           
-          <!-- Header Row -->
           <ScrollViewer Grid.Row="0" Grid.Column="0"
                         Margin="{TemplateBinding Padding}"
                         HorizontalScrollBarVisibility="Hidden"
                         VerticalScrollBarVisibility="Hidden"
                         Focusable="false">
-            <GridViewHeaderRowPresenter Margin="2,0,2,0" x:Name="PART_GWHRPresenter"
+            <local:GridViewHeaderRowPresenter Margin="2,0,2,0" x:Name="PART_GWHRPresenter"
                                         Columns="{Binding Path=Columns,RelativeSource={RelativeSource AncestorType={x:Type local:VBTreeListView}}}"
                                         ColumnHeaderContainerStyle="{StaticResource CustomHeaderStyle}">
-            </GridViewHeaderRowPresenter>
+            </local:GridViewHeaderRowPresenter>
           </ScrollViewer>
           
-          <!-- Content Area -->
           <ScrollContentPresenter Grid.Row="1" Grid.Column="0" Name="PART_ScrollContentPresenter"
                                   Content="{TemplateBinding Content}"
                                   ContentTemplate="{TemplateBinding ContentTemplate}"
                                   CanHorizontallyScroll="{TemplateBinding CanHorizontallyScroll}"
                                   CanVerticallyScroll="{TemplateBinding CanVerticallyScroll}"/>
           
-          <!-- Horizontal ScrollBar -->
           <ScrollBar Name="PART_HorizontalScrollBar"
                      Orientation="Horizontal"
                      Grid.Row="2" Grid.Column="0"
-                     Minimum="0.0"
-                     Maximum="{TemplateBinding ScrollableWidth}"
-                     ViewportSize="{TemplateBinding ViewportWidth}"
-                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.HorizontalOffsetConverter}}"
-                     IsVisible="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility), Converter={x:Static ScrollViewer.HorizontalScrollBarVisibilityConverter}}"
                      Cursor="Arrow"/>
                      
-          <!-- Vertical ScrollBar -->
           <ScrollBar Name="PART_VerticalScrollBar"
                      Orientation="Vertical"
                      Grid.Row="1" Grid.Column="1"
-                     Minimum="0.0"
-                     Maximum="{TemplateBinding ScrollableHeight}"
-                     ViewportSize="{TemplateBinding ViewportHeight}"
-                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.VerticalOffsetConverter}}"
-                     IsVisible="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility), Converter={x:Static ScrollViewer.VerticalScrollBarVisibilityConverter}}"
                      Cursor="Arrow">
           </ScrollBar>
           
-          <!-- Corner Rectangle -->
           <Panel Grid.Column="1" Grid.Row="2"
                  Background="{Binding #PART_VerticalScrollBar.Background}">
             <Rectangle Width="1" Fill="White"
-                       HorizontalAlignment="Left"
-                       IsVisible="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility), Converter={x:Static ScrollViewer.VerticalScrollBarVisibilityConverter}}"/>
+                       HorizontalAlignment="Left" />
             <Rectangle Height="1" Fill="White"
-                       VerticalAlignment="Top"
-                       IsVisible="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility), Converter={x:Static ScrollViewer.HorizontalScrollBarVisibilityConverter}}"/>
+                       VerticalAlignment="Top" />
           </Panel>
         </Grid>
       </ControlTemplate>
     </Setter>
-  </ControlTheme>
+  </ControlTheme>-->
 
   <ControlTheme x:Key="{x:Type local:VBTreeListView}" TargetType="local:VBTreeListView">
-    <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}"/>
     <Setter Property="BorderBrush" Value="#FF828790"/>
     <Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabled}"/>
     <Setter Property="Background" Value="{StaticResource TreeViewBgEnabled}"/>
     <Setter Property="BorderThickness" Value="1"/>
-    <Setter Property="Foreground" Value="#FF042271"/>
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
-    <Setter Property="VerticalContentAlignment" Value="Center"/>
     <Setter Property="Template">
       <ControlTemplate>
         <Border BorderBrush="{TemplateBinding BorderBrush}" 
                 BorderThickness="{TemplateBinding BorderThickness}" 
                 Name="Bd" 
                 Background="{TemplateBinding Background}">
-          <ScrollViewer Theme="{StaticResource TreeListViewScroll}" 
-                        Background="{TemplateBinding Background}"
+          <ScrollViewer Background="{TemplateBinding Background}"
                         Focusable="false"
-                        CanHorizontallyScroll="false"
-                        HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
-                        VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
                         Padding="{TemplateBinding Padding}">
             <ItemsPresenter />
           </ScrollViewer>

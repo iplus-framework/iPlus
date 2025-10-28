@@ -4,7 +4,7 @@
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     >
 
-  <ControlTheme x:Key="TimelineChartScrollViewerStyle" TargetType="ScrollViewer">
+  <!--<ControlTheme x:Key="TimelineChartScrollViewerStyle" TargetType="ScrollViewer">
     <Setter Property="Template">
       <ControlTemplate>
         <Grid Background="{TemplateBinding Background}">
@@ -18,44 +18,31 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
 
-          <!-- Header Row -->
           <timeline:FrictionScrollViewer Grid.Row="0" Grid.Column="0"
                         Margin="{TemplateBinding Padding}"
                         HorizontalScrollBarVisibility="Hidden"
                         VerticalScrollBarVisibility="Hidden"
                         Focusable="false" >
-            <!--<timeline:TimelineRulerControl />-->
           </timeline:FrictionScrollViewer>
 
-          <!-- Content Area -->
           <ScrollContentPresenter Grid.Row="1" Grid.Column="0" Name="PART_ScrollContentPresenter"
                                   Content="{TemplateBinding Content}"
                                   ContentTemplate="{TemplateBinding ContentTemplate}"
                                   CanHorizontallyScroll="True" 
                                   CanVerticallyScroll="False"/>
 
-          <!-- Horizontal ScrollBar -->
           <ScrollBar Name="PART_HorizontalScrollBar"
                      Orientation="Horizontal"
-                     Grid.Row="2" Grid.Column="0"
-                     Maximum="{TemplateBinding ScrollableWidth}"
-                     ViewportSize="{TemplateBinding ViewportWidth}"
-                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.HorizontalOffsetConverter}}"
-                     IsVisible="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility), Converter={x:Static ScrollViewer.HorizontalScrollBarVisibilityConverter}}"/>
+                     Grid.Row="2" Grid.Column="0" />
 
-          <!-- Vertical ScrollBar -->
           <ScrollBar Name="PART_VerticalScrollBar"
                      Orientation="Vertical"
-                     Grid.Row="1" Grid.Column="1"
-                     Maximum="{TemplateBinding ScrollableHeight}"
-                     ViewportSize="{TemplateBinding ViewportHeight}"
-                     Value="{TemplateBinding Offset, Converter={x:Static ScrollViewer.VerticalOffsetConverter}}"
-                     IsVisible="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility), Converter={x:Static ScrollViewer.VerticalScrollBarVisibilityConverter}}"/>
+                     Grid.Row="1" Grid.Column="1" />
 
         </Grid>
       </ControlTemplate>
     </Setter>
-  </ControlTheme>
+  </ControlTheme>-->
 
   <ControlTheme x:Key="{x:Type local:VBTimelineChart}" TargetType="local:VBTimelineChart">
     <Setter Property="Template">
@@ -90,9 +77,9 @@
                     BorderThickness="24,0,0,0"
                     BorderBrush="{DynamicResource ThemeBackgroundBrush}"/>
 
+            <!--Theme="{StaticResource TimelineChartScrollViewerStyle}"-->
             <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer" 
                             Margin="25,25,0,0"
-                            Theme="{StaticResource TimelineChartScrollViewerStyle}"
                             VerticalScrollBarVisibility="Auto"
                             HorizontalScrollBarVisibility="Auto">
 
@@ -101,9 +88,9 @@
                               Margin="0,1,0,0"
                               ItemsSource="{TemplateBinding Items}"
                               ItemsPanel="{TemplateBinding ItemsPanel}"
-                              ItemContainerTheme="{TemplateBinding ItemContainerTheme}"
-                              ItemThemeSelector="{TemplateBinding ItemThemeSelector}"
                               ItemTemplate="{TemplateBinding TimelineItemTemplate}"/>
+                <!--ItemContainerTheme="{TemplateBinding ItemContainerTheme}"
+                ItemThemeSelector="{TemplateBinding ItemThemeSelector}"-->
               </Grid>
 
             </timeline:FrictionScrollViewer>

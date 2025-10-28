@@ -479,9 +479,6 @@ namespace gip.core.layoutengine.avui
 
         #region Accessibility
 
-        /// <summary>
-        /// Creates AutomationPeer (<see cref="UIElement.OnCreateAutomationPeer"/>)
-        /// </summary>
         protected override AutomationPeer OnCreateAutomationPeer()
         {
             return new GridViewColumnHeaderAutomationPeer(this);

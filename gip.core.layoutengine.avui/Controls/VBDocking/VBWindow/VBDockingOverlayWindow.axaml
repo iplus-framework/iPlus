@@ -2,8 +2,8 @@
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Title="DockingLibrary" Height="300" Width="300" TransparencyLevelHint="Transparent" Background="Transparent" SystemDecorations="None" ShowInTaskbar="False">
-	<Window.Styles>
-		<Style x:Key="DragDockButtonStyle" Selector="Button">
+  <Window.Resources>
+		<ControlTheme x:Key="DragDockButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="Template">
 				<ControlTemplate TargetType="Button">
 					<Border Name="dragDockBorder" Background="{TemplateBinding Background}"
@@ -36,24 +36,24 @@
 					</Border>
 				</ControlTemplate>
 			</Setter>
-		</Style>
-		<Style x:Key="DragPaneButtonStyle" Selector="Button">
+		</ControlTheme>
+    <ControlTheme x:Key="DragPaneButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="Template">
 				<ControlTemplate TargetType="Button">
 					<Border BorderThickness="1">
 					</Border>
 				</ControlTemplate>
 			</Setter>
-		</Style>
-		<Style x:Key="DragIntoPaneButtonStyle" Selector="Button">
+		</ControlTheme>
+    <ControlTheme x:Key="DragIntoPaneButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="Template">
 				<ControlTemplate TargetType="Button">
 					<Border BorderThickness="1">
 					</Border>
 				</ControlTemplate>
 			</Setter>
-		</Style>
-	</Window.Styles>
+		</ControlTheme>
+	</Window.Resources>
 	<Grid>
 		<Panel>
 			<Button Name="btnDockLeft" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Height="30">
@@ -131,4 +131,5 @@
 			</Grid>
 		</Canvas>
 	</Grid>
+
 </Window>

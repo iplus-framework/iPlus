@@ -1,13 +1,13 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <Style x:Key="IconMsgStopStyleGip" TargetType="{x:Type ContentControl}">
+    <ControlTheme x:Key="IconMsgStopStyle" TargetType="{x:Type ContentControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ContentControl}">
+                <ControlTemplate>
                     <Viewbox Stretch="Uniform">
                         <Canvas x:Name="Ebene_1_156" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                            <Path x:Name="Path_157" Width="22" Height="22" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" Data="F1 M 7.71429,2L 16.2857,2L 22,7.71429L 22,16.2857L 16.2857,22L 7.71429,22L 2,16.2857L 2,7.71429L 7.71429,2 Z " StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                            <Path x:Name="Path_157" Width="22" Height="22" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" Data="F1 M 7.71429,2L 16.2857,2L 22,7.71429L 22,16.2857L 16.2857,22L 7.71429,22L 2,16.2857L 2,7.71429L 7.71429,2 Z " StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round">
                                 <Path.Stroke>
                                     <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,2.60093e-007">
                                         <LinearGradientBrush.GradientStops>
@@ -45,9 +45,6 @@
                                                     <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
                                                     <GradientStop Color="#FFFFFFFF" Offset="1"/>
                                                 </RadialGradientBrush.GradientStops>
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup/>
-                                                </RadialGradientBrush.RelativeTransform>
                                             </RadialGradientBrush>
                                         </Path.Fill>
                                     </Path>
@@ -61,9 +58,6 @@
                                                     <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
                                                     <GradientStop Color="#FFFFFFFF" Offset="1"/>
                                                 </RadialGradientBrush.GradientStops>
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup/>
-                                                </RadialGradientBrush.RelativeTransform>
                                             </RadialGradientBrush>
                                         </Path.Fill>
                                     </Path>
@@ -77,9 +71,6 @@
                                                     <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
                                                     <GradientStop Color="#FFFFFFFF" Offset="1"/>
                                                 </RadialGradientBrush.GradientStops>
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup/>
-                                                </RadialGradientBrush.RelativeTransform>
                                             </RadialGradientBrush>
                                         </Path.Fill>
                                     </Path>
@@ -93,9 +84,6 @@
                                                     <GradientStop Color="#FFC5C7CC" Offset="0.823276"/>
                                                     <GradientStop Color="#FFFFFFFF" Offset="1"/>
                                                 </RadialGradientBrush.GradientStops>
-                                                <RadialGradientBrush.RelativeTransform>
-                                                    <TransformGroup/>
-                                                </RadialGradientBrush.RelativeTransform>
                                             </RadialGradientBrush>
                                         </Path.Fill>
                                     </Path>
@@ -103,24 +91,10 @@
                             </Viewbox>
                         </Canvas>
                     </Viewbox>
-                    <!--<ControlTemplate.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
-                        </DataTrigger>
-                    </ControlTemplate.Triggers>-->
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-
-    <Style x:Key="IconMsgStopStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconMsgStopStyleGip}">
-    </Style>
+    </ControlTheme>
 </ResourceDictionary>
 
 

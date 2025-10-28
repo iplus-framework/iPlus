@@ -63,9 +63,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        /// <summary>
-        ///  Add a text string to this control
-        /// </summary>
+
         //void IAddChild.AddText(string text)
         //{
         //    AddText(text);

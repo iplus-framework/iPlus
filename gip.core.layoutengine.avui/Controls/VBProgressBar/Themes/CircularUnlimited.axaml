@@ -137,6 +137,8 @@
                     <Ellipse Width="39.5" Height="39.5" Canvas.Left="8.75" Canvas.Top="8" IsVisible="False"/>
                 </Canvas>
                 <TextBlock Text="{Binding Path=Text}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <!--  Dummy PART_Indicator -->  
+                <Border x:Name="PART_Indicator" IsVisible="False"/>
             </Grid>
         </Border>
     </ControlTemplate>

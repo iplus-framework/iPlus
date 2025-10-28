@@ -1,0 +1,40 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   x:ClassModifier="internal">
+  <!-- Color Resources -->
+  <SolidColorBrush x:Key="TextBoxBgEnabled" Color="#FF1A1A1A"/>
+  <SolidColorBrush x:Key="TextBoxFgEnabled" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="TextBoxFgEnabledFocus" Color="#FFFFFFFF"/>
+  <RadialGradientBrush x:Key="TextBoxBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8">
+    <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+    <GradientStop Color="#FF666666" Offset="0.548"/>
+    <GradientStop Color="Black" Offset="1"/>
+  </RadialGradientBrush>
+
+  <SolidColorBrush x:Key="TextBoxBgDisabled" Color="#FF2D2D30"/>
+  <SolidColorBrush x:Key="TextBoxFgDisabled" Color="Silver"/>
+  <RadialGradientBrush x:Key="TextBoxBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8">
+    <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
+    <GradientStop Color="#FF666666" Offset="0.548"/>
+    <GradientStop Color="Black" Offset="1"/>
+  </RadialGradientBrush>
+
+  <SolidColorBrush x:Key="TextBoxBgRequired" Color="#FF1A1A1A"/>
+  <SolidColorBrush x:Key="TextBoxFgRequired" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="TextBoxFgRequiredFocus" Color="Yellow"/>
+  <RadialGradientBrush x:Key="TextBoxBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8">
+    <GradientStop Color="#FFFFEA00" Offset="0.116"/>
+    <GradientStop Color="#FFD1D261" Offset="0.3"/>
+    <GradientStop Color="Black" Offset="1"/>
+  </RadialGradientBrush>
+
+  <SolidColorBrush x:Key="TextBoxBgWrong" Color="#FF1A1A1A"/>
+  <SolidColorBrush x:Key="TextBoxFgWrong" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="TextBoxFgWrongFocus" Color="#FFFF0000"/>
+  <RadialGradientBrush x:Key="TextBoxBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8">
+    <GradientStop Color="#FFFF0004" Offset="0.1116"/>
+    <GradientStop Color="#FFE43D3D" Offset="0.3"/>
+    <GradientStop Color="#FF020101" Offset="1"/>
+  </RadialGradientBrush>
+</ResourceDictionary>

@@ -36,6 +36,10 @@
                              HorizontalAlignment="Center"/>
                 </Border>
             </Grid>
+
+          <!--  Dummy PART_Indicator -->
+          <Border x:Name="PART_Indicator" IsVisible="False"/>
+
         </Grid>
     </ControlTemplate>
 </ResourceDictionary>

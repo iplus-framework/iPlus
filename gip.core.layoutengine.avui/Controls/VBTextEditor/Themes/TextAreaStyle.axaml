@@ -1,0 +1,51 @@
+﻿<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+
+  <ControlTheme x:Key="{x:Type local:VBTextArea}" TargetType="{x:Type local:VBTextArea}">
+        <Setter Property="SelectionBrush" Value="{DynamicResource TextAreaSelectionBg}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <DockPanel Focusable="False">
+                        <ItemsControl DockPanel.Dock="Left"
+                                      Focusable="False"
+                                      ItemsSource="{TemplateBinding LeftMargins}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                        <Panel>
+                          <ContentPresenter Name="PART_CP"
+                                            Cursor="IBeam"
+                                            Focusable="False"
+                                            Background="{TemplateBinding Background}" />
+                          <!--<TextBlock Name="PART_Watermark"
+                                     Opacity="0.5"
+                                     Text="{TemplateBinding Watermark}"
+                                     Foreground="{TemplateBinding Foreground}">
+                            <TextBlock.IsVisible>
+                              <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Document.Text" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                            </TextBlock.IsVisible>
+                          </TextBlock>-->
+                        </Panel>                      
+                        <local:VBStatusBar DockPanel.Dock="Bottom" Focusable="False" Height="20" x:Name="PART_StatusBar"
+                                           Background="{StaticResource TextAreaBgEnabled}"
+                                           BorderThickness="0,1,0,0"
+                                           BorderBrush="{StaticResource TextAreaStatusBarBorder}">
+                            <local:VBStatusBarItem>
+                                <local:VBTextBlock x:Name="PART_StatusBarItemCaretLineInfo" Foreground="{StaticResource TextAreaStatusBarBorder}"></local:VBTextBlock>
+                            </local:VBStatusBarItem>
+                            <local:VBStatusBarItem>
+                                <local:VBTextBlock x:Name="PART_StatusBarItemCaretColInfo" Foreground="{StaticResource TextAreaStatusBarBorder}"></local:VBTextBlock>
+                            </local:VBStatusBarItem>
+                        </local:VBStatusBar>
+                    </DockPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </ControlTheme>
+</ResourceDictionary>

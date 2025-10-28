@@ -17,9 +17,9 @@
             <ControlTemplate>
                 <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-                        <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-                        <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+                        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+                        <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+                        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
                     </Grid.ColumnDefinitions>
                     
                     <local:VBTextBlock x:Name="PART_Caption" 
@@ -148,11 +148,11 @@
         </Setter>
 
         <!-- ShowCaption = False -->
-        <Style Selector="^[ShowCaption=False] /template/ Grid#LayoutRoot ColumnDefinition#ColCaption">
-            <Setter Property="Width" Value="0"/>
-        </Style>
-        <Style Selector="^[ShowCaption=False] /template/ Panel#PART_Root">
-            <Setter Property="Margin" Value="0,0,0,0"/>
+        <Style Selector="^[ShowCaption=False]">
+            <Setter Property="WidthCaption" Value="0"/>
+            <Style Selector="^ /template/ Panel#PART_Root">
+                <Setter Property="Margin" Value="0,0,0,0"/>
+            </Style>
         </Style>
 
         <!-- Disabled State -->
@@ -168,19 +168,19 @@
             <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderEnabled}"/>
             <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgEnabledFocus}"/>
         </Style>
-        <Style Selector="^[ControlMode=Enabled]:not(:focus)">
+        <Style Selector="^[ControlMode=Enabled]">
             <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgEnabled}"/>
             <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgEnabled}"/>
             <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderEnabled}"/>
         </Style>
 
         <!-- EnabledRequired States (when SelectedValue is null) -->
-        <Style Selector="^[ControlMode=EnabledRequired][SelectedIACObject=null]:focus">
+        <Style Selector="^[ControlMode=EnabledRequired]:focus">
             <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgRequired}"/>
             <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderRequired}"/>
             <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgRequiredFocus}"/>
         </Style>
-        <Style Selector="^[ControlMode=EnabledRequired][SelectedIACObject=null]:not(:focus)">
+        <Style Selector="^[ControlMode=EnabledRequired]">
             <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgRequired}"/>
             <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgRequired}"/>
             <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderRequired}"/>
@@ -192,7 +192,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderWrong}"/>
             <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgWrongFocus}"/>
         </Style>
-        <Style Selector="^[ControlMode=EnabledWrong]:not(:focus)">
+        <Style Selector="^[ControlMode=EnabledWrong]">
             <Setter Property="Background" Value="{StaticResource AutoCompleteBoxBgWrong}"/>
             <Setter Property="Foreground" Value="{StaticResource AutoCompleteBoxFgWrong}"/>
             <Setter Property="BorderBrush" Value="{StaticResource AutoCompleteBoxBorderWrong}"/>

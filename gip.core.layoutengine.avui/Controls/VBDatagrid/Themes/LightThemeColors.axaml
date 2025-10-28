@@ -11,7 +11,7 @@
     <GradientStop Color="#FFFF0000"/>
     <GradientStop Color="#FFFFFFFF" Offset="1"/>
   </LinearGradientBrush>
-  <Color x:Key="GlyphColor" A="#FF" R="#FF" G="#FF" B="#FF"/>
+  <Color x:Key="GlyphColor">#FFFFFFFF</Color>
   <SolidColorBrush x:Key="GlyphBrush" Color="{StaticResource GlyphColor}" />
   <SolidColorBrush x:Key="RowHeaderPathBrush" Color="#FF939393" />
   <SolidColorBrush x:Key="DisabledBackgroundBrush" Color="#FFD4D4D4" />
@@ -36,21 +36,21 @@
   </LinearGradientBrush>
   <SolidColorBrush x:Key="DataGridRowInvalidBrush" Color="Red" />
 
-  <Color x:Key="RowBgSelected" A="#FF" R="#D6" G="#D6" B="#D6"/>
-  <Color x:Key="RowBgSelectedEdit" A="#FF" R="#D6" G="#D6" B="#D6"/>
-  <Color x:Key="RowBgHover" A="#FF" R="#F3" G="#F3" B="#F3"/>
-  <Color x:Key="RowBgAlternate" A="#10" R="#00" G="#00" B="#00"/>
+  <Color x:Key="RowBgSelected">#FFD6D6D6</Color>
+  <Color x:Key="RowBgSelectedEdit">#FFD6D6D6</Color>
+  <Color x:Key="RowBgHover">#FFF3F3F3</Color>
+  <Color x:Key="RowBgAlternate">#10000000</Color>
 
-  <Color x:Key="CellBgSelected" A="#10" R="#FF" G="#00" B="#00"/>
-  <Color x:Key="CellBorderSelected" A="#60" R="#FF" G="#00" B="#00"/>
-  <Color x:Key="CellBgReadOnly" A="#80" R="#B3" G="#B3" B="#B3"/>
+  <Color x:Key="CellBgSelected">#10FF0000</Color>
+  <Color x:Key="CellBorderSelected">#60FF0000</Color>
+  <Color x:Key="CellBgReadOnly">#80B3B3B3</Color>
   <SolidColorBrush x:Key="CellBgBrushReadOnly" Color="{StaticResource CellBgReadOnly}" />
-  <Color x:Key="CellBorderSelectedReadOnly" A="#FF" R="#C0" G="#C0" B="#C0"/>
+  <Color x:Key="CellBorderSelectedReadOnly">#FFC0C0C0</Color>
 
-  <Color x:Key="RowHeaderTriangleFillNormal" A="#FF" R="#00" G="#00" B="#00"/>
-  <Color x:Key="RowHeaderTriangleFillSelected" A="#40" R="#FF" G="#00" B="#00"/>
-  <Color x:Key="RowHeaderTriangleStrokeNormal" A="#00" R="#00" G="#00" B="#00"/>
-  <Color x:Key="RowHeaderTriangleStrokeSelected" A="#FF" R="#FF" G="#00" B="#00"/>
+  <Color x:Key="RowHeaderTriangleFillNormal">#FF000000</Color>
+  <Color x:Key="RowHeaderTriangleFillSelected">#40FF0000</Color>
+  <Color x:Key="RowHeaderTriangleStrokeNormal">#00000000</Color>
+  <Color x:Key="RowHeaderTriangleStrokeSelected">#FFFF0000</Color>
 
   <!-- Fallback brushes if not defined elsewhere -->
   <SolidColorBrush x:Key="DataGridCurrencyVisualPrimaryBrush" Color="Transparent" />

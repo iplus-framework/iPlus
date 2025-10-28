@@ -5,11 +5,9 @@
 
   <ControlTheme x:Key="{x:Type local:VBConnectorAdorner}"  TargetType="{x:Type local:VBConnectorAdorner}">
     <Setter Property="Template">
-      <Setter.Value>
         <ControlTemplate>
           <Rectangle Fill="#5000FF00" Stroke="#FF00FF00" StrokeThickness="1" />
         </ControlTemplate>
-      </Setter.Value>
     </Setter>
   </ControlTheme>
 </ResourceDictionary>

@@ -12,8 +12,8 @@
 		<ResourceInclude Source="/Controls/VBRepeatButton/Themes/DarkThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBDateTimeUpDown/Themes/DarkThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBDateTimePicker/Themes/DarkThemeColors.axaml"/>
-		<ResourceInclude Source="/Controls/VBXMLEditor/Themes/DarkThemeColors.axaml"/>
-		<ResourceInclude Source="/Controls/VBTabItem/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBTextEditor/Themes/DarkThemeColors.axaml"/>
+    <ResourceInclude Source="/Controls/VBTabItem/Themes/DarkThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBDocking/Themes/DarkThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBDocking/VBWindow/Themes/DarkThemeColors.axaml"/>
 		<ResourceInclude Source="/Controls/VBConnectionState/Themes/DarkThemeColors.axaml"/>

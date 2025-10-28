@@ -26,7 +26,7 @@
       <ControlTemplate>
         <ToggleButton Classes="quickAccessButton" Command="{Binding Command}" IsChecked="{Binding IsChecked}"
                       CommandParameter="{Binding CommandParameter}" ToolTip.Tip="{Binding ToolTip.Tip}"
-                      KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34"
+                      local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34"
                       Focusable="False">
           <ContentPresenter Content="{TemplateBinding QuickAccessIcon}" Width="16" Height="16" />
         </ToggleButton>

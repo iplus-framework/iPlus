@@ -36,6 +36,10 @@ namespace gip.core.layoutengine.avui
         eMsgButton _MsgButton;
         static int _ModalCounter = 0;
 
+        public VBWindowDialogMsg() : base()
+        {
+        }
+
         /// <summary>Initializes a new instance of the <see cref="VBWindowDialogMsg" /> class.</summary>
         /// <param name="msg">The MSG.</param>
         /// <param name="msgButton">The MSG button.</param>
@@ -296,21 +300,21 @@ namespace gip.core.layoutengine.avui
                 switch (level)
                 {
                     case eMsgLevel.Info:
-                        imagePNG = "IconMsgInfoStyleAero";
+                        imagePNG = "IconMsgInfoStyle";
                         break;
                     case eMsgLevel.Warning:
-                        imagePNG = "IconMsgExclamationStyleAero";
+                        imagePNG = "IconMsgExclamationStyle";
                         break;
                     case eMsgLevel.Failure:
                     case eMsgLevel.Error:
                     case eMsgLevel.Exception:
-                        imagePNG = "IconMsgStopStyleAero";
+                        imagePNG = "IconMsgStopStyle";
                         break;
                     case eMsgLevel.Question:
-                        imagePNG = "IconMsgQuestionStyleAero";
+                        imagePNG = "IconMsgQuestionStyle";
                         break;
                     default:
-                        imagePNG = "IconMsgInfoStyleAero";
+                        imagePNG = "IconMsgInfoStyle";
                         break;
                 }
             }
@@ -319,21 +323,21 @@ namespace gip.core.layoutengine.avui
                 switch (level)
                 {
                     case eMsgLevel.Info:
-                        imagePNG = "IconMsgInfoStyleGip";
+                        imagePNG = "IconMsgInfoStyle";
                         break;
                     case eMsgLevel.Warning:
-                        imagePNG = "IconMsgExclamationStyleGip";
+                        imagePNG = "IconMsgExclamationStyle";
                         break;
                     case eMsgLevel.Failure:
                     case eMsgLevel.Error:
                     case eMsgLevel.Exception:
-                        imagePNG = "IconMsgStopStyleGip";
+                        imagePNG = "IconMsgStopStyle";
                         break;
                     case eMsgLevel.Question:
-                        imagePNG = "IconMsgQuestionStyleGip";
+                        imagePNG = "IconMsgQuestionStyle";
                         break;
                     default:
-                        imagePNG = "IconMsgInfoStyleGip";
+                        imagePNG = "IconMsgInfoStyle";
                         break;
                 }
             }

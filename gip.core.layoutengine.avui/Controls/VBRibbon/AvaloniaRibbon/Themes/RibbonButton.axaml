@@ -7,7 +7,7 @@
     </ResourceDictionary.MergedDictionaries>
 
     <!-- Control Theme -->
-    <ControlTheme x:Key="{x:Type RibbonButton}" TargetType="RibbonButton">
+    <ControlTheme x:Key="{x:Type local:RibbonButton}" TargetType="{x:Type local:RibbonButton}">
         <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
         <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
         <Setter Property="Template">
@@ -30,7 +30,7 @@
             <ControlTemplate>
                 <Button Classes="quickAccessButton" Command="{Binding Command}"
                         CommandParameter="{Binding CommandParameter}" ToolTip.Tip="{Binding ToolTip.Tip}"
-                        KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34" Focusable="False">
+                        local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34" Focusable="False">
                     <ContentPresenter Content="{TemplateBinding QuickAccessIcon}" Width="16" Height="16" />
                 </Button>
             </ControlTemplate>

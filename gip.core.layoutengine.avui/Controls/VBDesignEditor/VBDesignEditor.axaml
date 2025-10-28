@@ -5,9 +5,7 @@
     xmlns:wpf="clr-namespace:gip.ext.designer.avui;assembly=gip.ext.designer.avui"
     xmlns:wpf2="clr-namespace:gip.ext.designer.avui.PropertyGrid;assembly=gip.ext.designer.avui"
     Background="Transparent" Padding="0,0,0,0">
-    <UserControl.Resources>
-        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
-    </UserControl.Resources>
+
     <local:VBTabControl x:Name="ucTabControl" TabStripPlacement="Bottom" SelectionChanged="TabControl_SelectionChanged">
         <local:VBTabItem Header="Design" x:Name="DesignTab">
             <wpf:DesignSurface x:Name="ucWpfDesignSurface" HorizontalAlignment="Center" VerticalAlignment="Center" />

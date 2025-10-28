@@ -127,7 +127,7 @@
                     VerticalAlignment="Stretch">
                   <ItemsPresenter.ItemsPanel>
                     <ItemsPanelTemplate>
-                      <RibbonGroupWrapPanel
+                      <local:RibbonGroupWrapPanel
                           x:Name="PART_ItemsPanel"
                           HorizontalAlignment="Stretch"
                           VerticalAlignment="Stretch"

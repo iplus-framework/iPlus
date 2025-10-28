@@ -7,11 +7,11 @@
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_87" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                        <Path x:Name="TrashBack" Width="15" Height="17.0205" Canvas.Left="4.5" Canvas.Top="5.9022" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="TrashBack" Width="15" Height="17.0205" Canvas.Left="4.5" Canvas.Top="5.9022" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
                               Data="F1 M 5,8.43232L 7,22.4227C 8.66667,22.1118 10.3333,21.8009 12,21.8009C 13.6667,21.8009 15.3333,22.1118 17,22.4227L 19,7.56665C 16.6667,6.92252 14.3333,6.27838 12,6.42266C 9.66667,6.56693 7.33333,7.49962 5,8.43232 Z "/>
-                        <Path x:Name="TrashFront" Width="15" Height="17" Canvas.Left="4.5" Canvas.Top="7" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="TrashFront" Width="15" Height="17" Canvas.Left="4.5" Canvas.Top="7" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 5,7.5L 7,22.5C 8.66667,23 10.3333,23.5 12,23.5C 13.6667,23.5 15.3333,23 17,22.5L 19,7.5C 16.6667,8 14.3333,8.5 12,8.5C 9.66667,8.5 7.33333,8 5,7.5 Z ">
                             <Path.Fill>
@@ -27,26 +27,26 @@
                                 </LinearGradientBrush>
                             </Path.Fill>
                         </Path>
-                        <Path x:Name="Line_90" Width="2" Height="12" Canvas.Left="7.5" Canvas.Top="9.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_90" Width="2" Height="12" Canvas.Left="7.5" Canvas.Top="9.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF808080" 
                               Data="F1 M 8,10L 9,21"/>
-                        <Path x:Name="Line_91" Width="2" Height="12" Canvas.Left="14.5" Canvas.Top="9.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_91" Width="2" Height="12" Canvas.Left="14.5" Canvas.Top="9.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF808080" 
                               Data="F1 M 16,10L 15,21"/>
-                        <Path x:Name="Line_92" Width="1" Height="12" Canvas.Left="11.5" Canvas.Top="10.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_92" Width="1" Height="12" Canvas.Left="11.5" Canvas.Top="10.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF808080" 
                               Data="F1 M 12,11L 12,22"/>
-                        <Path x:Name="Path_93" Width="16.7191" Height="8.35171" Canvas.Left="2.92546" Canvas.Top="0.77389" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_93" Width="16.7191" Height="8.35171" Canvas.Left="2.92546" Canvas.Top="0.77389" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 3.42546,6.74621C 6.15932,6.46062 8.89318,6.17503 11.399,5.26298C 13.9049,4.35092 16.1827,2.81241 18.4605,1.27389L 19.1446,3.15328C 16.8667,4.69179 14.5889,6.23031 12.0831,7.14236C 9.57722,8.05441 6.84336,8.34001 4.1095,8.6256L 3.42546,6.74621 Z ">
                             <Path.Fill>
                                 <LinearGradientBrush StartPoint="-1%,90%" EndPoint="128%,90%">
-                                    <LinearGradientBrush.RelativeTransform>
+                                    <LinearGradientBrush.Transform>
                                         <TransformGroup>
-                                            <SkewTransform CenterX="-1%" CenterY="90%" AngleX="-28.2304" AngleY="0"/>
-                                            <RotateTransform CenterX="-1%" CenterY="90%" Angle="-37.891"/>
+                                            <SkewTransform AngleX="-28.2304" AngleY="0"/>
+                                            <RotateTransform CenterX="-0.00813186" CenterY="0.895442" Angle="-37.891"/>
                                         </TransformGroup>
-                                    </LinearGradientBrush.RelativeTransform>
+                                    </LinearGradientBrush.Transform>
                                     <LinearGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE5E5E5" Offset="0"/>
                                         <GradientStop Color="#FFDBDBDB" Offset="0.0805009"/>
@@ -58,17 +58,17 @@
                                 </LinearGradientBrush>
                             </Path.Fill>
                         </Path>
-                        <Path x:Name="Path_94" Width="16.0509" Height="6.78763" Canvas.Left="2.86053" Canvas.Top="0.459623" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_94" Width="16.0509" Height="6.78763" Canvas.Left="2.86053" Canvas.Top="0.459623" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 10.544,2.91375C 14.6958,1.4026 18.2146,0.598297 18.4035,1.11728C 18.5924,1.63626 15.3798,3.28199 11.228,4.79313C 7.07619,6.30427 3.55735,7.10858 3.36845,6.5896C 3.17956,6.07062 6.39214,4.42489 10.544,2.91375 Z ">
                             <Path.Fill>
                                 <LinearGradientBrush StartPoint="-3%,100%" EndPoint="143%,100%">
-                                    <LinearGradientBrush.RelativeTransform>
+                                    <LinearGradientBrush.Transform>
                                         <TransformGroup>
-                                            <SkewTransform CenterX="-3%" CenterY="100%" AngleX="-35.4588" AngleY="0"/>
-                                            <RotateTransform CenterX="-3%" CenterY="100%" Angle="-43.4261"/>
+                                            <SkewTransform AngleX="-35.4588" AngleY="0"/>
+                                          <RotateTransform CenterX="-0.0306909" CenterY="1.00231" Angle="-43.4261"/>
                                         </TransformGroup>
-                                    </LinearGradientBrush.RelativeTransform>
+                                    </LinearGradientBrush.Transform>
                                     <LinearGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE5E5E5" Offset="0"/>
                                         <GradientStop Color="#FFDBDBDB" Offset="0.0805009"/>
@@ -80,17 +80,17 @@
                                 </LinearGradientBrush>
                             </Path.Fill>
                         </Path>
-                        <Path x:Name="Path_95" Width="4.75877" Height="4.22202" Canvas.Left="8.4496" Canvas.Top="0.658835" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_95" Width="4.75877" Height="4.22202" Canvas.Left="8.4496" Canvas.Top="0.658835" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 8.9496,4.38086C 9.12004,2.89992 9.29047,1.41899 9.91694,1.19097C 10.5434,0.962959 11.6259,1.98787 12.7084,3.01278">
                             <Path.Fill>
                                 <LinearGradientBrush StartPoint="-13%,105%" EndPoint="123%,105%">
-                                    <LinearGradientBrush.RelativeTransform>
+                                    <LinearGradientBrush.Transform>
                                         <TransformGroup>
-                                            <SkewTransform CenterX="-13%" CenterY="105%" AngleX="-5.67854" AngleY="0"/>
-                                            <RotateTransform CenterX="-13%" CenterY="105%" Angle="-23.0062"/>
+                                            <SkewTransform AngleX="-5.67854" AngleY="0"/>
+                                          <RotateTransform CenterX="-0.125" CenterY="1.05308" Angle="-23.0062"/>
                                         </TransformGroup>
-                                    </LinearGradientBrush.RelativeTransform>
+                                    </LinearGradientBrush.Transform>
                                     <LinearGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE5E5E5" Offset="0"/>
                                         <GradientStop Color="#FFDBDBDB" Offset="0.0805009"/>

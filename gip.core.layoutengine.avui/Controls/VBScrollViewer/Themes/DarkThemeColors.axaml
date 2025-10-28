@@ -8,56 +8,56 @@ x:ClassModifier="internal">
     <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
     <LinearGradientBrush x:Key="ScrollBarThumbVertDarkBackground" EndPoint="0,1" StartPoint="0,0">
-        <LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
                 <SkewTransform CenterY="0.5" CenterX="0.5"/>
                 <RotateTransform Angle="-90" CenterY="0.5" CenterX="0.5"/>
                 <TranslateTransform/>
             </TransformGroup>
-        </LinearGradientBrush.RelativeTransform>
+        </LinearGradientBrush.Transform>
         <GradientStop Color="#4D4D4D" Offset="0.15"/>
         <GradientStop Color="#3D3D3D" Offset="0.5"/>
         <GradientStop Color="#2D2D2D" Offset="0.5"/>
         <GradientStop Color="#1D1D1D" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="ScrollBarThumbVertNormalBackground" EndPoint="0,1" StartPoint="0,0">
-        <LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
                 <SkewTransform CenterY="0.5" CenterX="0.5"/>
                 <RotateTransform Angle="-90" CenterY="0.5" CenterX="0.5"/>
                 <TranslateTransform/>
             </TransformGroup>
-        </LinearGradientBrush.RelativeTransform>
+        </LinearGradientBrush.Transform>
         <GradientStop Color="#B2B2B2" Offset="0.15"/>
         <GradientStop Color="#A2A2A2" Offset="0.5"/>
         <GradientStop Color="#929292" Offset="0.5"/>
         <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="ScrollBarThumbVertFocusBackground" EndPoint="0,1" StartPoint="0,0">
-        <LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
                 <SkewTransform CenterY="0.5" CenterX="0.5"/>
                 <RotateTransform Angle="-90" CenterY="0.5" CenterX="0.5"/>
                 <TranslateTransform/>
             </TransformGroup>
-        </LinearGradientBrush.RelativeTransform>
+        </LinearGradientBrush.Transform>
         <GradientStop Color="#FFFFF3F3" Offset="0"/>
         <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
         <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
         <GradientStop Color="#FFFFCDCD" Offset="1"/>
     </LinearGradientBrush>
     <LinearGradientBrush x:Key="ScrollBarThumbVertPressedBackground" EndPoint="0,1" StartPoint="0,0">
-        <LinearGradientBrush.RelativeTransform>
+        <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
                 <SkewTransform CenterY="0.5" CenterX="0.5"/>
                 <RotateTransform Angle="-90" CenterY="0.5" CenterX="0.5"/>
                 <TranslateTransform/>
             </TransformGroup>
-        </LinearGradientBrush.RelativeTransform>
+        </LinearGradientBrush.Transform>
         <GradientStop Color="#FFFFD3D3" Offset="0"/>
         <GradientStop Color="#FFFFCBCB" Offset="0.5"/>
         <GradientStop Color="#FFFFBDBD" Offset="0.5"/>

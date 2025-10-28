@@ -3,7 +3,7 @@ xmlns="https://github.com/avaloniaui"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-	<ControlTheme x:Key="{x:Type local:VBTreeView}" TargetType="local:VBTreeView">
+	<ControlTheme x:Key="{x:Type local:VBTreeView}" TargetType="{x:Type local:VBTreeView}">
 		<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabledGip}"/>
 		<Setter Property="Background" Value="{StaticResource TreeViewBgEnabledGip}"/>
 		<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabledGip}"/>
@@ -13,10 +13,10 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 		<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
 		<Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
 		<Setter Property="Template">
-			<ControlTemplate>
+			<ControlTemplate TargetType="{x:Type local:VBTreeView}">
 				<Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
 					<Grid.RowDefinitions>
-						<RowDefinition x:Name="RowCaption" Height="30"/>
+						<RowDefinition Height="30"/>
 						<RowDefinition Height="*"/>
 					</Grid.RowDefinitions>
 					<local:VBTextBlock x:Name="PART_Caption" 
@@ -49,7 +49,7 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 		</Setter>
 		
 		<!-- ShowCaption = False -->
-		<Style Selector="^[ShowCaption=False] /template/ #PART_Caption">
+		<Style Selector="^[ShowCaption=False] /template/ local|VBTextBlock#PART_Caption">
 			<Setter Property="IsVisible" Value="False"/>
 		</Style>
 		<Style Selector="^[ShowCaption=False] /template/ Border#Bd">

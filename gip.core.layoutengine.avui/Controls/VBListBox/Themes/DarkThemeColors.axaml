@@ -11,7 +11,7 @@
     <GradientStop Color="#FF666666" Offset="0.548"/>
     <GradientStop Color="Black" Offset="1"/>
   </RadialGradientBrush>
-  <SolidColorBrush x:Key="ListBoxBgDisabled" Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+  <SolidColorBrush x:Key="ListBoxBgDisabled" Color="{StaticResource ColorAppDark}"/>
   <SolidColorBrush x:Key="ListBoxFgDisabled" Color="Silver"/>
   <RadialGradientBrush x:Key="ListBoxBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
     <GradientStop Color="#FFC5C5C6" Offset="0.208"/>

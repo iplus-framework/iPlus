@@ -12,10 +12,8 @@
 
   <LinearGradientBrush x:Key="DateTimePickerPopupBackgroundBrushAero" StartPoint="0,0" EndPoint="0,1">
     <LinearGradientBrush.GradientStops>
-      <GradientStopCollection>
-        <GradientStop Offset="0" Color="#FFffffff"/>
+        <GradientStop Offset="0" Color="#FFFFFFFF"/>
         <GradientStop Offset="1" Color="#FFE8EBED"/>
-      </GradientStopCollection>
     </LinearGradientBrush.GradientStops>
   </LinearGradientBrush>
 

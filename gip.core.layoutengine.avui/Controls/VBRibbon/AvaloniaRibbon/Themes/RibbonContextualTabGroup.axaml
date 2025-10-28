@@ -7,7 +7,7 @@
     <!-- Default properties can be set here if needed -->
 
     <!-- Horizontal orientation style -->
-    <Style Selector="Ribbon[Orientation=Horizontal] > ^">
+    <Style Selector="local|Ribbon[Orientation=Horizontal] > ^">
       <Setter Property="Height" Value="64" />
       <Setter Property="Margin" Value="0,-34,0,0" />
       <Setter Property="Padding" Value="0" />
@@ -59,7 +59,7 @@
     </Style>
 
     <!-- Vertical orientation style -->
-    <Style Selector="Ribbon[Orientation=Vertical] > ^">
+    <Style Selector="local|Ribbon[Orientation=Vertical] > ^">
       <Setter Property="Height" Value="34" />
       <Setter Property="Padding" Value="0" />
       <Setter Property="Template">

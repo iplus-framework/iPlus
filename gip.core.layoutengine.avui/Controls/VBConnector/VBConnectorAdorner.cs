@@ -11,6 +11,7 @@ using gip.ext.design.avui.Extensions;
 using gip.ext.designer.avui.Extensions;
 using gip.ext.designer.avui.Services;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui
 {
@@ -20,7 +21,7 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Repräsentiert einen Adorner für <see cref="VBConnector"/>
     /// </summary>
-    public class VBConnectorAdorner : Control
+    public class VBConnectorAdorner : TemplatedControl
     {
         /// <summary>
         /// The VBVisualConnector item.

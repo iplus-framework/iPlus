@@ -48,11 +48,11 @@
         </Style>
 
         <!-- Mouse Over State (only when not touch leave) -->
-        <Style Selector="^:pointerover:not([IsTouchLeave=True]) /template/ Border#BorderButton">
+        <Style Selector="^:pointerover /template/ Border#BorderButton">
             <Setter Property="Background" Value="{StaticResource ButtonFocusBackground}"/>
             <Setter Property="BorderBrush" Value="{StaticResource ButtonMouseOverBorder}"/>
         </Style>
-        <Style Selector="^:pointerover:not([IsTouchLeave=True])">
+        <Style Selector="^:pointerover">
             <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
             <Setter Property="ContentStroke" Value="{StaticResource ButtonFocusContentStroke}"/>
             <Setter Property="ContentFill" Value="{StaticResource ButtonFocusContentFill}"/>

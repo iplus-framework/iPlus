@@ -7,7 +7,7 @@
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_48" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                        <Path x:Name="Path_49" Width="22.9392" Height="16.9051" Canvas.Left="0.760284" Canvas.Top="3.50008" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_49" Width="22.9392" Height="16.9051" Canvas.Left="0.760284" Canvas.Top="3.50008" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
                               Data="F1 M 17.0874,19.9051C 18.0739,15.6512 19.0604,11.3972 17.72,9.79512C 16.3797,8.19305 12.7124,9.2429 9.04516,10.2928L 9.94588,13.4391L 1.26028,10.8193L 7.24371,4.00008L 7.69408,5.57324L 8.14444,7.14641C 12.6266,5.86326 17.1088,4.58012 19.618,6.41495C 22.1272,8.24978 22.6633,13.2026 23.1995,18.1554L 17.0874,19.9051 Z "/>

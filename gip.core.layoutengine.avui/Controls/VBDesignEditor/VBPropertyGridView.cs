@@ -32,7 +32,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
         protected override void OnInitialized()
         {
             base.OnInitialized();

@@ -8,10 +8,9 @@
         <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
         <Setter Property="Focusable" Value="False" />
         <Setter Property="Template">
-            <Setter.Value>
                 <ControlTemplate>
                     <local:VBButtonSpinner x:Name="Spinner" IsTabStop="False" BorderThickness="{TemplateBinding BorderThickness}">
-                        <local:VBTextBox x:Name="TextBox" 
+                        <local:VBTextBox x:Name="PART_TextBox" 
                                  ShowCaption="{TemplateBinding ShowCaption}"
                                  VBContent="{TemplateBinding VBContent}"
                                  RightControlMode="{TemplateBinding RightControlMode}"
@@ -29,7 +28,6 @@
                                  TabIndex="{TemplateBinding TabIndex}"/>
                     </local:VBButtonSpinner>
                 </ControlTemplate>
-            </Setter.Value>
         </Setter>
     </ControlTheme>
 </ResourceDictionary>

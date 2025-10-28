@@ -99,10 +99,10 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents styled properties for TimeInfo, Now, ClockZoom, TextZoom.
         /// </summary>
-		public static StyledProperty<VBClockTimeInfo> TimeInfoProperty = AvaloniaProperty.Register<VBClock, VBClockTimeInfo> (nameof(TimeInfo), defaultValue: null);
-		public static StyledProperty<DateTime> NowProperty = AvaloniaProperty.Register<VBClockDisplay, DateTime> (nameof(Now), defaultValue: default(DateTime));
-        public static StyledProperty<double> ClockZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>(nameof(ClockZoom), defaultValue: 1.0);
-        public static StyledProperty<double> TextZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>(nameof(TextZoom), defaultValue: 1.0 );
+		public static readonly StyledProperty<VBClockTimeInfo> TimeInfoProperty = AvaloniaProperty.Register<VBClock, VBClockTimeInfo> (nameof(TimeInfo), defaultValue: null);
+		public static readonly StyledProperty<DateTime> NowProperty = AvaloniaProperty.Register<VBClockDisplay, DateTime> (nameof(Now), defaultValue: default(DateTime));
+        public static readonly StyledProperty<double> ClockZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>(nameof(ClockZoom), defaultValue: 1.0);
+        public static readonly StyledProperty<double> TextZoomProperty = AvaloniaProperty.Register<VBClockDisplay, double>(nameof(TextZoom), defaultValue: 1.0 );
 
 		private DispatcherTimer _timer;
 	}

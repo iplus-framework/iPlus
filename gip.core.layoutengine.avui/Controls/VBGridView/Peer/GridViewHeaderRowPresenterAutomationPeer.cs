@@ -10,22 +10,18 @@ using System.Collections.Generic;
 
 namespace gip.core.layoutengine.avui
 {
-    /// 
     public class GridViewHeaderRowPresenterAutomationPeer : ControlAutomationPeer
     {
-        ///
         public GridViewHeaderRowPresenterAutomationPeer(GridViewHeaderRowPresenter owner)
             : base(owner)
         {
         }
 
-        ///
         protected override string GetClassNameCore()
         {
             return "GridViewHeaderRowPresenter";
         }
 
-        ///
         protected override AutomationControlType GetAutomationControlTypeCore()
         {
             return AutomationControlType.Header;
@@ -35,7 +31,6 @@ namespace gip.core.layoutengine.avui
 
         protected override bool IsControlElementCore() => true;
 
-        ///
         //protected override List<AutomationPeer> GetChildrenCore()
         //{
         //    List<AutomationPeer> list = base.GetChildrenCore();

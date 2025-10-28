@@ -11,5 +11,11 @@
     <GradientStop Color="#FF666666" Offset="0.548"/>
     <GradientStop Color="Black" Offset="1"/>
   </RadialGradientBrush>
-  
+
+  <SolidColorBrush x:Key="TextAreaSelectionBorder" Color="DodgerBlue"/>
+  <SolidColorBrush x:Key="TextAreaSelectionBg" Color="Cyan"/>
+  <SolidColorBrush x:Key="TextAreaSelectionFg" Color="Black"/>
+  <SolidColorBrush x:Key="TextAreaBgEnabled" Color="White"/>
+  <SolidColorBrush x:Key="TextAreaStatusBarBorder" Color="Gray"/>
+
 </ResourceDictionary>

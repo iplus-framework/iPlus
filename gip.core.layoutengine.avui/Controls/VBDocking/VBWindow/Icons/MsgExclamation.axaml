@@ -1,13 +1,13 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <Style x:Key="IconMsgExclamationStyleGip" TargetType="{x:Type ContentControl}">
+  <ControlTheme x:Key="IconMsgExclamationStyle" TargetType="{x:Type ContentControl}">
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate TargetType="{x:Type ContentControl}">
+                <ControlTemplate>
                     <Viewbox Stretch="Uniform">
                         <Canvas x:Name="Ebene_1_148" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                            <Path x:Name="Path_149" Width="24" Height="21.0526" Canvas.Left="-1.84774e-006" Canvas.Top="1.47372" Stretch="Fill" Data="F1 M 12,2.47372L 0.999998,21.5263L 23,21.5263L 12,2.47372 Z " StrokeThickness="2" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round">
+                            <Path x:Name="Path_149" Width="24" Height="21.0526" Canvas.Left="-1.84774e-006" Canvas.Top="1.47372" Stretch="Fill" Data="F1 M 12,2.47372L 0.999998,21.5263L 23,21.5263L 12,2.47372 Z " StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round">
                                 <Path.Stroke>
                                     <LinearGradientBrush StartPoint="0.5,1.04625" EndPoint="0.5,-0.046252">
                                         <LinearGradientBrush.GradientStops>
@@ -40,24 +40,10 @@
                             </Viewbox>
                         </Canvas>
                     </Viewbox>
-                    <!--<ControlTemplate.Triggers>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsMouseOver}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsPressed}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="{StaticResource IconEditPasteHotFillPart1}"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=IsEnabled}" Value="True">
-                            <Setter TargetName="Part1" Property="Fill" Value="Black"/>
-                        </DataTrigger>
-                    </ControlTemplate.Triggers>-->
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </Style>
-
-    <Style x:Key="IconMsgExclamationStyleAero" TargetType="{x:Type ContentControl}" BasedOn="{StaticResource IconMsgExclamationStyleGip}">
-    </Style>
+    </ControlTheme>
 </ResourceDictionary>
 
 

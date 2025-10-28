@@ -6,7 +6,6 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBContentControl/Themes/ContentControlStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButton/Themes/ButtonStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/BarViewerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScrollViewer/Themes/ScrollViewerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Themes/RibbonButtonStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenu/Themes/MenuStyle.axaml"/>
@@ -40,7 +39,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingManagerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBConnectionState/Themes/ConnectionStateStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBControlSelectionIcon/Themes/VBControlSelectionIconStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBChartPlotter/Themes/ChartPlotterStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRepeatButton/Themes/RepeatButtonStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButtonSpinner/Themes/ButtonSpinnerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyle.axaml"/>
@@ -68,7 +66,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogRootStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBFrame/Themes/FrameStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBPage/Themes/PageStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBHeader/Themes/HeaderStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeListView/Themes/TreeListViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeListView/Themes/TreeListViewItemStyle.axaml"/>
@@ -82,7 +79,6 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBGanttChart/Themes/GanttChartViewStyle.axaml"/>
 
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineViewStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/RulerBlockItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineChartStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineItemsPresenterStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTimeline/Themes/TimelineItemStyle.axaml"/>
@@ -141,11 +137,10 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/TimeFrom.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/TimeTo.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Undo.axaml"/>
-
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>
 
-  <StyleInclude Source="/Controls/VBRibbon/AvaloniaRibbon/AvaloniaRibbon.axaml" />
+  <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/AvaloniaRibbon/Themes/AvaloniaRibbon.axaml" />
 </Styles>
 

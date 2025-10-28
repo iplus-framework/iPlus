@@ -137,9 +137,7 @@ namespace gip.core.layoutengine.avui
             o => o.ItemTemplate,
             (o, v) => o.ItemTemplate = v);
 
-        /// <summary>
-        ///  Gets or sets an <see cref="IDataTemplate"/> for the <see cref="Header"/>
-        /// </summary>
+
         public IDataTemplate ItemTemplate
         {
             get { return _ItemTemplate; }

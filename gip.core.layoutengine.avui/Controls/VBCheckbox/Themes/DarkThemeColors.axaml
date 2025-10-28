@@ -15,7 +15,7 @@
   <SolidColorBrush x:Key="CheckBoxEnabledCheckBorder" Color="#FFFF0000"/>
   <SolidColorBrush x:Key="CheckBoxEnabledCheckFill" Color="#FF770000"/>
 
-  <SolidColorBrush x:Key="CheckBoxBgDisabled" Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppDark, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+  <SolidColorBrush x:Key="CheckBoxBgDisabled" Color="{StaticResource ColorAppDark}"/>
   <SolidColorBrush x:Key="CheckBoxFgDisabled" Color="Silver"/>
   <RadialGradientBrush x:Key="CheckBoxBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
     <GradientStop Color="#FFC5C5C6" Offset="0.208"/>

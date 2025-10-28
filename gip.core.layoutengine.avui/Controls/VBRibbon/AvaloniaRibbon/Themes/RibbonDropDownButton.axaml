@@ -10,13 +10,13 @@
     <Setter Property="Padding" Value="3" />
     <Setter Property="QuickAccessTemplate">
       <ControlTemplate>
-        <RibbonDropDownButton
+        <local:RibbonDropDownButton
             Height="34"
             Classes="quickAccessButton"
             Focusable="False"
             Icon="{Binding QuickAccessIcon}"
             ItemsSource="{Binding ItemsSource}"
-            KeyTip.KeyTipKeys="{Binding KeyTip.Tip}"
+            local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}"
             MaxSize="Small"
             MinSize="Small"
             Size="Small"

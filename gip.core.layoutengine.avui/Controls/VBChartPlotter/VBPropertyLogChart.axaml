@@ -17,11 +17,11 @@
         <ContentControl x:Name="chartContent" Content="{Binding ElementName=ucChart, Path=ChartControl}" Grid.ColumnSpan="3"></ContentControl>
 
         <local:VBGrid x:Name="ucLiveConsole" Margin="0,5,0,0" Grid.Row="1" Grid.Column="1" HorizontalAlignment="Center">
-            <local:VBGrid.RowDefinitions>
+            <RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
-            </local:VBGrid.RowDefinitions>
-            <local:VBGrid.ColumnDefinitions>
+            </RowDefinitions>
+            <ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="30"></ColumnDefinition>
                 <ColumnDefinition Width="2"></ColumnDefinition>
@@ -29,24 +29,24 @@
                 <ColumnDefinition Width="2"></ColumnDefinition>
                 <ColumnDefinition Width="30"></ColumnDefinition>
                 <ColumnDefinition Width="90"/>
-            </local:VBGrid.ColumnDefinitions>
+            </ColumnDefinitions>
             <local:VBButton Grid.Column="1" x:Name="ucButtonPlay" Click="ucButtonPlay_Click" >
-                <ContentControl Style="{StaticResource IconPlayStyle}"/>
+                <ContentControl Theme="{StaticResource IconPlayStyle}"/>
             </local:VBButton>
             <local:VBButton Grid.Column="3" x:Name="ucButtonPause" Click="ucButtonPause_Click" >
-                <ContentControl Style="{StaticResource IconPauseStyle}"/>
+                <ContentControl Theme="{StaticResource IconPauseStyle}"/>
             </local:VBButton>
             <local:VBButton Grid.Column="5" x:Name="ucButtonStop" Click="ucButtonStop_Click" >
-                <ContentControl Style="{StaticResource IconStopStyle}"/>
+                <ContentControl Theme="{StaticResource IconStopStyle}"/>
             </local:VBButton>
         </local:VBGrid>
 
         <local:VBGrid x:Name="ucArchiveConsole" Margin="0,5,0,0" Grid.Row="1" Grid.Column="1">
-            <local:VBGrid.RowDefinitions>
+            <RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
-            </local:VBGrid.RowDefinitions>
-            <local:VBGrid.ColumnDefinitions>
+            </RowDefinitions>
+            <ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="30"></ColumnDefinition>
                 <ColumnDefinition Width="100*" MaxWidth="250"></ColumnDefinition>
@@ -55,27 +55,27 @@
                 <ColumnDefinition Width="30"></ColumnDefinition>
                 <ColumnDefinition Width="90"></ColumnDefinition>
 
-            </local:VBGrid.ColumnDefinitions>
+            </ColumnDefinitions>
 
-            <local:VBContentControlIcon local:VBGrid.Column="1">
-                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeFromStyle}"/>
+            <local:VBContentControlIcon Grid.Column="1">
+                <ContentControl Grid.Column="1" Theme="{StaticResource IconTimeFromStyle}"/>
             </local:VBContentControlIcon>
-            <local:VBDateTimePicker local:VBGrid.Column="2" Visibility="Visible" Margin="0,0,10,0" x:Name="ucDatepickerFrom" ShowCaption="False"></local:VBDateTimePicker>
-            <local:VBContentControlIcon local:VBGrid.Column="3">
-                <ContentControl local:VBGrid.Column="1" Style="{StaticResource IconTimeToStyle}"/>
+            <local:VBDateTimePicker Grid.Column="2" Margin="0,0,10,0" x:Name="ucDatepickerFrom" ShowCaption="False"></local:VBDateTimePicker>
+            <local:VBContentControlIcon Grid.Column="3">
+                <ContentControl Grid.Column="1" Theme="{StaticResource IconTimeToStyle}"/>
             </local:VBContentControlIcon>
-            <local:VBDateTimePicker local:VBGrid.Column="4" Visibility="Visible" Margin="0,0,10,0" x:Name="ucDatepickerTo" ShowCaption="False"></local:VBDateTimePicker>
+            <local:VBDateTimePicker Grid.Column="4" Margin="0,0,10,0" x:Name="ucDatepickerTo" ShowCaption="False"></local:VBDateTimePicker>
             <local:VBButton x:Name="ucButtonLoadArchive" Grid.Column="5" Click="ucButtonLoadArchive_Click" >
-                <ContentControl Style="{StaticResource IconLoadRefreshStyle}"/>
+                <ContentControl Theme="{StaticResource IconLoadRefreshStyle}"/>
             </local:VBButton>
         </local:VBGrid>
 
         <local:VBGrid x:Name="ucInterpolationConsole" Margin="0,5,0,0" Grid.Row="1" Grid.Column="1">
-            <local:VBGrid.RowDefinitions>
+            <RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
                 <RowDefinition Height="30"></RowDefinition>
-            </local:VBGrid.RowDefinitions>
-            <local:VBGrid.ColumnDefinitions>
+            </RowDefinitions>
+            <ColumnDefinitions>
                 <ColumnDefinition Width="*"></ColumnDefinition>
                 <ColumnDefinition Width="30"></ColumnDefinition>
                 <ColumnDefinition Width="100*" MaxWidth="250"></ColumnDefinition>
@@ -84,7 +84,7 @@
                 <ColumnDefinition Width="30"></ColumnDefinition>
                 <ColumnDefinition Width="90"></ColumnDefinition>
 
-            </local:VBGrid.ColumnDefinitions>
+            </ColumnDefinitions>
 
             <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="7">
                 <local:VBComboBox x:Name="SmoothingOn" MinWidth="100" MaxWidth="300" ShowCaption="False" SelectionChanged="SmoothingOn_SelectionChanged" />
@@ -106,15 +106,15 @@
                 <ColumnDefinition Width="30" />
                 <ColumnDefinition Width="10" />
             </Grid.ColumnDefinitions>
-            <local:VBGrid.RowDefinitions>
+            <RowDefinitions>
                 <RowDefinition Height="30"></RowDefinition>
-            </local:VBGrid.RowDefinitions>
+            </RowDefinitions>
 
             <local:VBButton x:Name="ucButtonPrintMode" Grid.Column="1" Click="ucButtonPrintMode_Click" >
-                <ContentControl Style="{StaticResource IconPreviewStyle}"/>
+                <ContentControl Theme="{StaticResource IconPreviewStyle}"/>
             </local:VBButton>
             <local:VBButton x:Name="ucButtonPrint" Grid.Column="3" Click="ucButtonPrint_Click" >
-                <ContentControl Style="{StaticResource IconPrintStyle}"/>
+                <ContentControl Theme="{StaticResource IconPrintStyle}"/>
             </local:VBButton>
         </local:VBGrid>
     </Grid>

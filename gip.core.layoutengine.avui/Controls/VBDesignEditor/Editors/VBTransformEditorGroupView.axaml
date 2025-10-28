@@ -15,9 +15,8 @@
             <ColumnDefinition Width="140" />
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <local:VBListBox Grid.Row="0" Grid.RowSpan="2" x:Name="PART_TransformGroupList" ItemsSource="{Binding TransformCollection}" 
-                         IsSynchronizedWithCurrentItem="True" 
-                         DisplayMemberPath="Name" 
+        <local:VBListBox Grid.Row="0" Grid.RowSpan="2" x:Name="PART_TransformGroupList" ItemsSource="{Binding TransformCollection}"
+                         DisplayMemberBinding="{Binding Path=Name}" 
                          ShowCaption="False"
                          SelectionChanged="ComboTransform_SelectionChanged"/>
         <UniformGrid Grid.Row="2" Columns="2" Rows="1">

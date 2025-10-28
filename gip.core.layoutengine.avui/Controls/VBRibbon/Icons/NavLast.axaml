@@ -7,12 +7,12 @@
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_6" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                        <Path x:Name="Path_7" Width="4" Height="21" Canvas.Left="15.5" Canvas.Top="1.49999" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_7" Width="4" Height="21" Canvas.Left="15.5" Canvas.Top="1.49999" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                             Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
                               Data="F1 M 19,1.99999L 16,2.00002L 16,22L 19,22L 19,1.99999 Z "/>
-                        <Path x:Name="Path_8" Width="12" Height="21" Canvas.Left="4.5" Canvas.Top="1.5" Stretch="Fill" StrokeStartLineCap="Round" 
-                              StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_8" Width="12" Height="21" Canvas.Left="4.5" Canvas.Top="1.5" Stretch="Fill" StrokeLineCap="Round" 
+                              StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                             Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
                               Data="F1 M 16,12L 5,2L 5,22L 16,12 Z "/>

@@ -1,7 +1,7 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
-                    xmlns:converters="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon.Converters">
+                    xmlns:converters="clr-namespace:Avalonia.Controls.Converters;assembly=Avalonia.Controls">
   
   <converters:PlatformKeyGestureConverter x:Key="KeyGestureConverter" />
   <x:Double x:Key="MenuFlyoutSubItemPopupHorizontalOffset">-4</x:Double>

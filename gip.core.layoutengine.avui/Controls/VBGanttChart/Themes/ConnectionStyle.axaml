@@ -45,14 +45,14 @@
                 StrokeThickness="{TemplateBinding LineStrokeThickness}"
                 Stroke="{TemplateBinding LineStroke}"
                 StrokeLineCap="Round"
-                StrokeLineJoin="Round"
+                StrokeJoin="Round"
                 StrokeDashArray="{Binding StrokeDashArray}"
                 Data="{Binding PathGeometry}">
           </Path>
           <Path StrokeThickness="{TemplateBinding LineStrokeThickness, Converter={StaticResource AddDoubleConverter}, ConverterParameter=3}"
                 Stroke="Transparent"
                 StrokeLineCap="Round"
-                StrokeLineJoin="Round"
+                StrokeJoin="Round"
                 Data="{Binding PathGeometry}">
           </Path>
           <Grid Theme="{StaticResource ArrowGridStyle}"

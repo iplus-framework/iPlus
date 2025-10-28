@@ -97,6 +97,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
+            base.OnPropertyChanged(change);
             if (change.Property == IsOpenProperty && !(bool)change.NewValue)
             {
                 if (_AppCommandsToRemove == null || PlacementTarget == null)

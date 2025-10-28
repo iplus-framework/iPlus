@@ -2,7 +2,7 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
-  
+
   <SolidColorBrush x:Key="TextEditorBgEnabled" Color="White"/>
   <SolidColorBrush x:Key="TextEditorFgEnabled" Color="Black"/>
   <SolidColorBrush x:Key="TextEditorFgEnabledFocus" Color="Black"/>
@@ -11,5 +11,11 @@
     <GradientStop Color="#FF666666" Offset="0.548"/>
     <GradientStop Color="Black" Offset="1"/>
   </RadialGradientBrush>
+
+  <SolidColorBrush x:Key="TextAreaSelectionBorder" Color="DodgerBlue"/>
+  <SolidColorBrush x:Key="TextAreaSelectionBg" Color="Cyan"/>
+  <SolidColorBrush x:Key="TextAreaSelectionFg" Color="Black"/>
+  <SolidColorBrush x:Key="TextAreaBgEnabled" Color="#FF1A1A1A"/>
+  <SolidColorBrush x:Key="TextAreaStatusBarBorder" Color="Gray"/>
   
 </ResourceDictionary>

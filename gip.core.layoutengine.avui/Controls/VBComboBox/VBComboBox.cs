@@ -22,6 +22,7 @@ using gip.ext.designer.avui;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
+using Avalonia.Styling;
 
 namespace gip.core.layoutengine.avui
 {
@@ -34,6 +35,20 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBComboBox'}de{'VBComboBox'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBComboBox : ComboBox, IVBContent, IVBSource, IACMenuBuilderWPFTree, IACObject
     {
+        // Pseudo classes for Avalonia to replace x:Null comparison
+        public static readonly StyledProperty<bool> HasSelectedValueProperty =
+            AvaloniaProperty.Register<VBComboBox, bool>(nameof(HasSelectedValue), false);
+
+        public bool HasSelectedValue
+        {
+            get { return GetValue(HasSelectedValueProperty); }
+            private set { SetValue(HasSelectedValueProperty, value); }
+        }
+
+        // Define pseudo classes - using string-based pseudo classes for Avalonia
+        private const string HasValuePseudoClass = ":has-value";
+        private const string NoValuePseudoClass = ":no-value";
+
         public VBComboBox()
         {
             VisibilityFilterRow = false;
@@ -43,8 +58,20 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
             this.GetObservable(SelectedItemProperty).Subscribe(_ => OnSelectedItemChanged());
+            this.GetObservable(SelectedValueProperty).Subscribe(_ => OnSelectedValueChanged());
             Loaded += VBComboBox_Loaded;
             Unloaded += VBComboBox_Unloaded;
+        }
+
+        private void OnSelectedValueChanged()
+        {
+            var selectedValue = SelectedValue;
+            var hasValue = selectedValue != null;
+            HasSelectedValue = hasValue;
+            
+            // Update pseudo classes
+            PseudoClasses.Set(HasValuePseudoClass, hasValue);
+            PseudoClasses.Set(NoValuePseudoClass, !hasValue);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)

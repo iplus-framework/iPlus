@@ -45,14 +45,14 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for Fill.
         /// </summary>
-        public static readonly StyledProperty<Brush> FillProperty =
-           AvaloniaProperty.Register<VBPiePiece, Brush>(nameof(Fill));
+        public static readonly StyledProperty<IBrush> FillProperty =
+           AvaloniaProperty.Register<VBPiePiece, IBrush>(nameof(Fill));
 
         /// <summary>
         /// The fill color of this pie piece
         /// </summary>
         [Category("VBControl")]
-        public Brush Fill
+        public IBrush Fill
         {
             get { return GetValue(FillProperty); }
             set { SetValue(FillProperty, value); }
@@ -61,14 +61,14 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for Stroke.
         /// </summary>
-        public static readonly StyledProperty<Brush> StrokeProperty =
-           AvaloniaProperty.Register<VBPiePiece, Brush>(nameof(Stroke));
+        public static readonly StyledProperty<IBrush> StrokeProperty =
+           AvaloniaProperty.Register<VBPiePiece, IBrush>(nameof(Stroke));
 
         /// <summary>
         /// The fill color of this pie piece
         /// </summary>
         [Category("VBControl")]
-        public Brush Stroke
+        public IBrush Stroke
         {
             get { return GetValue(StrokeProperty); }
             set { SetValue(StrokeProperty, value); }

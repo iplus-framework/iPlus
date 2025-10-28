@@ -8,18 +8,18 @@
     <GradientStop Color="#B2B2B2" Offset="0.15"/>
     <GradientStop Color="#A2A2A2" Offset=".5"/>
     <GradientStop Color="#929292" Offset=".5"/>
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </LinearGradientBrush>
 
   <RadialGradientBrush x:Key="DockingCloseButtonBrushStyle">
     <GradientStop Color="#ADADAD" Offset="0"/>
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </RadialGradientBrush>
   <SolidColorBrush x:Key="DockingCloseButtonBorderBrush" Color="#2D2D2D"/>
   <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#9D9D9D"/>
 
   <RadialGradientBrush x:Key="DockingCloseButtonBrushHotStyle">
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="0"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="0"/>
     <GradientStop Color="#626262" Offset="1"/>
   </RadialGradientBrush>
   <SolidColorBrush x:Key="DockingCloseButtonBorderBrushHot" Color="Red"/>

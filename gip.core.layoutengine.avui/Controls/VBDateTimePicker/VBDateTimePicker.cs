@@ -5,6 +5,7 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
+using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
@@ -23,6 +24,20 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDateTimePicker'}de{'VBDateTimePicker'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBDateTimePicker : TemplatedControl, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
     {
+        // Pseudo classes for Avalonia to replace x:Null comparison
+        public static readonly StyledProperty<bool> HasSelectedDateProperty =
+            AvaloniaProperty.Register<VBDateTimePicker, bool>(nameof(HasSelectedDate), false);
+
+        public bool HasSelectedDate
+        {
+            get { return GetValue(HasSelectedDateProperty); }
+            private set { SetValue(HasSelectedDateProperty, value); }
+        }
+
+        // Define pseudo classes - using string-based pseudo classes for Avalonia
+        private const string HasDatePseudoClass = ":has-date";
+        private const string NoDatePseudoClass = ":no-date";
+
         #region c'tors
         /// <summary>
         /// Creates a new instance of VBDateTimePicker.
@@ -39,8 +54,20 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
+            this.GetObservable(SelectedDateProperty).Subscribe(_ => OnSelectedDatePropertyChanged());
             Loaded += VBDateTimePicker_Loaded;
             Unloaded += VBDateTimePicker_Unloaded;
+        }
+
+        private void OnSelectedDatePropertyChanged()
+        {
+            var selectedDate = SelectedDate;
+            var hasDate = selectedDate.HasValue;
+            HasSelectedDate = hasDate;
+            
+            // Update pseudo classes
+            PseudoClasses.Set(HasDatePseudoClass, hasDate);
+            PseudoClasses.Set(NoDatePseudoClass, !hasDate);
         }
 
         /// <summary>

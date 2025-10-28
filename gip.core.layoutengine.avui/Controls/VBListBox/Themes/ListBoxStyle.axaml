@@ -14,14 +14,13 @@
 		<Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
 		<Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True"/>
 		<Setter Property="ScrollViewer.IsScrollInertiaEnabled" Value="True"/>
-		<Setter Property="VerticalContentAlignment" Value="Center"/>
 		<Setter Property="Template">
 			<ControlTemplate>
 				<Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-						<ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-						<ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+						<ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+						<ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+						<ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
 					</Grid.ColumnDefinitions>
 					
 					<local:VBTextBlock x:Name="PART_Caption" 
@@ -59,11 +58,11 @@
 		</Setter>
 
 		<!-- ShowCaption = False -->
-		<Style Selector="^[ShowCaption=False] /template/ Grid#LayoutRoot ColumnDefinition#ColCaption">
-			<Setter Property="Width" Value="0"/>
-		</Style>
-		<Style Selector="^[ShowCaption=False] /template/ Border#Border">
-			<Setter Property="Margin" Value="0,0,0,0"/>
+		<Style Selector="^[ShowCaption=False]">
+			<Setter Property="WidthCaption" Value="0"/>
+			<Style Selector="^ /template/ Border#Border">
+				<Setter Property="Margin" Value="0,0,0,0"/>
+			</Style>
 		</Style>
 
 		<!-- Disabled State -->
@@ -79,19 +78,19 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabledGip}"/>
 			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabledGipFocus}"/>
 		</Style>
-		<Style Selector="^[ControlMode=Enabled]:not(:focus)">
+		<Style Selector="^[ControlMode=Enabled]">
 			<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabledGip}"/>
 			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabledGip}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabledGip}"/>
 		</Style>
 
-		<!-- EnabledRequired States (when SelectedValue is null) -->
-		<Style Selector="^[ControlMode=EnabledRequired][SelectedValue=null]:focus">
+		<!-- EnabledRequired States -->
+		<Style Selector="^[ControlMode=EnabledRequired]:focus">
 			<Setter Property="Background" Value="{DynamicResource ListBoxBgRequiredGip}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderRequiredGip}"/>
 			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgRequiredGipFocus}"/>
 		</Style>
-		<Style Selector="^[ControlMode=EnabledRequired][SelectedValue=null]:not(:focus)">
+		<Style Selector="^[ControlMode=EnabledRequired]">
 			<Setter Property="Background" Value="{DynamicResource ListBoxBgRequiredGip}"/>
 			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgRequiredGip}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderRequiredGip}"/>
@@ -103,7 +102,7 @@
 			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrongGip}"/>
 			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongGipFocus}"/>
 		</Style>
-		<Style Selector="^[ControlMode=EnabledWrong]:not(:focus)">
+		<Style Selector="^[ControlMode=EnabledWrong]">
 			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrongGip}"/>
 			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongGip}"/>
 			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrongGip}"/>

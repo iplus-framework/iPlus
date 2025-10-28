@@ -642,7 +642,7 @@ namespace gip.core.layoutengine.avui
 
         #region Additional Dependency Prop
 
-        public static AttachedProperty<string> RegisterVBDecoratorProperty =
+        public static readonly AttachedProperty<string> RegisterVBDecoratorProperty =
             VBDesignBase.RegisterVBDecoratorProperty.AddOwner<VBVisual>();
 
         [Category("VBControl")]

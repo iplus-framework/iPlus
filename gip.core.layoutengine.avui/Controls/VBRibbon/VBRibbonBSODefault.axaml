@@ -28,8 +28,6 @@
                 <ResourceInclude Source="/Controls/VBRibbon/Icons/DataExport.axaml"/>
 
                 <ResourceInclude Source="/Controls/VBRibbon/Icons/Find.axaml"/>
-                <ResourceInclude Source="/Controls/VBRibbon/Themes/RibbonTrayBorderStyle.axaml"/>
-
         </ResourceDictionary.MergedDictionaries>
       </ResourceDictionary>
     </local:VBRibbon.Resources>

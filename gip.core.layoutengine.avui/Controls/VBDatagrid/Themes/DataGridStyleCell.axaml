@@ -20,7 +20,7 @@
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Padding" Value="0" />
-    <Setter Property="ShowCaptionProperty" Value="false" />
+    <Setter Property="ShowCaption" Value="false" />
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCellDateTimeTheme"
@@ -29,19 +29,19 @@
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Padding" Value="0" />
-    <Setter Property="ShowCaptionProperty" Value="false" />
+    <Setter Property="ShowCaption" Value="false" />
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCellComboDefaultTheme"
             BasedOn="{StaticResource {x:Type local:VBComboBox}}"
             TargetType="local:VBComboBox">
-    <Setter Property="ShowCaptionProperty" Value="false" />
+    <Setter Property="ShowCaption" Value="false" />
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCellComboEditTheme"
             BasedOn="{StaticResource {x:Type local:VBComboBox}}"
             TargetType="local:VBComboBox">
-    <Setter Property="ShowCaptionProperty" Value="false" />
+    <Setter Property="ShowCaption" Value="false" />
   </ControlTheme>
 
   <ControlTheme x:Key="DataGridCheckBoxDefaultTheme"
@@ -324,8 +324,7 @@
                               VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
                               Content="{TemplateBinding Content}"
                               ContentTemplate="{TemplateBinding ContentTemplate}"
-                              Foreground="{TemplateBinding Foreground}"
-                              TextBlock.FontStyle="Italic" />
+                              Foreground="{TemplateBinding Foreground}" />
 
             <Rectangle Grid.Column="0" x:Name="InvalidVisualElement"
                        IsVisible="False"

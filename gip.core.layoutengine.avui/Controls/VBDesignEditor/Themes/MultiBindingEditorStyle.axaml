@@ -21,7 +21,6 @@
             </Grid.ColumnDefinitions>
             <local:VBListBox x:Name="PART_BindingList" 
                              ItemsSource="{Binding Path=BindingsCollection}" 
-                             IsSynchronizedWithCurrentItem="True" 
                              ShowCaption="False">
               <ListBox.ItemTemplate>
                 <DataTemplate>

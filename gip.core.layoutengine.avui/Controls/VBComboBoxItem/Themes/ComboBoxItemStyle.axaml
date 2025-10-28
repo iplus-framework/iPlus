@@ -18,7 +18,7 @@
 					<Line Grid.Row="0" 
 						Stroke="#FF888888" 
 						StrokeThickness="1"
-						StrokeDashArray="1 2" 
+						StrokeDashArray="1,2" 
 						StartPoint="0,0"
 						EndPoint="1,0"
 						HorizontalAlignment="Stretch" 

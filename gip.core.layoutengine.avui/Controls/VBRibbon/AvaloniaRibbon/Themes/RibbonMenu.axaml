@@ -117,22 +117,22 @@
     </Setter>
 
     <!-- Ribbon orientation specific styles -->
-    <Style Selector="Ribbon[Orientation=Horizontal] > ^">
+    <Style Selector="local|Ribbon[Orientation=Horizontal] > ^">
       <Setter Property="Padding" Value="16,4" />
     </Style>
-    <Style Selector="Ribbon[Orientation=Vertical] > ^">
+    <Style Selector="local|Ribbon[Orientation=Vertical] > ^">
       <Setter Property="Padding" Value="4" />
     </Style>
 
     <!-- ContentButton styles -->
-    <Style Selector="Ribbon > ^ /template/ ToggleButton#ContentButton:not(:pointerover):not(:pressed):not(:checked)">
+    <Style Selector="local|Ribbon > ^ /template/ ToggleButton#ContentButton:not(:pointerover):not(:pressed):not(:checked)">
       <Setter Property="Foreground" Value="{Binding $parent[Ribbon].Foreground}" />
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
 
     <!-- BackButton styles -->
-    <Style Selector="Ribbon > ^ /template/ ToggleButton#BackButton:not(:pointerover):not(:pressed):not(:checked)">
+    <Style Selector="local|Ribbon > ^ /template/ ToggleButton#BackButton:not(:pointerover):not(:pressed):not(:checked)">
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>

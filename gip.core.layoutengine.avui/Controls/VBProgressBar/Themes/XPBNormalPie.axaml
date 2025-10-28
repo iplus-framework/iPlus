@@ -31,6 +31,10 @@
                             Grid.Row="1" Grid.Column="1"
                             VerticalAlignment="Center" HorizontalAlignment="Center"/>
             </Grid>
+
+          <!--  Dummy PART_Indicator -->
+          <Border x:Name="PART_Indicator" IsVisible="False"/>
+
         </Grid>
     </ControlTemplate>
 </ResourceDictionary>

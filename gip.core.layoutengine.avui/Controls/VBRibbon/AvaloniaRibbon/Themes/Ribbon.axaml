@@ -158,7 +158,7 @@
                   </ItemsControl.ContextMenu>
                   <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
-                      <RibbonGroupsStackPanel
+                      <local:RibbonGroupsStackPanel
                           x:Name="PART_ItemsPanel"
                           Width="{Binding $parent[ItemsControl].Bounds.Width}"
                           Margin="0"
@@ -293,7 +293,7 @@
                       </ItemsControl.ContextMenu>
                       <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
-                          <RibbonGroupsStackPanel
+                          <local:RibbonGroupsStackPanel
                               x:Name="PART_ItemsPanel"
                               Height="{Binding $parent[ItemsControl].Bounds.Height}"
                               Margin="0"

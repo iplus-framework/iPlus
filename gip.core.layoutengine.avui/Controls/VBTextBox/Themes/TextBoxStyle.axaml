@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:local="clr-namespace:.core.layoutengine.avui"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui"
    x:ClassModifier="internal">
   <!--<ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
@@ -105,9 +105,9 @@
     <DataValidationErrors>
       <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-          <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-          <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
         </Grid.ColumnDefinitions>
         <local:VBTextBlock x:Name="PART_Caption"
                            Grid.Column="0"
@@ -197,9 +197,9 @@
     <DataValidationErrors>
       <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-          <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-          <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
         </Grid.ColumnDefinitions>
         <local:VBTextBlock x:Name="PART_Caption"
                            Grid.Column="0"
@@ -289,10 +289,10 @@
     <DataValidationErrors>
       <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-          <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-          <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-          <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
         </Grid.ColumnDefinitions>
         <local:VBTextBlock x:Name="PART_Caption"
                            Grid.Column="0"
@@ -373,10 +373,10 @@
     <DataValidationErrors>
       <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-          <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-          <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-          <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
         </Grid.ColumnDefinitions>
         <local:VBTextBlock x:Name="PART_Caption"
                            Grid.Column="0"
@@ -457,10 +457,10 @@
     <DataValidationErrors>
       <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-          <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-          <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-          <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
         </Grid.ColumnDefinitions>
         <local:VBTextBlock x:Name="PART_Caption"
                            Grid.Column="0"
@@ -542,10 +542,10 @@
     <DataValidationErrors>
       <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-          <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-          <ColumnDefinition x:Name="ColCaption2" Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-          <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
+          <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
         </Grid.ColumnDefinitions>
         <local:VBTextBlock x:Name="PART_Caption"
                            Grid.Column="0"
@@ -657,12 +657,11 @@
     </Style>
 
     <!-- ShowCaption = False -->
-    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-
-    <Style Selector="^[ShowCaption=False] /template/ Border#BgElement">
-      <Setter Property="Margin" Value="0"/>
+    <Style Selector="^[ShowCaption=False]">
+      <Setter Property="WidthCaption" Value="0"/>
+      <Style Selector="^ /template/ Border#BgElement">
+        <Setter Property="Margin" Value="0"/>
+      </Style>
     </Style>
 
     <!-- IsNullable = True -->
@@ -684,7 +683,7 @@
     </Style>
 
     <!-- Disabled + Not Focus -->
-    <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+    <Style Selector="^[ControlMode=Disabled]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgDisabled}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabled}"/>
@@ -698,7 +697,7 @@
     </Style>
 
     <!-- Enabled + Not Focus -->
-    <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+    <Style Selector="^[ControlMode=Enabled]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgEnabled}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>
@@ -712,7 +711,7 @@
     </Style>
 
     <!-- EnabledRequired + Not Focus + Empty -->
-    <Style Selector="^:not(:focus)[ControlMode=EnabledRequired][Text='']">
+    <Style Selector="^[ControlMode=EnabledRequired][Text='']">
       <Setter Property="Background" Value="{StaticResource TextBoxBgRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequired}"/>
@@ -726,7 +725,7 @@
     </Style>
 
     <!-- EnabledWrong + Not Focus -->
-    <Style Selector="^:not(:focus)[ControlMode=EnabledWrong]">
+    <Style Selector="^[ControlMode=EnabledWrong]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgWrong}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrong}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrong}"/>
@@ -820,21 +819,19 @@
     </Style>
 
     <!-- ShowCaption = False -->
-    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-
-    <Style Selector="^[ShowCaption=False] /template/ Border#BgElement">
-      <Setter Property="Margin" Value="0"/>
+    <Style Selector="^[ShowCaption=False]">
+      <Setter Property="WidthCaption" Value="0"/>
+      <Style Selector="^ /template/ Border#BgElement">
+        <Setter Property="Margin" Value="0"/>
+      </Style>
     </Style>
 
     <!-- ShowCaption2 = False -->
-    <Style Selector="^[ShowCaption2=False] /template/ ColumnDefinition#ColCaption2">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-
-    <Style Selector="^[ShowCaption2=False] /template/ local|VBTextBlock#PART_Caption2">
-      <Setter Property="Margin" Value="0"/>
+    <Style Selector="^[ShowCaption2=False]">
+      <Setter Property="WidthCaption2" Value="0"/>
+      <Style Selector="^ /template/ local|VBTextBlock#PART_Caption2">
+        <Setter Property="Margin" Value="0"/>
+      </Style>
     </Style>
 
     <!-- Control Mode States (same as VBTextBox) -->
@@ -844,7 +841,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabled}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+    <Style Selector="^[ControlMode=Disabled]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgDisabled}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabled}"/>
@@ -856,7 +853,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledFocus}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+    <Style Selector="^[ControlMode=Enabled]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgEnabled}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>
@@ -868,7 +865,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredFocus}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=EnabledRequired][Text='']">
+    <Style Selector="^[ControlMode=EnabledRequired][Text='']">
       <Setter Property="Background" Value="{StaticResource TextBoxBgRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequired}"/>
@@ -880,7 +877,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongFocus}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=EnabledWrong]">
+    <Style Selector="^[ControlMode=EnabledWrong]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgWrong}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrong}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrong}"/>
@@ -944,7 +941,7 @@
     <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>
     <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="Padding" Value="1"/>
-    <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredFocus}"/>#
+    <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredFocus}"/>
     <Setter Property="ContextFlyout" Value="{StaticResource DefaultTextBoxContextFlyout}" />
     <Setter Property="SelectionBrush" Value="{DynamicResource HighlightBrush}"/>
     <Setter Property="SelectionForegroundBrush" Value="{DynamicResource HighlightForegroundBrush}"/>
@@ -972,12 +969,11 @@
     </Style>
 
     <!-- ShowCaption = False -->
-    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-
-    <Style Selector="^[ShowCaption=False] /template/ Border#BgElement">
-      <Setter Property="Margin" Value="0"/>
+    <Style Selector="^[ShowCaption=False]">
+      <Setter Property="WidthCaption" Value="0"/>
+      <Style Selector="^ /template/ Border#BgElement">
+        <Setter Property="Margin" Value="0"/>
+      </Style>
     </Style>
 
     <!-- Control Mode States (same as VBTextBox) -->
@@ -987,7 +983,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabled}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+    <Style Selector="^[ControlMode=Disabled]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgDisabled}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgDisabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderDisabled}"/>
@@ -999,7 +995,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabledFocus}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+    <Style Selector="^[ControlMode=Enabled]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgEnabled}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderEnabled}"/>
@@ -1011,7 +1007,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequiredFocus}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=EnabledRequired][Text='']">
+    <Style Selector="^[ControlMode=EnabledRequired][Text='']">
       <Setter Property="Background" Value="{StaticResource TextBoxBgRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderRequired}"/>
@@ -1023,7 +1019,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrongFocus}"/>
     </Style>
 
-    <Style Selector="^:not(:focus)[ControlMode=EnabledWrong]">
+    <Style Selector="^[ControlMode=EnabledWrong]">
       <Setter Property="Background" Value="{StaticResource TextBoxBgWrong}"/>
       <Setter Property="Foreground" Value="{StaticResource TextBoxFgWrong}"/>
       <Setter Property="BorderBrush" Value="{StaticResource TextBoxBorderWrong}"/>

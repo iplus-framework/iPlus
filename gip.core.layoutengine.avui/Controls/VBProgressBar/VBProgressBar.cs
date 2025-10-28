@@ -29,7 +29,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>
-        /// <param name="e">The event arguments.</param>
         protected override void OnInitialized()
         {
             base.OnInitialized();
@@ -96,38 +95,38 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly StyledProperty<SolidColorBrush> PieFillProperty =
-            AvaloniaProperty.Register<VBProgressBar, SolidColorBrush>(nameof(PieFill), new SolidColorBrush(Colors.Red));
+        public static readonly StyledProperty<IBrush> PieFillProperty =
+            AvaloniaProperty.Register<VBProgressBar, IBrush>(nameof(PieFill), new SolidColorBrush(Colors.Red));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush PieFill
+        public IBrush PieFill
         {
             get { return GetValue(PieFillProperty); }
             set { SetValue(PieFillProperty, value); }
         }
 
-        public static readonly StyledProperty<SolidColorBrush> PieStrokeProperty =
-            AvaloniaProperty.Register<VBProgressBar, SolidColorBrush>(nameof(PieStroke), new SolidColorBrush(Colors.DarkRed));
+        public static readonly StyledProperty<IBrush> PieStrokeProperty =
+            AvaloniaProperty.Register<VBProgressBar, IBrush>(nameof(PieStroke), new SolidColorBrush(Colors.DarkRed));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush PieStroke
+        public IBrush PieStroke
         {
             get { return GetValue(PieStrokeProperty); }
             set { SetValue(PieStrokeProperty, value); }
         }
 
 
-        public static readonly StyledProperty<SolidColorBrush> PieTextColorProperty =
-            AvaloniaProperty.Register<VBProgressBar, SolidColorBrush>(nameof(PieTextColor), new SolidColorBrush(Colors.Black));
+        public static readonly StyledProperty<IBrush> PieTextColorProperty =
+            AvaloniaProperty.Register<VBProgressBar, IBrush>(nameof(PieTextColor), new SolidColorBrush(Colors.Black));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush PieTextColor
+        public IBrush PieTextColor
         {
             get { return GetValue(PieTextColorProperty); }
             set { SetValue(PieTextColorProperty, value); }

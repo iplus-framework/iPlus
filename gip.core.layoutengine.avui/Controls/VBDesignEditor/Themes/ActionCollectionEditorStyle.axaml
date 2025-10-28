@@ -21,7 +21,7 @@
               <local:VBButton Content="Remove" Height="23" Margin="0,5,0,0" Name="PART_RemoveItem" VerticalAlignment="Top" />
             </StackPanel>
             <Border Grid.Column="1" BorderBrush="Black" BorderThickness="0.75" Margin="10">
-              <local:VBListBox x:Name="PART_OutlineList" ItemsSource="{Binding}" IsSynchronizedWithCurrentItem="True" ShowCaption="False">
+              <local:VBListBox x:Name="PART_OutlineList" ItemsSource="{Binding}" ShowCaption="False">
                 <ListBox.ItemTemplate>
                   <DataTemplate>
                     <StackPanel>

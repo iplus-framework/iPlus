@@ -5,13 +5,13 @@
 
   <RadialGradientBrush x:Key="CloseButtonBrushStyle">
     <GradientStop Color="#FFFDFDFD" Offset="0"/>
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </RadialGradientBrush>
   <SolidColorBrush x:Key="CloseButtonBorderBrush" Color="#FF6D6D6D"/>
   <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#FFDDDDDD"/>
 
   <RadialGradientBrush x:Key="CloseButtonBrushHotStyle">
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="0"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="0"/>
     <GradientStop Color="#FFA2A2A2" Offset="1"/>
   </RadialGradientBrush>
   <SolidColorBrush x:Key="CloseButtonBorderBrushHot" Color="Red"/>
@@ -29,7 +29,7 @@
     <GradientStop Color="#F2F2F2" Offset="0.15"/>
     <GradientStop Color="#E2E2E2" Offset=".5"/>
     <GradientStop Color="#D2D2D2" Offset=".5"/>
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </LinearGradientBrush>
 
   <LinearGradientBrush x:Key="TabItemDisabledBackground" EndPoint="0,1" StartPoint="0,0">

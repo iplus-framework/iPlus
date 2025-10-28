@@ -11,9 +11,7 @@
     <ControlTemplate x:Key="DateTimePickerToggleButtonTemplate" TargetType="ToggleButton">
         <Grid>
             <local:VBRepeatButton x:Name="RepeatButton"
-                                   CornerRadius="0,2.75,2.75,0"
-                                   RenderMouseOver="{TemplateBinding IsPointerOver}"
-                                   RenderPressed="{TemplateBinding IsPressed}" />
+                                   CornerRadius="0,2.75,2.75,0" />
 
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -34,9 +32,9 @@
     <ControlTemplate x:Key="DateTimePickerTemplate" TargetType="local:VBDateTimePicker">
         <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
-                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}"/>
+                <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+                <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
+                <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
             </Grid.ColumnDefinitions>
             <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}"/>
             <Border Margin="4,0,0,0" Grid.Column="1" x:Name="Border">
@@ -58,8 +56,7 @@
                                       IsHitTestVisible="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource InverseBoolConverter}}"/>
                     </Grid>
                     <Popup IsOpen="{Binding IsChecked, ElementName=_calendarToggleButton}" 
-                           PlacementMode="Bottom"
-                           StaysOpen="False">
+                           Placement="Bottom">
                         <Border BorderThickness="1" 
                                 Background="{StaticResource DateTimePickerPopupBackgroundBrush}" 
                                 BorderBrush="{StaticResource DateTimePickerPopupDarkBorderBrush}" 
@@ -95,11 +92,11 @@
         <Setter Property="Padding" Value="4,3"/>
         
         <!-- ShowCaption = False -->
-        <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
-            <Setter Property="Width" Value="0"/>
-        </Style>
-        <Style Selector="^[ShowCaption=False] /template/ Border#Border">
-            <Setter Property="Margin" Value="0,0,0,0"/>
+        <Style Selector="^[ShowCaption=False]">
+            <Setter Property="WidthCaption" Value="0"/>
+            <Style Selector="^ /template/ Border#Border">
+                <Setter Property="Margin" Value="0,0,0,0"/>
+            </Style>
         </Style>
 
         <!-- Disabled State -->
@@ -124,7 +121,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
         </Style>
-        <Style Selector="^:not(:focus)[ControlMode=Disabled]">
+        <Style Selector="^[ControlMode=Disabled]">
             <Setter Property="Background" Value="{StaticResource ComboBoxBgDisabled}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgDisabled}"/>
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderDisabled}"/>
@@ -136,19 +133,19 @@
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabledFocus}"/>
         </Style>
-        <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+        <Style Selector="^[ControlMode=Enabled]">
             <Setter Property="Background" Value="{StaticResource ComboBoxBgEnabled}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgEnabled}"/>
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderEnabled}"/>
         </Style>
 
         <!-- EnabledRequired + Focus -->
-        <Style Selector="^:focus-within[ControlMode=EnabledRequired]:not([SelectedDate=x:Null])">
+        <Style Selector="^:focus-within[ControlMode=EnabledRequired]:has-date">
             <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequiredFocus}"/>
         </Style>
-        <Style Selector="^:not(:focus-within)[ControlMode=EnabledRequired]:not([SelectedDate=x:Null])">
+        <Style Selector="^[ControlMode=EnabledRequired]:has-date">
             <Setter Property="Background" Value="{StaticResource ComboBoxBgRequired}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgRequired}"/>
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderRequired}"/>
@@ -160,7 +157,7 @@
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrongFocus}"/>
         </Style>
-        <Style Selector="^:not(:focus-within)[ControlMode=EnabledWrong]">
+        <Style Selector="^[ControlMode=EnabledWrong]">
             <Setter Property="Background" Value="{StaticResource ComboBoxBgWrong}"/>
             <Setter Property="Foreground" Value="{StaticResource ComboBoxFgWrong}"/>
             <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderWrong}"/>
@@ -176,12 +173,6 @@
         <!-- ToggleButton States -->
         <Style Selector="^:disabled /template/ ToggleButton /template/ Path">
             <Setter Property="Fill" Value="#AFAFAF"/>
-        </Style>
-        <Style Selector="^:pointerover /template/ ToggleButton /template/ local|VBButtonChrome">
-            <Setter Property="RenderMouseOver" Value="True"/>
-        </Style>
-        <Style Selector="^:pressed /template/ ToggleButton /template/ local|VBButtonChrome">
-            <Setter Property="RenderPressed" Value="True"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

@@ -118,6 +118,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs e)
         {
+            base.OnPropertyChanged(e);
             if (e.Property == RelationsProperty && this.Child != null)
             {
                 InsertAdorner();

@@ -7,7 +7,7 @@
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_50" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                        <Path x:Name="Path_Doc" Width="19" Height="21" Canvas.Left="1.49999" Canvas.Top="1.25" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_Doc" Width="19" Height="21" Canvas.Left="1.49999" Canvas.Top="1.25" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="#FFB2B2B2" Data="F1 M 6.90909,1.75L 20,1.75L 20,21.75L 2,21.75L 1.99999,6.36538L 6.90909,1.75 Z ">
                             <Path.Fill>
                                 <LinearGradientBrush StartPoint="50%,5%" EndPoint="50%,95%">
@@ -20,9 +20,9 @@
                                 </LinearGradientBrush>
                             </Path.Fill>
                         </Path>
-                        <Path x:Name="Path_52" Width="5.6923" Height="4.69231" Canvas.Left="1.8077" Canvas.Top="1.80769" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_52" Width="5.6923" Height="4.69231" Canvas.Left="1.8077" Canvas.Top="1.80769" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="#FFB4B4B4" Fill="#FFB4B4B4" Data="F1 M 6.99999,2.30769L 7,6L 2.3077,6L 6.99999,2.30769 Z "/>
-                        <Path x:Name="Path_Harddisk" Width="15" Height="8" Canvas.Left="7.5" Canvas.Top="15.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_Harddisk" Width="15" Height="8" Canvas.Left="7.5" Canvas.Top="15.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" Data="F1 M 8,16C 10.3333,16.7778 12.6667,17.5556 15,17.5556C 17.3333,17.5556 19.6667,16.7778 22,16L 22,21.4444C 19.6667,22.2222 17.3333,23 15,23C 12.6667,23 10.3333,22.2222 8,21.4444L 8,16 Z ">
                             <Path.Fill>
                                 <LinearGradientBrush StartPoint="-4%,56%" EndPoint="104%,56%">
@@ -35,19 +35,19 @@
                                 </LinearGradientBrush>
                             </Path.Fill>
                         </Path>
-                        <Ellipse x:Name="Ellipse_54" Width="15" Height="5.66667" Canvas.Left="7.5" Canvas.Top="12.8333" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Ellipse x:Name="Ellipse_54" Width="15" Height="5.66667" Canvas.Left="7.5" Canvas.Top="12.8333" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                                  Stroke="#FF000000" 
                                  Fill="#FFB4B4B4"/>
-                        <Path x:Name="Line_55" Width="5.60425" Height="1" Canvas.Left="8.5" Canvas.Top="3.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_55" Width="5.60425" Height="1" Canvas.Left="8.5" Canvas.Top="3.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 9,4L 13.6043,4"/>
-                        <Path x:Name="Line_56" Width="11" Height="1" Canvas.Left="3.5" Canvas.Top="8.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_56" Width="11" Height="1" Canvas.Left="3.5" Canvas.Top="8.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 4,9L 14,9"/>
-                        <Path x:Name="Line_57" Width="11" Height="1" Canvas.Left="3.52083" Canvas.Top="10.7708" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_57" Width="11" Height="1" Canvas.Left="3.52083" Canvas.Top="10.7708" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="#FF000000" 
                               Data="F1 M 4.02083,11.2708L 14.0208,11.2708"/>
-                        <Path x:Name="Path_Add" Width="15" Height="15" Canvas.Left="8.5" Canvas.Top="0.499998" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_Add" Width="15" Height="15" Canvas.Left="8.5" Canvas.Top="0.499998" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
                               Data="F1 M 14.25,0.999998L 17.75,0.999998L 17.75,6.25L 23,6.25L 23,9.75L 17.75,9.75L 17.75,15L 14.25,15L 14.25,9.75L 9,9.75L 9,6.25L 14.25,6.25L 14.25,0.999998 Z "/>

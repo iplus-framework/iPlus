@@ -8,13 +8,14 @@ using Avalonia.Interactivity;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Collections;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {
     /// <summary>
     /// Represent connection between two TimelineItems
     /// </summary>
-    public class Connection : Control
+    public class Connection : TemplatedControl
     {
         #region c'tors
 

@@ -2,10 +2,46 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui.timeline">
 
+  <local:RulerBlockSizeConverter x:Key="RulerBlockSizeConverter" />
+
     <ControlTheme x:Key="{x:Type local:TimelineRulerControl}" TargetType="local:TimelineRulerControl">
         <Setter Property="Template">
             <ControlTemplate>
                 <ItemsControl ItemsSource="{TemplateBinding RulerBlocks}">
+                    <ItemsControl.DataTemplates>
+                      <DataTemplate DataType="local:RulerBlockItem">
+                        <Border BorderThickness="0,0,1,1">
+                          <Border.Width>
+                            <MultiBinding Converter="{StaticResource RulerBlockSizeConverter}">
+                              <Binding Path="TickTimeSpan" RelativeSource="{RelativeSource AncestorType=local:TimelineRulerControl}" />
+                              <Binding Path="Span" />
+                            </MultiBinding>
+                          </Border.Width>
+                          <Grid>
+                            <!--<Rectangle x:Name="BackgroundRectangle"  Fill="{StaticResource NormalBrush}" 
+                                                        Stretch="Fill" Stroke="{StaticResource NormalBorderBrush}" StrokeThickness="1" />
+                <Rectangle x:Name="HoverRectangle" Stretch="Fill" 
+                                                        Fill="{StaticResource HoverShineBrush}" Opacity="0" />
+
+
+                <Rectangle x:Name="ShineRectangle" 
+                                                       Fill="{StaticResource ShineBrush}" 
+                                                       Stretch="Fill" 
+                                                       Stroke="{StaticResource NormalBorderBrush}" 
+                                                       StrokeThickness="1" />-->
+
+                            <Line StartPoint="0,0" EndPoint="0,600" Stroke="White" Stretch="Fill" />
+
+                            <!--<Viewbox  Width="{Binding $parent[Grid].Bounds.Width}">-->
+                            <!--<StackPanel Orientation="Vertical" MaxHeight="27" VerticalAlignment="Top">
+                        <TextBlock Text="{Binding HeaderText}" MaxHeight="12" Foreground="Beige" FontSize="11" VerticalAlignment="Top" HorizontalAlignment="Center" />
+                    <local:RulerBlockTimeItems Height="11" Margin="0,0,0,1" StartDateTime="{Binding Start}" Span="{Binding Span}" RulerBlockIndex="{Binding RulerBlockItemIndex}" />
+                    </StackPanel>-->
+                            <!--</Viewbox>-->
+                          </Grid>
+                        </Border>
+                      </DataTemplate>                      
+                    </ItemsControl.DataTemplates>
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <VirtualizingStackPanel Orientation="Horizontal" />

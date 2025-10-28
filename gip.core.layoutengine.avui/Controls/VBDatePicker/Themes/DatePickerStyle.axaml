@@ -103,7 +103,7 @@
         --><!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
         <Setter Property="Background" Value="{DynamicResource {x:Static ThemeBackgroundBrush}}"/>--><!--
         <Setter Property="Background" Value="Red"/>
-        <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+        <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
         <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
         <Setter Property="Template">
@@ -167,8 +167,8 @@
         </Setter>
         <Style.Triggers>
             <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Background" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlBackDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
-                <Setter Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtDisabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+                <Setter Property="Background" Value="{StaticResource CtrlBackDisabled}"/>
+                <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
             </Trigger>
         </Style.Triggers>
     </Style>
@@ -314,16 +314,16 @@
                 <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
             </Trigger>
             <Trigger Property="ControlMode" Value="Enabled">
-                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlBackEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
-                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtEnabled, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource CtrlBackEnabled}"/>
+                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
             </Trigger>
             <Trigger Property="ControlMode" Value="EnabledRequired">
-                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlBackRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
-                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtRequired, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource CtrlBackRequired}"/>
+                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource CtrlTxtRequired}"/>
             </Trigger>
             <Trigger Property="ControlMode" Value="EnabledWrong">
-                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlBackWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
-                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource {ComponentResourceKey ResourceId=CtrlTxtWrong, TypeInTargetAssembly={x:Type local:VBCustomControl}}}"/>
+                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource CtrlBackWrong}"/>
+                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource CtrlTxtWrong}"/>
             </Trigger>
         </ControlTemplate.Triggers>
     </ControlTemplate>
@@ -352,6 +352,6 @@
         <Setter Property="Template" Value="{StaticResource DatePickerTemplateGip}" />
     </Style>-->
 
-  <ControlTheme x:Key="{x:Type local:VBDatePicker}" BasedOn="{x:Type DatePicker}"  TargetType="{x:Type local:VBDatePicker}" />
+  <!--<ControlTheme x:Key="{x:Type local:VBDatePicker}" BasedOn="{x:Type DatePicker}"  TargetType="{x:Type local:VBDatePicker}" />-->
 
 </ResourceDictionary>

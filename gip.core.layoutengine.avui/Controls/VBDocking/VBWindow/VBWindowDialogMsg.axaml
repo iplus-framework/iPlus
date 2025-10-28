@@ -5,56 +5,56 @@
         xmlns:local="clr-namespace:gip.core.layoutengine.avui"
         Icon="avares://gip.core.layoutengine.avui/Images/iPlusIconDesktop.ico">
 
-    <Window.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <!--<ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml"/>-->
-                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgExclamation.axaml"/>
-                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgQuestion.axaml"/>
-                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgInfo.axaml"/>
-                <ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgStop.axaml"/>
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Window.Resources>
-    <Grid Name="gridRoot">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="50"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="Auto" MinHeight="50"></RowDefinition>
-            <RowDefinition Height="150"></RowDefinition>
-            <RowDefinition Height="35"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-        </Grid.RowDefinitions>
-        <ContentPresenter Grid.Column="1" Grid.Row="1" x:Name="imgIcon" Width="48" Height="48"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
-        <local:VBTextBlock x:Name="txtMessage" Grid.Column="2"  Grid.Row="1" TextWrapping="Wrap" TextAlignment="Left" Margin="10 10 10 10" VerticalAlignment="Center" Foreground="White" />
-        <local:VBDataGrid x:Name="lstDetails" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding MsgDetailsView}" AutoGenerateColumns="False" SelectionMode="Single" CanUserAddRows="False">
-            <DataGrid.Columns>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ContentPresenter Width="20" Height="20"
-                                      Content="{Binding ImageContent}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <local:VBDataGridTextColumn Width="Auto" Binding="{Binding Message.ACIdentifier}" Header="Messagekey" IsReadOnly="True"/>
-                <local:VBDataGridTextColumn Width="Auto" Binding="{Binding Message.Message}" Header="Message" IsReadOnly="False"/>
-            </DataGrid.Columns>
-        </local:VBDataGrid>
-        <StackPanel Name="stackPanel" Grid.Row="3" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 5 0 0">
-            <local:VBButton Content="_Ja" x:Name="btnYes" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Yes"/>
-            <local:VBButton Content="_Nein" x:Name="btnNo" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_No"/>
-            <local:VBButton Content="O_K" x:Name="btnOK" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_OK"/>
-            <local:VBButton Content="A_bbrechen" x:Name="btnCancel" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Cancel"/>
-        </StackPanel>
-    </Grid>
+  <Window.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <!--<ResourceDictionary Source="avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml"/>-->
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgExclamation.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgQuestion.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgInfo.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Icons/MsgStop.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Window.Resources>
+  <Grid Name="gridRoot">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="10"></ColumnDefinition>
+      <ColumnDefinition Width="50"></ColumnDefinition>
+      <ColumnDefinition></ColumnDefinition>
+      <ColumnDefinition Width="10"></ColumnDefinition>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="10"></RowDefinition>
+      <RowDefinition Height="Auto" MinHeight="50"></RowDefinition>
+      <RowDefinition Height="150"></RowDefinition>
+      <RowDefinition Height="35"></RowDefinition>
+      <RowDefinition Height="10"></RowDefinition>
+    </Grid.RowDefinitions>
+    <ContentPresenter Grid.Column="1" Grid.Row="1" x:Name="imgIcon" Width="48" Height="48"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
+    <local:VBTextBlock x:Name="txtMessage" Grid.Column="2"  Grid.Row="1" TextWrapping="Wrap" TextAlignment="Left" Margin="10 10 10 10" VerticalAlignment="Center" Foreground="White" />
+    <local:VBDataGrid x:Name="lstDetails" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding MsgDetailsView}" AutoGenerateColumns="False" SelectionMode="Single">
+      <DataGrid.Columns>
+        <DataGridTemplateColumn>
+          <DataGridTemplateColumn.CellTemplate>
+            <DataTemplate>
+              <ContentPresenter Width="20" Height="20"
+                        Content="{Binding ImageContent}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"/>
+            </DataTemplate>
+          </DataGridTemplateColumn.CellTemplate>
+        </DataGridTemplateColumn>
+        <local:VBDataGridTextColumn Width="Auto" Binding="{Binding Message.ACIdentifier}" Header="Messagekey" IsReadOnly="True"/>
+        <local:VBDataGridTextColumn Width="Auto" Binding="{Binding Message.Message}" Header="Message" IsReadOnly="False"/>
+      </DataGrid.Columns>
+    </local:VBDataGrid>
+    <StackPanel Name="stackPanel" Grid.Row="3" Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 5 0 0">
+      <local:VBButton Content="_Ja" x:Name="btnYes" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Yes"/>
+      <local:VBButton Content="_Nein" x:Name="btnNo" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_No"/>
+      <local:VBButton Content="O_K" x:Name="btnOK" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_OK"/>
+      <local:VBButton Content="A_bbrechen" x:Name="btnCancel" IsVisible="True" Margin="2 0 0 0" Height="24" Width="80" Click="Button_Cancel"/>
+    </StackPanel>
+  </Grid>
 </local:VBWindowDialog>

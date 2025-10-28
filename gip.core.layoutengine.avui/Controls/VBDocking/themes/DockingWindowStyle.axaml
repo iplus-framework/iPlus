@@ -18,7 +18,7 @@
               Canvas.Top="4"
               Stretch="Fill"
               StrokeLineCap="Round"
-              StrokeLineJoin="Round"
+              StrokeJoin="Round"
               Stroke="{StaticResource DockingCloseButtonBorderBrush}"
               Fill="{StaticResource CloseButtonFillBrush}"
               Data="F1 M 0,9L 4.5,16L 16,2L 4.5,12L 0,9.0 Z "/>
@@ -46,17 +46,17 @@
         <ControlTemplate TargetType="Button">
           <Canvas Width="16" Height="16">
             <Rectangle x:Name="Kreis" Height="16" Width="16" RadiusX="4" RadiusY="4" Fill="{StaticResource DockingCloseButtonBrushStyle}"/>
-            <Path x:Name="CheckPath" Width="13" Height="3" Canvas.Left="2" Canvas.Top="8" Stretch="Fill" StrokeLineJoin="Round"
+            <Path x:Name="CheckPath" Width="13" Height="3" Canvas.Left="2" Canvas.Top="8" Stretch="Fill" StrokeJoin="Round"
               Stroke="{StaticResource DockingCloseButtonBorderBrush}"
               Fill="{StaticResource CloseButtonFillBrush}"
           Data="F1 M 2,11L 14,11L 12,9L 4,9L 2,11 Z ">
             </Path>
             <Rectangle x:Name="Rectangle" Width="9" Height="8" Canvas.Left="4" Canvas.Top="1"
-            Stretch="Fill" StrokeLineJoin="Round"
+            Stretch="Fill" StrokeJoin="Round"
             Fill="{StaticResource DockingPinButtonFill}"
               Stroke="{StaticResource DockingCloseButtonBorderBrush}" >
             </Rectangle>
-            <Path x:Name="Needle" Width="2" Height="5" Canvas.Left="7" Canvas.Top="10" Stretch="Fill" StrokeLineCap="Square" StrokeLineJoin="Bevel"
+            <Path x:Name="Needle" Width="2" Height="5" Canvas.Left="7" Canvas.Top="10" Stretch="Fill" StrokeLineCap="Square" StrokeJoin="Bevel"
               Stroke="{StaticResource DockingCloseButtonBorderBrush}"
               Fill="{StaticResource CloseButtonFillBrush}"
               Data="F1 M 7,10.5L 8,15.5L 9,10.5L 7,10.5 Z ">
@@ -99,7 +99,7 @@
         Stroke="{StaticResource DockingCloseButtonBorderBrush}"
         Fill="{StaticResource CloseButtonFillBrush}"
       StrokeLineCap="Square"
-      StrokeLineJoin="Round"
+      StrokeJoin="Round"
       StrokeThickness="1"
                 Width="9"
               Height="7"
@@ -126,17 +126,16 @@
 
   <ControlTheme TargetType="{x:Type ContentControl}" x:Key="DockingWindowHeader">
     <Setter Property="Height" Value="22"/>
-    <Setter Property="Width" Value="Auto"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ContentControl}">
-          <Border x:Name="PART_PanelHeader" Height="22" Width="Auto"
-                DockPanel.Dock="Top"
+          <Border x:Name="PART_PanelHeader" Height="22"
+        DockPanel.Dock="Top"
         Background="{StaticResource DockingHeaderSelectedBackground}"
         BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
         BorderThickness="1,1,1,0"
         CornerRadius="6,6,0,0">
-            <DockPanel Width="Auto" Height="Auto" LastChildFill="True">
+            <DockPanel LastChildFill="True">
               <Grid x:Name="btnClose" DockPanel.Dock="Right" Margin="0,1,1,1">
                 <Button x:Name="PART_CloseButton" Theme="{StaticResource DockingCloseButtonStyle}"
       Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16"
@@ -156,21 +155,21 @@
                 <Button x:Name="PART_MenuButton" Theme="{StaticResource DockingMenuButtonStyle}"
       Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16"
       VerticalAlignment="Center" HorizontalAlignment="Left">
+                  <Button.ContextMenu>
+                    <local:VBContextMenu x:Name="PART_ContextMenu">
+                      <local:VBMenuItem x:Name="PART_menuFloatingWindow" Header="Floating window"></local:VBMenuItem>
+                      <local:VBMenuItem x:Name="PART_menuDockedWindow" Header="Docked window"></local:VBMenuItem>
+                      <local:VBMenuItem x:Name="PART_menuTabbedDocument" Header="Tabbed document"></local:VBMenuItem>
+                      <local:VBMenuItem x:Name="PART_menuAutoHide" Header="Auto hide"></local:VBMenuItem>
+                      <local:VBMenuItem x:Name="PART_menuClose" Header="Close"></local:VBMenuItem>
+                    </local:VBContextMenu>
+                  </Button.ContextMenu>
                 </Button>
-                <Grid.ContextFlyout>
-                  <local:VBContextMenu x:Name="PART_ContextMenu">
-                    <local:VBMenuItem x:Name="PART_menuFloatingWindow" Header="Floating window"></local:VBMenuItem>
-                    <local:VBMenuItem x:Name="PART_menuDockedWindow" Header="Docked window"></local:VBMenuItem>
-                    <local:VBMenuItem x:Name="PART_menuTabbedDocument" Header="Tabbed document"></local:VBMenuItem>
-                    <local:VBMenuItem x:Name="PART_menuAutoHide" Header="Auto hide"></local:VBMenuItem>
-                    <local:VBMenuItem x:Name="PART_menuClose" Header="Close"></local:VBMenuItem>
-                  </local:VBContextMenu>
-                </Grid.ContextFlyout>
               </Grid>
-              <TextBlock Margin="2,0,0,0" Width="Auto" Height="Auto" Text="Title" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12"
+              <TextBlock Margin="2,0,0,0" Text="Title" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12"
                      x:Name="PART_tbTitle">
                 <TextBlock.Foreground>
-                  <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlTextColorKey}}"/>
+                  <SolidColorBrush Color="{StaticResource ColorCtrlTxtEnabled}"/>
                 </TextBlock.Foreground>
               </TextBlock>
             </DockPanel>
@@ -181,12 +180,10 @@
   </ControlTheme>
 
   <ControlTheme TargetType="{x:Type ContentControl}" x:Key="DockingWindowContent">
-    <Setter Property="Height" Value="Auto"/>
-    <Setter Property="Width" Value="Auto"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ContentControl}">
-          <Border Width="Auto" Height="Auto"
+          <Border 
         BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
         Background="{StaticResource AppLight}"
         BorderThickness="1,1,1,2"
@@ -194,7 +191,6 @@
             <Grid Background="Transparent" Margin="2,0,2,2">
               <ContentPresenter x:Name="PART_cpClientWindowContent" IsVisible="False" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Content}"/>
               <local:VBTabControl x:Name="PART_tbcContents" IsVisible="False"
-                            IsSynchronizedWithCurrentItem="True"
                             TabStripPlacement="Bottom">
               </local:VBTabControl>
             </Grid>
@@ -207,14 +203,14 @@
   <ControlTemplate x:Key="DockingWindowAsPanelStyle" TargetType="{x:Type local:VBDockingPanelToolWindow}">
     <Border x:Name="Shdw" CornerRadius="0,0,8,8" BoxShadow="2 5 10 0 #71000000">
       <DockPanel>
-        <Border x:Name="PART_PanelHeader" Height="22" Width="Auto"
+        <Border x:Name="PART_PanelHeader" Height="22"
                   DockPanel.Dock="Top"
           Background="{StaticResource DockingHeaderSelectedBackground}"
           BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
           BorderThickness="1,1,1,0"
           CornerRadius="6,6,0,0"
                             Cursor="Hand">
-          <DockPanel Width="Auto" Height="Auto" LastChildFill="True">
+          <DockPanel LastChildFill="True">
             <Grid x:Name="btnClose" DockPanel.Dock="Right" Margin="0,1,1,1">
               <Button x:Name="PART_CloseButton" Theme="{StaticResource DockingCloseButtonStyle}"
         Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16"
@@ -237,26 +233,26 @@
         Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16"
         VerticalAlignment="Center" HorizontalAlignment="Left"
                               Cursor="Arrow">
+                <Button.ContextMenu>
+                  <local:VBContextMenu x:Name="PART_ContextMenu">
+                    <local:VBMenuItem x:Name="PART_menuFloatingWindow" Header="Floating window"></local:VBMenuItem>
+                    <local:VBMenuItem x:Name="PART_menuDockedWindow" Header="Docked window"></local:VBMenuItem>
+                    <local:VBMenuItem x:Name="PART_menuTabbedDocument" Header="Tabbed document"></local:VBMenuItem>
+                    <local:VBMenuItem x:Name="PART_menuAutoHide" Header="Auto hide"></local:VBMenuItem>
+                    <local:VBMenuItem x:Name="PART_menuClose" Header="Close"></local:VBMenuItem>
+                  </local:VBContextMenu>
+                </Button.ContextMenu>
               </Button>
-              <Grid.ContextFlyout>
-                <local:VBContextMenu x:Name="PART_ContextMenu">
-                  <local:VBMenuItem x:Name="PART_menuFloatingWindow" Header="Floating window"></local:VBMenuItem>
-                  <local:VBMenuItem x:Name="PART_menuDockedWindow" Header="Docked window"></local:VBMenuItem>
-                  <local:VBMenuItem x:Name="PART_menuTabbedDocument" Header="Tabbed document"></local:VBMenuItem>
-                  <local:VBMenuItem x:Name="PART_menuAutoHide" Header="Auto hide"></local:VBMenuItem>
-                  <local:VBMenuItem x:Name="PART_menuClose" Header="Close"></local:VBMenuItem>
-                </local:VBContextMenu>
-              </Grid.ContextFlyout>
             </Grid>
-            <TextBlock Margin="2,0,0,0" Width="Auto" Height="Auto" Text="Title" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12"
+            <TextBlock Margin="2,0,0,0" Text="Title" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12"
                        x:Name="PART_tbTitle">
               <TextBlock.Foreground>
-                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlTextColorKey}}"/>
+                <SolidColorBrush Color="{StaticResource ColorCtrlTxtEnabled}"/>
               </TextBlock.Foreground>
             </TextBlock>
           </DockPanel>
         </Border>
-        <Border x:Name="BorderContent" Width="Auto" Height="Auto"
+        <Border x:Name="BorderContent" 
           BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
           Background="{StaticResource AppLight}"
           BorderThickness="1,1,1,2"
@@ -266,7 +262,6 @@
           <Grid Background="Transparent" Margin="6,0,2,2">
             <ContentPresenter x:Name="PART_cpClientWindowContent"/>
             <local:VBTabControl x:Name="PART_tbcContents" IsVisible="False"
-                              IsSynchronizedWithCurrentItem="True"
                               TabStripPlacement="Bottom"
                                       Margin="0,6,0,0">
             </local:VBTabControl>
@@ -298,9 +293,9 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="5"></RowDefinition>
         </Grid.RowDefinitions>
-        <Thumb x:Name="PART_CornerTopLeftThumb" Grid.Column="0" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNorthWestSouthEast"/>
-        <Thumb x:Name="PART_TopThumb" Grid.Column="1" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNorthSouth"/>
-        <Thumb x:Name="PART_CornerTopRightThumb" Grid.Column="2" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNorthEastSouthWest"/>
+        <Thumb x:Name="PART_CornerTopLeftThumb" Grid.Column="0" Opacity="0.01" Cursor="SizeNorthWestSouthEast"/>
+        <Thumb x:Name="PART_TopThumb" Grid.Column="1" Opacity="0.01" Cursor="SizeNorthSouth"/>
+        <Thumb x:Name="PART_CornerTopRightThumb" Grid.Column="2" Opacity="0.01" Cursor="SizeNorthEastSouthWest"/>
       </Grid>
       <Grid DockPanel.Dock="Bottom">
         <Grid.ColumnDefinitions>
@@ -311,20 +306,20 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="5"></RowDefinition>
         </Grid.RowDefinitions>
-        <Thumb x:Name="PART_CornerBottomLeftThumb" Grid.Column="0" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNorthEastSouthWest"/>
-        <Thumb x:Name="PART_BottomThumb" Grid.Column="1" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNorthSouth"/>
-        <Thumb x:Name="PART_CornerBottomRightThumb" Grid.Column="2" Height="Auto" Width="Auto" Opacity="0.01" Cursor="SizeNorthWestSouthEast"/>
+        <Thumb x:Name="PART_CornerBottomLeftThumb" Grid.Column="0" Opacity="0.01" Cursor="SizeNorthEastSouthWest"/>
+        <Thumb x:Name="PART_BottomThumb" Grid.Column="1" Opacity="0.01" Cursor="SizeNorthSouth"/>
+        <Thumb x:Name="PART_CornerBottomRightThumb" Grid.Column="2" Opacity="0.01" Cursor="SizeNorthWestSouthEast"/>
       </Grid>
-      <Thumb x:Name="PART_LeftThumb" DockPanel.Dock="Left" Height="Auto" Width="5" Opacity="0.01" Cursor="SizeWestEast"/>
-      <Thumb x:Name="PART_RightThumb" DockPanel.Dock="Right" Height="Auto" Width="5" Opacity="0.01" Cursor="SizeWestEast"/>
-      <Border x:Name="PART_PanelHeader" Height="22" Width="Auto"
+      <Thumb x:Name="PART_LeftThumb" DockPanel.Dock="Left" Width="5" Opacity="0.01" Cursor="SizeWestEast"/>
+      <Thumb x:Name="PART_RightThumb" DockPanel.Dock="Right" Width="5" Opacity="0.01" Cursor="SizeWestEast"/>
+      <Border x:Name="PART_PanelHeader" Height="22" 
                     DockPanel.Dock="Top"
             Background="{StaticResource DockingHeaderSelectedBackground}"
             BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
             BorderThickness="1,1,1,0"
             CornerRadius="6,6,0,0"
                               Cursor="Hand">
-        <DockPanel Width="Auto" Height="Auto" LastChildFill="True">
+        <DockPanel LastChildFill="True">
           <Grid x:Name="btnClose" DockPanel.Dock="Right" Margin="0,1,1,1">
             <Button x:Name="PART_CloseButton" Theme="{StaticResource DockingCloseButtonStyle}"
           Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16"
@@ -347,26 +342,26 @@
           Margin="0,0,0,0" MinWidth="5" MinHeight="5" Height="16" Width="16"
           VerticalAlignment="Center" HorizontalAlignment="Left"
                                 Cursor="Arrow">
+              <Button.ContextMenu>
+                <local:VBContextMenu x:Name="PART_ContextMenu">
+                  <local:VBMenuItem x:Name="PART_menuFloatingWindow" Header="Floating window"></local:VBMenuItem>
+                  <local:VBMenuItem x:Name="PART_menuDockedWindow" Header="Docked window"></local:VBMenuItem>
+                  <local:VBMenuItem x:Name="PART_menuTabbedDocument" Header="Tabbed document"></local:VBMenuItem>
+                  <local:VBMenuItem x:Name="PART_menuAutoHide" Header="Auto hide"></local:VBMenuItem>
+                  <local:VBMenuItem x:Name="PART_menuClose" Header="Close"></local:VBMenuItem>
+                </local:VBContextMenu>
+              </Button.ContextMenu>
             </Button>
-            <Grid.ContextFlyout>
-              <local:VBContextMenu x:Name="PART_ContextMenu">
-                <local:VBMenuItem x:Name="PART_menuFloatingWindow" Header="Floating window"></local:VBMenuItem>
-                <local:VBMenuItem x:Name="PART_menuDockedWindow" Header="Docked window"></local:VBMenuItem>
-                <local:VBMenuItem x:Name="PART_menuTabbedDocument" Header="Tabbed document"></local:VBMenuItem>
-                <local:VBMenuItem x:Name="PART_menuAutoHide" Header="Auto hide"></local:VBMenuItem>
-                <local:VBMenuItem x:Name="PART_menuClose" Header="Close"></local:VBMenuItem>
-              </local:VBContextMenu>
-            </Grid.ContextFlyout>
           </Grid>
-          <TextBlock Margin="2,0,0,0" Width="Auto" Height="Auto" Text="Title" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12"
+          <TextBlock Margin="2,0,0,0" Text="Title" TextWrapping="NoWrap"  VerticalAlignment="Center" FontSize="12"
                          x:Name="PART_tbTitle">
             <TextBlock.Foreground>
-              <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlTextColorKey}}"/>
+              <SolidColorBrush Color="{StaticResource ColorCtrlTxtEnabled}"/>
             </TextBlock.Foreground>
           </TextBlock>
         </DockPanel>
       </Border>
-      <Border Width="Auto" Height="Auto"
+      <Border 
             BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
             Background="{StaticResource AppLight}"
             BorderThickness="1,1,1,2"
@@ -380,7 +375,7 @@
 
   <ControlTheme x:Key="{x:Type local:VBWindowDockingUndocked}" TargetType="{x:Type local:VBWindowDockingUndocked}">
     <Setter Property="Template" Value="{StaticResource DockingWindowStyle}"/>
-    <Setter Property="WindowStyle" Value="None"/>
+    <!--<Setter Property="WindowStyle" Value="None"/>-->
     <Setter Property="TransparencyBackgroundFallback" Value="Transparent"/>
   </ControlTheme>
 

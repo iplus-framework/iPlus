@@ -115,11 +115,6 @@ namespace gip.core.layoutengine.avui
 
         #region Protected Methods
 
-        /// <summary>
-        /// Override of <seealso cref="Control.MeasureOverride" />.
-        /// </summary>
-        /// <param name="availableSize">Constraint size is an "upper limit" that the return value should not exceed.</param>
-        /// <returns>The GridViewRowPresenter's desired size.</returns>
         protected override Size MeasureOverride(Size availableSize)
         {
             GridViewColumnCollection columns = Columns;

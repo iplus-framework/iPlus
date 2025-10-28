@@ -35,10 +35,6 @@ namespace gip.core.layoutengine.avui
 
         #region Protected Methods
 
-        /// <summary>
-        /// called by base class ObservableCollection&lt;T&gt; when the list is being cleared;
-        /// GridViewColumnCollection override this method to do some internal preprocess work
-        /// </summary>
         //protected override void ClearItems()
         //{
         //    VerifyAccess();

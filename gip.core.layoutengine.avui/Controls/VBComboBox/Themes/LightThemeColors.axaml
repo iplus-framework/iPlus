@@ -39,7 +39,7 @@
     <GradientStop Color="#FFF2F2F2" Offset="0.15"/>
     <GradientStop Color="#FFE2E2E2" Offset=".5"/>
     <GradientStop Color="#FFD2D2D2" Offset=".5"/>
-    <GradientStop Color="{StaticResource {ComponentResourceKey ResourceId=ColorAppLight, TypeInTargetAssembly={x:Type local:VBCustomControl}}}" Offset="1"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </LinearGradientBrush>
   <LinearGradientBrush x:Key="ButtonComboReadonlyBackground" EndPoint="0,1" StartPoint="0,0">
     <GradientStop Color="#B3B3B3" Offset="0"/>

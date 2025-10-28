@@ -4,7 +4,6 @@
 	xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <local:VBTabControl x:Name="tbcDocuments" 
                                 SelectionChanged="tbcDocuments_SelectionChanged"
-                                IsSynchronizedWithCurrentItem="True"
                                 Margin="0,0,0,0">
     </local:VBTabControl>
 </local:VBDockingPanelBase>

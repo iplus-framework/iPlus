@@ -7,9 +7,9 @@
   <ControlTemplate x:Key="TemplateCheckBoxStyle" TargetType="local:VBCheckBox">
     <Grid Background="Transparent" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition x:Name="ColCheckBox" MaxWidth="20"/>
-        <ColumnDefinition x:Name="ColCaptionSpace" Width="5"/>
-        <ColumnDefinition x:Name="ColCaption" Width="*"/>
+        <ColumnDefinition MaxWidth="20"/>
+        <ColumnDefinition Width="5"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="{TemplateBinding Height}"/>
@@ -37,7 +37,7 @@
                     Canvas.Top="1.5"
                     Stretch="Fill"
                     StrokeLineCap="Round"
-                    StrokeLineJoin="Round"
+                    StrokeJoin="Round"
                     Stroke="{StaticResource CheckBoxEnabledCheckBorder}"
                     Fill="{StaticResource CheckBoxEnabledCheckFill}"
                     Data="F1 M 0,9L 4.5,16L 16,2L 4.5,12L 0,9.0 Z "/>
@@ -102,18 +102,15 @@
     <Setter Property="Template" Value="{StaticResource TemplateCheckBoxStyle}" />
 
     <!-- ShowCaption = False -->
-    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaption">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-    <Style Selector="^[ShowCaption=False] /template/ ColumnDefinition#ColCaptionSpace">
-      <Setter Property="Width" Value="0"/>
-    </Style>
-    <Style Selector="^[ShowCaption=False] /template/ ContentPresenter#ContentPresenter">
-      <Setter Property="IsVisible" Value="False"/>
+    <Style Selector="^[ShowCaption=False]">
+      <Setter Property="Padding" Value="0"/>
+      <Style Selector="^ /template/ ContentPresenter#ContentPresenter">
+        <Setter Property="IsVisible" Value="False"/>
+      </Style>
     </Style>
 
     <!-- HasContent = true -->
-    <Style Selector="^[HasContent=true]">
+    <Style Selector="^[Content=False]">
       <Setter Property="Padding" Value="4,0,0,0"/>
     </Style>
 
@@ -160,12 +157,12 @@
     </Style>
 
     <!-- Enabled + Not Focus -->
-    <Style Selector="^:not(:focus)[ControlMode=Enabled]">
+    <Style Selector="^[ControlMode=Enabled]">
       <Setter Property="Background" Value="{StaticResource CheckBoxBgEnabled}"/>
       <Setter Property="Foreground" Value="{StaticResource CheckBoxFgEnabled}"/>
       <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderEnabled}"/>
     </Style>
-    <Style Selector="^:not(:focus)[ControlMode=Enabled] /template/ Path#CheckPath">
+    <Style Selector="^[ControlMode=Enabled] /template/ Path#CheckPath">
       <Setter Property="Stroke" Value="{StaticResource CheckBoxEnabledCheckBorder}"/>
       <Setter Property="Fill" Value="{StaticResource CheckBoxEnabledCheckFill}"/>
     </Style>
@@ -182,12 +179,12 @@
     </Style>
 
     <!-- EnabledRequired + Not Focus -->
-    <Style Selector="^:not(:focus)[ControlMode=EnabledRequired]">
+    <Style Selector="^[ControlMode=EnabledRequired]">
       <Setter Property="Background" Value="{StaticResource CheckBoxBgRequired}"/>
       <Setter Property="Foreground" Value="{StaticResource CheckBoxFgRequired}"/>
       <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderRequired}"/>
     </Style>
-    <Style Selector="^:not(:focus)[ControlMode=EnabledRequired] /template/ Path#CheckPath">
+    <Style Selector="^[ControlMode=EnabledRequired] /template/ Path#CheckPath">
       <Setter Property="Stroke" Value="{StaticResource CheckBoxRequiredCheckBorder}"/>
       <Setter Property="Fill" Value="{StaticResource CheckBoxRequiredCheckFill}"/>
     </Style>
@@ -204,12 +201,12 @@
     </Style>
 
     <!-- EnabledWrong + Not Focus -->
-    <Style Selector="^:not(:focus)[ControlMode=EnabledWrong]">
+    <Style Selector="^[ControlMode=EnabledWrong]">
       <Setter Property="Background" Value="{StaticResource CheckBoxBgWrong}"/>
       <Setter Property="Foreground" Value="{StaticResource CheckBoxFgWrong}"/>
       <Setter Property="BorderBrush" Value="{StaticResource CheckBoxBorderWrong}"/>
     </Style>
-    <Style Selector="^:not(:focus)[ControlMode=EnabledWrong] /template/ Path#CheckPath">
+    <Style Selector="^[ControlMode=EnabledWrong] /template/ Path#CheckPath">
       <Setter Property="Stroke" Value="{StaticResource CheckBoxWrongCheckBorder}"/>
       <Setter Property="Fill" Value="{StaticResource CheckBoxWrongCheckFill}"/>
     </Style>

@@ -16,6 +16,7 @@ using AvaloniaEdit.Folding;
 using AvaloniaEdit.Highlighting;
 using Avalonia.Controls.Primitives;
 using AvaloniaEdit.CodeCompletion;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -58,6 +59,9 @@ namespace gip.core.layoutengine.avui
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
+            ScrollViewer scollViewer = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
+            if (scollViewer != null)
+                scollViewer.Content = TextArea;
             InitVBControl();
         }
 

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using Avalonia.Interactivity;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.layoutengine.avui
 {
@@ -17,7 +18,7 @@ namespace gip.core.layoutengine.avui
     /// Steuerelement zur Darstellung einer Bezeichnung mit farblichem Hintergrund.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBHeader'}de{'VBHeader'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBHeader : Control, IVBContent, IACObject
+    public class VBHeader : TemplatedControl, IVBContent, IACObject
     {
         #region c'tors
 

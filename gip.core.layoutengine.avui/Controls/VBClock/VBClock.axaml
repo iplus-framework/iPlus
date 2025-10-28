@@ -38,7 +38,7 @@
 						</TransformGroup>
 					</Rectangle.RenderTransform>
 					<Rectangle.Effect>
-						<DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.5" Color="Black" />
+						<DropShadowEffect BlurRadius="2" Opacity="0.5" Color="Black" />
 					</Rectangle.Effect>
 				</Rectangle>
 				
@@ -51,7 +51,7 @@
 						</TransformGroup>
 					</Rectangle.RenderTransform>
 					<Rectangle.Effect>
-						<DropShadowEffect BlurRadius="2" ShadowDepth="1" Opacity="0.5" Color="Black" />
+						<DropShadowEffect BlurRadius="2" Opacity="0.5" Color="Black" />
 					</Rectangle.Effect>
 				</Rectangle>
 			</Canvas>
@@ -67,7 +67,7 @@
 						</TransformGroup>
 					</Rectangle.RenderTransform>
 					<Rectangle.Effect>
-						<DropShadowEffect BlurRadius="1" ShadowDepth="1" Opacity="1.0" Color="Black" />
+						<DropShadowEffect BlurRadius="1" Opacity="1.0" Color="Black" />
 					</Rectangle.Effect>
 				</Rectangle>
 			</Canvas>

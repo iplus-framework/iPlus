@@ -26,35 +26,35 @@
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_37" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                        <Ellipse x:Name="Ellipse_38" Width="6" Height="6" Canvas.Left="9" Canvas.Top="1" Stretch="Fill" StrokeStartLineCap="Round" 
-                                 StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Ellipse x:Name="Ellipse_38" Width="6" Height="6" Canvas.Left="9" Canvas.Top="1" Stretch="Fill" StrokeLineCap="Round" 
+                                 StrokeJoin="Round" 
                                  Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                                  />
-                        <Path x:Name="Part1" Width="18" Height="20" Canvas.Left="3" Canvas.Top="3.00001" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Part1" Width="18" Height="20" Canvas.Left="3" Canvas.Top="3.00001" Stretch="Fill" StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                             Fill="{StaticResource IconEditPasteNormalFill}" 
                               Data="F1 M 4.5,3.50001L 19.5,3.50001C 20.0523,3.50001 20.5,3.94772 20.5,4.50001L 20.5,21.5C 20.5,22.0523 20.0523,22.5 19.5,22.5L 4.5,22.5C 3.94772,22.5 3.5,22.0523 3.5,21.5L 3.5,4.50001C 3.5,3.94772 3.94772,3.50001 4.5,3.50001 Z ">
                         </Path>
-                        <Path x:Name="Path_40" Width="10.75" Height="3.75" Canvas.Left="6.625" Canvas.Top="3.125" Stretch="Fill" StrokeThickness="0.75" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_40" Width="10.75" Height="3.75" Canvas.Left="6.625" Canvas.Top="3.125" Stretch="Fill" StrokeThickness="0.75" StrokeLineCap="Round" StrokeJoin="Round" 
                               Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Fill="{StaticResource IconEditPasteNormalFill}" 
                               Data="F1 M 7,6.5L 9.5,3.5L 14.5,3.5L 17,6.5L 7,6.5 Z "/>
-                        <Path x:Name="Part2" Width="13" Height="12" Canvas.Left="9.5" Canvas.Top="9" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Part2" Width="13" Height="12" Canvas.Left="9.5" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                             Fill="{StaticResource IconEditPasteNormalFill}" 
                               Data="F1 M 18.7273,9.5L 10,9.5L 10,20.5L 22,20.5L 22,13.1667L 18.7273,9.5 Z ">
                         </Path>
-                        <Path x:Name="Path_42" Width="4" Height="4" Canvas.Left="18" Canvas.Top="9" Stretch="Fill" StrokeLineJoin="Round" 
+                        <Path x:Name="Path_42" Width="4" Height="4" Canvas.Left="18" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" 
                               Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Fill="#FF000000" 
                               Data="F1 M 18.5,9.5L 18.5,12.5L 21.5,12.5L 18.5,9.5 Z "/>
-                        <Path x:Name="Line_43" Width="4" Height="1" Canvas.Left="12" Canvas.Top="13.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_43" Width="4" Height="1" Canvas.Left="12" Canvas.Top="13.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Data="F1 M 12.5,14L 15.5,14"/>
-                        <Path x:Name="Line_44" Width="8" Height="1" Canvas.Left="12" Canvas.Top="15.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_44" Width="8" Height="1" Canvas.Left="12" Canvas.Top="15.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Data="F1 M 12.5,16L 19.5,16"/>
-                        <Path x:Name="Line_45" Width="8" Height="1" Canvas.Left="12" Canvas.Top="17.5" Stretch="Fill" StrokeStartLineCap="Round" StrokeEndLineCap="Round" StrokeLineJoin="Round" 
+                        <Path x:Name="Line_45" Width="8" Height="1" Canvas.Left="12" Canvas.Top="17.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
                             Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
                               Data="F1 M 12.5,18L 19.5,18"/>
                     </Canvas>

@@ -6,8 +6,8 @@
     <DataTemplate x:Key="RemoteCommandPopupTemplate">
       <Viewbox MinWidth="10" MinHeight="10" Stretch="Uniform">
         <Canvas x:Name="Ebene_1" Width="228" Height="228">
-          <Path x:Name="Back" Width="228" Height="228" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="28" StrokeLineJoin="Round" Stroke="#FF0096FF" Fill="#FF0096FF" Data="F1 M 115.153,14.1532L 113.153,14.1532C 58.4767,14.1532 14.1529,58.4771 14.1529,113.153L 14.1529,115.154C 14.1529,169.83 58.4767,214.154 113.153,214.154L 115.153,214.154C 169.829,214.154 214.153,169.83 214.153,115.154L 214.153,113.153C 214.153,58.4771 169.829,14.1532 115.153,14.1532 Z " />
-          <TextBlock TextAlignment="Left" FontFamily="Tahoma" FontWeight="Bold" Width="Auto" FontSize="128" Canvas.Left="25" Canvas.Top="37">
+          <Path x:Name="Back" Width="228" Height="228" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="28" Stroke="#FF0096FF" Fill="#FF0096FF" Data="F1 M 115.153,14.1532L 113.153,14.1532C 58.4767,14.1532 14.1529,58.4771 14.1529,113.153L 14.1529,115.154C 14.1529,169.83 58.4767,214.154 113.153,214.154L 115.153,214.154C 169.829,214.154 214.153,169.83 214.153,115.154L 214.153,113.153C 214.153,58.4771 169.829,14.1532 115.153,14.1532 Z " />
+          <TextBlock TextAlignment="Left" FontFamily="Tahoma" FontWeight="Bold" FontSize="128" Canvas.Left="25" Canvas.Top="37">
             <Run Text="🤖" Foreground="#FF000000" />
           </TextBlock>
           <Viewbox Width="220" Height="220" Canvas.Top="4" Canvas.Left="4">
@@ -29,9 +29,6 @@
                       <GradientStop Color="#00000000" Offset="0.741525" />
                       <GradientStop Color="#B3000000" Offset="1" />
                     </RadialGradientBrush.GradientStops>
-                    <RadialGradientBrush.RelativeTransform>
-                      <TransformGroup />
-                    </RadialGradientBrush.RelativeTransform>
                   </RadialGradientBrush>
                 </Path.Fill>
               </Path>
@@ -49,15 +46,8 @@
                 CornerRadius="4"
                 MinWidth="120"
                 MinHeight="30"
-                Margin="5">
-            <Border.Effect>
-                <DropShadowEffect Color="Green" 
-                                  Direction="315" 
-                                  ShadowDepth="4" 
-                                  Opacity="0.5"
-                                  BlurRadius="8"/>
-            </Border.Effect>
-
+                Margin="5"
+                BoxShadow="2.83 2.83 8 0 #8000FF00">
             <Grid Margin="12,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -94,14 +84,8 @@
                 CornerRadius="4"
                 MinWidth="120"
                 MinHeight="30"
-                Margin="5">
-            <Border.Effect>
-                <DropShadowEffect Color="Red" 
-                                  Direction="315" 
-                                  ShadowDepth="4" 
-                                  Opacity="0.5"
-                                  BlurRadius="8"/>
-            </Border.Effect>
+                Margin="5"
+                BoxShadow="2.83 2.83 8 0 #80FF0000">
 
             <Grid Margin="12,8">
                 <Grid.ColumnDefinitions>
@@ -139,14 +123,8 @@
                 CornerRadius="4"
                 MinWidth="120"
                 MinHeight="30"
-                Margin="5">
-            <Border.Effect>
-                <DropShadowEffect Color="Orange" 
-                                  Direction="315" 
-                                  ShadowDepth="4" 
-                                  Opacity="0.5"
-                                  BlurRadius="8"/>
-            </Border.Effect>
+                Margin="5"
+                BoxShadow="2.83 2.83 8 0 #80FFA500">
 
             <Grid Margin="12,8">
                 <Grid.ColumnDefinitions>

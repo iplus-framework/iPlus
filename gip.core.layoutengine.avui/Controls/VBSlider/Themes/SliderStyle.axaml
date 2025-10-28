@@ -429,10 +429,6 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 			<Setter Property="IsVisible" Value="True"/>
 		</Style>
 
-		<Style Selector="^[IsSelectionRangeEnabled=True] /template/ Rectangle#PART_SelectionRange">
-			<Setter Property="IsVisible" Value="True"/>
-		</Style>
-
 		<Style Selector="^:focus /template/ Thumb#Thumb">
 			<Setter Property="Foreground" Value="Blue"/>
 		</Style>
@@ -523,10 +519,6 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 			<Setter Property="IsVisible" Value="True"/>
 		</Style>
 		<Style Selector="^[Orientation=Vertical][TickPlacement=Outside] /template/ TickBar#BottomTick">
-			<Setter Property="IsVisible" Value="True"/>
-		</Style>
-
-		<Style Selector="^[Orientation=Vertical][IsSelectionRangeEnabled=True] /template/ Rectangle#PART_SelectionRange">
 			<Setter Property="IsVisible" Value="True"/>
 		</Style>
 

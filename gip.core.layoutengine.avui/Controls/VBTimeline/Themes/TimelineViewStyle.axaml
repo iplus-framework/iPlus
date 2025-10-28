@@ -75,8 +75,7 @@
 
                         <ToggleButton Grid.Column="0" Theme="{StaticResource ExpandCollapseToggleStyle}" Margin="0,0,10,0"
                                       IsChecked="{TemplateBinding ExpandCollapseAll, Mode=TwoWay}" />
-                        <local:VBTextBox Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Left" AutoFocus="True" 
-                                     local:WidthCaptionMax="50"  x:Name="PART_TextBoxSearch" Width="200" Height="23" />
+                        <local:VBTextBox x:Name="PART_TextBoxSearch" Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Left" AutoFocus="True" WidthCaptionMax="50" Width="200" Height="23" />
                         <ContentControl Grid.Column="2" Margin="15,0,0,0" x:Name="PART_TopContentControl"  Height="23" />
                     </Grid>
 

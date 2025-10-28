@@ -167,7 +167,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Defines the <see cref="IsButtonsVisible"/> property.
         /// </summary>
-        public static StyledProperty<bool> IsButtonsVisibleProperty = AvaloniaProperty.Register<VBFlipView, bool>(nameof(IsButtonsVisible), defaultValue: true);
+        public static readonly StyledProperty<bool> IsButtonsVisibleProperty = AvaloniaProperty.Register<VBFlipView, bool>(nameof(IsButtonsVisible), defaultValue: true);
 
         /// <summary>
         /// Defines the <see cref="TransitionDuration"/> property.

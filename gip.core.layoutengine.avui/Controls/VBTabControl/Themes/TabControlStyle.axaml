@@ -12,12 +12,12 @@
             <ControlTemplate>
                 <Grid x:Name="PART_Root">
                     <Grid.RowDefinitions>
-                        <RowDefinition x:Name="RowDefinition0" Height="Auto"/>
-                        <RowDefinition x:Name="RowDefinition1" Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition x:Name="ColumnDefinition0" Width="*"/>
-                        <ColumnDefinition x:Name="ColumnDefinition1" Width="0"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="0"/>
                     </Grid.ColumnDefinitions>
                     
                     <ItemsPresenter x:Name="PART_ItemsPresenter"
@@ -83,10 +83,10 @@
         </Style>
 
         <!-- TabStripPlacement = Left -->
-        <Style Selector="^[TabStripPlacement=Left] /template/ Grid#PART_Root">
+        <!--<Style Selector="^[TabStripPlacement=Left] /template/ Grid#PART_Root">
             <Setter Property="RowDefinitions" Value="*"/>
             <Setter Property="ColumnDefinitions" Value="Auto,*"/>
-        </Style>
+        </Style>-->
 
         <Style Selector="^[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter">
             <Setter Property="Grid.Row" Value="0"/>
@@ -115,10 +115,10 @@
         </Style>
 
         <!-- TabStripPlacement = Right -->
-        <Style Selector="^[TabStripPlacement=Right] /template/ Grid#PART_Root">
+        <!--<Style Selector="^[TabStripPlacement=Right] /template/ Grid#PART_Root">
             <Setter Property="RowDefinitions" Value="*"/>
             <Setter Property="ColumnDefinitions" Value="*,Auto"/>
-        </Style>
+        </Style>-->
 
         <Style Selector="^[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter">
             <Setter Property="Grid.Row" Value="0"/>

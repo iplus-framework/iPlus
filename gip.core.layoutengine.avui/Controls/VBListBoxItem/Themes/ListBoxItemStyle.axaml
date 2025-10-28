@@ -40,7 +40,7 @@
 		</Style>
 
 		<!-- Selected but not focused State -->
-		<Style Selector="^:selected:not(:focus)">
+		<Style Selector="^:selected">
 			<Style Selector="^ /template/ Border#Bd">
 				<Setter Property="Background" Value="{DynamicResource ListBoxItemSelectionNotActiveFill}"/>
 				<Setter Property="BorderBrush" Value="#FF0000"/>

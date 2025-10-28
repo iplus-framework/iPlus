@@ -122,14 +122,14 @@
     </Style>
 
     <!-- Editing state when unfocused -->
-    <Style Selector="^:editing:not(:focus) /template/ Rectangle#BackgroundRectangle">
+    <Style Selector="^:editing /template/ Rectangle#BackgroundRectangle">
       <Setter Property="Fill">
         <SolidColorBrush Color="{StaticResource RowBgSelectedEdit}" />
       </Setter>
     </Style>
 
     <!-- Editing state with pointer over when unfocused -->
-    <Style Selector="^:editing:not(:focus):pointerover /template/ Rectangle#BackgroundRectangle">
+    <Style Selector="^:editing:pointerover /template/ Rectangle#BackgroundRectangle">
       <Setter Property="Fill">
         <SolidColorBrush Color="{StaticResource RowBgSelectedEdit}" />
       </Setter>

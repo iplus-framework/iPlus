@@ -105,14 +105,14 @@
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
         
-        <!-- IsSelected = true and IsSelectionActive = false -->
-        <Style Selector="^:selected:not(:focus-within) /template/ Border#Bd">
+        <!-- IsSelected = true and IsSelectionActive = false TODO Avalonia with pseudo class-->
+        <!--<Style Selector="^:selected:not(:focus-within) /template/ Border#Bd">
             <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionNotActiveFill}"/>
             <Setter Property="BorderBrush" Value="#FF0000"/>
         </Style>
         <Style Selector="^:selected:not(:focus-within)">
             <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
-        </Style>
+        </Style>-->
         
         <!-- IsEnabled = false -->
         <Style Selector="^:disabled">
@@ -120,12 +120,12 @@
         </Style>
         
         <!-- VirtualizingStackPanel.IsVirtualizing = true -->
-        <Style Selector="^[(VirtualizingStackPanel.IsVirtualizing)=True]">
+        <!--<Style Selector="^[(VirtualizingStackPanel.IsVirtualizing)=True]">
             <Setter Property="ItemsPanel">
                 <ItemsPanelTemplate>
                     <VirtualizingStackPanel/>
                 </ItemsPanelTemplate>
             </Setter>
-        </Style>
+        </Style>-->
     </ControlTheme>
 </ResourceDictionary>

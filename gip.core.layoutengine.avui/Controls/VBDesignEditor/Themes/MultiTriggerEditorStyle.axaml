@@ -23,14 +23,14 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <local:VBFrame Grid.RowSpan="3" Grid.ColumnSpan="2" />
-                                <local:VBListBox Grid.Row="0" Grid.RowSpan="2" x:Name="PART_ConditionList" ItemsSource="{Binding Path=ConditionWrapperCollection }" IsSynchronizedWithCurrentItem="True" DisplayMemberPath="Description" ShowCaption="False"/>
+                                <local:VBListBox Grid.Row="0" Grid.RowSpan="2" x:Name="PART_ConditionList" ItemsSource="{Binding Path=ConditionWrapperCollection }" DisplayMemberBinding="{Binding Path=Description}" ShowCaption="False"/>
                                 <UniformGrid Grid.Row="2" Columns="2" Rows="1">
                                     <local:VBButton x:Name="PART_AddItem" Content="Add" Margin="2,0,0,0" MaxHeight="30" />
                                     <local:VBButton x:Name="PART_RemoveItem" Content="Remove" Margin="2,0,0,0" MaxHeight="30" />
                                 </UniformGrid>
                                 <DockPanel Grid.Row="0" Grid.Column="1" Grid.RowSpan="2">
                                     <local:VBTextBlock DockPanel.Dock="Top" Text="Condition:" TextTrimming="CharacterEllipsis" HorizontalAlignment="Left" />
-                                    <ContentControl DockPanel.Dock="Bottom" x:Name="PART_ConditionEditor" />
+                                    <local:VBConditionEditor DockPanel.Dock="Bottom" x:Name="PART_ConditionEditor" />
                                 </DockPanel>
                             </local:VBGrid>
                         </local:VBTabItem>
