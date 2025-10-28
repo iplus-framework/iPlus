@@ -1,0 +1,70 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Controls/Shared.axaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <ControlTemplate x:Key="AutoTransportBodyGip" TargetType="local:VBTransportBody">
+        <Viewbox Stretch="Fill">
+            <Canvas x:Name="Ebene_1_24" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
+                <Rectangle x:Name="Back" Width="220" Height="250" Canvas.Left="15.0001" Canvas.Top="-7.62939e-005" Stretch="Fill" 
+                           Fill="{TemplateBinding FillBrushIdle}"/>
+                <Path x:Name="BorderLeft" Width="28" Height="278" Canvas.Left="0" Canvas.Top="-14" Stretch="Fill" StrokeThickness="28" StrokeJoin="Round" 
+                      Stroke="{TemplateBinding BorderBrushAuto}" 
+                      Data="F1 M 14,0L 14,250"/>
+                <Path x:Name="BorderRight" Width="28" Height="278" Canvas.Left="222" Canvas.Top="-14" Stretch="Fill" StrokeThickness="28" StrokeJoin="Round" 
+                      Stroke="{TemplateBinding BorderBrushAuto}" 
+                      Data="F1 M 236,0L 236,250"/>
+                <Rectangle x:Name="Glass" Width="250" Height="250" Canvas.Left="0.000132736" Canvas.Top="-0.000183105" Stretch="Fill">
+                    <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="1,0.5" EndPoint="4.57192e-007,0.5">
+                            <LinearGradientBrush.GradientStops>
+                                <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                                <GradientStop Color="#00000000" Offset="0.253275"/>
+                                <GradientStop Color="#00000000" Offset="0.741525"/>
+                                <GradientStop Color="#B3000000" Offset="1"/>
+                            </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                    </Rectangle.Fill>
+                </Rectangle>
+            </Canvas>
+        </Viewbox>
+    </ControlTemplate>
+
+    <ControlTheme x:Key="{x:Type local:VBTransportBody}" TargetType="local:VBTransportBody">
+        <Setter Property="Template" Value="{StaticResource AutoTransportBodyGip}"/>
+        
+        <!-- OperatingMode Manual -->
+        <Style Selector="^[OperatingMode=Manual] /template/ Path#BorderLeft">
+            <Setter Property="Stroke" Value="{Binding $parent[local:VBTransportBody].BorderBrushManual}"/>
+        </Style>
+        <Style Selector="^[OperatingMode=Manual] /template/ Path#BorderRight">
+            <Setter Property="Stroke" Value="{Binding $parent[local:VBTransportBody].BorderBrushManual}"/>
+        </Style>
+        
+        <!-- OperatingMode Maintenance -->
+        <Style Selector="^[OperatingMode=Maintenance] /template/ Path#BorderLeft">
+            <Setter Property="Stroke" Value="{Binding $parent[local:VBTransportBody].BorderBrushMaint}"/>
+        </Style>
+        <Style Selector="^[OperatingMode=Maintenance] /template/ Path#BorderRight">
+            <Setter Property="Stroke" Value="{Binding $parent[local:VBTransportBody].BorderBrushMaint}"/>
+        </Style>
+        
+        <!-- OperatingMode InActive -->
+        <Style Selector="^[OperatingMode=Inactive] /template/ Rectangle#Back">
+            <Setter Property="Fill" Value="Black"/>
+        </Style>
+        
+        <!-- RunState True and FaultState Off -->
+        <Style Selector="^[RunState=True][FaultState=Off] /template/ Rectangle#Back">
+            <Setter Property="Fill" Value="{Binding $parent[local:VBTransportBody].FillBrushRunning}"/>
+        </Style>
+        
+        <!-- FaultState AlarmOrFault -->
+        <Style Selector="^[FaultState=AlarmOrFault] /template/ Rectangle#Back">
+            <Setter Property="Fill" Value="{Binding $parent[local:VBTransportBody].FillBrushFault}"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

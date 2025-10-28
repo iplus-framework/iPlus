@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using gip.core.datamodel;
 
 namespace gip.core.layoutengine.avui
@@ -13,7 +14,7 @@ namespace gip.core.layoutengine.avui
     /// Base class for VBVisualControl.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBVisualControlBase'}de{'VBVisualControlBase'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public abstract class VBVisualControlBase : Control
+    public abstract class VBVisualControlBase : TemplatedControl
     {
         #region Additional Dependency-Properties
 

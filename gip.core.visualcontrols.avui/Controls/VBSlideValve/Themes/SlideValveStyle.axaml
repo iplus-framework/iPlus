@@ -1,0 +1,39 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Controls/Shared.axaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <LinearGradientBrush x:Key="SlideValveCloseBgGip" StartPoint="1,0" EndPoint="0,0">
+        <GradientStop Color="DarkGray" Offset="0"/>
+        <GradientStop Color="DarkSlateGray" Offset="1"/>
+    </LinearGradientBrush>
+
+    <LinearGradientBrush x:Key="SlideValveOpenBgGip" StartPoint="1,0" EndPoint="0,0">
+        <GradientStop Color="LimeGreen" Offset="0"/>
+        <GradientStop Color="Lime" Offset="1"/>
+    </LinearGradientBrush>
+
+    <ControlTemplate x:Key="SlideValveTemplate" TargetType="local:VBSlideValve">
+        <Grid x:Name="Slider">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition></ColumnDefinition>
+                <ColumnDefinition></ColumnDefinition>
+            </Grid.ColumnDefinitions>
+            <Border x:Name="Border" Grid.ColumnSpan="2" BorderBrush="LightGray" BorderThickness="1" Background="{StaticResource SlideValveCloseBgGip}"/>
+            <Line x:Name="Line" Grid.Column="1" StartPoint="1,1" EndPoint="1,1" StrokeThickness="2" Stroke="White" 
+                Stretch="Fill" VerticalAlignment="Center"></Line>
+        </Grid>
+    </ControlTemplate>
+
+    <ControlTheme x:Key="{x:Type local:VBSlideValve}" TargetType="local:VBSlideValve">
+        <Setter Property="Template" Value="{StaticResource SlideValveTemplate}"/>
+        
+        <!-- IsOpen = true -->
+        <Style Selector="^[IsOpen=True] /template/ Border#Border">
+            <Setter Property="Background" Value="{StaticResource SlideValveOpenBgGip}"/>
+        </Style>
+    </ControlTheme>
+</ResourceDictionary>

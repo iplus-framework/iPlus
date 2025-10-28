@@ -1,22 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.processapplication;
@@ -28,62 +17,13 @@ namespace gip.core.visualcontrols.avui
     public class VBSensor : VBPAControlBase
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "SensorStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBSensor/Themes/SensorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "SensorStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBSensor/Themes/SensorStyleGip.xaml" },
-        };
-
-        public static List<CustomControlStyleInfo> StyleInfoList
+        public VBSensor() : base()
         {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBSensor()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBSensor), new FrameworkPropertyMetadata(typeof(VBSensor)));
-        }
-
-        bool _themeApplied = false;
-        public VBSensor()
-        {
-        }
-
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
         }
 
         #endregion
 
-        #region Dependency-Properties
+        #region Styled Properties
 
         #region Appearance
 
@@ -95,8 +35,8 @@ namespace gip.core.visualcontrols.avui
             Circle = 1,
         }
 
-        public static readonly DependencyProperty SensorTypeProperty
-            = DependencyProperty.Register("SensorType", typeof(SensorTypes), typeof(VBSensor), new PropertyMetadata(SensorTypes.Rectangle));
+        public static readonly StyledProperty<SensorTypes> SensorTypeProperty
+            = AvaloniaProperty.Register<VBSensor, SensorTypes>(nameof(SensorType), SensorTypes.Rectangle);
         /// <summary>
         /// Ventil-Typ
         /// </summary>
@@ -105,14 +45,14 @@ namespace gip.core.visualcontrols.avui
         [ACPropertyInfo(9999)]
         public SensorTypes SensorType
         {
-            get { return (SensorTypes)GetValue(SensorTypeProperty); }
+            get { return GetValue(SensorTypeProperty); }
             set { SetValue(SensorTypeProperty, value); }
         }
         #endregion
 
         #region Sensor-Role
-        public static readonly DependencyProperty SensorRoleProperty
-            = DependencyProperty.Register("SensorRole", typeof(PAESensorRole), typeof(VBSensor), new PropertyMetadata(PAESensorRole.None));
+        public static readonly StyledProperty<PAESensorRole> SensorRoleProperty
+            = AvaloniaProperty.Register<VBSensor, PAESensorRole>(nameof(SensorRole), PAESensorRole.None);
         /// <summary>
         /// Ventil-Typ
         /// </summary>
@@ -121,7 +61,7 @@ namespace gip.core.visualcontrols.avui
         [ACPropertyInfo(9999)]
         public PAESensorRole SensorRole
         {
-            get { return (PAESensorRole)GetValue(SensorRoleProperty); }
+            get { return GetValue(SensorRoleProperty); }
             set { SetValue(SensorRoleProperty, value); }
         }
         #endregion

@@ -1,0 +1,76 @@
+<Styles
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XOneWayValve.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XTwoWayValve.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XTwoWayValveDivertR.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XTwoWayValveDivertL.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XThreeWayValve3Flange.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XThreeWayValve.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XOneWaySlide.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XOneWayFlap.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XTwoWayFlap.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XDiverterLeft.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XDiverterRight.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XMixingValve.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XAnalogValve.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XDiverterLeftInv.axaml"/>
+        <ResourceInclude Source="/Controls/VBValve/Themes/XDiverterRightInv.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <Style Selector="local|VBValve[ValveType=OneWayValve]">
+    <Setter Property="Theme" Value="{StaticResource OneWayValve}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=TwoWayValve]">
+    <Setter Property="Theme" Value="{StaticResource TwoWayValve}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=TwoWayValveDivertR]">
+    <Setter Property="Theme" Value="{StaticResource TwoWayValveDivertR}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=TwoWayValveDivertL]">
+    <Setter Property="Theme" Value="{StaticResource TwoWayValveDivertL}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=ThreeWayValve3Flange]">
+    <Setter Property="Theme" Value="{StaticResource ThreeWayValve3Flange}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=ThreeWayValve]">
+    <Setter Property="Theme" Value="{StaticResource ThreeWayValve}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=OneWaySlide]">
+    <Setter Property="Theme" Value="{StaticResource OneWaySlide}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=OneWayFlap]">
+    <Setter Property="Theme" Value="{StaticResource OneWayFlap}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=TwoWayFlap]">
+    <Setter Property="Theme" Value="{StaticResource TwoWayFlap}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=DiverterLeft]">
+    <Setter Property="Theme" Value="{StaticResource DiverterLeft}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=DiverterRight]">
+    <Setter Property="Theme" Value="{StaticResource DiverterRight}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=MixingValve]">
+    <Setter Property="Theme" Value="{StaticResource MixingValve}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=AnalogValve]">
+    <Setter Property="Theme" Value="{StaticResource AnalogValve}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=SimpleRect]">
+    <Setter Property="Theme" Value="{StaticResource SimpleRect}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=DiverterLeftInv]">
+    <Setter Property="Theme" Value="{StaticResource DiverterLeftInv}"/>
+  </Style>
+  <Style Selector="local|VBValve[ValveType=DiverterRightInv]">
+    <Setter Property="Theme" Value="{StaticResource DiverterRightInv}"/>
+  </Style>
+
+</Styles>

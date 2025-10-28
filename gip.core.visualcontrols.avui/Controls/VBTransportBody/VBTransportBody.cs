@@ -1,92 +1,34 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.processapplication;
 using gip.core.autocomponent;
+
 namespace gip.core.visualcontrols.avui
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTransportBody'}de{'VBTransportBody'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTransportBody : VBVisualControlBase
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "TransportBodyStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBTransportBody/Themes/TransportBodyStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "TransportBodyStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBTransportBody/Themes/TransportBodyStyleGip.xaml" },
-        };
-
-        public static List<CustomControlStyleInfo> StyleInfoList
+        public VBTransportBody() : base()
         {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBTransportBody()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBTransportBody), new FrameworkPropertyMetadata(typeof(VBTransportBody)));
-        }
-
-        bool _themeApplied = false;
-        public VBTransportBody()
-        {
-        }
-
-        protected override void OnInitialized(EventArgs e)
-        {
-            base.OnInitialized(e);
-            ActualizeTheme(true);
-        }
-
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
         }
 
         #endregion
 
-        #region Additional Dependency-Properties
+        #region Additional Styled Properties
 
         #region OperatingMode
-        public static readonly DependencyProperty OperatingModeProperty
-            = DependencyProperty.Register("OperatingMode", typeof(Global.OperatingMode), typeof(VBTransportBody), new PropertyMetadata(Global.OperatingMode.Automatic));
+        public static readonly StyledProperty<Global.OperatingMode> OperatingModeProperty
+            = AvaloniaProperty.Register<VBTransportBody, Global.OperatingMode>(nameof(OperatingMode), Global.OperatingMode.Automatic);
         /// <summary>
         /// Betriebsart
         /// </summary>
@@ -95,183 +37,190 @@ namespace gip.core.visualcontrols.avui
         [ACPropertyInfo(9999)]
         public Global.OperatingMode OperatingMode
         {
-            get { return (Global.OperatingMode)GetValue(OperatingModeProperty); }
+            get { return GetValue(OperatingModeProperty); }
             set { SetValue(OperatingModeProperty, value); }
         }
         #endregion
 
         #region RunState
-        public static readonly DependencyProperty RunStateProperty
-            = DependencyProperty.Register("RunState", typeof(Boolean), typeof(VBTransportBody), new PropertyMetadata(false, new PropertyChangedCallback(OnRunStateChanged)));
+        public static readonly StyledProperty<bool> RunStateProperty
+            = AvaloniaProperty.Register<VBTransportBody, bool>(nameof(RunState), false);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean RunState
+        public bool RunState
         {
-            get { return (Boolean)GetValue(RunStateProperty); }
+            get { return GetValue(RunStateProperty); }
             set { SetValue(RunStateProperty, value); }
         }
 
         #endregion
 
         #region ReqRunState
-        public static readonly DependencyProperty ReqRunStateProperty
-            = DependencyProperty.Register("ReqRunState", typeof(Boolean), typeof(VBTransportBody), new PropertyMetadata(false, new PropertyChangedCallback(OnRunStateChanged)));
+        public static readonly StyledProperty<bool> ReqRunStateProperty
+            = AvaloniaProperty.Register<VBTransportBody, bool>(nameof(ReqRunState), false);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean ReqRunState
+        public bool ReqRunState
         {
-            get { return (Boolean)GetValue(ReqRunStateProperty); }
+            get { return GetValue(ReqRunStateProperty); }
             set { SetValue(ReqRunStateProperty, value); }
         }
         #endregion
 
 
         #region DirectionLeft
-        public static readonly DependencyProperty DirectionLeftProperty
-            = DependencyProperty.Register("DirectionLeft", typeof(Boolean), typeof(VBTransportBody));
+        public static readonly StyledProperty<bool> DirectionLeftProperty
+            = AvaloniaProperty.Register<VBTransportBody, bool>(nameof(DirectionLeft));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean DirectionLeft
+        public bool DirectionLeft
         {
-            get { return (Boolean)GetValue(DirectionLeftProperty); }
+            get { return GetValue(DirectionLeftProperty); }
             set { SetValue(DirectionLeftProperty, value); }
         }
         #endregion
 
         #region ReqDirectionLeft
-        public static readonly DependencyProperty ReqDirectionLeftProperty
-            = DependencyProperty.Register("ReqDirectionLeft", typeof(Boolean), typeof(VBTransportBody));
+        public static readonly StyledProperty<bool> ReqDirectionLeftProperty
+            = AvaloniaProperty.Register<VBTransportBody, bool>(nameof(ReqDirectionLeft));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean ReqDirectionLeft
+        public bool ReqDirectionLeft
         {
-            get { return (Boolean)GetValue(ReqDirectionLeftProperty); }
+            get { return GetValue(ReqDirectionLeftProperty); }
             set { SetValue(ReqDirectionLeftProperty, value); }
         }
         #endregion
 
         #region SpeedFast
-        public static readonly DependencyProperty SpeedFastProperty
-            = DependencyProperty.Register("SpeedFast", typeof(Boolean), typeof(VBTransportBody));
+        public static readonly StyledProperty<bool> SpeedFastProperty
+            = AvaloniaProperty.Register<VBTransportBody, bool>(nameof(SpeedFast));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean SpeedFast
+        public bool SpeedFast
         {
-            get { return (Boolean)GetValue(SpeedFastProperty); }
+            get { return GetValue(SpeedFastProperty); }
             set { SetValue(SpeedFastProperty, value); }
         }
         #endregion
 
         #region FaultState
-        public static readonly DependencyProperty FaultStateProperty
-            = DependencyProperty.Register("FaultState", typeof(PANotifyState), typeof(VBTransportBody), new PropertyMetadata(PANotifyState.Off, new PropertyChangedCallback(OnRunStateChanged)));
+        public static readonly StyledProperty<PANotifyState> FaultStateProperty
+            = AvaloniaProperty.Register<VBTransportBody, PANotifyState>(nameof(FaultState), PANotifyState.Off);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public PANotifyState FaultState
         {
-            get { return (PANotifyState)GetValue(FaultStateProperty); }
+            get { return GetValue(FaultStateProperty); }
             set { SetValue(FaultStateProperty, value); }
         }
 
         #endregion
 
-        private static void OnRunStateChanged(DependencyObject d,
-            DependencyPropertyChangedEventArgs e)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (d is VBTransportBody)
+            base.OnPropertyChanged(change);
+            if (change.Property == RunStateProperty || 
+                change.Property == ReqRunStateProperty || 
+                change.Property == FaultStateProperty)
             {
-                VBTransportBody control = d as VBTransportBody;
-                control.OnRunStateChanged(e);
+                OnRunStateChanged(change);
             }
         }
 
-        protected void OnRunStateChanged(DependencyPropertyChangedEventArgs e)
+        protected void OnRunStateChanged(AvaloniaPropertyChangedEventArgs e)
         {
         }
         #endregion
 
         #region Brushes
 
-        public static readonly DependencyProperty BorderBrushAutoProperty
-            = DependencyProperty.Register("BorderBrushAuto", typeof(SolidColorBrush), typeof(VBTransportBody), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 200, G = 200, B = 200 })));
+        public static readonly StyledProperty<ISolidColorBrush> BorderBrushAutoProperty
+            = AvaloniaProperty.Register<VBTransportBody, ISolidColorBrush>(nameof(BorderBrushAuto), 
+                new SolidColorBrush(Color.FromArgb(255, 200, 200, 200)));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush BorderBrushAuto
+        public ISolidColorBrush BorderBrushAuto
         {
-            get { return (SolidColorBrush)GetValue(BorderBrushAutoProperty); }
+            get { return GetValue(BorderBrushAutoProperty); }
             set { SetValue(BorderBrushAutoProperty, value); }
         }
 
-        public static readonly DependencyProperty BorderBrushManualProperty
-            = DependencyProperty.Register("BorderBrushManual", typeof(SolidColorBrush), typeof(VBTransportBody), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 255, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> BorderBrushManualProperty
+            = AvaloniaProperty.Register<VBTransportBody, ISolidColorBrush>(nameof(BorderBrushManual), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 255, 0)));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush BorderBrushManual
+        public ISolidColorBrush BorderBrushManual
         {
-            get { return (SolidColorBrush)GetValue(BorderBrushManualProperty); }
+            get { return GetValue(BorderBrushManualProperty); }
             set { SetValue(BorderBrushManualProperty, value); }
         }
 
-        public static readonly DependencyProperty BorderBrushMaintProperty
-            = DependencyProperty.Register("BorderBrushMaint", typeof(SolidColorBrush), typeof(VBTransportBody), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 0, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> BorderBrushMaintProperty
+            = AvaloniaProperty.Register<VBTransportBody, ISolidColorBrush>(nameof(BorderBrushMaint), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush BorderBrushMaint
+        public ISolidColorBrush BorderBrushMaint
         {
-            get { return (SolidColorBrush)GetValue(BorderBrushMaintProperty); }
+            get { return GetValue(BorderBrushMaintProperty); }
             set { SetValue(BorderBrushMaintProperty, value); }
         }
 
 
-        public static readonly DependencyProperty FillBrushIdleProperty
-            = DependencyProperty.Register("FillBrushIdle", typeof(SolidColorBrush), typeof(VBTransportBody), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 255, B = 255 })));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushIdleProperty
+            = AvaloniaProperty.Register<VBTransportBody, ISolidColorBrush>(nameof(FillBrushIdle), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushIdle
+        public ISolidColorBrush FillBrushIdle
         {
-            get { return (SolidColorBrush)GetValue(FillBrushIdleProperty); }
+            get { return GetValue(FillBrushIdleProperty); }
             set { SetValue(FillBrushIdleProperty, value); }
         }
 
 
-        public static readonly DependencyProperty FillBrushRunningProperty
-            = DependencyProperty.Register("FillBrushRunning", typeof(SolidColorBrush), typeof(VBTransportBody), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 50, G = 255, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushRunningProperty
+            = AvaloniaProperty.Register<VBTransportBody, ISolidColorBrush>(nameof(FillBrushRunning), 
+                new SolidColorBrush(Color.FromArgb(255, 50, 255, 0)));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushRunning
+        public ISolidColorBrush FillBrushRunning
         {
-            get { return (SolidColorBrush)GetValue(FillBrushRunningProperty); }
+            get { return GetValue(FillBrushRunningProperty); }
             set { SetValue(FillBrushRunningProperty, value); }
         }
 
-        public static readonly DependencyProperty FillBrushFaultProperty
-            = DependencyProperty.Register("FillBrushFault", typeof(SolidColorBrush), typeof(VBTransportBody), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 0, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushFaultProperty
+            = AvaloniaProperty.Register<VBTransportBody, ISolidColorBrush>(nameof(FillBrushFault), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushFault
+        public ISolidColorBrush FillBrushFault
         {
-            get { return (SolidColorBrush)GetValue(FillBrushFaultProperty); }
+            get { return GetValue(FillBrushFaultProperty); }
             set { SetValue(FillBrushFaultProperty, value); }
         }
 

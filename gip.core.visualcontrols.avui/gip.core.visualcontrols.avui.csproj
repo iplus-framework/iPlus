@@ -23,8 +23,8 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWPF>true</UseWPF>
-    <ImportWindowsDesktopTargets>true</ImportWindowsDesktopTargets>
+    <UseWPF>false</UseWPF>
+    <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
   </PropertyGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
@@ -61,14 +61,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Update="Controls\VBValve\Themes\XDiverterLeftInvGip.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </Page>
-    <Page Update="Controls\VBValve\Themes\XDiverterRightInvGip.xaml">
-      <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <AppDesigner Include="Properties\" />
     <EmbeddedResource Include="VBXMLEditorSchemas\VBVSchema.xsd">
       <SubType>Designer</SubType>
@@ -85,6 +77,9 @@
     <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
   </ItemGroup>
+   <ItemGroup>
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+  </ItemGroup> 
   <ItemGroup>
     <Resource Include="Controls\VBOperatingMode\Themes\imageAuto.png" />
     <Resource Include="Controls\VBOperatingMode\Themes\imageMaint.png" />

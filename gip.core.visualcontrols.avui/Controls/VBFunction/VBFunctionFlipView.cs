@@ -1,26 +1,17 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
+using Avalonia.Data;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.layoutengine.avui;
 using System.Collections.Concurrent;
+using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.visualcontrols.avui
 {
@@ -48,13 +39,13 @@ namespace gip.core.visualcontrols.avui
         [Category("VBControl")]
         public bool ShowWFNodes
         {
-            get { return (bool)GetValue(ShowWFNodesProperty); }
+            get { return GetValue(ShowWFNodesProperty); }
             set { SetValue(ShowWFNodesProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ShowWFNodes.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ShowWFNodesProperty =
-            DependencyProperty.Register("ShowWFNodes", typeof(bool), typeof(VBFunctionFlipView), new PropertyMetadata(true));
+        // Using a StyledProperty as the backing store for ShowWFNodes.  This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<bool> ShowWFNodesProperty =
+            AvaloniaProperty.Register<VBFunctionFlipView, bool>(nameof(ShowWFNodes), true);
 
 
         /// <summary>
@@ -98,19 +89,20 @@ namespace gip.core.visualcontrols.avui
             }
         }
 
-        public static readonly DependencyProperty FunctionListProperty = DependencyProperty.Register("FunctionList", typeof(IList<IACComponent>), typeof(VBFunctionFlipView));
+        public static readonly StyledProperty<IList<IACComponent>> FunctionListProperty = 
+            AvaloniaProperty.Register<VBFunctionFlipView, IList<IACComponent>>(nameof(FunctionList));
         [Category("VBControl")]
         [ACPropertyInfo(23)]
         public IList<IACComponent> FunctionList
         {
             get 
             { 
-                return (IList<IACComponent>)GetValue(FunctionListProperty); 
+                return GetValue(FunctionListProperty); 
             }
             set 
             {
                 var bso = BSOACComponent;
-                IList<IACComponent> prevList = (IList<IACComponent>)GetValue(FunctionListProperty);
+                IList<IACComponent> prevList = GetValue(FunctionListProperty);
                 if (prevList != null && prevList.Any())
                 {
                     foreach (IACComponent component in prevList)
@@ -133,13 +125,23 @@ namespace gip.core.visualcontrols.avui
         }
 
 
-        public static readonly DependencyProperty WFNodeListProperty = DependencyProperty.Register("WFNodeList", typeof(IEnumerable<ACChildInstanceInfo>), typeof(VBFunctionFlipView), new PropertyMetadata(new PropertyChangedCallback(OnWFNodeListChanged)));
+        public static readonly StyledProperty<IEnumerable<ACChildInstanceInfo>> WFNodeListProperty = 
+            AvaloniaProperty.Register<VBFunctionFlipView, IEnumerable<ACChildInstanceInfo>>(nameof(WFNodeList));
         [Category("VBControl")]
         [ACPropertyInfo(23)]
         public IEnumerable<ACChildInstanceInfo> WFNodeList
         {
-            get { return (IEnumerable<ACChildInstanceInfo>)GetValue(WFNodeListProperty); }
+            get { return GetValue(WFNodeListProperty); }
             set { SetValue(WFNodeListProperty, value); }
+        }
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        {
+            base.OnPropertyChanged(change);
+            if (change.Property == WFNodeListProperty)
+            {
+                RefreshFunctionList();
+            }
         }
 
         #endregion
@@ -158,8 +160,8 @@ namespace gip.core.visualcontrols.avui
             Binding binding = new Binding();
             binding.Source = this;
             binding.Mode = BindingMode.OneWay;
-            binding.Path = new PropertyPath("FunctionList");
-            SetBinding(VBFlipView.ItemsSourceProperty, binding);
+            binding.Path = nameof(FunctionList);
+            this.Bind(VBFlipView.ItemsSourceProperty, binding);
 
             IACType dcACTypeInfo = null;
             object dcSource = null;
@@ -169,11 +171,9 @@ namespace gip.core.visualcontrols.avui
             {
                 Binding bindingNodes = new Binding();
                 bindingNodes.Source = dcSource;
-                bindingNodes.Path = new PropertyPath(dcPath);
-                bindingNodes.NotifyOnSourceUpdated = true;
-                bindingNodes.NotifyOnTargetUpdated = true;
+                bindingNodes.Path = dcPath;
                 bindingNodes.Mode = BindingMode.OneWay;
-                SetBinding(VBFunctionFlipView.WFNodeListProperty, bindingNodes);
+                this.Bind(VBFunctionFlipView.WFNodeListProperty, bindingNodes);
             }
 
         }
@@ -182,19 +182,7 @@ namespace gip.core.visualcontrols.avui
         {
             if (FunctionList != null)
                 FunctionList = null;
-            BindingOperations.ClearBinding(this, VBFlipView.ItemsSourceProperty);
-        }
-
-        private static void OnWFNodeListChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
-        {
-            if (d is VBFunctionFlipView)
-            {
-                VBFunctionFlipView control = d as VBFunctionFlipView;
-                if (control != null)
-                {
-                    control.RefreshFunctionList();
-                }
-            }
+            this.ClearBinding(VBFlipView.ItemsSourceProperty);
         }
 
         protected void RefreshFunctionList()

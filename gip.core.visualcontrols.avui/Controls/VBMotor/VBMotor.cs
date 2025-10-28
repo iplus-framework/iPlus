@@ -1,22 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.processapplication;
@@ -29,63 +18,20 @@ namespace gip.core.visualcontrols.avui
     public class VBMotor : VBPAControlBase
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "MotorStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBMotor/Themes/MotorStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "MotorStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBMotor/Themes/MotorStyleGip.xaml" },
-        };
-
-        public static List<CustomControlStyleInfo> StyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        public virtual List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList;
-            }
-        }
-
-        static VBMotor()
-        {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBMotor), new FrameworkPropertyMetadata(typeof(VBMotor)));
-        }
-
-        bool _themeApplied = false;
         public VBMotor()
         {
         }
 
-        protected override void OnInitialized(EventArgs e)
+        protected override void OnInitialized()
         {
-            TileViewport = new Rect(0, 0, 0.2, 1);
-            base.OnInitialized(e);
-            ActualizeTheme(true);
+            TileViewport = new RelativeRect(0, 0, 0.2, 1, RelativeUnit.Relative);
+            base.OnInitialized();
         }
 
-        public override void OnApplyTemplate()
-        {
-            base.OnApplyTemplate();
-            if (!_themeApplied)
-                ActualizeTheme(false);
-        }
-
-        public void ActualizeTheme(bool bInitializingCall)
-        {
-            _themeApplied = ControlManager.RegisterImplicitStyle(this, MyStyleInfoList, bInitializingCall);
-        }
 
         #endregion
 
-        #region Dependency-Properties
+        #region Styled Properties
 
         #region Appearance
 
@@ -113,8 +59,8 @@ namespace gip.core.visualcontrols.avui
             Mixer = 17,
         }
 
-        public static readonly DependencyProperty MotorTypeProperty
-            = DependencyProperty.Register("MotorType", typeof(MotorTypes), typeof(VBMotor), new PropertyMetadata(MotorTypes.Motor));
+        public static readonly StyledProperty<MotorTypes> MotorTypeProperty
+            = AvaloniaProperty.Register<VBMotor, MotorTypes>(nameof(MotorType), MotorTypes.Motor);
         /// <summary>
         /// Ventil-Typ
         /// </summary>
@@ -123,39 +69,39 @@ namespace gip.core.visualcontrols.avui
         [ACPropertyInfo(9999)]
         public MotorTypes MotorType
         {
-            get { return (MotorTypes)GetValue(MotorTypeProperty); }
+            get { return GetValue(MotorTypeProperty); }
             set { SetValue(MotorTypeProperty, value); }
         }
         #endregion
 
         #region TileView
-        public static readonly DependencyProperty TileViewportProperty
-            = DependencyProperty.Register("TileViewport", typeof(Rect), typeof(VBMotor), new PropertyMetadata(new Rect(0, 0, 0.2, 1)));
-        public Rect TileViewport
+        public static readonly StyledProperty<RelativeRect> TileViewportProperty
+            = AvaloniaProperty.Register<VBMotor, RelativeRect>(nameof(TileViewport), new RelativeRect(0, 0, 0.2, 1, RelativeUnit.Relative));
+        public RelativeRect TileViewport
         {
-            get { return (Rect)GetValue(TileViewportProperty); }
+            get { return GetValue(TileViewportProperty); }
             set { SetValue(TileViewportProperty, value); }
         }
 
-        public static readonly DependencyProperty TileViewportVertProperty
-            = DependencyProperty.Register("TileViewportVert", typeof(Rect), typeof(VBMotor), new PropertyMetadata(new Rect(0, 0, 0.2, 1)));
-        public Rect TileViewportVert
+        public static readonly StyledProperty<RelativeRect> TileViewportVertProperty
+            = AvaloniaProperty.Register<VBMotor, RelativeRect>(nameof(TileViewportVert), new RelativeRect(0, 0, 0.2, 1, RelativeUnit.Relative));
+        public RelativeRect TileViewportVert
         {
-            get { return (Rect)GetValue(TileViewportVertProperty); }
+            get { return GetValue(TileViewportVertProperty); }
             set { SetValue(TileViewportVertProperty, value); }
         }
         #endregion
 
         #region Effects
-        public static readonly DependencyProperty RotorProperty
-            = DependencyProperty.Register("Rotor", typeof(Visibility), typeof(VBMotor), new PropertyMetadata(Visibility.Hidden));
+        public static readonly StyledProperty<bool> RotorProperty
+            = AvaloniaProperty.Register<VBMotor, bool>(nameof(Rotor), false);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Visibility Rotor
+        public bool Rotor
         {
-            get { return (Visibility)GetValue(RotorProperty); }
+            get { return GetValue(RotorProperty); }
             set { SetValue(RotorProperty, value); }
         }
         #endregion // Effects
@@ -165,72 +111,72 @@ namespace gip.core.visualcontrols.avui
         #region Binding-Properties
 
         #region RunState
-        public static readonly DependencyProperty RunStateProperty
-            = DependencyProperty.Register("RunState", typeof(Boolean), typeof(VBMotor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> RunStateProperty
+            = AvaloniaProperty.Register<VBMotor, bool>(nameof(RunState), false);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean RunState
+        public bool RunState
         {
-            get { return (Boolean)GetValue(RunStateProperty); }
+            get { return GetValue(RunStateProperty); }
             set { SetValue(RunStateProperty, value); }
         }
 
         #endregion
 
         #region ReqRunState
-        public static readonly DependencyProperty ReqRunStateProperty
-            = DependencyProperty.Register("ReqRunState", typeof(Boolean), typeof(VBMotor), new PropertyMetadata(false));
+        public static readonly StyledProperty<bool> ReqRunStateProperty
+            = AvaloniaProperty.Register<VBMotor, bool>(nameof(ReqRunState), false);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean ReqRunState
+        public bool ReqRunState
         {
-            get { return (Boolean)GetValue(ReqRunStateProperty); }
+            get { return GetValue(ReqRunStateProperty); }
             set { SetValue(ReqRunStateProperty, value); }
         }
         #endregion
 
         #region DirectionLeft
-        public static readonly DependencyProperty DirectionLeftProperty
-            = DependencyProperty.Register("DirectionLeft", typeof(Boolean), typeof(VBMotor));
+        public static readonly StyledProperty<bool> DirectionLeftProperty
+            = AvaloniaProperty.Register<VBMotor, bool>(nameof(DirectionLeft));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean DirectionLeft
+        public bool DirectionLeft
         {
-            get { return (Boolean)GetValue(DirectionLeftProperty); }
+            get { return GetValue(DirectionLeftProperty); }
             set { SetValue(DirectionLeftProperty, value); }
         }
         #endregion
 
         #region ReqDirectionLeft
-        public static readonly DependencyProperty ReqDirectionLeftProperty
-            = DependencyProperty.Register("ReqDirectionLeft", typeof(Boolean), typeof(VBMotor));
+        public static readonly StyledProperty<bool> ReqDirectionLeftProperty
+            = AvaloniaProperty.Register<VBMotor, bool>(nameof(ReqDirectionLeft));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean ReqDirectionLeft
+        public bool ReqDirectionLeft
         {
-            get { return (Boolean)GetValue(ReqDirectionLeftProperty); }
+            get { return GetValue(ReqDirectionLeftProperty); }
             set { SetValue(ReqDirectionLeftProperty, value); }
         }
         #endregion
 
         #region SpeedFast
-        public static readonly DependencyProperty SpeedFastProperty
-            = DependencyProperty.Register("SpeedFast", typeof(Boolean), typeof(VBMotor));
+        public static readonly StyledProperty<bool> SpeedFastProperty
+            = AvaloniaProperty.Register<VBMotor, bool>(nameof(SpeedFast));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean SpeedFast
+        public bool SpeedFast
         {
-            get { return (Boolean)GetValue(SpeedFastProperty); }
+            get { return GetValue(SpeedFastProperty); }
             set { SetValue(SpeedFastProperty, value); }
         }
         #endregion
@@ -260,7 +206,7 @@ namespace gip.core.visualcontrols.avui
             else if (tileX < 0.01)
                 tileX = 0.01;
             //tileX = 1 - tileX;
-            TileViewport = new Rect(0, 0, tileX, 1);
+            TileViewport = new RelativeRect(0, 0, tileX, 1, RelativeUnit.Relative);
 
             double tileY = 0.2;
             if ((result.Width > 0) && (result.Height > 0))
@@ -277,7 +223,7 @@ namespace gip.core.visualcontrols.avui
             else if (tileY < 0.01)
                 tileY = 0.01;
 
-            TileViewportVert = new Rect(0, 0, tileY, 1);
+            TileViewportVert = new RelativeRect(0, 0, tileY, 1, RelativeUnit.Relative);
             return result;
         }
 

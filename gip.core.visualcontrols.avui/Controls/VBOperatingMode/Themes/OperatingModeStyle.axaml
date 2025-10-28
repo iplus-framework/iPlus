@@ -1,0 +1,24 @@
+<Styles
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+  <Styles.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="/Controls/VBOperatingMode/Themes/AutoOperatingMode.axaml"/>
+        <ResourceInclude Source="/Controls/VBOperatingMode/Themes/MaintOperatingMode.axaml"/>
+        <ResourceInclude Source="/Controls/VBOperatingMode/Themes/ManualOperatingMode.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
+  </Styles.Resources>
+
+  <Style Selector="local|VBOperatingMode[OperatingMode=Automatic]">
+    <Setter Property="Theme" Value="{StaticResource AutoOperatingMode}"/>
+  </Style>
+  <Style Selector="local|VBOperatingMode[OperatingMode=Manual]">
+    <Setter Property="Theme" Value="{StaticResource ManualOperatingMode}"/>
+  </Style>
+  <Style Selector="local|VBOperatingMode[OperatingMode=Maintenance]">
+    <Setter Property="Theme" Value="{StaticResource MaintOperatingMode}"/>
+  </Style>
+</Styles>

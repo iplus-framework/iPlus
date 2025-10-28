@@ -1,22 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
+using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.autocomponent;
@@ -26,20 +15,20 @@ namespace gip.core.visualcontrols.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBPAControlBase'}de{'VBPAControlBase'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public abstract class VBPAControlBase : VBVisualControlBase
     {
-        #region Additional Dependency-Properties
+        #region Additional Styled Properties
 
         #region Appearance
 
         #region Effects
-        public static readonly DependencyProperty GlassEffectProperty
-            = DependencyProperty.Register("GlassEffect", typeof(Visibility), typeof(VBPAControlBase), new PropertyMetadata(Visibility.Hidden));
+        public static readonly StyledProperty<bool> GlassEffectProperty
+            = AvaloniaProperty.Register<VBPAControlBase, bool>(nameof(GlassEffect), false);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Visibility GlassEffect
+        public bool GlassEffect
         {
-            get { return (Visibility)GetValue(GlassEffectProperty); }
+            get { return GetValue(GlassEffectProperty); }
             set { SetValue(GlassEffectProperty, value); }
         }
         #endregion // Effects
@@ -47,88 +36,95 @@ namespace gip.core.visualcontrols.avui
         #region Brushes
 
         #region Borders
-        public static readonly DependencyProperty BorderBrushAutoProperty
-            = DependencyProperty.Register("BorderBrushAuto", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 200, G = 200, B = 200 })));
+        public static readonly StyledProperty<ISolidColorBrush> BorderBrushAutoProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(BorderBrushAuto), 
+                new SolidColorBrush(Color.FromArgb(255, 200, 200, 200)));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush BorderBrushAuto
+        public ISolidColorBrush BorderBrushAuto
         {
-            get { return (SolidColorBrush)GetValue(BorderBrushAutoProperty); }
+            get { return GetValue(BorderBrushAutoProperty); }
             set { SetValue(BorderBrushAutoProperty, value); }
         }
 
-        public static readonly DependencyProperty BorderBrushManualProperty
-            = DependencyProperty.Register("BorderBrushManual", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 255, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> BorderBrushManualProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(BorderBrushManual), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 255, 0)));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush BorderBrushManual
+        public ISolidColorBrush BorderBrushManual
         {
-            get { return (SolidColorBrush)GetValue(BorderBrushManualProperty); }
+            get { return GetValue(BorderBrushManualProperty); }
             set { SetValue(BorderBrushManualProperty, value); }
         }
 
-        public static readonly DependencyProperty BorderBrushMaintProperty
-            = DependencyProperty.Register("BorderBrushMaint", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 0, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> BorderBrushMaintProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(BorderBrushMaint), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush BorderBrushMaint
+        public ISolidColorBrush BorderBrushMaint
         {
-            get { return (SolidColorBrush)GetValue(BorderBrushMaintProperty); }
+            get { return GetValue(BorderBrushMaintProperty); }
             set { SetValue(BorderBrushMaintProperty, value); }
         }
         #endregion
 
         #region Fill
-        public static readonly DependencyProperty FillBrushIdleProperty
-            = DependencyProperty.Register("FillBrushIdle", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 255, B = 255 })));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushIdleProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(FillBrushIdle), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 255, 255)));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushIdle
+        public ISolidColorBrush FillBrushIdle
         {
-            get { return (SolidColorBrush)GetValue(FillBrushIdleProperty); }
+            get { return GetValue(FillBrushIdleProperty); }
             set { SetValue(FillBrushIdleProperty, value); }
         }
 
 
-        public static readonly DependencyProperty FillBrushRunningProperty
-            = DependencyProperty.Register("FillBrushRunning", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 50, G = 255, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushRunningProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(FillBrushRunning), 
+                new SolidColorBrush(Color.FromArgb(255, 50, 255, 0)));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushRunning
+        public ISolidColorBrush FillBrushRunning
         {
-            get { return (SolidColorBrush)GetValue(FillBrushRunningProperty); }
+            get { return GetValue(FillBrushRunningProperty); }
             set { SetValue(FillBrushRunningProperty, value); }
         }
 
-        public static readonly DependencyProperty FillBrushFaultProperty
-            = DependencyProperty.Register("FillBrushFault", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(new SolidColorBrush(new Color() { A = 255, R = 255, G = 0, B = 0 })));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushFaultProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(FillBrushFault), 
+                new SolidColorBrush(Color.FromArgb(255, 255, 0, 0)));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushFault
+        public ISolidColorBrush FillBrushFault
         {
-            get { return (SolidColorBrush)GetValue(FillBrushFaultProperty); }
+            get { return GetValue(FillBrushFaultProperty); }
             set { SetValue(FillBrushFaultProperty, value); }
         }
 
 
-        public static readonly DependencyProperty FillBrushInterlockedProperty
-            = DependencyProperty.Register("FillBrushInterlocked", typeof(SolidColorBrush), typeof(VBPAControlBase), new PropertyMetadata(Brushes.DeepSkyBlue));
+        public static readonly StyledProperty<ISolidColorBrush> FillBrushInterlockedProperty
+            = AvaloniaProperty.Register<VBPAControlBase, ISolidColorBrush>(nameof(FillBrushInterlocked), 
+                new SolidColorBrush(Colors.DeepSkyBlue));
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public SolidColorBrush FillBrushInterlocked
+        public ISolidColorBrush FillBrushInterlocked
         {
-            get { return (SolidColorBrush)GetValue(FillBrushInterlockedProperty); }
+            get { return GetValue(FillBrushInterlockedProperty); }
             set { SetValue(FillBrushInterlockedProperty, value); }
         }
 
@@ -141,8 +137,8 @@ namespace gip.core.visualcontrols.avui
         #region Binding-Properties
 
         #region OperatingMode
-        public static readonly DependencyProperty OperatingModeProperty
-            = DependencyProperty.Register("OperatingMode", typeof(Global.OperatingMode), typeof(VBPAControlBase), new PropertyMetadata(Global.OperatingMode.Automatic));
+        public static readonly StyledProperty<Global.OperatingMode> OperatingModeProperty
+            = AvaloniaProperty.Register<VBPAControlBase, Global.OperatingMode>(nameof(OperatingMode), Global.OperatingMode.Automatic);
         /// <summary>
         /// Betriebsart
         /// </summary>
@@ -151,53 +147,53 @@ namespace gip.core.visualcontrols.avui
         [ACPropertyInfo(9999)]
         public Global.OperatingMode OperatingMode
         {
-            get { return (Global.OperatingMode)GetValue(OperatingModeProperty); }
+            get { return GetValue(OperatingModeProperty); }
             set { SetValue(OperatingModeProperty, value); }
         }
         #endregion
 
         #region IsTriggered
-        public static readonly DependencyProperty IsTriggeredProperty
-            = DependencyProperty.Register("IsTriggered", typeof(Boolean), typeof(VBPAControlBase));
+        public static readonly StyledProperty<bool> IsTriggeredProperty
+            = AvaloniaProperty.Register<VBPAControlBase, bool>(nameof(IsTriggered));
         /// <summary>
         /// Betriebsart
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean IsTriggered
+        public bool IsTriggered
         {
-            get { return (Boolean)GetValue(IsTriggeredProperty); }
+            get { return GetValue(IsTriggeredProperty); }
             set { SetValue(IsTriggeredProperty, value); }
         }
         #endregion
 
         #region IsInterlocked
-        public static readonly DependencyProperty IsInterlockedProperty
-            = DependencyProperty.Register("IsInterlocked", typeof(Boolean), typeof(VBPAControlBase));
+        public static readonly StyledProperty<bool> IsInterlockedProperty
+            = AvaloniaProperty.Register<VBPAControlBase, bool>(nameof(IsInterlocked));
         /// <summary>
         /// Betriebsart
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean IsInterlocked
+        public bool IsInterlocked
         {
-            get { return (Boolean)GetValue(IsInterlockedProperty); }
+            get { return GetValue(IsInterlockedProperty); }
             set { SetValue(IsInterlockedProperty, value); }
         }
         #endregion
 
         #region FaultState
-        public static readonly DependencyProperty FaultStateProperty
-            = DependencyProperty.Register("FaultState", typeof(PANotifyState), typeof(VBPAControlBase), new PropertyMetadata(PANotifyState.Off));
+        public static readonly StyledProperty<PANotifyState> FaultStateProperty
+            = AvaloniaProperty.Register<VBPAControlBase, PANotifyState>(nameof(FaultState), PANotifyState.Off);
 
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public PANotifyState FaultState
         {
-            get { return (PANotifyState)GetValue(FaultStateProperty); }
+            get { return GetValue(FaultStateProperty); }
             set { SetValue(FaultStateProperty, value); }
         }
 

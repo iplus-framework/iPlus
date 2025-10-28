@@ -1,0 +1,177 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+
+  <ControlTheme x:Key="OneWayFlap" TargetType="local:VBValve">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox Stretch="Fill">
+          <Canvas Width="180" Height="90">
+            <Rectangle x:Name="OpModeBack" Width="180" Height="90" Canvas.Left="0" Canvas.Top="0" Stretch="Fill"
+                      Stroke="{TemplateBinding BorderBrushAuto}"
+                      Fill="{TemplateBinding BorderBrushAuto}"
+                           />
+            <Rectangle x:Name="RunStateFront" Width="154" Height="64" Canvas.Left="13" Canvas.Top="13" Stretch="Fill"
+                       StrokeThickness="4" StrokeJoin="Round"
+                      Stroke="#FF000000"
+                      Fill="{TemplateBinding FillBrushIdle}"
+                           />
+            <Path x:Name="FlapLine" Width="154" Height="64" Canvas.Left="13" Canvas.Top="13" Stretch="Fill" StrokeThickness="10"
+                  StrokeLineCap="Round" StrokeJoin="Round" Stroke="#FF000000"
+                  Data="F1 M 18,18L 162,72"
+                  RenderTransformOrigin="0.5,0.5">
+              <Path.RenderTransform>
+                <RotateTransform Angle="0"/>
+              </Path.RenderTransform>
+            </Path>
+            <Ellipse x:Name="Ellipse" Width="35" Height="35" Canvas.Left="72.5" Canvas.Top="27.5" Stretch="Fill" StrokeThickness="5" StrokeLineCap="Round" StrokeJoin="Round" Stroke="#FF000000"/>
+            <Viewbox x:Name="Glass" Width="150" Height="60" Canvas.Left="15" Canvas.Top="15" IsVisible="{TemplateBinding GlassEffect}">
+              <Canvas Width="150" Height="60">
+                <Rectangle x:Name="Rectangle_363" Width="150" Height="60" Canvas.Left="-1.14441e-005" Canvas.Top="3.05176e-005" Stretch="Fill" StrokeThickness="1" StrokeJoin="Bevel">
+                  <Rectangle.Stroke>
+                    <RadialGradientBrush RadiusX="1" RadiusY="0.644927" Center="1,0.5" GradientOrigin="1,0.5">
+                      <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </RadialGradientBrush.GradientStops>
+                      <RadialGradientBrush.Transform>
+                        <RotateTransform Angle="180"/>
+                      </RadialGradientBrush.Transform>
+                    </RadialGradientBrush>
+                  </Rectangle.Stroke>
+                  <Rectangle.Fill>
+                    <LinearGradientBrush StartPoint="1,0.5" EndPoint="4.83195e-007,0.5">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Rectangle.Fill>
+                </Rectangle>
+                <Path x:Name="Path_364" Width="150" Height="14.4" Canvas.Left="0" Canvas.Top="45.6" Stretch="Fill" Data="F1 M 71.3216,45.6L 78.8163,45.6C 109.921,45.6 148.839,52.0141 150,60L 0,60C 1.16512,52.0141 40.217,45.6 71.3216,45.6 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="1,0.500001" EndPoint="5.08626e-008,0.500001">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_365" Width="150" Height="14.4" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 71.3216,14.4L 78.8163,14.4C 109.921,14.4 148.839,7.98593 150,0L 0,0C 1.16512,7.98593 40.217,14.4 71.3216,14.4 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="1,0.499999" EndPoint="5.08626e-008,0.499999">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+
+    </Setter>
+
+    <!-- OperatingMode states -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Rectangle#OpModeBack">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].BorderBrushManual}"/>
+    </Style>
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Rectangle#OpModeBack">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].BorderBrushMaint}"/>
+    </Style>
+    <Style Selector="^[OperatingMode=Inactive] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="Black"/>
+    </Style>
+
+    <!-- Position states -->
+    <Style Selector="^[Pos1=True][FaultState=Off] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushRunning}"/>
+    </Style>
+
+    <!-- Interlocked state -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- Fault state -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushFault}"/>
+    </Style>
+
+    <!-- Animation States with Flap rotation -->
+    <Style Selector="^[ReqPos1=True][Pos1=False][IsTriggered=False] /template/ Rectangle#RunStateFront">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[ReqPos1=True][Pos1=False][IsTriggered=False] /template/ Path#FlapLine">
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="(RotateTransform.Angle)" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="(RotateTransform.Angle)" Value="-40"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="(RotateTransform.Angle)" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <Style Selector="^[IsTriggered=True] /template/ Rectangle#RunStateFront">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[IsTriggered=True] /template/ Path#FlapLine">
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="(RotateTransform.Angle)" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="(RotateTransform.Angle)" Value="-40"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="(RotateTransform.Angle)" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

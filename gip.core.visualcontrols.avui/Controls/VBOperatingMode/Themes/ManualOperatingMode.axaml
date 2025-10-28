@@ -1,0 +1,77 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/Shared.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <ControlTheme x:Key="MaintOperatingMode" TargetType="local:VBOperatingMode">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox>
+          <Canvas x:Name="Ebene_1_24" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
+            <Viewbox x:Name="Group" Width="265.92" Height="265.92" Canvas.Left="0.84" Canvas.Top="0.720001">
+              <Canvas Width="265.92" Height="265.92">
+                <Image x:Name="Image" Source="imageMaint.png" Width="266" Height="266" Canvas.Left="0" Canvas.Top="0"/>
+                <Viewbox x:Name="Group_0" Width="133.92" Height="146.4" Canvas.Left="68.64" Canvas.Top="61.92">
+                  <Canvas Width="133.92" Height="146.4">
+                    <Path x:Name="Path" Width="117.545" Height="134.061" Canvas.Left="4.28846" Canvas.Top="2.06748" Stretch="Fill" StrokeThickness="3" StrokeJoin="Round" Stroke="#FFF10000" Fill="#FF230000" Data="M 6.47846,118.973C 10.4482,115.091 63.9589,59.9193 71.6783,46.4427C 79.3976,32.966 80.2143,19.8497 82.7298,14.6781C 85.2454,9.50642 89.9238,5.26369 96.2395,4.01593C 102.555,2.76819 109.807,4.26569 113.315,6.76129C 116.824,9.25687 117.058,9.25687 120.333,13.25L 97.6431,21.7354L 94.368,29.472L 94.3082,41.8547L 108.637,54.1793C 102.217,54.792 98.0317,54.2707 91.7951,56.675C 85.5585,59.0793 84.3878,61.9991 80.801,64.4116C 58.3733,87.4704 25.0532,130.335 20.9181,134.041C 16.783,137.747 2.50875,122.855 6.47846,118.973 Z M 23.6303,116.233L 16.5875,114.924L 12.4898,119.296L 13.706,126.822L 20.76,128.119L 24.8578,123.747L 23.6303,116.233 Z M 85.0713,40.6669C 88.0265,40.6669 90.4221,43.2229 90.4221,46.3758C 90.4221,49.5288 88.0265,52.0848 85.0713,52.0847C 82.1161,52.0848 79.7205,49.5288 79.7205,46.3758C 79.7205,43.2229 82.1161,40.6669 85.0713,40.6669 Z ">
+                      <Path.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="1" Color="#FF000000" Direction="315"/>
+                      </Path.Effect>
+                    </Path>
+                    <Path x:Name="Path_1" Width="33.877" Height="26.3347" Canvas.Left="92.868" Canvas.Top="26.9739" Stretch="Fill" StrokeThickness="3" StrokeJoin="Round" Stroke="#FFF10000" Fill="#FF230000" Data="F1 M 94.368,36.0857L 102.321,38.4566L 125.245,28.4739C 125.245,32.7166 123.842,36.9592 122.438,40.2036C 121.035,43.448 119.163,46.1933 118.228,47.1915C 117.292,48.1898 110.118,50.9767 106.064,51.8086L 94.602,41.701L 94.368,36.0857 Z ">
+                      <Path.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="1" Color="#FF000000" Direction="315"/>
+                      </Path.Effect>
+                    </Path>
+                  </Canvas>
+                  <Viewbox.RenderTransform>
+                    <RotateTransform Angle="0"
+                            CenterX="77.67"
+                            CenterY="58.56" />
+                  </Viewbox.RenderTransform>
+                </Viewbox>
+                <Path x:Name="Path_2" Width="200" Height="152.42" Canvas.Left="32.9189" Canvas.Top="18.1799" Stretch="Fill" StrokeThickness="1" StrokeJoin="Round" Stroke="#FFFF5959" Data="F1 M 137.822,18.1799L 127.832,18.1799C 85.7425,18.1799 32.9189,52.3003 32.9189,94.3899L 32.9189,94.3899C 32.9189,136.48 67.0393,170.6 109.129,170.6L 156.709,170.6C 198.798,170.6 232.919,136.48 232.919,94.3899L 232.919,94.3899C 232.919,52.3003 179.911,18.1799 137.822,18.1799 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368225">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_3" Width="230.306" Height="230.306" Canvas.Left="18.0071" Canvas.Top="17.1268" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round" Stroke="#FFFF5959" Data="F1 M 133.313,18.1268L 133.007,18.1268C 70.0466,18.1268 19.0071,69.1664 19.0071,132.127L 19.0071,132.433C 19.0071,195.394 70.0466,246.433 133.007,246.433L 133.313,246.433C 196.273,246.433 247.313,195.394 247.313,132.433L 247.313,132.127C 247.313,69.1664 196.273,18.1268 133.313,18.1268 Z ">
+                  <Path.Fill>
+                    <RadialGradientBrush RadiusX="0.500001" RadiusY="0.500001" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                      <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                  </Path.Fill>
+                </Path>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Oscillating rotation animation for the wrench group -->
+    <Style Selector="^ /template/ Viewbox#Group_0">
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%">
+            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-30"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="30"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

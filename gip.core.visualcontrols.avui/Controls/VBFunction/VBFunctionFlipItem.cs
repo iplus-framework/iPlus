@@ -1,22 +1,12 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+using Avalonia;
+using Avalonia.Data;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.layoutengine.avui;
@@ -37,46 +27,45 @@ namespace gip.core.visualcontrols.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            BindingOperations.ClearBinding(this, ACStateProperty);
+            this.ClearBinding(ACStateProperty);
             base.DeInitVBControl(bso);
         }
 
-        public static readonly DependencyProperty ACStateProperty = DependencyProperty.Register("ACState", typeof(ACStateEnum), typeof(VBFunctionFlipItem), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<ACStateEnum> ACStateProperty = 
+            AvaloniaProperty.Register<VBFunctionFlipItem, ACStateEnum>(nameof(ACState));
         [Category("VBControl")]
         [ACPropertyInfo(23)]
         public ACStateEnum ACState
         {
-            get { return (ACStateEnum)GetValue(ACStateProperty); }
+            get { return GetValue(ACStateProperty); }
             set { SetValue(ACStateProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBFunctionFlipItem thisControl = dependencyObject as VBFunctionFlipItem;
-            if (thisControl == null)
-                return;
-            if (args.Property == ACStateProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == ACStateProperty)
             {
-                if (thisControl.ACState != ACStateEnum.SMIdle && thisControl.ACState != ACStateEnum.SMBreakPoint)
+                if (ACState != ACStateEnum.SMIdle && ACState != ACStateEnum.SMBreakPoint)
                 {
-                    thisControl.Visibility = Visibility.Visible;
-                    VBFunctionFlipView parentFlipView = VBVisualTreeHelper.FindParentObjectInVisualTree(thisControl, typeof(VBFunctionFlipView)) as VBFunctionFlipView;
+                    IsVisible = true;
+                    VBFunctionFlipView parentFlipView = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBFunctionFlipView)) as VBFunctionFlipView;
                     if (parentFlipView != null)
                     {
-                        parentFlipView.SelectedItem = thisControl.ContentACObject;
+                        parentFlipView.SelectedItem = ContentACObject;
                         parentFlipView.ScrollIntoView(parentFlipView.SelectedItem);
                     }
                 }
                 else
                 {
-                    thisControl.Visibility = Visibility.Collapsed;
+                    IsVisible = false;
                 }
             }
         }
 
         protected override void OnDesignLoaded()
         {
-            Binding boundedValue = BindingOperations.GetBinding(this, VBFunctionFlipItem.ACStateProperty);
+            var boundedValue = BindingOperations.GetBindingExpressionBase(this, VBFunctionFlipItem.ACStateProperty);
             if (boundedValue == null && ContentACObject is ACComponent)
             {
                 ACComponent paFunction = ContentACObject as ACComponent;
@@ -88,8 +77,8 @@ namespace gip.core.visualcontrols.avui
                 {
                     Binding binding = new Binding();
                     binding.Source = dcSource;
-                    binding.Path = new PropertyPath(dcPath);
-                    SetBinding(VBFunctionFlipItem.ACStateProperty, binding);
+                    binding.Path = dcPath;
+                    this.Bind(VBFunctionFlipItem.ACStateProperty, binding);
                     IACPropertyBase aCPropertyBase = dcSource as IACPropertyBase;
                     if (aCPropertyBase != null)
                     {
@@ -97,7 +86,7 @@ namespace gip.core.visualcontrols.avui
                         {
                             ACStateEnum paState = (ACStateEnum)aCPropertyBase.Value;
                             if (paState == ACStateEnum.SMIdle || paState == ACStateEnum.SMBreakPoint)
-                                Visibility = Visibility.Collapsed;
+                                IsVisible = false;
                         }
                         catch (Exception e)
                         {

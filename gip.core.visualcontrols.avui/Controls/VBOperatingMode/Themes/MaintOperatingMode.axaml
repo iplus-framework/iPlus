@@ -1,0 +1,87 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/Shared.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <ControlTheme x:Key="ManualOperatingMode" TargetType="local:VBOperatingMode">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox>
+          <Canvas x:Name="Ebene_1_11" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
+            <Viewbox x:Name="Group" Width="265.92" Height="265.92" Canvas.Left="0.28" Canvas.Top="0.720001">
+              <Canvas Width="265.92" Height="265.92">
+                <Image x:Name="Image" Source="imageManual.png" Width="266" Height="266" Canvas.Left="0" Canvas.Top="0"/>
+                <Viewbox x:Name="Group_0" Width="137.28" Height="166.843" Canvas.Left="74.4" Canvas.Top="51.0774">
+                  <Canvas Width="137.28" Height="166.843">
+                    <Ellipse x:Name="Ellipse" Width="98.4145" Height="91.6453" Canvas.Left="1.33813" Canvas.Top="68.3547" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100">
+                      <Ellipse.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                      </Ellipse.Effect>
+                    </Ellipse>
+                    <Path x:Name="Path" Width="25.7295" Height="98.772" Canvas.Left="1.48199" Canvas.Top="30.845" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="M 14.3468,127.617L 14.3468,127.617C 20.3472,127.617 25.2115,122.753 25.2115,116.752L 25.2115,43.7098C 25.2115,37.7094 20.3472,32.845 14.3468,32.845L 14.3468,32.845C 8.34633,32.845 3.48199,37.7094 3.48199,43.7098L 3.48199,116.752C 3.48199,122.753 8.34633,127.617 14.3468,127.617 Z "/>
+                    <Path x:Name="Path_1" Width="25.7212" Height="98.7697" Canvas.Left="23.2031" Canvas.Top="13.7113" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 36.0637,110.481L 36.0637,110.481C 42.0619,110.481 46.9243,105.619 46.9243,99.6205L 46.9243,26.5719C 46.9243,20.5738 42.0619,15.7113 36.0637,15.7113L 36.0637,15.7113C 30.0656,15.7113 25.2031,20.5738 25.2031,26.5719L 25.2031,99.6205C 25.2031,105.619 30.0656,110.481 36.0637,110.481 Z "/>
+                    <Path x:Name="Path_2" Width="25.7212" Height="98.7697" Canvas.Left="45.3587" Canvas.Top="0" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 58.2193,96.7697L 58.2193,96.7697C 64.2174,96.7697 69.0799,91.9073 69.0799,85.9091L 69.0799,12.8606C 69.0799,6.86246 64.2174,2 58.2193,2L 58.2193,2C 52.2212,2 47.3587,6.86246 47.3587,12.8606L 47.3587,85.9091C 47.3587,91.9073 52.2212,96.7697 58.2193,96.7697 Z "/>
+                    <Path x:Name="Path_3" Width="25.7289" Height="98.7698" Canvas.Left="67.0815" Canvas.Top="13.3075" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 79.946,110.077L 79.946,110.077C 85.9463,110.077 90.8104,105.213 90.8104,99.2129L 90.8104,26.172C 90.8104,20.1717 85.9463,15.3075 79.946,15.3075L 79.946,15.3075C 73.9457,15.3075 69.0815,20.1717 69.0815,26.172L 69.0815,99.2129C 69.0815,105.213 73.9457,110.077 79.946,110.077 Z ">
+                      <Path.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                      </Path.Effect>
+                    </Path>
+                    <Path x:Name="Path_4" Width="72.8893" Height="77.8691" Canvas.Left="56.0215" Canvas.Top="63.5213" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 73.1599,135.071L 73.1599,135.071C 78.1529,138.156 87.6974,141.564 90.5469,137.591L 125.54,80.2177C 128.39,76.2439 126.652,70.5213 121.659,67.4359L 121.659,67.4359C 116.666,64.3505 110.308,65.0707 107.459,69.0445L 58.4365,125.106C 55.5869,129.08 68.1668,131.985 73.1599,135.071 Z ">
+                      <Path.Effect>
+                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                      </Path.Effect>
+                    </Path>
+                    <Ellipse x:Name="Ellipse_5" Width="70.3764" Height="63.7176" Canvas.Left="23.9009" Canvas.Top="87.6956" Stretch="Fill" Fill="#FF182100"/>
+                    <Ellipse x:Name="Ellipse_6" Width="59.0814" Height="58.0717" Canvas.Left="5.65506" Canvas.Top="87.2923" Stretch="Fill" Fill="#FF182100"/>
+                  </Canvas>
+                  <Viewbox.RenderTransform>
+                    <RotateTransform Angle="0"
+                            CenterX="77.67"
+                            CenterY="58.56" />
+                  </Viewbox.RenderTransform>
+                </Viewbox>
+                <Path x:Name="Path_7" Width="200" Height="152.42" Canvas.Left="31.4789" Canvas.Top="18.1799" Stretch="Fill" Data="F1 M 136.382,18.1799L 126.392,18.1799C 84.3025,18.1799 31.4789,52.3003 31.4789,94.3899L 31.4789,94.3899C 31.4789,136.48 65.5993,170.6 107.689,170.6L 155.269,170.6C 197.358,170.6 231.479,136.48 231.479,94.3899L 231.479,94.3899C 231.479,52.3003 178.471,18.1799 136.382,18.1799 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368225">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_8" Width="230.306" Height="230.306" Canvas.Left="16.5671" Canvas.Top="17.1268" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round" Stroke="#FFFFFF75" Data="F1 M 131.873,18.1268L 131.567,18.1268C 68.6066,18.1268 17.5671,69.1664 17.5671,132.127L 17.5671,132.433C 17.5671,195.394 68.6066,246.433 131.567,246.433L 131.873,246.433C 194.833,246.433 245.873,195.394 245.873,132.433L 245.873,132.127C 245.873,69.1664 194.833,18.1268 131.873,18.1268 Z ">
+                  <Path.Fill>
+                    <RadialGradientBrush RadiusX="0.500001" RadiusY="0.500001" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                      <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                  </Path.Fill>
+                </Path>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Oscillating rotation animation for the hand group -->
+    <Style Selector="^ /template/ Viewbox#Group_0">
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1" PlaybackDirection="Alternate">
+          <KeyFrame Cue="0%">
+            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-30"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="30"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

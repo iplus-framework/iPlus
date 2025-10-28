@@ -1,0 +1,119 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/VBMotor/Themes/Brushes.axaml"/>
+  </ResourceDictionary.MergedDictionaries>
+
+  <ControlTheme x:Key="ScrewVert" TargetType="local:VBMotor">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox Stretch="Fill">
+          <Canvas Width="14" Height="60.9995">
+            <Rectangle x:Name="OpModeBack" Width="14" Height="58.0003" Canvas.Left="0" Canvas.Top="1.49957" Stretch="Fill" StrokeThickness="0"
+                       Stroke="{TemplateBinding BorderBrushAuto}"
+                       Fill="{TemplateBinding BorderBrushAuto}"/>
+            <Rectangle x:Name="RunStateFront" Width="10" Height="60" Canvas.Left="2" Canvas.Top="0.499336" Stretch="Fill"
+                       StrokeJoin="Round" StrokeThickness="1"
+                       Stroke="#FF000000"
+                       Fill="{TemplateBinding FillBrushIdle}"/>
+            <ContentControl Width="60" Height="10" Canvas.Left="12" Canvas.Top="0.499336">
+              <Rectangle x:Name="ScrewPlaceholder" Width="60" Height="10" Stretch="Fill" StrokeJoin="Round" Stroke="#00000000">
+                <Rectangle.Fill>
+                  <DrawingBrush TileMode="Tile" Stretch="Fill" AlignmentY="Center" AlignmentX="Left"
+                                      DestinationRect="{Binding RelativeSource={RelativeSource TemplatedParent},Path=TileViewportVert}"
+                                      Drawing="{StaticResource ResourceKey=FillScrew}">
+                  </DrawingBrush>
+                </Rectangle.Fill>
+              </Rectangle>
+              <ContentControl.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </ContentControl.RenderTransform>
+            </ContentControl>
+            <Rectangle x:Name="Glass" Width="9.99999" Height="60" Canvas.Left="1.99999" Canvas.Top="0.499405" Stretch="Fill" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="1,0.5" EndPoint="3.8147e-007,0.5">
+                  <LinearGradientBrush.GradientStops>
+                    <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                    <GradientStop Color="#00000000" Offset="0.253275"/>
+                    <GradientStop Color="#00000000" Offset="0.741525"/>
+                    <GradientStop Color="#B3000000" Offset="1"/>
+                  </LinearGradientBrush.GradientStops>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Animation States: ReqRunState=True, RunState=False, IsTriggered=False -->
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Rectangle#RunStateFront">
+      <Setter Property="StrokeThickness" Value="2" />
+      <Setter Property="StrokeDashArray" Value="4,4" />
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: IsTriggered=True -->
+    <Style Selector="^[IsTriggered=True] /template/ Rectangle#RunStateFront">
+      <Setter Property="StrokeThickness" Value="2" />
+      <Setter Property="StrokeDashArray" Value="4,4" />
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- OperatingMode Manual -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Rectangle#OpModeBack">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].BorderBrushManual}"/>
+    </Style>
+
+    <!-- OperatingMode Maintenance -->
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Rectangle#OpModeBack">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].BorderBrushMaint}"/>
+    </Style>
+
+    <!-- OperatingMode InActive -->
+    <Style Selector="^[OperatingMode=Inactive] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="Black"/>
+    </Style>
+
+    <!-- RunState True and FaultState Off -->
+    <Style Selector="^[RunState=True][FaultState=Off] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushRunning}"/>
+    </Style>
+
+    <!-- IsInterlocked True and FaultState Off -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- FaultState AlarmOrFault -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Rectangle#RunStateFront">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushFault}"/>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

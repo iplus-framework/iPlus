@@ -1,0 +1,391 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+
+  <ControlTheme x:Key="DiverterLeft" TargetType="local:VBValve">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox Stretch="Fill" RenderTransformOrigin="0.5,0.5">
+          <Canvas Width="59.0003" Height="74.0002">
+            <Path x:Name="OpModeBack" Width="59.0003" Height="74.0002" Canvas.Left="0" Canvas.Top="0" Stretch="Fill"
+                  Stroke="{TemplateBinding BorderBrushAuto}"
+                  Fill="{TemplateBinding BorderBrushAuto}"
+                  Data="F1 M 0.000141144,0L 32.0002,0L 32.0002,31.0001L 59.0003,46.0001L 43.0003,74.0002L 32,68.0003L 32,72.0003L 0,72.0003L 0.000141144,31.0001L 0.000141144,0 Z "/>
+            <Path x:Name="RunModeBody" Width="48.641" Height="63.9919" Canvas.Left="3.98896" Canvas.Top="4.00839" Stretch="Fill"
+                  StrokeThickness="4" StrokeJoin="Round"
+                      Stroke="#FF000000"
+                      Fill="{TemplateBinding FillBrushIdle}"
+                  Data="F1 M 5.99052,6.00839L 25.9905,6.00839L 25.9905,34.4461L 50.63,48.6717L 40.63,65.9922L 25.9905,57.5401L 25.9905,66.0003L 5.99052,66.0003L 5.99052,45.9931L 5.98896,45.9922L 5.99052,45.9895L 5.99052,6.00839 Z "/>
+            <Viewbox x:Name="PartL" Width="24" Height="63.9919" Canvas.Left="4" Canvas.Top="4.00838">
+              <Canvas Width="24" Height="63.9919">
+                <Rectangle x:Name="RunModeLeft" Width="24" Height="63.9919" Canvas.Left="0" Canvas.Top="0" Stretch="Fill"
+                           StrokeThickness="4" StrokeJoin="Round"
+                          Stroke="#FF000000"
+                          Fill="{TemplateBinding FillBrushIdle}"
+                                   />
+                <Viewbox x:Name="GlassL" Width="20" Height="60" Canvas.Left="2" Canvas.Top="1.99191" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                  <Canvas Width="20" Height="60">
+                    <Rectangle x:Name="Rectangle_385" Width="20" Height="60" Canvas.Left="2.28882e-005" Canvas.Top="-7.62939e-006" Stretch="Fill" StrokeThickness="1" StrokeJoin="Bevel">
+                      <Rectangle.Stroke>
+                        <RadialGradientBrush RadiusX="1" RadiusY="0.644927" Center="1,0.5" GradientOrigin="1,0.5">
+                          <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                            <GradientStop Color="#00000000" Offset="0.253275"/>
+                            <GradientStop Color="#00000000" Offset="0.741525"/>
+                            <GradientStop Color="#B3000000" Offset="1"/>
+                          </RadialGradientBrush.GradientStops>
+                          <RadialGradientBrush.Transform>
+                            <RotateTransform Angle="180"/>
+                          </RadialGradientBrush.Transform>
+                        </RadialGradientBrush>
+                      </Rectangle.Stroke>
+                      <Rectangle.Fill>
+                        <LinearGradientBrush StartPoint="1,0.5" EndPoint="3.8147e-007,0.5">
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                            <GradientStop Color="#00000000" Offset="0.253275"/>
+                            <GradientStop Color="#00000000" Offset="0.741525"/>
+                            <GradientStop Color="#B3000000" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Rectangle.Fill>
+                    </Rectangle>
+                    <Path x:Name="Path_386" Width="20" Height="4.8" Canvas.Left="0" Canvas.Top="55.2" Stretch="Fill" Data="F1 M 9.50954,55.2L 10.5088,55.2C 14.6561,55.2 19.8452,57.338 20,60L 0,60C 0.15535,57.338 5.36227,55.2 9.50954,55.2 Z ">
+                      <Path.Fill>
+                        <LinearGradientBrush StartPoint="1,0.500001" EndPoint="0,0.500001">
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                            <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Path.Fill>
+                    </Path>
+                    <Path x:Name="Path_387" Width="20" Height="4.8" Canvas.Left="0" Canvas.Top="1.52588e-005" Stretch="Fill" Data="F1 M 9.50954,4.80002L 10.5088,4.80002C 14.6561,4.80002 19.8452,2.66199 20,1.52588e-005L 0,1.52588e-005C 0.15535,2.66199 5.36227,4.80002 9.50954,4.80002 Z ">
+                      <Path.Fill>
+                        <LinearGradientBrush StartPoint="1,0.499998" EndPoint="0,0.499998">
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                            <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Path.Fill>
+                    </Path>
+                  </Canvas>
+                </Viewbox>
+              </Canvas>
+            </Viewbox>
+            <Viewbox x:Name="PartR" Width="48.641" Height="63.9838" Canvas.Left="4" Canvas.Top="4.01648">
+              <Canvas Width="48.641" Height="63.9838">
+                <Path x:Name="RunModeRight" Width="48.641" Height="63.9838" Canvas.Left="0" Canvas.Top="0" Stretch="Fill"
+                      StrokeThickness="4" StrokeJoin="Round"
+                      Stroke="#FF000000"
+                      Fill="{TemplateBinding FillBrushIdle}"
+                      Data="F1 M 2.00156,2L 22.0016,2L 22.0016,30.4377L 46.641,44.6633L 36.641,61.9838L 2.028,42L 2.00156,42L 2.00156,41.9847L 2,41.9838L 2.00156,41.9811L 2.00156,2 Z "/>
+                <Viewbox x:Name="GlassR" Width="45" Height="60" Canvas.Left="2.00014" Canvas.Top="1.98363" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+                  <Canvas Width="45" Height="60">
+                    <Path x:Name="Path_391" Width="20" Height="39.9602" Canvas.Left="1.14441e-005" Canvas.Top="0" Stretch="Fill" Data="F1 M 2.28882e-005,0L 20,0L 20,28L 1.14441e-005,39.9602L 2.28882e-005,0 Z " StrokeThickness="1" StrokeJoin="Bevel">
+                      <Path.Stroke>
+                        <RadialGradientBrush RadiusX="0.999999" RadiusY="0.451898" Center="3.8147e-007,0.350348" GradientOrigin="3.8147e-007,0.350348">
+                          <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                            <GradientStop Color="#00000000" Offset="0.253275"/>
+                            <GradientStop Color="#00000000" Offset="0.741525"/>
+                            <GradientStop Color="#B3000000" Offset="1"/>
+                          </RadialGradientBrush.GradientStops>
+                        </RadialGradientBrush>
+                      </Path.Stroke>
+                      <Path.Fill>
+                        <LinearGradientBrush StartPoint="3.8147e-007,0.350348" EndPoint="1,0.350348">
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                            <GradientStop Color="#00000000" Offset="0.253275"/>
+                            <GradientStop Color="#00000000" Offset="0.741525"/>
+                            <GradientStop Color="#B3000000" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Path.Fill>
+                    </Path>
+                    <Path x:Name="Path_392" Width="20" Height="4.8" Canvas.Left="3.43323e-005" Canvas.Top="-7.62939e-006" Stretch="Fill" Data="F1 M 10.4905,4.79999L 9.49119,4.79999C 5.34391,4.79999 0.154846,2.66197 3.43323e-005,-7.62939e-006L 20,-7.62939e-006C 19.8447,2.66197 14.6378,4.79999 10.4905,4.79999 Z ">
+                      <Path.Fill>
+                        <LinearGradientBrush StartPoint="0,0.500001" EndPoint="1,0.500001">
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                            <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Path.Fill>
+                    </Path>
+                    <Path x:Name="Path_393" Width="45" Height="32" Canvas.Left="3.8147e-006" Canvas.Top="28" Stretch="Fill" Data="F1 M 3.8147e-006,39.9602L 20,28L 45,42.6795L 35,60L 3.8147e-006,39.9602 Z " StrokeThickness="1" StrokeJoin="Bevel">
+                      <Path.Stroke>
+                        <RadialGradientBrush RadiusX="0.585107" RadiusY="0.446811" Center="0.496931,0.771981" GradientOrigin="0.496931,0.771981">
+                          <RadialGradientBrush.GradientStops>
+                            <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                            <GradientStop Color="#00000000" Offset="0.253275"/>
+                            <GradientStop Color="#00000000" Offset="0.741525"/>
+                            <GradientStop Color="#B3000000" Offset="1"/>
+                          </RadialGradientBrush.GradientStops>
+                          <RadialGradientBrush.Transform>
+                            <TransformGroup>
+                              <SkewTransform AngleX="-16.752" AngleY="0"/>
+                              <RotateTransform Angle="-67.6789"/>
+                            </TransformGroup>
+                          </RadialGradientBrush.Transform>
+                        </RadialGradientBrush>
+                      </Path.Stroke>
+                      <Path.Fill>
+                        <LinearGradientBrush StartPoint="0.496931,0.771981" EndPoint="1.08204,0.771981">
+                          <LinearGradientBrush.Transform>
+                            <TransformGroup>
+                              <SkewTransform AngleX="-16.752" AngleY="0"/>
+                              <RotateTransform Angle="-67.6789"/>
+                            </TransformGroup>
+                          </LinearGradientBrush.Transform>
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                            <GradientStop Color="#00000000" Offset="0.253275"/>
+                            <GradientStop Color="#00000000" Offset="0.741525"/>
+                            <GradientStop Color="#B3000000" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Path.Fill>
+                    </Path>
+                    <Path x:Name="Path_394" Width="11.3567" Height="17.5627" Canvas.Left="33.6433" Canvas.Top="42.4373" Stretch="Fill" Data="F1 M 36.0883,48.515L 35.5887,49.3804C 33.515,52.972 32.7721,58.5349 35,60L 45,42.6795C 42.617,41.483 38.162,44.9233 36.0883,48.515 Z ">
+                      <Path.Fill>
+                        <LinearGradientBrush StartPoint="-0.0635555,0.931674" EndPoint="1.25855,0.931674">
+                          <LinearGradientBrush.Transform>
+                            <TransformGroup>
+                              <SkewTransform AngleX="21.2878" AngleY="0"/>
+                              <RotateTransform Angle="-48.2398"/>
+                            </TransformGroup>
+                          </LinearGradientBrush.Transform>
+                          <LinearGradientBrush.GradientStops>
+                            <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                            <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                          </LinearGradientBrush.GradientStops>
+                        </LinearGradientBrush>
+                      </Path.Fill>
+                    </Path>
+                  </Canvas>
+                </Viewbox>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+
+          <Viewbox.RenderTransform>
+            <ScaleTransform ScaleX="-1"/>
+          </Viewbox.RenderTransform>
+
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- OperatingMode Manual -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Path#OpModeBack">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].BorderBrushManual}"/>
+    </Style>
+
+    <!-- OperatingMode Maintenance -->
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Path#OpModeBack">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].BorderBrushMaint}"/>
+    </Style>
+
+    <!-- OperatingMode InActive -->
+    <Style Selector="^[OperatingMode=Inactive] /template/ Rectangle#RunModeLeft">
+      <Setter Property="Fill" Value="Black"/>
+    </Style>
+    <Style Selector="^[OperatingMode=Inactive] /template/ Path#RunModeRight">
+      <Setter Property="Fill" Value="Black"/>
+    </Style>
+
+    <!-- Pos1 True, Pos2 False, FaultState Off -->
+    <Style Selector="^[Pos1=True][Pos2=False][FaultState=Off] /template/ Viewbox#PartR">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="^[Pos1=True][Pos2=False][FaultState=Off] /template/ Rectangle#RunModeLeft">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushRunning}"/>
+    </Style>
+
+    <!-- Pos1 False, Pos2 True, FaultState Off -->
+    <Style Selector="^[Pos1=False][Pos2=True][FaultState=Off] /template/ Viewbox#PartL">
+      <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="^[Pos1=False][Pos2=True][FaultState=Off] /template/ Path#RunModeRight">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushRunning}"/>
+    </Style>
+
+    <!-- Pos1 True, Pos2 True, FaultState Off -->
+    <Style Selector="^[Pos1=True][Pos2=True][FaultState=Off] /template/ Rectangle#RunModeLeft">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushRunning}"/>
+    </Style>
+    <Style Selector="^[Pos1=True][Pos2=True][FaultState=Off] /template/ Path#RunModeRight">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushRunning}"/>
+    </Style>
+
+    <!-- IsInterlocked True and FaultState Off -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Rectangle#RunModeLeft">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushInterlocked}"/>
+    </Style>
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Path#RunModeRight">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- FaultState AlarmOrFault -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Rectangle#RunModeLeft">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushFault}"/>
+    </Style>
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Path#RunModeRight">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBValve].FillBrushFault}"/>
+    </Style>
+
+    <!-- Animation States: ReqPos1=True, ReqPos2=False, Pos1=False, IsTriggered=False -->
+    <Style Selector="^[ReqPos1=True][ReqPos2=False][Pos1=False][IsTriggered=False] /template/ Rectangle#RunModeLeft">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: Pos1=True, IsTriggered=True -->
+    <Style Selector="^[Pos1=True][IsTriggered=True] /template/ Rectangle#RunModeLeft">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: ReqPos1=True, Pos1=False, IsTriggered=True -->
+    <Style Selector="^[ReqPos1=True][Pos1=False][IsTriggered=True] /template/ Rectangle#RunModeLeft">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: ReqPos2=True, ReqPos1=False, Pos2=False, IsTriggered=False -->
+    <Style Selector="^[ReqPos2=True][ReqPos1=False][Pos2=False][IsTriggered=False] /template/ Path#RunModeRight">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: Pos2=True, IsTriggered=True -->
+    <Style Selector="^[Pos2=True][IsTriggered=True] /template/ Path#RunModeRight">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: ReqPos2=True, Pos2=False, IsTriggered=True -->
+    <Style Selector="^[ReqPos2=True][Pos2=False][IsTriggered=True] /template/ Path#RunModeRight">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: All False positions with IsTriggered=True -->
+    <Style Selector="^[ReqPos1=False][ReqPos2=False][Pos1=False][Pos2=False][IsTriggered=True] /template/ Rectangle#RunModeLeft">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[ReqPos1=False][ReqPos2=False][Pos1=False][Pos2=False][IsTriggered=True] /template/ Path#RunModeRight">
+      <Setter Property="StrokeThickness" Value="8"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </ControlTheme>
+</ResourceDictionary>

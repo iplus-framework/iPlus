@@ -1,61 +1,33 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.ComponentModel;
-using System.Windows.Markup;
+using Avalonia;
+using Avalonia.Collections;
 using gip.core.datamodel;
-using System.Windows.Controls.Primitives;
 using gip.core.layoutengine.avui;
 using gip.core.autocomponent;
 using gip.core.layoutengine.avui.Helperclasses;
 
 namespace gip.core.visualcontrols.avui
 {
-    [TemplatePart(Name = "PART_TickBar", Type = typeof(FrameworkElement))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFillLevel'}de{'VBFillLevel'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBFillLevel : VBProgressBar
     {
         #region c'tors
-        private static List<CustomControlStyleInfo> _styleInfoList2 = new List<CustomControlStyleInfo> { 
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Gip, 
-                                         styleName = "FillLevelStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBFillLevel/Themes/FillLevelStyleGip.xaml" },
-            new CustomControlStyleInfo { wpfTheme = eWpfTheme.Aero, 
-                                         styleName = "FillLevelStyleGip", 
-                                         styleUri = "/gip.core.visualcontrols.avui;Component/Visualisierung/VBFillLevel/Themes/FillLevelStyleGip.xaml" },
-        };
-
-        public override List<CustomControlStyleInfo> MyStyleInfoList
-        {
-            get
-            {
-                return _styleInfoList2;
-            }
-        }
-
         static VBFillLevel()
         {
-            DefaultStyleKeyProperty.OverrideMetadata(typeof(VBFillLevel), new FrameworkPropertyMetadata(typeof(VBFillLevel)));
-            VBProgressBar.ProgressBarStyleProperty.OverrideMetadata(typeof(VBFillLevel), new PropertyMetadata(ProgressBarStyles.PerformantBar));
+            VBProgressBar.ProgressBarStyleProperty.OverrideMetadata(typeof(VBFillLevel), new StyledPropertyMetadata<ProgressBarStyles>(ProgressBarStyles.PerformantBar));
         }
         #endregion
 
-        #region Additional Dependency-Properties
+        #region Additional Styled Properties
 
-        public static readonly DependencyProperty TickFrequencyProperty
-            = DependencyProperty.Register("TickFrequency", typeof(double), typeof(VBFillLevel), new PropertyMetadata((double)10.0));
+        public static readonly StyledProperty<double> TickFrequencyProperty
+            = AvaloniaProperty.Register<VBFillLevel, double>(nameof(TickFrequency), 10.0);
         /// <summary>
         /// Der Abstand zwischen Teilstrichen.Der Standardwert ist (1.0).
         /// </summary>
@@ -64,57 +36,55 @@ namespace gip.core.visualcontrols.avui
         [ACPropertyInfo(9999)]
         public double TickFrequency
         {
-            get { return (double)GetValue(TickFrequencyProperty); }
+            get { return GetValue(TickFrequencyProperty); }
             set { SetValue(TickFrequencyProperty, value); }
         }
 
 
-        public static readonly DependencyProperty ShowTickBarProperty
-            = DependencyProperty.Register("ShowTickBar", typeof(Boolean), typeof(VBFillLevel));
+        public static readonly StyledProperty<bool> ShowTickBarProperty
+            = AvaloniaProperty.Register<VBFillLevel, bool>(nameof(ShowTickBar));
         /// <summary>
         /// Füllstandsstriche
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public Boolean ShowTickBar
+        public bool ShowTickBar
         {
-            get { return (Boolean)GetValue(ShowTickBarProperty); }
+            get { return GetValue(ShowTickBarProperty); }
             set { SetValue(ShowTickBarProperty, value); }
         }
 
-        public static readonly DependencyProperty TicksCollectionProperty
-            = DependencyProperty.Register("TicksCollection", typeof(IEnumerable<double>), typeof(VBFillLevel), new PropertyMetadata(new PropertyChangedCallback(OnDepPropChanged)));
+        public static readonly StyledProperty<IEnumerable<double>> TicksCollectionProperty
+            = AvaloniaProperty.Register<VBFillLevel, IEnumerable<double>>(nameof(TicksCollection));
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
         public IEnumerable<double> TicksCollection
         {
-            get { return (IEnumerable<double>)GetValue(TicksCollectionProperty); }
+            get { return GetValue(TicksCollectionProperty); }
             set { SetValue(TicksCollectionProperty, value); }
         }
 
-        public static readonly DependencyProperty TicksViewProperty
-            = DependencyProperty.Register("TicksView", typeof(DoubleCollection), typeof(VBFillLevel), new PropertyMetadata());
+        public static readonly StyledProperty<AvaloniaList<double>> TicksViewProperty
+            = AvaloniaProperty.Register<VBFillLevel, AvaloniaList<double>>(nameof(TicksView));
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public DoubleCollection TicksView
+        public AvaloniaList<double> TicksView
         {
-            get { return (DoubleCollection)GetValue(TicksViewProperty); }
+            get { return GetValue(TicksViewProperty); }
             set { SetValue(TicksViewProperty, value); }
         }
 
-        private static void OnDepPropChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args)
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            VBFillLevel thisControl = dependencyObject as VBFillLevel;
-            if (thisControl == null)
-                return;
-            if (args.Property == TicksCollectionProperty)
+            base.OnPropertyChanged(change);
+            if (change.Property == TicksCollectionProperty)
             {
-                if (thisControl.TicksCollection == null)
-                    thisControl.TicksView = null;
+                if (TicksCollection == null)
+                    TicksView = null;
                 else
-                    thisControl.TicksView = new DoubleCollection(thisControl.TicksCollection);
+                    TicksView = new AvaloniaList<double>(TicksCollection);
             }
         }
         #endregion

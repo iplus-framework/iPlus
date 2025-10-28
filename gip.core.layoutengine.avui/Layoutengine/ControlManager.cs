@@ -159,6 +159,9 @@ namespace gip.core.layoutengine.avui
                 app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Relative)));
                 //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Black.xaml", UriKind.Relative)));
             }
+
+            //if (!app.Styles.OfType<StyleInclude>().Where(s => s.Source != null s.Source.OriginalString.StartsWith("avares://gip.core.layoutengine.avui/Controls/Controls.axaml")).Any())
+            //    app.Styles.Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/")) { Source = new Uri("avares://gip.core.layoutengine.avui/Controls/Controls.axaml", UriKind.Relative) });
         }
 
         static public ResourceInclude GetResourceDict(List<CustomControlStyleInfo> CustomControlStyleInfoList)
