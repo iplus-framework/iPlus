@@ -1,7 +1,8 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.Windows;
-using System.Windows.Documents;
+
+using Avalonia;
+using Avalonia.Controls.Documents;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -22,22 +23,22 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(DataGroupProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for DataGroup.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DataGroupProperty =
-            DependencyProperty.Register("DataGroupName", typeof(string), typeof(SectionDataGroup), new UIPropertyMetadata(""));
+        // Using a StyledProperty as the backing store for DataGroup. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> DataGroupProperty = 
+            AvaloniaProperty.Register<SectionDataGroup, string>(nameof(DataGroupName), "");
 
         public virtual string StringFormat
         {
             get { return (string)GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
-        public static readonly DependencyProperty StringFormatProperty = ReportDocument.StringFormatProperty.AddOwner(typeof(SectionDataGroup));
+        public static readonly AttachedProperty<string> StringFormatProperty = ReportDocument.StringFormatProperty.AddOwner<SectionDataGroup>();
 
         public virtual string CultureInfo
         {
             get { return (string)GetValue(CultureInfoProperty); }
             set { SetValue(CultureInfoProperty, value); }
         }
-        public static readonly DependencyProperty CultureInfoProperty = ReportDocument.CultureInfoProperty.AddOwner(typeof(SectionDataGroup));
+        public static readonly AttachedProperty<string> CultureInfoProperty = ReportDocument.CultureInfoProperty.AddOwner<SectionDataGroup>();
     }
 }

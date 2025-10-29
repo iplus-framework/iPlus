@@ -1,22 +1,16 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Avalonia;
+using AvRichTextBox;
+using gip.core.autocomponent;
+using gip.core.datamodel;
+using gip.core.reporthandler.Configuration;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using gip.core.datamodel;
-using System.Reflection;
 using System.Linq;
-using gip.core.autocomponent;
-using System.Xml.Linq;
-using gip.core.reporthandler.Configuration;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -42,81 +36,82 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <exception cref="ArgumentException">Flow document can have only one report footer section</exception>
         public ReportPaginator(ReportDocument report, ReportData data)
         {
-            _report = report;
-            _data = data;
+            throw new NotImplementedException("TODO Avalonia");
+            //_report = report;
+            //_data = data;
 
-            layoutengine.avui.Layoutgenerator.CurrentDataContext = _data?.ReportDocumentValues.Values.Where(c => c is IACComponent).FirstOrDefault() as IACComponent;
-            _flowDocument = report.CreateFlowDocument();
-            // make height smaller to have enough space for page header and page footer
-            _flowDocument.PageHeight = report.PageHeight - report.PageHeight * (report.PageHeaderHeight + report.PageFooterHeight) / 100d;
-            _pageSize = new Size(_flowDocument.PageWidth, _flowDocument.PageHeight);
+            //layoutengine.avui.Layoutgenerator.CurrentDataContext = _data?.ReportDocumentValues.Values.Where(c => c is IACComponent).FirstOrDefault() as IACComponent;
+            //_flowDocument = report.CreateFlowDocument();
+            //// make height smaller to have enough space for page header and page footer
+            //_flowDocument.PageHeight = report.PageHeight - report.PageHeight * (report.PageHeaderHeight + report.PageFooterHeight) / 100d;
+            //_pageSize = new Size(_flowDocument.PageWidth, _flowDocument.PageHeight);
 
-            if (_flowDocument.PageHeight == double.NaN) throw new ArgumentException("Flow document must have a specified page height");
-            if (_flowDocument.PageWidth == double.NaN) throw new ArgumentException("Flow document must have a specified page width");
+            //if (_flowDocument.PageHeight == double.NaN) throw new ArgumentException("Flow document must have a specified page height");
+            //if (_flowDocument.PageWidth == double.NaN) throw new ArgumentException("Flow document must have a specified page width");
 
-            _rootCache = new ReportPaginatorDynamicCache(_flowDocument);
-            List<SectionReportHeader> listPageHeaders = _rootCache.GetObjectsOfType<SectionReportHeader>();
-            if (listPageHeaders.Count > 1)
-                throw new ArgumentException("Flow document can have only one report header section");
-            if (listPageHeaders.Count == 1)
-            {
-                _blockPageHeader = (SectionReportHeader)listPageHeaders[0];
-                if (report.XDoc != null)
-                {
-                    var queryAttr = report.XDoc.Root.Attributes().Where(c => c.IsNamespaceDeclaration);
-                    XElement xElement = report.XDoc.Descendants("{http://www.iplus-framework.com/report/xaml}SectionReportHeader").FirstOrDefault();
-                    if (xElement != null)
-                    {
-                        foreach (XAttribute nsAttribute in queryAttr)
-                        {
-                            XAttribute xAttrElem = xElement.Attribute(nsAttribute.Name);
-                            if (xAttrElem == null)
-                                xElement.SetAttributeValue(nsAttribute.Name, nsAttribute.Value);
-                        }
-                        _blockPageHeaderXAML = xElement.ToString();
+            //_rootCache = new ReportPaginatorDynamicCache(_flowDocument);
+            //List<SectionReportHeader> listPageHeaders = _rootCache.GetObjectsOfType<SectionReportHeader>();
+            //if (listPageHeaders.Count > 1)
+            //    throw new ArgumentException("Flow document can have only one report header section");
+            //if (listPageHeaders.Count == 1)
+            //{
+            //    _blockPageHeader = (SectionReportHeader)listPageHeaders[0];
+            //    if (report.XDoc != null)
+            //    {
+            //        var queryAttr = report.XDoc.Root.Attributes().Where(c => c.IsNamespaceDeclaration);
+            //        XElement xElement = report.XDoc.Descendants("{http://www.iplus-framework.com/report/xaml}SectionReportHeader").FirstOrDefault();
+            //        if (xElement != null)
+            //        {
+            //            foreach (XAttribute nsAttribute in queryAttr)
+            //            {
+            //                XAttribute xAttrElem = xElement.Attribute(nsAttribute.Name);
+            //                if (xAttrElem == null)
+            //                    xElement.SetAttributeValue(nsAttribute.Name, nsAttribute.Value);
+            //            }
+            //            _blockPageHeaderXAML = xElement.ToString();
 
-                    }
-                }
-            }
-            List<SectionReportFooter> listPageFooters = _rootCache.GetObjectsOfType<SectionReportFooter>();
-            if (listPageFooters.Count > 1)
-                throw new ArgumentException("Flow document can have only one report footer section");
-            if (listPageFooters.Count == 1)
-            {
-                _blockPageFooter = (SectionReportFooter)listPageFooters[0];
-                if (report.XDoc != null)
-                {
-                    var queryAttr = report.XDoc.Root.Attributes().Where(c => c.IsNamespaceDeclaration);
-                    XElement xElement = report.XDoc.Descendants("{http://www.iplus-framework.com/report/xaml}SectionReportFooter").FirstOrDefault();
-                    if (xElement != null)
-                    {
-                        foreach (XAttribute nsAttribute in queryAttr)
-                        {
-                            XAttribute xAttrElem = xElement.Attribute(nsAttribute.Name);
-                            if (xAttrElem == null)
-                                xElement.SetAttributeValue(nsAttribute.Name, nsAttribute.Value);
-                        }
-                        _blockPageFooterXAML = xElement.ToString();
-                    }
-                }
-            }
+            //        }
+            //    }
+            //}
+            //List<SectionReportFooter> listPageFooters = _rootCache.GetObjectsOfType<SectionReportFooter>();
+            //if (listPageFooters.Count > 1)
+            //    throw new ArgumentException("Flow document can have only one report footer section");
+            //if (listPageFooters.Count == 1)
+            //{
+            //    _blockPageFooter = (SectionReportFooter)listPageFooters[0];
+            //    if (report.XDoc != null)
+            //    {
+            //        var queryAttr = report.XDoc.Root.Attributes().Where(c => c.IsNamespaceDeclaration);
+            //        XElement xElement = report.XDoc.Descendants("{http://www.iplus-framework.com/report/xaml}SectionReportFooter").FirstOrDefault();
+            //        if (xElement != null)
+            //        {
+            //            foreach (XAttribute nsAttribute in queryAttr)
+            //            {
+            //                XAttribute xAttrElem = xElement.Attribute(nsAttribute.Name);
+            //                if (xAttrElem == null)
+            //                    xElement.SetAttributeValue(nsAttribute.Name, nsAttribute.Value);
+            //            }
+            //            _blockPageFooterXAML = xElement.ToString();
+            //        }
+            //    }
+            //}
 
-            _paginator = ((IDocumentPaginatorSource)_flowDocument).DocumentPaginator;
+            //_paginator = ((IDocumentPaginatorSource)_flowDocument).DocumentPaginator;
 
-            // remove header and footer in our working copy
-            Block block = _flowDocument.Blocks.FirstBlock;
-            while (block != null)
-            {
-                Block thisBlock = block;
-                block = block.NextBlock;
-                if ((thisBlock == _blockPageHeader) || (thisBlock == _blockPageFooter))
-                    _flowDocument.Blocks.Remove(thisBlock);
-            }
+            //// remove header and footer in our working copy
+            //Block block = _flowDocument.Blocks.FirstBlock;
+            //while (block != null)
+            //{
+            //    Block thisBlock = block;
+            //    block = block.NextBlock;
+            //    if ((thisBlock == _blockPageHeader) || (thisBlock == _blockPageFooter))
+            //        _flowDocument.Blocks.Remove(thisBlock);
+            //}
 
-            // get report context values
-            _reportContextValues = _rootCache.GetObjectsOfType<InlineContextValue>();
+            //// get report context values
+            //_reportContextValues = _rootCache.GetObjectsOfType<InlineContextValue>();
 
-            ProcessReport();
+            //ProcessReport();
         }
         #endregion
 
@@ -173,37 +168,37 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <summary>
         /// Determines if the current page count is valid
         /// </summary>
-        public override bool IsPageCountValid
-        {
-            get { return _paginator.IsPageCountValid; }
-        }
+        //public virtual bool IsPageCountValid
+        //{
+        //    get { return _paginator.IsPageCountValid; }
+        //}
 
-        private int _pageCount = 0;
-        /// <summary>
-        /// Gets the total page count
-        /// </summary>
-        public override int PageCount
-        {
-            get { return _pageCount; }
-        }
+        //private int _pageCount = 0;
+        ///// <summary>
+        ///// Gets the total page count
+        ///// </summary>
+        //public virtual int PageCount
+        //{
+        //    get { return _pageCount; }
+        //}
 
-        private Size _pageSize = Size.Empty;
-        /// <summary>
-        /// Gets or sets the page size
-        /// </summary>
-        public override Size PageSize
-        {
-            get { return _pageSize; }
-            set { _pageSize = value; }
-        }
+        //private Size _pageSize = Size.Empty;
+        ///// <summary>
+        ///// Gets or sets the page size
+        ///// </summary>
+        //public virtual Size PageSize
+        //{
+        //    get { return _pageSize; }
+        //    set { _pageSize = value; }
+        //}
 
-        /// <summary>
-        /// Gets the paginator source
-        /// </summary>
-        public override IDocumentPaginatorSource Source
-        {
-            get { return _paginator.Source; }
-        }
+        ///// <summary>
+        ///// Gets the paginator source
+        ///// </summary>
+        //public virtual IDocumentPaginatorSource Source
+        //{
+        //    get { return _paginator.Source; }
+        //}
 
         #endregion
 
@@ -463,45 +458,46 @@ namespace gip.core.reporthandler.avui.Flowdoc
             return enumerableObj;
         }
 
-        private ReportConfiguration _ReportConfig;
+        //private ReportConfiguration _ReportConfig;
 
         private ReportConfiguration ReportConfig
         {
             get
             {
-                if (_ReportConfig == null)
-                {
-                    if (_flowDocument.Resources.Contains("Config"))
-                        _ReportConfig = _flowDocument.Resources["Config"] as ReportConfiguration;
-                    if (_ReportConfig == null || _ReportConfig.Items.Count == 0)
-                    {
-                        ACClassDesign globalReportConfig = null;
+                throw new NotImplementedException("TODO Avalonia");
+                //if (_ReportConfig == null)
+                //{
+                //    if (_flowDocument.Resources.Contains("Config"))
+                //        _ReportConfig = _flowDocument.Resources["Config"] as ReportConfiguration;
+                //    if (_ReportConfig == null || _ReportConfig.Items.Count == 0)
+                //    {
+                //        ACClassDesign globalReportConfig = null;
 
-                        using (ACMonitor.Lock(Database.GlobalDatabase.QueryLock_1X000))
-                            globalReportConfig = Database.GlobalDatabase.ACClassDesign.First(c => c.ACIdentifier == "ReportGlobalConfig");
-                        if (globalReportConfig != null)
-                        {
-                            try
-                            {
-                                ResourceDictionary rd = XamlReader.Parse(globalReportConfig.XAMLDesign) as ResourceDictionary;
-                                if (rd.Contains("Config"))
-                                    _ReportConfig = rd["Config"] as ReportConfiguration;
-                            }
-                            catch (Exception e)
-                            {
-                                _ReportConfig = null;
+                //        using (ACMonitor.Lock(Database.GlobalDatabase.QueryLock_1X000))
+                //            globalReportConfig = Database.GlobalDatabase.ACClassDesign.First(c => c.ACIdentifier == "ReportGlobalConfig");
+                //        if (globalReportConfig != null)
+                //        {
+                //            try
+                //            {
+                //                ResourceDictionary rd = XamlReader.Parse(globalReportConfig.XAMLDesign) as ResourceDictionary;
+                //                if (rd.Contains("Config"))
+                //                    _ReportConfig = rd["Config"] as ReportConfiguration;
+                //            }
+                //            catch (Exception e)
+                //            {
+                //                _ReportConfig = null;
 
-                                string msg = e.Message;
-                                if (e.InnerException != null && e.InnerException.Message != null)
-                                    msg += " Inner:" + e.InnerException.Message;
+                //                string msg = e.Message;
+                //                if (e.InnerException != null && e.InnerException.Message != null)
+                //                    msg += " Inner:" + e.InnerException.Message;
 
-                                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                                    datamodel.Database.Root.Messages.LogException(nameof(ReportPaginator), nameof(ReportConfig), msg);
-                            }
-                        }
-                    }
-                }
-                return _ReportConfig;
+                //                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+                //                    datamodel.Database.Root.Messages.LogException(nameof(ReportPaginator), nameof(ReportConfig), msg);
+                //            }
+                //        }
+                //    }
+                //}
+                //return _ReportConfig;
             }
         }
 
@@ -608,112 +604,114 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="acQueryDef"></param>
         protected virtual void FillTableRowDataDyn(object enumerableObj, TableRowDataDyn tableRowTemplate, object parentDataContext, object rootDataContext, ACQueryDefinition acQueryDef, IACType propertyType)
         {
-            TableRowGroup tableGroup = tableRowTemplate.Parent as TableRowGroup;
-            if (tableGroup == null)
-                return;
+            throw new NotImplementedException("TODO Avalonia");
 
-            var stackComponent = gip.core.layoutengine.avui.Layoutgenerator.CurrentACComponent;
+            //TableRowGroup tableGroup = tableRowTemplate.Parent as TableRowGroup;
+            //if (tableGroup == null)
+            //    return;
 
-            try
-            {
-                IACComponent acComponent = parentDataContext as IACComponent;
-                if (acComponent == null)
-                    acComponent = rootDataContext as IACComponent;
-                if (acComponent != null)
-                    gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = acComponent;
+            //var stackComponent = gip.core.layoutengine.avui.Layoutgenerator.CurrentACComponent;
 
-                if (enumerableObj is DataTable)
-                {
-                    DataTable table = enumerableObj as DataTable;
-                    if (table == null)
-                        return;
-                    for (int i = 0; i < table.Rows.Count; i++)
-                    {
-                        TableRow currentRow = new TableRow();
+            //try
+            //{
+            //    IACComponent acComponent = parentDataContext as IACComponent;
+            //    if (acComponent == null)
+            //        acComponent = rootDataContext as IACComponent;
+            //    if (acComponent != null)
+            //        gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = acComponent;
 
-                        DataRow dataRow = table.Rows[i];
-                        for (int j = 0; j < table.Columns.Count; j++)
-                        {
-                            object value = dataRow[j];
-                            TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, value, dataRow[0].ToString(), tableRowTemplate);
-                            currentRow.Cells.Add(cell);
-                        }
-                        tableGroup.Rows.Add(currentRow);
+            //    if (enumerableObj is DataTable)
+            //    {
+            //        DataTable table = enumerableObj as DataTable;
+            //        if (table == null)
+            //            return;
+            //        for (int i = 0; i < table.Rows.Count; i++)
+            //        {
+            //            TableRow currentRow = new TableRow();
 
-                        //foreach (RPDynCacheEntry childEntry in childTableEntries)
-                        //{
-                        //    FillData(childEntry, table, dataRow, rootDataContext, null);
-                        //}
-                    }
-                    return;
-                }
-                else if (enumerableObj is IEnumerable)
-                {
-                    FieldInfo[] fields = null;
-                    Type rowType = null;
-                    IEnumerable<ACClassProperty> acPropertyList = null;
-                    int i = 0;
-                    foreach (object dataRow in enumerableObj as IEnumerable)
-                    {
-                        TableRow currentRow = new TableRow();
-                        if (acQueryDef != null)
-                        {
-                            foreach (ACColumnItem acColumnItem in acQueryDef.ACColumns)
-                            {
-                                object fieldValue = dataRow.GetValue(acColumnItem.ACIdentifier);
-                                TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, currentRow, fieldValue, acColumnItem.ACIdentifier, tableRowTemplate);
-                                currentRow.Cells.Add(cell);
-                            }
-                        }
-                        else if (dataRow is IACObject)
-                        {
-                            LoadCurrentProperty(acComponent, propertyType, dataRow, currentRow);
-                            if (acPropertyList == null)
-                            {
-                                ACClass typeAsACClass = (dataRow as IACObject).ACType as ACClass;
-                                if (typeAsACClass != null)
-                                    acPropertyList = typeAsACClass.Properties;
-                            }
-                            if (acPropertyList != null)
-                            {
-                                foreach (ACClassProperty acProperty in acPropertyList)
-                                {
-                                    object fieldValue = dataRow.GetValue(acProperty.ACIdentifier);
-                                    TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, currentRow, fieldValue, acProperty.ACIdentifier, tableRowTemplate);
-                                    currentRow.Cells.Add(cell);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            LoadCurrentProperty(acComponent, propertyType, dataRow, currentRow);
-                            if (rowType == null)
-                            {
-                                rowType = dataRow.GetType();
-                                fields = rowType.GetFields();
-                            }
-                            foreach (FieldInfo field in fields)
-                            {
-                                object fieldValue = dataRow.GetValue(field.Name);
-                                TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, currentRow, fieldValue, field.Name, tableRowTemplate);
-                                currentRow.Cells.Add(cell);
-                            }
-                        }
-                        tableGroup.Rows.Add(currentRow);
-                        i++;
-                        //foreach (RPDynCacheEntry childEntry in childTableEntries)
-                        //{
-                        //    FillData(childEntry, enumerableObj, dataRow, rootDataContext, acQueryDef);
-                        //}
-                    }
-                }
-                else
-                    return;
-            }
-            finally
-            {
-                gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = stackComponent;
-            }
+            //            DataRow dataRow = table.Rows[i];
+            //            for (int j = 0; j < table.Columns.Count; j++)
+            //            {
+            //                object value = dataRow[j];
+            //                TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, value, dataRow[0].ToString(), tableRowTemplate);
+            //                currentRow.Cells.Add(cell);
+            //            }
+            //            tableGroup.Rows.Add(currentRow);
+
+            //            //foreach (RPDynCacheEntry childEntry in childTableEntries)
+            //            //{
+            //            //    FillData(childEntry, table, dataRow, rootDataContext, null);
+            //            //}
+            //        }
+            //        return;
+            //    }
+            //    else if (enumerableObj is IEnumerable)
+            //    {
+            //        FieldInfo[] fields = null;
+            //        Type rowType = null;
+            //        IEnumerable<ACClassProperty> acPropertyList = null;
+            //        int i = 0;
+            //        foreach (object dataRow in enumerableObj as IEnumerable)
+            //        {
+            //            TableRow currentRow = new TableRow();
+            //            if (acQueryDef != null)
+            //            {
+            //                foreach (ACColumnItem acColumnItem in acQueryDef.ACColumns)
+            //                {
+            //                    object fieldValue = dataRow.GetValue(acColumnItem.ACIdentifier);
+            //                    TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, currentRow, fieldValue, acColumnItem.ACIdentifier, tableRowTemplate);
+            //                    currentRow.Cells.Add(cell);
+            //                }
+            //            }
+            //            else if (dataRow is IACObject)
+            //            {
+            //                LoadCurrentProperty(acComponent, propertyType, dataRow, currentRow);
+            //                if (acPropertyList == null)
+            //                {
+            //                    ACClass typeAsACClass = (dataRow as IACObject).ACType as ACClass;
+            //                    if (typeAsACClass != null)
+            //                        acPropertyList = typeAsACClass.Properties;
+            //                }
+            //                if (acPropertyList != null)
+            //                {
+            //                    foreach (ACClassProperty acProperty in acPropertyList)
+            //                    {
+            //                        object fieldValue = dataRow.GetValue(acProperty.ACIdentifier);
+            //                        TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, currentRow, fieldValue, acProperty.ACIdentifier, tableRowTemplate);
+            //                        currentRow.Cells.Add(cell);
+            //                    }
+            //                }
+            //            }
+            //            else
+            //            {
+            //                LoadCurrentProperty(acComponent, propertyType, dataRow, currentRow);
+            //                if (rowType == null)
+            //                {
+            //                    rowType = dataRow.GetType();
+            //                    fields = rowType.GetFields();
+            //                }
+            //                foreach (FieldInfo field in fields)
+            //                {
+            //                    object fieldValue = dataRow.GetValue(field.Name);
+            //                    TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, currentRow, fieldValue, field.Name, tableRowTemplate);
+            //                    currentRow.Cells.Add(cell);
+            //                }
+            //            }
+            //            tableGroup.Rows.Add(currentRow);
+            //            i++;
+            //            //foreach (RPDynCacheEntry childEntry in childTableEntries)
+            //            //{
+            //            //    FillData(childEntry, enumerableObj, dataRow, rootDataContext, acQueryDef);
+            //            //}
+            //        }
+            //    }
+            //    else
+            //        return;
+            //}
+            //finally
+            //{
+            //    gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = stackComponent;
+            //}
         }
 
         /// <summary>
@@ -724,135 +722,137 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="acQueryDef"></param>
         protected virtual void FillTableRowDataDynHeader(object enumerableObj, TableRowDataDynHeader tableRowTemplate, object parentDataContext, object rootDataContext, ACQueryDefinition acQueryDef, IACType propertyType)
         {
-            TableRowGroup tableGroup = tableRowTemplate.Parent as TableRowGroup;
-            if (tableGroup == null)
-                return;
+            throw new NotImplementedException("TODO Avalonia");
 
-            Table parentTable = tableGroup.Parent as Table;
-            if (parentTable == null)
-                return;
-            bool noColDefined = false;
-            if (parentTable.Columns == null || parentTable.Columns.Count <= 0)
-                noColDefined = true;
+            //TableRowGroup tableGroup = tableRowTemplate.Parent as TableRowGroup;
+            //if (tableGroup == null)
+            //    return;
 
-            var stackComponent = gip.core.layoutengine.avui.Layoutgenerator.CurrentACComponent;
+            //Table parentTable = tableGroup.Parent as Table;
+            //if (parentTable == null)
+            //    return;
+            //bool noColDefined = false;
+            //if (parentTable.Columns == null || parentTable.Columns.Count <= 0)
+            //    noColDefined = true;
 
-            try
-            {
-                IACComponent acComponent = parentDataContext as IACComponent;
-                if (acComponent == null)
-                    acComponent = rootDataContext as IACComponent;
-                if (acComponent != null)
-                    gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = acComponent;
+            //var stackComponent = gip.core.layoutengine.avui.Layoutgenerator.CurrentACComponent;
 
-                if (enumerableObj is DataTable)
-                {
-                    DataTable table = enumerableObj as DataTable;
-                    if (table == null)
-                        return;
-                    if (table.Columns.Count > 0)
-                    {
-                        int index = 0;
-                        foreach (DataColumn col in table.Columns)
-                        {
-                            if (noColDefined && tableRowTemplate.GetColumnWidth(0) > 0)
-                            {
-                                if (parentTable.Columns != null)
-                                {
-                                    TableColumn tableCol = new TableColumn();
-                                    parentTable.Columns.Add(tableCol);
-                                    double width = tableRowTemplate.GetColumnWidth(index);
-                                    if (width > 0)
-                                        tableCol.Width = new GridLength(width);
-                                }
-                            }
-                            string value = col.ColumnName;
-                            TableCell cell = OnSetNewTableCell(acComponent, propertyType, null, tableRowTemplate, value, "ColumnHeader", tableRowTemplate);
-                            tableRowTemplate.Cells.Add(cell);
-                            index++;
-                        }
-                    }
-                    else
-                    {
-                        foreach (DataRow row in table.Rows)
-                        {
-                            object value = row[0];
-                            TableCell cell = OnSetNewTableCell(acComponent, propertyType, row, tableRowTemplate, value, "ColumnHeader", tableRowTemplate);
-                            tableRowTemplate.Cells.Add(cell);
-                        }
-                    }
-                    return;
-                }
-                else if (enumerableObj is IEnumerable)
-                {
-                    FieldInfo[] fields = null;
-                    Type rowType = null;
-                    IEnumerable<ACClassProperty> acPropertyList = null;
-                    int i = 0;
-                    foreach (object dataRow in enumerableObj as IEnumerable)
-                    {
-                        LoadCurrentProperty(acComponent, propertyType, dataRow, tableRowTemplate);
+            //try
+            //{
+            //    IACComponent acComponent = parentDataContext as IACComponent;
+            //    if (acComponent == null)
+            //        acComponent = rootDataContext as IACComponent;
+            //    if (acComponent != null)
+            //        gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = acComponent;
 
-                        TableRow currentRow = new TableRow();
-                        if (acQueryDef != null)
-                        {
-                            foreach (ACColumnItem acColumnItem in acQueryDef.ACColumns)
-                            {
-                                TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, acColumnItem.ACIdentifier, "ColumnHeader", tableRowTemplate);
-                                tableRowTemplate.Cells.Add(cell);
-                                break;
-                            }
-                        }
-                        else if (dataRow is IACObject)
-                        {
-                            LoadCurrentProperty(acComponent, propertyType, dataRow, tableRowTemplate);
-                            if (acPropertyList == null)
-                            {
-                                ACClass typeAsACClass = (dataRow as IACObject).ACType as ACClass;
-                                if (typeAsACClass != null)
-                                    acPropertyList = typeAsACClass.Properties;
-                            }
-                            if (acPropertyList != null)
-                            {
-                                foreach (ACClassProperty acProperty in acPropertyList)
-                                {
-                                    TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, acProperty.ACIdentifier, "ColumnHeader", tableRowTemplate);
-                                    tableRowTemplate.Cells.Add(cell);
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            LoadCurrentProperty(acComponent, propertyType, dataRow, tableRowTemplate);
-                            if (rowType == null)
-                            {
-                                rowType = dataRow.GetType();
-                                fields = rowType.GetFields();
-                            }
-                            foreach (FieldInfo field in fields)
-                            {
-                                TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, field.Name, "ColumnHeader", tableRowTemplate);
-                                tableRowTemplate.Cells.Add(cell);
-                                break;
-                            }
-                        }
-                        tableGroup.Rows.Add(currentRow);
-                        i++;
+            //    if (enumerableObj is DataTable)
+            //    {
+            //        DataTable table = enumerableObj as DataTable;
+            //        if (table == null)
+            //            return;
+            //        if (table.Columns.Count > 0)
+            //        {
+            //            int index = 0;
+            //            foreach (DataColumn col in table.Columns)
+            //            {
+            //                if (noColDefined && tableRowTemplate.GetColumnWidth(0) > 0)
+            //                {
+            //                    if (parentTable.Columns != null)
+            //                    {
+            //                        TableColumn tableCol = new TableColumn();
+            //                        parentTable.Columns.Add(tableCol);
+            //                        double width = tableRowTemplate.GetColumnWidth(index);
+            //                        if (width > 0)
+            //                            tableCol.Width = new GridLength(width);
+            //                    }
+            //                }
+            //                string value = col.ColumnName;
+            //                TableCell cell = OnSetNewTableCell(acComponent, propertyType, null, tableRowTemplate, value, "ColumnHeader", tableRowTemplate);
+            //                tableRowTemplate.Cells.Add(cell);
+            //                index++;
+            //            }
+            //        }
+            //        else
+            //        {
+            //            foreach (DataRow row in table.Rows)
+            //            {
+            //                object value = row[0];
+            //                TableCell cell = OnSetNewTableCell(acComponent, propertyType, row, tableRowTemplate, value, "ColumnHeader", tableRowTemplate);
+            //                tableRowTemplate.Cells.Add(cell);
+            //            }
+            //        }
+            //        return;
+            //    }
+            //    else if (enumerableObj is IEnumerable)
+            //    {
+            //        FieldInfo[] fields = null;
+            //        Type rowType = null;
+            //        IEnumerable<ACClassProperty> acPropertyList = null;
+            //        int i = 0;
+            //        foreach (object dataRow in enumerableObj as IEnumerable)
+            //        {
+            //            LoadCurrentProperty(acComponent, propertyType, dataRow, tableRowTemplate);
 
-                        //foreach (RPDynCacheEntry childEntry in childTableEntries)
-                        //{
-                        //    FillData(childEntry, enumerableObj, dataRow, rootDataContext, acQueryDef);
-                        //}
-                    }
-                }
-                else
-                    return;
-            }
-            finally
-            {
-                gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = stackComponent;
-            }
+            //            TableRow currentRow = new TableRow();
+            //            if (acQueryDef != null)
+            //            {
+            //                foreach (ACColumnItem acColumnItem in acQueryDef.ACColumns)
+            //                {
+            //                    TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, acColumnItem.ACIdentifier, "ColumnHeader", tableRowTemplate);
+            //                    tableRowTemplate.Cells.Add(cell);
+            //                    break;
+            //                }
+            //            }
+            //            else if (dataRow is IACObject)
+            //            {
+            //                LoadCurrentProperty(acComponent, propertyType, dataRow, tableRowTemplate);
+            //                if (acPropertyList == null)
+            //                {
+            //                    ACClass typeAsACClass = (dataRow as IACObject).ACType as ACClass;
+            //                    if (typeAsACClass != null)
+            //                        acPropertyList = typeAsACClass.Properties;
+            //                }
+            //                if (acPropertyList != null)
+            //                {
+            //                    foreach (ACClassProperty acProperty in acPropertyList)
+            //                    {
+            //                        TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, acProperty.ACIdentifier, "ColumnHeader", tableRowTemplate);
+            //                        tableRowTemplate.Cells.Add(cell);
+            //                        break;
+            //                    }
+            //                }
+            //            }
+            //            else
+            //            {
+            //                LoadCurrentProperty(acComponent, propertyType, dataRow, tableRowTemplate);
+            //                if (rowType == null)
+            //                {
+            //                    rowType = dataRow.GetType();
+            //                    fields = rowType.GetFields();
+            //                }
+            //                foreach (FieldInfo field in fields)
+            //                {
+            //                    TableCell cell = OnSetNewTableCell(acComponent, propertyType, dataRow, tableRowTemplate, field.Name, "ColumnHeader", tableRowTemplate);
+            //                    tableRowTemplate.Cells.Add(cell);
+            //                    break;
+            //                }
+            //            }
+            //            tableGroup.Rows.Add(currentRow);
+            //            i++;
+
+            //            //foreach (RPDynCacheEntry childEntry in childTableEntries)
+            //            //{
+            //            //    FillData(childEntry, enumerableObj, dataRow, rootDataContext, acQueryDef);
+            //            //}
+            //        }
+            //    }
+            //    else
+            //        return;
+            //}
+            //finally
+            //{
+            //    gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = stackComponent;
+            //}
         }
 
         /// <summary>
@@ -864,215 +864,217 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="acQueryDef"></param>
         protected virtual void FillTableRowData(RPDynCacheEntry childTableEntry, object enumerableObj, object parentDataContext, object rootDataContext, ACQueryDefinition acQueryDef, IACType propertyType, bool configuration = false)
         {
-            TableRowDataBase iTableRow = childTableEntry.CurrentObj as TableRowDataBase;
-            TableRow tableRow = iTableRow as TableRow;
-            //if (tableRow == null
-            //    || (parentDataContext == null && String.IsNullOrEmpty(iTableRow.DictKey))
-            //    || (parentDataContext != null && String.IsNullOrEmpty(iTableRow.DictKey) && String.IsNullOrEmpty(iTableRow.VBSource)))
+            throw new NotImplementedException("TODO Avalonia");
+
+            //TableRowDataBase iTableRow = childTableEntry.CurrentObj as TableRowDataBase;
+            //TableRow tableRow = iTableRow as TableRow;
+            ////if (tableRow == null
+            ////    || (parentDataContext == null && String.IsNullOrEmpty(iTableRow.DictKey))
+            ////    || (parentDataContext != null && String.IsNullOrEmpty(iTableRow.DictKey) && String.IsNullOrEmpty(iTableRow.VBSource)))
+            ////    return;
+
+            //if (tableRow == null)
             //    return;
+            //TableRowGroup rowGroup = tableRow.Parent as TableRowGroup;
+            //if (rowGroup == null)
+            //    throw new InvalidDataException("ReportTableRow must have a TableRowGroup as parent");
 
-            if (tableRow == null)
-                return;
-            TableRowGroup rowGroup = tableRow.Parent as TableRowGroup;
-            if (rowGroup == null)
-                throw new InvalidDataException("ReportTableRow must have a TableRowGroup as parent");
+            //var stackComponent = gip.core.layoutengine.avui.Layoutgenerator.CurrentACComponent;
 
-            var stackComponent = gip.core.layoutengine.avui.Layoutgenerator.CurrentACComponent;
+            //try
+            //{
+            //    IACComponent acComponent = parentDataContext as IACComponent;
+            //    if (acComponent == null)
+            //        acComponent = rootDataContext as IACComponent;
+            //    if (acComponent != null)
+            //        gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = acComponent;
 
-            try
-            {
-                IACComponent acComponent = parentDataContext as IACComponent;
-                if (acComponent == null)
-                    acComponent = rootDataContext as IACComponent;
-                if (acComponent != null)
-                    gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = acComponent;
+            //    string tableAsXaml = null;
+            //    Table parentTable = null;
+            //    Section parentSection = null;
+            //    if (iTableRow.BreakPageBeforeNextRow)
+            //    {
+            //        parentTable = rowGroup.Parent as Table;
+            //        if (parentTable == null)
+            //            throw new InvalidDataException("TableRowGroup must have a Table as parent");
+            //        tableAsXaml = XamlWriter.Save(parentTable);
+            //        parentSection = parentTable.Parent as Section;
+            //        if (parentSection == null)
+            //            throw new InvalidDataException("Table must have a Section as parent");
+            //    }
 
-                string tableAsXaml = null;
-                Table parentTable = null;
-                Section parentSection = null;
-                if (iTableRow.BreakPageBeforeNextRow)
-                {
-                    parentTable = rowGroup.Parent as Table;
-                    if (parentTable == null)
-                        throw new InvalidDataException("TableRowGroup must have a Table as parent");
-                    tableAsXaml = XamlWriter.Save(parentTable);
-                    parentSection = parentTable.Parent as Section;
-                    if (parentSection == null)
-                        throw new InvalidDataException("Table must have a Section as parent");
-                }
+            //    // If BreakPageBeforeNextRow ist set an collection contains more than one item, then clone table
+            //    bool tableIsCloned = false;
 
-                // If BreakPageBeforeNextRow ist set an collection contains more than one item, then clone table
-                bool tableIsCloned = false;
+            //    List<Table> clonedTables = new List<Table>();
+            //    List<TableRow> clonedTableRows = new List<TableRow>();
+            //    foreach (TableRow row in rowGroup.Rows)
+            //    {
+            //        TableRowData reportTableRow = row as TableRowData;
+            //        if (reportTableRow == null)
+            //        {
+            //            // clone regular row
+            //            clonedTableRows.Add(XamlHelper.CloneTableRow(row));
+            //        }
+            //        else
+            //        {
+            //            string reportTableRowXaml = XamlWriter.Save(reportTableRow);
 
-                List<Table> clonedTables = new List<Table>();
-                List<TableRow> clonedTableRows = new List<TableRow>();
-                foreach (TableRow row in rowGroup.Rows)
-                {
-                    TableRowData reportTableRow = row as TableRowData;
-                    if (reportTableRow == null)
-                    {
-                        // clone regular row
-                        clonedTableRows.Add(XamlHelper.CloneTableRow(row));
-                    }
-                    else
-                    {
-                        string reportTableRowXaml = XamlWriter.Save(reportTableRow);
+            //            // clone ReportTableRows
+            //            DataTable dataTable = enumerableObj as DataTable;
+            //            IEnumerable iEnumerable = enumerableObj as IEnumerable;
+            //            int countRows = 0;
+            //            if (dataTable != null)
+            //            {
+            //                if (iTableRow.BreakPageBeforeNextRow && dataTable.Rows.Count > 1)
+            //                {
+            //                    tableIsCloned = true;
+            //                    foreach (DataRow dataRow in dataTable.Rows)
+            //                    {
+            //                        clonedTables.Add((Table)XamlHelper.LoadXamlFromString(tableAsXaml));
+            //                        countRows++;
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    foreach (DataRow dataRow in dataTable.Rows)
+            //                    {
+            //                        clonedTableRows.Add((TableRow)XamlHelper.LoadXamlFromString(reportTableRowXaml));
+            //                        countRows++;
+            //                    }
+            //                }
 
-                        // clone ReportTableRows
-                        DataTable dataTable = enumerableObj as DataTable;
-                        IEnumerable iEnumerable = enumerableObj as IEnumerable;
-                        int countRows = 0;
-                        if (dataTable != null)
-                        {
-                            if (iTableRow.BreakPageBeforeNextRow && dataTable.Rows.Count > 1)
-                            {
-                                tableIsCloned = true;
-                                foreach (DataRow dataRow in dataTable.Rows)
-                                {
-                                    clonedTables.Add((Table)XamlHelper.LoadXamlFromString(tableAsXaml));
-                                    countRows++;
-                                }
-                            }
-                            else
-                            {
-                                foreach (DataRow dataRow in dataTable.Rows)
-                                {
-                                    clonedTableRows.Add((TableRow)XamlHelper.LoadXamlFromString(reportTableRowXaml));
-                                    countRows++;
-                                }
-                            }
+            //                int i = 0;
+            //                if (tableIsCloned)
+            //                {
+            //                    foreach (DataRow dataRow in dataTable.Rows)
+            //                    {
+            //                        Table clonedTable = clonedTables[i];
+            //                        if (i > 0)
+            //                            clonedTable.BreakPageBefore = true;
+            //                        TableRowGroup clonedGroup = clonedTable.RowGroups.FirstOrDefault();
+            //                        TableRow clonedTableRow = clonedGroup.Rows.FirstOrDefault();
 
-                            int i = 0;
-                            if (tableIsCloned)
-                            {
-                                foreach (DataRow dataRow in dataTable.Rows)
-                                {
-                                    Table clonedTable = clonedTables[i];
-                                    if (i > 0)
-                                        clonedTable.BreakPageBefore = true;
-                                    TableRowGroup clonedGroup = clonedTable.RowGroups.FirstOrDefault();
-                                    TableRow clonedTableRow = clonedGroup.Rows.FirstOrDefault();
+            //                        LoadCurrentProperty(acComponent, propertyType, dataRow, clonedTableRow);
 
-                                    LoadCurrentProperty(acComponent, propertyType, dataRow, clonedTableRow);
+            //                        foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
+            //                        {
+            //                            ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
+            //                            ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
+            //                        }
+            //                        i++;
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    foreach (DataRow dataRow in dataTable.Rows)
+            //                    {
+            //                        LoadCurrentProperty(acComponent, propertyType, dataRow, tableRow);
 
-                                    foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
-                                    {
-                                        ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
-                                        ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
-                                    }
-                                    i++;
-                                }
-                            }
-                            else
-                            {
-                                foreach (DataRow dataRow in dataTable.Rows)
-                                {
-                                    LoadCurrentProperty(acComponent, propertyType, dataRow, tableRow);
+            //                        TableRow clonedTableRow = clonedTableRows[i];
+            //                        foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
+            //                        {
+            //                            ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
+            //                            ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
+            //                        }
+            //                        i++;
+            //                    }
+            //                }
+            //            }
+            //            else if (iEnumerable != null)
+            //            {
+            //                foreach (object dataRow in iEnumerable)
+            //                {
+            //                    countRows++;
+            //                }
 
-                                    TableRow clonedTableRow = clonedTableRows[i];
-                                    foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
-                                    {
-                                        ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
-                                        ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
-                                    }
-                                    i++;
-                                }
-                            }
-                        }
-                        else if (iEnumerable != null)
-                        {
-                            foreach (object dataRow in iEnumerable)
-                            {
-                                countRows++;
-                            }
+            //                if (iTableRow.BreakPageBeforeNextRow && countRows > 1)
+            //                {
+            //                    tableIsCloned = true;
+            //                    foreach (object dataRow in iEnumerable)
+            //                    {
+            //                        clonedTables.Add((Table)XamlHelper.LoadXamlFromString(tableAsXaml));
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    foreach (object dataRow in iEnumerable)
+            //                    {
+            //                        clonedTableRows.Add((TableRow)XamlHelper.LoadXamlFromString(reportTableRowXaml));
+            //                    }
+            //                }
 
-                            if (iTableRow.BreakPageBeforeNextRow && countRows > 1)
-                            {
-                                tableIsCloned = true;
-                                foreach (object dataRow in iEnumerable)
-                                {
-                                    clonedTables.Add((Table)XamlHelper.LoadXamlFromString(tableAsXaml));
-                                }
-                            }
-                            else
-                            {
-                                foreach (object dataRow in iEnumerable)
-                                {
-                                    clonedTableRows.Add((TableRow)XamlHelper.LoadXamlFromString(reportTableRowXaml));
-                                }
-                            }
+            //                int i = 0;
+            //                if (tableIsCloned)
+            //                {
+            //                    foreach (object dataRow in iEnumerable)
+            //                    {
+            //                        Table clonedTable = clonedTables[i];
+            //                        if (i > 0)
+            //                            clonedTable.BreakPageBefore = true;
+            //                        TableRowGroup clonedGroup = clonedTable.RowGroups.FirstOrDefault();
+            //                        TableRow clonedTableRow = clonedGroup.Rows.FirstOrDefault();
 
-                            int i = 0;
-                            if (tableIsCloned)
-                            {
-                                foreach (object dataRow in iEnumerable)
-                                {
-                                    Table clonedTable = clonedTables[i];
-                                    if (i > 0)
-                                        clonedTable.BreakPageBefore = true;
-                                    TableRowGroup clonedGroup = clonedTable.RowGroups.FirstOrDefault();
-                                    TableRow clonedTableRow = clonedGroup.Rows.FirstOrDefault();
+            //                        LoadCurrentProperty(acComponent, propertyType, dataRow, clonedTableRow);
 
-                                    LoadCurrentProperty(acComponent, propertyType, dataRow, clonedTableRow);
+            //                        foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
+            //                        {
+            //                            ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
+            //                            ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
+            //                        }
+            //                        i++;
+            //                    }
+            //                }
+            //                else
+            //                {
+            //                    foreach (object dataRow in iEnumerable)
+            //                    {
+            //                        LoadCurrentProperty(acComponent, propertyType, dataRow, tableRow);
 
-                                    foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
-                                    {
-                                        ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
-                                        ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
-                                    }
-                                    i++;
-                                }
-                            }
-                            else
-                            {
-                                foreach (object dataRow in iEnumerable)
-                                {
-                                    LoadCurrentProperty(acComponent, propertyType, dataRow, tableRow);
+            //                        // get cloned ReportTableRow
+            //                        TableRow clonedTableRow = clonedTableRows[i];
+            //                        foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
+            //                        {
+            //                            ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
+            //                            ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
+            //                        }
+            //                        i++;
+            //                    }
+            //                }
+            //            }
+            //            else
+            //                continue;
+            //        }
+            //    }
 
-                                    // get cloned ReportTableRow
-                                    TableRow clonedTableRow = clonedTableRows[i];
-                                    foreach (TableCell cellToFillWithData in clonedTableRow.Cells)
-                                    {
-                                        ReportPaginatorDynamicCache cache = new ReportPaginatorDynamicCache(clonedTableRow, cellToFillWithData);
-                                        ProcessSubReport(cache, cache.RootTableRowCacheEntry, enumerableObj, dataRow, rootDataContext, acQueryDef, cellToFillWithData);
-                                    }
-                                    i++;
-                                }
-                            }
-                        }
-                        else
-                            continue;
-                    }
-                }
-
-                if (tableIsCloned)
-                {
-                    parentSection.Blocks.Remove(parentTable);
-                    foreach (Table clonedTable in clonedTables)
-                    {
-                        if (clonedTable.BreakPageBefore)
-                        {
-                            // Paragraph needed beacuse of bug in DocumentPaginator, who ignores the BreakPageBefore-Property of a Table
-                            Paragraph pageBreakP = new Paragraph();
-                            pageBreakP.BreakPageBefore = true;
-                            parentSection.Blocks.Add(pageBreakP);
-                        }
-                        parentSection.Blocks.Add(clonedTable);
-                    }
-                }
-                else
-                {
-                    rowGroup.Rows.Clear();
-                    foreach (TableRow row in clonedTableRows)
-                    {
-                        rowGroup.Rows.Add(row);
-                    }
-                }
-            }
-            finally
-            {
-                gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = stackComponent;
-            }
+            //    if (tableIsCloned)
+            //    {
+            //        parentSection.Blocks.Remove(parentTable);
+            //        foreach (Table clonedTable in clonedTables)
+            //        {
+            //            if (clonedTable.BreakPageBefore)
+            //            {
+            //                // Paragraph needed beacuse of bug in DocumentPaginator, who ignores the BreakPageBefore-Property of a Table
+            //                Paragraph pageBreakP = new Paragraph();
+            //                pageBreakP.BreakPageBefore = true;
+            //                parentSection.Blocks.Add(pageBreakP);
+            //            }
+            //            parentSection.Blocks.Add(clonedTable);
+            //        }
+            //    }
+            //    else
+            //    {
+            //        rowGroup.Rows.Clear();
+            //        foreach (TableRow row in clonedTableRows)
+            //        {
+            //            rowGroup.Rows.Add(row);
+            //        }
+            //    }
+            //}
+            //finally
+            //{
+            //    gip.core.layoutengine.avui.Layoutgenerator.CurrentDataContext = stackComponent;
+            //}
         }
 
         /// <summary>
@@ -1082,58 +1084,60 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <exception cref="TimeoutException">Thread for drawing charts timed out</exception>
         protected virtual void FillCharts(ArrayList charts)
         {
-            Window window = null;
+            throw new NotImplementedException("TODO Avalonia");
 
-            // fill charts
-            foreach (IChart chart in charts)
-            {
-                if (chart == null) continue;
-                Canvas chartCanvas = chart as Canvas;
-                if (String.IsNullOrEmpty(chart.TableName)) continue;
-                if (String.IsNullOrEmpty(chart.TableColumns)) continue;
+            //Window window = null;
 
-                DataTable table = _data.GetValue<DataTable>(chart.TableName);
-                if (table == null) continue;
+            //// fill charts
+            //foreach (IChart chart in charts)
+            //{
+            //    if (chart == null) continue;
+            //    Canvas chartCanvas = chart as Canvas;
+            //    if (String.IsNullOrEmpty(chart.TableName)) continue;
+            //    if (String.IsNullOrEmpty(chart.TableColumns)) continue;
 
-                if (chartCanvas != null)
-                {
-                    // HACK: this here is REALLY dirty!!!
-                    IChart newChart = (IChart)chart.Clone();
-                    if (window == null)
-                    {
-                        window = new Window();
-                        window.WindowStyle = WindowStyle.None;
-                        window.BorderThickness = new Thickness(0);
-                        window.ShowInTaskbar = false;
-                        window.Left = 30000;
-                        window.Top = 30000;
-                        window.Show();
-                    }
-                    window.Width = chartCanvas.Width + 2 * SystemParameters.BorderWidth;
-                    window.Height = chartCanvas.Height + 2 * SystemParameters.BorderWidth;
-                    window.Content = newChart;
+            //    DataTable table = _data.GetValue<DataTable>(chart.TableName);
+            //    if (table == null) continue;
 
-                    newChart.DataColumns = null;
+            //    if (chartCanvas != null)
+            //    {
+            //        // HACK: this here is REALLY dirty!!!
+            //        IChart newChart = (IChart)chart.Clone();
+            //        if (window == null)
+            //        {
+            //            window = new Window();
+            //            window.WindowStyle = WindowStyle.None;
+            //            window.BorderThickness = new Thickness(0);
+            //            window.ShowInTaskbar = false;
+            //            window.Left = 30000;
+            //            window.Top = 30000;
+            //            window.Show();
+            //        }
+            //        window.Width = chartCanvas.Width + 2 * SystemParameters.BorderWidth;
+            //        window.Height = chartCanvas.Height + 2 * SystemParameters.BorderWidth;
+            //        window.Content = newChart;
 
-                    newChart.DataView = table.DefaultView;
-                    newChart.DataColumns = chart.TableColumns.Split(',', ';');
-                    newChart.UpdateChart();
+            //        newChart.DataColumns = null;
 
-                    RenderTargetBitmap bitmap = new RenderTargetBitmap((int)((window.Content as FrameworkElement).RenderSize.Width * 600d / 96d), (int)((window.Content as FrameworkElement).RenderSize.Height * 600d / 96d), 600d, 600d, PixelFormats.Pbgra32);
-                    bitmap.Render(window);
-                    chartCanvas.Children.Add(new Image() { Source = bitmap });
-                }
-                else
-                {
-                    chart.DataColumns = null;
+            //        newChart.DataView = table.DefaultView;
+            //        newChart.DataColumns = chart.TableColumns.Split(',', ';');
+            //        newChart.UpdateChart();
 
-                    chart.DataView = table.DefaultView;
-                    chart.DataColumns = chart.TableColumns.Split(',', ';');
-                    chart.UpdateChart();
-                }
-            }
+            //        RenderTargetBitmap bitmap = new RenderTargetBitmap((int)((window.Content as FrameworkElement).RenderSize.Width * 600d / 96d), (int)((window.Content as FrameworkElement).RenderSize.Height * 600d / 96d), 600d, 600d, PixelFormats.Pbgra32);
+            //        bitmap.Render(window);
+            //        chartCanvas.Children.Add(new Image() { Source = bitmap });
+            //    }
+            //    else
+            //    {
+            //        chart.DataColumns = null;
 
-            if (window != null) window.Close();
+            //        chart.DataView = table.DefaultView;
+            //        chart.DataColumns = chart.TableColumns.Split(',', ';');
+            //        chart.UpdateChart();
+            //    }
+            //}
+
+            //if (window != null) window.Close();
         }
 
         #endregion
@@ -1342,98 +1346,100 @@ namespace gip.core.reporthandler.avui.Flowdoc
 
         protected bool SetInlineFlowDocContentValue(InlineFlowDocContentValue dv, Dictionary<string, List<object>> aggregateValues, object parentDataRow, object objValue)
         {
-            if (dv == null || objValue == null)
-                return false;
+            throw new NotImplementedException("TODO Avalonia");
 
-            SectionDataGroup sdg = (dv.Parent as Block)?.Parent as SectionDataGroup;
-            TableCell tc = null;
-            if (sdg == null)
-            {
-                if (parentDataRow == null)
-                    return false;
+            //if (dv == null || objValue == null)
+            //    return false;
 
-                tc = (dv.Parent as Block)?.Parent as TableCell;
+            //SectionDataGroup sdg = (dv.Parent as Block)?.Parent as SectionDataGroup;
+            //TableCell tc = null;
+            //if (sdg == null)
+            //{
+            //    if (parentDataRow == null)
+            //        return false;
 
-                if (tc == null)
-                {
-                    string error = "The parent object of the InlineFlowDocValue must be Paragraph in a SectionDataGroup or TableCell!";
-                    MessageBox.Show(error);
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(10)", error);
-                    return false;
-                }
-            }
+            //    tc = (dv.Parent as Block)?.Parent as TableCell;
 
-            try
-            {
-                List<Block> blocks = null;
-                try
-                {
+            //    if (tc == null)
+            //    {
+            //        string error = "The parent object of the InlineFlowDocValue must be Paragraph in a SectionDataGroup or TableCell!";
+            //        MessageBox.Show(error);
+            //        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //            datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(10)", error);
+            //        return false;
+            //    }
+            //}
 
-                    FlowDocument fd = XamlHelper.LoadXamlFromString(objValue.ToString()) as FlowDocument;
-                    blocks = fd.Blocks.ToList();
-                }
-                catch (Exception ex)
-                {
-                    string error = "Set InlineFlowDocContenValue error: " + ex.Message;
-                    MessageBox.Show(error);
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(15s)", error);
-                }
+            //try
+            //{
+            //    List<Block> blocks = null;
+            //    try
+            //    {
 
-                if (sdg != null)
-                {
-                    sdg.Blocks.Clear();
-                    if (blocks != null && blocks.Any())
-                        sdg.Blocks.AddRange(blocks);
-                }
-                else if (tc != null)
-                {
-                    tc.Blocks.Clear();
+            //        FlowDocument fd = XamlHelper.LoadXamlFromString(objValue.ToString()) as FlowDocument;
+            //        blocks = fd.Blocks.ToList();
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        string error = "Set InlineFlowDocContenValue error: " + ex.Message;
+            //        MessageBox.Show(error);
+            //        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //            datamodel.Database.Root.Messages.LogError("ReportPaginator", "SetInlineFlowDocContentValue(15s)", error);
+            //    }
 
-                    bool addBlocks = true;
-                    if (!blocks.Any())
-                    {
-                        addBlocks = false;
-                    }
-                    else if (blocks.Count == 1)
-                    {
-                        Paragraph paragraph = blocks.FirstOrDefault() as Paragraph;
-                        if (paragraph != null)
-                        {
-                            if (!paragraph.Inlines.Any())
-                                addBlocks = false;
-                        }
-                    }
+            //    if (sdg != null)
+            //    {
+            //        sdg.Blocks.Clear();
+            //        if (blocks != null && blocks.Any())
+            //            sdg.Blocks.AddRange(blocks);
+            //    }
+            //    else if (tc != null)
+            //    {
+            //        tc.Blocks.Clear();
+
+            //        bool addBlocks = true;
+            //        if (!blocks.Any())
+            //        {
+            //            addBlocks = false;
+            //        }
+            //        else if (blocks.Count == 1)
+            //        {
+            //            Paragraph paragraph = blocks.FirstOrDefault() as Paragraph;
+            //            if (paragraph != null)
+            //            {
+            //                if (!paragraph.Inlines.Any())
+            //                    addBlocks = false;
+            //            }
+            //        }
 
 
-                    if (blocks != null && addBlocks)
-                        tc.Blocks.AddRange(blocks);
-                    else
-                    {
-                        TableRow tr = tc.Parent as TableRow;
-                        if (tr != null)
-                        {
-                            tr.Cells.Clear();
-                            TableRowGroup trg = tr.Parent as TableRowGroup;
-                            if (trg != null)
-                            {
-                                trg.Rows.Remove(tr);
-                            }
-                        }
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                string error = "Set InlineFlowDocContenValue error: " + e.Message;
-                MessageBox.Show(error);
-                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogError(nameof(ReportPaginator), "SetInlineFlowDocContentValue(20)", error);
-                return false;
-            }
+            //        if (blocks != null && addBlocks)
+            //            tc.Blocks.AddRange(blocks);
+            //        else
+            //        {
+            //            TableRow tr = tc.Parent as TableRow;
+            //            if (tr != null)
+            //            {
+            //                tr.Cells.Clear();
+            //                TableRowGroup trg = tr.Parent as TableRowGroup;
+            //                if (trg != null)
+            //                {
+            //                    trg.Rows.Remove(tr);
+            //                }
+            //            }
+            //        }
+            //    }
+            //}
+            //catch (Exception e)
+            //{
+            //    string error = "Set InlineFlowDocContenValue error: " + e.Message;
+            //    MessageBox.Show(error);
+            //    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //        datamodel.Database.Root.Messages.LogError(nameof(ReportPaginator), "SetInlineFlowDocContentValue(20)", error);
+            //    return false;
+            //}
 
-            return true;
+            //return true;
         }
 
         /// <summary>
@@ -1619,46 +1625,50 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns></returns>
         protected virtual bool LoadCurrentProperty(IACComponent acComponent, IACType propertyType, object data, TableRow tableRow)
         {
-            PaginatorNextRowEventArgs eventArgs = new PaginatorNextRowEventArgs(acComponent, propertyType, data, this, tableRow);
-            _report.FireEventNextRowEventArgs(eventArgs);
-            if (!eventArgs.Handled)
-            {
-                if (acComponent != null && propertyType != null)
-                    ACAccessNav<IACComponent>.LoadCurrentProperty(acComponent, propertyType, data);
-            }
-            return eventArgs.Handled;
+            throw new NotImplementedException("TODO Avalonia");
+
+            //PaginatorNextRowEventArgs eventArgs = new PaginatorNextRowEventArgs(acComponent, propertyType, data, this, tableRow);
+            //_report.FireEventNextRowEventArgs(eventArgs);
+            //if (!eventArgs.Handled)
+            //{
+            //    if (acComponent != null && propertyType != null)
+            //        ACAccessNav<IACComponent>.LoadCurrentProperty(acComponent, propertyType, data);
+            //}
+            //return eventArgs.Handled;
         }
 
         protected virtual TableCell OnSetNewTableCell(IACComponent acComponent, IACType propertyType, object data, TableRow tableRow, object fieldValue, string fieldName, TableRowDataBase tableRowDataTemplate)
         {
-            string valueAsString = "";
-            if (fieldValue != null)
-            {
-                try
-                {
-                    if (tableRowDataTemplate != null && !String.IsNullOrEmpty(tableRowDataTemplate.StringFormat))
-                        valueAsString = InlineValueBase.FormatValue(fieldValue, tableRowDataTemplate.StringFormat, tableRowDataTemplate.CultureInfo, tableRowDataTemplate.MaxLength, tableRowDataTemplate.Truncate);
-                    else
-                        valueAsString = fieldValue.ToString();
-                }
-                catch (Exception e)
-                {
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+            throw new NotImplementedException("TODO Avalonia");
 
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException(nameof(ReportPaginator), nameof(OnSetNewTableCell), msg);
-                }
-            }
-            TableCell newCell = new TableCell(new Paragraph(new Run(valueAsString)));
-            PaginatorNewTableCellEventArgs eventArgs = new PaginatorNewTableCellEventArgs(acComponent, propertyType, data, this, tableRow, newCell, fieldValue, fieldName);
-            _report.FireEventNewCellEventArgs(eventArgs);
-            if (eventArgs.Handled && eventArgs.NewCell != null)
-            {
-                newCell = eventArgs.NewCell;
-            }
-            return newCell;
+            //string valueAsString = "";
+            //if (fieldValue != null)
+            //{
+            //    try
+            //    {
+            //        if (tableRowDataTemplate != null && !String.IsNullOrEmpty(tableRowDataTemplate.StringFormat))
+            //            valueAsString = InlineValueBase.FormatValue(fieldValue, tableRowDataTemplate.StringFormat, tableRowDataTemplate.CultureInfo, tableRowDataTemplate.MaxLength, tableRowDataTemplate.Truncate);
+            //        else
+            //            valueAsString = fieldValue.ToString();
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        string msg = e.Message;
+            //        if (e.InnerException != null && e.InnerException.Message != null)
+            //            msg += " Inner:" + e.InnerException.Message;
+
+            //        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //            datamodel.Database.Root.Messages.LogException(nameof(ReportPaginator), nameof(OnSetNewTableCell), msg);
+            //    }
+            //}
+            //TableCell newCell = new TableCell(new Paragraph(new Run(valueAsString)));
+            //PaginatorNewTableCellEventArgs eventArgs = new PaginatorNewTableCellEventArgs(acComponent, propertyType, data, this, tableRow, newCell, fieldValue, fieldName);
+            //_report.FireEventNewCellEventArgs(eventArgs);
+            //if (eventArgs.Handled && eventArgs.NewCell != null)
+            //{
+            //    newCell = eventArgs.NewCell;
+            //}
+            //return newCell;
         }
 
 
@@ -1699,33 +1709,35 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns></returns>
         private ContainerVisual CloneVisualBlock(Block block, int pageNumber, string xaml)
         {
-            FlowDocument tmpDoc = new FlowDocument();
-            tmpDoc.ColumnWidth = double.PositiveInfinity;
-            tmpDoc.PageHeight = _report.PageHeight;
-            tmpDoc.PageWidth = _report.PageWidth;
-            if (_flowDocument != null)
-            {
-                //tmpDoc.PagePadding.Left = _flowDocument.PagePadding.Left;
-                //tmpDoc.PagePadding.Right = _flowDocument.PagePadding.Right;
-                tmpDoc.PagePadding = new Thickness(_flowDocument.PagePadding.Left, 0, _flowDocument.PagePadding.Right, 0);
-            }
-            else
-                tmpDoc.PagePadding = new Thickness(0);
+            throw new NotImplementedException("TODO Avalonia");
 
-            if (String.IsNullOrEmpty(xaml))
-                xaml = XamlWriter.Save(block);
-            Block newBlock = XamlReader.Parse(xaml) as Block;
-            tmpDoc.Blocks.Add(newBlock);
+            //FlowDocument tmpDoc = new FlowDocument();
+            //tmpDoc.ColumnWidth = double.PositiveInfinity;
+            //tmpDoc.PageHeight = _report.PageHeight;
+            //tmpDoc.PageWidth = _report.PageWidth;
+            //if (_flowDocument != null)
+            //{
+            //    //tmpDoc.PagePadding.Left = _flowDocument.PagePadding.Left;
+            //    //tmpDoc.PagePadding.Right = _flowDocument.PagePadding.Right;
+            //    tmpDoc.PagePadding = new Thickness(_flowDocument.PagePadding.Left, 0, _flowDocument.PagePadding.Right, 0);
+            //}
+            //else
+            //    tmpDoc.PagePadding = new Thickness(0);
 
-            DocumentWalker walkerBlock = new DocumentWalker();
-            List<InlineContextValue> blockValues = new List<InlineContextValue>();
-            blockValues.AddRange(walkerBlock.Walk<InlineContextValue>(tmpDoc));
+            //if (String.IsNullOrEmpty(xaml))
+            //    xaml = XamlWriter.Save(block);
+            //Block newBlock = XamlReader.Parse(xaml) as Block;
+            //tmpDoc.Blocks.Add(newBlock);
 
-            // fill context values
-            FillContextValues(blockValues, pageNumber);
+            //DocumentWalker walkerBlock = new DocumentWalker();
+            //List<InlineContextValue> blockValues = new List<InlineContextValue>();
+            //blockValues.AddRange(walkerBlock.Walk<InlineContextValue>(tmpDoc));
 
-            DocumentPage dp = ((IDocumentPaginatorSource)tmpDoc).DocumentPaginator.GetPage(0);
-            return (ContainerVisual)dp.Visual;
+            //// fill context values
+            //FillContextValues(blockValues, pageNumber);
+
+            //DocumentPage dp = ((IDocumentPaginatorSource)tmpDoc).DocumentPaginator.GetPage(0);
+            //return (ContainerVisual)dp.Visual;
         }
 
         /// <summary>
@@ -1758,7 +1770,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
                             cv.Value = pageNumber;
                             break;
                         case ReportContextValueType.PageCount:
-                            cv.Value = _pageCount;
+                            //cv.Value = _pageCount;
                             break;
                         case ReportContextValueType.ReportName:
                             cv.Value = _report.ReportName;
@@ -1774,186 +1786,188 @@ namespace gip.core.reporthandler.avui.Flowdoc
             }
         }
 
-        Tuple<ContainerVisual, TableRowDataHeader> currentHeader = null;
+        //Tuple<ContainerVisual, TableRowDataHeader> currentHeader = null;
 
         /// <summary>
         /// This is most important method, modifies the original 
         /// </summary>
         /// <param name="pageNumber">page number</param>
         /// <returns></returns>
-        public override DocumentPage GetPage(int pageNumber)
+        public virtual DocumentPage GetPage(int pageNumber)
         {
-            for (int i = 0; i < 2; i++) // do it twice because filling context values could change the page count
-            {
-                // compute page count
-                if (pageNumber == 0)
-                {
-                    _paginator.ComputePageCount();
-                    _pageCount = _paginator.PageCount;
-                }
+            throw new NotImplementedException("TODO Avalonia");
 
-                // fill context values
-                FillContextValues(_reportContextValues, pageNumber + 1);
-            }
+            //for (int i = 0; i < 2; i++) // do it twice because filling context values could change the page count
+            //{
+            //    // compute page count
+            //    if (pageNumber == 0)
+            //    {
+            //        _paginator.ComputePageCount();
+            //        _pageCount = _paginator.PageCount;
+            //    }
 
-            DocumentPage page = _paginator.GetPage(pageNumber);
-            if (page == DocumentPage.Missing)
-                return DocumentPage.Missing; // page missing
+            //    // fill context values
+            //    FillContextValues(_reportContextValues, pageNumber + 1);
+            //}
 
-            _pageSize = page.Size;
+            //DocumentPage page = _paginator.GetPage(pageNumber);
+            //if (page == DocumentPage.Missing)
+            //    return DocumentPage.Missing; // page missing
 
-            // add header block
-            ContainerVisual newPage = new ContainerVisual();
+            //_pageSize = page.Size;
 
-
-            double marginTop = 0;
-            double marginBottom = 0;
-            if (_flowDocument != null)
-            {
-                marginTop = _flowDocument.PagePadding.Top;
-                marginBottom = _flowDocument.PagePadding.Bottom;
-            }
-
-            if (_blockPageHeader != null)
-            {
-                SectionReportHeader header = _blockPageHeader as SectionReportHeader;
-                if (header == null || ((header != null && header.ShowHeaderOnFirstPage && pageNumber == 0) || pageNumber != 0))
-                {
-                    ContainerVisual v = CloneVisualBlock(_blockPageHeader, pageNumber + 1, _blockPageHeaderXAML);
-                    v.Offset = new Vector(0, marginTop);
-                    newPage.Children.Add(v);
-                }
-            }
-
-            // TODO: process ReportContextValues
-
-            // add content page
-            ContainerVisual smallerPage = new ContainerVisual();
-            smallerPage.Offset = new Vector(0, (_report.PageHeaderHeight / 100d * _report.PageHeight) + marginTop);
-            smallerPage.Children.Add(page.Visual);
-            newPage.Children.Add(smallerPage);
-
-            // add footer block
-            if (_blockPageFooter != null)
-            {
-                ContainerVisual v = CloneVisualBlock(_blockPageFooter, pageNumber + 1, _blockPageFooterXAML);
-                v.Offset = new Vector(0, _report.PageHeight - (_report.PageFooterHeight / 100d * _report.PageHeight) - marginBottom);
-                newPage.Children.Add(v);
-            }
-
-            // create modified BleedBox
-            Rect bleedBox = new Rect(page.BleedBox.Left, page.BleedBox.Top, page.BleedBox.Width,
-                _report.PageHeight - (page.Size.Height - page.BleedBox.Size.Height));
-
-            // create modified ContentBox
-            Rect contentBox = new Rect(page.ContentBox.Left, page.ContentBox.Top, page.ContentBox.Width,
-                _report.PageHeight - (page.Size.Height - page.ContentBox.Size.Height));
+            //// add header block
+            //ContainerVisual newPage = new ContainerVisual();
 
 
-            ContainerVisual table;
-            if (PageStartsWithTable(smallerPage, out table) && currentHeader != null && currentHeader.Item2.RepeatTableHeader)
-            {
-                // The page starts with a table and a table header was
-                // found on the previous page. Presumably this table 
-                // was started on the previous page, so we'll repeat the
-                // table header.
-                Rect headerBounds = VisualTreeHelper.GetDescendantBounds(currentHeader.Item1);
-                Vector offset = VisualTreeHelper.GetOffset(currentHeader.Item1);
-                DrawingVisual tableHeaderVisual = new DrawingVisual();
+            //double marginTop = 0;
+            //double marginBottom = 0;
+            //if (_flowDocument != null)
+            //{
+            //    marginTop = _flowDocument.PagePadding.Top;
+            //    marginBottom = _flowDocument.PagePadding.Bottom;
+            //}
 
-                // Translate the header to be at the top of the page
-                // instead of its previous position
-                tableHeaderVisual.Transform = new TranslateTransform(
-                    bleedBox.X,
-                    bleedBox.Y - headerBounds.Top
-                );
+            //if (_blockPageHeader != null)
+            //{
+            //    SectionReportHeader header = _blockPageHeader as SectionReportHeader;
+            //    if (header == null || ((header != null && header.ShowHeaderOnFirstPage && pageNumber == 0) || pageNumber != 0))
+            //    {
+            //        ContainerVisual v = CloneVisualBlock(_blockPageHeader, pageNumber + 1, _blockPageHeaderXAML);
+            //        v.Offset = new Vector(0, marginTop);
+            //        newPage.Children.Add(v);
+            //    }
+            //}
 
-                // Since we've placed the repeated table header on top of the
-                // content area, we'll need to scale down the rest of the content
-                // to accomodate this. Since the table header is relatively small,
-                // this probably is barely noticeable.
-                double yScale = (contentBox.Height - headerBounds.Height) / contentBox.Height;
-                TransformGroup group = new TransformGroup();
-                group.Children.Add(new ScaleTransform(1.0, yScale));
-                group.Children.Add(new TranslateTransform(
-                    bleedBox.X,
-                    bleedBox.Y + headerBounds.Height
-                ));
-                smallerPage.Transform = group;
+            //// TODO: process ReportContextValues
 
-                ContainerVisual cp = VisualTreeHelper.GetParent(currentHeader.Item1) as ContainerVisual;
-                if (cp != null)
-                {
-                    cp.Children.Remove(currentHeader.Item1);
+            //// add content page
+            //ContainerVisual smallerPage = new ContainerVisual();
+            //smallerPage.Offset = new Vector(0, (_report.PageHeaderHeight / 100d * _report.PageHeight) + marginTop);
+            //smallerPage.Children.Add(page.Visual);
+            //newPage.Children.Add(smallerPage);
 
+            //// add footer block
+            //if (_blockPageFooter != null)
+            //{
+            //    ContainerVisual v = CloneVisualBlock(_blockPageFooter, pageNumber + 1, _blockPageFooterXAML);
+            //    v.Offset = new Vector(0, _report.PageHeight - (_report.PageFooterHeight / 100d * _report.PageHeight) - marginBottom);
+            //    newPage.Children.Add(v);
+            //}
 
-                }
-                tableHeaderVisual.Children.Add(currentHeader.Item1);
+            //// create modified BleedBox
+            //Rect bleedBox = new Rect(page.BleedBox.Left, page.BleedBox.Top, page.BleedBox.Width,
+            //    _report.PageHeight - (page.Size.Height - page.BleedBox.Size.Height));
 
-                //Drawing table header background
-                if (currentHeader.Item2 != null)
-                {
-                    Brush backgroundBrush = (Brush)currentHeader.Item2.GetValue(TextElement.BackgroundProperty);
-                    using (DrawingContext drawingContext = tableHeaderVisual.RenderOpen())
-                    {
-                        if (backgroundBrush != null)
-                        {
-                            Rect bounds = headerBounds;
-                            if (cp != null)
-                            {
-                                Rect parentBounds = VisualTreeHelper.GetDescendantBounds(cp);
-                                if (parentBounds != null)
-                                {
-                                    bounds.Width = parentBounds.Width;
-                                }
-                            }
-
-                            drawingContext.DrawRectangle(backgroundBrush, null, bounds);
-                        }
-                    }
-                }
-
-                smallerPage.Children.Add(tableHeaderVisual);
-            }
-
-            // Check if there is a table on the bottom of the page.
-            // If it's there, its header should be repeated
-            ContainerVisual newTable, newHeader;
-            if (PageEndsWithTable(smallerPage, out newTable, out newHeader))
-            {
-                if (newTable == table && currentHeader != null)
-                {
-                    // Still the same table so don't change the repeating header
-                }
-                else
-                {
-                    // We've found a new table. Repeat the header on the next page
-                    TableRowDataHeader dataHeader = GetTableRow(newHeader);
-                    if (dataHeader != null)
-                        currentHeader = new Tuple<ContainerVisual, TableRowDataHeader>(newHeader, dataHeader);
-                }
-            }
-            else
-            {
-                // There was no table at the end of the page
-                currentHeader = null;
-            }
+            //// create modified ContentBox
+            //Rect contentBox = new Rect(page.ContentBox.Left, page.ContentBox.Top, page.ContentBox.Width,
+            //    _report.PageHeight - (page.Size.Height - page.ContentBox.Size.Height));
 
 
-            DocumentPage dp = new DocumentPage(newPage, new Size(_report.PageWidth, _report.PageHeight), bleedBox, contentBox);
-            _report.FireEventGetPageCompleted(new GetPageCompletedEventArgs(page, pageNumber, null, false, null));
-            return dp;
+            //ContainerVisual table;
+            //if (PageStartsWithTable(smallerPage, out table) && currentHeader != null && currentHeader.Item2.RepeatTableHeader)
+            //{
+            //    // The page starts with a table and a table header was
+            //    // found on the previous page. Presumably this table 
+            //    // was started on the previous page, so we'll repeat the
+            //    // table header.
+            //    Rect headerBounds = VisualTreeHelper.GetDescendantBounds(currentHeader.Item1);
+            //    Vector offset = VisualTreeHelper.GetOffset(currentHeader.Item1);
+            //    DrawingVisual tableHeaderVisual = new DrawingVisual();
+
+            //    // Translate the header to be at the top of the page
+            //    // instead of its previous position
+            //    tableHeaderVisual.Transform = new TranslateTransform(
+            //        bleedBox.X,
+            //        bleedBox.Y - headerBounds.Top
+            //    );
+
+            //    // Since we've placed the repeated table header on top of the
+            //    // content area, we'll need to scale down the rest of the content
+            //    // to accomodate this. Since the table header is relatively small,
+            //    // this probably is barely noticeable.
+            //    double yScale = (contentBox.Height - headerBounds.Height) / contentBox.Height;
+            //    TransformGroup group = new TransformGroup();
+            //    group.Children.Add(new ScaleTransform(1.0, yScale));
+            //    group.Children.Add(new TranslateTransform(
+            //        bleedBox.X,
+            //        bleedBox.Y + headerBounds.Height
+            //    ));
+            //    smallerPage.Transform = group;
+
+            //    ContainerVisual cp = VisualTreeHelper.GetParent(currentHeader.Item1) as ContainerVisual;
+            //    if (cp != null)
+            //    {
+            //        cp.Children.Remove(currentHeader.Item1);
+
+
+            //    }
+            //    tableHeaderVisual.Children.Add(currentHeader.Item1);
+
+            //    //Drawing table header background
+            //    if (currentHeader.Item2 != null)
+            //    {
+            //        Brush backgroundBrush = (Brush)currentHeader.Item2.GetValue(TextElement.BackgroundProperty);
+            //        using (DrawingContext drawingContext = tableHeaderVisual.RenderOpen())
+            //        {
+            //            if (backgroundBrush != null)
+            //            {
+            //                Rect bounds = headerBounds;
+            //                if (cp != null)
+            //                {
+            //                    Rect parentBounds = VisualTreeHelper.GetDescendantBounds(cp);
+            //                    if (parentBounds != null)
+            //                    {
+            //                        bounds.Width = parentBounds.Width;
+            //                    }
+            //                }
+
+            //                drawingContext.DrawRectangle(backgroundBrush, null, bounds);
+            //            }
+            //        }
+            //    }
+
+            //    smallerPage.Children.Add(tableHeaderVisual);
+            //}
+
+            //// Check if there is a table on the bottom of the page.
+            //// If it's there, its header should be repeated
+            //ContainerVisual newTable, newHeader;
+            //if (PageEndsWithTable(smallerPage, out newTable, out newHeader))
+            //{
+            //    if (newTable == table && currentHeader != null)
+            //    {
+            //        // Still the same table so don't change the repeating header
+            //    }
+            //    else
+            //    {
+            //        // We've found a new table. Repeat the header on the next page
+            //        TableRowDataHeader dataHeader = GetTableRow(newHeader);
+            //        if (dataHeader != null)
+            //            currentHeader = new Tuple<ContainerVisual, TableRowDataHeader>(newHeader, dataHeader);
+            //    }
+            //}
+            //else
+            //{
+            //    // There was no table at the end of the page
+            //    currentHeader = null;
+            //}
+
+
+            //DocumentPage dp = new DocumentPage(newPage, new Size(_report.PageWidth, _report.PageHeight), bleedBox, contentBox);
+            //_report.FireEventGetPageCompleted(new GetPageCompletedEventArgs(page, pageNumber, null, false, null));
+            //return dp;
         }
 
-        public override void ComputePageCount()
-        {
-            base.ComputePageCount();
-        }
+        //public override void ComputePageCount()
+        //{
+        //    base.ComputePageCount();
+        //}
 
-        protected override void OnPagesChanged(PagesChangedEventArgs e)
-        {
-            base.OnPagesChanged(e);
-        }
+        //protected override void OnPagesChanged(PagesChangedEventArgs e)
+        //{
+        //    base.OnPagesChanged(e);
+        //}
 
         /// <summary>
 		/// Checks if the page ends with a table.
@@ -1971,37 +1985,39 @@ namespace gip.core.reporthandler.avui.Flowdoc
 		/// </remarks>
 		/// <param name="originalPage"></param>
 		/// <returns></returns>
-		private bool PageEndsWithTable(DependencyObject element, out ContainerVisual tableVisual, out ContainerVisual headerVisual)
+		private bool PageEndsWithTable(AvaloniaObject element, out ContainerVisual tableVisual, out ContainerVisual headerVisual)
         {
-            tableVisual = null;
-            headerVisual = null;
-            if (element.GetType().Name == "RowVisual")
-            {
-                tableVisual = (ContainerVisual)VisualTreeHelper.GetParent(element);
-                headerVisual = (ContainerVisual)VisualTreeHelper.GetChild(tableVisual, 0);
-                return true;
-            }
-            int children = VisualTreeHelper.GetChildrenCount(element);
-            if (element.GetType() == typeof(ContainerVisual))
-            {
-                for (int c = children - 1; c >= 0; c--)
-                {
-                    DependencyObject child = VisualTreeHelper.GetChild(element, c);
-                    if (PageEndsWithTable(child, out tableVisual, out headerVisual))
-                    {
-                        return true;
-                    }
-                }
-            }
-            else if (children > 0)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(element, children - 1);
-                if (PageEndsWithTable(child, out tableVisual, out headerVisual))
-                {
-                    return true;
-                }
-            }
-            return false;
+            throw new NotImplementedException("TODO Avalonia");
+
+            //tableVisual = null;
+            //headerVisual = null;
+            //if (element.GetType().Name == "RowVisual")
+            //{
+            //    tableVisual = (ContainerVisual)VisualTreeHelper.GetParent(element);
+            //    headerVisual = (ContainerVisual)VisualTreeHelper.GetChild(tableVisual, 0);
+            //    return true;
+            //}
+            //int children = VisualTreeHelper.GetChildrenCount(element);
+            //if (element.GetType() == typeof(ContainerVisual))
+            //{
+            //    for (int c = children - 1; c >= 0; c--)
+            //    {
+            //        AvaloniaObject child = VisualTreeHelper.GetChild(element, c);
+            //        if (PageEndsWithTable(child, out tableVisual, out headerVisual))
+            //        {
+            //            return true;
+            //        }
+            //    }
+            //}
+            //else if (children > 0)
+            //{
+            //    AvaloniaObject child = VisualTreeHelper.GetChild(element, children - 1);
+            //    if (PageEndsWithTable(child, out tableVisual, out headerVisual))
+            //    {
+            //        return true;
+            //    }
+            //}
+            //return false;
         }
 
 
@@ -2013,32 +2029,36 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="tableVisual"></param>
         /// <param name="headerVisual"></param>
         /// <returns></returns>
-        private bool PageStartsWithTable(DependencyObject element, out ContainerVisual tableVisual)
+        private bool PageStartsWithTable(AvaloniaObject element, out ContainerVisual tableVisual)
         {
-            tableVisual = null;
-            if (element.GetType().Name == "RowVisual")
-            {
-                tableVisual = (ContainerVisual)VisualTreeHelper.GetParent(element);
-                return true;
-            }
-            if (VisualTreeHelper.GetChildrenCount(element) > 0)
-            {
-                DependencyObject child = VisualTreeHelper.GetChild(element, 0);
-                if (PageStartsWithTable(child, out tableVisual))
-                {
-                    return true;
-                }
-            }
-            return false;
+            throw new NotImplementedException("TODO Avalonia");
+
+            //tableVisual = null;
+            //if (element.GetType().Name == "RowVisual")
+            //{
+            //    tableVisual = (ContainerVisual)VisualTreeHelper.GetParent(element);
+            //    return true;
+            //}
+            //if (VisualTreeHelper.GetChildrenCount(element) > 0)
+            //{
+            //    AvaloniaObject child = VisualTreeHelper.GetChild(element, 0);
+            //    if (PageStartsWithTable(child, out tableVisual))
+            //    {
+            //        return true;
+            //    }
+            //}
+            //return false;
         }
 
         private TableRowDataHeader GetTableRow(ContainerVisual rowVisual)
         {
-            if (rowVisual == null)
-                return null;
+            throw new NotImplementedException("TODO Avalonia");
 
-            PropertyInfo propInfo = rowVisual.GetType().GetProperty("Row", BindingFlags.NonPublic | BindingFlags.Instance);
-            return propInfo?.GetValue(rowVisual) as TableRowDataHeader;
+            //if (rowVisual == null)
+            //    return null;
+
+            //PropertyInfo propInfo = rowVisual.GetType().GetProperty("Row", BindingFlags.NonPublic | BindingFlags.Instance);
+            //return propInfo?.GetValue(rowVisual) as TableRowDataHeader;
         }
 
         #endregion

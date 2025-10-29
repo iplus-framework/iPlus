@@ -1,8 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
-using System.Windows;
-using System.Windows.Documents;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -23,8 +21,8 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(PageFooterHeightProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for PageFooterHeight.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty PageFooterHeightProperty =
-            DependencyProperty.Register("PageFooterHeight", typeof(double), typeof(ReportProperties), new UIPropertyMetadata(2.0d));
+        // Using a StyledProperty as the backing store for PageFooterHeight. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<double> PageFooterHeightProperty = 
+            AvaloniaProperty.Register<SectionReportFooter, double>(nameof(PageFooterHeight), 2.0d);
     }
 }

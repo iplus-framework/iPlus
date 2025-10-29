@@ -1,19 +1,12 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using AvRichTextBox;
+using gip.core.autocomponent;
+using gip.core.datamodel;
+using gip.core.reporthandler.avui.Flowdoc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using gip.core.datamodel;
-using gip.core.autocomponent;
-using System.IO;
-using System.Windows.Xps.Packaging;
-using System.Printing;
-using System.Windows;
-using System.Windows.Markup;
-using System.Windows.Documents;
-using System.Windows.Xps;
-using gip.core.reporthandler.avui.Flowdoc;
-using gip.core.reporthandler;
 
 namespace gip.core.reporthandler.avui
 {
@@ -880,228 +873,220 @@ namespace gip.core.reporthandler.avui
 
         public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
         {
-            if (acClassDesign == null || data == null)
-                return null;
+            throw new NotImplementedException("Avalonia TODO");
+            //if (acClassDesign == null || data == null)
+            //    return null;
 
-            using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XAMLDesign))
-            { 
-                if (reportDoc == null)
-                    return null;
-                XpsDocument xps = null;
-                if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
-                {
-                    string fileName = printerName.Substring(7);
-                    xps = reportDoc.CreateXpsDocument(data, fileName);
-                    return null;
-                }
-                else
-                    xps = reportDoc.CreateXpsDocument(data);
-                if (xps == null)
-                    return null;
+            //using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XAMLDesign))
+            //{
+            //    if (reportDoc == null)
+            //        return null;
+            //    XpsDocument xps = null;
+            //    if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
+            //    {
+            //        string fileName = printerName.Substring(7);
+            //        xps = reportDoc.CreateXpsDocument(data, fileName);
+            //        return null;
+            //    }
+            //    else
+            //        xps = reportDoc.CreateXpsDocument(data);
+            //    if (xps == null)
+            //        return null;
 
-                using (xps)
-                {
-                    FixedDocumentSequence fDocSeq = null;
-                    try
-                    {
-                        fDocSeq = xps.GetFixedDocumentSequence();
-                        if (fDocSeq == null)
-                            return null;
-                        // Fix for leaking memory
-                        // https://social.msdn.microsoft.com/Forums/vstudio/en-US/c6511918-17f6-42be-ac4c-459eeac676fd/memory-leak-when-launching-new-sta-thread-to-convert-xps-to-images?forum=wpf
-                        //var docpage = fDocSeq.DocumentPaginator.GetPage(0);
-                        //if (docpage != null && docpage.Visual != null)
-                        //{
-                        //    FixedPage fixedPage = docpage.Visual as FixedPage;
-                        //    if (fixedPage != null)
-                        //        fixedPage.UpdateLayout();
-                        //}
+            //    using (xps)
+            //    {
+            //        FixedDocumentSequence fDocSeq = null;
+            //        try
+            //        {
+            //            fDocSeq = xps.GetFixedDocumentSequence();
+            //            if (fDocSeq == null)
+            //                return null;
 
-                        if (copies <= 0)
-                            copies = 1;
+            //            if (copies <= 0)
+            //                copies = 1;
 
-                        if (withDialog)
-                        {
-                            try
-                            {
-                                var printDialog = new System.Windows.Controls.PrintDialog();
-                                if (printDialog.ShowDialog() == true)
-                                {
-                                    PrintQueue pQ = printDialog.PrintQueue;
-                                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-                                    if (writer != null)
-                                    {
-                                        PrintTicket pt = new PrintTicket();
-                                        pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
-                                        if (reportDoc.AutoSelectPageOrientation.HasValue)
-                                        {
-                                            pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-                                        }
-                                        else
-                                        {
-                                            if (reportDoc.PageWidth > reportDoc.PageHeight)
-                                                pt.PageOrientation = PageOrientation.Landscape;
-                                            else
-                                                pt.PageOrientation = PageOrientation.Portrait;
-                                        }
+            //            if (withDialog)
+            //            {
+            //                try
+            //                {
+            //                    var printDialog = new System.Windows.Controls.PrintDialog();
+            //                    if (printDialog.ShowDialog() == true)
+            //                    {
+            //                        PrintQueue pQ = printDialog.PrintQueue;
+            //                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+            //                        if (writer != null)
+            //                        {
+            //                            PrintTicket pt = new PrintTicket();
+            //                            pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
+            //                            if (reportDoc.AutoSelectPageOrientation.HasValue)
+            //                            {
+            //                                pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+            //                            }
+            //                            else
+            //                            {
+            //                                if (reportDoc.PageWidth > reportDoc.PageHeight)
+            //                                    pt.PageOrientation = PageOrientation.Landscape;
+            //                                else
+            //                                    pt.PageOrientation = PageOrientation.Portrait;
+            //                            }
 
-                                        if (reportDoc.AutoPageMediaSize != null)
-                                            pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+            //                            if (reportDoc.AutoPageMediaSize != null)
+            //                                pt.PageMediaSize = reportDoc.AutoPageMediaSize;
 
-                                        // example of calling above code
-                                        if (reportDoc.AutoSelectTray.HasValue)
-                                        {
-                                            string nameSpaceURI = string.Empty;
-                                            string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-                                            pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-                                        }
+            //                            // example of calling above code
+            //                            if (reportDoc.AutoSelectTray.HasValue)
+            //                            {
+            //                                string nameSpaceURI = string.Empty;
+            //                                string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+            //                                pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+            //                            }
 
-                                        writer.Write(fDocSeq, pt);
-                                    }
-                                }
-                            }
-                            catch (Exception e)
-                            {
-                                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
-                                PrintDocumentImageableArea area = null;
-                                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
-                                if (writer != null)
-                                    writer.Write(fDocSeq);
-                            }
-                        }
-                        else
-                        {
-                            PrintQueue pQ = null;
-                            if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
-                                printerName = reportDoc.AutoSelectPrinterName;
-                            if (String.IsNullOrEmpty(printerName))
-                            {
-                                pQ = LocalPrintServer.GetDefaultPrintQueue();
-                            }
-                            else
-                            {
-                                if (printerName.StartsWith("\\\\"))
-                                {
-                                    int index = printerName.LastIndexOf("\\");
-                                    if (index > 0)
-                                    {
-                                        string server = printerName.Substring(0, index);
-                                        string printerName2 = printerName.Substring(index + 1);
-                                        PrintServer pServer = new PrintServer(server);
-                                        if (pServer != null)
-                                        {
-                                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    PrintServer pServer = new LocalPrintServer();
-                                    if (pServer != null)
-                                    {
-                                        pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
-                                    }
-                                    if (pQ == null)
-                                    {
-                                        pServer = new PrintServer();
-                                        PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
-                                        pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
-                                    }
-                                }
-                            }
-                            if (pQ == null)
-                                return null;
+            //                            writer.Write(fDocSeq, pt);
+            //                        }
+            //                    }
+            //                }
+            //                catch (Exception e)
+            //                {
+            //                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
+            //                    PrintDocumentImageableArea area = null;
+            //                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
+            //                    if (writer != null)
+            //                        writer.Write(fDocSeq);
+            //                }
+            //            }
+            //            else
+            //            {
+            //                PrintQueue pQ = null;
+            //                if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
+            //                    printerName = reportDoc.AutoSelectPrinterName;
+            //                if (String.IsNullOrEmpty(printerName))
+            //                {
+            //                    pQ = LocalPrintServer.GetDefaultPrintQueue();
+            //                }
+            //                else
+            //                {
+            //                    if (printerName.StartsWith("\\\\"))
+            //                    {
+            //                        int index = printerName.LastIndexOf("\\");
+            //                        if (index > 0)
+            //                        {
+            //                            string server = printerName.Substring(0, index);
+            //                            string printerName2 = printerName.Substring(index + 1);
+            //                            PrintServer pServer = new PrintServer(server);
+            //                            if (pServer != null)
+            //                            {
+            //                                pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
+            //                            }
+            //                        }
+            //                    }
+            //                    else
+            //                    {
+            //                        PrintServer pServer = new LocalPrintServer();
+            //                        if (pServer != null)
+            //                        {
+            //                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
+            //                        }
+            //                        if (pQ == null)
+            //                        {
+            //                            pServer = new PrintServer();
+            //                            PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
+            //                            pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
+            //                        }
+            //                    }
+            //                }
+            //                if (pQ == null)
+            //                    return null;
 
-                            if (maxPrintJobsInSpooler > 0
-                                && (pQ.IsInError || pQ.NumberOfJobs >= maxPrintJobsInSpooler))
-                            {
-                                return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
-                            }
+            //                if (maxPrintJobsInSpooler > 0
+            //                    && (pQ.IsInError || pQ.NumberOfJobs >= maxPrintJobsInSpooler))
+            //                {
+            //                    return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
+            //                }
 
-                            XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-                            if (writer != null)
-                            {
-                                PrintTicket pt = new PrintTicket();
-                                pt.CopyCount = copies;
-                                if (reportDoc.AutoSelectPageOrientation.HasValue)
-                                {
-                                    pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-                                }
-                                else
-                                {
-                                    if (reportDoc.PageWidth > reportDoc.PageHeight)
-                                        pt.PageOrientation = PageOrientation.Landscape;
-                                    else
-                                        pt.PageOrientation = PageOrientation.Portrait;
-                                }
+            //                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
+            //                if (writer != null)
+            //                {
+            //                    PrintTicket pt = new PrintTicket();
+            //                    pt.CopyCount = copies;
+            //                    if (reportDoc.AutoSelectPageOrientation.HasValue)
+            //                    {
+            //                        pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+            //                    }
+            //                    else
+            //                    {
+            //                        if (reportDoc.PageWidth > reportDoc.PageHeight)
+            //                            pt.PageOrientation = PageOrientation.Landscape;
+            //                        else
+            //                            pt.PageOrientation = PageOrientation.Portrait;
+            //                    }
 
-                                if (reportDoc.AutoPageMediaSize != null)
-                                    pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+            //                    if (reportDoc.AutoPageMediaSize != null)
+            //                        pt.PageMediaSize = reportDoc.AutoPageMediaSize;
 
-                                // example of calling above code
-                                if (reportDoc.AutoSelectTray.HasValue)
-                                {
-                                    string nameSpaceURI = string.Empty;
-                                    string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-                                    pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-                                }
+            //                    // example of calling above code
+            //                    if (reportDoc.AutoSelectTray.HasValue)
+            //                    {
+            //                        string nameSpaceURI = string.Empty;
+            //                        string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+            //                        pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+            //                    }
 
-                                //for (int i = 0; i < copies; i++)
-                                //{
-                                try
-                                {
-                                    writer.Write(fDocSeq, pt);
-                                }
-                                catch (Exception ex2)
-                                {
-                                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
-                                }
-                                //}
-                            }
-                        }
-                    }
-                    finally
-                    {
-                        if (xps != null)
-                            xps.Close();
-                        try
-                        {
-                            // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
-                            if (fDocSeq != null)
-                            {
-                                for (int i = 0; i < fDocSeq.DocumentPaginator.PageCount; i++)
-                                {
-                                    var docpage = fDocSeq.DocumentPaginator.GetPage(i);
-                                    if (docpage != null && docpage.Visual != null)
-                                    {
-                                        FixedPage fixedPage = docpage.Visual as FixedPage;
-                                        if (fixedPage != null)
-                                        {
-                                            fixedPage.Children.Clear();
-                                            fixedPage.UpdateLayout();
-                                            //var dispatcher = fixedPage.Dispatcher;
-                                            //if (dispatcher != null
-                                            //    && dispatcher.Thread != null
-                                            //    && !String.IsNullOrEmpty(dispatcher.Thread.Name)
-                                            //    && (dispatcher.Thread.Name.Contains(RootDbOpQueue.ClassName)
-                                            //        || dispatcher.Thread.Name.Contains(ACUrlHelper.Delimiter_DirSeperator)))
-                                            //{
-                                            //    fixedPage.DetachFromDispatcherExt();
-                                            //}
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        catch (Exception ex2)
-                        {
-                            this.Root().Messages.LogException("VBBSOReport", "FlowPrint(99)", ex2.Message);
-                        }
-                    }
-                }
-            }
+            //                    //for (int i = 0; i < copies; i++)
+            //                    //{
+            //                    try
+            //                    {
+            //                        writer.Write(fDocSeq, pt);
+            //                    }
+            //                    catch (Exception ex2)
+            //                    {
+            //                        this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
+            //                    }
+            //                    //}
+            //                }
+            //            }
+            //        }
+            //        finally
+            //        {
+            //            if (xps != null)
+            //                xps.Close();
+            //            try
+            //            {
+            //                // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
+            //                if (fDocSeq != null)
+            //                {
+            //                    for (int i = 0; i < fDocSeq.DocumentPaginator.PageCount; i++)
+            //                    {
+            //                        var docpage = fDocSeq.DocumentPaginator.GetPage(i);
+            //                        if (docpage != null && docpage.Visual != null)
+            //                        {
+            //                            FixedPage fixedPage = docpage.Visual as FixedPage;
+            //                            if (fixedPage != null)
+            //                            {
+            //                                fixedPage.Children.Clear();
+            //                                fixedPage.UpdateLayout();
+            //                                //var dispatcher = fixedPage.Dispatcher;
+            //                                //if (dispatcher != null
+            //                                //    && dispatcher.Thread != null
+            //                                //    && !String.IsNullOrEmpty(dispatcher.Thread.Name)
+            //                                //    && (dispatcher.Thread.Name.Contains(RootDbOpQueue.ClassName)
+            //                                //        || dispatcher.Thread.Name.Contains(ACUrlHelper.Delimiter_DirSeperator)))
+            //                                //{
+            //                                //    fixedPage.DetachFromDispatcherExt();
+            //                                //}
+            //                            }
+            //                        }
+            //                    }
+            //                }
+            //            }
+            //            catch (Exception ex2)
+            //            {
+            //                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(99)", ex2.Message);
+            //            }
+            //        }
+            //    }
+            //}
 
-            return null;
+            //return null;
         }
 
         #endregion
@@ -1499,43 +1484,43 @@ namespace gip.core.reporthandler.avui
 
         public void LoadConfig()
         {
-            if (LocalConfig)
-            {
-                CurrentReportConfiguration = null;
-                CurrentReportConfiguration = FlowDocumentConfig.Resources["Config"] as ReportConfiguration;
-            }
-            else if (!LocalConfig)
-            {
-                GlobalReportConfig = Database.ContextIPlus.ACClassDesign.First(c => c.ACIdentifier == "ReportGlobalConfig");
-                try
-                {
-                    CurrentReportConfiguration = null;
-                    ResourceDictionary rd = AvaloniaRuntimeXamlLoader.Load(GlobalReportConfig.XAMLDesign) as ResourceDictionary;
-                    if (rd != null && rd.Contains("Config"))
-                        CurrentReportConfiguration = rd["Config"] as ReportConfiguration;
-                }
-                catch (Exception e)
-                {
-                    MessageBox.Show(e.Message, "Global report configuration exception", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
+            //if (LocalConfig)
+            //{
+            //    CurrentReportConfiguration = null;
+            //    CurrentReportConfiguration = FlowDocumentConfig.Resources["Config"] as ReportConfiguration;
+            //}
+            //else if (!LocalConfig)
+            //{
+            //    GlobalReportConfig = Database.ContextIPlus.ACClassDesign.First(c => c.ACIdentifier == "ReportGlobalConfig");
+            //    try
+            //    {
+            //        CurrentReportConfiguration = null;
+            //        ResourceDictionary rd = AvaloniaRuntimeXamlLoader.Load(GlobalReportConfig.XAMLDesign) as ResourceDictionary;
+            //        if (rd != null && rd.Contains("Config"))
+            //            CurrentReportConfiguration = rd["Config"] as ReportConfiguration;
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        MessageBox.Show(e.Message, "Global report configuration exception", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    }
+            //}
         }
 
         [ACMethodInfo("", "en{'Apply configuration'}de{Konfiguration anwenden}", 9999)]
         public void ApplyConfig()
         {
-            CreateOrUpdateConfigs();
-            CurrentReportConfiguration.Items.Cast<ConfigurationMethod>().Where(c => c.Items.Count == 0).ToList().ForEach(x => CurrentReportConfiguration.Items.Remove(x));
-            if (LocalConfig)
-                BroadcastToVBControls(Const.CmdApplyConfig, "CurrentACClassDesign\\XMLDesign", this);
-            else if (GlobalReportConfig != null)
-            {
-                ResourceDictionary rd = new ResourceDictionary();
-                rd.Add("Config", CurrentReportConfiguration);
-                string xaml = XamlWriter.Save(rd);
-                GlobalReportConfig.XAMLDesign = xaml;
-                SaveFlowDoc();
-            }
+            //CreateOrUpdateConfigs();
+            //CurrentReportConfiguration.Items.Cast<ConfigurationMethod>().Where(c => c.Items.Count == 0).ToList().ForEach(x => CurrentReportConfiguration.Items.Remove(x));
+            //if (LocalConfig)
+            //    BroadcastToVBControls(Const.CmdApplyConfig, "CurrentACClassDesign\\XMLDesign", this);
+            //else if (GlobalReportConfig != null)
+            //{
+            //    ResourceDictionary rd = new ResourceDictionary();
+            //    rd.Add("Config", CurrentReportConfiguration);
+            //    string xaml = XamlWriter.Save(rd);
+            //    GlobalReportConfig.XAMLDesign = xaml;
+            //    SaveFlowDoc();
+            //}
         }
         #endregion
 

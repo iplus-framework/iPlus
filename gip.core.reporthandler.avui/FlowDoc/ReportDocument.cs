@@ -1,31 +1,22 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using Avalonia;
+using Avalonia.Controls.Documents;
+using AvRichTextBox;
+using gip.core.autocomponent;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Windows.Media.Imaging;
-using System.Windows.Xps.Packaging;
-using System.Windows.Xps.Serialization;
-using System.Linq;
-using gip.core.autocomponent;
-using System.Xml.Linq;
-using System.Xml;
-using System.Globalization;
 using System.Printing;
-using gip.core.datamodel;
+using System.Xml.Linq;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
     /// <summary>
     /// Contains a complete report template without data
     /// </summary>
-    public class ReportDocument : IDisposable
+    public class ReportDocument : AvaloniaObject, IDisposable
     {
         #region c'tors
         public ReportDocument(string xaml)
@@ -146,17 +137,18 @@ namespace gip.core.reporthandler.avui.Flowdoc
         }
         #endregion
 
-        public static readonly DependencyProperty StringFormatProperty
-            = DependencyProperty.Register("StringFormat", typeof(string), typeof(TextElement), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> StringFormatProperty
+            = AvaloniaProperty.RegisterAttached<StyledElement, string>("StringFormat", typeof(ReportDocument));
 
-        public static readonly DependencyProperty MaxLengthProperty
-            = DependencyProperty.Register("MaxLength", typeof(int), typeof(TextElement), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<int> MaxLengthProperty
+            = AvaloniaProperty.RegisterAttached<StyledElement, int>("MaxLength", typeof(ReportDocument));
 
-        public static readonly DependencyProperty TruncateProperty
-            = DependencyProperty.Register("Truncate", typeof(int), typeof(TextElement), new FrameworkPropertyMetadata(0, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<int> TruncateProperty
+            = AvaloniaProperty.RegisterAttached<StyledElement, int>("Truncate", typeof(ReportDocument));
 
-        public static readonly DependencyProperty CultureInfoProperty
-            = DependencyProperty.Register("CultureInfo", typeof(string), typeof(TextElement), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.Inherits));
+        public static readonly AttachedProperty<string> CultureInfoProperty
+            = AvaloniaProperty.RegisterAttached<StyledElement, string>("CultureInfo", typeof(ReportDocument));
+
 
         private XDocument _XDoc = null;
         public XDocument XDoc
@@ -204,7 +196,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
             }
         }
 
-        private System.IO.Packaging.Package _pkg = null;
+        //private System.IO.Packaging.Package _pkg = null;
         private XpsDocument _XpsDoc = null;
         public XpsDocument XpsDoc
         {
@@ -213,11 +205,11 @@ namespace gip.core.reporthandler.avui.Flowdoc
                 return _XpsDoc;
             }
         }
-        private XpsPackagingPolicy _PackPolicy;
-        private XpsSerializationManager _Rsm;
-        private ReportPaginatorBase _ReportPaginator;
-        private MemoryStream _Ms;
-        private MemoryStream _MSXaml;
+        //private XpsPackagingPolicy _PackPolicy;
+        //private XpsSerializationManager _Rsm;
+        //private ReportPaginatorBase _ReportPaginator;
+        //private MemoryStream _Ms;
+        //private MemoryStream _MSXaml;
 
         #endregion
 
@@ -240,22 +232,22 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <summary>
         /// Event occurs after a page has been completed
         /// </summary>
-        public event GetPageCompletedEventHandler GetPageCompleted = null;
+        //public event GetPageCompletedEventHandler GetPageCompleted = null;
 
         /// <summary>
         /// Event occurs if an exception has encountered while loading the BitmapSource
         /// </summary>
-        public event EventHandler<ImageErrorEventArgs> ImageError = null;
+        //public event EventHandler<ImageErrorEventArgs> ImageError = null;
 
         /// <summary>
         /// Event occurs before an image is being processed
         /// </summary>
-        public event EventHandler<ImageEventArgs> ImageProcessing = null;
+        //public event EventHandler<ImageEventArgs> ImageProcessing = null;
 
         /// <summary>
         /// Event occurs after an image has being processed
         /// </summary>
-        public event EventHandler<ImageEventArgs> ImageProcessed = null;
+        //public event EventHandler<ImageEventArgs> ImageProcessed = null;
 
         #endregion
 
@@ -274,167 +266,172 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <exception cref="ArgumentException">"Flow document must have only one ReportProperties section, but it has {0}"</exception>
         public FlowDocument CreateFlowDocument(bool usageInDesigner = false)
         {
-            _MSXaml = gip.core.layoutengine.avui.Layoutgenerator.GetEncodedStream(_xamlData);
-            if (_MSXaml == null)
-                return null;
-            FlowDocument res = AvaloniaRuntimeXamlLoader.Load(_MSXaml) as FlowDocument;
+            RichTextBox richTextBox = new RichTextBox();
+            FlowDocument res = new FlowDocument();
+            richTextBox.FlowDocument = res;
+            richTextBox.LoadXaml(_xamlData);
 
-            if (res.PageHeight == double.NaN)
-                throw new ArgumentException("Flow document must have a specified page height");
-            if (res.PageWidth == double.NaN)
-                throw new ArgumentException("Flow document must have a specified page width");
+            //_MSXaml = gip.core.layoutengine.avui.Layoutgenerator.GetEncodedStream(_xamlData);
+            //if (_MSXaml == null)
+            //    return null;
+            //FlowDocument res = AvaloniaRuntimeXamlLoader.Load(_MSXaml) as FlowDocument;
 
-            // remember original values
-            _pageHeight = res.PageHeight;
-            _pageWidth = res.PageWidth;
-            if (!String.IsNullOrEmpty(res.Name))
-            {
-                try
-                {
-                    PageMediaSizeName sizeName = (PageMediaSizeName)Enum.Parse(typeof(PageMediaSizeName), res.Name);
-                    this.AutoPageMediaSize = new PageMediaSize(sizeName);
-                }
-                catch (Exception e)
-                {
-                    if (_pageHeight > 0 && _pageWidth > 0)
-                    {
-                        this.AutoPageMediaSize = new PageMediaSize(_pageWidth, _pageHeight);
-                    }
+            //if (res.PageHeight == double.NaN)
+            //    throw new ArgumentException("Flow document must have a specified page height");
+            //if (res.PageWidth == double.NaN)
+            //    throw new ArgumentException("Flow document must have a specified page width");
 
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+            //// remember original values
+            //_pageHeight = res.PageHeight;
+            //_pageWidth = res.PageWidth;
+            //if (!String.IsNullOrEmpty(res.Name))
+            //{
+            //    try
+            //    {
+            //        PageMediaSizeName sizeName = (PageMediaSizeName)Enum.Parse(typeof(PageMediaSizeName), res.Name);
+            //        this.AutoPageMediaSize = new PageMediaSize(sizeName);
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        if (_pageHeight > 0 && _pageWidth > 0)
+            //        {
+            //            this.AutoPageMediaSize = new PageMediaSize(_pageWidth, _pageHeight);
+            //        }
 
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument", msg);
-                }
-            }
+            //        string msg = e.Message;
+            //        if (e.InnerException != null && e.InnerException.Message != null)
+            //            msg += " Inner:" + e.InnerException.Message;
 
-            // search report properties
-            DocumentWalker walker = new DocumentWalker();
-            List<SectionReportHeader> headers = walker.Walk<SectionReportHeader>(res);
-            List<SectionReportFooter> footers = walker.Walk<SectionReportFooter>(res);
-            List<ReportProperties> properties = walker.Walk<ReportProperties>(res);
-            if (properties.Count > 0)
-            {
-                if (properties.Count > 1)
-                    throw new ArgumentException(String.Format("Flow document must have only one ReportProperties section, but it has {0}", properties.Count));
-                ReportProperties prop = properties[0];
-                if (prop.ReportName != null)
-                    ReportName = prop.ReportName;
-                if (prop.ReportTitle != null)
-                    ReportTitle = prop.ReportTitle;
-                if (headers.Count > 0)
-                    PageHeaderHeight = headers[0].PageHeaderHeight;
-                if (footers.Count > 0)
-                    PageFooterHeight = footers[0].PageFooterHeight;
-                if (!String.IsNullOrEmpty(prop.AutoSelectPrinterName))
-                    AutoSelectPrinterName = prop.AutoSelectPrinterName;
-                if (!String.IsNullOrEmpty(prop.AutoSelectPageOrientation))
-                {
-                    PageOrientation pageOrientation = PageOrientation.Unknown;
-                    if (Enum.TryParse<PageOrientation>(prop.AutoSelectPageOrientation, out pageOrientation))
-                        AutoSelectPageOrientation = pageOrientation;
-                }
-                if (prop.AutoSelectTray >= 0)
-                    AutoSelectTray = prop.AutoSelectTray;
-                if (!String.IsNullOrEmpty(prop.AutoPageMediaSize))
-                {
-                    string[] sizes = prop.AutoPageMediaSize.Split('x');
-                    if (sizes != null && sizes.Count() == 2)
-                    {
-                        try
-                        {
-                            this.AutoPageMediaSize = new PageMediaSize(Double.Parse(sizes[0]), Double.Parse(sizes[1]));
-                        }
-                        catch (Exception exp)
-                        {
-                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument(AutoPageMediaSize)", exp.Message);
-                        }
-                    }
-                }
+            //        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument", msg);
+            //    }
+            //}
 
-                // remove properties section from FlowDocument
-                DependencyObject parent = prop.Parent;
-                if (!usageInDesigner && prop != null)
-                {
-                    if (parent is FlowDocument)
-                    {
-                        ((FlowDocument)parent).Blocks.Remove(prop);
-                        parent = null;
-                    }
-                    if (parent is Section)
-                    {
-                        ((Section)parent).Blocks.Remove(prop);
-                        parent = null;
-                    }
-                }
-            }
-            else
-            {
-                if (headers.Count > 0)
-                    PageHeaderHeight = headers[0].PageHeaderHeight;
-                if (footers.Count > 0)
-                    PageFooterHeight = footers[0].PageFooterHeight;
-            }
+            //// search report properties
+            //DocumentWalker walker = new DocumentWalker();
+            //List<SectionReportHeader> headers = walker.Walk<SectionReportHeader>(res);
+            //List<SectionReportFooter> footers = walker.Walk<SectionReportFooter>(res);
+            //List<ReportProperties> properties = walker.Walk<ReportProperties>(res);
+            //if (properties.Count > 0)
+            //{
+            //    if (properties.Count > 1)
+            //        throw new ArgumentException(String.Format("Flow document must have only one ReportProperties section, but it has {0}", properties.Count));
+            //    ReportProperties prop = properties[0];
+            //    if (prop.ReportName != null)
+            //        ReportName = prop.ReportName;
+            //    if (prop.ReportTitle != null)
+            //        ReportTitle = prop.ReportTitle;
+            //    if (headers.Count > 0)
+            //        PageHeaderHeight = headers[0].PageHeaderHeight;
+            //    if (footers.Count > 0)
+            //        PageFooterHeight = footers[0].PageFooterHeight;
+            //    if (!String.IsNullOrEmpty(prop.AutoSelectPrinterName))
+            //        AutoSelectPrinterName = prop.AutoSelectPrinterName;
+            //    if (!String.IsNullOrEmpty(prop.AutoSelectPageOrientation))
+            //    {
+            //        PageOrientation pageOrientation = PageOrientation.Unknown;
+            //        if (Enum.TryParse<PageOrientation>(prop.AutoSelectPageOrientation, out pageOrientation))
+            //            AutoSelectPageOrientation = pageOrientation;
+            //    }
+            //    if (prop.AutoSelectTray >= 0)
+            //        AutoSelectTray = prop.AutoSelectTray;
+            //    if (!String.IsNullOrEmpty(prop.AutoPageMediaSize))
+            //    {
+            //        string[] sizes = prop.AutoPageMediaSize.Split('x');
+            //        if (sizes != null && sizes.Count() == 2)
+            //        {
+            //            try
+            //            {
+            //                this.AutoPageMediaSize = new PageMediaSize(Double.Parse(sizes[0]), Double.Parse(sizes[1]));
+            //            }
+            //            catch (Exception exp)
+            //            {
+            //                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument(AutoPageMediaSize)", exp.Message);
+            //            }
+            //        }
+            //    }
 
-            // make height smaller to have enough space for page header and page footer
-            //res.PageHeight = _pageHeight - _pageHeight * (PageHeaderHeight + PageFooterHeight) / 100d;
+            //    // remove properties section from FlowDocument
+            //    DependencyObject parent = prop.Parent;
+            //    if (!usageInDesigner && prop != null)
+            //    {
+            //        if (parent is FlowDocument)
+            //        {
+            //            ((FlowDocument)parent).Blocks.Remove(prop);
+            //            parent = null;
+            //        }
+            //        if (parent is Section)
+            //        {
+            //            ((Section)parent).Blocks.Remove(prop);
+            //            parent = null;
+            //        }
+            //    }
+            //}
+            //else
+            //{
+            //    if (headers.Count > 0)
+            //        PageHeaderHeight = headers[0].PageHeaderHeight;
+            //    if (footers.Count > 0)
+            //        PageFooterHeight = footers[0].PageFooterHeight;
+            //}
 
-            // search image objects
-            List<Image> images = new List<Image>();
-            walker.Tag = images;
-            walker.VisualVisited += new DocumentVisitedEventHandler(walker_VisualVisited);
-            walker.Walk(res);
-            walker.VisualVisited -= walker_VisualVisited;
+            //// make height smaller to have enough space for page header and page footer
+            ////res.PageHeight = _pageHeight - _pageHeight * (PageHeaderHeight + PageFooterHeight) / 100d;
 
-            // load all images
-            foreach (Image image in images)
-            {
-                if (ImageProcessing != null)
-                    ImageProcessing(this, new ImageEventArgs(this, image));
-                try
-                {
-                    if (image.Tag is string && (image.Tag as string).IndexOf("StaticResource") < 0)
-                        image.Source = new BitmapImage(new Uri("file:///" + Path.Combine(_xamlImagePath, image.Tag.ToString())));
-                }
-                catch (Exception ex)
-                {
-                    string msg = ex.Message;
-                    if (ex.InnerException != null && ex.InnerException.Message != null)
-                        msg += " Inner:" + ex.InnerException.Message;
+            //// search image objects
+            //List<Image> images = new List<Image>();
+            //walker.Tag = images;
+            //walker.VisualVisited += new DocumentVisitedEventHandler(walker_VisualVisited);
+            //walker.Walk(res);
+            //walker.VisualVisited -= walker_VisualVisited;
 
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument(10)", msg);
+            //// load all images
+            //foreach (Image image in images)
+            //{
+            //    if (ImageProcessing != null)
+            //        ImageProcessing(this, new ImageEventArgs(this, image));
+            //    try
+            //    {
+            //        if (image.Tag is string && (image.Tag as string).IndexOf("StaticResource") < 0)
+            //            image.Source = new BitmapImage(new Uri("file:///" + Path.Combine(_xamlImagePath, image.Tag.ToString())));
+            //    }
+            //    catch (Exception ex)
+            //    {
+            //        string msg = ex.Message;
+            //        if (ex.InnerException != null && ex.InnerException.Message != null)
+            //            msg += " Inner:" + ex.InnerException.Message;
 
-                    // fire event on exception and check for Handled = true after each invoke
-                    if (ImageError != null)
-                    {
-                        bool handled = false;
-                        lock (ImageError)
-                        {
-                            ImageErrorEventArgs eventArgs = new ImageErrorEventArgs(ex, this, image);
-                            foreach (var ed in ImageError.GetInvocationList())
-                            {
-                                ed.DynamicInvoke(this, eventArgs);
-                                if (eventArgs.Handled)
-                                {
-                                    handled = true;
-                                    break;
-                                }
-                            }
-                        }
-                        if (!handled)
-                            throw;
-                    }
-                    else
-                        throw;
-                }
-                if (ImageProcessed != null)
-                    ImageProcessed(this, new ImageEventArgs(this, image));
-                // TODO: find a better way to specify file names
-            }
+            //        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateFlowDocument(10)", msg);
+
+            //        // fire event on exception and check for Handled = true after each invoke
+            //        if (ImageError != null)
+            //        {
+            //            bool handled = false;
+            //            lock (ImageError)
+            //            {
+            //                ImageErrorEventArgs eventArgs = new ImageErrorEventArgs(ex, this, image);
+            //                foreach (var ed in ImageError.GetInvocationList())
+            //                {
+            //                    ed.DynamicInvoke(this, eventArgs);
+            //                    if (eventArgs.Handled)
+            //                    {
+            //                        handled = true;
+            //                        break;
+            //                    }
+            //                }
+            //            }
+            //            if (!handled)
+            //                throw;
+            //        }
+            //        else
+            //            throw;
+            //    }
+            //    if (ImageProcessed != null)
+            //        ImageProcessed(this, new ImageEventArgs(this, image));
+            //    // TODO: find a better way to specify file names
+            //}
 
             return res;
         }
@@ -446,39 +443,39 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="ms">Dispose memory stream afterwards</param>
         /// <param name="reportPaginator">Dispose reportPaginator afterwards</param>
         /// <returns></returns>
-        public XpsDocument CreateXpsDocument(ReportData data)
-        {
-            _Ms = new MemoryStream();
-            _ReportData = new List<ReportData>() { data };
-            _pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
-            string pack = "pack://report.xps";
-            PackageStore.RemovePackage(new Uri(pack));
-            PackageStore.AddPackage(new Uri(pack), _pkg);
-            _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
-            _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
-            _Rsm = new XpsSerializationManager(_PackPolicy, false);
-            {
-                data.InformComponents(this, datamodel.ACPrintingPhase.Started);
-                _ReportPaginator = new ReportPaginator(this, data);
-                try
-                {
-                    _Rsm.SaveAsXaml(_ReportPaginator);
-                }
-                catch (Exception e)
-                {
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                    {
-                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-                        if (e.InnerException != null)
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-                    }
-                }
-                data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
-                _ReportData = null;
-                return _XpsDoc;
-            }
-        }
+        //public XpsDocument CreateXpsDocument(ReportData data)
+        //{
+        //    _Ms = new MemoryStream();
+        //    _ReportData = new List<ReportData>() { data };
+        //    _pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
+        //    string pack = "pack://report.xps";
+        //    PackageStore.RemovePackage(new Uri(pack));
+        //    PackageStore.AddPackage(new Uri(pack), _pkg);
+        //    _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
+        //    _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
+        //    _Rsm = new XpsSerializationManager(_PackPolicy, false);
+        //    {
+        //        data.InformComponents(this, datamodel.ACPrintingPhase.Started);
+        //        _ReportPaginator = new ReportPaginator(this, data);
+        //        try
+        //        {
+        //            _Rsm.SaveAsXaml(_ReportPaginator);
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+        //            {
+        //                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
+        //                if (e.InnerException != null)
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
+        //                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
+        //            }
+        //        }
+        //        data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
+        //        _ReportData = null;
+        //        return _XpsDoc;
+        //    }
+        //}
 
         /// <summary>
         /// 
@@ -489,66 +486,21 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns></returns>
         public FlowDocument CreateFlowDocument(ReportData data)
         {
-            _ReportData = new List<ReportData>() { data };
-            //_Ms = new MemoryStream();
-            //_pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
-            ////using (Package pkg = Package.Open(ms, FileMode.Create, FileAccess.ReadWrite))
-            //{
-            //    string pack = "pack://report.xps";
-            //    PackageStore.RemovePackage(new Uri(pack));
-            //    PackageStore.AddPackage(new Uri(pack), _pkg);
-            //    _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
-            //    _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
-            //    _Rsm = new XpsSerializationManager(_PackPolicy, false);
-            //    {
-            //        data.InformComponents(this, datamodel.ACPrintingPhase.Started);
-            //        _ReportPaginator = new ReportPaginator(this, data);
-            //        try
-            //        {
-            //            _Rsm.SaveAsXaml(_ReportPaginator);
-            //        }
-            //        catch (Exception e)
-            //        {
-            //            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-            //            {
-            //                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-            //                if (e.InnerException != null)
-            //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-            //                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-            //            }
-            //        }
-            //        data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
-            //        _ReportData = null;
-            //        return (_ReportPaginator as ReportPaginator).FlowDoc;
-            //    }
-            //}
+            throw new NotImplementedException();
+            //_ReportData = new List<ReportData>() { data };
 
-            data.InformComponents(this, datamodel.ACPrintingPhase.Started);
-            _ReportPaginator = new ReportPaginator(this, data);
-            //try
+            //data.InformComponents(this, datamodel.ACPrintingPhase.Started);
+            //_ReportPaginator = new ReportPaginator(this, data);
+            //data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
+            //var docpage = _ReportPaginator.GetPage(0);
+            //if (docpage != null && docpage.Visual != null)
             //{
-            //    _Rsm.SaveAsXaml(_ReportPaginator);
+            //    FixedPage fixedPage = docpage.Visual as FixedPage;
+            //    if (fixedPage != null)
+            //        fixedPage.UpdateLayout();
             //}
-            //catch (Exception e)
-            //{
-            //    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-            //    {
-            //        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-            //        if (e.InnerException != null)
-            //            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-            //        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-            //    }
-            //}
-            data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
-            var docpage = _ReportPaginator.GetPage(0);
-            if (docpage != null && docpage.Visual != null)
-            {
-                FixedPage fixedPage = docpage.Visual as FixedPage;
-                if (fixedPage != null)
-                    fixedPage.UpdateLayout();
-            }
-            _ReportData = null;
-            return (_ReportPaginator as ReportPaginator).FlowDoc;
+            //_ReportData = null;
+            //return (_ReportPaginator as ReportPaginator).FlowDoc;
 
         }
 
@@ -559,62 +511,62 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="ms">Dispose memeory stream afterwards</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException">data</exception>
-        public XpsDocument CreateXpsDocument(IEnumerable<ReportData> data)
-        {
-            if (data == null)
-                throw new ArgumentNullException("data");
-            _ReportData = data;
+        //public XpsDocument CreateXpsDocument(IEnumerable<ReportData> data)
+        //{
+        //    if (data == null)
+        //        throw new ArgumentNullException("data");
+        //    _ReportData = data;
 
-            int count = 0;
-            ReportData firstData = null;
-            foreach (ReportData rd in data)
-            {
-                if (firstData == null)
-                    firstData = rd;
-                count++;
-            }
-            if (count == 1)
-            {
-                XpsDocument xpsDoc = CreateXpsDocument(firstData); // we have only one ReportData object -> use the normal ReportPaginator instead
-                _ReportData = null;
-                return xpsDoc;
-            }
+        //    int count = 0;
+        //    ReportData firstData = null;
+        //    foreach (ReportData rd in data)
+        //    {
+        //        if (firstData == null)
+        //            firstData = rd;
+        //        count++;
+        //    }
+        //    if (count == 1)
+        //    {
+        //        XpsDocument xpsDoc = CreateXpsDocument(firstData); // we have only one ReportData object -> use the normal ReportPaginator instead
+        //        _ReportData = null;
+        //        return xpsDoc;
+        //    }
 
-            _Ms = new MemoryStream();
-            _pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
-            //using (Package pkg = Package.Open(ms, FileMode.Create, FileAccess.ReadWrite))
-            {
-                string pack = "pack://report.xps";
-                PackageStore.RemovePackage(new Uri(pack));
-                PackageStore.AddPackage(new Uri(pack), _pkg);
-                _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
-                _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
-                _Rsm = new XpsSerializationManager(_PackPolicy, false);
-                {
-                    if (data != null && data.Any())
-                        data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
-                    _ReportPaginator = new MultipleReportPaginator(this, data);
-                    try
-                    {
-                        _Rsm.SaveAsXaml(_ReportPaginator);
-                    }
-                    catch (Exception e)
-                    {
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        {
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-                            if (e.InnerException != null)
-                                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-                        }
-                    }
-                    if (data != null && data.Any())
-                        data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Completed);
-                    _ReportData = null;
-                    return _XpsDoc;
-                }
-            }
-        }
+        //    _Ms = new MemoryStream();
+        //    _pkg = Package.Open(_Ms, FileMode.Create, FileAccess.ReadWrite);
+        //    //using (Package pkg = Package.Open(ms, FileMode.Create, FileAccess.ReadWrite))
+        //    {
+        //        string pack = "pack://report.xps";
+        //        PackageStore.RemovePackage(new Uri(pack));
+        //        PackageStore.AddPackage(new Uri(pack), _pkg);
+        //        _XpsDoc = new XpsDocument(_pkg, CompressionOption.NotCompressed, pack);
+        //        _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
+        //        _Rsm = new XpsSerializationManager(_PackPolicy, false);
+        //        {
+        //            if (data != null && data.Any())
+        //                data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
+        //            _ReportPaginator = new MultipleReportPaginator(this, data);
+        //            try
+        //            {
+        //                _Rsm.SaveAsXaml(_ReportPaginator);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+        //                {
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
+        //                    if (e.InnerException != null)
+        //                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
+        //                }
+        //            }
+        //            if (data != null && data.Any())
+        //                data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Completed);
+        //            _ReportData = null;
+        //            return _XpsDoc;
+        //        }
+        //    }
+        //}
 
         /// <summary>
         /// Helper method to create page header or footer from flow document template
@@ -622,43 +574,43 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="data">report data</param>
         /// <param name="fileName">file to save XPS to</param>
         /// <returns></returns>
-        public XpsDocument CreateXpsDocument(ReportData data, string fileName)
-        {
-            _ReportData = new List<ReportData>() { data };
-            _pkg = Package.Open(fileName, FileMode.Create, FileAccess.ReadWrite);
-            //using (Package pkg = Package.Open(fileName, FileMode.Create, FileAccess.ReadWrite))
-            {
-                string pack = "pack://report.xps";
-                PackageStore.RemovePackage(new Uri(pack));
-                PackageStore.AddPackage(new Uri(pack), _pkg);
-                _XpsDoc = new XpsDocument(_pkg, _xpsCompressionOption, pack);
-                _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
-                _Rsm = new XpsSerializationManager(_PackPolicy, false);
-                {
-                    data.InformComponents(this, datamodel.ACPrintingPhase.Started);
-                    _ReportPaginator = new ReportPaginator(this, data);
-                    try
-                    {
-                        _Rsm.SaveAsXaml(_ReportPaginator);
-                    }
-                    catch (Exception e)
-                    {
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        {
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-                            if (e.InnerException != null)
-                                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-                        }
-                    }
-                    _Rsm.Commit();
-                    _pkg.Close();
-                    data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
-                    _ReportData = null;
-                }
-                return new XpsDocument(fileName, FileAccess.Read);
-            }
-        }
+        //public XpsDocument CreateXpsDocument(ReportData data, string fileName)
+        //{
+        //    _ReportData = new List<ReportData>() { data };
+        //    _pkg = Package.Open(fileName, FileMode.Create, FileAccess.ReadWrite);
+        //    //using (Package pkg = Package.Open(fileName, FileMode.Create, FileAccess.ReadWrite))
+        //    {
+        //        string pack = "pack://report.xps";
+        //        PackageStore.RemovePackage(new Uri(pack));
+        //        PackageStore.AddPackage(new Uri(pack), _pkg);
+        //        _XpsDoc = new XpsDocument(_pkg, _xpsCompressionOption, pack);
+        //        _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
+        //        _Rsm = new XpsSerializationManager(_PackPolicy, false);
+        //        {
+        //            data.InformComponents(this, datamodel.ACPrintingPhase.Started);
+        //            _ReportPaginator = new ReportPaginator(this, data);
+        //            try
+        //            {
+        //                _Rsm.SaveAsXaml(_ReportPaginator);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+        //                {
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
+        //                    if (e.InnerException != null)
+        //                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
+        //                }
+        //            }
+        //            _Rsm.Commit();
+        //            _pkg.Close();
+        //            data.InformComponents(this, datamodel.ACPrintingPhase.Completed);
+        //            _ReportData = null;
+        //        }
+        //        return new XpsDocument(fileName, FileAccess.Read);
+        //    }
+        //}
 
         /// <summary>
         /// Helper method to create page header or footer from flow document template
@@ -666,101 +618,102 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="data">enumerable report data</param>
         /// <param name="fileName">file to save XPS to</param>
         /// <returns></returns>
-        public XpsDocument CreateXpsDocument(IEnumerable<ReportData> data, string fileName)
-        {
-            if (data == null)
-                throw new ArgumentNullException("data");
-            _ReportData = data;
-            _pkg = Package.Open(fileName, FileMode.Create, FileAccess.ReadWrite);
-            {
-                string pack = "pack://report.xps";
-                PackageStore.RemovePackage(new Uri(pack));
-                PackageStore.AddPackage(new Uri(pack), _pkg);
-                _XpsDoc = new XpsDocument(_pkg, _xpsCompressionOption, pack);
-                _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
-                _Rsm = new XpsSerializationManager(_PackPolicy, false);
-                {
-                    if (data != null && data.Any())
-                        data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
-                    _ReportPaginator = new MultipleReportPaginator(this, data);
-                    try
-                    {
-                        _Rsm.SaveAsXaml(_ReportPaginator);
-                    }
-                    catch (Exception e)
-                    {
-                        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        {
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
-                            if (e.InnerException != null)
-                                datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
-                            datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
-                        }
-                    }
-                    _Rsm.Commit();
-                    _pkg.Close();
-                    if (data != null && data.Any())
-                        data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Completed);
-                    _ReportData = null;
-                    return new XpsDocument(fileName, FileAccess.Read);
-                }
-            }
-        }
+        //public XpsDocument CreateXpsDocument(IEnumerable<ReportData> data, string fileName)
+        //{
+        //    if (data == null)
+        //        throw new ArgumentNullException("data");
+        //    _ReportData = data;
+        //    _pkg = Package.Open(fileName, FileMode.Create, FileAccess.ReadWrite);
+        //    {
+        //        string pack = "pack://report.xps";
+        //        PackageStore.RemovePackage(new Uri(pack));
+        //        PackageStore.AddPackage(new Uri(pack), _pkg);
+        //        _XpsDoc = new XpsDocument(_pkg, _xpsCompressionOption, pack);
+        //        _PackPolicy = new XpsPackagingPolicy(_XpsDoc);
+        //        _Rsm = new XpsSerializationManager(_PackPolicy, false);
+        //        {
+        //            if (data != null && data.Any())
+        //                data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Started);
+        //            _ReportPaginator = new MultipleReportPaginator(this, data);
+        //            try
+        //            {
+        //                _Rsm.SaveAsXaml(_ReportPaginator);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+        //                {
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(10)", e.Message);
+        //                    if (e.InnerException != null)
+        //                        datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(20)", e.InnerException.Message);
+        //                    datamodel.Database.Root.Messages.LogException("ReportDocument", "CreateXpsDocument(30)", e.StackTrace);
+        //                }
+        //            }
+        //            _Rsm.Commit();
+        //            _pkg.Close();
+        //            if (data != null && data.Any())
+        //                data.FirstOrDefault().InformComponents(this, datamodel.ACPrintingPhase.Completed);
+        //            _ReportData = null;
+        //            return new XpsDocument(fileName, FileAccess.Read);
+        //        }
+        //    }
+        //}
 
         public string UpdateXAMLDataFromChangedFlowDoc(FlowDocument changedFlowDoc)
         {
-            if (changedFlowDoc == null)
-                return null;
-            StringBuilder sb = new StringBuilder();
-            XmlWriterSettings settings = new XmlWriterSettings();
-            settings.Indent = true;
-            settings.ConformanceLevel = ConformanceLevel.Document;
-            //settings.OmitXmlDeclaration = true;
-            XamlDesignerSerializationManager dsm = new XamlDesignerSerializationManager(XmlWriter.Create(sb, settings));
-            dsm.XamlWriterMode = XamlWriterMode.Expression;
+            throw new NotImplementedException();
+            //if (changedFlowDoc == null)
+            //    return null;
+            //StringBuilder sb = new StringBuilder();
+            //XmlWriterSettings settings = new XmlWriterSettings();
+            //settings.Indent = true;
+            //settings.ConformanceLevel = ConformanceLevel.Document;
+            ////settings.OmitXmlDeclaration = true;
+            //XamlDesignerSerializationManager dsm = new XamlDesignerSerializationManager(XmlWriter.Create(sb, settings));
+            //dsm.XamlWriterMode = XamlWriterMode.Expression;
 
-            string newXAML = "";
+            //string newXAML = "";
 
-            try
-            {
+            //try
+            //{
 
-                XamlWriter.Save(changedFlowDoc, dsm);
-                newXAML = sb.ToString();
+            //    XamlWriter.Save(changedFlowDoc, dsm);
+            //    newXAML = sb.ToString();
 
 
-                XDocument newXDoc = XDocument.Parse(newXAML);
-                var queryImages = newXDoc.Descendants(string.Format("{0}Image", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace));
-                foreach (XElement xElImage in queryImages)
-                {
-                    XAttribute xAttrTag = xElImage.Attribute("Tag");
-                    XElement xBitmapImage = xElImage.Elements(string.Format("{0}Image.Source", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace)).FirstOrDefault();
-                    if (xAttrTag != null && xBitmapImage != null)
-                    {
-                        xBitmapImage.Remove();
-                        if (xAttrTag.Value.IndexOf("StaticResource") >= 0)
-                        {
-                            xElImage.SetAttributeValue("Source", "{" + xAttrTag.Value + "}");
-                        }
-                    }
-                }
-                sb = new StringBuilder(newXAML.Length, newXAML.Length * 2);
-                XmlWriter writer = XmlWriter.Create(sb, settings);
-                newXDoc.WriteTo(writer);
-                writer.Flush();
-                newXAML = sb.ToString();
-                this.XamlData = newXAML;
-            }
-            catch (Exception e)
-            {
-                string msg = e.Message;
-                if (e.InnerException != null && e.InnerException.Message != null)
-                    msg += " Inner:" + e.InnerException.Message;
+            //    XDocument newXDoc = XDocument.Parse(newXAML);
+            //    var queryImages = newXDoc.Descendants(string.Format("{0}Image", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace));
+            //    foreach (XElement xElImage in queryImages)
+            //    {
+            //        XAttribute xAttrTag = xElImage.Attribute("Tag");
+            //        XElement xBitmapImage = xElImage.Elements(string.Format("{0}Image.Source", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace)).FirstOrDefault();
+            //        if (xAttrTag != null && xBitmapImage != null)
+            //        {
+            //            xBitmapImage.Remove();
+            //            if (xAttrTag.Value.IndexOf("StaticResource") >= 0)
+            //            {
+            //                xElImage.SetAttributeValue("Source", "{" + xAttrTag.Value + "}");
+            //            }
+            //        }
+            //    }
+            //    sb = new StringBuilder(newXAML.Length, newXAML.Length * 2);
+            //    XmlWriter writer = XmlWriter.Create(sb, settings);
+            //    newXDoc.WriteTo(writer);
+            //    writer.Flush();
+            //    newXAML = sb.ToString();
+            //    this.XamlData = newXAML;
+            //}
+            //catch (Exception e)
+            //{
+            //    string msg = e.Message;
+            //    if (e.InnerException != null && e.InnerException.Message != null)
+            //        msg += " Inner:" + e.InnerException.Message;
 
-                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogException("ReportDocument", "UpdateXAMLDataFromChangedFlowDoc", msg);
-            }
+            //    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //        datamodel.Database.Root.Messages.LogException("ReportDocument", "UpdateXAMLDataFromChangedFlowDoc", msg);
+            //}
 
-            return newXAML;
+            //return newXAML;
         }
         #endregion
 
@@ -769,11 +722,11 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// Fire event after a page has been completed
         /// </summary>
         /// <param name="ea">GetPageCompletedEventArgs</param>
-        internal void FireEventGetPageCompleted(GetPageCompletedEventArgs ea)
-        {
-            if (GetPageCompleted != null)
-                GetPageCompleted(this, ea);
-        }
+        //internal void FireEventGetPageCompleted(GetPageCompletedEventArgs ea)
+        //{
+        //    if (GetPageCompleted != null)
+        //        GetPageCompleted(this, ea);
+        //}
 
         /// <summary>
         /// Fire event after a data row has been bound
@@ -799,57 +752,57 @@ namespace gip.core.reporthandler.avui.Flowdoc
 
         private void walker_VisualVisited(object sender, DocumentVisitedEventArgs e)
         {
-            if (!(e.VisitedObject is Image))
-                return;
+            //if (!(e.VisitedObject is Image))
+            //    return;
 
-            DocumentWalker walker = sender as DocumentWalker;
-            if (walker == null)
-                return;
+            //DocumentWalker walker = sender as DocumentWalker;
+            //if (walker == null)
+            //    return;
 
-            List<Image> list = walker.Tag as List<Image>;
-            if (list == null)
-                return;
+            //List<Image> list = walker.Tag as List<Image>;
+            //if (list == null)
+            //    return;
 
-            list.Add((Image)e.VisitedObject);
+            //list.Add((Image)e.VisitedObject);
         }
 
         public void Dispose()
         {
-            if (_MSXaml != null)
-            {
-                _MSXaml.Dispose();
-                _MSXaml = null;
-            }
-            if (_ReportPaginator != null)
-            {
-                _ReportPaginator.Dispose();
-                _ReportPaginator = null;
-            }
-            if (_Rsm != null)
-            {
-                (_Rsm as IDisposable).Dispose();
-                _Rsm = null;
-            }
-            if (_PackPolicy != null)
-            {
-                (_PackPolicy as IDisposable).Dispose();
-                _PackPolicy = null;
-            }
-            if (_XpsDoc != null)
-            {
-                (_XpsDoc as IDisposable).Dispose();
-                _XpsDoc = null;
-            }
-            if (_pkg != null)
-            {
-                (_pkg as IDisposable).Dispose();
-                _pkg = null;
-            }
-            if (_Ms != null)
-            {
-                _Ms.Dispose();
-                _Ms = null;
-            }
+            //if (_MSXaml != null)
+            //{
+            //    _MSXaml.Dispose();
+            //    _MSXaml = null;
+            //}
+            //if (_ReportPaginator != null)
+            //{
+            //    _ReportPaginator.Dispose();
+            //    _ReportPaginator = null;
+            //}
+            //if (_Rsm != null)
+            //{
+            //    (_Rsm as IDisposable).Dispose();
+            //    _Rsm = null;
+            //}
+            //if (_PackPolicy != null)
+            //{
+            //    (_PackPolicy as IDisposable).Dispose();
+            //    _PackPolicy = null;
+            //}
+            //if (_XpsDoc != null)
+            //{
+            //    (_XpsDoc as IDisposable).Dispose();
+            //    _XpsDoc = null;
+            //}
+            //if (_pkg != null)
+            //{
+            //    (_pkg as IDisposable).Dispose();
+            //    _pkg = null;
+            //}
+            //if (_Ms != null)
+            //{
+            //    _Ms.Dispose();
+            //    _Ms = null;
+            //}
         }
         #endregion
 

@@ -1,0 +1,20 @@
+﻿<local:VBWindowDialog x:Class="Document.Editor.GoToDialog"
+        xmlns="https://github.com/avaloniaui" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+        xmlns:local="http://www.iplus-framework.com/xaml"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+    Title="Go To" Icon="goto16.ico" Height="104" Width="256" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner">
+    <Grid Background="#7BFFFFFF">
+        <Fluent:Spinner Header="Line:" Format="0" Value="1" Minimum="1" Margin="10,10,10,0" Name="LineNumberBox" VerticalAlignment="Top" KeyDown="LineNumberBox_KeyDown" ValueChanged="LineNumberBox_ValueChanged" />
+        <Fluent:Button SizeDefinition="Middle" Icon="../../Images/Common/cancel16.png" Header="Cancel" HorizontalAlignment="Right" Margin="0,0,10,10" Name="CancelButton" VerticalAlignment="Bottom" IsCancel="True">
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="Cancel" Text="Cancel and Close the Dialog" Image="../../Images/Common/cancel48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:Button SizeDefinition="Middle" Icon="../../Images/Common/ok16.png" Header="OK" HorizontalAlignment="Right" Margin="0,0,77,10" Name="OKButton" VerticalAlignment="Bottom" IsDefault="True" Click="OKButton_Click">
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="OK" Text="Close the Dialog and Go To" Image="../../Images/Common/ok48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+    </Grid>
+</local:VBWindowDialog>

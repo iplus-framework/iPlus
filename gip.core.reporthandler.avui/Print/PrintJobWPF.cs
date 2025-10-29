@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Windows.Documents;
+using AvRichTextBox;
 using gip.core.reporthandler;
 
 namespace gip.core.reporthandler.avui

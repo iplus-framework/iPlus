@@ -1,12 +1,12 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.Windows;
+
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
     public class BarcodeValue : InlineDocumentValue
     {
-
         #region Properties
 
         public virtual string AI
@@ -14,10 +14,8 @@ namespace gip.core.reporthandler.avui.Flowdoc
             get { return (string)GetValue(AIProperty); }
             set { SetValue(AIProperty, value); }
         }
-        public static readonly DependencyProperty AIProperty = ReportDocument.StringFormatProperty.AddOwner(typeof(BarcodeValue));
-
+        public static readonly AttachedProperty<string> AIProperty = ReportDocument.StringFormatProperty.AddOwner<BarcodeValue>();
 
         #endregion
-
     }
 }

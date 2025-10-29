@@ -4,26 +4,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using gip.core.datamodel;
-using System.Windows.Xps.Packaging;
 using System.IO;
 using System.Transactions;
 using gip.core.layoutengine.avui;
 using gip.core.autocomponent;
-using System.Windows.Controls.Primitives;
-using System.Windows.Documents.Serialization;
 using System.Reflection;
-using System.Printing;
-using System.Windows.Xps;
+using Avalonia.Data;
+using gip.core.layoutengine.avui.Helperclasses;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -51,11 +40,9 @@ namespace gip.core.reporthandler.avui.Flowdoc
 
                     Binding binding2 = new Binding();
                     binding2.Source = dcSource2;
-                    binding2.Path = new PropertyPath(dcPath2);
-                    binding2.NotifyOnSourceUpdated = true;
-                    binding2.NotifyOnTargetUpdated = true;
+                    binding2.Path = dcPath2;
                     binding2.Mode = BindingMode.OneWay;
-                    this.SetBinding(VBReportViewer.DesignerReportDataProperty, binding2);
+                    this.Bind(VBReportViewer.DesignerReportDataProperty, binding2);
                 }
             }
             base.InitVBControl();
@@ -70,8 +57,8 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
-            if (!String.IsNullOrEmpty(VBReportData))
-                BindingOperations.ClearBinding(this, VBReportEditor.DesignerReportDataProperty);
+            //if (!String.IsNullOrEmpty(VBReportData))
+            //    this.ClearBinding(VBReportEditor.DesignerReportDataProperty);
 
             if (_ReportDoc != null)
                 _ReportDoc.Dispose();
@@ -83,56 +70,53 @@ namespace gip.core.reporthandler.avui.Flowdoc
         ReportDocument _ReportDoc;
         public override void LoadFile()
         {
-            if (_ReportDoc != null)
-                _ReportDoc.Dispose();
-            _ReportDoc = null;
-            if (!string.IsNullOrEmpty(ContentFile) && DesignerReportData != null && ContentFile != null)
-            {
-                try
-                {
-                    _ReportDoc = new ReportDocument(this.ContentFile);
-                    if (_ReportDoc != null)
-                    {
-                        XpsDocument xps = _ReportDoc.CreateXpsDocument(DesignerReportData);
-                        if (xps != null)
-                            this.Document = xps.GetFixedDocumentSequence();
-                        else
-                            this.Document = null;
-                    }
-                }
-                catch (Exception e)
-                {
-                    this.Document = null;
+            throw new NotImplementedException("Avalonia TODO.");
+            //if (_ReportDoc != null)
+            //    _ReportDoc.Dispose();
+            //_ReportDoc = null;
+            //if (!string.IsNullOrEmpty(ContentFile) && DesignerReportData != null && ContentFile != null)
+            //{
+            //    try
+            //    {
+            //        _ReportDoc = new ReportDocument(this.ContentFile);
+            //        if (_ReportDoc != null)
+            //        {
+            //            XpsDocument xps = _ReportDoc.CreateXpsDocument(DesignerReportData);
+            //            if (xps != null)
+            //                this.Document = xps.GetFixedDocumentSequence();
+            //            else
+            //                this.Document = null;
+            //        }
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        this.Document = null;
 
-                    string msg = e.Message;
-                    if (e.InnerException != null && e.InnerException.Message != null)
-                        msg += " Inner:" + e.InnerException.Message;
+            //        string msg = e.Message;
+            //        if (e.InnerException != null && e.InnerException.Message != null)
+            //            msg += " Inner:" + e.InnerException.Message;
 
-                    if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
-                        datamodel.Database.Root.Messages.LogException("VBReportViewer", "LoadFile", msg);
-                }
-            }
-            else if (!string.IsNullOrEmpty(ContentFile) && ContentFile.ToUpper().EndsWith(".XPS") && File.Exists(ContentFile))
-            {
-                XpsDocument xpsDoc = new XpsDocument(ContentFile, FileAccess.Read);
-                this.Document = xpsDoc.GetFixedDocumentSequence();
-                xpsDoc.Close();
-            }
+            //        if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == datamodel.ACInitState.Initialized)
+            //            datamodel.Database.Root.Messages.LogException("VBReportViewer", "LoadFile", msg);
+            //    }
+            //}
+            //else if (!string.IsNullOrEmpty(ContentFile) && ContentFile.ToUpper().EndsWith(".XPS") && File.Exists(ContentFile))
+            //{
+            //    XpsDocument xpsDoc = new XpsDocument(ContentFile, FileAccess.Read);
+            //    this.Document = xpsDoc.GetFixedDocumentSequence();
+            //    xpsDoc.Close();
+            //}
         }
 
 
-        public static readonly DependencyProperty VBReportDataProperty
-            = DependencyProperty.Register("VBReportData", typeof(string), typeof(VBReportViewer));
-
+        public static readonly StyledProperty<string> VBReportDataProperty = AvaloniaProperty.Register<VBReportViewer, string>(nameof(VBReportData));
         public string VBReportData
         {
             get { return (string)GetValue(VBReportDataProperty); }
             set { SetValue(VBReportDataProperty, value); }
         }
 
-        public static readonly DependencyProperty DesignerReportDataProperty
-            = DependencyProperty.Register("DesignerReportData", typeof(ReportData), typeof(VBReportViewer), new PropertyMetadata(new PropertyChangedCallback(ReportDataChanged)));
-
+        public static readonly StyledProperty<ReportData> DesignerReportDataProperty = AvaloniaProperty.Register<VBReportViewer, ReportData>(nameof(DesignerReportData));
         public ReportData DesignerReportData
         {
             get
@@ -145,61 +129,63 @@ namespace gip.core.reporthandler.avui.Flowdoc
             }
         }
 
-        private static void ReportDataChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+
+        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (d is VBReportViewer)
+            if (change.Property == DesignerReportDataProperty)
             {
-                VBReportViewer vbContentControl = d as VBReportViewer;
-                vbContentControl.LoadFile();
+                LoadFile();
             }
+            base.OnPropertyChanged(change);
         }
 
-        System.Windows.Xps.XpsDocumentWriter _DocumentWriter = null;
-        protected override void OnPrintCommand()
+        //System.Windows.Xps.XpsDocumentWriter _DocumentWriter = null;
+        protected virtual void OnPrintCommand()
         {
+            throw new NotImplementedException("Avalonia TODO.");
             // get a print dialog, defaulted to default printer and default printer's preferences.
-            PrintDialog printDialog = new PrintDialog();
-            printDialog.PrintQueue = LocalPrintServer.GetDefaultPrintQueue();
-            printDialog.PrintTicket = printDialog.PrintQueue.DefaultPrintTicket;
-            if (_ReportDoc != null)
-            {
-                if (_ReportDoc.AutoSelectPageOrientation.HasValue)
-                    printDialog.PrintTicket.PageOrientation = _ReportDoc.AutoSelectPageOrientation;
-                else
-                {
-                    if (_ReportDoc.PageWidth > _ReportDoc.PageHeight)
-                        printDialog.PrintTicket.PageOrientation = PageOrientation.Landscape;
-                    else
-                        printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
-                }
-            }
+            //PrintDialog printDialog = new PrintDialog();
+            //printDialog.PrintQueue = LocalPrintServer.GetDefaultPrintQueue();
+            //printDialog.PrintTicket = printDialog.PrintQueue.DefaultPrintTicket;
+            //if (_ReportDoc != null)
+            //{
+            //    if (_ReportDoc.AutoSelectPageOrientation.HasValue)
+            //        printDialog.PrintTicket.PageOrientation = _ReportDoc.AutoSelectPageOrientation;
+            //    else
+            //    {
+            //        if (_ReportDoc.PageWidth > _ReportDoc.PageHeight)
+            //            printDialog.PrintTicket.PageOrientation = PageOrientation.Landscape;
+            //        else
+            //            printDialog.PrintTicket.PageOrientation = PageOrientation.Portrait;
+            //    }
+            //}
 
-            // get a reference to the FixedDocumentSequence for the viewer.
-            if (printDialog.ShowDialog() == true)
-            {
-                if (this.Document is FixedDocumentSequence)
-                {
-                    FixedDocumentSequence docSeq = this.Document as FixedDocumentSequence;
-                    // set the print ticket for the document sequence and write it to the printer.
-                    docSeq.PrintTicket = printDialog.PrintTicket;
+            //// get a reference to the FixedDocumentSequence for the viewer.
+            //if (printDialog.ShowDialog() == true)
+            //{
+            //    if (this.Document is FixedDocumentSequence)
+            //    {
+            //        FixedDocumentSequence docSeq = this.Document as FixedDocumentSequence;
+            //        // set the print ticket for the document sequence and write it to the printer.
+            //        docSeq.PrintTicket = printDialog.PrintTicket;
 
-                    _DocumentWriter = PrintQueue.CreateXpsDocumentWriter(printDialog.PrintQueue);
-                    _DocumentWriter.WritingCompleted += new WritingCompletedEventHandler(HandlePrintCompleted);
-                    _DocumentWriter.WritingCancelled += new WritingCancelledEventHandler(HandlePrintCancelled);
-                    _DocumentWriter.WriteAsync(docSeq, printDialog.PrintTicket);
-                }
-                else if (this.Document is FixedDocument)
-                {
-                    FixedDocument docSeq = this.Document as FixedDocument;
-                    // set the print ticket for the document sequence and write it to the printer.
-                    docSeq.PrintTicket = printDialog.PrintTicket;
+            //        _DocumentWriter = PrintQueue.CreateXpsDocumentWriter(printDialog.PrintQueue);
+            //        _DocumentWriter.WritingCompleted += new WritingCompletedEventHandler(HandlePrintCompleted);
+            //        _DocumentWriter.WritingCancelled += new WritingCancelledEventHandler(HandlePrintCancelled);
+            //        _DocumentWriter.WriteAsync(docSeq, printDialog.PrintTicket);
+            //    }
+            //    else if (this.Document is FixedDocument)
+            //    {
+            //        FixedDocument docSeq = this.Document as FixedDocument;
+            //        // set the print ticket for the document sequence and write it to the printer.
+            //        docSeq.PrintTicket = printDialog.PrintTicket;
 
-                    _DocumentWriter = PrintQueue.CreateXpsDocumentWriter(printDialog.PrintQueue);
-                    _DocumentWriter.WritingCompleted += new WritingCompletedEventHandler(HandlePrintCompleted);
-                    _DocumentWriter.WritingCancelled += new WritingCancelledEventHandler(HandlePrintCancelled);
-                    _DocumentWriter.WriteAsync(docSeq, printDialog.PrintTicket);
-                }
-            }
+            //        _DocumentWriter = PrintQueue.CreateXpsDocumentWriter(printDialog.PrintQueue);
+            //        _DocumentWriter.WritingCompleted += new WritingCompletedEventHandler(HandlePrintCompleted);
+            //        _DocumentWriter.WritingCancelled += new WritingCancelledEventHandler(HandlePrintCancelled);
+            //        _DocumentWriter.WriteAsync(docSeq, printDialog.PrintTicket);
+            //    }
+            //}
         }
 
         #region From Reference-Source
@@ -339,15 +325,15 @@ namespace gip.core.reporthandler.avui.Flowdoc
         //    return printTicket;
         //}
 
-        private void HandlePrintCompleted(object sender, WritingCompletedEventArgs e)
-        {
-            CleanUpPrintOperation();
-        }
+        //private void HandlePrintCompleted(object sender, WritingCompletedEventArgs e)
+        //{
+        //    CleanUpPrintOperation();
+        //}
 
-        private void HandlePrintCancelled(object sender, WritingCancelledEventArgs e)
-        {
-            CleanUpPrintOperation();
-        }
+        //private void HandlePrintCancelled(object sender, WritingCancelledEventArgs e)
+        //{
+        //    CleanUpPrintOperation();
+        //}
 
         private void CleanUpPrintOperation()
         {
@@ -362,15 +348,15 @@ namespace gip.core.reporthandler.avui.Flowdoc
             //    CommandManager.InvalidateRequerySuggested();
             //}
 
-            if (_DocumentWriter != null)
-            {
-                _DocumentWriter.WritingCompleted -= new WritingCompletedEventHandler(HandlePrintCompleted);
-                _DocumentWriter.WritingCancelled -= new WritingCancelledEventHandler(HandlePrintCancelled);
-                _DocumentWriter = null;
+            //if (_DocumentWriter != null)
+            //{
+            //    _DocumentWriter.WritingCompleted -= new WritingCompletedEventHandler(HandlePrintCompleted);
+            //    _DocumentWriter.WritingCancelled -= new WritingCancelledEventHandler(HandlePrintCancelled);
+            //    _DocumentWriter = null;
 
-                // Since _documentWriter value is used to determine CanExecute state, we must invalidate that state.
-                CommandManager.InvalidateRequerySuggested();
-            }
+            //    // Since _documentWriter value is used to determine CanExecute state, we must invalidate that state.
+            //    CommandManager.InvalidateRequerySuggested();
+            //}
         }
         #endregion
 

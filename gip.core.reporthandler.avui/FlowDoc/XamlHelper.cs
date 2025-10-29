@@ -1,13 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using AvRichTextBox;
+using System;
 using System.IO;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Xml;
-using System.Windows.Media.Imaging;
-using System.Windows.Media;
 using System.Reflection;
 
 namespace gip.core.reporthandler.avui.Flowdoc
@@ -24,12 +22,14 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns>XAML object or null, if string was empty</returns>
         public static object LoadXamlFromString(string s)
         {
-            if (String.IsNullOrEmpty(s)) return null;
-            using (StringReader stringReader = new StringReader(s))
-            using (XmlReader xmlReader = XmlTextReader.Create(stringReader, new XmlReaderSettings()))
-            {
-                return AvaloniaRuntimeXamlLoader.Load(xmlReader);
-            }
+            if (String.IsNullOrEmpty(s)) 
+                return null;
+            return AvaloniaRuntimeXamlLoader.Load(s);
+            //using (StringReader stringReader = new StringReader(s))
+            //using (XmlReader xmlReader = XmlTextReader.Create(stringReader, new XmlReaderSettings()))
+            //{
+            //    return AvaloniaRuntimeXamlLoader.Load(s);
+            //}
         }
 
         /// <summary>
@@ -39,9 +39,10 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns>cloned table row</returns>
         public static TableRow CloneTableRow(TableRow orig)
         {
-            if (orig == null) return null;
-            string s = XamlWriter.Save(orig);
-            return (TableRow)LoadXamlFromString(s);
+            throw new NotImplementedException();
+            //if (orig == null) return null;
+            //string s = XamlWriter.Save(orig);
+            //return (TableRow)LoadXamlFromString(s);
         }
 
         /// <summary>
@@ -51,9 +52,11 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns>cloned block</returns>
         public static Block CloneBlock(Block orig)
         {
-            if (orig == null) return null;
-            string s = XamlWriter.Save(orig);
-            return (Block)LoadXamlFromString(s);
+            throw new NotImplementedException();
+
+            //if (orig == null) return null;
+            //string s = XamlWriter.Save(orig);
+            //return (Block)LoadXamlFromString(s);
         }
 
         /// <summary>
@@ -61,11 +64,13 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// </summary>
         /// <param name="orig">original UIElement</param>
         /// <returns>cloned UIElement</returns>
-        public static UIElement CloneUIElement(UIElement orig)
+        public static Control CloneUIElement(Control orig)
         {
-            if (orig == null) return null;
-            string s = XamlWriter.Save(orig);
-            return (UIElement)LoadXamlFromString(s);
+            throw new NotImplementedException();
+
+            //if (orig == null) return null;
+            //string s = XamlWriter.Save(orig);
+            //return (UIElement)LoadXamlFromString(s);
         }
 
         /// <summary>
@@ -79,12 +84,13 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="dpiY">Y DPI resolution</param>
         public static void SaveImageBmp(Visual visual, Stream stream, int width, int height, double dpiX, double dpiY)
         {
-            RenderTargetBitmap bitmap = new RenderTargetBitmap((int)(width * dpiX / 96d), (int)(height * dpiY / 96d), dpiX, dpiY, PixelFormats.Pbgra32);
-            bitmap.Render(visual);
+            throw new NotImplementedException();
+            //RenderTargetBitmap bitmap = new RenderTargetBitmap((int)(width * dpiX / 96d), (int)(height * dpiY / 96d), dpiX, dpiY, PixelFormats.Pbgra32);
+            //bitmap.Render(visual);
 
-            BmpBitmapEncoder image = new BmpBitmapEncoder();
-            image.Frames.Add(BitmapFrame.Create(bitmap));
-            image.Save(stream);
+            //BmpBitmapEncoder image = new BmpBitmapEncoder();
+            //image.Frames.Add(BitmapFrame.Create(bitmap));
+            //image.Save(stream);
         }
 
         /// <summary>
@@ -98,15 +104,17 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <param name="dpiY">Y DPI resolution</param>
         public static void SaveImagePng(Visual visual, Stream stream, int width, int height, double dpiX, double dpiY)
         {
-            RenderTargetBitmap bitmap = new RenderTargetBitmap((int)(width * dpiX / 96d), (int)(height * dpiY / 96d), dpiX, dpiY, PixelFormats.Pbgra32);
-            bitmap.Render(visual);
 
-            PngBitmapEncoder image = new PngBitmapEncoder();
-            image.Frames.Add(BitmapFrame.Create(bitmap));
-            image.Save(stream);
+            throw new NotImplementedException();
+            //RenderTargetBitmap bitmap = new RenderTargetBitmap((int)(width * dpiX / 96d), (int)(height * dpiY / 96d), dpiX, dpiY, PixelFormats.Pbgra32);
+            //bitmap.Render(visual);
+
+            //PngBitmapEncoder image = new PngBitmapEncoder();
+            //image.Frames.Add(BitmapFrame.Create(bitmap));
+            //image.Save(stream);
         }
 
-        public static void DetachFromDispatcherExt(this DependencyObject dependencyObject)
+        public static void DetachFromDispatcherExt(this AvaloniaObject dependencyObject)
         {
             MethodInfo mi = dependencyObject.GetType().GetMethod("DetachFromDispatcher", BindingFlags.NonPublic | BindingFlags.Instance);
             if (mi != null)

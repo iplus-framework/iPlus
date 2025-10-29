@@ -1,6 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.Windows;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -18,10 +18,10 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(DictKeyProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for PropertyName.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty DictKeyProperty =
-            DependencyProperty.Register("DictKey", typeof(string), typeof(InlinePropertyValueBase), new UIPropertyMetadata(null));
-       
+        // Using a StyledProperty as the backing store for DictKey. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> DictKeyProperty = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, string>(nameof(DictKey));
+
         /// <summary>
         /// Gets or sets the property name
         /// </summary>
@@ -31,9 +31,9 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(VBContentProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for VBContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty VBContentProperty =
-            DependencyProperty.Register("VBContent", typeof(string), typeof(InlinePropertyValueBase), new UIPropertyMetadata(null));
+        // Using a StyledProperty as the backing store for VBContent. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> VBContentProperty = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, string>(nameof(VBContent));
 
         private string _aggregateGroup = null;
         /// <summary>
@@ -44,36 +44,41 @@ namespace gip.core.reporthandler.avui.Flowdoc
             get { return _aggregateGroup; }
             set { _aggregateGroup = value; }
         }
-		
-		public static readonly DependencyProperty CustomInt01Property = DependencyProperty.Register("CustomInt01", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(-1));
+
+        public static readonly StyledProperty<int> CustomInt01Property = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, int>(nameof(CustomInt01), -1);
         public int CustomInt01
         {
             get { return (int)GetValue(CustomInt01Property); }
             set { SetValue(CustomInt01Property, value); }
         }
 
-        public static readonly DependencyProperty CustomInt02Property = DependencyProperty.Register("CustomInt02", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(-1));
+        public static readonly StyledProperty<int> CustomInt02Property = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, int>(nameof(CustomInt02), -1);
         public int CustomInt02
         {
             get { return (int)GetValue(CustomInt02Property); }
             set { SetValue(CustomInt02Property, value); }
         }
 
-        public static readonly DependencyProperty CustomInt03Property = DependencyProperty.Register("CustomInt03", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(-1));
+        public static readonly StyledProperty<int> CustomInt03Property = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, int>(nameof(CustomInt03), -1);
         public int CustomInt03
         {
             get { return (int)GetValue(CustomInt03Property); }
             set { SetValue(CustomInt03Property, value); }
         }
 
-        public static readonly DependencyProperty XPosProperty = DependencyProperty.Register("XPos", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(0));
+        public static readonly StyledProperty<int> XPosProperty = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, int>(nameof(XPos), 0);
         public int XPos
         {
             get { return (int)GetValue(XPosProperty); }
             set { SetValue(XPosProperty, value); }
         }
 
-        public static readonly DependencyProperty YPosProperty = DependencyProperty.Register("YPos", typeof(int), typeof(InlinePropertyValueBase), new PropertyMetadata(0));
+        public static readonly StyledProperty<int> YPosProperty = 
+            AvaloniaProperty.Register<InlinePropertyValueBase, int>(nameof(YPos), 0);
         public int YPos
         {
             get { return (int)GetValue(YPosProperty); }

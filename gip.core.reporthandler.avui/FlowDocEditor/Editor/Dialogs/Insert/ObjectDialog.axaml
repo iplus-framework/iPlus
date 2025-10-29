@@ -1,0 +1,26 @@
+﻿<local:VBWindowDialog x:Class="Document.Editor.ObjectDialog"
+        xmlns="https://github.com/avaloniaui" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+          xmlns:local="http://www.iplus-framework.com/xaml"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+    Title="Insert Object" Height="255" Width="283" ResizeMode="NoResize" ShowInTaskbar="False" WindowStartupLocation="CenterOwner" Icon="object.ico">
+    <Grid Background="#7BFFFFFF">
+        <StackPanel Margin="0,0,0,44" Name="StackPanel1" Background="#3FFFFFFF" Opacity="1">
+            <Fluent:RadioButton Header="Button" Foreground="Black" Name="O_Button" IsChecked="True" HorizontalContentAlignment="Center" />
+            <Fluent:RadioButton Header="Radio Button" Foreground="Black" Name="O_RadioButton" HorizontalContentAlignment="Center" />
+            <Fluent:RadioButton Header="Check Box" Foreground="Black" Name="O_CheckBox" HorizontalContentAlignment="Center" />
+            <Fluent:RadioButton Header="Text Block" Foreground="Black" Name="O_TextBlock" HorizontalContentAlignment="Center" />
+        </StackPanel>
+        <Fluent:Button SizeDefinition="Middle" Icon="../../Images/Common/cancel16.png" Header="Cancel" Margin="0,0,10,10" Name="CancelButton" VerticalAlignment="Bottom" HorizontalAlignment="Right" IsCancel="True" Click="CancelButton_Click" >
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="Cancel" Text="Cancel and Close the Dialog" Image="../../Images/Common/cancel48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:Button SizeDefinition="Middle" Icon="../../Images/Common/ok16.png" Header="OK" HorizontalAlignment="Right" Margin="0,0,77,10" Name="OKButton" VerticalAlignment="Bottom" Click="OKButton_Click">
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="OK" Text="Close the Dialog and Insert Object" Image="../../Images/Common/ok48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:Button SizeDefinition="Middle" Icon="../../Images/Insert/Object/properties16.png" Header="Properties" HorizontalAlignment="Left" Margin="10,0,0,10" Name="Button1" VerticalAlignment="Bottom" Click="Button1_Click"/>
+    </Grid>
+</local:VBWindowDialog>

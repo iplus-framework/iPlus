@@ -5,10 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Xml;
 using System.Xml.Schema;
-using System.Windows.Controls;
 using gip.core.layoutengine.avui;
 
 namespace gip.core.reporthandler.avui
@@ -23,18 +21,19 @@ namespace gip.core.reporthandler.avui
 
         public static void RunTool()
         {
-            CodeCompletionXsdGenerator gen = new CodeCompletionXsdGenerator();
-            CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\..\..\";
+            throw new NotImplementedException("Avalonia TODO.");
+            //CodeCompletionXsdGenerator gen = new CodeCompletionXsdGenerator();
+            //CodeCompletionXsdGenerator.baseDir = AppContext.BaseDirectory + @"..\..\..\..\";
 
-            XmlSchemaImport importSchema = new XmlSchemaImport();
-            importSchema.Namespace = CodeCompletionXsdGenerator.msNs.Name;
-            importSchema.SchemaLocation = "pack://application:,,,/gip.core.layoutengine.avui;component/VBXMLEditorSchemas/XamlPresentation2006.xsd"; ;
+            //XmlSchemaImport importSchema = new XmlSchemaImport();
+            //importSchema.Namespace = CodeCompletionXsdGenerator.msNs.Name;
+            //importSchema.SchemaLocation = "pack://application:,,,/gip.core.layoutengine.avui;component/VBXMLEditorSchemas/XamlPresentation2006.xsd"; ;
 
-            List<Tuple<XmlSchemaImport, XmlQualifiedName>> importSchemaList = new List<Tuple<XmlSchemaImport, XmlQualifiedName>>();
-            importSchemaList.Add(new Tuple<XmlSchemaImport, XmlQualifiedName>(importSchema, CodeCompletionXsdGenerator.msNs));
+            //List<Tuple<XmlSchemaImport, XmlQualifiedName>> importSchemaList = new List<Tuple<XmlSchemaImport, XmlQualifiedName>>();
+            //importSchemaList.Add(new Tuple<XmlSchemaImport, XmlQualifiedName>(importSchema, CodeCompletionXsdGenerator.msNs));
 
-            gen.RunTool("gip.core.reporthandler", vbrNs, new Type[] { typeof(FrameworkContentElement), typeof(Image) }, importSchemaList, "VBReportItems",
-                        null, CodeCompletionXsdGenerator.baseDir + vbrSchemaPath);
+            //gen.RunTool("gip.core.reporthandler", vbrNs, new Type[] { typeof(FrameworkContentElement), typeof(Image) }, importSchemaList, "VBReportItems",
+            //            null, CodeCompletionXsdGenerator.baseDir + vbrSchemaPath);
         }
     }
 }

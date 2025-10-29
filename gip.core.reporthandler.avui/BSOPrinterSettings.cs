@@ -1,13 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using gip.core.autocomponent;
+using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Drawing.Printing;
 using System.Linq;
-using gip.core.reporthandler;
 
 namespace gip.core.reporthandler.avui
 {

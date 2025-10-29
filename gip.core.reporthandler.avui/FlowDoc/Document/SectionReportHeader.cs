@@ -1,8 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
-using System.Windows;
-using System.Windows.Documents;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -23,9 +21,9 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(PageHeaderHeightProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for PageHeaderHeight.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty PageHeaderHeightProperty =
-            DependencyProperty.Register("PageHeaderHeight", typeof(double), typeof(ReportProperties), new UIPropertyMetadata(2.0d));
+        // Using a StyledProperty as the backing store for PageHeaderHeight. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<double> PageHeaderHeightProperty =
+            AvaloniaProperty.Register<SectionReportHeader, double>(nameof(PageHeaderHeight), 2.0d);
 
 
         public bool ShowHeaderOnFirstPage
@@ -34,9 +32,9 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(ShowHeaderOnFirstPageProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ShowHeaderOnFirstPage.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ShowHeaderOnFirstPageProperty =
-            DependencyProperty.Register("ShowHeaderOnFirstPage", typeof(bool), typeof(ReportProperties), new PropertyMetadata(true));
+        // Using a StyledProperty as the backing store for ShowHeaderOnFirstPage. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<bool> ShowHeaderOnFirstPageProperty =
+            AvaloniaProperty.Register<SectionReportHeader, bool>(nameof(ShowHeaderOnFirstPage), true);
 
 
     }

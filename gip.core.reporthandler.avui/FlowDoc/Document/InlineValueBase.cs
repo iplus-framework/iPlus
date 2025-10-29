@@ -1,9 +1,10 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using System;
-using System.Windows;
-using System.Windows.Documents;
 using System.Globalization;
+using Avalonia;
+using Avalonia.Controls.Documents;
+using AvRichTextBox;
 using gip.core.datamodel;
 
 namespace gip.core.reporthandler.avui.Flowdoc
@@ -18,28 +19,28 @@ namespace gip.core.reporthandler.avui.Flowdoc
             get { return (string)GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
-        public static readonly DependencyProperty StringFormatProperty = ReportDocument.StringFormatProperty.AddOwner(typeof(InlineValueBase));
+        public static readonly AttachedProperty<string> StringFormatProperty = ReportDocument.StringFormatProperty.AddOwner<InlineValueBase>();
 
         public virtual string CultureInfo
         {
             get { return (string)GetValue(CultureInfoProperty); }
             set { SetValue(CultureInfoProperty, value); }
         }
-        public static readonly DependencyProperty CultureInfoProperty = ReportDocument.CultureInfoProperty.AddOwner(typeof(InlineValueBase));
+        public static readonly AttachedProperty<string> CultureInfoProperty = ReportDocument.StringFormatProperty.AddOwner<InlineValueBase>();
 
         public virtual int MaxLength
         {
             get { return (int)GetValue(MaxLengthProperty); }
             set { SetValue(MaxLengthProperty, value); }
         }
-        public static readonly DependencyProperty MaxLengthProperty = ReportDocument.MaxLengthProperty.AddOwner(typeof(InlineValueBase));
+        public static readonly AttachedProperty<int> MaxLengthProperty = ReportDocument.MaxLengthProperty.AddOwner<InlineValueBase>();
 
         public virtual int Truncate
         {
             get { return (int)GetValue(TruncateProperty); }
             set { SetValue(TruncateProperty, value); }
         }
-        public static readonly DependencyProperty TruncateProperty = ReportDocument.TruncateProperty.AddOwner(typeof(InlineValueBase));
+        public static readonly AttachedProperty<int> TruncateProperty = ReportDocument.TruncateProperty.AddOwner<InlineValueBase>();
 
         public int FontWidth
         {
@@ -47,9 +48,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(FontWidthProperty, value); }
         }
 
-        public static readonly DependencyProperty FontWidthProperty =
-            DependencyProperty.Register("FontWidth", typeof(int), typeof(InlineValueBase), new PropertyMetadata(0));
-
+        public static readonly StyledProperty<int> FontWidthProperty = AvaloniaProperty.Register<InlineValueBase, int>(nameof(FontWidth));
 
 
         /// <summary>
@@ -61,24 +60,24 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set 
             { 
                 SetValue(ValueProperty, value);
-                if (value is InlineUIContainer && this.Parent is Paragraph)
-                    ((Paragraph)this.Parent).Inlines.Add(value as InlineUIContainer);
-                else
-                {
-                    if (!string.IsNullOrEmpty(Text) && Text != "<NULL>" && value != null)
-                    {
-                        Type valueType = value.GetType();
-                        if (!valueType.IsPrimitive)
-                            return;
-                    }
-                    Text = FormatValue(value, StringFormat, CultureInfo, MaxLength, Truncate);
-                }
+                //if (value is InlineUIContainer && this.Parent is Paragraph)
+                //    ((Paragraph)this.Parent).Inlines.Add(value as InlineUIContainer);
+                //else
+                //{
+                //    if (!string.IsNullOrEmpty(Text) && Text != "<NULL>" && value != null)
+                //    {
+                //        Type valueType = value.GetType();
+                //        if (!valueType.IsPrimitive)
+                //            return;
+                //    }
+                //    Text = FormatValue(value, StringFormat, CultureInfo, MaxLength, Truncate);
+                //}
             }
         }
 
         // Using a DependencyProperty as the backing store for Value.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ValueProperty =
-            DependencyProperty.Register(Const.Value, typeof(object), typeof(InlineValueBase), new UIPropertyMetadata(null));
+
+        public static readonly StyledProperty<object> ValueProperty = AvaloniaProperty.Register<InlineValueBase, object>(nameof(Const.Value));
 
         ///// <summary>
         ///// Identifies the ValueChanged routed event.

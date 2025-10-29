@@ -1,10 +1,12 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+//using Avalonia.Controls.Documents;
+using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using AvRichTextBox;
+using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Documents;
-using System.Windows.Controls;
+using System.Linq;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -125,7 +127,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
             List<T> res = new List<T>();
             if (inlines != null && inlines.Count > 0)
             {
-                Inline il = inlines.FirstInline;
+                Inline il = inlines.FirstOrDefault();
                 while (il != null)
                 {
                     if (il is T) res.Add(il as T);
@@ -140,7 +142,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
                             if (eventArgs.Handled)
                                 break;
                         }
-                        il = il.NextInline;
+                        il = il.NextInline();
                         continue;
                     }
 
@@ -157,7 +159,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
                         }
 
                         res.AddRange(TraverseInlines<T>(sp.Inlines, recursionDepth));
-                        il = il.NextInline;
+                        il = il.NextInline();
                         continue;
                     }
 
@@ -180,10 +182,10 @@ namespace gip.core.reporthandler.avui.Flowdoc
                                 res.AddRange(TraverseInlines<T>(tb.Inlines, recursionDepth));
                         }
 
-                        il = il.NextInline;
+                        il = il.NextInline();
                         continue;
                     }
-                    Figure fg = il as Figure;
+                    Figure fg = (Figure)(object)il; //as Figure;
                     if (fg != null)
                     {
                         if (VisualVisited != null)
@@ -195,7 +197,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
                         }
                         res.AddRange(TraverseBlockCollection<T>(fg.Blocks, recursionDepth));
                     }
-                    il = il.NextInline;
+                    il = il.NextInline();
                 }
             }
             return res;
@@ -209,7 +211,8 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <returns>list of inlines</returns>
         public List<T> TraverseParagraph<T>(Paragraph p, int recursionDepth) where T : class
         {
-            return TraverseInlines<T>(p.Inlines, recursionDepth);
+            throw new NotImplementedException();
+            //return TraverseInlines<T>(p.Inlines, recursionDepth);
         }
 
         /// <summary>
@@ -263,7 +266,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
                     continue;
                 }
 
-                Section s = b as Section;
+                Section s = (Section)(object)b; //b as Section;
                 if (s != null)
                 {
                     if (VisualVisited != null)

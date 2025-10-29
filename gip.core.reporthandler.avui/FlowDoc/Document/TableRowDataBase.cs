@@ -1,8 +1,8 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.Windows.Documents;
-using System.Windows;
+
 using System;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -76,41 +76,40 @@ namespace gip.core.reporthandler.avui.Flowdoc
             return _ColumnWidthValues[index];
         }
 
-
         public virtual string StringFormat
         {
             get { return (string)GetValue(StringFormatProperty); }
             set { SetValue(StringFormatProperty, value); }
         }
-        public static readonly DependencyProperty StringFormatProperty = ReportDocument.StringFormatProperty.AddOwner(typeof(TableRowDataBase));
+        public static readonly AttachedProperty<string> StringFormatProperty = ReportDocument.StringFormatProperty.AddOwner<TableRowDataBase>();
 
         public virtual int MaxLength
         {
             get { return (int)GetValue(MaxLengthProperty); }
             set { SetValue(MaxLengthProperty, value); }
         }
-        public static readonly DependencyProperty MaxLengthProperty = ReportDocument.MaxLengthProperty.AddOwner(typeof(TableRowDataBase));
+        public static readonly AttachedProperty<int> MaxLengthProperty = ReportDocument.MaxLengthProperty.AddOwner<TableRowDataBase>();
 
         public virtual int Truncate
         {
             get { return (int)GetValue(TruncateProperty); }
             set { SetValue(TruncateProperty, value); }
         }
-        public static readonly DependencyProperty TruncateProperty = ReportDocument.TruncateProperty.AddOwner(typeof(TableRowDataBase));
+        public static readonly AttachedProperty<int> TruncateProperty = ReportDocument.TruncateProperty.AddOwner<TableRowDataBase>();
 
         public virtual string CultureInfo
         {
             get { return (string)GetValue(CultureInfoProperty); }
             set { SetValue(CultureInfoProperty, value); }
         }
-        public static readonly DependencyProperty CultureInfoProperty = ReportDocument.CultureInfoProperty.AddOwner(typeof(TableRowDataBase));
+        public static readonly AttachedProperty<string> CultureInfoProperty = ReportDocument.CultureInfoProperty.AddOwner<TableRowDataBase>();
 
         public virtual bool BreakPageBeforeNextRow
         {
             get { return (bool)GetValue(BreakPageBeforeNextRowProperty); }
             set { SetValue(BreakPageBeforeNextRowProperty, value); }
         }
-        public static readonly DependencyProperty BreakPageBeforeNextRowProperty = DependencyProperty.Register("BreakPageBeforeNextRow", typeof(bool), typeof(TableRowDataBase));
-
+        public static readonly StyledProperty<bool> BreakPageBeforeNextRowProperty = 
+            AvaloniaProperty.Register<TableRowDataBase, bool>(nameof(BreakPageBeforeNextRow));
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
+using AvRichTextBox;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
@@ -12,7 +13,7 @@ using System.Threading.Tasks;
 namespace gip.core.layoutengine.avui
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFlowDocument'}de{'VBFlowDocument'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBFlowDocument : Control  // Avalonia doesn't have FlowDocument, using Control as base
+    public class VBFlowDocument : FlowDocument  // Avalonia doesn't have FlowDocument, using Control as base
     {
 
         #region Properties

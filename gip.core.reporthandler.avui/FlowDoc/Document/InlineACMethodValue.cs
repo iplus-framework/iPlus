@@ -1,11 +1,11 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using Avalonia;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -28,11 +28,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
             get { return (int)GetValue(ParameterNameIndexProperty); }
             set { SetValue(ParameterNameIndexProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for ParameterNameIndex.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ParameterNameIndexProperty =
-            DependencyProperty.Register("ParameterNameIndex", typeof(int), typeof(InlineACMethodValue));
-
+        public static readonly StyledProperty<int> ParameterNameIndexProperty = AvaloniaProperty.Register<InlineACMethodValue, int>(nameof(ParameterNameIndex));
         
     }
 }

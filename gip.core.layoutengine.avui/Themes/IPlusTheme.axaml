@@ -24,5 +24,6 @@
       </ResourceDictionary.ThemeDictionaries>-->
     </ResourceDictionary>
   </Styles.Resources>
+  <StyleInclude Source="avares://gip.ext.designer.avui/themes/generic.axaml" />
   <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/Controls.axaml" />
 </Styles>

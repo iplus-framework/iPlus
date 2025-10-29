@@ -1,15 +1,9 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
-using System.Collections.Generic;
+using Avalonia;
+using Avalonia.Controls;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Documents;
-using System.Windows.Markup;
-using System.Windows.Controls;
+
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -26,9 +20,9 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(VBContentProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for VBContent.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty VBContentProperty =
-            DependencyProperty.Register("VBContent", typeof(string), typeof(ConfigurationMethod));
+        // Using a StyledProperty as the backing store for VBContent. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> VBContentProperty = 
+            AvaloniaProperty.Register<ConfigurationMethod, string>(nameof(VBContent));
 
 
         public string MethodName

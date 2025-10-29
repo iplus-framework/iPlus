@@ -1,0 +1,16 @@
+﻿<UserControl x:Class="Document.Editor.SymbolPanel"
+             xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"  xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent" mc:Ignorable="d" >
+    <Fluent:Gallery Name="TableGrid" ScrollViewer.VerticalScrollBarVisibility="Hidden" Orientation="Horizontal" GroupBy="Tag" Selectable="False">
+        <TextBlock Name="DollarButton" Text="$" Height="16" Width="16" Tag="Currency" MouseDown="DollarButton_MouseDown" />
+        <TextBlock Name="CentButton" Text="¢" Height="16" Width="16" Tag="Currency" MouseDown="CentButton_MouseDown" />
+        <TextBlock Name="PoundButton" Text="£" Height="16" Width="16" Tag="Currency" MouseDown="PoundButton_MouseDown" />
+        <TextBlock Name="YenButton" Text="¥" Height="16" Width="16" Tag="Currency" MouseDown="YenButton_MouseDown" />
+        <TextBlock Name="EuroButton" Text="€" Height="16" Width="16" Tag="Currency" MouseDown="EuroButton_MouseDown" />
+        <TextBlock Name="CopyrightButton" Text="©" Height="16" Width="16" Tag="Misc" MouseDown="CopyrightButton_MouseDown" />
+        <TextBlock Name="RegisteredTrademarkButton" Text="®" Height="16" Width="16" Tag="Misc" MouseDown="RegisteredTrademarkButton_MouseDown" />
+        <TextBlock Name="TrademarkButton" Text="™" Height="16" Width="16" Tag="Misc" MouseDown="TrademarkButton_MouseDown" />
+        <TextBlock Name="SuperscriptOneButton" Text="¹" Height="16" Width="16" MouseDown="SuperscriptOneButton_MouseDown" />
+        <TextBlock Name="SuperscriptTwoButton" Text="²" Height="16" Width="16" MouseDown="SuperscriptTwoButton_MouseDown" />
+        <TextBlock Name="SuperscriptThreeButton" Text="³" Height="16" Width="16" MouseDown="SuperscriptThreeButton_MouseDown" />
+    </Fluent:Gallery>
+</UserControl>

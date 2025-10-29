@@ -1,7 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.Windows.Documents;
-using System.Windows;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -20,17 +19,14 @@ namespace gip.core.reporthandler.avui.Flowdoc
         {
         }
 
-
-
         public bool Configuration
         {
             get { return (bool)GetValue(ConfigurationProperty); }
             set { SetValue(ConfigurationProperty, value); }
         }
 
-        public static readonly DependencyProperty ConfigurationProperty =
-            DependencyProperty.Register("Configuration", typeof(bool), typeof(TableRowData), new PropertyMetadata(false));
-
-        
+        // Using a StyledProperty as the backing store for Configuration. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<bool> ConfigurationProperty = 
+            AvaloniaProperty.Register<TableRowData, bool>(nameof(Configuration), false);
     }
 }

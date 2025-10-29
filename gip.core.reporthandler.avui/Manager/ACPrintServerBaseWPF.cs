@@ -1,16 +1,13 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using gip.core.autocomponent;
+using Avalonia.Controls.Documents;
+using AvRichTextBox;
+using gip.core.autocomponent;
 using gip.core.datamodel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Documents;
-using gip.core.reporthandler.avui.Flowdoc;
 using gip.core.layoutengine.avui;
-using gip.core.reporthandler;
+using gip.core.reporthandler.avui.Flowdoc;
+using System;
+using System.Text;
 
 namespace gip.core.reporthandler.avui
 {
@@ -92,7 +89,8 @@ namespace gip.core.reporthandler.avui
 
         public virtual void OnRenderFlowDocument(PrintJob printJob, FlowDocument flowDoc)
         {
-            OnRenderBlocks(printJob, flowDoc.Blocks, BlockDocumentPosition.General);
+            throw new NotImplementedException();
+            //OnRenderBlocks(printJob, flowDoc.Blocks, BlockDocumentPosition.General);
         }
 
         protected void OnRenderBlocks(PrintJob printJob, BlockCollection blocks, BlockDocumentPosition position)
@@ -104,12 +102,14 @@ namespace gip.core.reporthandler.avui
         protected void OnRenderBlock(PrintJob printJob, Block block, BlockDocumentPosition position)
         {
             OnRenderBlockHeader(printJob, block, position);
-            if (block is SectionReportHeader)
-                OnRenderSectionReportHeader(printJob, (SectionReportHeader)block);
-            else if (block is SectionReportFooter)
-                OnRenderSectionReportFooter(printJob, (SectionReportFooter)block);
-            else if (block is SectionDataGroup)
-                OnRenderSectionDataGroup(printJob, (SectionDataGroup)block);
+            
+            TextElement te = (TextElement)(object)block; // Temporary solution because AvRichTextBox is wrong implemented without Avalonia objects 
+            if (te is SectionReportHeader)
+                OnRenderSectionReportHeader(printJob, (SectionReportHeader)te);
+            else if (te is SectionReportFooter)
+                OnRenderSectionReportFooter(printJob, (SectionReportFooter)te);
+            else if (te is SectionDataGroup)
+                OnRenderSectionDataGroup(printJob, (SectionDataGroup)te);
             else if (block is Table)
                 OnRenderSectionTable(printJob, (Table)block);
             else if (block is Paragraph)

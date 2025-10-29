@@ -1,15 +1,12 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
+using Avalonia;
+using System;
+
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
-    public class ConfigurationParameter : DependencyObject
+    public class ConfigurationParameter : StyledElement
     {
         public ConfigurationParameter()
         {
@@ -22,10 +19,8 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(ParameterNameProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for ParametarName.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ParameterNameProperty =
-            DependencyProperty.Register("ParameterName", typeof(string), typeof(ConfigurationParameter));
-
-        
+        // Using a StyledProperty as the backing store for ParameterName. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<string> ParameterNameProperty = 
+            AvaloniaProperty.Register<ConfigurationParameter, string>(nameof(ParameterName));
     }
 }

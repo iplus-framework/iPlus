@@ -1,0 +1,21 @@
+﻿<local:VBWindowDialog x:Class="Document.Editor.VideoDialog"
+        xmlns="https://github.com/avaloniaui" 
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
+          xmlns:local="http://www.iplus-framework.com/xaml"
+        xmlns:Fluent="clr-namespace:Fluent;assembly=Fluent"
+    Title="Video" Icon="video16.ico" Height="132" Width="240" WindowStartupLocation="CenterOwner" ResizeMode="NoResize">
+    <Grid Background="#7BFFFFFF">
+        <Fluent:Button SizeDefinition="Middle" Icon="../../Images/Common/cancel16.png" Header="Cancel" HorizontalAlignment="Right" Margin="0,0,10,10" Name="CancelButton" VerticalAlignment="Bottom" IsCancel="True">
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="Cancel" Text="Cancel and Close the Dialog" Image="../../Images/Common/cancel48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:Button SizeDefinition="Middle" Header="OK" HorizontalAlignment="Right" Margin="0,0,77,10" Name="OKButton" VerticalAlignment="Bottom" IsEnabled="False" IsDefault="True" Click="OKButton_Click" >
+            <Fluent:Button.ToolTip>
+                <Fluent:ScreenTip Title="OK" Text="Close the Dialog and Insert Video" Image="../../Images/Common/ok48.png" />
+            </Fluent:Button.ToolTip>
+        </Fluent:Button>
+        <Fluent:Spinner Header="Width:" Format="0 px" Minimum="1" Margin="10,10,10,0" Name="TextBox1" VerticalAlignment="Top" ValueChanged="TextBox1_ValueChanged"/>
+        <Fluent:Spinner Header="Height:" Format="0 px" Minimum="1" Margin="10,37,10,0" Name="TextBox2" VerticalAlignment="Top"  ValueChanged="TextBox1_ValueChanged"/>
+    </Grid>
+</local:VBWindowDialog>

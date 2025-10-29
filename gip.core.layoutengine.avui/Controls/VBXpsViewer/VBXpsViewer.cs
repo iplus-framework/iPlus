@@ -20,11 +20,12 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-
+        protected bool _Initialized = false;
         protected override void OnInitialized()
         {
             base.OnInitialized();
             this.VBContentIsXML = false;
+            _Initialized = true;
         }
 
         public override void LoadFile()

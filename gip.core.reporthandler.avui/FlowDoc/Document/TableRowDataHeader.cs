@@ -1,12 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Documents;
+using Avalonia;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {
@@ -25,10 +19,8 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set { SetValue(RepeatTableHeaderOnNewPageProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for RepeatTableHeaderOnNewPage.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty RepeatTableHeaderOnNewPageProperty =
-            DependencyProperty.Register("RepeatTableHeaderOnNewPage", typeof(bool), typeof(TableRowDataHeader), new PropertyMetadata(false));
-
-
+        // Using a StyledProperty as the backing store for RepeatTableHeaderOnNewPage. This enables animation, styling, binding, etc...
+        public static readonly StyledProperty<bool> RepeatTableHeaderOnNewPageProperty = 
+            AvaloniaProperty.Register<TableRowDataHeader, bool>(nameof(RepeatTableHeader), false);
     }
 }

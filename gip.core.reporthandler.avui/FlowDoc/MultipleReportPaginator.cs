@@ -2,8 +2,7 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Documents;
+using Avalonia;
 using gip.core.autocomponent;
 
 namespace gip.core.reporthandler.avui.Flowdoc
@@ -23,27 +22,28 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <exception cref="ArgumentException">Need at least two ReportData objects</exception>
         public MultipleReportPaginator(ReportDocument report, IEnumerable<ReportData> data)
         {
-            if (data == null) 
-                throw new ArgumentException("Need at least two ReportData objects");
+            throw new NotImplementedException();
+            //if (data == null) 
+            //    throw new ArgumentException("Need at least two ReportData objects");
 
-            // create a list of report paginators and compute page counts
-            _pageCount = 0;
-            int dataCount = 0;
-            foreach (ReportData rd in data)
-            {
-                if (rd == null) 
-                    continue;
-                ReportPaginator paginator = new ReportPaginator(report, rd);
-                _reportPaginators.Add(paginator);
-                DocumentPage dp = paginator.GetPage(0);
-                if ((dp != DocumentPage.Missing) && (dp.Size != Size.Empty)) 
-                    _pageSize = paginator.PageSize;
-                _firstPages.Add(dp); // just cache the generated first page
-                _pageCount += paginator.PageCount;
-                dataCount++;
-            }
-            if ((_reportPaginators.Count <= 0) || (dataCount < 2)) 
-                throw new ArgumentException("Need at least two ReportData objects");
+            //// create a list of report paginators and compute page counts
+            //_pageCount = 0;
+            //int dataCount = 0;
+            //foreach (ReportData rd in data)
+            //{
+            //    if (rd == null) 
+            //        continue;
+            //    ReportPaginator paginator = new ReportPaginator(report, rd);
+            //    _reportPaginators.Add(paginator);
+            //    DocumentPage dp = paginator.GetPage(0);
+            //    if ((dp != DocumentPage.Missing) && (dp.Size != Size.Empty)) 
+            //        _pageSize = paginator.PageSize;
+            //    _firstPages.Add(dp); // just cache the generated first page
+            //    _pageCount += paginator.PageCount;
+            //    dataCount++;
+            //}
+            //if ((_reportPaginators.Count <= 0) || (dataCount < 2)) 
+            //    throw new ArgumentException("Need at least two ReportData objects");
         }
         #endregion
 
@@ -54,7 +54,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <summary>
         /// Determines if the current page count is valid
         /// </summary>
-        public override bool IsPageCountValid
+        public bool IsPageCountValid
         {
             get { return true; }
         }
@@ -63,16 +63,16 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <summary>
         /// Gets the total page count
         /// </summary>
-        public override int PageCount
+        public int PageCount
         {
             get { return _pageCount; }
         }
 
-        private Size _pageSize = Size.Empty;
+        private Size _pageSize = new Size();
         /// <summary>
         /// Gets or sets the page size
         /// </summary>
-        public override Size PageSize
+        public Size PageSize
         {
             get { return _pageSize; }
             set { _pageSize = value; }
@@ -81,7 +81,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// <summary>
         /// We don't have only one paginator source
         /// </summary>
-        public override IDocumentPaginatorSource Source
+        public IDocumentPaginatorSource Source
         {
             get { return null; }
         }
@@ -93,33 +93,34 @@ namespace gip.core.reporthandler.avui.Flowdoc
         /// </summary>
         /// <param name="pageNumber">page number</param>
         /// <returns>parsed DocumentPage</returns>
-        public override DocumentPage GetPage(int pageNumber)
+        public virtual DocumentPage GetPage(int pageNumber)
         {
+            throw new NotImplementedException();
             // find the appropriate paginator for the page
-            int currentPage = 0;
-            int paginatorIndex = 0;
-            ReportPaginator pagePaginator = null;
-            foreach (ReportPaginator paginator in _reportPaginators)
-            {
-                int pageCount = paginator.PageCount;
-                if (pageNumber >= currentPage + pageCount)
-                {
-                    currentPage += pageCount;
-                    paginatorIndex++;
-                    continue;
-                }
-                pagePaginator = paginator;
-                break;
-            }
-            if (pagePaginator == null)
-                return DocumentPage.Missing;
+            //int currentPage = 0;
+            //int paginatorIndex = 0;
+            //ReportPaginator pagePaginator = null;
+            //foreach (ReportPaginator paginator in _reportPaginators)
+            //{
+            //    int pageCount = paginator.PageCount;
+            //    if (pageNumber >= currentPage + pageCount)
+            //    {
+            //        currentPage += pageCount;
+            //        paginatorIndex++;
+            //        continue;
+            //    }
+            //    pagePaginator = paginator;
+            //    break;
+            //}
+            //if (pagePaginator == null)
+            //    return DocumentPage.Missing;
 
-            DocumentPage dp = null;
-            if (pageNumber == 0) dp = _firstPages[paginatorIndex]; else dp = pagePaginator.GetPage(pageNumber - currentPage);
-            if (dp == DocumentPage.Missing)
-                return DocumentPage.Missing;
-            _pageSize = dp.Size;
-            return dp;
+            //DocumentPage dp = null;
+            //if (pageNumber == 0) dp = _firstPages[paginatorIndex]; else dp = pagePaginator.GetPage(pageNumber - currentPage);
+            //if (dp == DocumentPage.Missing)
+            //    return DocumentPage.Missing;
+            //_pageSize = dp.Size;
+            //return dp;
         }
 
         public override void Dispose()
