@@ -18,7 +18,7 @@
                   <Canvas Width="137.28" Height="166.843">
                     <Ellipse x:Name="Ellipse" Width="98.4145" Height="91.6453" Canvas.Left="1.33813" Canvas.Top="68.3547" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100">
                       <Ellipse.Effect>
-                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                        <DropShadowEffect BlurRadius="8" OffsetX="3.77953" OffsetY="3.77953" Opacity="0.599998" Color="#FF000000"/>
                       </Ellipse.Effect>
                     </Ellipse>
                     <Path x:Name="Path" Width="25.7295" Height="98.772" Canvas.Left="1.48199" Canvas.Top="30.845" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="M 14.3468,127.617L 14.3468,127.617C 20.3472,127.617 25.2115,122.753 25.2115,116.752L 25.2115,43.7098C 25.2115,37.7094 20.3472,32.845 14.3468,32.845L 14.3468,32.845C 8.34633,32.845 3.48199,37.7094 3.48199,43.7098L 3.48199,116.752C 3.48199,122.753 8.34633,127.617 14.3468,127.617 Z "/>
@@ -26,12 +26,12 @@
                     <Path x:Name="Path_2" Width="25.7212" Height="98.7697" Canvas.Left="45.3587" Canvas.Top="0" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 58.2193,96.7697L 58.2193,96.7697C 64.2174,96.7697 69.0799,91.9073 69.0799,85.9091L 69.0799,12.8606C 69.0799,6.86246 64.2174,2 58.2193,2L 58.2193,2C 52.2212,2 47.3587,6.86246 47.3587,12.8606L 47.3587,85.9091C 47.3587,91.9073 52.2212,96.7697 58.2193,96.7697 Z "/>
                     <Path x:Name="Path_3" Width="25.7289" Height="98.7698" Canvas.Left="67.0815" Canvas.Top="13.3075" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 79.946,110.077L 79.946,110.077C 85.9463,110.077 90.8104,105.213 90.8104,99.2129L 90.8104,26.172C 90.8104,20.1717 85.9463,15.3075 79.946,15.3075L 79.946,15.3075C 73.9457,15.3075 69.0815,20.1717 69.0815,26.172L 69.0815,99.2129C 69.0815,105.213 73.9457,110.077 79.946,110.077 Z ">
                       <Path.Effect>
-                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                        <DropShadowEffect BlurRadius="8" OffsetX="3.77953" OffsetY="3.77953" Opacity="0.599998" Color="#FF000000"/>
                       </Path.Effect>
                     </Path>
                     <Path x:Name="Path_4" Width="72.8893" Height="77.8691" Canvas.Left="56.0215" Canvas.Top="63.5213" Stretch="Fill" StrokeThickness="4" StrokeJoin="Round" Stroke="#FF959500" Fill="#FF182100" Data="F1 M 73.1599,135.071L 73.1599,135.071C 78.1529,138.156 87.6974,141.564 90.5469,137.591L 125.54,80.2177C 128.39,76.2439 126.652,70.5213 121.659,67.4359L 121.659,67.4359C 116.666,64.3505 110.308,65.0707 107.459,69.0445L 58.4365,125.106C 55.5869,129.08 68.1668,131.985 73.1599,135.071 Z ">
                       <Path.Effect>
-                        <DropShadowEffect BlurRadius="8" ShadowDepth="3.77953" Opacity="0.599998" Color="#FF000000" Direction="315"/>
+                        <DropShadowEffect BlurRadius="8" OffsetX="3.77953" OffsetY="3.77953" Opacity="0.599998" Color="#FF000000"/>
                       </Path.Effect>
                     </Path>
                     <Ellipse x:Name="Ellipse_5" Width="70.3764" Height="63.7176" Canvas.Left="23.9009" Canvas.Top="87.6956" Stretch="Fill" Fill="#FF182100"/>
@@ -75,10 +75,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:1" PlaybackDirection="Alternate">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-30"/>
+            <Setter Property="RenderTransform" Value="rotate(-30deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="30"/>
+            <Setter Property="RenderTransform" Value="rotate(30deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>

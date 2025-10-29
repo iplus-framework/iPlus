@@ -113,10 +113,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:4">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-360"/>
+            <Setter Property="RenderTransform" Value="rotate(-360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -127,10 +127,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:4">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-360"/>
+            <Setter Property="RenderTransform" Value="rotate(-360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -141,10 +141,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:4">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="360"/>
+            <Setter Property="RenderTransform" Value="rotate(360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -155,10 +155,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:4">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="360"/>
+            <Setter Property="RenderTransform" Value="rotate(360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -169,10 +169,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:2">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-360"/>
+            <Setter Property="RenderTransform" Value="rotate(-360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -183,10 +183,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:2">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="-360"/>
+            <Setter Property="RenderTransform" Value="rotate(-360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -197,10 +197,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:2">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="360"/>
+            <Setter Property="RenderTransform" Value="rotate(360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
@@ -211,10 +211,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:2">
           <KeyFrame Cue="0%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="0"/>
+            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="(Viewbox.RenderTransform).(RotateTransform.Angle)" Value="360"/>
+            <Setter Property="RenderTransform" Value="rotate(360deg)"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
