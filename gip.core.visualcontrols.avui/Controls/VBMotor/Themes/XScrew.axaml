@@ -30,7 +30,7 @@
               <Canvas Width="100" Height="10">
                 <Rectangle x:Name="Rectangle" Width="100" Height="10" Canvas.Left="1.24598e-005" Canvas.Top="0" Stretch="Fill" StrokeThickness="1" StrokeJoin="Bevel">
                   <Rectangle.Stroke>
-                    <RadialGradientBrush RadiusX="1" RadiusY="0.644927" Center="1,0.5" GradientOrigin="1,0.5">
+                    <RadialGradientBrush RadiusX="100%" RadiusY="64%" Center="100%,50%" GradientOrigin="100%,50%">
                       <RadialGradientBrush.GradientStops>
                         <GradientStop Color="#B3000000" Offset="0.00436681"/>
                         <GradientStop Color="#00000000" Offset="0.253275"/>

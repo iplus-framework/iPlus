@@ -74,7 +74,7 @@
 
 			<Ellipse Canvas.Left="3" Canvas.Top="3" Width="94" Height="94">
 				<Ellipse.Fill>
-					<RadialGradientBrush Center="0.51,0.52" SpreadMethod="Pad">
+					<RadialGradientBrush Center="51%,52%" SpreadMethod="Pad">
 						<GradientStop Offset="0.0" Color="Transparent" />
 						<GradientStop Offset="0.9" Color="Transparent" />
 						<GradientStop Offset="1.0" Color="#a0000000" />
@@ -83,7 +83,7 @@
 			</Ellipse>
 			<Ellipse Canvas.Left="3" Canvas.Top="3" Width="94" Height="94">
 				<Ellipse.Fill>
-					<RadialGradientBrush Center="0.7,0.8" SpreadMethod="Pad">
+					<RadialGradientBrush Center="70%,80%" SpreadMethod="Pad">
 						<GradientStop Offset="0.0" Color="Transparent" />
 						<GradientStop Offset="0.4" Color="#30ffffff" />
 						<GradientStop Offset="0.5" Color="#60ffffff" />

@@ -2,11 +2,11 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
-    <RadialGradientBrush x:Key="TreeArrowFocusFillAero" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <RadialGradientBrush x:Key="TreeArrowFocusFillAero" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
         <GradientStop Color="#FFE99393" Offset="0.228"/>
         <GradientStop Color="#FFFF0018" Offset="1"/>
     </RadialGradientBrush>
-    <RadialGradientBrush x:Key="TreeArrowCheckedFillAero" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <RadialGradientBrush x:Key="TreeArrowCheckedFillAero" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
         <GradientStop Color="#FF505050"/>
         <GradientStop Color="Black" Offset="0.732"/>
     </RadialGradientBrush>

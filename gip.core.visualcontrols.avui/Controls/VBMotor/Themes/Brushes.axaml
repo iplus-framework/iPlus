@@ -11,7 +11,7 @@
                     <Pen Thickness="4" LineJoin="Round" Brush="#FF000000"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Brush>
-                    <RadialGradientBrush RadiusX="0.525" RadiusY="0.525" Center="0.500001,0.499998" GradientOrigin="0.500001,0.499998">
+                    <RadialGradientBrush RadiusX="53%" RadiusY="53%" Center="50%,50%" GradientOrigin="50%,50%">
                         <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#FFFFFFFF" Offset="0"/>
                             <GradientStop Color="#FFB1B1B1" Offset="0.609756"/>

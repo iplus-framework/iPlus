@@ -6,14 +6,14 @@
   <SolidColorBrush x:Key="ListBoxBgEnabled" Color="#FF1A1A1A"/>
   <SolidColorBrush x:Key="ListBoxFgEnabled" Color="#FFFFFFFF"/>
   <SolidColorBrush x:Key="ListBoxFgEnabledFocus" Color="#FFFFFFFF"/>
-  <RadialGradientBrush x:Key="ListBoxBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+  <RadialGradientBrush x:Key="ListBoxBorderEnabled" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
     <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
     <GradientStop Color="#FF666666" Offset="0.548"/>
     <GradientStop Color="Black" Offset="1"/>
   </RadialGradientBrush>
   <SolidColorBrush x:Key="ListBoxBgDisabled" Color="{StaticResource ColorAppDark}"/>
   <SolidColorBrush x:Key="ListBoxFgDisabled" Color="Silver"/>
-  <RadialGradientBrush x:Key="ListBoxBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+  <RadialGradientBrush x:Key="ListBoxBorderDisabled" Center="80%,80%" RadiusX="100%" GradientOrigin="70%,80%" RadiusY="80%" >
     <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
     <GradientStop Color="#FF666666" Offset="0.548"/>
     <GradientStop Color="Black" Offset="1"/>
@@ -21,7 +21,7 @@
   <SolidColorBrush x:Key="ListBoxBgRequired" Color="#FF1A1A1A"/>
   <SolidColorBrush x:Key="ListBoxFgRequired" Color="#FFFFFFFF"/>
   <SolidColorBrush x:Key="ListBoxFgRequiredFocus" Color="Yellow"/>
-  <RadialGradientBrush x:Key="ListBoxBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+  <RadialGradientBrush x:Key="ListBoxBorderRequired" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
     <GradientStop Color="#FFFFEA00" Offset="0.116"/>
     <GradientStop Color="#FFD1D261" Offset="0.3"/>
     <GradientStop Color="Black" Offset="1"/>
@@ -29,7 +29,7 @@
   <SolidColorBrush x:Key="ListBoxBgWrong" Color="#FF1A1A1A"/>
   <SolidColorBrush x:Key="ListBoxFgWrong" Color="#FFFFFFFF"/>
   <SolidColorBrush x:Key="ListBoxFgWrongFocus" Color="#FFFF0000"/>
-  <RadialGradientBrush x:Key="ListBoxBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+  <RadialGradientBrush x:Key="ListBoxBorderWrong" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
     <GradientStop Color="#FFFF0004" Offset="0.1116"/>
     <GradientStop Color="#FFE43D3D" Offset="0.3"/>
     <GradientStop Color="#FF020101" Offset="1"/>

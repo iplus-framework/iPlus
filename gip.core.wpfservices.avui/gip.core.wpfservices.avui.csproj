@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFramework>$(UITargetFramework)</TargetFramework>
     <Nullable>disable</Nullable>
-    <UseWPF>true</UseWPF>
+    <UseWPF>false</UseWPF>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup>
@@ -28,10 +28,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="WindowsAPICodePack" Version="8.0.6" />
-    <!--<PackageReference Include="Microsoft.CodeAnalysis.Features" Version="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.8.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.8.0" />-->
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
   </ItemGroup>
 
   <ItemGroup>

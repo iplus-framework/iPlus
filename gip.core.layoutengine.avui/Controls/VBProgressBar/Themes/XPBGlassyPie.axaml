@@ -27,7 +27,7 @@
             <Ellipse Width="{Binding Diameter}" Height="{Binding Diameter}"
                     HorizontalAlignment="Center" VerticalAlignment="Center">
                 <Ellipse.Fill>
-                    <RadialGradientBrush Center=".5,.4" GradientOrigin=".3,.3">
+                    <RadialGradientBrush Center="50%,40%" GradientOrigin="30%,30%">
                         <!-- White Highlight -->
                         <GradientStop Offset="0" Color="#99ffffff" />
                         <GradientStop Offset=".5" Color="#66ffffff" />
@@ -43,8 +43,8 @@
                 <Ellipse Stretch="Fill"
                          Opacity=".75">
                     <Ellipse.Fill>
-                        <RadialGradientBrush Center=".45,0" GradientOrigin=".45,0"
-                                         RadiusX="2" RadiusY="1">
+                        <RadialGradientBrush Center="45%,0%" GradientOrigin="45%,0%"
+                                         RadiusX="200%" RadiusY="100%">
                             <GradientStop Offset="0.0" Color="#EEFFFFFF" />
                             <GradientStop Offset="1" Color="#11FFFFFF" />
                         </RadialGradientBrush>

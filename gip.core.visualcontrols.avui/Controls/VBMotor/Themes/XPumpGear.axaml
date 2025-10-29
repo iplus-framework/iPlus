@@ -45,7 +45,7 @@
                 </Path>
                 <Path x:Name="Path_263" Width="169.999" Height="170" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 84.9997,0L 84.9997,0C 38.0557,0 0,38.0557 0,84.9998L 0,85.0002C 0,131.944 38.0557,170 84.9997,170L 84.9997,170C 131.944,170 169.999,131.944 169.999,85.0002L 169.999,84.9998C 169.999,38.0557 131.944,0 84.9997,0 Z ">
                   <Path.Fill>
-                    <RadialGradientBrush RadiusX="0.500002" RadiusY="0.500001" Center="0.500001,0.499999" GradientOrigin="0.500001,0.499999">
+                    <RadialGradientBrush RadiusX="50%" RadiusY="50%" Center="50%,50%" GradientOrigin="50%,50%">
                       <RadialGradientBrush.GradientStops>
                         <GradientStop Color="#00000000" Offset="0.741525"/>
                         <GradientStop Color="#B3000000" Offset="1"/>

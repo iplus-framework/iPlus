@@ -28,7 +28,7 @@
                   <Canvas Width="45" Height="60">
                     <Path x:Name="Path_402" Width="20" Height="39.9602" Canvas.Left="3.8147e-006" Canvas.Top="0" Stretch="Fill" Data="F1 M 1.52588e-005,0L 20,0L 20,28L 3.8147e-006,39.9602L 1.52588e-005,0 Z " StrokeThickness="1" StrokeJoin="Bevel">
                       <Path.Stroke>
-                        <RadialGradientBrush RadiusX="0.999999" RadiusY="0.451898" Center="3.8147e-007,0.350348" GradientOrigin="3.8147e-007,0.350348">
+                          <RadialGradientBrush RadiusX="100%" RadiusY="45%" Center="0%,35%" GradientOrigin="0%,35%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -60,7 +60,7 @@
                     </Path>
                     <Path x:Name="Path_404" Width="45" Height="32" Canvas.Left="0" Canvas.Top="28" Stretch="Fill" Data="F1 M 0,39.9602L 20,28L 45,42.6795L 35,60L 0,39.9602 Z " StrokeThickness="1" StrokeJoin="Bevel">
                       <Path.Stroke>
-                        <RadialGradientBrush RadiusX="0.585108" RadiusY="0.446812" Center="0.496931,0.771981" GradientOrigin="0.496931,0.771981">
+                        <RadialGradientBrush RadiusX="50%" RadiusY="45%" Center="50%,77%" GradientOrigin="50%,77%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -123,7 +123,7 @@
                   <Canvas Width="45" Height="60">
                     <Path x:Name="Path_409" Width="20" Height="39.9602" Canvas.Left="25" Canvas.Top="0" Stretch="Fill" Data="F1 M 45,0L 25,0L 25,28L 45,39.9602L 45,0 Z " StrokeThickness="1" StrokeJoin="Bevel">
                       <Path.Stroke>
-                        <RadialGradientBrush RadiusX="0.999999" RadiusY="0.451898" Center="0.999999,0.350348" GradientOrigin="0.999999,0.350348">
+                        <RadialGradientBrush RadiusX="100%" RadiusY="45%" Center="100%,35%" GradientOrigin="100%,35%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -160,7 +160,7 @@
                     </Path>
                     <Path x:Name="Path_411" Width="45" Height="32" Canvas.Left="1.81198e-005" Canvas.Top="28" Stretch="Fill" Data="F1 M 45,39.9602L 25,28L 1.81198e-005,42.6795L 10,60L 45,39.9602 Z " StrokeThickness="1" StrokeJoin="Bevel">
                       <Path.Stroke>
-                        <RadialGradientBrush RadiusX="0.585107" RadiusY="0.446812" Center="0.503069,0.771981" GradientOrigin="0.503069,0.771981">
+                        <RadialGradientBrush RadiusX="59%" RadiusY="45%" Center="50%,77%" GradientOrigin="50%,77%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>

@@ -45,7 +45,7 @@
                 </Path>
                 <Path x:Name="Path_3" Width="230.306" Height="230.306" Canvas.Left="18.0071" Canvas.Top="17.1268" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round" Stroke="#FFFF5959" Data="F1 M 133.313,18.1268L 133.007,18.1268C 70.0466,18.1268 19.0071,69.1664 19.0071,132.127L 19.0071,132.433C 19.0071,195.394 70.0466,246.433 133.007,246.433L 133.313,246.433C 196.273,246.433 247.313,195.394 247.313,132.433L 247.313,132.127C 247.313,69.1664 196.273,18.1268 133.313,18.1268 Z ">
                   <Path.Fill>
-                    <RadialGradientBrush RadiusX="0.500001" RadiusY="0.500001" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                    <RadialGradientBrush RadiusX="50%" RadiusY="50%" Center="50%,50%" GradientOrigin="50%,50%">
                       <RadialGradientBrush.GradientStops>
                         <GradientStop Color="#00000000" Offset="0.741525"/>
                         <GradientStop Color="#B3000000" Offset="1"/>
@@ -67,7 +67,7 @@
           <KeyFrame Cue="0%">
             <Setter Property="RenderTransform" Value="rotate(-30deg)"/>
           </KeyFrame>
-          <KeyFrame Cue="100%">            
+          <KeyFrame Cue="100%">
             <Setter Property="RenderTransform" Value="rotate(30deg)"/>
           </KeyFrame>
         </Animation>

@@ -6,7 +6,7 @@
     <SolidColorBrush x:Key="RadioButtonBgEnabled" Color="#FF1A1A1A"/>
     <SolidColorBrush x:Key="RadioButtonFgEnabled" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="RadioButtonFgEnabledFocus" Color="#FFFFFFFF"/>
-    <RadialGradientBrush x:Key="RadioButtonBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <RadialGradientBrush x:Key="RadioButtonBorderEnabled" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
         <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
         <GradientStop Color="#FF666666" Offset="0.548"/>
         <GradientStop Color="Black" Offset="1"/>
@@ -16,7 +16,7 @@
 
     <SolidColorBrush x:Key="RadioButtonBgDisabled" Color="{StaticResource ColorAppDark}"/>
     <SolidColorBrush x:Key="RadioButtonFgDisabled" Color="Silver"/>
-    <RadialGradientBrush x:Key="RadioButtonBorderDisabled" Center="0.8,0.8" RadiusX="1" GradientOrigin="0.7,0.8" RadiusY="0.8" >
+    <RadialGradientBrush x:Key="RadioButtonBorderDisabled" Center="80%,80%" RadiusX="100%" GradientOrigin="70%,80%" RadiusY="80%" >
         <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
         <GradientStop Color="#FF666666" Offset="0.548"/>
         <GradientStop Color="Black" Offset="1"/>
@@ -27,7 +27,7 @@
     <SolidColorBrush x:Key="RadioButtonBgRequired" Color="#FF1A1A1A"/>
     <SolidColorBrush x:Key="RadioButtonFgRequired" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="RadioButtonFgRequiredFocus" Color="Yellow"/>
-    <RadialGradientBrush x:Key="RadioButtonBorderRequired" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <RadialGradientBrush x:Key="RadioButtonBorderRequired" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
         <GradientStop Color="#FFFFEA00" Offset="0.116"/>
         <GradientStop Color="#FFD1D261" Offset="0.3"/>
         <GradientStop Color="Black" Offset="1"/>
@@ -38,7 +38,7 @@
     <SolidColorBrush x:Key="RadioButtonBgWrong" Color="#FF1A1A1A"/>
     <SolidColorBrush x:Key="RadioButtonFgWrong" Color="#FFFFFFFF"/>
     <SolidColorBrush x:Key="RadioButtonFgWrongFocus" Color="#FFFF0000"/>
-    <RadialGradientBrush x:Key="RadioButtonBorderWrong" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <RadialGradientBrush x:Key="RadioButtonBorderWrong" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
         <GradientStop Color="#FFFF0004" Offset="0.1116"/>
         <GradientStop Color="#FFE43D3D" Offset="0.3"/>
         <GradientStop Color="#FF020101" Offset="1"/>

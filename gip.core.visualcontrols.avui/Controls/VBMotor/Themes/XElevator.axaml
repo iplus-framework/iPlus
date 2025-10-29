@@ -172,7 +172,7 @@
               <Canvas Width="35" Height="20">
                 <Path x:Name="Path_100" Width="35" Height="20" Canvas.Left="-1.90735e-006" Canvas.Top="0" Stretch="Fill" Data="F1 M -1.90735e-006,20L 35,20L 35,7.62939e-006L 20,0L -1.90735e-006,20 Z " StrokeThickness="1" StrokeJoin="Bevel">
                   <Path.Stroke>
-                    <RadialGradientBrush RadiusX="1.25714" RadiusY="0.644927" Center="-0.257143,0.5" GradientOrigin="-0.257143,0.5">
+                    <RadialGradientBrush RadiusX="126%" RadiusY="64%" Center="-26%,50%" GradientOrigin="-26%,50%">
                       <RadialGradientBrush.GradientStops>
                         <GradientStop Color="#B3000000" Offset="0.00436681"/>
                         <GradientStop Color="#00000000" Offset="0.253275"/>

@@ -5,12 +5,12 @@
 
     <me:ProgramLogViewItemMarginConverter x:Key="ProgramLogViewItemMarginConverter" />
     
-    <RadialGradientBrush x:Key="TreeArrowFocusFillGip" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <RadialGradientBrush x:Key="TreeArrowFocusFillGip" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
         <GradientStop Color="#FFE99393" Offset="0.228"/>
         <GradientStop Color="#FFFF0018" Offset="1"/>
     </RadialGradientBrush>
     
-    <RadialGradientBrush x:Key="TreeArrowCheckedFillGip" Center="0.5,0.5" RadiusX="1" GradientOrigin="0.5,0.5" RadiusY="1">
+    <RadialGradientBrush x:Key="TreeArrowCheckedFillGip" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
         <GradientStop Color="#FF505050"/>
         <GradientStop Color="White" Offset="0.732"/>
     </RadialGradientBrush>

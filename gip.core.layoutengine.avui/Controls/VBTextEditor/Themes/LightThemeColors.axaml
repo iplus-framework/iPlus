@@ -6,7 +6,7 @@
   <SolidColorBrush x:Key="TextEditorBgEnabled" Color="White"/>
   <SolidColorBrush x:Key="TextEditorFgEnabled" Color="Black"/>
   <SolidColorBrush x:Key="TextEditorFgEnabledFocus" Color="Black"/>
-  <RadialGradientBrush x:Key="TextEditorBorderEnabled" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+  <RadialGradientBrush x:Key="TextEditorBorderEnabled" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%" >
     <GradientStop Color="#FFC5C5C6" Offset="0.208"/>
     <GradientStop Color="#FF666666" Offset="0.548"/>
     <GradientStop Color="Black" Offset="1"/>

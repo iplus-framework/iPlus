@@ -46,7 +46,7 @@
                         <Ellipse x:Name="Ellipse_111" Width="13" Height="13" Canvas.Left="2.5" Canvas.Top="2.50001" Stretch="Fill" StrokeJoin="Round" 
                                  Stroke="#FF000000">
                             <Ellipse.Fill>
-                                <RadialGradientBrush RadiusX="0.545454" RadiusY="0.545454" Center="0.772727,0.772727" GradientOrigin="0.772727,0.772727">
+                                <RadialGradientBrush RadiusX="54%" RadiusY="54%" Center="77%,77%" GradientOrigin="77%,77%">
                                     <RadialGradientBrush.GradientStops>
                                         <GradientStop Color="#99FF0000" Offset="0"/>
                                         <GradientStop Color="#60FE0101" Offset="0.44186"/>

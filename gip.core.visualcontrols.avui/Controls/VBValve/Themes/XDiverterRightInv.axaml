@@ -28,7 +28,7 @@
                   <Canvas Width="20" Height="60">
                     <Rectangle x:Name="Rectangle_370" Width="20" Height="60" Canvas.Left="2.28882e-005" Canvas.Top="-7.62939e-006" Stretch="Fill" StrokeThickness="1" StrokeJoin="Bevel">
                       <Rectangle.Stroke>
-                        <RadialGradientBrush RadiusX="1" RadiusY="0.644927" Center="1,0.5" GradientOrigin="1,0.5">
+                        <RadialGradientBrush RadiusX="100%" RadiusY="65%" Center="100%,50%" GradientOrigin="100%,50%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -86,7 +86,7 @@
                   <Canvas Width="45" Height="60">
                     <Path x:Name="Path_374" Width="20" Height="39.9602" Canvas.Left="25" Canvas.Top="0" Stretch="Fill" Data="F1 M 45,0L 25,0L 25,28L 45,39.9602L 45,0 Z " StrokeThickness="1" StrokeJoin="Bevel">
                       <Path.Stroke>
-                        <RadialGradientBrush RadiusX="0.999999" RadiusY="0.451898" Center="0.999999,0.350348" GradientOrigin="0.999999,0.350348">
+                        <RadialGradientBrush RadiusX="100%" RadiusY="45%" Center="100%,35%" GradientOrigin="100%,35%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -121,7 +121,7 @@
                     </Path>
                     <Path x:Name="Path_376" Width="45" Height="32" Canvas.Left="1.90735e-005" Canvas.Top="28" Stretch="Fill" Data="F1 M 45,39.9602L 25,28L 1.90735e-005,42.6795L 10,60L 45,39.9602 Z " StrokeThickness="1" StrokeJoin="Bevel">
                       <Path.Stroke>
-                        <RadialGradientBrush RadiusX="0.585108" RadiusY="0.446812" Center="0.503069,0.771981" GradientOrigin="0.503069,0.771981">
+                        <RadialGradientBrush RadiusX="50%" RadiusY="45%" Center="50%,77%" GradientOrigin="50%,77%">
                           <RadialGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>

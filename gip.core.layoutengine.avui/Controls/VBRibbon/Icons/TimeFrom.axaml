@@ -9,7 +9,7 @@
                     <Canvas x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Ellipse Width="17" Height="17" Canvas.Left="3.5" Canvas.Top="1.5" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
                             <Ellipse.Fill>
-                                <RadialGradientBrush RadiusX="0.53125" RadiusY="0.53125" Center="0.5,0.5" GradientOrigin="0.5,0.5">
+                                <RadialGradientBrush RadiusX="53.125%" RadiusY="53.125%" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE7E7E7" Offset="0"/>
                                         <GradientStop Color="#FF4B4B4B" Offset="1"/>
@@ -27,7 +27,7 @@
                               Data="F1 M 12.4662,11L 15,13.5338"/>
                         <Ellipse Width="2" Height="2" Canvas.Left="5" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
                             <Ellipse.Fill>
-                                <RadialGradientBrush RadiusX="1" RadiusY="1" Center="0.5,0.500001" GradientOrigin="0.5,0.500001">
+                                <RadialGradientBrush RadiusX="100%" RadiusY="100%" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE7E7E7" Offset="0"/>
                                         <GradientStop Color="#FF4B4B4B" Offset="1"/>
@@ -37,7 +37,7 @@
                         </Ellipse>
                         <Ellipse Width="2" Height="2" Canvas.Left="17" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
                             <Ellipse.Fill>
-                                <RadialGradientBrush RadiusX="1" RadiusY="1" Center="0.5,0.500001" GradientOrigin="0.5,0.500001">
+                                <RadialGradientBrush RadiusX="1" RadiusY="1" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE7E7E7" Offset="0"/>
                                         <GradientStop Color="#FF4B4B4B" Offset="1"/>
@@ -47,7 +47,7 @@
                         </Ellipse>
                         <Ellipse Width="2" Height="2" Canvas.Left="11" Canvas.Top="15" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
                             <Ellipse.Fill>
-                                <RadialGradientBrush RadiusX="1" RadiusY="1" Center="0.499999,0.500001" GradientOrigin="0.499999,0.500001">
+                                <RadialGradientBrush RadiusX="100%" RadiusY="100%" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
                                         <GradientStop Color="#FFE7E7E7" Offset="0"/>
                                         <GradientStop Color="#FF4B4B4B" Offset="1"/>
@@ -69,5 +69,3 @@
         </Setter>
     </ControlTheme>
 </ResourceDictionary>
-
-

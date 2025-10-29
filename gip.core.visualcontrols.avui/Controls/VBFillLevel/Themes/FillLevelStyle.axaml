@@ -38,7 +38,7 @@
         <GradientStop Color="#20000000" Offset="0.7"/>
         <GradientStop Color="#0C000000" Offset="1"/>
     </LinearGradientBrush>
-    <RadialGradientBrush x:Key="ProgressBarIndicatorLightingEffectLeftGip" RadiusY="1" RadiusX="1">
+    <RadialGradientBrush x:Key="ProgressBarIndicatorLightingEffectLeftGip" RadiusY="100%" RadiusX="100%">
         <RadialGradientBrush.Transform>
             <TranslateTransform X="0.5" Y="0.5"/>
         </RadialGradientBrush.Transform>
@@ -49,7 +49,7 @@
         <GradientStop Color="#60FF0000" Offset="0"/>
         <GradientStop Color="#00FF0000" Offset="1"/>
     </LinearGradientBrush>
-    <RadialGradientBrush x:Key="ProgressBarIndicatorLightingEffectRightGip" RadiusY="1" RadiusX="1">
+    <RadialGradientBrush x:Key="ProgressBarIndicatorLightingEffectRightGip" RadiusY="100%" RadiusX="100%">
         <RadialGradientBrush.Transform>
             <TranslateTransform X="-0.5" Y="0.5"/>
         </RadialGradientBrush.Transform>
