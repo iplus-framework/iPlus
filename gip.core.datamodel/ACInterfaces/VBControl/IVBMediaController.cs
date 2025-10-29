@@ -2,7 +2,7 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using System;
 using System.Collections.Generic;
-using System.Drawing;
+using SkiaSharp;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ namespace gip.core.datamodel
     {
         string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null);
         byte[] ResizeImage(string fileName, int maxWidth, int maxHeight, string quality = "Medium");
-        Bitmap CreateLicenseImage(VBLicense CurrentVBLicense);
+        SKBitmap CreateLicenseImage(VBLicense CurrentVBLicense);
     }
 
     public interface IVBMediaControllerService

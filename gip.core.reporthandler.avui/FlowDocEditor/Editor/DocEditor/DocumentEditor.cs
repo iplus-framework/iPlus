@@ -115,7 +115,7 @@ namespace Document.Editor
             else if (f.Extension.ToLower() == ".xaml")
             {
                 fs = File.Open(f.FullName, FileMode.Open, FileAccess.Read);
-                FlowDocument content = XamlReader.Load(fs) as FlowDocument;
+                FlowDocument content = AvaloniaRuntimeXamlLoader.Load(fs) as FlowDocument;
                 Thickness thi = content.PagePadding;
                 try
                 {

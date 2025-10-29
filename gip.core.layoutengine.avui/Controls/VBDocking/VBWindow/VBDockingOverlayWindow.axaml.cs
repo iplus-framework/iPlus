@@ -93,7 +93,7 @@ namespace gip.core.layoutengine.avui
             //{ 
             //    using (FileStream fs = new FileStream(@"generic.xaml", FileMode.Open, FileAccess.Read))
             //    {
-            //        ResourceDictionary resources = (ResourceDictionary)XamlReader.Load(fs);
+            //        ResourceDictionary resources = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(fs);
             //        Application.Current.Resources.Add("DockDownButtonSyle", resources["DockDownButtonSyle"]);
             //    }
             //}

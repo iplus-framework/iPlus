@@ -8,7 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Net.Mime;
-using System.Drawing;
+using SkiaSharp;
 
 namespace gip.core.media
 {
@@ -79,7 +79,7 @@ namespace gip.core.media
 
         #region License Image
 
-        public Bitmap CreateLicenseImage(VBLicense CurrentVBLicense)
+        public SKBitmap CreateLicenseImage(VBLicense CurrentVBLicense)
         {
             return VBMediaController.CreateLicenseImage(CurrentVBLicense);
         }

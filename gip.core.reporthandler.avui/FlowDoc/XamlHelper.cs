@@ -28,7 +28,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
             using (StringReader stringReader = new StringReader(s))
             using (XmlReader xmlReader = XmlTextReader.Create(stringReader, new XmlReaderSettings()))
             {
-                return XamlReader.Load(xmlReader);
+                return AvaloniaRuntimeXamlLoader.Load(xmlReader);
             }
         }
 

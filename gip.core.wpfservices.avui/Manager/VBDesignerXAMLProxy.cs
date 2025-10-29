@@ -1,22 +1,15 @@
+using Avalonia;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui;
+using gip.core.manager;
+using gip.ext.design.avui;
+using gip.ext.designer.avui.Controls;
+using gip.ext.designer.avui.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Data;
-using System.Windows.Controls;
-using System.Windows.Markup;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui;
-using gip.ext.designer.avui.Controls;
-using gip.core.manager;
-using static gip.core.manager.VBDesigner;
-using System.Windows.Media;
-using System.ComponentModel.Design;
-using gip.ext.designer.avui.Services;
-using System.Net;
 using System.Xml.Linq;
+using static gip.core.manager.VBDesigner;
 
 namespace gip.core.wpfservices.avui
 {
@@ -64,8 +57,8 @@ namespace gip.core.wpfservices.avui
             if ((item != null) && (item.View != null))
             {
                 DrawShapesAdornerBase.ApplyDefaultPropertiesToItemS(item);
-                item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
-                item.Properties[VBEdge.ACName2Property].SetValue(toXName);
+                item.Properties[VBEdge.VBConnectorSourceProperty].SetValue(fromXName);
+                item.Properties[VBEdge.VBConnectorTargetProperty].SetValue(toXName);
             }
             //item.Properties[VBEdge.NameProperty].SetValue(acVisualEdge.ACIdentifier);
             //            item.Properties[VBEdge.VBContentProperty].SetValue(RootACUrl + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));

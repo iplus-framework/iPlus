@@ -14,8 +14,8 @@ using System.Threading.Tasks;
 using System.Xml;
 using System.ComponentModel;
 using System.Threading;
-using System.Drawing;
 using gip.core.media;
+using SkiaSharp;
 
 namespace gip.bso.iplus
 {
@@ -762,10 +762,10 @@ namespace gip.bso.iplus
             LicenseImage = mediaController.CreateLicenseImage(CurrentVBLicense);
         }
 
-        Bitmap _LicenseImage;
+        SKBitmap _LicenseImage;
         // Dont publish System.Drawing.Bitmap because of conflict with System.Windows.Media.Imaging.BitmapImage
         //[ACPropertyInfo(540, "", "en{'LicenseImage'}de{'LicenseImage'}")]
-        public Bitmap LicenseImage
+        public SKBitmap LicenseImage
         {
             get
             {

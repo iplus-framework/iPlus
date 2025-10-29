@@ -1510,7 +1510,7 @@ namespace gip.core.reporthandler.avui
                 try
                 {
                     CurrentReportConfiguration = null;
-                    ResourceDictionary rd = XamlReader.Parse(GlobalReportConfig.XAMLDesign) as ResourceDictionary;
+                    ResourceDictionary rd = AvaloniaRuntimeXamlLoader.Load(GlobalReportConfig.XAMLDesign) as ResourceDictionary;
                     if (rd != null && rd.Contains("Config"))
                         CurrentReportConfiguration = rd["Config"] as ReportConfiguration;
                 }

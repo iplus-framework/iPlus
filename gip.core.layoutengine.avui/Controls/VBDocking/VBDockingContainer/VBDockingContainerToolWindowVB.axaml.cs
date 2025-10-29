@@ -10,7 +10,7 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Represents a container for tool window in docking container. Use with <see cref="VBDockingManager"/>.
     /// </summary>
-    partial class VBDockingContainerToolWindowVB : VBDockingContainerToolWindow, IVBDialog
+    public partial class VBDockingContainerToolWindowVB : VBDockingContainerToolWindow, IVBDialog
     {
         #region c'tors
         public VBDockingContainerToolWindowVB()

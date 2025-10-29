@@ -1,21 +1,16 @@
+using Avalonia;
+using Avalonia.Controls.Primitives;
+using Avalonia.Input;
+using Avalonia.Media;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui;
+using gip.core.manager;
+using gip.ext.design.avui;
+using gip.ext.designer.avui;
+using gip.ext.designer.avui.Controls;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Data;
-using System.Windows.Controls;
-using System.Windows.Markup;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui;
-using gip.ext.designer.avui.Controls;
-using gip.core.manager;
 using static gip.core.manager.VBDesigner;
-using System.Windows.Media;
-using System.ComponentModel.Design;
-using gip.ext.designer.avui;
-using gip.ext.designer.avui.Services;
 
 namespace gip.core.wpfservices.avui
 {
@@ -121,8 +116,8 @@ namespace gip.core.wpfservices.avui
             if ((item != null) && (item.View != null))
             {
                 DrawShapesAdornerBase.ApplyDefaultPropertiesToItemS(item);
-                item.Properties[VBEdge.ACName1Property].SetValue(fromXName);
-                item.Properties[VBEdge.ACName2Property].SetValue(toXName);
+                item.Properties[VBEdge.VBConnectorSourceProperty].SetValue(fromXName);
+                item.Properties[VBEdge.VBConnectorTargetProperty].SetValue(toXName);
             }
             item.Properties[VBEdge.NameProperty].SetValue(acVisualEdge.ACIdentifier);
             item.Properties[VBEdge.VBContentProperty].SetValue(Const.VBPresenter_SelectedWFContext + "\\" + acVisualEdge.GetACUrl(acVisualEdge.ParentACObject));
@@ -169,7 +164,7 @@ namespace gip.core.wpfservices.avui
             DesignItem item = designItemParent.Context.Services.Component.RegisterComponentForDesigner(newInstance);
             item.Properties[VBVisual.VBContentProperty].SetValue(newACUrl);
             item.Properties[VBVisual.NameProperty].SetValue(acVisualWF.XName);
-            item.Properties[VBVisual.AllowDropProperty].SetValue(true);
+            item.Properties[DragDrop.AllowDropProperty].SetValue(true);
 
             Rect rect = new Rect();
             if (acClassDesign != null)

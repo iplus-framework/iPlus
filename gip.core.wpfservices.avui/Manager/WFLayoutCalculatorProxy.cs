@@ -1,16 +1,13 @@
-﻿using gip.core.datamodel;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Layout;
+using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.manager;
 using gip.ext.design.avui;
-//using Irony.Parsing.Construction;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Controls;
 using static gip.core.manager.VBDesigner;
 
 namespace gip.core.wpfservices.avui.Manager
@@ -210,21 +207,21 @@ namespace gip.core.wpfservices.avui.Manager
             WFItemList wfItemList = new WFItemList(newParent, newDesignItem, false);
             Size size = SizeValue(wfItemList.Count());
 
-            if (vbVisualGroup.RenderSize.Width < size.Width && vbVisualGroup.RenderSize.Height < size.Height)
+            if (vbVisualGroup.Bounds.Width < size.Width && vbVisualGroup.Bounds.Height < size.Height)
             {
                 UpdateItemsPosition(wfContext, wfItemList, vbVisualGroup, size);
-                newParent.Properties[FrameworkElement.WidthProperty].CurrentValue = size.Width;
-                newParent.Properties[FrameworkElement.HeightProperty].CurrentValue = size.Height;
+                newParent.Properties[Layoutable.WidthProperty].CurrentValue = size.Width;
+                newParent.Properties[Layoutable.HeightProperty].CurrentValue = size.Height;
             }
             else
-                size = new Size(vbVisualGroup.RenderSize.Width, vbVisualGroup.RenderSize.Height);
+                size = new Size(vbVisualGroup.Bounds.Width, vbVisualGroup.Bounds.Height);
 
             WFItem current = wfItemList.FirstOrDefault(c => c.DesignItem == newDesignItem);
             current.VisualTop = 0;
             current.VisualLeft = 0;
 
             VBVisual vbVisual = newDesignItem.View as VBVisual;
-            vbVisual.OnApplyTemplate();
+            vbVisual.ApplyTemplate();
             IACWorkflowNode node = ((PWOfflineNode)vbVisual.ContentACObject).Content as IACWorkflowNode;
             //IEnumerable<IACWorkflowEdge> outgoingEdges = node.GetOutgoingWFEdges(wfContext).Where(c => c.ParentACObject.ACIdentifier == vbVisual.ContentACObject.ParentACObject.ACIdentifier);
             //IEnumerable<IACWorkflowEdge> incomingEdges = node.GetIncomingWFEdges(wfContext).Where(c => c.ParentACObject.ACIdentifier == vbVisual.ContentACObject.ParentACObject.ACIdentifier);
@@ -665,11 +662,11 @@ namespace gip.core.wpfservices.avui.Manager
         {
             get
             {
-                return (Double)DesignItem.Properties[FrameworkElement.WidthProperty].CurrentValue;
+                return (Double)DesignItem.Properties[Layoutable.WidthProperty].CurrentValue;
             }
             set
             {
-                DesignItem.Properties[FrameworkElement.WidthProperty].CurrentValue = value;
+                DesignItem.Properties[Layoutable.WidthProperty].CurrentValue = value;
             }
         }
 
@@ -677,11 +674,11 @@ namespace gip.core.wpfservices.avui.Manager
         {
             get
             {
-                return (Double)DesignItem.Properties[FrameworkElement.HeightProperty].CurrentValue;
+                return (Double)DesignItem.Properties[Layoutable.HeightProperty].CurrentValue;
             }
             set
             {
-                DesignItem.Properties[FrameworkElement.HeightProperty].CurrentValue = value;
+                DesignItem.Properties[Layoutable.HeightProperty].CurrentValue = value;
             }
         }
 

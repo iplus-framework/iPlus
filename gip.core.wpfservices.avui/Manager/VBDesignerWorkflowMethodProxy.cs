@@ -1,22 +1,14 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-using System;
+using Avalonia;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui;
+using gip.core.manager;
+using gip.ext.design.avui;
+using gip.ext.designer.avui.Services;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Data;
-using System.Windows.Controls;
-using System.Windows.Markup;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui;
-using gip.ext.designer.avui.Controls;
-using gip.core.manager;
 using static gip.core.manager.VBDesigner;
-using System.Windows.Media;
-using System.ComponentModel.Design;
-using gip.ext.designer.avui.Services;
 
 namespace gip.core.wpfservices.avui
 {

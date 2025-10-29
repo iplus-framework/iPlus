@@ -1,22 +1,14 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui;
+using gip.core.manager;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
-using System.Windows.Data;
-using System.Windows.Controls;
-using System.Windows.Markup;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui;
-using gip.ext.designer.avui.Controls;
-using gip.core.manager;
-using static gip.core.manager.VBDesigner;
-using System.Windows.Media;
-using System.ComponentModel.Design;
-using System.Collections.Concurrent;
 
 namespace gip.core.wpfservices.avui
 {
@@ -83,7 +75,7 @@ namespace gip.core.wpfservices.avui
 
             try
             {
-                Canvas root = XamlReader.Parse(xaml) as Canvas;
+                Canvas root = AvaloniaRuntimeXamlLoader.Load(xaml) as Canvas;
                 if (root != null)
                     GetElements(root, result);
             }
@@ -95,7 +87,7 @@ namespace gip.core.wpfservices.avui
             return null;
         }
 
-        private void GetElements(FrameworkElement item, List<string> results)
+        private void GetElements(Control item, List<string> results)
         {
             if (item == null)
                 return;
@@ -105,7 +97,7 @@ namespace gip.core.wpfservices.avui
             ContentControl contentControl = item as ContentControl;
             if (contentControl != null && contentControl.Content != null)
             {
-                GetElements(contentControl.Content as FrameworkElement, results);
+                GetElements(contentControl.Content as Control, results);
             }
             else
             {
@@ -114,7 +106,7 @@ namespace gip.core.wpfservices.avui
                 {
                     foreach (var child in canvas.Children)
                     {
-                        GetElements(child as FrameworkElement, results);
+                        GetElements(child as Control, results);
                     }
                 }
             }

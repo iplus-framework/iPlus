@@ -89,7 +89,7 @@ namespace DocEdLib.XPS
                         }
 
 
-                        FixedPage fp = XamlReader.Load(new MemoryStream(Encoding.Default.GetBytes(page))) as FixedPage;
+                        FixedPage fp = AvaloniaRuntimeXamlLoader.Load(new MemoryStream(Encoding.Default.GetBytes(page))) as FixedPage;
 
                         /*fp.Children.OfType<Glyphs>().ToList().ForEach(glyph =>
                             {

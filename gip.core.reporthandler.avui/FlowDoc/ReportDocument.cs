@@ -277,7 +277,7 @@ namespace gip.core.reporthandler.avui.Flowdoc
             _MSXaml = gip.core.layoutengine.avui.Layoutgenerator.GetEncodedStream(_xamlData);
             if (_MSXaml == null)
                 return null;
-            FlowDocument res = XamlReader.Load(_MSXaml) as FlowDocument;
+            FlowDocument res = AvaloniaRuntimeXamlLoader.Load(_MSXaml) as FlowDocument;
 
             if (res.PageHeight == double.NaN)
                 throw new ArgumentException("Flow document must have a specified page height");

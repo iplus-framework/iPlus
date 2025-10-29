@@ -1186,7 +1186,7 @@ namespace Document.Editor
             FileInfo template = new FileInfo(t.Tag as String);
             FileStream fs = new FileStream(template.FullName, FileMode.Open);
             FlowDocument flow = new FlowDocument();
-            flow = XamlReader.Load(fs) as FlowDocument;
+            flow = AvaloniaRuntimeXamlLoader.Load(fs) as FlowDocument;
             fs.Close();
             NewDocument("New Document", flow);
             SelectedDocument.HeaderContent.FileTypeImage.ToolTip = ".xaml";
@@ -2252,7 +2252,7 @@ namespace Document.Editor
             if (open.ShowDialog().Value)
             {
                 FileStream fs = File.Open(open.FileName, FileMode.Open, FileAccess.Read);
-                FlowDocument content = XamlReader.Load(fs) as FlowDocument;
+                FlowDocument content = AvaloniaRuntimeXamlLoader.Load(fs) as FlowDocument;
                 fs.Close();
                 fs = null;
                 foreach (Block b in content.Blocks)
@@ -2262,7 +2262,7 @@ namespace Document.Editor
                     using (var sr = new StringReader(xaml))
                     using (var tr = new XmlTextReader(sr))
                     {
-                        newblock = XamlReader.Load(tr) as Block;
+                        newblock = AvaloniaRuntimeXamlLoader.Load(tr) as Block;
                     }
                     SelectedDocument.Editor.Document.Blocks.InsertBefore(SelectedDocument.Editor.CaretPosition.Paragraph, newblock);
                 }

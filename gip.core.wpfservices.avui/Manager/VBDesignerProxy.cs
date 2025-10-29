@@ -1,22 +1,16 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Avalonia;
+using Avalonia.Controls;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui;
+using gip.core.manager;
+using gip.ext.design.avui;
+using gip.ext.designer.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Windows;
-using gip.core.datamodel;
-using gip.ext.design.avui;
-using gip.core.layoutengine.avui;
-using gip.ext.designer.avui.Controls;
-using gip.core.manager;
 using static gip.core.manager.VBDesigner;
-using System.Windows.Media;
-using gip.ext.designer.avui;
-using System.ComponentModel;
-using static gip.core.datamodel.IVBComponentDesignManagerProxy;
-using DocumentFormat.OpenXml.Wordprocessing;
-using System.Xml.Linq;
 
 namespace gip.core.wpfservices.avui
 {
@@ -408,8 +402,8 @@ namespace gip.core.wpfservices.avui
                         {
                             var designItemEdges = designContext.Services.Component.DesignItems.Where(c => c.View is VBEdge);
                             routingLogic.InitWithDesignItems(designContext.RootItem,
-                                designContext.Services.Component.DesignItems.Where(c => c.View is VBVisual || c.View is VBVisualGroup).Select(x => x.View).OfType<FrameworkElement>().ToList(),
-                                designItemEdges.Select(c => c.View).OfType<FrameworkElement>(), designItemEdges);
+                                designContext.Services.Component.DesignItems.Where(c => c.View is VBVisual || c.View is VBVisualGroup).Select(x => x.View).OfType<Control>().ToList(),
+                                designItemEdges.Select(c => c.View).OfType<Control>(), designItemEdges);
                         }
                     }
                 }
@@ -431,11 +425,11 @@ namespace gip.core.wpfservices.avui
             }
             if (routingLogic != null)
             {
-                UIElement rootCanvas = null;
+                Control rootCanvas = null;
                 if (routingLogic.RootDesignItem.View is VBCanvas)
                     rootCanvas = routingLogic.RootDesignItem.View;
                 else if (routingLogic.RootDesignItem.View is VBScrollViewer)
-                    rootCanvas = ((VBScrollViewer)routingLogic.RootDesignItem.View).Content as UIElement;
+                    rootCanvas = ((VBScrollViewer)routingLogic.RootDesignItem.View).Content as Control;
                 if (rootCanvas != null)
                     routingLogic.CalculateEdgeRoute(rootCanvas);
             }
