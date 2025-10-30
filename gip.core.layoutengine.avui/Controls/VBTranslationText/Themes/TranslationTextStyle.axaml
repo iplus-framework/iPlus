@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
   <!-- Hidden Template -->
-  <ControlTemplate x:Key="TranslationTextHiddenGipTemplate" TargetType="local:VBTranslationText">
+  <ControlTemplate x:Key="TranslationTextHiddenTemplate" TargetType="local:VBTranslationText">
     <Border x:Name="Border" 
             CornerRadius="{TemplateBinding CornerRadius}" 
             BorderBrush="{TemplateBinding BorderBrush}" 
@@ -28,7 +28,7 @@
   </ControlTemplate>
 
   <!-- Collapsed Template -->
-  <ControlTemplate x:Key="TranslationTextCollapsedGipTemplate" TargetType="local:VBTranslationText">
+  <ControlTemplate x:Key="TranslationTextCollapsedTemplate" TargetType="local:VBTranslationText">
     <Border x:Name="Border" 
             CornerRadius="{TemplateBinding CornerRadius}" 
             BorderBrush="{TemplateBinding BorderBrush}" 
@@ -55,11 +55,11 @@
   <ControlTheme x:Key="{x:Type local:VBTranslationText}" TargetType="local:VBTranslationText">
     <Setter Property="TextWrapping" Value="NoWrap"/>
     <Setter Property="TextTrimming" Value="None"/>
-    <Setter Property="Template" Value="{StaticResource TranslationTextHiddenGipTemplate}"/>
+    <Setter Property="Template" Value="{StaticResource TranslationTextHiddenTemplate}"/>
     
     <!-- CollapsedMode = True -->
     <Style Selector="^[CollapsedMode=True]">
-      <Setter Property="Template" Value="{StaticResource TranslationTextCollapsedGipTemplate}"/>
+      <Setter Property="Template" Value="{StaticResource TranslationTextCollapsedTemplate}"/>
     </Style>
 
     <!-- Hidden Mode - All cases where RightControlMode=Hidden result in Hidden visibility -->

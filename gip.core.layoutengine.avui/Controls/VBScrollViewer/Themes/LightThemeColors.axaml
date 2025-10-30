@@ -4,7 +4,7 @@
    x:ClassModifier="internal">
 
     <!-- Old Brushes for ScrollBar, kept for reference -->
-<!--    <SolidColorBrush x:Key="ScrollBarPageBgAero" Color="#FF5A5A5A"/>
+<!--    <SolidColorBrush x:Key="ScrollBarPageBg" Color="#FF5A5A5A"/>
     <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
     <LinearGradientBrush x:Key="ScrollBarThumbVertDarkBackground" EndPoint="0,1" StartPoint="0,0">
@@ -98,7 +98,7 @@
     <SolidColorBrush x:Key="ScrollBarThumbHorzFocusForeground" Color="#FF404040"/>
     <SolidColorBrush x:Key="ScrollBarThumbHorzFocusBorder" Color="#FFD3D3D3"/>
 
-    <RadialGradientBrush x:Key="ScrollBarPageBorderAero" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
+    <RadialGradientBrush x:Key="ScrollBarPageBorder" Center="0.85,0.9" RadiusX="0.9" GradientOrigin="0.8,0.8" RadiusY="0.8" >
         <GradientStop Color="#FFC5C5C6" Offset="0.2"/>
         <GradientStop Color="#FF666666" Offset="0.8"/>
         <GradientStop Color="Black" Offset="1"/>

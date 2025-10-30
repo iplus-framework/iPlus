@@ -32,12 +32,12 @@
   <SolidColorBrush x:Key="ButtonFocusForeground" Color="#FF000000"/>
   <SolidColorBrush x:Key="ButtonFocusBorder" Color="#FF939393"/>
 
-  <SolidColorBrush x:Key="ButtonNormalContentStrokeAero" Color="#101010"/>
-  <SolidColorBrush x:Key="ButtonNormalContentFillAero" Color="#303030"/>
-  <SolidColorBrush x:Key="ButtonDisabledContentStrokeAero" Color="#505050"/>
-  <SolidColorBrush x:Key="ButtonDisabledContentFillAero" Color="#505050"/>
-  <SolidColorBrush x:Key="ButtonFocusContentStrokeAero" Color="#FFFF0000"/>
-  <SolidColorBrush x:Key="ButtonFocusContentFillAero" Color="#FF700000"/>
-  <SolidColorBrush x:Key="ButtonPressedContentStrokeAero" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="ButtonNormalContentStroke" Color="#101010"/>
+  <SolidColorBrush x:Key="ButtonNormalContentFill" Color="#303030"/>
+  <SolidColorBrush x:Key="ButtonDisabledContentStroke" Color="#505050"/>
+  <SolidColorBrush x:Key="ButtonDisabledContentFill" Color="#505050"/>
+  <SolidColorBrush x:Key="ButtonFocusContentStroke" Color="#FFFF0000"/>
+  <SolidColorBrush x:Key="ButtonFocusContentFill" Color="#FF700000"/>
+  <SolidColorBrush x:Key="ButtonPressedContentStroke" Color="#FFFF0000"/>
   
 </ResourceDictionary>

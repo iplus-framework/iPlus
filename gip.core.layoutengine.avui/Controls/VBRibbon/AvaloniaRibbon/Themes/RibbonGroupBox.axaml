@@ -36,7 +36,7 @@
                   DockPanel.Dock="Right">
                 <Interaction.Behaviors>
                   <DataTriggerBehavior
-                      Binding="{Binding $parent[Ribbon].Orientation}"
+                      Binding="{Binding $parent[local:Ribbon].Orientation}"
                       ComparisonCondition="Equal"
                       Value="{x:Static Orientation.Vertical}">
                     <ChangePropertyAction
@@ -49,7 +49,7 @@
                         Value="{x:True}" />
                   </DataTriggerBehavior>
                   <DataTriggerBehavior
-                      Binding="{Binding $parent[Ribbon].Orientation}"
+                      Binding="{Binding $parent[local:Ribbon].Orientation}"
                       ComparisonCondition="Equal"
                       Value="{x:Static Orientation.Horizontal}">
                     <ChangePropertyAction

@@ -61,7 +61,7 @@
         <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
     </LinearGradientBrush>
 
-    <ControlTemplate x:Key="DefaultBarGip" TargetType="local:VBFillLevel">
+    <ControlTemplate x:Key="DefaultBar" TargetType="local:VBFillLevel">
         <Border x:Name="TemplateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
             <Grid>
                 <Rectangle Grid.Row="0" Fill="{TemplateBinding Background}" RadiusX="6" RadiusY="6"/>
@@ -149,7 +149,7 @@
         
         <!-- ProgressBarStyle DefaultBar -->
         <Style Selector="^[ProgressBarStyle=DefaultBar]">
-            <Setter Property="Template" Value="{StaticResource DefaultBarGip}"/>
+            <Setter Property="Template" Value="{StaticResource DefaultBar}"/>
         </Style>
         
         <!-- Orientation Vertical -->

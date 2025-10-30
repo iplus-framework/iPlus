@@ -32,7 +32,7 @@
     <Setter Property="Padding" Value="3" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
-    <!--<Setter Property="CornerRadius" Value="{DynamicResource AeroControlCornerRadius}" />-->
+    <!--<Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />-->
     <Setter Property="Focusable" Value="True" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -117,34 +117,34 @@
     <!-- Disabled State -->
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="Background" Value="{DynamicResource AeroTextBoxDisabledBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AeroTextBoxDisabledBorderBrush}" />
+        <Setter Property="Background" Value="{DynamicResource TextBoxDisabledBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxDisabledBorderBrush}" />
       </Style>
 
       <Style Selector="^ /template/ TextPresenter#PART_TextPresenter">
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource AeroDisabledForeground}" />
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource DisabledForeground}" />
       </Style>
     </Style>
 
     <!-- PointerOver State -->
     <Style Selector="^:pointerover">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="BorderBrush" Value="{DynamicResource AeroTextBoxHoverBorderBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource AeroTextBoxHoverBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxHoverBorderBrush}"/>
+        <Setter Property="Background" Value="{DynamicResource TextBoxHoverBackground}" />
       </Style>
     </Style>
 
     <!-- Focused State -->
     <Style Selector="^:focus">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="Background" Value="{DynamicResource AeroTextBoxFocusBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AeroTextBoxFocusBorderBrush}" />
+        <Setter Property="Background" Value="{DynamicResource TextBoxFocusBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxFocusBorderBrush}" />
       </Style>
     </Style>
 
     <!-- Error State -->
     <Style Selector="^:error /template/ Border#BgElement">
-      <Setter Property="BorderBrush" Value="{DynamicResource AeroTextBoxErrorBorderBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource TextBoxErrorBorderBrush}" />
     </Style>
   </ControlTheme>
 

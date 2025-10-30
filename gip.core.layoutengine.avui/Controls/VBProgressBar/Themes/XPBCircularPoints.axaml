@@ -2,7 +2,7 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <ControlTemplate x:Key="CircularPointsGip" TargetType="local:VBProgressBar">
+    <ControlTemplate x:Key="CircularPoints" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot">
             <local:VBProgressBarCircularViewModel.Attach>
                 <local:VBProgressBarSegmentedViewModel HoleSizeFactor="0.8" SegmentCount="14"/>

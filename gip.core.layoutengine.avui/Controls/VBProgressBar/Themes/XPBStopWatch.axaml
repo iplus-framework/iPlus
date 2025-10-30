@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <local:ConverterDoubleOffset x:Key="LineOffset" Offset="6" />
 
-    <ControlTemplate x:Key="StopWatchGip" TargetType="local:VBProgressBar">
+    <ControlTemplate x:Key="StopWatch" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot" MinHeight="40" MinWidth="40">
             <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>

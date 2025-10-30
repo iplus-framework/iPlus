@@ -3,9 +3,9 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
 
-  <SolidColorBrush x:Key="ExpanderEllipseStrokeAero" Color="DarkGray" />
-  <SolidColorBrush x:Key="ExpanderEllipseStrokeAeroHover" Color="Red" />
-  <SolidColorBrush x:Key="ExpanderSignStrokeAero" Color="DarkGray" />
-  <SolidColorBrush x:Key="ExpanderSignStrokeAeroHover" Color="DarkRed" />
+  <SolidColorBrush x:Key="ExpanderEllipseStroke" Color="DarkGray" />
+  <SolidColorBrush x:Key="ExpanderEllipseStrokeHover" Color="Red" />
+  <SolidColorBrush x:Key="ExpanderSignStroke" Color="DarkGray" />
+  <SolidColorBrush x:Key="ExpanderSignStrokeHover" Color="DarkRed" />
 
 </ResourceDictionary>

@@ -24,7 +24,7 @@
             <Rectangle x:Name="InvalidVisualElement"
                        Opacity="0"
                        Grid.ColumnSpan="2"
-                       Fill="{StaticResource NormalBrushAero}" />
+                       Fill="{StaticResource NormalBrush}" />
 
             <DataGridRowHeader Name="PART_RowHeader"
                                Grid.RowSpan="3"

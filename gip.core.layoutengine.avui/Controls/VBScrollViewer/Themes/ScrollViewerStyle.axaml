@@ -1,9 +1,12 @@
 <ResourceDictionary
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:sys="using:System"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-    <ControlTheme x:Key="ScrollViewerStyle" TargetType="ScrollViewer">
+  <sys:TimeSpan x:Key="ScrollExpandDuration">0:0:0.25</sys:TimeSpan>
+
+  <ControlTheme x:Key="ScrollViewerStyle" TargetType="ScrollViewer">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="Template">
             <ControlTemplate>
@@ -33,7 +36,7 @@
                                         Grid.Column="1" />
                     
                     <Rectangle x:Name="ScrollBarsSeparator"
-                        Fill="{StaticResource AeroScrollViewerCornerBackground}"
+                        Fill="{StaticResource ScrollViewerCornerBackground}"
                         Grid.Row="1"
                         Grid.Column="1"
                         IsHitTestVisible="False" />
@@ -44,7 +47,7 @@
         <Style Selector="^ /template/ Rectangle#ScrollBarsSeparator">
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="{StaticResource AeroScrollExpandDuration}" />
+                    <DoubleTransition Property="Opacity" Duration="{StaticResource ScrollExpandDuration}" />
                 </Transitions>
             </Setter>
         </Style>

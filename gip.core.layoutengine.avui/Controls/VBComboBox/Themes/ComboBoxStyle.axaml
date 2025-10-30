@@ -520,24 +520,24 @@
     </Style>
 
     <!-- ToggleButton States for Readonly -->
-    <Style Selector="^:disabled /template/ ToggleButton /template/ Path#Arrow">
+    <Style Selector="^:disabled /template/ Path#Arrow">
       <Setter Property="Fill" Value="#AFAFAF"/>
     </Style>
-    <Style Selector="^:pointerover /template/ ToggleButton /template/ Border#BorderToggleButton">
+    <Style Selector="^:pointerover /template/ Border#BorderToggleButton">
       <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBackground}"/>
     </Style>
-    <Style Selector="^:pressed /template/ ToggleButton /template/ Border#BorderToggleButton">
+    <Style Selector="^:pressed /template/ Border#BorderToggleButton">
       <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBackground}"/>
     </Style>
 
     <!-- ToggleButton States for Editable -->
-    <Style Selector="^[IsEditable=True]:pointerover /template/ ToggleButton /template/ Border#BorderToggleButton">
+    <Style Selector="^[IsEditable=True]:pointerover /template/ Border#BorderToggleButton">
       <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBorder}"/>
     </Style>
-    <Style Selector="^[IsEditable=True]:pressed /template/ ToggleButton /template/ Border#BorderToggleButton">
+    <Style Selector="^[IsEditable=True]:pressed /template/ Border#BorderToggleButton">
       <Setter Property="Background" Value="{StaticResource ButtonComboNormalBackground}"/>
       <Setter Property="BorderBrush" Value="{StaticResource ButtonComboNormalBorder}"/>
     </Style>

@@ -31,7 +31,7 @@
               IsChecked="{Binding IsMenuOpen, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay}" />
           <Popup
               x:Name="MenuPopup"
-              Width="{Binding $parent[Ribbon].Bounds.Width}"
+              Width="{Binding $parent[local:Ribbon].Bounds.Width}"
               IsLightDismissEnabled="True"
               IsOpen="{Binding IsMenuOpen, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay}"
               PlacementTarget="{Binding #ContentButton}">
@@ -61,17 +61,17 @@
                         DockPanel.Dock="Top"
                         IsChecked="{Binding !IsMenuOpen, RelativeSource={RelativeSource Mode=TemplatedParent}}">
                       <Panel Width="24" Height="24">
-                        <Ellipse Stroke="{Binding $parent[Ribbon].Foreground}"
+                        <Ellipse Stroke="{Binding $parent[local:Ribbon].Foreground}"
                                  StrokeThickness="1" />
                         <Panel Width="14" Height="10">
                           <Rectangle
                               Height="1"
                               VerticalAlignment="Center"
-                              Fill="{Binding $parent[Ribbon].Foreground}" />
+                              Fill="{Binding $parent[local:Ribbon].Foreground}" />
                           <Path
                               HorizontalAlignment="Left"
                               Data="M 5 0 L 0 5 L 5 10"
-                              Stroke="{Binding $parent[Ribbon].Foreground}"
+                              Stroke="{Binding $parent[local:Ribbon].Foreground}"
                               StrokeThickness="1" />
                         </Panel>
                       </Panel>
@@ -126,7 +126,7 @@
 
     <!-- ContentButton styles -->
     <Style Selector="local|Ribbon > ^ /template/ ToggleButton#ContentButton:not(:pointerover):not(:pressed):not(:checked)">
-      <Setter Property="Foreground" Value="{Binding $parent[Ribbon].Foreground}" />
+      <Setter Property="Foreground" Value="{Binding $parent[local:Ribbon].Foreground}" />
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>

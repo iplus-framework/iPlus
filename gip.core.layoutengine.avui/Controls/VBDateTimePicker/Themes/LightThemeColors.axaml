@@ -3,14 +3,14 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
 
-  <LinearGradientBrush x:Key="DateTimePickerPopupDarkBorderBrushAero" EndPoint="0.5,1" StartPoint="0.5,0">
+  <LinearGradientBrush x:Key="DateTimePickerPopupDarkBorderBrush" EndPoint="0.5,1" StartPoint="0.5,0">
     <GradientStop Color="#FFA3AEB9" Offset="0"/>
     <GradientStop Color="#FF8399A9" Offset="0.375"/>
     <GradientStop Color="#FF718597" Offset="0.375"/>
     <GradientStop Color="#FF617584" Offset="1"/>
   </LinearGradientBrush>
 
-  <LinearGradientBrush x:Key="DateTimePickerPopupBackgroundBrushAero" StartPoint="0,0" EndPoint="0,1">
+  <LinearGradientBrush x:Key="DateTimePickerPopupBackgroundBrush" StartPoint="0,0" EndPoint="0,1">
     <LinearGradientBrush.GradientStops>
         <GradientStop Offset="0" Color="#FFFFFFFF"/>
         <GradientStop Offset="1" Color="#FFE8EBED"/>

@@ -5,9 +5,9 @@
    x:ClassModifier="internal">
 
 	<ControlTheme x:Key="{x:Type local:VBListBox}" TargetType="{x:Type local:VBListBox}">
-		<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabledGip}"/>
-		<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabledGip}"/>
-		<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabledGip}"/>
+		<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabled}"/>
+		<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabled}"/>
+		<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabled}"/>
 		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="CornerRadius" Value="3"/>
 		<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
@@ -67,56 +67,56 @@
 
 		<!-- Disabled State -->
 		<Style Selector="^:disabled">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgDisabledGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgDisabledGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderDisabledGip}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgDisabled}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgDisabled}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderDisabled}"/>
 		</Style>
 
 		<!-- Enabled States -->
 		<Style Selector="^[ControlMode=Enabled]:focus">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabledGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabledGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabledGipFocus}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabled}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabled}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabledFocus}"/>
 		</Style>
 		<Style Selector="^[ControlMode=Enabled]">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabledGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabledGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabledGip}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgEnabled}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgEnabled}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderEnabled}"/>
 		</Style>
 
 		<!-- EnabledRequired States -->
 		<Style Selector="^[ControlMode=EnabledRequired]:focus">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgRequiredGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderRequiredGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgRequiredGipFocus}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgRequired}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderRequired}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgRequiredFocus}"/>
 		</Style>
 		<Style Selector="^[ControlMode=EnabledRequired]">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgRequiredGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgRequiredGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderRequiredGip}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgRequired}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgRequired}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderRequired}"/>
 		</Style>
 
 		<!-- EnabledWrong States -->
 		<Style Selector="^[ControlMode=EnabledWrong]:focus">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrongGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrongGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongGipFocus}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrong}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrong}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongFocus}"/>
 		</Style>
 		<Style Selector="^[ControlMode=EnabledWrong]">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrongGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrongGip}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrong}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrong}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrong}"/>
 		</Style>
 
 		<!-- Validation Error State -->
 		<Style Selector="^:error">
-			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrongGip}"/>
-			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrongGip}"/>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongGipFocus}"/>
+			<Setter Property="Background" Value="{DynamicResource ListBoxBgWrong}"/>
+			<Setter Property="BorderBrush" Value="{DynamicResource ListBoxBorderWrong}"/>
+			<Setter Property="Foreground" Value="{DynamicResource ListBoxFgWrongFocus}"/>
 		</Style>
 	</ControlTheme>
 
-	<!--<ControlTheme x:Key="ListBoxStyleGip" TargetType="local:VBListBox" BasedOn="{StaticResource {x:Type local:VBListBox}}">
+	<!--<ControlTheme x:Key="ListBoxStyle" TargetType="local:VBListBox" BasedOn="{StaticResource {x:Type local:VBListBox}}">
 	</ControlTheme>-->
 
 </ResourceDictionary>

@@ -15,24 +15,24 @@
   </ControlTheme>
 
   <!-- base style for all arrow shapes -->
-  <ControlTheme x:Key="ArrowSymbolBaseStyleGip" TargetType="Path">
+  <ControlTheme x:Key="ArrowSymbolBaseStyle" TargetType="Path">
     <Setter Property="Fill" Value="{Binding LineStroke}"/>
     <Setter Property="Stretch" Value="Fill"/>
   </ControlTheme>
 
   <!-- None (Line) -->
-  <ControlTheme x:Key="SymbolNoneGip" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyleGip}">
+  <ControlTheme x:Key="SymbolNone" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyle}">
     <!-- TODO: DOES NOT WORK! -->
     <Setter Property="Data" Value="M0,5 5,5 Z"/>
   </ControlTheme>
 
   <!-- Arrow -->
-  <ControlTheme x:Key="SymbolArrow" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyleGip}">
+  <ControlTheme x:Key="SymbolArrow" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyle}">
     <Setter Property="Data" Value="M0,0 8,4 0,8 Z"/>
   </ControlTheme>
 
   <!-- Diamond  -->
-  <ControlTheme x:Key="SymbolDiamond" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyleGip}">
+  <ControlTheme x:Key="SymbolDiamond" TargetType="Path" BasedOn="{StaticResource ArrowSymbolBaseStyle}">
     <Setter Property="Data" Value="M-5,0 0,-5 5,0 0,5 Z"/>
   </ControlTheme>
 
@@ -77,7 +77,7 @@
     
     <!-- Data trigger styles for arrow symbols - converted to pseudo-classes -->
     <Style Selector="^[SourceArrowSymbol=None] /template/ Path#PART_SourceAnchorPath">
-      <Setter Property="Theme" Value="{StaticResource SymbolNoneGip}"/>
+      <Setter Property="Theme" Value="{StaticResource SymbolNone}"/>
     </Style>
     <Style Selector="^[SourceArrowSymbol=Arrow] /template/ Path#PART_SourceAnchorPath">
       <Setter Property="Theme" Value="{StaticResource SymbolArrow}"/>
@@ -86,7 +86,7 @@
       <Setter Property="Theme" Value="{StaticResource SymbolDiamond}"/>
     </Style>
     <Style Selector="^[SinkArrowSymbol=None] /template/ Path#PART_SinkAnchorPath">
-      <Setter Property="Theme" Value="{StaticResource SymbolNoneGip}"/>
+      <Setter Property="Theme" Value="{StaticResource SymbolNone}"/>
     </Style>
     <Style Selector="^[SinkArrowSymbol=Arrow] /template/ Path#PART_SinkAnchorPath">
       <Setter Property="Theme" Value="{StaticResource SymbolArrow}"/>

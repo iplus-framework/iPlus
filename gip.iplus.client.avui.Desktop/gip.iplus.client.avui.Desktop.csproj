@@ -24,4 +24,10 @@
   <ItemGroup>
     <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="ConnectionStrings.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

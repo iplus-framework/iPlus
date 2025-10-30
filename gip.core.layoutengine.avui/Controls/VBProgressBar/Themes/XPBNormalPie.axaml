@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
         <local:ConverterVisibilityBool x:Key="ConverterVisibilityBool" />
 
-    <ControlTemplate x:Key="NormalPieGip" TargetType="local:VBProgressBar">
+    <ControlTemplate x:Key="NormalPie" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot">
             <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>

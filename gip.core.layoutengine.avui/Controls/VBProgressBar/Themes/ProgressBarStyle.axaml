@@ -66,7 +66,7 @@
                                 <MultiBinding Converter="{StaticResource ProgressBarFillColorConverter}"
                                             ConverterParameter="0.83;brush">
                                     <TemplateBinding Property="Foreground" />
-                                    <DynamicResource ResourceKey="AeroProgressBarFillFallback" />
+                                    <DynamicResource ResourceKey="ProgressBarFillFallback" />
                                 </MultiBinding>
                             </Rectangle.Fill>
                         </Rectangle>
@@ -159,69 +159,69 @@
         </Style>
     </ControlTheme>
 
+  <ControlTemplate x:Key="DefaultBar" TargetType="local:VBProgressBar">
+    <Border x:Name="ProgressBarRoot"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            CornerRadius="3">
+      <Border x:Name="InnerBorder"
+              Background="{TemplateBinding Background}"
+              BorderBrush="{DynamicResource ProgressBarFrameInnerBorderBrush}"
+              BorderThickness="1"
+              CornerRadius="2"
+              ClipToBounds="True">
+        <Panel>
+          <Panel x:Name="DeterminateRoot"
+              Opacity="1">
+            <Border x:Name="PART_Indicator"
+                    Margin="{TemplateBinding Padding}"
+                    CornerRadius="1"
+                    ClipToBounds="True">
+              <Border.Background>
+                <MultiBinding Converter="{x:Static local:ProgressBarFillBrushConverter.Instance}">
+                  <TemplateBinding Property="Foreground" />
+                  <TemplateBinding Property="Orientation" />
+                  <DynamicResource ResourceKey="ProgressBarFillFallback" />
+                </MultiBinding>
+              </Border.Background>
+            </Border>
+          </Panel>
+          <Border x:Name="ShineBorder"
+                  Margin="{Binding #PART_Indicator.Margin, Mode=OneWay}"
+                  CornerRadius="{Binding #PART_Indicator.Margin, Mode=OneWay}"
+                  MinWidth="{ReflectionBinding Bounds.Width, ElementName=PART_Indicator, Mode=OneWay}"
+                  MinHeight="{ReflectionBinding Bounds.Height, ElementName=PART_Indicator, Mode=OneWay}" />
+          <Panel x:Name="IndeterminateRoot"
+              IsVisible="{Binding !#DeterminateRoot.IsVisible, Mode=OneWay}">
+          </Panel>
+          <TemplatedControl x:Name="BarAnimation"
+                          Background="{Binding #PART_Indicator.Background, Mode=OneWay}"
+                          Foreground="{TemplateBinding Foreground}"
+                          Theme="{DynamicResource ProgressBarAnimation}"
+                          Classes.verticalProgressBar="{Binding Orientation, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ProgressBar}}, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static lyot:Orientation.Vertical}, FallbackValue=False}">
+            <TemplatedControl.Clip>
+              <RectangleGeometry Rect="{Binding #PART_Indicator.Bounds, Mode=OneWay}" />
+            </TemplatedControl.Clip>
+          </TemplatedControl>
+          <LayoutTransformControl x:Name="PART_LayoutTransformControl"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  IsVisible="{TemplateBinding ShowProgressText}">
+            <TextBlock x:Name="ProgressText"
+                    Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+          </LayoutTransformControl>
+        </Panel>
+      </Border>
+    </Border>
+  </ControlTemplate>
+
     <ControlTheme x:Key="ProgressBarStyle" TargetType="ProgressBar">
-        <Setter Property="Background" Value="{DynamicResource AeroProgressBarFrameBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource AeroProgressBarFrameOuterBorderBrush}" />
+        <Setter Property="Background" Value="{DynamicResource ProgressBarFrameBackground}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource ProgressBarFrameOuterBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Foreground" Value="{DynamicResource AeroProgressBarFill}" />
+        <Setter Property="Foreground" Value="{DynamicResource ProgressBarFill}" />
         <Setter Property="Padding" Value="0" />
-        <Setter Property="Template">
-            <ControlTemplate>
-                <Border x:Name="ProgressBarRoot"
-                        BorderBrush="{TemplateBinding BorderBrush}"
-                        BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="3">
-                    <Border x:Name="InnerBorder"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{DynamicResource AeroProgressBarFrameInnerBorderBrush}"
-                            BorderThickness="1"
-                            CornerRadius="2"
-                            ClipToBounds="True">
-                        <Panel>
-                            <Panel x:Name="DeterminateRoot"
-                                Opacity="1">
-                                <Border x:Name="PART_Indicator"
-                                        Margin="{TemplateBinding Padding}"
-                                        CornerRadius="1"
-                                        ClipToBounds="True">
-                                    <Border.Background>
-                                        <MultiBinding Converter="{x:Static local:ProgressBarFillBrushConverter.Instance}">
-                                            <TemplateBinding Property="Foreground" />
-                                            <TemplateBinding Property="Orientation" />
-                                            <DynamicResource ResourceKey="AeroProgressBarFillFallback" />
-                                        </MultiBinding>
-                                    </Border.Background>
-                                </Border>
-                            </Panel>
-                            <Border x:Name="ShineBorder"
-                                    Margin="{Binding #PART_Indicator.Margin, Mode=OneWay}"
-                                    CornerRadius="{Binding #PART_Indicator.Margin, Mode=OneWay}"
-                                    MinWidth="{ReflectionBinding Bounds.Width, ElementName=PART_Indicator, Mode=OneWay}"
-                                    MinHeight="{ReflectionBinding Bounds.Height, ElementName=PART_Indicator, Mode=OneWay}" />
-                            <Panel x:Name="IndeterminateRoot"
-                                IsVisible="{Binding !#DeterminateRoot.IsVisible, Mode=OneWay}">
-                            </Panel>
-                            <TemplatedControl x:Name="BarAnimation"
-                                            Background="{Binding #PART_Indicator.Background, Mode=OneWay}"
-                                            Foreground="{TemplateBinding Foreground}"
-                                            Theme="{DynamicResource ProgressBarAnimation}"
-                                            Classes.verticalProgressBar="{Binding Orientation, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ProgressBar}}, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static lyot:Orientation.Vertical}, FallbackValue=False}">
-                                <TemplatedControl.Clip>
-                                    <RectangleGeometry Rect="{Binding #PART_Indicator.Bounds, Mode=OneWay}" />
-                                </TemplatedControl.Clip>
-                            </TemplatedControl>
-                            <LayoutTransformControl x:Name="PART_LayoutTransformControl"
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    IsVisible="{TemplateBinding ShowProgressText}">
-                                <TextBlock x:Name="ProgressText"
-                                        Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                            </LayoutTransformControl>
-                        </Panel>
-                    </Border>
-                </Border>
-            </ControlTemplate>
-        </Setter>
+        <Setter Property="Template" Value="{StaticResource DefaultBar}" />
 
         <Style Selector="^:horizontal">
             <Setter Property="MinWidth" Value="100" />
@@ -239,7 +239,7 @@
                 <Setter Property="Width" Value="{Binding TemplateSettings.Container2Width, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
             </Style>
             <Style Selector="^ /template/ Border#ShineBorder">
-                <Setter Property="Background" Value="{DynamicResource AeroProgressBarHorizontalShine}" />
+                <Setter Property="Background" Value="{DynamicResource ProgressBarHorizontalShine}" />
             </Style>
 
             <Style Selector="^[IsEnabled=True]">
@@ -292,7 +292,7 @@
                 <Setter Property="Height" Value="{Binding TemplateSettings.Container2Width, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
             </Style>
             <Style Selector="^ /template/ Border#ShineBorder">
-                <Setter Property="Background" Value="{DynamicResource AeroProgressBarVerticalShine}" />
+                <Setter Property="Background" Value="{DynamicResource ProgressBarVerticalShine}" />
             </Style>
 
             <Style Selector="^[IsEnabled=True]">
@@ -370,10 +370,10 @@
 
 
     <ControlTheme x:Key="StorageBar" TargetType="ProgressBar" BasedOn="{StaticResource {x:Type ProgressBar}}">
-        <Setter Property="Background" Value="{DynamicResource AeroProgressBarStorageFrameBackground}" />
+        <Setter Property="Background" Value="{DynamicResource ProgressBarStorageFrameBackground}" />
 
         <Style Selector="^ /template/ Border#InnerBorder">
-            <Setter Property="BorderBrush" Value="{DynamicResource AeroProgressBarStorageFrameInnerBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ProgressBarStorageFrameInnerBorderBrush}" />
         </Style>
 
         <Style Selector="^ /template/ Border#ShineBorder">
@@ -401,7 +401,7 @@
             <Setter Property="PieFill" Value="LightBlue"/>
             <Setter Property="PieStroke" Value="Transparent"/>
             <Setter Property="PieTextColor" Value="Black"/>
-            <Setter Property="Template" Value="{StaticResource NormalPieGip}"/>
+            <Setter Property="Template" Value="{StaticResource NormalPie}"/>
         </Style>
         
         <!-- GlassyPie Style -->
@@ -409,7 +409,7 @@
             <Setter Property="PieFill" Value="Red"/>
             <Setter Property="PieStroke" Value="DarkRed"/>
             <Setter Property="PieTextColor" Value="Black"/>
-            <Setter Property="Template" Value="{StaticResource GlassyPieGip}"/>
+            <Setter Property="Template" Value="{StaticResource GlassyPie}"/>
         </Style>
         
         <!-- Circular Style -->
@@ -417,7 +417,7 @@
             <Setter Property="PieFill" Value="Black"/>
             <Setter Property="PieStroke" Value="Transparent"/>
             <Setter Property="PieTextColor" Value="Black"/>
-            <Setter Property="Template" Value="{StaticResource CircularGip}"/>
+            <Setter Property="Template" Value="{StaticResource Circular}"/>
         </Style>
         
         <!-- CircularSegmented Style -->
@@ -425,7 +425,7 @@
             <Setter Property="PieFill" Value="DarkBlue"/>
             <Setter Property="PieStroke" Value="White"/>
             <Setter Property="PieTextColor" Value="Black"/>
-            <Setter Property="Template" Value="{StaticResource CircularSegmentedGip}"/>
+            <Setter Property="Template" Value="{StaticResource CircularSegmented}"/>
         </Style>
         
         <!-- CircularPoints Style -->
@@ -433,7 +433,7 @@
             <Setter Property="PieFill" Value="DarkBlue"/>
             <Setter Property="PieStroke" Value="DarkRed"/>
             <Setter Property="PieTextColor" Value="Black"/>
-            <Setter Property="Template" Value="{StaticResource CircularPointsGip}"/>
+            <Setter Property="Template" Value="{StaticResource CircularPoints}"/>
         </Style>
         
         <!-- StopWatch Style -->
@@ -441,7 +441,7 @@
             <Setter Property="PieFill" Value="Red"/>
             <Setter Property="PieStroke" Value="Transparent"/>
             <Setter Property="PieTextColor" Value="Black"/>
-            <Setter Property="Template" Value="{StaticResource StopWatchGip}"/>
+            <Setter Property="Template" Value="{StaticResource StopWatch}"/>
         </Style>
         
         <!-- PerformantBar Style -->

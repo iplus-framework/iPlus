@@ -7,8 +7,8 @@
         <Setter Property="Foreground" Value="#FF000000"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="VerticalContentAlignment" Value="Top"/>
-        <Setter Property="ContentStroke" Value="{StaticResource ContentControlNormalContentStrokeGip}"/>
-        <Setter Property="ContentFill" Value="{StaticResource ContentControlNormalContentFillGip}"/>
+        <Setter Property="ContentStroke" Value="{StaticResource ContentControlNormalContentStroke}"/>
+        <Setter Property="ContentFill" Value="{StaticResource ContentControlNormalContentFill}"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="local:VBContentControlIcon">
                 <ContentPresenter
@@ -23,14 +23,14 @@
 
         <!-- Mouse Over State -->
         <Style Selector="^:pointerover">
-            <Setter Property="ContentStroke" Value="{StaticResource ContentControlFocusContentStrokeGip}"/>
-            <Setter Property="ContentFill" Value="{StaticResource ContentControlFocusContentFillGip}"/>
+            <Setter Property="ContentStroke" Value="{StaticResource ContentControlFocusContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource ContentControlFocusContentFill}"/>
         </Style>
 
         <!-- Disabled State -->
         <Style Selector="^:disabled">
-            <Setter Property="ContentStroke" Value="{StaticResource ContentControlDisabledContentStrokeGip}"/>
-            <Setter Property="ContentFill" Value="{StaticResource ContentControlDisabledContentFillGip}"/>
+            <Setter Property="ContentStroke" Value="{StaticResource ContentControlDisabledContentStroke}"/>
+            <Setter Property="ContentFill" Value="{StaticResource ContentControlDisabledContentFill}"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

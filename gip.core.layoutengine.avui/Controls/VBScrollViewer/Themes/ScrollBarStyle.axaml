@@ -4,15 +4,15 @@
    xmlns:sys="using:System"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-    <sys:Double x:Key="AeroScrollBarThickness">18</sys:Double>
-    <sys:Double x:Key="AeroSmallScrollBarThickness">9</sys:Double>
-    <sys:Double x:Key="AeroScrollBarLineButtonExtent">16</sys:Double>
-    <StaticResource x:Key="AeroScrollBarThumbMinimumExtent" ResourceKey="AeroScrollBarLineButtonExtent" />
+    <sys:Double x:Key="ScrollBarThickness">18</sys:Double>
+    <sys:Double x:Key="SmallScrollBarThickness">9</sys:Double>
+    <sys:Double x:Key="ScrollBarLineButtonExtent">16</sys:Double>
+    <StaticResource x:Key="ScrollBarThumbMinimumExtent" ResourceKey="ScrollBarLineButtonExtent" />
     
-    <QuinticEaseInOut x:Key="AeroScrollExpandEase"/>
-    <sys:TimeSpan x:Key="AeroScrollExpandDuration">0:0:0.25</sys:TimeSpan>
+    <QuinticEaseInOut x:Key="ScrollExpandEase"/>
+    <sys:TimeSpan x:Key="ScrollExpandDuration">0:0:0.25</sys:TimeSpan>
 
-    <ControlTheme x:Key="AeroScrollBarThumbBase" TargetType="Thumb">
+    <ControlTheme x:Key="ScrollBarThumbBase" TargetType="Thumb">
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template">
             <ControlTemplate>
@@ -24,7 +24,7 @@
                         <Border x:Name="Inner"
                                 Classes="aeroState2"
                                 Background="{TemplateBinding Background}"
-                                BorderBrush="{StaticResource AeroButtonIdleInnerBorderBrush}"
+                                BorderBrush="{StaticResource ButtonIdleInnerBorderBrush}"
                                 BorderThickness="1">
                             <StackPanel Classes="gripLines" Spacing="-1">
                                 <Rectangle/>
@@ -48,7 +48,7 @@
         <Style Selector="^ /template/ StackPanel.gripLines">
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="{StaticResource AeroScrollExpandDuration}" />
+                    <DoubleTransition Property="Opacity" Duration="{StaticResource ScrollExpandDuration}" />
                 </Transitions>
             </Setter>
             <Setter Property="Opacity" Value="0.5" />
@@ -58,15 +58,15 @@
         </Style>
 
         <Style Selector="^ /template/ StackPanel.gripLines > Rectangle">
-            <Setter Property="Fill" Value="{StaticResource AeroScrollBarButtonForeground}" />
-            <Setter Property="Stroke" Value="{StaticResource AeroScrollBarThumbIconStroke}" />
+            <Setter Property="Fill" Value="{StaticResource ScrollBarButtonForeground}" />
+            <Setter Property="Stroke" Value="{StaticResource ScrollBarThumbIconStroke}" />
             <Setter Property="StrokeThickness" Value="1" />
         </Style>
     </ControlTheme>
-    <ControlTheme x:Key="AeroScrollBarThumbVertical" TargetType="Thumb" BasedOn="{StaticResource AeroScrollBarThumbBase}">
-        <Setter Property="MinHeight" Value="{StaticResource AeroScrollBarThumbMinimumExtent}"/>
-        <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonIdleBackground}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonIdleOuterBorderBrush}"/>
+    <ControlTheme x:Key="ScrollBarThumbVertical" TargetType="Thumb" BasedOn="{StaticResource ScrollBarThumbBase}">
+        <Setter Property="MinHeight" Value="{StaticResource ScrollBarThumbMinimumExtent}"/>
+        <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonIdleBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonIdleOuterBorderBrush}"/>
 
         <Style Selector="^ /template/ Border#Outer">
             <Setter Property="Margin" Value="1,0"/>
@@ -85,37 +85,37 @@
 
         <!-- pointerover (hover) state -->
         <Style Selector="^:pointerover /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonHoverOuterBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonHoverOuterBorderBrush}"/>
         </Style>
         <Style Selector="^:pointerover /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonHoverBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonHoverInnerBorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonHoverBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonHoverInnerBorderBrush}"/>
         </Style>
 
 
         <!-- pressed state -->
         <Style Selector="^:pressed /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonPressedOuterBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonPressedOuterBorderBrush}"/>
         </Style>
         <Style Selector="^:pressed /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonPressedBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonPressedInnerBorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonPressedBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonPressedInnerBorderBrush}"/>
         </Style>
 
 
         <!-- disabled state -->
         <Style Selector="^:disabled /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonDisabledOuterBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonDisabledOuterBorderBrush}"/>
         </Style>
         <Style Selector="^:disabled /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonDisabledBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonDisabledInnerBorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonDisabledBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonDisabledInnerBorderBrush}"/>
         </Style>
     </ControlTheme>
-    <ControlTheme x:Key="AeroScrollBarThumbHorizontal" TargetType="Thumb" BasedOn="{StaticResource AeroScrollBarThumbBase}">
-        <Setter Property="MinWidth" Value="{StaticResource AeroScrollBarThumbMinimumExtent}"/>
-        <Setter Property="Background" Value="{StaticResource AeroButtonIdleBackground}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource AeroButtonIdleOuterBorderBrush}"/>
+    <ControlTheme x:Key="ScrollBarThumbHorizontal" TargetType="Thumb" BasedOn="{StaticResource ScrollBarThumbBase}">
+        <Setter Property="MinWidth" Value="{StaticResource ScrollBarThumbMinimumExtent}"/>
+        <Setter Property="Background" Value="{StaticResource ButtonIdleBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ButtonIdleOuterBorderBrush}"/>
 
         <Style Selector="^ /template/ Border#Outer">
             <Setter Property="Margin" Value="0,1"/>
@@ -134,39 +134,39 @@
 
         <!-- pointerover (hover) state -->
         <Style Selector="^:pointerover /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroButtonHoverOuterBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonHoverOuterBorderBrush}" />
         </Style>
         <Style Selector="^:pointerover /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroButtonHoverBackground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AeroButtonHoverInnerBorderBrush}" />
+            <Setter Property="Background" Value="{StaticResource ButtonHoverBackground}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonHoverInnerBorderBrush}" />
         </Style>
 
 
         <!-- pressed state -->
         <Style Selector="^:pressed /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroButtonPressedOuterBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonPressedOuterBorderBrush}" />
         </Style>
         <Style Selector="^:pressed /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroButtonPressedBackground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AeroButtonPressedInnerBorderBrush}" />
+            <Setter Property="Background" Value="{StaticResource ButtonPressedBackground}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonPressedInnerBorderBrush}" />
         </Style>
 
 
         <!-- disabled state -->
         <Style Selector="^:disabled /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroButtonDisabledOuterBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonDisabledOuterBorderBrush}" />
         </Style>
         <Style Selector="^:disabled /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroButtonDisabledBackground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AeroButtonDisabledInnerBorderBrush}" />
+            <Setter Property="Background" Value="{StaticResource ButtonDisabledBackground}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ButtonDisabledInnerBorderBrush}" />
         </Style>
         <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-            <Setter Property="TextBlock.Foreground" Value="{StaticResource AeroButtonDisabledForeground}"/>
+            <Setter Property="TextBlock.Foreground" Value="{StaticResource ButtonDisabledForeground}"/>
         </Style>
     </ControlTheme>
     
     
-    <ControlTheme x:Key="AeroScrollBarPageButton" TargetType="RepeatButton">
+    <ControlTheme x:Key="ScrollBarPageButton" TargetType="RepeatButton">
         <Setter Property="Template">
             <ControlTemplate>
                 <Border Background="#01000000" />
@@ -175,12 +175,12 @@
     </ControlTheme>
 
 
-    <ControlTheme x:Key="AeroScrollBarLineButtonBase" TargetType="RepeatButton" BasedOn="{StaticResource {x:Type RepeatButton}}">
+    <ControlTheme x:Key="ScrollBarLineButtonBase" TargetType="RepeatButton" BasedOn="{StaticResource {x:Type RepeatButton}}">
         <Setter Property="Transitions">
             <Transitions>
-                <DoubleTransition Property="Width" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
-                <DoubleTransition Property="Height" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
-                <DoubleTransition Property="Opacity" Duration="{StaticResource AeroScrollExpandDuration}" />
+                <DoubleTransition Property="Width" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
+                <DoubleTransition Property="Height" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
+                <DoubleTransition Property="Opacity" Duration="{StaticResource ScrollExpandDuration}" />
             </Transitions>
         </Setter>
         
@@ -190,7 +190,7 @@
 
         <Style Selector="^:not(.scrollBarHideIdle) /template/ Border#Outer">
             <Style.Animations>
-                <Animation FillMode="Both" Duration="{StaticResource AeroScrollExpandDuration}">
+                <Animation FillMode="Both" Duration="{StaticResource ScrollExpandDuration}">
                     <KeyFrame Cue="100%">
                         <Setter Property="Opacity" Value="1.0"/>
                     </KeyFrame>
@@ -199,7 +199,7 @@
         </Style>
         <Style Selector="^.scrollBarHideIdle /template/ Border#Outer">
             <Style.Animations>
-                <Animation FillMode="Both" Duration="{StaticResource AeroScrollExpandDuration}">
+                <Animation FillMode="Both" Duration="{StaticResource ScrollExpandDuration}">
                     <KeyFrame Cue="100%">
                         <Setter Property="Opacity" Value="0.0"/>
                     </KeyFrame>
@@ -207,64 +207,64 @@
             </Style.Animations>
         </Style>
     </ControlTheme>
-    <ControlTheme x:Key="AeroScrollBarLineButtonHorizontal" TargetType="RepeatButton" BasedOn="{StaticResource AeroScrollBarLineButtonBase}">
-        <Setter Property="Width" Value="{StaticResource AeroScrollBarLineButtonExtent}" />
+    <ControlTheme x:Key="ScrollBarLineButtonHorizontal" TargetType="RepeatButton" BasedOn="{StaticResource ScrollBarLineButtonBase}">
+        <Setter Property="Width" Value="{StaticResource ScrollBarLineButtonExtent}" />
         <Setter Property="VerticalAlignment" Value="Stretch"/>
 
         <Style Selector="^ /template/ Border#Outer">
             <Setter Property="Margin" Value="0,1"/>
         </Style>
     </ControlTheme>
-    <ControlTheme x:Key="AeroScrollBarLineButtonVertical" TargetType="RepeatButton" BasedOn="{StaticResource AeroScrollBarLineButtonBase}">
-        <Setter Property="Height" Value="{StaticResource AeroScrollBarLineButtonExtent}" />
+    <ControlTheme x:Key="ScrollBarLineButtonVertical" TargetType="RepeatButton" BasedOn="{StaticResource ScrollBarLineButtonBase}">
+        <Setter Property="Height" Value="{StaticResource ScrollBarLineButtonExtent}" />
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
 
         <Style Selector="^ /template/ Border#Outer">
             <Setter Property="Margin" Value="1,0"/>
         </Style>
 
-        <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonIdleBackground}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonIdleOuterBorderBrush}"/>
+        <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonIdleBackground}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonIdleOuterBorderBrush}"/>
 
 
         <!-- pointerover (hover) state -->
         <Style Selector="^:pointerover /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonHoverOuterBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonHoverOuterBorderBrush}"/>
         </Style>
         <Style Selector="^:pointerover /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonHoverBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonHoverInnerBorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonHoverBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonHoverInnerBorderBrush}"/>
         </Style>
 
 
         <!-- pressed state -->
         <Style Selector="^:pressed /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonPressedOuterBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonPressedOuterBorderBrush}"/>
         </Style>
         <Style Selector="^:pressed /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonPressedBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonPressedInnerBorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonPressedBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonPressedInnerBorderBrush}"/>
         </Style>
 
 
         <!-- disabled state -->
         <Style Selector="^:disabled /template/ Border#Outer">
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonDisabledOuterBorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonDisabledOuterBorderBrush}"/>
         </Style>
         <Style Selector="^:disabled /template/ Border#Inner">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarButtonDisabledBackground}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarButtonDisabledInnerBorderBrush}"/>
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarButtonDisabledBackground}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarButtonDisabledInnerBorderBrush}"/>
         </Style>
     </ControlTheme>
 
     
     <ControlTheme x:Key="ScrollBarStyle" TargetType="ScrollBar">
-        <Setter Property="MinWidth" Value="{StaticResource AeroScrollBarThickness}"/>
-        <Setter Property="MinHeight" Value="{StaticResource AeroScrollBarThickness}"/>
+        <Setter Property="MinWidth" Value="{StaticResource ScrollBarThickness}"/>
+        <Setter Property="MinHeight" Value="{StaticResource ScrollBarThickness}"/>
 
         <Style Selector="^:vertical">
-            <Setter Property="Background" Value="{StaticResource AeroVerticalScrollBarTrackBackground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AeroVerticalScrollBarTrackBorderBrush}" />
+            <Setter Property="Background" Value="{StaticResource VerticalScrollBarTrackBackground}" />
+            <Setter Property="BorderBrush" Value="{StaticResource VerticalScrollBarTrackBorderBrush}" />
             <Setter Property="BorderThickness" Value="1,0" />
             <Setter Property="Template">
                 <ControlTemplate>
@@ -279,7 +279,7 @@
 
 
                                 <RepeatButton x:Name="PART_LineUpButton"
-                                                Theme="{StaticResource AeroScrollBarLineButtonVertical}"
+                                                Theme="{StaticResource ScrollBarLineButtonVertical}"
                                                 Classes="lineButton"
                                                 Classes.scrollBarHideIdle="{Binding !IsPointerOver, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=OneWay}"
                                                 Grid.Row="0"
@@ -296,20 +296,20 @@
                                         IsDirectionReversed="True">
                                     <Track.DecreaseButton>
                                         <RepeatButton x:Name="PART_PageUpButton"
-                                                        Theme="{StaticResource AeroScrollBarPageButton}"
+                                                        Theme="{StaticResource ScrollBarPageButton}"
                                                         Focusable="False"/>
                                     </Track.DecreaseButton>
                                     <Track.IncreaseButton>
                                         <RepeatButton x:Name="PART_PageDownButton"
-                                                        Theme="{StaticResource AeroScrollBarPageButton}"
+                                                        Theme="{StaticResource ScrollBarPageButton}"
                                                         Focusable="False"/>
                                     </Track.IncreaseButton>
-                                    <Thumb Theme="{StaticResource AeroScrollBarThumbVertical}"
+                                    <Thumb Theme="{StaticResource ScrollBarThumbVertical}"
                                         Classes.scrollBarHideLines="{Binding !IsExpanded, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=OneWay}" />
                                 </Track>
 
                                 <RepeatButton x:Name="PART_LineDownButton"
-                                                Theme="{StaticResource AeroScrollBarLineButtonVertical}"
+                                                Theme="{StaticResource ScrollBarLineButtonVertical}"
                                                 Classes="lineButton"
                                                 Classes.scrollBarHideIdle="{Binding !IsPointerOver, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=OneWay}"
                                                 Grid.Row="2"
@@ -323,8 +323,8 @@
             </Setter>
         </Style>
         <Style Selector="^:horizontal">
-            <Setter Property="Background" Value="{StaticResource AeroHorizontalScrollBarTrackBackground}" />
-            <Setter Property="BorderBrush" Value="{StaticResource AeroHorizontalScrollBarTrackBorderBrush}" />
+            <Setter Property="Background" Value="{StaticResource HorizontalScrollBarTrackBackground}" />
+            <Setter Property="BorderBrush" Value="{StaticResource HorizontalScrollBarTrackBorderBrush}" />
             <Setter Property="BorderThickness" Value="0,1" />
             <Setter Property="Template">
                 <ControlTemplate>
@@ -339,7 +339,7 @@
 
 
                                 <RepeatButton x:Name="PART_LineUpButton"
-                                                Theme="{StaticResource AeroScrollBarLineButtonHorizontal}"
+                                                Theme="{StaticResource ScrollBarLineButtonHorizontal}"
                                                 Classes="lineButton"
                                                 Classes.scrollBarHideIdle="{Binding !IsPointerOver, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=OneWay}"
                                                 Grid.Column="0"
@@ -356,20 +356,20 @@
                                         Orientation="{TemplateBinding Orientation}">
                                     <Track.DecreaseButton>
                                         <RepeatButton x:Name="PART_PageUpButton"
-                                                        Theme="{StaticResource AeroScrollBarPageButton}"
+                                                        Theme="{StaticResource ScrollBarPageButton}"
                                                         Focusable="False"/>
                                     </Track.DecreaseButton>
                                     <Track.IncreaseButton>
                                         <RepeatButton x:Name="PART_PageDownButton"
-                                                        Theme="{StaticResource AeroScrollBarPageButton}"
+                                                        Theme="{StaticResource ScrollBarPageButton}"
                                                         Focusable="False"/>
                                     </Track.IncreaseButton>
-                                    <Thumb Theme="{StaticResource AeroScrollBarThumbHorizontal}"
+                                    <Thumb Theme="{StaticResource ScrollBarThumbHorizontal}"
                                         Classes.scrollBarHideLines="{Binding !IsExpanded, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=OneWay}" />
                                 </Track>
                                 
                                 <RepeatButton x:Name="PART_LineDownButton"
-                                                Theme="{StaticResource AeroScrollBarLineButtonHorizontal}"
+                                                Theme="{StaticResource ScrollBarLineButtonHorizontal}"
                                                 Classes="lineButton"
                                                 Classes.scrollBarHideIdle="{Binding !IsPointerOver, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=OneWay}"
                                                 Grid.Column="2"
@@ -396,7 +396,7 @@
             <Setter Property="Opacity" Value="0"/>
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Opacity" Duration="{StaticResource AeroScrollExpandDuration}" />
+                    <DoubleTransition Property="Opacity" Duration="{StaticResource ScrollExpandDuration}" />
                 </Transitions>
             </Setter>
         </Style>
@@ -408,30 +408,30 @@
 
         <Style Selector="^:vertical /template/ :is(Control).root">
             <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="Width" Value="{StaticResource AeroSmallScrollBarThickness}"/>
+            <Setter Property="Width" Value="{StaticResource SmallScrollBarThickness}"/>
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Width" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
-                    <ThicknessTransition Property="Margin" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
+                    <DoubleTransition Property="Width" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
+                    <ThicknessTransition Property="Margin" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
                 </Transitions>
             </Setter>
         </Style>
         <Style Selector="^[IsExpanded=True]:vertical /template/ :is(Control).root">
-            <Setter Property="Width" Value="{StaticResource AeroScrollBarThickness}"/>
+            <Setter Property="Width" Value="{StaticResource ScrollBarThickness}"/>
         </Style>
 
         <Style Selector="^:horizontal /template/ :is(Control).root">
             <Setter Property="VerticalAlignment" Value="Bottom"/>
-            <Setter Property="Height" Value="{StaticResource AeroSmallScrollBarThickness}"/>
+            <Setter Property="Height" Value="{StaticResource SmallScrollBarThickness}"/>
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Height" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
-                    <ThicknessTransition Property="Margin" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
+                    <DoubleTransition Property="Height" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
+                    <ThicknessTransition Property="Margin" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
                 </Transitions>
             </Setter>
         </Style>
         <Style Selector="^[IsExpanded=True]:horizontal /template/ :is(Control).root">
-            <Setter Property="Height" Value="{StaticResource AeroScrollBarThickness}"/>
+            <Setter Property="Height" Value="{StaticResource ScrollBarThickness}"/>
         </Style>
         
         <Style Selector="^[IsExpanded=False] /template/ :is(Control).root">
@@ -439,10 +439,10 @@
         </Style>
 
         <Style Selector="^:horizontal /template/ Border.aeroState.pointerover">
-            <Setter Property="Width" Value="{StaticResource AeroScrollBarThickness}"/>
+            <Setter Property="Width" Value="{StaticResource ScrollBarThickness}"/>
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Width" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
+                    <DoubleTransition Property="Width" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
                 </Transitions>
             </Setter>
         </Style>
@@ -451,10 +451,10 @@
         </Style>
 
         <Style Selector="^:vertical /template/ Border.aeroState.pointerover">
-            <Setter Property="Height" Value="{StaticResource AeroScrollBarThickness}"/>
+            <Setter Property="Height" Value="{StaticResource ScrollBarThickness}"/>
             <Setter Property="Transitions">
                 <Transitions>
-                    <DoubleTransition Property="Height" Duration="{StaticResource AeroScrollExpandDuration}" Easing="{StaticResource AeroScrollExpandEase}" />
+                    <DoubleTransition Property="Height" Duration="{StaticResource ScrollExpandDuration}" Easing="{StaticResource ScrollExpandEase}" />
                 </Transitions>
             </Setter>
         </Style>
@@ -469,8 +469,8 @@
         
         
         <Style Selector="^ /template/ RepeatButton.lineButton > Path">
-            <Setter Property="Fill" Value="{StaticResource AeroScrollBarButtonForeground}" />
-            <Setter Property="Stroke" Value="{StaticResource AeroScrollBarButtonIconStroke}"/>
+            <Setter Property="Fill" Value="{StaticResource ScrollBarButtonForeground}" />
+            <Setter Property="Stroke" Value="{StaticResource ScrollBarButtonIconStroke}"/>
             <Setter Property="StrokeThickness" Value="1"/>
 
             <Setter Property="HorizontalAlignment" Value="Center" />

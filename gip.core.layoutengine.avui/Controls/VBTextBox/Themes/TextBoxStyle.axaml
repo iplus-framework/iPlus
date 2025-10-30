@@ -44,7 +44,7 @@
             InputGesture="{x:Static TextBox.PasteGesture}" />
   </MenuFlyout>
 
-  <ControlTheme x:Key="AeroTextBoxButton"
+  <ControlTheme x:Key="TextBoxButton"
               TargetType="{x:Type Button}">
     <Setter Property="Background" Value="{DynamicResource TextControlButtonBackground}" />
     <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrush}" />
@@ -81,9 +81,9 @@
     </Style>
   </ControlTheme>
   
-  <ControlTheme x:Key="AeroTextBoxToggleButton"
+  <ControlTheme x:Key="TextBoxToggleButton"
             TargetType="{x:Type ToggleButton}"
-            BasedOn="{StaticResource AeroTextBoxButton}">
+            BasedOn="{StaticResource TextBoxButton}">
     <Setter Property="Template">
       <ControlTemplate TargetType="ToggleButton">
         <ContentPresenter x:Name="PART_ContentPresenter"
@@ -129,7 +129,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource AeroForeground}"
+                         Foreground="{DynamicResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -221,7 +221,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource AeroForeground}"
+                         Foreground="{DynamicResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -314,7 +314,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource AeroForeground}"
+                         Foreground="{DynamicResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -398,7 +398,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource AeroForeground}"
+                         Foreground="{DynamicResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -482,7 +482,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource AeroForeground}"
+                         Foreground="{DynamicResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -567,7 +567,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource AeroForeground}"
+                         Foreground="{DynamicResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -753,7 +753,7 @@
     <Style Selector="^.revealPasswordButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <ToggleButton Theme="{StaticResource AeroTextBoxToggleButton}"
+          <ToggleButton Theme="{StaticResource TextBoxToggleButton}"
                           IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"
                           ClipToBounds="True">
             <Panel>
@@ -772,7 +772,7 @@
     <Style Selector="^.clearButton[AcceptsReturn=False][IsReadOnly=False]:focus:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <Button Theme="{StaticResource AeroTextBoxButton}"
+          <Button Theme="{StaticResource TextBoxButton}"
                   Command="{Binding $parent[TextBox].Clear}"
                   ClipToBounds="True">
             <PathIcon Data="{StaticResource TextBoxClearButtonData}"
@@ -903,7 +903,7 @@
     <Style Selector="^.revealPasswordButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <ToggleButton Theme="{StaticResource AeroTextBoxToggleButton}"
+          <ToggleButton Theme="{StaticResource TextBoxToggleButton}"
                           IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"
                           ClipToBounds="True">
             <Panel>
@@ -922,7 +922,7 @@
     <Style Selector="^.clearButton[AcceptsReturn=False][IsReadOnly=False]:focus:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <Button Theme="{StaticResource AeroTextBoxButton}"
+          <Button Theme="{StaticResource TextBoxButton}"
                   Command="{Binding $parent[TextBox].Clear}"
                   ClipToBounds="True">
             <PathIcon Data="{StaticResource TextBoxClearButtonData}"
@@ -1045,7 +1045,7 @@
     <Style Selector="^.revealPasswordButton[AcceptsReturn=False][IsReadOnly=False]:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <ToggleButton Theme="{StaticResource AeroTextBoxToggleButton}"
+          <ToggleButton Theme="{StaticResource TextBoxToggleButton}"
                           IsChecked="{Binding $parent[TextBox].RevealPassword, Mode=TwoWay}"
                           ClipToBounds="True">
             <Panel>
@@ -1064,7 +1064,7 @@
     <Style Selector="^.clearButton[AcceptsReturn=False][IsReadOnly=False]:focus:not(TextBox:empty)">
       <Setter Property="InnerRightContent">
         <Template>
-          <Button Theme="{StaticResource AeroTextBoxButton}"
+          <Button Theme="{StaticResource TextBoxButton}"
                   Command="{Binding $parent[TextBox].Clear}"
                   ClipToBounds="True">
             <PathIcon Data="{StaticResource TextBoxClearButtonData}"

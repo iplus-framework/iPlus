@@ -4,9 +4,9 @@ xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
 	<ControlTheme x:Key="{x:Type local:VBTreeView}" TargetType="{x:Type local:VBTreeView}">
-		<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabledGip}"/>
-		<Setter Property="Background" Value="{StaticResource TreeViewBgEnabledGip}"/>
-		<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabledGip}"/>
+		<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabled}"/>
+		<Setter Property="Background" Value="{StaticResource TreeViewBgEnabled}"/>
+		<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabled}"/>
 		<Setter Property="BorderThickness" Value="1,1,1,1"/>
 		<Setter Property="Padding" Value="1"/>
 		<Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
@@ -58,9 +58,9 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 		
 		<!-- IsEnabled = false -->
 		<Style Selector="^:disabled">
-			<Setter Property="Background" Value="{StaticResource TreeViewBgDisabledGip}"/>
-			<Setter Property="Foreground" Value="{StaticResource TreeViewFgDisabledGip}"/>
-			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderDisabledGip}"/>
+			<Setter Property="Background" Value="{StaticResource TreeViewBgDisabled}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgDisabled}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderDisabled}"/>
 		</Style>
 		
 		<!-- IsKeyboardFocusWithin = true -->
@@ -70,23 +70,23 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 		
 		<!-- ControlMode = Enabled -->
 		<Style Selector="^[ControlMode=Enabled]">
-			<Setter Property="Background" Value="{StaticResource TreeViewBgEnabledGip}"/>
-			<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabledGip}"/>
-			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabledGip}"/>
+			<Setter Property="Background" Value="{StaticResource TreeViewBgEnabled}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgEnabled}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderEnabled}"/>
 		</Style>
 		
 		<!-- ControlMode = EnabledRequired -->
 		<Style Selector="^[ControlMode=EnabledRequired]">
-			<Setter Property="Background" Value="{StaticResource TreeViewBgRequiredGip}"/>
-			<Setter Property="Foreground" Value="{StaticResource TreeViewFgRequiredGip}"/>
-			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderRequiredGip}"/>
+			<Setter Property="Background" Value="{StaticResource TreeViewBgRequired}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgRequired}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderRequired}"/>
 		</Style>
 		
 		<!-- ControlMode = EnabledWrong -->
 		<Style Selector="^[ControlMode=EnabledWrong]">
-			<Setter Property="Background" Value="{StaticResource TreeViewBgWrongGip}"/>
-			<Setter Property="Foreground" Value="{StaticResource TreeViewFgWrongGip}"/>
-			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderWrongGip}"/>
+			<Setter Property="Background" Value="{StaticResource TreeViewBgWrong}"/>
+			<Setter Property="Foreground" Value="{StaticResource TreeViewFgWrong}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource TreeViewBorderWrong}"/>
 		</Style>
 	</ControlTheme>
 </ResourceDictionary>

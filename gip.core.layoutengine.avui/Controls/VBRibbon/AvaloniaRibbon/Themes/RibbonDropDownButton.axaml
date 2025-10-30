@@ -6,7 +6,7 @@
   <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonDropDownButton}" TargetType="local:RibbonDropDownButton">
     <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
-    <Setter Property="Foreground" Value="{Binding $parent[Ribbon].Foreground}" />
+    <Setter Property="Foreground" Value="{Binding $parent[local:Ribbon].Foreground}" />
     <Setter Property="Padding" Value="3" />
     <Setter Property="QuickAccessTemplate">
       <ControlTemplate>

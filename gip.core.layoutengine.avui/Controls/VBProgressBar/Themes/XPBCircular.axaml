@@ -3,7 +3,7 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
     <local:ConverterVisibilityBool x:Key="ConverterVisibilityBool" />
-    <ControlTemplate x:Key="CircularGip" TargetType="local:VBProgressBar">
+    <ControlTemplate x:Key="Circular" TargetType="local:VBProgressBar">
         <Grid x:Name="LayoutRoot">
             <!-- attach the view model -->
             <local:VBProgressBarCircularViewModel.Attach>

@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
-    <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   
@@ -37,5 +36,10 @@
     <ProjectReference Include="..\gip.core.webservices\gip.core.webservices.csproj" />
     <ProjectReference Include="..\gip.core.wpfservices.avui\gip.core.wpfservices.avui.csproj" />
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="Views\LoginWindow.axaml.cs">
+      <DependentUpon>LoginWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

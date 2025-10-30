@@ -10,7 +10,7 @@
   <StreamGeometry x:Key="MenuItemChevronPathData">M 1,0 10,10 l -9,10 -1,-1 L 8,10 -0,1 Z</StreamGeometry>
 
   <ControlTheme x:Key="{x:Type local:RibbonDropDownItem}" TargetType="local:RibbonDropDownItem">
-    <Setter Property="Foreground" Value="{Binding $parent[Ribbon].Foreground}" />
+    <Setter Property="Foreground" Value="{Binding $parent[local:Ribbon].Foreground}" />
     <!--  Narrow padding should be used for mouse input, when non-narrow one should be used for touch input in future.  -->
     <Setter Property="Padding" Value="{DynamicResource MenuFlyoutItemThemePaddingNarrow}" />
     <Setter Property="Template">

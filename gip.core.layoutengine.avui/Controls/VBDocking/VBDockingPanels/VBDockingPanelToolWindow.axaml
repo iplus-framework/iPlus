@@ -4,11 +4,11 @@
 	xmlns:local="clr-namespace:gip.core.layoutengine.avui"
     Loaded="UserControl_Loaded">
     <!--<local:VBDockingPanelBase.Resources>
-        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyleGip.xaml"/>
+        <ResourceDictionary Source="/gip.core.layoutengine.avui;Component/Controls/VBDocking/Themes/DockingWindowStyle.xaml"/>
     </local:VBDockingPanelBase.Resources>
     <DockPanel>
     <local:VBTextBlock>test</local:VBTextBlock>
-    <ContentControl Name="contentControl" Template="{StaticResource DockingWindowStyleGip}">
+    <ContentControl Name="contentControl" Template="{StaticResource DockingWindowStyle}">
     </ContentControl>
     </DockPanel>-->
 </local:VBDockingPanelBase>

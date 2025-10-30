@@ -59,7 +59,7 @@ public class Ribbon : TabControl, IRibbon
         });
     }
 
-    public Ribbon()
+    public Ribbon() : base()
     {
         ContextualTabGroups = new ObservableCollection<RibbonContextualTabGroup>();
     }

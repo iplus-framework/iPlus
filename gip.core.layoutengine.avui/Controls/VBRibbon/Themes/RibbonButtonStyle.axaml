@@ -1,6 +1,7 @@
 <ResourceDictionary
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:localRibbon="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
   <!-- VBRibbonButton ControlTheme -->
@@ -80,4 +81,5 @@
     </Style>
   </ControlTheme>
 
+  <ControlTheme x:Key="{x:Type local:VBRibbon}" TargetType="{x:Type local:VBRibbon}" BasedOn="{StaticResource {x:Type localRibbon:Ribbon}}" />
 </ResourceDictionary>

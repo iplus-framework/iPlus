@@ -5,7 +5,7 @@
     <!--<ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
     </ResourceDictionary.MergedDictionaries>
-    <ControlTemplate x:Key="DatePickerButtonStyleGip" TargetType="{x:Type Button}">
+    <ControlTemplate x:Key="DatePickerButtonStyle" TargetType="{x:Type Button}">
         <Grid>
             <VisualStateManager.VisualStateGroups>
                 <VisualStateGroup x:Name="CommonStates">
@@ -99,7 +99,7 @@
             </Grid>
         </Grid>
     </ControlTemplate>
-    <Style x:Key="DatePickerTextBoxStyleGip" TargetType="{x:Type DatePickerTextBox}">
+    <Style x:Key="DatePickerTextBoxStyle" TargetType="{x:Type DatePickerTextBox}">
         --><!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
         <Setter Property="Background" Value="{DynamicResource {x:Static ThemeBackgroundBrush}}"/>--><!--
         <Setter Property="Background" Value="Red"/>
@@ -173,7 +173,7 @@
         </Style.Triggers>
     </Style>
 
-    <ControlTemplate x:Key="DatePickerTemplateGip" TargetType="{x:Type local:VBDatePicker}">
+    <ControlTemplate x:Key="DatePickerTemplate" TargetType="{x:Type local:VBDatePicker}">
         <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
@@ -294,8 +294,8 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Button x:Name="PART_Button" Grid.Column="1" Foreground="{TemplateBinding Foreground}" Focusable="False" HorizontalAlignment="Left" Margin="3,0,3,0" Grid.Row="0" Template="{StaticResource DatePickerButtonStyleGip}" VerticalAlignment="Top" Width="20"/>
-                    <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0" Foreground="{TemplateBinding Foreground}" Focusable="{TemplateBinding Focusable}" HorizontalContentAlignment="Stretch" Grid.Row="0" VerticalContentAlignment="Stretch" Style="{StaticResource DatePickerTextBoxStyleGip}"/>
+                    <Button x:Name="PART_Button" Grid.Column="1" Foreground="{TemplateBinding Foreground}" Focusable="False" HorizontalAlignment="Left" Margin="3,0,3,0" Grid.Row="0" Template="{StaticResource DatePickerButtonStyle}" VerticalAlignment="Top" Width="20"/>
+                    <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0" Foreground="{TemplateBinding Foreground}" Focusable="{TemplateBinding Focusable}" HorizontalContentAlignment="Stretch" Grid.Row="0" VerticalContentAlignment="Stretch" Style="{StaticResource DatePickerTextBoxStyle}"/>
                     <Grid x:Name="PART_DisabledVisual" Grid.ColumnSpan="2" Grid.Column="0" IsHitTestVisible="False" Opacity="0" Grid.Row="0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -328,7 +328,7 @@
         </ControlTemplate.Triggers>
     </ControlTemplate>
 
-    <Style x:Key="DatePickerStyleBaseGip" TargetType="{x:Type local:VBDatePicker}">
+    <Style x:Key="DatePickerStyleBase" TargetType="{x:Type local:VBDatePicker}">
         <Setter Property="Foreground" Value="#FF333333"/>
         <Setter Property="IsTodayHighlighted" Value="True"/>
         <Setter Property="SelectedDateFormat" Value="Short"/>
@@ -348,8 +348,8 @@
         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     </Style>
 
-    <Style x:Key="DatePickerStyleGip" BasedOn="{StaticResource DatePickerStyleBaseGip}"  TargetType="{x:Type local:VBDatePicker}">
-        <Setter Property="Template" Value="{StaticResource DatePickerTemplateGip}" />
+    <Style x:Key="DatePickerStyle" BasedOn="{StaticResource DatePickerStyleBase}"  TargetType="{x:Type local:VBDatePicker}">
+        <Setter Property="Template" Value="{StaticResource DatePickerTemplate}" />
     </Style>-->
 
   <!--<ControlTheme x:Key="{x:Type local:VBDatePicker}" BasedOn="{x:Type DatePicker}"  TargetType="{x:Type local:VBDatePicker}" />-->

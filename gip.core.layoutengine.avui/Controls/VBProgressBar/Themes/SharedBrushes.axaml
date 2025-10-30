@@ -2,47 +2,96 @@
 xmlns="https://github.com/avaloniaui"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 x:ClassModifier="internal">
-	<LinearGradientBrush x:Key="AeroProgressBarFrameBackground" StartPoint="0%,0%" EndPoint="0%,100%">
-		<GradientStop Offset="0" Color="{StaticResource AeroProgressBarFrameBackgroundColor0}" />
-		<GradientStop Offset="0.5" Color="{StaticResource AeroProgressBarFrameBackgroundColor0}" />
-		<GradientStop Offset="1" Color="{StaticResource AeroProgressBarFrameBackgroundColor1}" />
+	<LinearGradientBrush x:Key="ProgressBarFrameBackground" StartPoint="0%,0%" EndPoint="0%,100%">
+		<GradientStop Offset="0" Color="{StaticResource ProgressBarFrameBackgroundColor0}" />
+		<GradientStop Offset="0.5" Color="{StaticResource ProgressBarFrameBackgroundColor0}" />
+		<GradientStop Offset="1" Color="{StaticResource ProgressBarFrameBackgroundColor1}" />
 	</LinearGradientBrush>
-	<LinearGradientBrush x:Key="AeroProgressBarFrameOuterBorderBrush" StartPoint="0%,0%" EndPoint="0%,100%">
-		<GradientStop Offset="0" Color="{StaticResource AeroProgressBarFrameOuterBorderBrushColor0}" />
-		<GradientStop Offset="1" Color="{StaticResource AeroProgressBarFrameOuterBorderBrushColor1}" />
+	<LinearGradientBrush x:Key="ProgressBarFrameOuterBorderBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+		<GradientStop Offset="0" Color="{StaticResource ProgressBarFrameOuterBorderBrushColor0}" />
+		<GradientStop Offset="1" Color="{StaticResource ProgressBarFrameOuterBorderBrushColor1}" />
 	</LinearGradientBrush>
-	<LinearGradientBrush x:Key="AeroProgressBarFrameInnerBorderBrush" StartPoint="0%,0%" EndPoint="0%,100%">
-		<GradientStop Offset="0" Color="{StaticResource AeroProgressBarFrameInnerBorderBrushColor0}" />
-		<GradientStop Offset="1" Color="{StaticResource AeroProgressBarFrameInnerBorderBrushColor1}" />
-	</LinearGradientBrush>
-
-
-	<SolidColorBrush x:Key="AeroProgressBarStorageFrameBackground" Color="{StaticResource AeroProgressBarStorageFrameBackgroundColor}" />
-	<LinearGradientBrush x:Key="AeroProgressBarStorageFrameInnerBorderBrush" StartPoint="0%,0%" EndPoint="0%,100%">
-		<GradientStop Offset="0" Color="{StaticResource AeroProgressBarStorageFrameInnerBorderBrushColor0}" />
-		<GradientStop Offset="1" Color="{StaticResource AeroProgressBarStorageFrameInnerBorderBrushColor1}" />
+	<LinearGradientBrush x:Key="ProgressBarFrameInnerBorderBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+		<GradientStop Offset="0" Color="{StaticResource ProgressBarFrameInnerBorderBrushColor0}" />
+		<GradientStop Offset="1" Color="{StaticResource ProgressBarFrameInnerBorderBrushColor1}" />
 	</LinearGradientBrush>
 
+  <LinearGradientBrush x:Key="ProgressBarBackground" EndPoint="1,0" StartPoint="0,0">
+    <GradientStop Color="#BABABA" Offset="0"/>
+    <GradientStop Color="#C7C7C7" Offset="0.5"/>
+    <GradientStop Color="#BABABA" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarBorderBrush" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#B2B2B2" Offset="0"/>
+    <GradientStop Color="#8C8C8C" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarGlassyHighlight" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#50FFFFFF" Offset="0.5385"/>
+    <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarTopHighlight" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#80FFFFFF" Offset="0.05"/>
+    <GradientStop Color="#00FFFFFF" Offset="0.25"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill" EndPoint="1,0" StartPoint="0,0">
+    <GradientStop Color="#00FFFFFF" Offset="0"/>
+    <GradientStop Color="#60FFFFFF" Offset="0.4"/>
+    <GradientStop Color="#60FFFFFF" Offset="0.6"/>
+    <GradientStop Color="#00FFFFFF" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeLeft" EndPoint="1,0" StartPoint="0,0">
+    <GradientStop Color="#0C000000" Offset="0"/>
+    <GradientStop Color="#20000000" Offset="0.3"/>
+    <GradientStop Color="#00000000" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeRight" EndPoint="1,0" StartPoint="0,0">
+    <GradientStop Color="#00000000" Offset="0"/>
+    <GradientStop Color="#20000000" Offset="0.7"/>
+    <GradientStop Color="#0C000000" Offset="1"/>
+  </LinearGradientBrush>
+  <RadialGradientBrush x:Key="ProgressBarIndicatorLightingEffectLeft" RadiusY="100%" RadiusX="100%" Transform="1,0,0,1,0.5,0.5">
+    <GradientStop Color="#60FF0000" Offset="0"/>
+    <GradientStop Color="#00FF0000" Offset="1"/>
+  </RadialGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorLightingEffect" EndPoint="0,0" StartPoint="0,1">
+    <GradientStop Color="#60FF0000" Offset="0"/>
+    <GradientStop Color="#00FF0000" Offset="1"/>
+  </LinearGradientBrush>
+  <RadialGradientBrush x:Key="ProgressBarIndicatorLightingEffectRight" RadiusY="100%" RadiusX="100%" Transform="1,0,0,1,-0.5,0.5">
+    <GradientStop Color="#60FF0000" Offset="0"/>
+    <GradientStop Color="#00FF0000" Offset="1"/>
+  </RadialGradientBrush>
+  <LinearGradientBrush x:Key="ProgressBarIndicatorGlassyHighlight" EndPoint="0,1" StartPoint="0,0">
+    <GradientStop Color="#90FFFFFF" Offset="0.5385"/>
+    <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
+  </LinearGradientBrush>
 
-	<SolidColorBrush x:Key="AeroProgressBarFill" Color="{StaticResource AeroProgressBarFillColor}" />
-	<LinearGradientBrush x:Key="AeroProgressBarFillFallback" StartPoint="0%,0%" EndPoint="100%,0%">
-		<GradientStop Offset="0" Color="{StaticResource AeroProgressBarFillFallbackColor0}" />
-		<GradientStop Offset="0.5" Color="{StaticResource AeroProgressBarFillFallbackColor1}" />
-		<GradientStop Offset="1" Color="{StaticResource AeroProgressBarFillFallbackColor0}" />
+
+  <SolidColorBrush x:Key="ProgressBarStorageFrameBackground" Color="{StaticResource ProgressBarStorageFrameBackgroundColor}" />
+	<LinearGradientBrush x:Key="ProgressBarStorageFrameInnerBorderBrush" StartPoint="0%,0%" EndPoint="0%,100%">
+		<GradientStop Offset="0" Color="{StaticResource ProgressBarStorageFrameInnerBorderBrushColor0}" />
+		<GradientStop Offset="1" Color="{StaticResource ProgressBarStorageFrameInnerBorderBrushColor1}" />
 	</LinearGradientBrush>
-	<GradientStops x:Key="AeroProgressBarShineStops">
-		<GradientStop Offset="0" Color="{StaticResource AeroProgressBarShineColor0}" />
-		<GradientStop Offset="0.5" Color="{StaticResource AeroProgressBarShineColor1}" />
+
+	<SolidColorBrush x:Key="ProgressBarFill" Color="{StaticResource ProgressBarFillColor}" />
+	<LinearGradientBrush x:Key="ProgressBarFillFallback" StartPoint="0%,0%" EndPoint="100%,0%">
+		<GradientStop Offset="0" Color="{StaticResource ProgressBarFillFallbackColor0}" />
+		<GradientStop Offset="0.5" Color="{StaticResource ProgressBarFillFallbackColor1}" />
+		<GradientStop Offset="1" Color="{StaticResource ProgressBarFillFallbackColor0}" />
+	</LinearGradientBrush>
+	<GradientStops x:Key="ProgressBarShineStops">
+		<GradientStop Offset="0" Color="{StaticResource ProgressBarShineColor0}" />
+		<GradientStop Offset="0.5" Color="{StaticResource ProgressBarShineColor1}" />
 		<GradientStop Offset="0.5" Color="Transparent" />
 	</GradientStops>
-	<LinearGradientBrush x:Key="AeroProgressBarHorizontalShine"
+	<LinearGradientBrush x:Key="ProgressBarHorizontalShine"
 						StartPoint="0%,0%"
 						EndPoint="0%,100%"
-						GradientStops="{StaticResource AeroProgressBarShineStops}" />
-	<LinearGradientBrush x:Key="AeroProgressBarVerticalShine"
+						GradientStops="{StaticResource ProgressBarShineStops}" />
+	<LinearGradientBrush x:Key="ProgressBarVerticalShine"
 						StartPoint="0%,0%"
 						EndPoint="100%,0%"
-						GradientStops="{StaticResource AeroProgressBarShineStops}" />
+						GradientStops="{StaticResource ProgressBarShineStops}" />
 
 
 

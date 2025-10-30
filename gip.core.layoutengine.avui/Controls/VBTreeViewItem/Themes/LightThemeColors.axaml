@@ -2,22 +2,22 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
-    <RadialGradientBrush x:Key="TreeArrowFocusFillAero" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
+    <RadialGradientBrush x:Key="TreeArrowFocusFill" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
         <GradientStop Color="#FFE99393" Offset="0.228"/>
         <GradientStop Color="#FFFF0018" Offset="1"/>
     </RadialGradientBrush>
-    <RadialGradientBrush x:Key="TreeArrowCheckedFillAero" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
+    <RadialGradientBrush x:Key="TreeArrowCheckedFill" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
         <GradientStop Color="#FF505050"/>
         <GradientStop Color="Black" Offset="0.732"/>
     </RadialGradientBrush>
-    <LinearGradientBrush x:Key="TreeViewItemSelectionFillAero" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="TreeViewItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
         <GradientStop Color="#4CFF6565" Offset="0"/>
         <GradientStop Color="#7FFF0018" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="TreeViewItemSelectionNotActiveFillAero" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="TreeViewItemSelectionNotActiveFill" EndPoint="0,1" StartPoint="0,0">
         <GradientStop Color="#4CFF6565" Offset="0"/>
         <GradientStop Color="#7FFF0018" Offset="1"/>
     </LinearGradientBrush>
-    <SolidColorBrush x:Key="TreeViewItemSelectionFgAero" Color="#FF000000"/>
-    <SolidColorBrush x:Key="TreeViewItemFgAero" Color="#FF000000"/>
+    <SolidColorBrush x:Key="TreeViewItemSelectionFg" Color="#FF000000"/>
+    <SolidColorBrush x:Key="TreeViewItemFg" Color="#FF000000"/>
 </ResourceDictionary>
