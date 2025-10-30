@@ -1,17 +1,19 @@
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
-using System.Linq;
 using Avalonia.Markup.Xaml;
-using gip.iplus.client.avui.Views;
+using Avalonia.ReactiveUI;
 using gip.core.autocomponent;
 using gip.core.datamodel;
-using System;
-using System.Text;
-using System.Diagnostics;
 using gip.core.layoutengine.avui;
-using Avalonia.Threading;
+using gip.iplus.client.avui.Views;
+using ReactiveUI;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.iplus.client.avui;
 
@@ -23,10 +25,6 @@ public partial class App : Application
 
     #region internal Delegates
 
-    internal delegate void ApplicationInitializeDelegate(LoginWindow VarioiplusLogin);
-
-    internal ApplicationInitializeDelegate ApplicationInitialize;
-
     public static new App Current
     {
         get { return Application.Current as App; }
@@ -37,13 +35,6 @@ public partial class App : Application
     #region c'tors
     public App()
     {
-        //if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        //    ApplicationInitialize = applicationInitialize;
-
-        //_GlobalApp = this;
-        //_StartUpManager = new ACStartUpRoot(new core.wpfservices.avui.WPFServices());
-
-        // Add the event handler for handling non-UI thread exceptions to the event. 
         AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(CurrentDomain_UnhandledException);
     }
     #endregion
@@ -114,34 +105,62 @@ public partial class App : Application
         _GlobalApp = this;
         _StartUpManager = new ACStartUpRoot(new core.wpfservices.avui.WPFServices());
 
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+
+        IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+        // Create the AutoSuspendHelper.
+        //var suspension = new AutoSuspendHelper(ApplicationLifetime);
+        //RxApp.SuspensionHost.CreateNewAppState = () => new Settings();
+        //RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
+        //// Load the saved view model state.
+        //var state = RxApp.SuspensionHost.GetAppState<Settings>();
+        //suspension.OnFrameworkInitializationCompleted();
+        var state = new Settings();
+
+        if (desktop != null)
         {
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
 
-            ApplicationInitialize = applicationInitialize;
+
             // Show splash screen window
-            _LoginWindow = new LoginWindow();
-            desktop.MainWindow = _LoginWindow;
+            //_LoginWindow = new LoginWindow();
+            _LoginWindow = new LoginWindow(
+                async () =>
+                {
+                    await HandleLoginAndStartup();
+                },
+                () =>
+                {
+                    ControlManager.RegisterImplicitStyles(this);
+
+                    if (desktop != null)
+                    {
+                        desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnExplicitShutdown;
+                        // If login was successful, show main window
+                        if (ACRoot.SRoot != null)
+                        {
+                            desktop.MainWindow = new MainWindow();
+                            desktop.MainWindow.Show();
+                        }
+                        else
+                        {
+                            desktop.Shutdown();
+                        }
+                    }
+                    else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
+                    {
+                        // If login was successful, show main window
+                        if (ACRoot.SRoot != null)
+                            singleViewPlatform.MainView = new MainView();
+                    }
+                }
+            );
+            {
+                DataContext = state;
+            };
+            _LoginWindow.Show();
         }
-
-        //if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        //{
-        //    // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
-        //    // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
-        //    DisableAvaloniaDataAnnotationValidation();
-        //    desktop.MainWindow = new MainWindow
-        //    {
-        //    };
-        //}
-        //else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-        //{
-        //    singleViewPlatform.MainView = new MainView
-        //    {
-        //    };
-        //}
-
         base.OnFrameworkInitializationCompleted();
     }
 
@@ -158,6 +177,14 @@ public partial class App : Application
         }
     }
 
+    public void ShutdownApplication()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        {
+            desktop.Shutdown();
+        }
+    }
+
 
     /// <summary>
     /// Lädt die VarioiplusLogin- und Window1-Klasse und stellt die Interaktionslogik
@@ -165,7 +192,7 @@ public partial class App : Application
     /// </summary>
     /// <param name="varioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
     /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
-    private void applicationInitialize(LoginWindow varioiplusLogin)
+    private async Task HandleLoginAndStartup()
     {
         string[] cmLineArg = System.Environment.GetCommandLineArgs();
 
@@ -187,18 +214,18 @@ public partial class App : Application
         }
 
         if (cmLineArg.Contains("-controlLoad=True"))
-            varioiplusLogin.IsLoginWithControlLoad = true;
+            _LoginWindow.IsLoginWithControlLoad = true;
 
         String errorMsg = "";
         for (int i = 0; i < 3; i++)
         {
             if (!cmLineArg.Contains("/autologin") || i > 0)
             {
-                varioiplusLogin.DisplayLogin(true, UserName, PassWord, wpfTheme, errorMsg);
-                varioiplusLogin.GetLoginResult(ref UserName, ref PassWord, ref RegisterACObjects, ref PropPersistenceOff);
-                wpfTheme = varioiplusLogin.WpfTheme;
+                _LoginWindow.DisplayLogin(true, UserName, PassWord, wpfTheme, errorMsg);
+                _LoginWindow.GetLoginResult(ref UserName, ref PassWord, ref RegisterACObjects, ref PropPersistenceOff);
+                wpfTheme = _LoginWindow.WpfTheme;
                 errorMsg = "";
-                varioiplusLogin.DisplayLogin(false, "", "", wpfTheme, errorMsg);
+                _LoginWindow.DisplayLogin(false, "", "", wpfTheme, errorMsg);
             }
             else
             {
@@ -228,53 +255,16 @@ public partial class App : Application
             if (result == -1)
                 break;
         }
-
-        //if (ACRoot.SRoot != null)
-        //    ACRoot.SRoot.Environment.License.PropertyChanged += License_PropertyChanged;
-
-        // Initialisierung abgeschlossen, Hauptfenster laden
-        Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            ControlManager.RegisterImplicitStyles(this);
-
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.ShutdownMode = Avalonia.Controls.ShutdownMode.OnExplicitShutdown;
-                if (ACRoot.SRoot == null)
-                {
-                    desktop.Shutdown();
-                    return;
-                }
-
-                desktop.MainWindow = new MainWindow
-                {
-                };
-            }
-            else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-            {
-                if (ACRoot.SRoot == null)
-                {
-                    //singleViewPlatform.Shutdown();
-                    return;
-                }
-                singleViewPlatform.MainView = new MainView
-                {
-                };
-            }
-
-            //Application.Current.MainWindow = new Masterpage();
-            ////UpdateLicenseTitle();
-            //Application.Current.MainWindow.Show();
-        });
     }
+
 
 //    private void License_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
 //    {
 //        if (e != null && e.PropertyName == "IsTrial")
 //        {
-//            Dispatcher.Invoke(() => 
+//            Dispatcher.Invoke(() =>
 //            {
-//               UpdateLicenseTitle();
+//                UpdateLicenseTitle();
 //            }, DispatcherPriority.Normal);
 //        }
 //    }
@@ -285,12 +275,12 @@ public partial class App : Application
 //#if DEBUG
 //        info = "DEBUG";
 //#else
-//            if (ACRoot.SRoot.Environment.License.IsTrial)
-//                info = "Trial";
-//            else if (ACRoot.SRoot.Environment.License.IsDeveloper)
-//                info = "Development";
-//            else if (ACRoot.SRoot.Environment.License.IsRemoteDeveloper)
-//                info = "Remote development";
+//                if (ACRoot.SRoot.Environment.License.IsTrial)
+//                    info = "Trial";
+//                else if (ACRoot.SRoot.Environment.License.IsDeveloper)
+//                    info = "Development";
+//                else if (ACRoot.SRoot.Environment.License.IsRemoteDeveloper)
+//                    info = "Remote development";
 //#endif
 
 //        Application.Current.MainWindow.Title = String.Format("iPlus{3}({0}, {1}) {2}", ACRoot.SRoot.Environment.User.VBUserName,

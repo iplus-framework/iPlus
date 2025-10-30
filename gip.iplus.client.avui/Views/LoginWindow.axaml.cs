@@ -13,60 +13,111 @@ using System;
 using Avalonia.Input;
 using System.Collections.Generic;
 using MsBox.Avalonia.Enums;
+using Avalonia.ReactiveUI;
+using ReactiveUI;
 
 namespace gip.iplus.client.avui.Views;
 
-public partial class LoginWindow : Window
+public partial class LoginWindow : Window //ReactiveWindow<Settings>
 {
     protected object _WaitOnOkClick = new object();
     int _CountAttempts = 0;
 
+    private readonly Func<Task> _LoginAction;
+    private readonly Action _ShowMainWindowAction;
+
     public LoginWindow()
     {
         InitializeComponent();
+        //this.WhenActivated(disposable => { });
 
-        this.DataContext = this;
+        //this.Loaded += Login_Loaded;
+        //this.Unloaded += Login_Unloaded;
+    }
 
-        this.Loaded += Login_Loaded;
-        this.Unloaded += Login_Unloaded;
+    public LoginWindow(Func<Task> loginAction, Action mainAction) : this()
+    {
+        listboxInfo.ItemsSource = MsgDetails;
+        listboxInfo.DisplayMemberBinding = new Avalonia.Data.Binding("Message");
+        _LoginAction = loginAction;
+        _ShowMainWindowAction = mainAction;
     }
 
     #region Eventhandler
 
-    private async void Login_Loaded(object sender, RoutedEventArgs e)
+    protected override void OnLoaded(RoutedEventArgs e)
     {
         Monitor.Enter(_WaitOnOkClick);
-        // eine IAsyncResult-Instanz für die Initialisierung
-        // der Anwendung erzeugen
-        Task result = null;
-        // die Initialisierung der Anwendung starten
-        if ((App.Current != null) && (App.Current.ApplicationInitialize != null))
-        {
-            //result = App.Current.ApplicationInitialize.BeginInvoke(this, initCompleted, null);
-            result = Task.Run(() => App.Current.ApplicationInitialize(this));
-
-            // als behandelt markieren  
-            e.Handled = true;
-        }
-
-        await result;
-        await Dispatcher.UIThread.InvokeAsync(() => { Close(); }, DispatcherPriority.Normal);
+        DoLoginAction();
+        base.OnLoaded(e);
     }
 
-    private void Login_Unloaded(object sender, RoutedEventArgs e)
+    protected override void OnUnloaded(RoutedEventArgs e)
     {
-        // EventHandler löschen
-        this.Loaded -= Login_Loaded;
-        this.Unloaded -= Login_Unloaded;
         if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)
         {
             _CollectionChangedSubscr = false;
             (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged -= _Messages_CollectionChanged;
         }
         selTheme.ItemsSource = null;
+        base.OnUnloaded(e);
+    }
 
-        //if (e != null)
-        //    e.Handled = true;
+    //private async void Login_Loaded(object sender, RoutedEventArgs e)
+    //{
+    //    Monitor.Enter(_WaitOnOkClick);
+
+    //    //Task result = null;
+    //    //if (App.Current != null)
+    //    //{
+    //    //    result = Task.Run(() => App.Current.HandleLoginAndStartup(this));
+    //    //    //e.Handled = true;
+    //    //}
+
+    //    //await result;
+    //    //await Dispatcher.UIThread.InvokeAsync(() => { Close(); }, DispatcherPriority.Normal);
+    //}
+
+    //private void Login_Unloaded(object sender, RoutedEventArgs e)
+    //{
+    //    this.Loaded -= Login_Loaded;
+    //    this.Unloaded -= Login_Unloaded;
+    //    if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)
+    //    {
+    //        _CollectionChangedSubscr = false;
+    //        (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged -= _Messages_CollectionChanged;
+    //    }
+    //    selTheme.ItemsSource = null;
+
+    //    if (e != null)
+    //        e.Handled = true;
+    //}
+
+    private async void DoLoginAction()
+    {
+        if (_LoginAction is not null)
+        {
+            await Task.Run(async () =>
+            {
+                try
+                {
+                    await _LoginAction.Invoke();
+                }
+                catch (Exception ex)
+                {
+                    // Handle exceptions from the heavy load action
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                    });
+                }
+            });
+        }
+
+        await Dispatcher.UIThread.InvokeAsync(() =>
+        {
+            _ShowMainWindowAction?.Invoke();
+            Close();
+        });
     }
     #endregion
 
@@ -143,11 +194,11 @@ public partial class LoginWindow : Window
     /// <param name="display"></param>
     /// <param name="defaultUser"></param>
     /// <param name="defaultPassword"></param>
-    public void DisplayLogin(bool display, string defaultUser, string defaultPassword, eWpfTheme wpfTheme, String errorMsg)
+    public async void DisplayLogin(bool display, string defaultUser, string defaultPassword, eWpfTheme wpfTheme, String errorMsg)
     {
         if (!this.ProgressGrid.CheckAccess())
         {
-            Dispatcher.UIThread.InvokeAsync(() => DisplayLogin(display, defaultUser, defaultPassword, wpfTheme, errorMsg), DispatcherPriority.Send);
+            await Dispatcher.UIThread.InvokeAsync(() => DisplayLogin(display, defaultUser, defaultPassword, wpfTheme, errorMsg), DispatcherPriority.Send);
             return;
         }
 
@@ -184,7 +235,8 @@ public partial class LoginWindow : Window
                 if (!String.IsNullOrEmpty(errorMsg))
                     userMsg.Message += " // " + errorMsg;
 
-                AsyncMessageBox.BeginMessageBoxAsync(userMsg.Message, "Info", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
+                Dispatcher.UIThread.Post(() =>
+                    AsyncMessageBox.ShowMessageBox(userMsg.Message, "Info", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning), DispatcherPriority.Send);
 
                 _Password = "";
                 TextboxPassword.Text = _Password;
@@ -288,7 +340,7 @@ public partial class LoginWindow : Window
 
         // Unload-EreignisHandler mit Ereignis=null aufrufen
         // um Abbruch zu signalisieren
-        this.Login_Unloaded(this, null);
+        //this.Login_Unloaded(this, null);
 
         Monitor.Exit(_WaitOnOkClick);
     }

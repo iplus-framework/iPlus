@@ -6,7 +6,7 @@
         xmlns:views="clr-namespace:gip.iplus.client.avui.Views"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="gip.iplus.client.avui.Views.MainWindow"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/iPlusIconDesktop.ico"
         Title="gip.iplus.client.avui">
         <views:MainView />
 </Window>

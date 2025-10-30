@@ -52,7 +52,7 @@ namespace gip.core.layoutengine.avui
         private delegate IMsBox<ButtonResult> ShowMessageBoxDelegate(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage);
 
         // Method invoked on a separate thread that shows the message box.
-        private static IMsBox<ButtonResult> ShowMessageBox(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
+        public static IMsBox<ButtonResult> ShowMessageBox(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
         {
             return MessageBoxManager.GetMessageBoxStandard(strCaption, strMessage, enmButton, enmImage);
         }

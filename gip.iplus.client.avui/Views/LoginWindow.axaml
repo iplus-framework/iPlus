@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vb="http://www.iplus-framework.com/axaml" 
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             Height="300" Width="600" MaxHeight="300" MaxWidth="600" MinHeight="180" MinWidth="525" WindowStartupLocation="CenterScreen"
+             Icon="/Assets/iPlusIconDesktop.ico"
              x:Class="gip.iplus.client.avui.Views.LoginWindow">
   <Window.Resources>
     <ResourceDictionary>
@@ -19,7 +21,7 @@
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="225"></ColumnDefinition>
-      <ColumnDefinition Width="80*"></ColumnDefinition>
+      <ColumnDefinition Width="*"></ColumnDefinition>
     </Grid.ColumnDefinitions>
     <Border>
       <Border.Background>
@@ -30,14 +32,15 @@
         </LinearGradientBrush>
       </Border.Background>
     </Border>
-    <vb:VBBorder RenderTransformOrigin="0.5,0.5" Margin="20">
+    <Image Source="/Assets/Login.png"/>
+<!--    <vb:VBBorder RenderTransformOrigin="0.5,0.5" Margin="20">
       <Border.Background>
-        <ImageBrush Source="/Assets/Login.png" Stretch="UniformToFill"/>
+        <ImageBrush Source="Assets/Login.png" Stretch="UniformToFill"/>
       </Border.Background>
       <Border.RenderTransform>
         <ScaleTransform ScaleX="0" />
       </Border.RenderTransform>
-      <!--<Border.Triggers>
+      --><!--<Border.Triggers>
         <EventTrigger RoutedEvent="Border.Loaded">
           <BeginStoryboard>
             <Storyboard>
@@ -45,9 +48,9 @@
             </Storyboard>
           </BeginStoryboard>
         </EventTrigger>
-      </Border.Triggers>-->
-    </vb:VBBorder>
-    <StackPanel  Grid.Row="0" Grid.Column="1">
+      </Border.Triggers>--><!--
+    </vb:VBBorder>-->
+    <StackPanel Grid.Row="0" Grid.Column="1">
       <Grid x:Name="ProgressGrid">
         <Grid.RowDefinitions>
           <RowDefinition Height="250"></RowDefinition>
@@ -59,16 +62,16 @@
         <Grid>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="200*"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="20"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="35*"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
           </Grid.RowDefinitions>
 
           <Border Grid.ColumnSpan="3" Grid.RowSpan="6" CornerRadius="4" BorderThickness="1"></Border>
@@ -77,7 +80,7 @@
             </vb:VBTextBlock>
           </Border>
           <vb:VBProgressBar x:Name="progressBar" Grid.Row="3" Grid.Column="1" IsIndeterminate="True"></vb:VBProgressBar>
-          <vb:VBListBox x:Name="listboxInfo" Grid.Row="5" Grid.Column="1" ItemsSource="{Binding MsgDetails}" DisplayMemberBinding="{Binding Message}" ShowCaption="False"></vb:VBListBox>
+          <vb:VBListBox x:Name="listboxInfo" Grid.Row="5" Grid.Column="1" WidthCaptionMax="0" ShowCaption="False" Width="1000"></vb:VBListBox>
         </Grid>
       </Grid>
       <Grid x:Name="LoginGrid" IsVisible="false">
@@ -114,7 +117,7 @@
           </Border>
 
           <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1" Name="label1">User</vb:VBTextBlock>
-          <vb:VBTextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" ShowCaption="False"/>
+          <vb:VBTextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" ShowCaption="False" Text="{Binding UserName, Mode=TwoWay}"/>
 
           <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Name="label2">Password</vb:VBTextBlock>
           <vb:VBPasswordBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Margin="-1,0,-1,0" Grid.Column="2" ShowCaption="False" Name="TextboxPassword"/>
