@@ -163,7 +163,7 @@ namespace gip.core.layoutengine.avui
             {
                 try
                 {
-                    nativeWebView.Source = new Uri(ContentFile);
+                    //nativeWebView.Source = new Uri(ContentFile);
                 }
                 catch (Exception e)
                 {
@@ -239,7 +239,7 @@ namespace gip.core.layoutengine.avui
             }
             else if (change.Property == ContentXMLProperty && change.NewValue != null)
             {
-                nativeWebView.NavigateToString(change.NewValue as string);
+                //nativeWebView.NavigateToString(change.NewValue as string);
             }
             else if (change.Property == ContentFileProperty)
             {

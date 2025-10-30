@@ -1,23 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using gip.core.datamodel;
-using gip.core.layoutengine.avui.Helperclasses;
-using System.Transactions;
-using System.Reflection;
-using System.ComponentModel;
-using System.Windows.Controls.Primitives;
-using System.Windows.Media.Animation;
+﻿using Avalonia;
+using Avalonia.Controls;
+using System;
 
 namespace gip.core.layoutengine.avui
 {
@@ -26,11 +9,11 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class FlipViewPanel : Panel
     {
-        protected override Size MeasureOverride(System.Windows.Size availableSize)
+        protected override Size MeasureOverride(Size availableSize)
         {
             if (!Double.IsInfinity(availableSize.Width) && !Double.IsInfinity(availableSize.Height))
             {
-                foreach (UIElement child in InternalChildren)
+                foreach (Control child in Children)
                 {
                     if (child == null)
                         continue;
@@ -43,7 +26,7 @@ namespace gip.core.layoutengine.avui
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            foreach (UIElement child in InternalChildren)
+            foreach (Control child in Children)
             {
                 double top = Canvas.GetTop(child);
                 double left = Canvas.GetLeft(child);

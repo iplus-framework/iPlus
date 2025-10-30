@@ -29,7 +29,7 @@ namespace gip.core.layoutengine.avui
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("ConverterControlModesVisibility", "IValueConverter.Convert", msg);
 
-                return System.Windows.Visibility.Collapsed;
+                return Visibility.Collapsed;
             }
         }
 

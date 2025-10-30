@@ -57,21 +57,5 @@ namespace gip.ext.designer.avui.Controls
         public static readonly StyledProperty<bool> IsNullableProperty = 
             AvaloniaProperty.Register<NullableComboBox, bool>(nameof(IsNullable), true);
 
-        #region REMOVE IF AVALONIA >=12 IS RELEASED
-        /// <summary>
-        /// Gets or sets a value indicating whether the control is editable
-        /// </summary>
-        public bool IsEditable
-        {
-            get => GetValue(IsEditableProperty);
-            set => SetValue(IsEditableProperty, value);
-        }
-
-        /// <summary>
-        /// Defines the <see cref="IsEditable"/> property.
-        /// </summary>
-        public static readonly StyledProperty<bool> IsEditableProperty =
-            AvaloniaProperty.Register<ComboBox, bool>(nameof(IsEditable));
-        #endregion
     }
 }

@@ -30,7 +30,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (acObject is IACType)
                 {
-                    if (typeof(System.Windows.Controls.Panel).IsAssignableFrom((acObject as IACType).ObjectType))
+                    if (typeof(Panel).IsAssignableFrom((acObject as IACType).ObjectType))
                         acUrl = acObject.ACIdentifier;
                 }
             }

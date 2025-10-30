@@ -29,7 +29,7 @@ namespace gip.core.layoutengine.avui
         public VBWindowDialogRoot(AvaloniaObject caller) : base(caller)
         {
             this.SizeToContent = SizeToContent.Height;
-            this.MaxHeight = System.Windows.SystemParameters.WorkArea.Height;
+            this.MaxHeight = Screens.Primary.WorkingArea.Height;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace gip.core.layoutengine.avui
         public VBWindowDialogRoot(IACObject acObject, Control uiElement, VBDockingManager dockManager) : base(dockManager)
         {
             this.SizeToContent = SizeToContent.Height;
-            this.MaxHeight = System.Windows.SystemParameters.WorkArea.Height;
+            this.MaxHeight = Screens.Primary.WorkingArea.Height;
 
             DataContext = acObject;
             BSOACComponent = acObject as IACBSO;

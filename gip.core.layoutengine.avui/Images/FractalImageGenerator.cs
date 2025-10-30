@@ -4,9 +4,9 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
-using System.Windows.Media;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
+using Avalonia.Media;
 
 namespace gip.core.layoutengine.avui
 {

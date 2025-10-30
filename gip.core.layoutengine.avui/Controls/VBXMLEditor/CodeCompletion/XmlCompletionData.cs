@@ -3,7 +3,6 @@ using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
 using System;
-using System.Windows.Media;
 
 namespace gip.core.layoutengine.avui.CodeCompletion
 {
@@ -137,7 +136,7 @@ namespace gip.core.layoutengine.avui.CodeCompletion
         /// <summary>
         /// Gets or sets the Image.
         /// </summary>
-        public ImageSource Image
+        public IImage Image
         {
             get;
             set;

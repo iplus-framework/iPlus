@@ -1,8 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(UITargetFramework)</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <Nullable>disable</Nullable>
     <UseWPF>false</UseWPF>
+    <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
   <PropertyGroup>
@@ -10,7 +11,7 @@
     <Title>iplus-framework wpfservices</Title>
     <Description>Mediator for seperation of WPF and manager components</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>

@@ -285,7 +285,7 @@ namespace gip.core.layoutengine.avui
                             {
                                 VBCheckBox vbCheckbox = contentPresenter.Content as VBCheckBox;
                                 DataGridBoundColumn dataGridColumn = ((DataGridCell)(vbCheckbox.Parent)).GetOwningColumnViaReflection() as DataGridBoundColumn;
-                                vbContent = ((System.Windows.Data.Binding)(dataGridColumn.Binding)).Path.Path;
+                                vbContent = ((Binding)(dataGridColumn.Binding)).Path;
                             }
                         }
                         if (element is TextBlock)

@@ -26,9 +26,9 @@ namespace gip.core.reporthandler.avui.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("Calibri")]
-        public global::System.Windows.Media.FontFamily Options_DefaultFont {
+        public global::Avalonia.Media.FontFamily Options_DefaultFont {
             get {
-                return ((global::System.Windows.Media.FontFamily)(this["Options_DefaultFont"]));
+                return ((global::Avalonia.Media.FontFamily)(this["Options_DefaultFont"]));
             }
             set {
                 this["Options_DefaultFont"] = value;

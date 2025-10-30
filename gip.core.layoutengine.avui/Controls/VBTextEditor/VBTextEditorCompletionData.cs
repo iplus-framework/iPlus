@@ -16,6 +16,7 @@
 // OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+using Avalonia.Controls;
 using Avalonia.Media;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
@@ -32,11 +33,7 @@ namespace gip.core.layoutengine.avui
 		public VBTextEditorCompletionData(string text)
 		{
 			this.Text = text;
-		}
-		
-		public System.Windows.Media.ImageSource Image {
-			get { return null; }
-		}
+		}	
 		
 		public string Text { get; private set; }
 		

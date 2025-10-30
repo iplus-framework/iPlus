@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Packaging;
-using System.Printing;
 using System.Xml.Linq;
 
 namespace gip.core.reporthandler.avui.Flowdoc
@@ -118,11 +117,11 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set;
         }
 
-        public PageOrientation? AutoSelectPageOrientation
-        {
-            get;
-            set;
-        }
+        //public PageOrientation? AutoSelectPageOrientation
+        //{
+        //    get;
+        //    set;
+        //}
 
         public int? AutoSelectTray
         {
@@ -130,11 +129,11 @@ namespace gip.core.reporthandler.avui.Flowdoc
             set;
         }
 
-        public PageMediaSize AutoPageMediaSize
-        {
-            get;
-            set;
-        }
+        //public PageMediaSize AutoPageMediaSize
+        //{
+        //    get;
+        //    set;
+        //}
         #endregion
 
         public static readonly AttachedProperty<string> StringFormatProperty

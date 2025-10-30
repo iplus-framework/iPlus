@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(UITargetFramework)</TargetFramework>
+    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
     <OutputType>Library</OutputType>
     <WarningLevel>4</WarningLevel>
     <SccProjectName>SAK</SccProjectName>
@@ -148,7 +148,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Controls.WebView" Version="11.3.12" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
@@ -200,7 +199,7 @@
     <Title>iplus-framework presentation</Title>
     <Description>Presentation layer and controls</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>

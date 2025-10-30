@@ -662,12 +662,6 @@ namespace gip.core.layoutengine.avui.timeline
             }
         }
 
-        internal void UpdateDisplayOrder(ICollectionView items)
-        {
-            BSOACComponent.ExecuteMethod("UpdateDisplayOrder", items, Items);
-            _ItemsPresenter.InvalidateMeasure();
-        }
-
         /// <summary>
         /// Sets the minimum and maximum bounds.
         /// </summary>

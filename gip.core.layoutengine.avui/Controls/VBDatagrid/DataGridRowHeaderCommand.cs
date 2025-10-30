@@ -4,6 +4,7 @@
 // All other rights reserved.
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Labs.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;

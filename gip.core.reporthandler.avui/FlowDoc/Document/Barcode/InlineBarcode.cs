@@ -4,7 +4,6 @@ using Avalonia;
 using System.IO;
 using Avalonia.Metadata;
 using BarcodeStandard;
-using QRCoder.Xaml;
 
 namespace gip.core.reporthandler.avui.Flowdoc
 {

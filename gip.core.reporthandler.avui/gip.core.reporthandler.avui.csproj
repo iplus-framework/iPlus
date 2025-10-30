@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFramework>$(UITargetFramework)</TargetFramework>
+		<TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
 		<OutputType>Library</OutputType>
 		<WarningLevel>4</WarningLevel>
 		<SccProjectName>SAK</SccProjectName>
@@ -33,7 +33,7 @@
     <Title>iplus-framework report wpf</Title>
     <Description>Components for rendering reports with flowdocs</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
@@ -88,7 +88,6 @@
     <PackageReference Include="BinaryKits.Zpl.Label" Version="3.2.1" />
 		<PackageReference Include="ESCPOS" Version="1.3.0" />
 		<PackageReference Include="QRCoder" Version="1.6.0" />
-		<PackageReference Include="QRCoder.Xaml" Version="1.6.0" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
 		<PackageReference Include="System.Reflection.Context" Version="$(NetCorePackageVersion)" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />

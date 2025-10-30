@@ -1,12 +1,12 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Avalonia.Metadata;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.wpfservices.avui.Manager;
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Markup;
 
 namespace gip.core.wpfservices.avui
 {

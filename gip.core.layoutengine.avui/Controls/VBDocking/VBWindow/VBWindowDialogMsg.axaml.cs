@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
-using System.Windows.Threading;
 using gip.core.layoutengine.avui.Controls.VBDocking.VBWindow;
 using Avalonia.Interactivity;
 using Avalonia.Input;

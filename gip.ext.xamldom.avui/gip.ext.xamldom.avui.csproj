@@ -62,7 +62,7 @@
     <Title>iplus-framework xaml parser</Title>
     <Description>xaml parser object model for WYSIWYG</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>

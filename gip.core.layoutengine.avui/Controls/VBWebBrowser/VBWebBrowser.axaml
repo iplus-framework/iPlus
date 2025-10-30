@@ -1,5 +1,5 @@
 ﻿<UserControl x:Class="gip.core.layoutengine.avui.VBWebBrowser"
              xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-        <NativeWebView x:Name="nativeWebView" />
+        <!--<NativeWebView x:Name="nativeWebView" />-->
 </UserControl>

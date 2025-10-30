@@ -30,7 +30,7 @@
     <Title>iplus-framework scichart</Title>
     <Description>Wrapper for commercial chart control from SciChart Ltd.</Description>
     <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>

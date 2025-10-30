@@ -86,7 +86,7 @@
     <Title>iplus-framework OPC Classic Softing</Title>
     <Description>iplus-framework OPC Classic Softing</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageTags>iplus-framework</PackageTags>
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>

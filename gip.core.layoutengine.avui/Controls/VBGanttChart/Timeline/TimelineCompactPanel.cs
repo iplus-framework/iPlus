@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Collections;
-using System.Windows.Media.Animation;
-using Avalonia.Controls;
+﻿using Avalonia.Controls;
+using System;
 
 namespace gip.core.layoutengine.avui.ganttchart
 {

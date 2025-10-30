@@ -1,12 +1,9 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using gip.core.layoutengine.avui;
+using Avalonia;
+using gip.core.layoutengine.avui;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Xml;
 using System.Xml.Schema;
 
@@ -34,7 +31,7 @@ namespace gip.core.visualcontrols.avui
             importSchemaList.Add(new Tuple<XmlSchemaImport, XmlQualifiedName>(importSchema, CodeCompletionXsdGenerator.vbNs));
             importSchemaList.Add(new Tuple<XmlSchemaImport, XmlQualifiedName>(importSchemaWPF, CodeCompletionXsdGenerator.msNs));
 
-            gen.RunTool("gip.core.visualcontrols.avui", vbvNs, new Type[] { typeof(DependencyObject), typeof(DependencyObject) }, importSchemaList, "VBVisualControls",
+            gen.RunTool("gip.core.visualcontrols.avui", vbvNs, new Type[] { typeof(AvaloniaObject), typeof(AvaloniaObject) }, importSchemaList, "VBVisualControls",
                         null, CodeCompletionXsdGenerator.baseDir + vbvSchemaPath);
         }
     }

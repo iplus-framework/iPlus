@@ -11,6 +11,7 @@ using gip.core.datamodel;
 using RoutedCommand = Avalonia.Labs.Input.RoutedCommand;
 using KeyGesture = Avalonia.Input.KeyGesture;
 using Key = Avalonia.Input.Key;
+using gip.ext.designer.avui;
 
 namespace gip.core.layoutengine.avui
 {
