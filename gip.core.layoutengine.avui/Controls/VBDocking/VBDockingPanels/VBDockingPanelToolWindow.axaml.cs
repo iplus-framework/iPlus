@@ -762,12 +762,15 @@ namespace gip.core.layoutengine.avui
             }
             if (this.ActiveContent != null && this.ActiveContent.VBDesignContent != null && VBDockingManager.GetCloseButtonVisibility(this.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled)
             {
-                PART_CloseButton.IsVisible = true;
-                PART_menuClose.IsVisible = true;
+                if (PART_CloseButton != null)
+                    PART_CloseButton.IsVisible = true;
+                if (PART_menuClose != null)
+                    PART_menuClose.IsVisible = true;
             }
             else
             {
-                PART_CloseButton.IsVisible = false;
+                if (PART_CloseButton != null)
+                    PART_CloseButton.IsVisible = false;
                 if (PART_menuClose != null)
                     PART_menuClose.IsVisible = false;
             }

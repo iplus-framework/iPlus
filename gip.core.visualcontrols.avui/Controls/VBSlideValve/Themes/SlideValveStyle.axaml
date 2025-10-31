@@ -6,12 +6,12 @@
         <ResourceInclude Source="/Controls/Shared.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <LinearGradientBrush x:Key="SlideValveCloseBgGip" StartPoint="1,0" EndPoint="0,0">
+    <LinearGradientBrush x:Key="SlideValveCloseBgGip" StartPoint="100%,0%" EndPoint="0%,0%">
         <GradientStop Color="DarkGray" Offset="0"/>
         <GradientStop Color="DarkSlateGray" Offset="1"/>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="SlideValveOpenBgGip" StartPoint="1,0" EndPoint="0,0">
+    <LinearGradientBrush x:Key="SlideValveOpenBgGip" StartPoint="100%,0%" EndPoint="0%,0%">
         <GradientStop Color="LimeGreen" Offset="0"/>
         <GradientStop Color="Lime" Offset="1"/>
     </LinearGradientBrush>

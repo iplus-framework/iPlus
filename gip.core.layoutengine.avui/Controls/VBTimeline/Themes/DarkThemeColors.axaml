@@ -7,13 +7,13 @@
   <SolidColorBrush x:Key="NormalBorderBrush" Color="#FF9B9999" />
   <SolidColorBrush x:Key="DataGridLineBrush" Color="#FF3D3D3D" />
   
-  <LinearGradientBrush x:Key="ShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+  <LinearGradientBrush x:Key="ShineBrush" EndPoint="50%,100%" StartPoint="50%,0%">
     <GradientStop Color="#59FFFFFF" Offset="0" />
     <GradientStop Color="#00FFFFFF" Offset="1" />
     <GradientStop Color="#26FFFFFF" Offset="0.467" />
     <GradientStop Color="#00FFFFFF" Offset="0.475" />
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="50%,100%" StartPoint="50%,0%">
     <GradientStop Color="#4CFF2020" Offset="0" />
     <GradientStop Color="#26FF2020" Offset="1" />
     <GradientStop Color="#26FF2020" Offset="0.467" />

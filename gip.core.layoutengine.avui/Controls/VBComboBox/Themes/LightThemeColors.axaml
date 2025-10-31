@@ -35,31 +35,31 @@
     <GradientStop Color="#FF020101" Offset="1"/>
   </RadialGradientBrush>
 
-  <LinearGradientBrush x:Key="ButtonComboNormalBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ButtonComboNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#FFF2F2F2" Offset="0.15"/>
     <GradientStop Color="#FFE2E2E2" Offset=".5"/>
     <GradientStop Color="#FFD2D2D2" Offset=".5"/>
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ButtonComboReadonlyBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ButtonComboReadonlyBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#B3B3B3" Offset="0"/>
     <GradientStop Color="#ABABAB" Offset="0.5"/>
     <GradientStop Color="#9D9D9D" Offset="0.5"/>
     <GradientStop Color="#7D7D7D" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ButtonComboDisabledBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ButtonComboDisabledBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#88F2F2F2" Offset="0.15"/>
     <GradientStop Color="#88E2E2E2" Offset=".5"/>
     <GradientStop Color="#88D2D2D2" Offset=".5"/>
     <GradientStop Color="#88C2C2C2" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ButtonComboFocusBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ButtonComboFocusBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#FFFFF3F3" Offset="0"/>
     <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
     <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
     <GradientStop Color="#FFFFCDCD" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ButtonComboPressedBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ButtonComboPressedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#FFFFD3D3" Offset="0"/>
     <GradientStop Color="#FFFFCBCB" Offset="0.5"/>
     <GradientStop Color="#FFFFBDBD" Offset="0.5"/>
@@ -71,7 +71,7 @@
   <SolidColorBrush x:Key="ButtonComboFocusForeground" Color="#FFFFFFFF"/>
   <SolidColorBrush x:Key="ButtonComboFocusBorder" Color="#FF131313"/>
 
-  <LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#4CFFA5A5" Offset="0"/>
     <GradientStop Color="#7FFF4058" Offset="1"/>
   </LinearGradientBrush>

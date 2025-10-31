@@ -5,35 +5,35 @@
     <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="/Controls/Shared.axaml"/>
     </ResourceDictionary.MergedDictionaries>
-    <LinearGradientBrush x:Key="ProgressBarBackgroundGip" EndPoint="1,0" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarBackgroundGip" EndPoint="100%,0%" StartPoint="0%,0%">
         <GradientStop Color="#BABABA" Offset="0"/>
         <GradientStop Color="#C7C7C7" Offset="0.5"/>
         <GradientStop Color="#BABABA" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarBorderBrushGip" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarBorderBrushGip" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#B2B2B2" Offset="0"/>
         <GradientStop Color="#8C8C8C" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarGlassyHighlightGip" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarGlassyHighlightGip" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#50FFFFFF" Offset="0.5385"/>
         <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarTopHighlightGip" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarTopHighlightGip" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#80FFFFFF" Offset="0.05"/>
         <GradientStop Color="#00FFFFFF" Offset="0.25"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFillGip" EndPoint="1,0" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFillGip" EndPoint="100%,0%" StartPoint="0%,0%">
         <GradientStop Color="#00FFFFFF" Offset="0"/>
         <GradientStop Color="#60FFFFFF" Offset="0.4"/>
         <GradientStop Color="#60FFFFFF" Offset="0.6"/>
         <GradientStop Color="#00FFFFFF" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeLeftGip" EndPoint="1,0" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeLeftGip" EndPoint="100%,0%" StartPoint="0%,0%">
         <GradientStop Color="#0C000000" Offset="0"/>
         <GradientStop Color="#20000000" Offset="0.3"/>
         <GradientStop Color="#00000000" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeRightGip" EndPoint="1,0" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeRightGip" EndPoint="100%,0%" StartPoint="0%,0%">
         <GradientStop Color="#00000000" Offset="0"/>
         <GradientStop Color="#20000000" Offset="0.7"/>
         <GradientStop Color="#0C000000" Offset="1"/>
@@ -45,7 +45,7 @@
         <GradientStop Color="#60FF0000" Offset="0"/>
         <GradientStop Color="#00FF0000" Offset="1"/>
     </RadialGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarIndicatorLightingEffectGip" EndPoint="0,0" StartPoint="0,1">
+    <LinearGradientBrush x:Key="ProgressBarIndicatorLightingEffectGip" EndPoint="0%,0%" StartPoint="0%,100%">
         <GradientStop Color="#60FF0000" Offset="0"/>
         <GradientStop Color="#00FF0000" Offset="1"/>
     </LinearGradientBrush>
@@ -56,7 +56,7 @@
         <GradientStop Color="#60FF0000" Offset="0"/>
         <GradientStop Color="#00FF0000" Offset="1"/>
     </RadialGradientBrush>
-    <LinearGradientBrush x:Key="ProgressBarIndicatorGlassyHighlightGip" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgressBarIndicatorGlassyHighlightGip" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#90FFFFFF" Offset="0.5385"/>
         <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
     </LinearGradientBrush>

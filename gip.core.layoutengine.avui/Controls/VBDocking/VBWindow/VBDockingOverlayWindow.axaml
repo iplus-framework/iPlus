@@ -59,28 +59,28 @@
 			<Button Name="btnDockLeft" HorizontalAlignment="Left" VerticalAlignment="Center" Width="32" Height="30">
 				<Button.Template>
 					<ControlTemplate TargetType="Button">
-                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockLeft.png"/>
+                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockLeft.PNG"/>
 					</ControlTemplate>
 				</Button.Template>
 			</Button>
 			<Button Name="btnDockRight" HorizontalAlignment="Right" VerticalAlignment="Center" Width="32" Height="29">
 				<Button.Template>
 					<ControlTemplate TargetType="Button">
-                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockRight.png"/>
+                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockRight.PNG"/>
 					</ControlTemplate>
 				</Button.Template>
 			</Button>
 			<Button Name="btnDockBottom" HorizontalAlignment="Center" VerticalAlignment="Bottom" Width="30" Height="32">
 				<Button.Template>
 					<ControlTemplate TargetType="Button">
-                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockBottom.png" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockBottom.PNG" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 					</ControlTemplate>
 				</Button.Template>
 			</Button>
 			<Button Name="btnDockTop" HorizontalAlignment="Center" VerticalAlignment="Top" Width="30" Height="32">
 				<Button.Template>
 					<ControlTemplate TargetType="Button">
-                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockTop.png" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                        <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockTop.PNG" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top"/>
 					</ControlTemplate>
 				</Button.Template>
 			</Button>
@@ -97,7 +97,7 @@
 					<RowDefinition/>
 					<RowDefinition/>
 				</Grid.RowDefinitions>
-                <Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockPane.png" Grid.ColumnSpan="3" Grid.RowSpan="3" Stretch="Fill"/>
+				<Image Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Icons/DockPane.PNG" Grid.ColumnSpan="3" Grid.RowSpan="3" Stretch="Fill"/>
 				<Button Name="btnDockPaneTop" Grid.Column="1" Grid.Row="0">
 					<Button.Template>
 						<ControlTemplate TargetType="Button">

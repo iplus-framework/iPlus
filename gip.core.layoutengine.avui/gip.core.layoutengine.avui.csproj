@@ -89,47 +89,45 @@
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\unpinned.bmp" />
+    <AvaloniaResource Include="Images\unpinned.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\pinned.bmp" />
+    <AvaloniaResource Include="Images\pinned.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockPane.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockRight.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockTop.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\Icons\DockPane.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\Icons\DockRight.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\Icons\DockTop.PNG" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\QuestionMark.JPG" />
+    <AvaloniaResource Include="Images\QuestionMark.JPG" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\questionMark2.jpg">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Resource>
+    <AvaloniaResource Include="Images\questionMark2.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\icon_alarm.png" />
+    <AvaloniaResource Include="Images\icon_alarm.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\noduration.png" />
+    <AvaloniaResource Include="Images\noduration.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\questionMarkHelp.png" />
+    <AvaloniaResource Include="Images\questionMarkHelp.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\alarmChild.png" />
+    <AvaloniaResource Include="Images\alarmChild.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\false.png" />
-    <Resource Include="Images\true.png" />
+    <AvaloniaResource Include="Images\false.png" />
+    <AvaloniaResource Include="Images\true.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\gipTick.png" />
+    <AvaloniaResource Include="Images\gipTick.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\pointer.png" />
+    <AvaloniaResource Include="Images\pointer.png" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -139,7 +137,7 @@
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\iPlusIconDesktop.ico" />
+    <AvaloniaResource Include="Images\iPlusIconDesktop.ico" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
     <Reference Include="Microsoft.EntityFrameworkCore">

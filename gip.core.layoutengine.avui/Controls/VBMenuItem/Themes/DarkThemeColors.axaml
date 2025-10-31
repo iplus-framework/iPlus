@@ -30,11 +30,11 @@ x:ClassModifier="internal">
 	<SolidColorBrush x:Key="MenuItemTransientBorderBrush" Color="#000000" Opacity="0.14" />
 
 	<SolidColorBrush x:Key="MenuItemSubMenuBackgroundBrush" Color="#EFC8C8C8"/>
-	<LinearGradientBrush x:Key="MenuItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+	<LinearGradientBrush x:Key="MenuItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
 		<GradientStop Color="#4CFF6565" Offset="0"/>
 		<GradientStop Color="#7FFF0018" Offset="1"/>
 	</LinearGradientBrush>
-	<LinearGradientBrush x:Key="MenuItemPressedFill" EndPoint="0,1" StartPoint="0,0">
+	<LinearGradientBrush x:Key="MenuItemPressedFill" EndPoint="0%,100%" StartPoint="0%,0%">
 		<GradientStop Color="#28FF6565" Offset="0"/>
 		<GradientStop Color="#CCFF0000" Offset="1"/>
 	</LinearGradientBrush>

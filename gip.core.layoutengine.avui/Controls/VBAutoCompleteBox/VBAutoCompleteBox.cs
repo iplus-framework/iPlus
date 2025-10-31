@@ -80,17 +80,15 @@ namespace gip.core.layoutengine.avui
         public static readonly StyledProperty<string> VBAccessProperty =
             AvaloniaProperty.Register<VBAutoCompleteBox, string>(nameof(VBAccess));
 
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty =
-            AvaloniaProperty.RegisterAttached<VBAutoCompleteBox, Control, IACBSO>(nameof(BSOACComponent));
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBAutoCompleteBox>();
 
         public static readonly StyledProperty<ACInitState> ACCompInitStateProperty =
             AvaloniaProperty.Register<VBAutoCompleteBox, ACInitState>(nameof(ACCompInitState));
 
-        public static readonly AttachedProperty<string> VBValidationProperty =
-            AvaloniaProperty.RegisterAttached<VBAutoCompleteBox, Control, string>("VBValidation");
+        public static readonly AttachedProperty<string> VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner<VBAutoCompleteBox>();
 
         public static readonly AttachedProperty<bool> DisableContextMenuProperty =
-            AvaloniaProperty.RegisterAttached<VBAutoCompleteBox, Control, bool>("DisableContextMenu");
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBAutoCompleteBox>();
 
         public static readonly StyledProperty<DragMode> DragEnabledProperty =
             AvaloniaProperty.Register<VBAutoCompleteBox, DragMode>(nameof(DragEnabled));

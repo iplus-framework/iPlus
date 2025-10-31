@@ -257,8 +257,8 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
-            AvaloniaProperty.RegisterAttached<VBComboBox, Control, bool>("DisableContextMenu", false, true);
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty =
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBComboBox>();
 
         [Category("VBControl")]
         [ACPropertyInfo(9999)]
@@ -1056,8 +1056,7 @@ namespace gip.core.layoutengine.avui
             get { return DataContext as IACObject; }
         }
 
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
-            AvaloniaProperty.RegisterAttached<VBComboBox, Control, IACBSO>(nameof(BSOACComponent), null, true);
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBComboBox>();
 
         public IACBSO BSOACComponent
         {
@@ -1160,8 +1159,7 @@ namespace gip.core.layoutengine.avui
             return false;
         }
 
-        public static readonly AttachedProperty<string> VBValidationProperty = 
-            AvaloniaProperty.RegisterAttached<VBComboBox, Control, string>("VBValidation", null, true);
+        public static readonly AttachedProperty<string> VBValidationProperty = ContentPropertyHandler.VBValidationProperty.AddOwner<VBComboBox>();
 
         public string VBValidation
         {

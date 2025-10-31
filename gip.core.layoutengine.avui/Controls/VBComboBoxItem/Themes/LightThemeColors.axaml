@@ -3,7 +3,7 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
 
-  <LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#4CFFA5A5" Offset="0"/>
     <GradientStop Color="#7FFF4058" Offset="1"/>
   </LinearGradientBrush>

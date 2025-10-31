@@ -4,7 +4,7 @@
    x:ClassModifier="internal">
 
   <SolidColorBrush x:Key="DockingHeaderNormalBorderBrush" Color="{StaticResource TabItemSelectedBorderColor}"/>
-  <LinearGradientBrush x:Key="DockingHeaderSelectedBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="DockingHeaderSelectedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#F2F2F2" Offset="0.15"/>
     <GradientStop Color="#E2E2E2" Offset=".5"/>
     <GradientStop Color="#D2D2D2" Offset=".5"/>
@@ -25,7 +25,7 @@
   <SolidColorBrush x:Key="DockingCloseButtonBorderBrushHot" Color="Red"/>
   <SolidColorBrush x:Key="DockingCloseButtonFillBrushHot" Color="#FF770000"/>
 
-  <LinearGradientBrush x:Key="DockingPinButtonFill" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+  <LinearGradientBrush x:Key="DockingPinButtonFill" StartPoint="0%,50%" EndPoint="100%,50%">
     <LinearGradientBrush.GradientStops>
       <GradientStop Color="#FF464646" Offset="0"/>
       <GradientStop Color="#FF727272" Offset="0.146553"/>
@@ -34,7 +34,7 @@
     </LinearGradientBrush.GradientStops>
   </LinearGradientBrush>
 
-  <LinearGradientBrush x:Key="DockingPinButtonHotFill" StartPoint="-0.05,0.5" EndPoint="1.05,0.5">
+  <LinearGradientBrush x:Key="DockingPinButtonHotFill" StartPoint="0%,50%" EndPoint="100%,50%">
     <LinearGradientBrush.GradientStops>
       <GradientStop Color="#FF4D0000" Offset="0"/>
       <GradientStop Color="#FF760000" Offset="0.146553"/>

@@ -3,6 +3,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Platform.Storage;
+using Avalonia.Threading;
 using gip.core.datamodel;
 using gip.core.media;
 using SkiaSharp;
@@ -151,70 +152,101 @@ namespace gip.core.wpfservices.avui
             TopLevel topLevel = app.ApplicationLifetime as TopLevel;
             if (topLevel == null || topLevel.StorageProvider == null)
                 return null;
-            var provider = topLevel.StorageProvider;
+            IStorageProvider provider = topLevel.StorageProvider;
+            return Dispatcher.UIThread.InvokeAsync<string>(() => OpenFileDialog(provider, isFolderPicker, initialDirectory, useExisting, defaultExtension, filters)).GetAwaiter().GetResult();
+        }
 
-            return Task.Run(async () =>
+        public static async Task<string> OpenFileDialog(IStorageProvider provider, bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
+        {
+            IStorageFolder startingLocation = null;
+            if (!string.IsNullOrEmpty(initialDirectory))
             {
-                IStorageFolder startingLocation = null;
-                if (!string.IsNullOrEmpty(initialDirectory))
-                {
-                    if (isFolderPicker)
-                        startingLocation = await provider.TryGetFolderFromPathAsync(initialDirectory);
-                    else
-                        startingLocation = await provider.TryGetFolderFromPathAsync(Path.GetDirectoryName(initialDirectory));
-                }
-
                 if (isFolderPicker)
-                {
-                    var folders = await provider.OpenFolderPickerAsync(new FolderPickerOpenOptions
-                    {
-                        Title = "Select Folder",
-                        SuggestedStartLocation = startingLocation
-                    });
-
-                    if (folders.Count > 0)
-                    {
-                        var folder = folders.First();
-                        bool exists = Directory.Exists(folder.Path.ToString());
-                        if (!useExisting || exists)
-                            return folder.Path.ToString();
-                    }
-                }
+                    startingLocation = await provider.TryGetFolderFromPathAsync(initialDirectory);
                 else
+                    startingLocation = await provider.TryGetFolderFromPathAsync(Path.GetDirectoryName(initialDirectory));
+            }
+
+            if (isFolderPicker)
+            {
+                var folders = await provider.OpenFolderPickerAsync(new FolderPickerOpenOptions
                 {
-                    List<FilePickerFileType> fileTypes = null;
-                    if (filters != null)
+                    Title = "Select Folder",
+                    SuggestedStartLocation = startingLocation
+                });
+
+                if (folders.Count > 0)
+                {
+                    var folder = folders.First();
+                    bool exists = Directory.Exists(folder.Path.ToString());
+                    if (!useExisting || exists)
+                        return folder.Path.ToString();
+                }
+            }
+            else
+            {
+                List<FilePickerFileType> fileTypes = null;
+                if (filters != null)
+                {
+                    fileTypes = new List<FilePickerFileType>();
+                    foreach (var filter in filters)
                     {
-                        fileTypes = new List<FilePickerFileType>();
-                        foreach (var filter in filters)
+                        fileTypes.Add(new FilePickerFileType(filter.Key)
                         {
-                            fileTypes.Add(new FilePickerFileType(filter.Key)
-                            {
-                                Patterns = filter.Value.Split(';').Select(s => s.Trim()).ToArray()
-                            });
-                        }
-                    }
-
-                    var files = await provider.OpenFilePickerAsync(new FilePickerOpenOptions
-                    {
-                        Title = "Open File",
-                        AllowMultiple = false,
-                        SuggestedStartLocation = startingLocation,
-                        SuggestedFileName = Path.GetFileName(initialDirectory),
-                        FileTypeFilter = fileTypes
-                    });
-
-                    if (files.Count > 0)
-                    {
-                        var file = files.First();
-                        bool exists = File.Exists(file.Path.ToString());
-                        if (!useExisting || exists)
-                            return file.Path.ToString();
+                            Patterns = filter.Value.Split(';').Select(s => s.Trim()).ToArray()
+                        });
                     }
                 }
 
+                var files = await provider.OpenFilePickerAsync(new FilePickerOpenOptions
+                {
+                    Title = "Open File",
+                    AllowMultiple = false,
+                    SuggestedStartLocation = startingLocation,
+                    SuggestedFileName = Path.GetFileName(initialDirectory),
+                    FileTypeFilter = fileTypes                    
+                });
+
+                if (files.Count > 0)
+                {
+                    var file = files.First();
+                    bool exists = File.Exists(file.Path.ToString());
+                    if (!useExisting || exists)
+                        return file.Path.ToString();
+                }
+            }
+
+            return null;
+        }
+
+
+        public string SaveFileDialog(string initialDirectory, string defaultExtension = null)
+        {
+            Application app = Database.Root.RootPageWPF.WPFApplication as Application;
+            if (app == null || app.ApplicationLifetime == null)
                 return null;
-            }).Result;
+            TopLevel topLevel = app.ApplicationLifetime as TopLevel;
+            if (topLevel == null || topLevel.StorageProvider == null)
+                return null;
+            IStorageProvider provider = topLevel.StorageProvider;
+            return Dispatcher.UIThread.InvokeAsync<string>(() => SaveFileDialog(provider, initialDirectory, defaultExtension)).GetAwaiter().GetResult();
+        }
+
+        public static async Task<string> SaveFileDialog(IStorageProvider provider, string initialDirectory, string defaultExtension = null)
+        {
+            IStorageFolder startingLocation = null;
+            if (!string.IsNullOrEmpty(initialDirectory))
+                startingLocation = await provider.TryGetFolderFromPathAsync(Path.GetDirectoryName(initialDirectory));
+
+            var file = await provider.SaveFilePickerAsync(new FilePickerSaveOptions
+            {
+                Title = "Open File",
+                SuggestedStartLocation = startingLocation,
+                SuggestedFileName = Path.GetFileName(initialDirectory),
+                DefaultExtension = defaultExtension
+            });
+
+            return file != null ? file.Path.ToString() : null;
         }
 
         #endregion

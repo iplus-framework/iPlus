@@ -1,6 +1,7 @@
 ﻿using MsBox.Avalonia;
 using MsBox.Avalonia.Base;
 using MsBox.Avalonia.Enums;
+using Avalonia.Threading;
 using System;
 using System.Threading.Tasks;
 
@@ -12,8 +13,15 @@ namespace gip.core.layoutengine.avui
         public static async void BeginMessageBoxAsync(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
         {
             ShowMessageBoxDelegate caller = new ShowMessageBoxDelegate(ShowMessageBox);
-            var workTask = Task.Run(() => caller.Invoke(strMessage, strCaption, enmButton, enmImage));
-            await workTask;
+            if (Dispatcher.UIThread.CheckAccess())
+            {
+                ShowMessageBox(strMessage, strCaption, enmButton, enmImage);
+            }
+            else
+            {
+                var workTask = Dispatcher.UIThread.InvokeAsync(() => caller.Invoke(strMessage, strCaption, enmButton, enmImage));
+                await workTask;
+            }
             //caller.BeginInvoke(strMessage, strCaption, enmButton, enmImage, null, null);
         }
 

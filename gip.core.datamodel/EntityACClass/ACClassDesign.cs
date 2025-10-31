@@ -23,6 +23,7 @@ using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using SkiaSharp;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.datamodel
 {
@@ -1186,11 +1187,31 @@ namespace gip.core.datamodel
         }
 
         [NotMapped]
+        private bool _StoreDesignInXML2;
+        [ACPropertyInfo(14, "IsDesignCompiled", "en{'Edit Avalonia Design'}de{'Avalonia Design ändern'}", "", false)]
+        [NotMapped]
+        public bool StoreDesignInXML2
+        {
+            get
+            {
+                return _StoreDesignInXML2;
+            }
+            set
+            {
+                // this can only be activated in WPF mode
+                if (Database.Root.IsAvaloniaUI)
+                    return;
+                if (this.SetProperty(ref _StoreDesignInXML2, value))
+                    OnPropertyChanged(nameof(XAMLDesign));
+            }
+        }
+
+        [NotMapped]
         public string XAMLDesign
         {
             get
             {
-                if (Database.Root.IsAvaloniaUI)
+                if (Database.Root.IsAvaloniaUI || StoreDesignInXML2)
                 {
                     if (!string.IsNullOrEmpty(XMLDesign2))
                         return XMLDesign2;
@@ -1198,6 +1219,10 @@ namespace gip.core.datamodel
                     {
                         string avaloniaXAML = XMLDesign;
                         foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
+                        {
+                            avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
+                        }
+                        foreach (var tuple in C_AvaloniaFindAndReplace)
                         {
                             avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
                         }
@@ -1211,7 +1236,7 @@ namespace gip.core.datamodel
             }
             set
             {
-                if (Database.Root.IsAvaloniaUI)
+                if (Database.Root.IsAvaloniaUI || StoreDesignInXML2)
                 {
                     XMLDesign2 = value;
                 }
@@ -1221,6 +1246,23 @@ namespace gip.core.datamodel
                 }
             }
         }
+
+        protected override void OnPropertyChanged([CallerMemberName] string propertyName = "")
+        {
+            if (propertyName == nameof(XMLDesign) || propertyName == nameof(XMLDesign2))
+            {
+                OnPropertyChanged(nameof(XAMLDesign));
+            }
+            base.OnPropertyChanged(propertyName);
+        }
+
+        public static readonly (string WpfNamespace, string AvaloniaNamespace)[] C_AvaloniaFindAndReplace = new[]
+{
+            ("<Style ", "<ControlTheme "),
+            ("<Style.Setters>", "<ControlTheme.Setters>"),
+            ("</Style.Setters>", "</ControlTheme.Setters>"),
+            ("</Style>", "</ControlTheme>")
+        };
 
         #endregion
 

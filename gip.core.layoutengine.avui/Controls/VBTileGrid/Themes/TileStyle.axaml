@@ -15,7 +15,7 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 							<RowDefinition Height="2.2*"/>
 						</Grid.RowDefinitions>
 						<Grid.Background>
-							<LinearGradientBrush EndPoint="0,1" StartPoint="0,0">
+							<LinearGradientBrush EndPoint="0%,100%" StartPoint="0%,0%">
 								<GradientStop Color="#4CFF6565" Offset="0"/>
 								<GradientStop Color="#7FFF0018" Offset="1"/>
 							</LinearGradientBrush>

@@ -126,9 +126,9 @@ public partial class App : Application
             // Show splash screen window
             //_LoginWindow = new LoginWindow();
             _LoginWindow = new LoginWindow(
-                async () =>
+                () =>
                 {
-                    await HandleLoginAndStartup();
+                    HandleLoginAndStartup();
                 },
                 () =>
                 {
@@ -192,7 +192,7 @@ public partial class App : Application
     /// </summary>
     /// <param name="varioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
     /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
-    private async Task HandleLoginAndStartup()
+    private void HandleLoginAndStartup()
     {
         string[] cmLineArg = System.Environment.GetCommandLineArgs();
 

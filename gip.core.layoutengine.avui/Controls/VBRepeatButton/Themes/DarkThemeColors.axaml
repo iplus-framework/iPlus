@@ -5,7 +5,7 @@
 
   <!-- Normal -->
   <SolidColorBrush x:Key="ControlOuterBorder_Normal" Color="#FF707070" />
-  <LinearGradientBrush x:Key="ControlBackground_Normal" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ControlBackground_Normal" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#535353" Offset="0"/>
     <GradientStop Color="#4B4B4B" Offset="0.5"/>
     <GradientStop Color="#3D3D3D" Offset="0.5"/>
@@ -14,7 +14,7 @@
 
   <!--Mouse Over-->
   <SolidColorBrush x:Key="ControlOuterBorder_MouseOver" Color="#FFFF7070" />
-  <LinearGradientBrush x:Key="ControlBackground_MouseOver" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ControlBackground_MouseOver" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#FFFFF3F3" Offset="0"/>
     <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
     <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
@@ -23,7 +23,7 @@
 
   <!-- Pressed -->
   <SolidColorBrush x:Key="ControlOuterBorder_Pressed" Color="#FFFF7070" />
-  <LinearGradientBrush x:Key="ControlBackground_Pressed" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ControlBackground_Pressed" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#FFFFD3D3" Offset="0"/>
     <GradientStop Color="#FFFFCBCB" Offset="0.5"/>
     <GradientStop Color="#FFFFBDBD" Offset="0.5"/>
@@ -32,7 +32,7 @@
 
   <!-- Focused -->
   <SolidColorBrush x:Key="ControlOuterBorder_Focused" Color="#FF939393" />
-  <LinearGradientBrush x:Key="ControlBackground_Focused" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ControlBackground_Focused" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#FFFFF3F3" Offset="0"/>
     <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
     <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
@@ -41,7 +41,7 @@
 
   <!-- Disabled -->
   <SolidColorBrush x:Key="ControlOuterBorder_Disabled" Color="#535353" />
-  <LinearGradientBrush x:Key="ControlBackground_Disabled" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ControlBackground_Disabled" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#88B2B2B2" Offset="0.15"/>
     <GradientStop Color="#88A2A2A2" Offset=".5"/>
     <GradientStop Color="#88929292" Offset=".5"/>

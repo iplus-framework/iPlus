@@ -180,7 +180,11 @@ namespace gip.core.datamodel
             ("http://www.iplus-framework.com/shapes/xaml", "http://www.iplus-framework.com/shapes/axaml"),
             ("http://www.iplus-framework.com/xaml", "http://www.iplus-framework.com/axaml"),
             ("http://www.iplus-framework.com/report/xaml", "http://www.iplus-framework.com/report/axaml"),
-            ("http://www.iplus-framework.com/visual/xaml", "http://www.iplus-framework.com/visual/axaml")
+            ("http://www.iplus-framework.com/visual/xaml", "http://www.iplus-framework.com/visual/axaml"),
+            ("clr-namespace:gip.core.graphics;assembly=gip.core.graphics", "http://www.iplus-framework.com/shapes/axaml"),
+            ("clr-namespace:gip.core.layoutengine;assembly=gip.core.layoutengine", "http://www.iplus-framework.com/axaml"),
+            ("clr-namespace:gip.core.reporthandler;assembly=gip.core.reporthandler", "http://www.iplus-framework.com/report/xaml"),
+            ("clr-namespace:gip.core.visualcontrols;assembly=gip.core.visualcontrols", "http://www.iplus-framework.com/visual/axaml")
         };
 
         public static readonly (string WpfNamespace, string AvaloniaNamespace)[] C_AvaloniaAssemblyMapping = new[]

@@ -25,24 +25,45 @@ namespace gip.core.layoutengine.avui
             if (service == null)
                 throw new ArgumentException("DelegateExtension is used in wrong context");
 
+            Delegate eventDelegate = null;
             AvaloniaObject target = service.TargetObject as AvaloniaObject;
-            if (!(service.TargetProperty is EventInfo))
-                throw new ArgumentException("TargetProperty is not an Event");
-            EventInfo eventInfo = service.TargetProperty as EventInfo;
-            if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            if (service.TargetProperty is string eventName)
             {
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
+                if (eventName == nameof(IInputElement.PointerEntered)
+                    || eventName == nameof(IInputElement.PointerExited)
+                    || eventName == nameof(IInputElement.PointerMoved)
+                    )
+                {
+                    eventDelegate = Delegate.CreateDelegate(typeof(EventHandler<PointerEventArgs>), this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
+                }
+                else if (eventName == nameof(IInputElement.KeyDown)
+                    || eventName == nameof(IInputElement.KeyUp))
+                {
+                    eventDelegate = Delegate.CreateDelegate(typeof(EventHandler<KeyEventArgs>), this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
+                }
+                else if (eventName == nameof(IInputElement.PointerPressed))
+                    eventDelegate = Delegate.CreateDelegate(typeof(EventHandler<PointerPressedEventArgs>), this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
+                //else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                //    return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
             }
-            else if (typeof(EventHandler<KeyEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            else if (service.TargetProperty is EventInfo eventInfo)
             {
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
+                if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                {
+                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
+                }
+                else if (typeof(EventHandler<KeyEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                {
+                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
+                }
+                else if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
+                else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
             }
-            else if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
-            else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
-                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
-            else
+            if (eventDelegate == null)
                 throw new ArgumentException("TargetProperty is not an Event");
+            return eventDelegate;
         }
 
         #region XAML-Properties

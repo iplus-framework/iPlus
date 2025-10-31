@@ -144,7 +144,7 @@
                 <GeometryDrawing.Pen>
                     <Pen Thickness="8" LineJoin="Round">
                         <Pen.Brush>
-                            <LinearGradientBrush StartPoint="0.1875,0.5" EndPoint="0.8125,0.5">
+                            <LinearGradientBrush StartPoint="20%,50%" EndPoint="80%,50%">
                                 <LinearGradientBrush.GradientStops>
                                     <GradientStop Color="#FF000000" Offset="0"/>
                                     <GradientStop Color="#FF7F7F7F" Offset="0.368544"/>
@@ -161,7 +161,7 @@
                 <GeometryDrawing.Pen>
                     <Pen Thickness="8" LineJoin="Round">
                         <Pen.Brush>
-                            <LinearGradientBrush StartPoint="0.1875,0.5" EndPoint="0.8125,0.5">
+                            <LinearGradientBrush StartPoint="20%,50%" EndPoint="80%,50%">
                                 <LinearGradientBrush.GradientStops>
                                     <GradientStop Color="#FF000000" Offset="0"/>
                                     <GradientStop Color="#FF7F7F7F" Offset="0.368544"/>
@@ -184,7 +184,7 @@
                     <Pen Thickness="5.92593" LineCap="Round" LineJoin="Round" Brush="#FF3F3F3F"/>
                 </GeometryDrawing.Pen>
                 <GeometryDrawing.Brush>
-                    <LinearGradientBrush StartPoint="-0.025,0.5" EndPoint="1.025,0.5">
+                    <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
                         <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#FF1E1E1E" Offset="0"/>
                             <GradientStop Color="#FF7D7D7D" Offset="0.178138"/>

@@ -41,7 +41,7 @@
                         </RadialGradientBrush>
                       </Rectangle.Stroke>
                       <Rectangle.Fill>
-                        <LinearGradientBrush StartPoint="1,0.5" EndPoint="3.8147e-007,0.5">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -53,7 +53,7 @@
                     </Rectangle>
                     <Path x:Name="Path_371" Width="20" Height="4.8" Canvas.Left="0" Canvas.Top="55.2" Stretch="Fill" Data="F1 M 9.50954,55.2L 10.5088,55.2C 14.6561,55.2 19.8452,57.338 20,60L 0,60C 0.15535,57.338 5.36227,55.2 9.50954,55.2 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="1,0.500001" EndPoint="0,0.500001">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -63,7 +63,7 @@
                     </Path>
                     <Path x:Name="Path_372" Width="20" Height="4.8" Canvas.Left="0" Canvas.Top="1.52588e-005" Stretch="Fill" Data="F1 M 9.50954,4.80002L 10.5088,4.80002C 14.6561,4.80002 19.8452,2.66199 20,1.52588e-005L 0,1.52588e-005C 0.15535,2.66199 5.36227,4.80002 9.50954,4.80002 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="1,0.499998" EndPoint="0,0.499998">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -99,7 +99,7 @@
                         </RadialGradientBrush>
                       </Path.Stroke>
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.999999,0.350348" EndPoint="3.8147e-007,0.350348">
+                        <LinearGradientBrush StartPoint="100%,35%" EndPoint="0%,35%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.00436681"/>
                             <GradientStop Color="#00000000" Offset="0.253275"/>
@@ -111,7 +111,7 @@
                     </Path>
                     <Path x:Name="Path_375" Width="20" Height="4.8" Canvas.Left="25" Canvas.Top="0" Stretch="Fill" Data="F1 M 34.5095,4.8L 35.5088,4.8C 39.6561,4.8 44.8452,2.66197 45,0L 25,0C 25.1553,2.66197 30.3623,4.8 34.5095,4.8 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="1,0.499999" EndPoint="0,0.499999">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -137,7 +137,7 @@
                         </RadialGradientBrush>
                       </Path.Stroke>
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.503069,0.771981" EndPoint="1.08818,0.771981">
+                        <LinearGradientBrush StartPoint="50%,80%" EndPoint="110%,80%">
                           <LinearGradientBrush.Transform>
                             <TransformGroup>
                               <SkewTransform AngleX="16.752" AngleY="0"/>
@@ -155,7 +155,7 @@
                     </Path>
                     <Path x:Name="Path_377" Width="11.3567" Height="17.5627" Canvas.Left="0" Canvas.Top="42.4373" Stretch="Fill" Data="F1 M 8.91169,48.515L 9.41134,49.3804C 11.485,52.972 12.2279,58.5349 10,60L 0,42.6795C 2.38301,41.483 6.83805,44.9233 8.91169,48.515 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="1.06356,0.931674" EndPoint="2.38566,0.931674">
+                        <LinearGradientBrush StartPoint="110%,95%" EndPoint="240%,95%">
                           <LinearGradientBrush.Transform>
                             <TransformGroup>
                               <SkewTransform AngleX="-21.2878" AngleY="0"/>

@@ -4,7 +4,7 @@
    xmlns:sys="clr-namespace:System;assembly=netstandard"
    x:ClassModifier="internal">
 
-  <LinearGradientBrush x:Key="RibbonButtonNormalBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="RibbonButtonNormalBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF828282" Offset="0"/>
     <GradientStop Color="#FFC2C2C2" Offset="0.2"/>
     <GradientStop Color="#FFD2D2D2" Offset="0.8"/>
@@ -13,7 +13,7 @@
   <SolidColorBrush x:Key="RibbonButtonNormalContentStroke" Color="#FF606060"/>
   <SolidColorBrush x:Key="RibbonButtonNormalContentFill" Color="#FF808080"/>
 
-  <LinearGradientBrush x:Key="RibbonButtonDisabledBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="RibbonButtonDisabledBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF535353" Offset="0"/>
     <GradientStop Color="#FF737373" Offset="0.2"/>
     <GradientStop Color="#FF737373" Offset="0.8"/>
@@ -22,7 +22,7 @@
   <SolidColorBrush x:Key="RibbonButtonDisabledContentStroke" Color="#FF808080"/>
   <SolidColorBrush x:Key="RibbonButtonDisabledContentFill" Color="#FF808080"/>
 
-  <LinearGradientBrush x:Key="RibbonButtonFocusBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="RibbonButtonFocusBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF727272" Offset="0"/>
     <GradientStop Color="#FFB2B2B2" Offset="0.2"/>
     <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
@@ -31,7 +31,7 @@
   <SolidColorBrush x:Key="RibbonButtonFocusContentStroke" Color="#FFFF0000"/>
   <SolidColorBrush x:Key="RibbonButtonFocusContentFill" Color="#FF700000"/>
 
-  <LinearGradientBrush x:Key="RibbonButtonPressedBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="RibbonButtonPressedBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF727272" Offset="0"/>
     <GradientStop Color="#FFB2B2B2" Offset="0.2"/>
     <GradientStop Color="#FFC2C2C2" Offset="0.8"/>

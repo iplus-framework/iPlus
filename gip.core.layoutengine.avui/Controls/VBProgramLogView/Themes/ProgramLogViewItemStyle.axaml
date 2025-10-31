@@ -59,12 +59,12 @@
         </Style>
     </ControlTheme>
 
-    <LinearGradientBrush x:Key="ProgramLogViewItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgramLogViewItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FF828282" Offset="0"/>
         <GradientStop Color="#FF825555" Offset="1"/>
     </LinearGradientBrush>
     
-    <LinearGradientBrush x:Key="ProgramLogViewItemSelectionNotActiveFill" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ProgramLogViewItemSelectionNotActiveFill" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FF828282" Offset="0"/>
         <GradientStop Color="#FF825555" Offset="1"/>
     </LinearGradientBrush>

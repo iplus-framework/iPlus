@@ -91,12 +91,12 @@ namespace gip.core.layoutengine.avui
             if (this.Content is Visual)
             {
                 var control = VBVisualTreeHelper.FindChildObjectInVisualTree<Boolean>(this.Content as Visual, "AutoFocus", true);
-                if (control != null)
+                if (control != null && control is InputElement)
                 {
-                    MethodInfo pi = control.GetType().GetMethod("Focus");
+                    MethodInfo pi = control.GetType().GetMethod(nameof(InputElement.Focus));
                     if (pi != null)
                     {
-                        pi.Invoke(control, null);
+                        pi.Invoke(control, new object[] { NavigationMethod.Unspecified, NavigationMethod.Unspecified });
                     }
                 }
             }
@@ -124,6 +124,7 @@ namespace gip.core.layoutengine.avui
         {
             if (_Loaded)
             {
+                _LoadDesignLocked = true;
                 this.ClearValue(DataContextProperty);
                 this.ClearValue(VBDesign.ContentACObjectProperty);
                 this.ClearValue(VBDesign.MasterPageSelProperty);
@@ -132,6 +133,7 @@ namespace gip.core.layoutengine.avui
                 CurrentTargetVBDataObject = null;
             }
             base.DeInitVBControl(bso);
+            _LoadDesignLocked = false;
             //_Loaded = false;
         }
 
@@ -382,7 +384,7 @@ namespace gip.core.layoutengine.avui
                         {
                             ContentControl contentControl = new ContentControl();
                             ResourceDictionary dict = new ResourceDictionary();
-                            dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative)));
+                            dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Absolute)));
                             contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
                             Content = contentControl;
                         }
@@ -413,8 +415,8 @@ namespace gip.core.layoutengine.avui
                         if (query.Any())
                         {
                             VBUserACClassDesign userDesign = query.First();
-                            if (!String.IsNullOrEmpty(userDesign.XMLDesign))
-                                xaml = userDesign.XMLDesign;
+                            if (!String.IsNullOrEmpty(userDesign.XAMLDesign))
+                                xaml = userDesign.XAMLDesign;
                         }
                     }
                 }
@@ -426,7 +428,7 @@ namespace gip.core.layoutengine.avui
             {
                 ContentControl contentControl = new ContentControl();
                 ResourceDictionary dict = new ResourceDictionary();
-                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative)));
+                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Absolute)));
                 contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
                 uiElement = contentControl;
             }
@@ -494,9 +496,9 @@ namespace gip.core.layoutengine.avui
                     if (userDesign == null)
                         userDesign = VBUserACClassDesign.NewVBUserACClassDesign(acClassDesign.Database.ContextIPlus, this.Root().Environment.User, acClassDesign);
                     if (persistUserContent)
-                        userDesign.XMLDesign = xUserContent.ToString();
+                        userDesign.XAMLDesign = xUserContent.ToString();
                     else
-                        userDesign.XMLDesign = xDefaultContent.ToString();
+                        userDesign.XAMLDesign = xDefaultContent.ToString();
                     var msg = acClassDesign.Database.ACSaveChanges();
                     if (msg != null)
                         acClassDesign.Database.ACUndoChanges();

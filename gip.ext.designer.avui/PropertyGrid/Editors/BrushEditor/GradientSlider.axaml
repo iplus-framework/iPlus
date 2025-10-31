@@ -74,7 +74,7 @@
 		           Height="20"
 		           Margin="6 0 6 0">
 			<BrushEditor:Dragger.Background>
-				<LinearGradientBrush EndPoint="1,0"
+				<LinearGradientBrush EndPoint="100%,0%"
 					GradientStops="{Binding Brush.GradientStops, ElementName=this}" />
 			</BrushEditor:Dragger.Background>
 		</BrushEditor:Dragger>

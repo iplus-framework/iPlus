@@ -307,7 +307,7 @@ namespace gip.core.layoutengine.avui
         /// Represents the dependency property for StringFormat.
         /// </summary>
         public static readonly StyledProperty<string> StringFormatProperty =
-            AvaloniaProperty.Register<VBTabItem, string>(nameof(StringFormat));
+            ContentPropertyHandler.StringFormatProperty.AddOwner<VBTabItem>();
 
         /// <summary>
         /// Gets or sets the string format for the control.

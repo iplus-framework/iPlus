@@ -6,7 +6,7 @@
   <SolidColorBrush x:Key="DataGridLineBrush" Color="#FF5D5D5D" />
   <!--Standard Vordergrundfarbe TabItem Color: -->
   <SolidColorBrush x:Key="NormalBrush" Color="#FFA2A2A2" />
-  <LinearGradientBrush x:Key="SelectedBackgroundBrush" EndPoint="0.5,1" StartPoint="0.5,0">
+  <LinearGradientBrush x:Key="SelectedBackgroundBrush" EndPoint="50%,100%" StartPoint="50%,0%">
     <!-- Markierte Zeile -->
     <GradientStop Color="#FFFF0000"/>
     <GradientStop Color="#FFFFFFFF" Offset="1"/>
@@ -21,13 +21,13 @@
   <!-- Grid-Text: -->
   <SolidColorBrush x:Key="TextBrush" Color="#FF000000" />
   <SolidColorBrush x:Key="TextBrushReadonly" Color="#FF404040" />
-  <LinearGradientBrush x:Key="ShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+  <LinearGradientBrush x:Key="ShineBrush" EndPoint="50%,100%" StartPoint="50%,0%">
     <GradientStop Color="#59FFFFFF" Offset="0" />
     <GradientStop Color="#00FFFFFF" Offset="1" />
     <GradientStop Color="#26FFFFFF" Offset="0.467" />
     <GradientStop Color="#00FFFFFF" Offset="0.475" />
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="0.5,0.971" StartPoint="0.5,0.042">
+  <LinearGradientBrush x:Key="HoverShineBrush" EndPoint="50%,100%" StartPoint="50%,0%">
     <GradientStop Color="#6CFF2020" Offset="0" />
     <GradientStop Color="#46FF2020" Offset="1" />
     <GradientStop Color="#46FF2020" Offset="0.467" />

@@ -141,7 +141,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (_ErrorBrush == null)
                 {
-                    ResourceInclude dict = new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/Shared.xaml", UriKind.Relative));
+                    ResourceInclude dict = new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/Shared.xaml", UriKind.Absolute));
                     object res;
                     if (!dict.TryGetResource("ConverterErrorBrush", null, out res))
                         return null;

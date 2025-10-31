@@ -108,8 +108,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly StyledProperty<IACBSO> BSOACComponentProperty =
-            AvaloniaProperty.Register<VBRibbonBSODefault, IACBSO>(nameof(BSOACComponent));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBRibbonBSODefault>();
 
         /// <summary>
         /// Gets or sets the BSOACComponent.

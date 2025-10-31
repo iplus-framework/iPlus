@@ -33,7 +33,7 @@
             </ContentControl>
             <Rectangle x:Name="Glass" Width="9.99999" Height="60" Canvas.Left="1.99999" Canvas.Top="0.499405" Stretch="Fill" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
               <Rectangle.Fill>
-                <LinearGradientBrush StartPoint="1,0.5" EndPoint="3.8147e-007,0.5">
+                <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                   <LinearGradientBrush.GradientStops>
                     <GradientStop Color="#B3000000" Offset="0.00436681"/>
                     <GradientStop Color="#00000000" Offset="0.253275"/>

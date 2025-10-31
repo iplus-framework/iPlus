@@ -53,7 +53,7 @@ namespace gip.core.layoutengine.avui
                 try
                 {
                     _templateResources = new ResourceDictionary();
-                    _templateResources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/RemoteCommand/RemoteCommandPopupTemplate.xaml", UriKind.Relative)));
+                    _templateResources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/RemoteCommand/RemoteCommandPopupTemplate.xaml", UriKind.Absolute)));
                 }
                 catch (Exception ex)
                 {

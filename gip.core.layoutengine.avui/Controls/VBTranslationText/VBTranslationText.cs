@@ -294,8 +294,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for BSOACComponent.
         /// </summary>
-        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = 
-            AvaloniaProperty.Register<VBTranslationText, IACBSO>(nameof(BSOACComponent), inherits: true);
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBTranslationText>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>

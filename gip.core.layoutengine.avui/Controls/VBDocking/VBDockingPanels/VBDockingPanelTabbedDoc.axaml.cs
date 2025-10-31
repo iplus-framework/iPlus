@@ -50,7 +50,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                if (tbcDocuments.SelectedContent == null)
+                if (tbcDocuments == null || tbcDocuments.SelectedContent == null)
                     return null;
 
                 return Documents[tbcDocuments.SelectedIndex] as VBDockingContainerTabbedDoc;
@@ -61,7 +61,7 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
-                if (tbcDocuments.SelectedContent == null)
+                if (tbcDocuments == null || tbcDocuments.SelectedContent == null)
                     return null;
                 if (tbcDocuments.SelectedIndex < 0 || Documents.Count < (tbcDocuments.SelectedIndex+1))
                     return null;

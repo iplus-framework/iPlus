@@ -16,7 +16,7 @@
 			</Ellipse>
 			<Ellipse Canvas.Left="3" Canvas.Top="3" Width="94" Height="94">
 				<Ellipse.Fill>
-					<LinearGradientBrush StartPoint="0.4,0.1" EndPoint="0.6,0.9">
+					<LinearGradientBrush StartPoint="40%,100%" EndPoint="60%,90%">
 						<LinearGradientBrush.GradientStops>
 							<GradientStop Offset="0.0" Color="#888888" />
 							<GradientStop Offset="1.0" Color="#111111" />

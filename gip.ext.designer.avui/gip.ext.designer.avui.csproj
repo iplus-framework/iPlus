@@ -57,7 +57,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Tag.png" />
+    <AvaloniaResource Include="Images\Tag.png" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
@@ -78,15 +78,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\Class.png" />
+    <AvaloniaResource Include="Images\Class.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\PanToolCursor.cur" />
-    <Resource Include="Images\PanToolCursorMouseDown.cur" />
+    <AvaloniaResource Include="Images\PanToolCursor.cur" />
+    <AvaloniaResource Include="Images\PanToolCursorMouseDown.cur" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\ZoomIn.png" />
-    <Resource Include="Images\ZoomOut.png" />
+    <AvaloniaResource Include="Images\ZoomIn.png" />
+    <AvaloniaResource Include="Images\ZoomOut.png" />
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="Configuration\CodeAnalysisDictionary.xml" />
@@ -97,10 +97,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\CursorEditNode.cur" />
+    <AvaloniaResource Include="Images\CursorEditNode.cur" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Images\CursorInsertPoint.cur" />
+    <AvaloniaResource Include="Images\CursorInsertPoint.cur" />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">

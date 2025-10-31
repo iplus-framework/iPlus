@@ -50,7 +50,7 @@
   <SolidColorBrush x:Key="CheckBoxFillNormal" Color="#F4F4F4"/>
   <SolidColorBrush x:Key="CheckBoxStroke" Color="#8E8F8F"/>
 
-  <LinearGradientBrush x:Key="CheckBoxPressNormalBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="CheckBoxPressNormalBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF424242" Offset="0"/>
     <GradientStop Color="#FE828282" Offset="0.2"/>
     <GradientStop Color="#FF929292" Offset="0.8"/>
@@ -59,7 +59,7 @@
   <SolidColorBrush x:Key="CheckBoxPressNormalContentStroke" Color="#202020"/>
   <SolidColorBrush x:Key="CheckBoxPressNormalContentFill" Color="#404040"/>
 
-  <LinearGradientBrush x:Key="CheckBoxPressDisabledBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="CheckBoxPressDisabledBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF131313" Offset="0"/>
     <GradientStop Color="#FE333333" Offset="0.2"/>
     <GradientStop Color="#FF333333" Offset="0.8"/>
@@ -68,7 +68,7 @@
   <SolidColorBrush x:Key="CheckBoxPressDisabledContentStroke" Color="#404040"/>
   <SolidColorBrush x:Key="CheckBoxPressDisabledContentFill" Color="#404040"/>
 
-  <LinearGradientBrush x:Key="CheckBoxPressFocusBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="CheckBoxPressFocusBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF828282" Offset="0"/>
     <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
     <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
@@ -77,7 +77,7 @@
   <SolidColorBrush x:Key="CheckBoxPressFocusContentStroke" Color="#FFFF0000"/>
   <SolidColorBrush x:Key="CheckBoxPressFocusContentFill" Color="#FF700000"/>
 
-  <LinearGradientBrush x:Key="CheckBoxPressPressedBg" StartPoint="0.5,1.0" EndPoint="0.5,0.0">
+  <LinearGradientBrush x:Key="CheckBoxPressPressedBg" StartPoint="50%,100%" EndPoint="50%,0%">
     <GradientStop Color="#FF828282" Offset="0"/>
     <GradientStop Color="#FEB2B2B2" Offset="0.2"/>
     <GradientStop Color="#FFC2C2C2" Offset="0.8"/>

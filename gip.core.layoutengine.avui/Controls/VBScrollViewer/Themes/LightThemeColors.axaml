@@ -7,7 +7,7 @@
 <!--    <SolidColorBrush x:Key="ScrollBarPageBg" Color="#FF5A5A5A"/>
     <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
-    <LinearGradientBrush x:Key="ScrollBarThumbVertDarkBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertDarkBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -21,7 +21,7 @@
         <GradientStop Color="#6D6D6D" Offset="0.5"/>
         <GradientStop Color="#5D5D5D" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbVertNormalBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -35,7 +35,7 @@
         <GradientStop Color="#D2D2D2" Offset="0.5"/>
         <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbVertFocusBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertFocusBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -49,7 +49,7 @@
         <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
         <GradientStop Color="#FFFFCDCD" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbVertPressedBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertPressedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -69,25 +69,25 @@
     <SolidColorBrush x:Key="ScrollBarThumbVertFocusForeground" Color="#FF404040"/>
     <SolidColorBrush x:Key="ScrollBarThumbVertFocusBorder" Color="#FFD3D3D3"/>
 
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzDarkBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzDarkBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#8D8D8D" Offset="0.15"/>
         <GradientStop Color="#7D7D7D" Offset="0.5"/>
         <GradientStop Color="#6D6D6D" Offset="0.5"/>
         <GradientStop Color="#5D5D5D" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzNormalBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#F2F2F2" Offset="0.15"/>
         <GradientStop Color="#E2E2E2" Offset="0.5"/>
         <GradientStop Color="#D2D2D2" Offset="0.5"/>
         <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzFocusBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzFocusBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FFFFF3F3" Offset="0"/>
         <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
         <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
         <GradientStop Color="#FFFFCDCD" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzPressedBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzPressedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FFFFD3D3" Offset="0"/>
         <GradientStop Color="#FFFFCBCB" Offset="0.5"/>
         <GradientStop Color="#FFFFBDBD" Offset="0.5"/>

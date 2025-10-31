@@ -351,8 +351,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the attached property for DisableContextMenu.
         /// </summary>
-        public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
-            AvaloniaProperty.RegisterAttached<VBVisualGroup, Control, bool>("DisableContextMenu", false, true);
+        public static readonly AttachedProperty<bool> DisableContextMenuProperty =
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBVisualGroup>();
 
         /// <summary>
         /// Determines is context menu disabled or enabled.
@@ -428,7 +428,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the attached property for BSOACComponent.
         /// </summary>
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = AvaloniaProperty.RegisterAttached<VBVisualGroup, Control, IACBSO>(nameof(BSOACComponent), null, true);
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBVisualGroup>();
 
         /// <summary>
         /// Gets or sets the BSOACComponent.

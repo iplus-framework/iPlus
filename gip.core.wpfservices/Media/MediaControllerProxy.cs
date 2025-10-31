@@ -201,6 +201,19 @@ namespace gip.core.wpfservices
 
         }
 
+        public string SaveFileDialog(string initialDirectory, string defaultExtension = null)
+        {
+            CommonSaveFileDialog dlg = new CommonSaveFileDialog();
+            if (!String.IsNullOrEmpty(initialDirectory))
+                dlg.InitialDirectory = initialDirectory;
+            if (!String.IsNullOrEmpty(defaultExtension))
+                dlg.DefaultExtension = defaultExtension;
+            var result = dlg.ShowDialog();
+            if (result != CommonFileDialogResult.Ok)
+                return null;
+            return dlg.FileName;
+        }
+
         #endregion
     }
 }

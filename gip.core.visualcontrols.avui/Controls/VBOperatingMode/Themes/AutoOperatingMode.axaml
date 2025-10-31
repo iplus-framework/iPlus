@@ -38,7 +38,7 @@
             </Viewbox>
             <Path x:Name="Path_2" Width="200" Height="152.42" Canvas.Left="33.1481" Canvas.Top="19.6546" Stretch="Fill" Data="F1 M 138.051,19.6546L 128.061,19.6546C 85.9716,19.6546 33.1481,53.775 33.1481,95.8646L 33.1481,95.8646C 33.1481,137.954 67.2684,172.075 109.358,172.075L 156.938,172.075C 199.027,172.075 233.148,137.954 233.148,95.8646L 233.148,95.8646C 233.148,53.775 180.14,19.6546 138.051,19.6546 Z ">
               <Path.Fill>
-                <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368235">
+                <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
                   <LinearGradientBrush.GradientStops>
                     <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                     <GradientStop Color="#CCFFFFFF" Offset="1"/>

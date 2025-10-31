@@ -16,14 +16,14 @@ using MsBox.Avalonia.Enums;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
 
-namespace gip.iplus.client.avui.Views;
+namespace gip.iplus.client.avui;
 
 public partial class LoginWindow : Window //ReactiveWindow<Settings>
 {
     protected object _WaitOnOkClick = new object();
     int _CountAttempts = 0;
 
-    private readonly Func<Task> _LoginAction;
+    private readonly Action _LoginAction;
     private readonly Action _ShowMainWindowAction;
 
     public LoginWindow()
@@ -35,7 +35,7 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
         //this.Unloaded += Login_Unloaded;
     }
 
-    public LoginWindow(Func<Task> loginAction, Action mainAction) : this()
+    public LoginWindow(Action loginAction, Action mainAction) : this()
     {
         listboxInfo.ItemsSource = MsgDetails;
         listboxInfo.DisplayMemberBinding = new Avalonia.Data.Binding("Message");
@@ -101,7 +101,7 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
             {
                 try
                 {
-                    await _LoginAction.Invoke();
+                    _LoginAction.Invoke();
                 }
                 catch (Exception ex)
                 {

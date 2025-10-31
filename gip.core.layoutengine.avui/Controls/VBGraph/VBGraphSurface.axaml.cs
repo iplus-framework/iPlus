@@ -205,8 +205,7 @@ namespace gip.core.layoutengine.avui
 
         #region Styled properties
 
-        public static readonly StyledProperty<IACBSO> BSOACComponentProperty =
-            AvaloniaProperty.Register<VBGraphSurface, IACBSO>(nameof(BSOACComponent));
+        public static readonly StyledProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBGraphSurface>();
 
         /// <summary>
         /// Gets or sets the BSOACComponent.

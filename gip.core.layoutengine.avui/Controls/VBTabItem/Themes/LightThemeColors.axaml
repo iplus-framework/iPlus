@@ -17,7 +17,7 @@
   <SolidColorBrush x:Key="CloseButtonBorderBrushHot" Color="Red"/>
   <SolidColorBrush x:Key="CloseButtonFillBrushHot" Color="#FF770000"/>
 
-  <LinearGradientBrush x:Key="TabItemNormalBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="TabItemNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#535353" Offset="0"/>
     <GradientStop Color="#4B4B4B" Offset="0.5"/>
     <GradientStop Color="#3D3D3D" Offset="0.5"/>
@@ -25,14 +25,14 @@
   </LinearGradientBrush>
   <SolidColorBrush x:Key="TabItemNormalBorderBrush" Color="#535353"/>
 
-  <LinearGradientBrush x:Key="TabItemSelectedBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="TabItemSelectedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#B2B2B2" Offset="0.15"/>
     <GradientStop Color="#A2A2A2" Offset=".5"/>
     <GradientStop Color="#929292" Offset=".5"/>
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </LinearGradientBrush>
 
-  <LinearGradientBrush x:Key="TabItemDisabledBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="TabItemDisabledBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#535353" Offset="0"/>
     <GradientStop Color="#4B4B4B" Offset="0.5"/>
     <GradientStop Color="#3D3D3D" Offset="0.5"/>
@@ -40,7 +40,7 @@
   </LinearGradientBrush>
   <SolidColorBrush x:Key="TabItemDisabledBorderBrush" Color="#535353"/>
 
-  <LinearGradientBrush x:Key="TabItemHotBackground" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="TabItemHotBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#434343" Offset="0.15"/>
     <GradientStop Color="#3B3B3B" Offset=".5"/>
     <GradientStop Color="#2D2D2D" Offset=".5"/>

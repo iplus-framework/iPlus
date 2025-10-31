@@ -434,8 +434,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the attached property for BSOACComponent.
         /// </summary>
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = 
-            AvaloniaProperty.RegisterAttached<VBDataGrid, Control, IACBSO>(nameof(BSOACComponent), inherits: true);
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDataGrid>();
 
         /// <summary>
         /// Gets or sets the BSOACComponent.
@@ -541,7 +540,7 @@ namespace gip.core.layoutengine.avui
         /// Represents the attached property for VBValidation.
         /// </summary>
         public static readonly AttachedProperty<string> VBValidationProperty = 
-            AvaloniaProperty.RegisterAttached<VBDataGrid, Control, string>("VBValidation", inherits: true);
+            ContentPropertyHandler.VBValidationProperty.AddOwner<VBDataGrid>();
         
         /// <summary>
         /// Name of the VBValidation property.
@@ -560,7 +559,7 @@ namespace gip.core.layoutengine.avui
         /// Represents the attached property for DisableContextMenu.
         /// </summary>
         public static readonly AttachedProperty<bool> DisableContextMenuProperty = 
-            AvaloniaProperty.RegisterAttached<VBDataGrid, Control, bool>("DisableContextMenu", false, inherits: true);
+            ContentPropertyHandler.DisableContextMenuProperty.AddOwner<VBDataGrid>();
         
         /// <summary>
         /// Determines if context menu is disabled or enabled.

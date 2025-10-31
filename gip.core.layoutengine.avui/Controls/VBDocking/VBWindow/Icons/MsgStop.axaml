@@ -9,7 +9,7 @@
                         <Canvas x:Name="Ebene_1_156" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                             <Path x:Name="Path_157" Width="22" Height="22" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" Data="F1 M 7.71429,2L 16.2857,2L 22,7.71429L 22,16.2857L 16.2857,22L 7.71429,22L 2,16.2857L 2,7.71429L 7.71429,2 Z " StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round">
                                 <Path.Stroke>
-                                    <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,2.60093e-007">
+                                    <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
                                         <LinearGradientBrush.GradientStops>
                                             <GradientStop Color="#FF401B1B" Offset="0"/>
                                             <GradientStop Color="#FF6A4646" Offset="0.15691"/>
@@ -21,7 +21,7 @@
                                     </LinearGradientBrush>
                                 </Path.Stroke>
                                 <Path.Fill>
-                                    <LinearGradientBrush StartPoint="0.5,1.05" EndPoint="0.5,-0.0499997">
+                                    <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
                                         <LinearGradientBrush.GradientStops>
                                             <GradientStop Color="#FFFF0000" Offset="0"/>
                                             <GradientStop Color="#FFBD0900" Offset="0.1672"/>

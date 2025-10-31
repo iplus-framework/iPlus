@@ -35,7 +35,7 @@
               <Canvas Width="170" Height="170">
                 <Path x:Name="Path_275" Width="148.922" Height="113.494" Canvas.Left="10.359" Canvas.Top="0.0395203" Stretch="Fill" Data="F1 M 88.4709,0.0395203L 81.0327,0.0395203C 49.6922,0.0395203 10.359,25.446 10.359,56.7865L 10.359,56.7865C 10.359,88.127 35.7655,113.534 67.106,113.534L 102.535,113.534C 133.875,113.534 159.281,88.127 159.281,56.7865L 159.281,56.7865C 159.281,25.446 119.811,0.0395203 88.4709,0.0395203 Z ">
                   <Path.Fill>
-                    <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368247">
+                    <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
                       <LinearGradientBrush.GradientStops>
                         <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                         <GradientStop Color="#CCFFFFFF" Offset="1"/>

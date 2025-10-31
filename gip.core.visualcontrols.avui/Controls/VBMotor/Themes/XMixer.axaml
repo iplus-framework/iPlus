@@ -25,7 +25,7 @@
                   <Canvas Width="104.344" Height="35.6174">
                     <Path x:Name="Path" Width="100" Height="19.3877" Canvas.Left="2.17203" Canvas.Top="8.11487" Stretch="Fill" StrokeThickness="1" StrokeJoin="Round" Stroke="#FF000000" Data="M 8.68813,8.90435C 0,11.8725 0,23.7449 8.68813,26.713C 17.3763,29.6812 34.7525,23.7449 52.1288,17.8087C 34.7525,11.8725 17.3763,5.93623 8.68813,8.90435 Z M 95.6559,8.90435C 104.344,11.8725 104.344,23.7449 95.6559,26.713C 86.9678,29.6812 69.5915,23.7449 52.2153,17.8087C 69.5915,11.8725 86.9678,5.93623 95.6559,8.90435 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.5,1.41932" EndPoint="0.5,-0.419321">
+                        <LinearGradientBrush StartPoint="50%,140%" EndPoint="50%,-40%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#B3000000" Offset="0.140271"/>
                             <GradientStop Color="#5A000000" Offset="0.286802"/>
@@ -38,7 +38,7 @@
                     </Path>
                     <Path x:Name="Path_0" Width="47" Height="19.1564" Canvas.Left="54.672" Canvas.Top="8.23051" Stretch="Fill" Data="M 56.172,17.8087C 71.4764,12.8618 86.7807,7.91498 94.4329,10.3884C 102.085,12.8618 102.085,22.7556 94.4329,25.229C 86.7807,27.7024 71.4764,22.7556 56.172,17.8087" StrokeThickness="3" StrokeJoin="Round">
                       <Path.Stroke>
-                        <LinearGradientBrush StartPoint="0.031104,0.5" EndPoint="1.01856,0.5">
+                        <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -48,7 +48,7 @@
                     </Path>
                     <Path x:Name="Path_1" Width="47" Height="19.1564" Canvas.Left="2.67207" Canvas.Top="8.23051" Stretch="Fill" Data="M 48.1721,17.8087C 32.8677,12.8618 17.5634,7.91498 9.9112,10.3884C 2.25902,12.8618 2.25902,22.7556 9.9112,25.229C 17.5634,27.7024 32.8677,22.7556 48.1721,17.8087" StrokeThickness="3" StrokeJoin="Round">
                       <Path.Stroke>
-                        <LinearGradientBrush StartPoint="0.968896,0.5" EndPoint="-0.0185567,0.5">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>

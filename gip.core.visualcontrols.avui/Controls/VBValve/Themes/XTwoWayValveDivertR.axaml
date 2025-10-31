@@ -46,7 +46,7 @@
                     </Path>
                     <Path x:Name="Path_317" Width="5.99999" Height="1.5" Canvas.Left="12" Canvas.Top="24.5" Stretch="Fill" Data="F1 M 14.8529,24.5L 15.1526,24.5C 16.3968,24.5 17.9535,25.1681 18,26L 12,26C 12.0466,25.1681 13.6087,24.5 14.8529,24.5 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="1,0.499999" EndPoint="0,0.499999">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -56,7 +56,7 @@
                     </Path>
                     <Path x:Name="Path_318" Width="30" Height="4" Canvas.Left="3.8147e-006" Canvas.Top="3.8147e-006" Stretch="Fill" Data="F1 M 14.2643,4L 15.7633,4C 21.9842,4 29.7678,2.21832 30,3.8147e-006L 3.8147e-006,3.8147e-006C 0.233028,2.21832 8.04341,4 14.2643,4 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="1,0.5" EndPoint="-2.22045e-016,0.5">
+                        <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -106,7 +106,7 @@
                     </Path>
                     <Path x:Name="Path_320" Width="1.49999" Height="5.99999" Canvas.Left="24.5" Canvas.Top="12" Stretch="Fill" Data="F1 M 24.5,15.1471L 24.5,14.8474C 24.5,13.6032 25.1681,12.0465 26,12L 26,18C 25.1681,17.9534 24.5,16.3913 24.5,15.1471 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.500003,0" EndPoint="0.500003,1">
+                        <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -116,7 +116,7 @@
                     </Path>
                     <Path x:Name="Path_321" Width="3.99999" Height="30" Canvas.Left="1.90735e-006" Canvas.Top="0" Stretch="Fill" Data="F1 M 3.99999,15.7357L 3.99999,14.2367C 3.99999,8.01582 2.21831,0.232216 1.90735e-006,0L 1.90735e-006,30C 2.21831,29.767 3.99999,21.9566 3.99999,15.7357 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                        <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -166,7 +166,7 @@
                     </Path>
                     <Path x:Name="Path_323" Width="1.49999" Height="5.99999" Canvas.Left="3.8147e-006" Canvas.Top="12" Stretch="Fill" Data="F1 M 1.5,15.1472L 1.5,14.8474C 1.5,13.6032 0.831867,12.0465 3.8147e-006,12L 3.8147e-006,18C 0.831867,17.9534 1.5,16.3913 1.5,15.1472 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                        <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>
@@ -176,7 +176,7 @@
                     </Path>
                     <Path x:Name="Path_324" Width="3.99999" Height="30" Canvas.Left="22" Canvas.Top="1.90735e-005" Stretch="Fill" Data="F1 M 22,15.7357L 22,14.2368C 22,8.01584 23.7817,0.232239 26,1.90735e-005L 26,30C 23.7817,29.767 22,21.9566 22,15.7357 Z ">
                       <Path.Fill>
-                        <LinearGradientBrush StartPoint="0.500001,0" EndPoint="0.500001,1">
+                        <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
                           <LinearGradientBrush.GradientStops>
                             <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                             <GradientStop Color="#CCFFFFFF" Offset="1"/>

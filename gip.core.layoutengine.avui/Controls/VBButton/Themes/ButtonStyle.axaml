@@ -27,9 +27,12 @@
                             Margin="1" 
                             BorderThickness="1" 
                             CornerRadius="4">
-                        <ContentPresenter Margin="0"
-                                          HorizontalAlignment="Center"
-                                          VerticalAlignment="Center"
+                        <ContentPresenter x:Name="PART_ContentPresenter"
+                                          Margin="0"
+                                          Content="{TemplateBinding Content}"
+                                          Padding="{TemplateBinding Padding}"
+                                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                                           MinHeight="20"/>
                     </Border>
                 </Border>

@@ -45,7 +45,7 @@
                 </Viewbox>
                 <Path x:Name="Path_7" Width="200" Height="152.42" Canvas.Left="31.4789" Canvas.Top="18.1799" Stretch="Fill" Data="F1 M 136.382,18.1799L 126.392,18.1799C 84.3025,18.1799 31.4789,52.3003 31.4789,94.3899L 31.4789,94.3899C 31.4789,136.48 65.5993,170.6 107.689,170.6L 155.269,170.6C 197.358,170.6 231.479,136.48 231.479,94.3899L 231.479,94.3899C 231.479,52.3003 178.471,18.1799 136.382,18.1799 Z ">
                   <Path.Fill>
-                    <LinearGradientBrush StartPoint="0.505399,1.00035" EndPoint="0.505399,0.00368225">
+                    <LinearGradientBrush StartPoint="50%,100%" EndPoint="50%,0%">
                       <LinearGradientBrush.GradientStops>
                         <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
                         <GradientStop Color="#CCFFFFFF" Offset="1"/>

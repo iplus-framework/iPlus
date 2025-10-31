@@ -90,7 +90,7 @@
 	<Color x:Key="TabItemSelectedBorderColor">#FF929292</Color>
 	<SolidColorBrush x:Key="TabItemSelectedBorderBrush" Color="{StaticResource TabItemSelectedBorderColor}"/>
 
-	<!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+	<!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
 	<GradientStop Color="#4CFF6565" Offset="0"/>
 	<GradientStop Color="#7FFF0018" Offset="1"/>
 	</LinearGradientBrush>

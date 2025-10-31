@@ -118,7 +118,7 @@ namespace gip.core.layoutengine.avui
             {
                 ContentControl contentControl = new ContentControl();
                 ResourceDictionary dict = new ResourceDictionary();
-                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Relative)));
+                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Absolute)));
                 contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
                 uiElement = contentControl;
             }

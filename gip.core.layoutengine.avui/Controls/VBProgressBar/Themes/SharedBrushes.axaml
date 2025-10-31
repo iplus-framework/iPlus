@@ -16,35 +16,35 @@ x:ClassModifier="internal">
 		<GradientStop Offset="1" Color="{StaticResource ProgressBarFrameInnerBorderBrushColor1}" />
 	</LinearGradientBrush>
 
-  <LinearGradientBrush x:Key="ProgressBarBackground" EndPoint="1,0" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarBackground" EndPoint="100%,0%" StartPoint="0%,0%">
     <GradientStop Color="#BABABA" Offset="0"/>
     <GradientStop Color="#C7C7C7" Offset="0.5"/>
     <GradientStop Color="#BABABA" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarBorderBrush" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarBorderBrush" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#B2B2B2" Offset="0"/>
     <GradientStop Color="#8C8C8C" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarGlassyHighlight" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarGlassyHighlight" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#50FFFFFF" Offset="0.5385"/>
     <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarTopHighlight" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarTopHighlight" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#80FFFFFF" Offset="0.05"/>
     <GradientStop Color="#00FFFFFF" Offset="0.25"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill" EndPoint="1,0" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarIndicatorAnimatedFill" EndPoint="100%,0%" StartPoint="0%,0%">
     <GradientStop Color="#00FFFFFF" Offset="0"/>
     <GradientStop Color="#60FFFFFF" Offset="0.4"/>
     <GradientStop Color="#60FFFFFF" Offset="0.6"/>
     <GradientStop Color="#00FFFFFF" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeLeft" EndPoint="1,0" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeLeft" EndPoint="100%,0%" StartPoint="0%,0%">
     <GradientStop Color="#0C000000" Offset="0"/>
     <GradientStop Color="#20000000" Offset="0.3"/>
     <GradientStop Color="#00000000" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeRight" EndPoint="1,0" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarIndicatorDarkEdgeRight" EndPoint="100%,0%" StartPoint="0%,0%">
     <GradientStop Color="#00000000" Offset="0"/>
     <GradientStop Color="#20000000" Offset="0.7"/>
     <GradientStop Color="#0C000000" Offset="1"/>
@@ -53,7 +53,7 @@ x:ClassModifier="internal">
     <GradientStop Color="#60FF0000" Offset="0"/>
     <GradientStop Color="#00FF0000" Offset="1"/>
   </RadialGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarIndicatorLightingEffect" EndPoint="0,0" StartPoint="0,1">
+  <LinearGradientBrush x:Key="ProgressBarIndicatorLightingEffect" EndPoint="0%,0%" StartPoint="0%,100%">
     <GradientStop Color="#60FF0000" Offset="0"/>
     <GradientStop Color="#00FF0000" Offset="1"/>
   </LinearGradientBrush>
@@ -61,7 +61,7 @@ x:ClassModifier="internal">
     <GradientStop Color="#60FF0000" Offset="0"/>
     <GradientStop Color="#00FF0000" Offset="1"/>
   </RadialGradientBrush>
-  <LinearGradientBrush x:Key="ProgressBarIndicatorGlassyHighlight" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ProgressBarIndicatorGlassyHighlight" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#90FFFFFF" Offset="0.5385"/>
     <GradientStop Color="#00FFFFFF" Offset="0.5385"/>
   </LinearGradientBrush>

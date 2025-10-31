@@ -7,7 +7,7 @@ x:ClassModifier="internal">
 <!--	<SolidColorBrush x:Key="ScrollBarPageBg" Color="#FF1A1A1A"/>
     <SolidColorBrush x:Key="ScrollBarDisabledBackground" Color="#F4F4F4"/>
 
-    <LinearGradientBrush x:Key="ScrollBarThumbVertDarkBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertDarkBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -21,7 +21,7 @@ x:ClassModifier="internal">
         <GradientStop Color="#2D2D2D" Offset="0.5"/>
         <GradientStop Color="#1D1D1D" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbVertNormalBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -35,7 +35,7 @@ x:ClassModifier="internal">
         <GradientStop Color="#929292" Offset="0.5"/>
         <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbVertFocusBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertFocusBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -49,7 +49,7 @@ x:ClassModifier="internal">
         <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
         <GradientStop Color="#FFFFCDCD" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbVertPressedBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbVertPressedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <LinearGradientBrush.Transform>
             <TransformGroup>
                 <ScaleTransform CenterY="0.5" CenterX="0.5"/>
@@ -69,25 +69,25 @@ x:ClassModifier="internal">
     <SolidColorBrush x:Key="ScrollBarThumbVertFocusForeground" Color="#FF000000"/>
     <SolidColorBrush x:Key="ScrollBarThumbVertFocusBorder" Color="#FF939393"/>
 
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzDarkBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzDarkBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#4D4D4D" Offset="0.15"/>
         <GradientStop Color="#3D3D3D" Offset="0.5"/>
         <GradientStop Color="#2D2D2D" Offset="0.5"/>
         <GradientStop Color="#1D1D1D" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzNormalBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#B2B2B2" Offset="0.15"/>
         <GradientStop Color="#A2A2A2" Offset="0.5"/>
         <GradientStop Color="#929292" Offset="0.5"/>
         <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzFocusBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzFocusBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FFFFF3F3" Offset="0"/>
         <GradientStop Color="#FFFFEBEB" Offset="0.5"/>
         <GradientStop Color="#FFFFDDDD" Offset="0.5"/>
         <GradientStop Color="#FFFFCDCD" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="ScrollBarThumbHorzPressedBackground" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="ScrollBarThumbHorzPressedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FFFFD3D3" Offset="0"/>
         <GradientStop Color="#FFFFCBCB" Offset="0.5"/>
         <GradientStop Color="#FFFFBDBD" Offset="0.5"/>

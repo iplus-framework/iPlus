@@ -3,11 +3,11 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
 
-  <LinearGradientBrush x:Key="ListBoxItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ListBoxItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#4CFF6565" Offset="0"/>
     <GradientStop Color="#7FFF0018" Offset="1"/>
   </LinearGradientBrush>
-  <LinearGradientBrush x:Key="ListBoxItemSelectionNotActiveFill" EndPoint="0,1" StartPoint="0,0">
+  <LinearGradientBrush x:Key="ListBoxItemSelectionNotActiveFill" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#4CFF6565" Offset="0"/>
     <GradientStop Color="#7FFF0018" Offset="1"/>
   </LinearGradientBrush>

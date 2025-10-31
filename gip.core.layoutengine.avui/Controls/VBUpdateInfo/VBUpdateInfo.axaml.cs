@@ -103,7 +103,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
         /// </summary>
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = AvaloniaProperty.RegisterAttached<VBUpdateInfo, Control, IACBSO>(nameof(BSOACComponent), null, true);
+        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBUpdateInfo>();
         /// <summary>
         /// Gets or sets the BSOACComponent.
         /// </summary>

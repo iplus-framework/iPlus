@@ -118,5 +118,47 @@ namespace gip.core.datamodel
         }
 
         #endregion
+
+        #region Misc
+        [NotMapped]
+        public string XAMLDesign
+        {
+            get
+            {
+                if (Database.Root.IsAvaloniaUI)
+                {
+                    string avaloniaXAML = XMLDesign;
+                    foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
+                    {
+                        avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
+                    }
+                    foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
+                    {
+                        avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
+                    }
+                    return avaloniaXAML;
+                }
+                else
+                {
+                    string avaloniaXAML = XMLDesign;
+                    foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
+                    {
+                        if (tuple.WpfNamespace.StartsWith("clr-namespace"))
+                            continue;
+                        avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
+                    }
+                    foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
+                    {
+                        avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
+                    }
+                    return avaloniaXAML;
+                }
+            }
+            set
+            {
+                XMLDesign = value;
+            }
+        }   
+        #endregion
     }
 }

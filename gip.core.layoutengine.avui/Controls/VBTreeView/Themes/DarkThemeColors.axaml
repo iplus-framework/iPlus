@@ -10,11 +10,11 @@
         <GradientStop Color="#FF505050"/>
         <GradientStop Color="White" Offset="0.732"/>
     </RadialGradientBrush>
-    <LinearGradientBrush x:Key="TreeViewItemSelectionFill" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="TreeViewItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FF828282" Offset="0"/>
         <GradientStop Color="#FF825555" Offset="1"/>
     </LinearGradientBrush>
-    <LinearGradientBrush x:Key="TreeViewItemSelectionNotActiveFill" EndPoint="0,1" StartPoint="0,0">
+    <LinearGradientBrush x:Key="TreeViewItemSelectionNotActiveFill" EndPoint="0%,100%" StartPoint="0%,0%">
         <GradientStop Color="#FF828282" Offset="0"/>
         <GradientStop Color="#FF825555" Offset="1"/>
     </LinearGradientBrush>

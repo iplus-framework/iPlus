@@ -331,7 +331,7 @@
       BorderThickness="1"
       CornerRadius="1">
               <Border.Background>
-                <LinearGradientBrush EndPoint="1,1" StartPoint="0,0">
+                <LinearGradientBrush EndPoint="100%,100%" StartPoint="0%,0%">
                   <GradientStop Color="White" Offset=".2" />
                   <GradientStop Color="#FFC0B7A6" Offset="1" />
                 </LinearGradientBrush>

@@ -110,7 +110,7 @@
                                             <Style Selector="^:selected">
                                                 <Style Selector="^ /template/ Border#BD">
                                                     <Setter Property="Background">
-                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
                                                             <GradientStop Color="#4CFF6565" Offset="0"/>
                                                             <GradientStop Color="#7FFF0018" Offset="1"/>
                                                         </LinearGradientBrush>
@@ -126,7 +126,7 @@
                                             <Style Selector="^:pointerover">
                                                 <Style Selector="^ /template/ Border#BD">
                                                     <Setter Property="Background">
-                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
                                                             <GradientStop Color="#4CFF6565" Offset="0"/>
                                                             <GradientStop Color="#7FFF0018" Offset="1"/>
                                                         </LinearGradientBrush>
