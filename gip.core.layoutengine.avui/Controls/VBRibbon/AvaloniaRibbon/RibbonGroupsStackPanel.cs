@@ -12,6 +12,10 @@ namespace gip.core.layoutengine.avui.AvaloniaRibbon;
 
 public class RibbonGroupsStackPanel : StackPanel //Panel
 {
+    public RibbonGroupsStackPanel() : base()
+    {
+    }
+
     static RibbonGroupsStackPanel()
     {
         ParentProperty.Changed.AddClassHandler<RibbonGroupsStackPanel>((sender, e) =>

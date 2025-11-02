@@ -21,7 +21,7 @@
     </Style>
   </UserControl.Styles>
   <vb:VBDockPanel x:Name="MainDockPanel" IsBackgroundPanel="True" LastChildFill="True">
-    <vb:VBMenu x:Name="MainMenu" DockPanel.Dock="Top" BorderThickness="0" Height="22"/>
+    <vb:VBMenu x:Name="MainMenu" DockPanel.Dock="Top" BorderThickness="0" Height="30"/>
     <Grid x:Name="StatusDockPanel" DockPanel.Dock="Bottom">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="280"></ColumnDefinition>
@@ -109,6 +109,7 @@
     <LayoutTransformControl Margin="0" x:Name="_MainTransformControl">
       <LayoutTransformControl.LayoutTransform>
         <TransformGroup>
+          <ScaleTransform ScaleX="0.01" ScaleY="0.01"/>
           <ScaleTransform>
             <ScaleTransform.ScaleX>
               <Binding ElementName="sldZoom" Path="Value" Mode="OneWay"/>

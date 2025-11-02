@@ -35,5 +35,8 @@ namespace gip.core.layoutengine.avui
             DesignItemProperty triggersProp = styleProp.Value.Properties.GetProperty("Triggers");
             TriggerEditor.InitEditor(designObject, triggersProp);
         }
+
+        protected override VBDockPanel RootPanel { get => _DesignObject?.Component as VBDockPanel; }
+
     }
 }

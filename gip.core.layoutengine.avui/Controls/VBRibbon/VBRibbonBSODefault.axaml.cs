@@ -1,9 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Labs.Input;
+using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.AvaloniaRibbon;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -45,21 +47,17 @@ namespace gip.core.layoutengine.avui
             + "," + Const.CmdNavigateLast
             + "," + Const.CmdSearch;
         string[] _EditString = { Const.CmdCut, Const.CmdCopy, Const.CmdPaste, Const.CmdUndo, Const.CmdRedo };
-        string[] _EditImageSourceStyleGip = { "Editcut", "Editcopy", "EditPaste", Const.CmdNameUndo, Const.CmdNameRedo };
-        string[] _EditImageSourceStyleAero = { "Editcut", "Editcopy", "EditPaste", Const.CmdNameUndo, Const.CmdNameRedo };
+        string[] _EditImageSourceStyle = { "Editcut", "Editcopy", "EditPaste", Const.CmdNameUndo, Const.CmdNameRedo };
 
         string[] _FileString = { Const.CmdNew, Const.CmdLoad, Const.CmdSave, Const.CmdUndoSave, Const.CmdDelete, Const.CmdRestore, Const.CmdQueryPrintDlg, Const.CmdQueryPreviewDlg, Const.CmdQueryDesignDlg };
-        string[] _FileImageSourceGip = { "AddNew", "LoadRefresh", "Filesave", "FilesaveUndo", Const.CmdNameDelete, Const.CmdNameRestore, "Print", "Preview", "Design" };
-        string[] _FileImageSourceAero = { "AddNew", "LoadRefresh", "Filesave", "FilesaveUndo", Const.CmdNameDelete, Const.CmdNameRestore, "Print", "Preview", "Design" };
+        string[] _FileImageSource= { "AddNew", "LoadRefresh", "Filesave", "FilesaveUndo", Const.CmdNameDelete, Const.CmdNameRestore, "Print", "Preview", "Design" };
         //string[] _FileImageSource = { "Folder_newStyle", "FileopenStyle", "FilesaveStyle", "FilesaveundoStyle", "Mail_deleteStyle", "PrintStyle", "PreviewStyle", "DesignStyle" };
 
         string[] _NavString = { Const.CmdNavigateFirst, Const.CmdNavigatePrev, Const.CmdNavigateNext, Const.CmdNavigateLast };
-        string[] _NavImageSourceGip = { "NavFirst", "NavPrev", "NavNext", "NavLast" };
-        string[] _NavImageSourceAero = { "NavFirst", "NavPrev", "NavNext", "NavLast" };
+        string[] _NavImageSource = { "NavFirst", "NavPrev", "NavNext", "NavLast" };
 
         string[] _SearchString = { Const.CmdSearch, Const.CmdExport };
-        string[] _SearchImageSourceGip = { "Find", "DataExport" };
-        string[] _SearchImageSourceAero = { "Find", "DataExport" };
+        string[] _SearchImageSource = { "Find", "DataExport" };
         //string[] _SearchImageSource = { "IconFindStyle", "IconFindStyle" };
 
         VBTextBox _SearchBox = null;
@@ -86,8 +84,28 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
-            InitVBControl();
             base.OnInitialized();
+        }
+
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            InitVBControl();
+            base.OnApplyTemplate(e);
+        }
+
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
+        }
+
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+        }
+
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
         }
 
 
@@ -237,27 +255,13 @@ namespace gip.core.layoutengine.avui
             string[] allCommands = solutionLayoutString.Split(',');
 
             _RibbonTray = new RibbonTab();
+            _RibbonTray.Header = "Test";
 
-            if (ControlManager.WpfTheme == eWpfTheme.Gip)
-            {
-                CreatePanel(_FileImageSourceGip, _FileString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Content"), 1, 1, false);
-                CreatePanel(_EditImageSourceStyleGip, _EditString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Modify"), 1, 2, true);
-                if (ContextACObject != null && ContextACObject.ACUrlCommand("AccessPrimary") != null)
-                {
-                    CreatePanel(_NavImageSourceGip, _NavString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Navigate"), 1, 3, true);
-                }
-                CreatePanel(_SearchImageSourceGip, _SearchString, allCommands, true, Database.Root.Environment.TranslateText(BSOACComponent, "Search"), 1, 4, false);
-            }
-            else
-            {
-                CreatePanel(_FileImageSourceAero, _FileString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Content"), 1, 1, false);
-                CreatePanel(_EditImageSourceStyleAero, _EditString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Modify"), 1, 2, true);
-                if (ContextACObject != null && ContextACObject.ACUrlCommand("AccessPrimary") != null)
-                {
-                    CreatePanel(_NavImageSourceAero, _NavString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Navigate"), 1, 3, true);
-                }
-                CreatePanel(_SearchImageSourceAero, _SearchString, allCommands, true, Database.Root.Environment.TranslateText(BSOACComponent, "Search"), 1, 4, false);
-            }
+            CreatePanel(_FileImageSource, _FileString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Content"), 1, 1, false);
+            CreatePanel(_EditImageSourceStyle, _EditString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Modify"), 1, 2, true);
+            if (ContextACObject != null && ContextACObject.ACUrlCommand("AccessPrimary") != null)
+                CreatePanel(_NavImageSource, _NavString, allCommands, false, Database.Root.Environment.TranslateText(BSOACComponent, "Navigate"), 1, 3, true);
+            CreatePanel(_SearchImageSource, _SearchString, allCommands, true, Database.Root.Environment.TranslateText(BSOACComponent, "Search"), 1, 4, false);
 
             if (BSOACComponent != null)
             {
@@ -271,6 +275,16 @@ namespace gip.core.layoutengine.avui
             }
 
             this.Tabs.Add(_RibbonTray);
+            RefreshTabs();
+            if (this.ItemsSource != null)
+            {
+                foreach (var item in this.ItemsSource)
+                {
+                    this.SelectedItem = item;
+                    break;
+                }
+            }
+            //RefreshSelectedGroups();
 
             //Grid gridSpace = new Grid();
             //_LayoutRoot.Children.Add(gridSpace);
@@ -543,6 +557,7 @@ namespace gip.core.layoutengine.avui
                 }
 
                 button.Command = AppCommands.AddApplicationCommand(new ACCommand(acCaption, command, parameterList));
+                button.ACCaption = acCaption;
                 _ButtonList.Add(button);
                 if (specifiedCommandList == _EditString)
                 {

@@ -224,10 +224,10 @@ namespace gip.core.layoutengine.avui
                 return;
             if (thisControl.Items != null && e.NewValue != null)
             {
-                foreach(var item in thisControl.Items)
+                foreach (var item in thisControl.Items)
                 {
                     VBTabItem vBTabItem = item as VBTabItem;
-                    if(vBTabItem != null)
+                    if (vBTabItem != null)
                     {
                         if (vBTabItem.Name == thisControl.FocusView)
                             vBTabItem.IsSelected = true;
@@ -244,6 +244,25 @@ namespace gip.core.layoutengine.avui
             get { return (string)GetValue(FocusViewProperty); }
             set { SetValue(FocusViewProperty, value); }
         }
+
+        public static readonly StyledProperty<GridLength> RowDefinition0Property =
+        AvaloniaProperty.Register<RowDefinition, GridLength>(nameof(Height), new GridLength(1, GridUnitType.Auto));
+
+        public GridLength RowDefinition0
+        {
+            get => GetValue(RowDefinition0Property);
+            set => SetValue(RowDefinition0Property, value);
+        }
+
+        public static readonly StyledProperty<GridLength> RowDefinition1Property =
+        AvaloniaProperty.Register<RowDefinition, GridLength>(nameof(Height), new GridLength(1, GridUnitType.Star));
+
+        public GridLength RowDefinition1
+        {
+            get => GetValue(RowDefinition1Property);
+            set => SetValue(RowDefinition1Property, value);
+        }
+
 
         #endregion
     }

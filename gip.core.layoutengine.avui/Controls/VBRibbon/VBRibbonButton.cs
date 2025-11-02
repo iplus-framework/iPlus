@@ -31,9 +31,9 @@ namespace gip.core.layoutengine.avui
             if (!String.IsNullOrEmpty(IconName))
             {
                 ContentControl contentControl = new ContentControl();
-                string resourceKey = "Icon" + IconName;
+                string resourceKey = "Icon" + IconName + "Style";
                 object resource;
-                if (this.TryGetResource(resourceKey, ThemeVariant.Default, out resource))
+                if (this.TryFindResource(resourceKey, ThemeVariant.Default, out resource))
                 {
                     if (resource != null && resource is ControlTheme theme)
                     {

@@ -16,13 +16,14 @@
         <Setter Property="ContentFill" Value="{StaticResource ButtonNormalContentFill}"/>
         <Setter Property="Template">
             <ControlTemplate TargetType="local:VBButton">
+              <!--<Grid Margin="0,0,-3,-3">-->
                 <Border x:Name="BorderButton"  
                         CornerRadius="4" 
                         BorderThickness="1,1,1,1"
                         Background="{StaticResource ButtonNormalBackground}"
                         BorderBrush="{StaticResource ButtonNormalBorder}"
-                        BoxShadow="2 2 5 0 #71000000"
-                        Margin="{TemplateBinding Margin}">
+                        BoxShadow="3 3 3 0 #71000000"
+                        Margin="0,0,3,3">
                     <Border x:Name="BorderFocus" 
                             Margin="1" 
                             BorderThickness="1" 
@@ -36,6 +37,7 @@
                                           MinHeight="20"/>
                     </Border>
                 </Border>
+              <!--</Grid>--> 
             </ControlTemplate>
         </Setter>
 

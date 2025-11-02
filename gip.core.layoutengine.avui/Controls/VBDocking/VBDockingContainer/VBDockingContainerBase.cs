@@ -8,6 +8,7 @@ using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 
 namespace gip.core.layoutengine.avui
 {
@@ -42,6 +43,7 @@ namespace gip.core.layoutengine.avui
 
         void VBDockingContainerBase_OnElementACComponentChanged(object sender, EventArgs e)
         {
+            OnUpdateDockPanelContextOnVBDesignContextChange();
             AddToComponentReference();
             RefreshTitle();
         }
@@ -293,9 +295,35 @@ namespace gip.core.layoutengine.avui
                 ((VBDesign)VBDesignContent).BSOACComponent = ContextACObject as IACBSO;
             }
 
+            // Avalonia has a different behaviour here. In WPF when VBDesignContent is added to dockPanel.Children,
+            // then VBDesignContent (VBDesign) is initialized and VBDesign.InitBinding() is called to create a new Instance of the Bussiness-Object.
+            // ContextACObject returns the VBDesignContent.ContextACObject which is the BSO.
+            // Then the VBRibbon can be inintialized because it find it's inherited BSOACComponent
+            // Therefore _NeedRefreshOnVBDesignContextChange ist set to true that on the OnContextACObjectChanged event OnUpdateDockPanelContextOnVBDesignContextChange will be called.
+            _NeedRefreshOnVBDesignContextChange = true;
             dockPanel.Children.Add(VBDesignContent);
             dockPanel.DataContext = ContextACObject;
         }
+
+        protected virtual void OnUpdateDockPanelContextOnVBDesignContextChange()
+        {
+            if (!_NeedRefreshOnVBDesignContextChange)
+                return;
+
+            if (this.VBDesignContent != null && RootPanel != null)
+            {
+                IACBSO bso = ContextACObject as IACBSO;
+                foreach (var childDockPanel in RootPanel.Children.OfType<VBDockPanel>())
+                {
+                    childDockPanel.DataContext = ContextACObject;
+                    if (bso != null)
+                        childDockPanel.BSOACComponent = bso;
+                }
+                _NeedRefreshOnVBDesignContextChange = false;
+            }
+        }
+
+        protected abstract VBDockPanel RootPanel { get; }
 
         /// <summary>
         /// Represents the dependency property for BSOACComponent.
@@ -427,6 +455,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
+        protected bool _NeedRefreshOnVBDesignContextChange = false;
         bool _ReferenceAdded = false;
         protected void AddToComponentReference()
         {

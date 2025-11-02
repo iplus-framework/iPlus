@@ -85,6 +85,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        protected override VBDockPanel RootPanel { get => null; }
 
         public void OnTabItemMouseDown(object sender, PointerPressedEventArgs e)
         {

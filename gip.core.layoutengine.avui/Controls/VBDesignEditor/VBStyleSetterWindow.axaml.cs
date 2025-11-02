@@ -41,5 +41,8 @@ namespace gip.core.layoutengine.avui
             DesignItemProperty settersProp = styleProp.Value.Properties.GetProperty("Setters");
             SetterEditor.InitEditor(designObject, settersProp);
         }
+
+        protected override VBDockPanel RootPanel { get => _DesignObject?.Component as VBDockPanel; }
+
     }
 }

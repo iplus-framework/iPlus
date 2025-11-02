@@ -59,6 +59,8 @@ namespace gip.core.layoutengine.avui
             IsCreated = true;
         }
 
+        protected override VBDockPanel RootPanel { get => _RootPanelDialog; }
+
         private string GetCustomizedACCaption()
         {
             string customizedCaption = null;

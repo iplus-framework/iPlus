@@ -14,7 +14,20 @@
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Window.Resources>
-
+  <Window.Styles>
+    <Style Selector="Image.iPlusLogoClass">
+      <Style.Animations>
+        <Animation IterationCount="Infinite" PlaybackDirection="AlternateReverse" Duration="0:0:6">
+          <KeyFrame Cue="0%">
+            <Setter Property="ScaleTransform.ScaleX" Value="0.0"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="ScaleTransform.ScaleX" Value="1.0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </Window.Styles>
   <Grid Background="{StaticResource AppDark}">
     <Grid.RowDefinitions>
       <RowDefinition></RowDefinition>
@@ -32,7 +45,31 @@
         </LinearGradientBrush>
       </Border.Background>
     </Border>
-    <Image Source="/Assets/Login.png"/>
+    <!--<LayoutTransformControl x:Name="_MainTransformControl">
+      <LayoutTransformControl.LayoutTransform>
+        <TransformGroup>
+          <ScaleTransform>
+            <ScaleTransform.ScaleX>
+              <Binding ElementName="sldZoom" Path="Value" Mode="OneWay"/>
+            </ScaleTransform.ScaleX>
+            <ScaleTransform.ScaleY>
+              <Binding ElementName="sldZoom" Path="Value" Mode="OneWay"/>
+            </ScaleTransform.ScaleY>
+          </ScaleTransform>
+        </TransformGroup>
+      </LayoutTransformControl.LayoutTransform>
+      <vb:VBDockPanel x:Name="SubMainDockPanel"  IsBackgroundPanel="True" LastChildFill="True" Margin="0">
+        <vb:VBDockPanel.GestureRecognizers>
+          <PinchGestureRecognizer />
+        </vb:VBDockPanel.GestureRecognizers>
+      </vb:VBDockPanel>
+    </LayoutTransformControl>-->
+
+    <Image Classes="iPlusLogoClass" Source="/Assets/Login.png">
+      <Image.RenderTransform>
+        <ScaleTransform  ScaleX="1" ScaleY="1" />
+      </Image.RenderTransform>
+    </Image>
 <!--    <vb:VBBorder RenderTransformOrigin="0.5,0.5" Margin="20">
       <Border.Background>
         <ImageBrush Source="Assets/Login.png" Stretch="UniformToFill"/>
