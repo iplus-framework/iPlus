@@ -22,7 +22,7 @@
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
                 <Border Grid.RowSpan="2" Grid.ColumnSpan="2"
-                        BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                        BorderBrush="{StaticResource ThemeBorderMidBrush}"
                         BorderThickness="1" />
                 <local:VBTextBlock Text="Property" Grid.Row="0" Grid.Column="0"
                                    VerticalAlignment="Center" Margin="3,0" />

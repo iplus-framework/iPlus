@@ -117,9 +117,8 @@ namespace gip.core.layoutengine.avui
             if (string.IsNullOrEmpty(XMLDesign))
             {
                 ContentControl contentControl = new ContentControl();
-                ResourceDictionary dict = new ResourceDictionary();
-                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Absolute)));
-                contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
+                this.TryFindResource("IconDesignStyleGip", out object resource);
+                contentControl.Theme = (ControlTheme)resource;
                 uiElement = contentControl;
             }
             else

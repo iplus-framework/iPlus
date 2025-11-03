@@ -179,7 +179,7 @@
     
     <!-- IsEnabled = false -->
     <Style Selector="^:disabled /template/ Border#Bd">
-      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SystemControlBackgroundBaseLowBrush}"/>
     </Style>
   </ControlTheme>
 </ResourceDictionary>

@@ -65,9 +65,9 @@ namespace gip.core.layoutengine.avui
             // XML-Highlighting
             IHighlightingDefinition customHighlighting;
             string xshdFile = "gip.core.layoutengine.avui.Controls.VBXMLEditor.Highlighting.XML-ModeStyleGip.xshd";
-            if (ControlManager.WpfTheme == eWpfTheme.Aero)
+            if (ControlManager.WpfTheme == eWpfTheme.Light)
                 xshdFile = "gip.core.layoutengine.avui.Controls.VBXMLEditor.Highlighting.XML-ModeStyleAero.xshd";
-            if (ControlManager.WpfTheme == eWpfTheme.Gip)
+            if (ControlManager.WpfTheme == eWpfTheme.Dark)
                 xshdFile = "gip.core.layoutengine.avui.Controls.VBXMLEditor.Highlighting.XML-ModeStyleGip.xshd";
             using (Stream s = this.GetType().Assembly.GetManifestResourceStream(xshdFile))
             {

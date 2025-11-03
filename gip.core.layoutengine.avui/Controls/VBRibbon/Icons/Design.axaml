@@ -8,7 +8,7 @@
         <Viewbox Stretch="Uniform">
           <Canvas x:Name="Ebene_1_113" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
             <Path x:Name="Path_114" Width="21" Height="21" Canvas.Left="1.5" Canvas.Top="1.5" Stretch="Fill" StrokeJoin="Round"
-                  Stroke="#FF565656"
+                  Stroke="#FF565656" StrokeThickness="1"
                   Data="M 2,2L 2,22L 22,22L 2,2 Z M 5,9L 5,19L 15,19L 5,9 Z ">
               <Path.Fill>
                 <LinearGradientBrush StartPoint="-3%,50%" EndPoint="103%,50%">

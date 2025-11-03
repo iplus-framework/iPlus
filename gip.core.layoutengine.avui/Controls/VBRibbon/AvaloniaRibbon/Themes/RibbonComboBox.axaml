@@ -6,15 +6,15 @@
     </ResourceDictionary.MergedDictionaries>
     <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonComboBox}" TargetType="local:RibbonComboBox">
-    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
-    <Setter Property="Padding" Value="{DynamicResource ComboBoxPadding}" />
+    <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
+    <Setter Property="Padding" Value="{StaticResource ComboBoxPadding}" />
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="Margin" Value="2" />
     <Setter Property="MaxDropDownHeight" Value="504" />
-    <Setter Property="Foreground" Value="{DynamicResource ComboBoxForeground}" />
-    <Setter Property="Background" Value="{DynamicResource ComboBoxBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrush}" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="Foreground" Value="{StaticResource ComboBoxForeground}" />
+    <Setter Property="Background" Value="{StaticResource ComboBoxBackground}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderBrush}" />
+    <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
     <Setter Property="Height" Value="{StaticResource MediumControlHeight}" />
@@ -22,7 +22,7 @@
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="HorizontalAlignment" Value="Left" />
     <Setter Property="VerticalAlignment" Value="Top" />
-    <Setter Property="PlaceholderForeground" Value="{DynamicResource ComboBoxPlaceHolderForeground}" />
+    <Setter Property="PlaceholderForeground" Value="{StaticResource ComboBoxPlaceHolderForeground}" />
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>
@@ -33,12 +33,12 @@
                     BorderBrush="{TemplateBinding BorderBrush}"
                     BorderThickness="0.5"
                     CornerRadius="{TemplateBinding CornerRadius}"
-                    MinWidth="{DynamicResource ComboBoxThemeMinWidth}" />
+                    MinWidth="{StaticResource ComboBoxThemeMinWidth}" />
             <Border x:Name="HighlightBackground"
                     Grid.Column="1"
                     Grid.ColumnSpan="2"
-                    Background="{DynamicResource ComboBoxBackgroundUnfocused}"
-                    BorderBrush="{DynamicResource ComboBoxBackgroundBorderBrushUnfocused}"
+                    Background="{StaticResource ComboBoxBackgroundUnfocused}"
+                    BorderBrush="{StaticResource ComboBoxBackgroundBorderBrushUnfocused}"
                     BorderThickness="0.5"
                     CornerRadius="{TemplateBinding CornerRadius}"
                     IsVisible="False" />
@@ -79,7 +79,7 @@
                       Margin="0,0,10,0"
                       HorizontalAlignment="Right"
                       VerticalAlignment="Center"
-                      Foreground="{DynamicResource ComboBoxDropDownGlyphForeground}"
+                      Foreground="{StaticResource ComboBoxDropDownGlyphForeground}"
                       Data="M1939 486L2029 576L1024 1581L19 576L109 486L1024 1401L1939 486Z" />
 
             <Popup Name="PART_Popup"
@@ -91,18 +91,18 @@
                    IsLightDismissEnabled="True"
                    InheritsTransform="True">
               <Border x:Name="PopupBorder"
-                      Background="{DynamicResource ComboBoxDropDownBackground}"
-                      BorderBrush="{DynamicResource ComboBoxDropDownBorderBrush}"
-                      BorderThickness="{DynamicResource ComboBoxDropdownBorderThickness}"
-                      Padding="{DynamicResource ComboBoxDropdownBorderPadding}"
+                      Background="{StaticResource ComboBoxDropDownBackground}"
+                      BorderBrush="{StaticResource ComboBoxDropDownBorderBrush}"
+                      BorderThickness="{StaticResource ComboBoxDropdownBorderThickness}"
+                      Padding="{StaticResource ComboBoxDropdownBorderPadding}"
                       HorizontalAlignment="Stretch"
-                      CornerRadius="{DynamicResource OverlayCornerRadius}">
+                      CornerRadius="{StaticResource OverlayCornerRadius}">
                 <ScrollViewer
                     HorizontalScrollBarVisibility="{TemplateBinding ScrollViewer.HorizontalScrollBarVisibility}"
                     VerticalScrollBarVisibility="{TemplateBinding ScrollViewer.VerticalScrollBarVisibility}"
                     IsDeferredScrollingEnabled="{TemplateBinding (ScrollViewer.IsDeferredScrollingEnabled)}">
                   <ItemsPresenter Name="PART_ItemsPresenter"
-                                  Margin="{DynamicResource ComboBoxDropdownContentMargin}"
+                                  Margin="{StaticResource ComboBoxDropdownContentMargin}"
                                   ItemsPanel="{TemplateBinding ItemsPanel}" />
                 </ScrollViewer>
               </Border>
@@ -114,31 +114,31 @@
 
     <!--  PointerOver State  -->
     <Style Selector="^:pointerover /template/ Border#Background">
-      <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{StaticResource ComboBoxBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderBrushPointerOver}" />
     </Style>
 
     <!--  Pressed State  -->
     <Style Selector="^:pressed /template/ Border#Background">
-      <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushPressed}" />
+      <Setter Property="Background" Value="{StaticResource ComboBoxBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderBrushPressed}" />
     </Style>
 
     <!-- Error State -->
     <Style Selector="^:error /template/ Border#Background">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource SystemControlErrorTextForegroundBrush}" />
     </Style>
 
     <!--  Focus Pressed State  -->
     <Style Selector="^:focused:pressed">
       <Style Selector="^ /template/ ContentControl#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocusedPressed}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForegroundFocusedPressed}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxPlaceHolderForegroundFocusedPressed}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxPlaceHolderForegroundFocusedPressed}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocusedPressed}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxDropDownGlyphForegroundFocusedPressed}" />
       </Style>
     </Style>
 
@@ -146,33 +146,33 @@
     <Style Selector="^:focus-visible">
       <Style Selector="^ /template/ Border#HighlightBackground">
         <Setter Property="IsVisible" Value="True" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBackgroundBorderBrushFocused}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBackgroundBorderBrushFocused}" />
       </Style>
       <Style Selector="^ /template/ ContentControl#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForegroundFocused}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundFocused}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForegroundFocused}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundFocused}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxDropDownGlyphForegroundFocused}" />
       </Style>
     </Style>
 
     <!--  Disabled State  -->
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#Background">
-        <Setter Property="Background" Value="{DynamicResource ComboBoxBackgroundDisabled}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ComboBoxBorderBrushDisabled}" />
+        <Setter Property="Background" Value="{StaticResource ComboBoxBackgroundDisabled}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ComboBoxBorderBrushDisabled}" />
       </Style>
       <Style Selector="^ /template/ ContentControl#ContentPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForegroundDisabled}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PlaceholderTextBlock">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxForegroundDisabled}" />
       </Style>
       <Style Selector="^ /template/ PathIcon#DropDownGlyph">
-        <Setter Property="Foreground" Value="{DynamicResource ComboBoxDropDownGlyphForegroundDisabled}" />
+        <Setter Property="Foreground" Value="{StaticResource ComboBoxDropDownGlyphForegroundDisabled}" />
       </Style>
     </Style>
 

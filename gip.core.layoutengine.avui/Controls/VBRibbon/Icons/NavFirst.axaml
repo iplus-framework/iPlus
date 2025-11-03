@@ -8,12 +8,12 @@
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_17" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path x:Name="Path_18" Width="4" Height="21" Canvas.Left="4.49999" Canvas.Top="1.49999" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{Binding $parent[local:VBRadioButton].ContentStroke}" 
-                              Fill="{Binding $parent[local:VBRadioButton].ContentFill}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1" 
+                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
                               Data="F1 M 4.99999,1.99999L 7.99999,2.00002L 7.99999,22L 4.99999,22L 4.99999,1.99999 Z "/>
                         <Path x:Name="Path_19" Width="12" Height="21" Canvas.Left="7.50002" Canvas.Top="1.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{Binding $parent[local:VBRadioButton].ContentStroke}" 
-                              Fill="{Binding $parent[local:VBRadioButton].ContentFill}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1" 
+                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
                               Data="F1 M 8.00002,12L 19,2L 19,22L 8.00002,12 Z "/>
                     </Canvas>
                 </Viewbox>

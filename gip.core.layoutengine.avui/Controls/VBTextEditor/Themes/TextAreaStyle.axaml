@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
   <ControlTheme x:Key="{x:Type local:VBTextArea}" TargetType="{x:Type local:VBTextArea}">
-        <Setter Property="SelectionBrush" Value="{DynamicResource TextAreaSelectionBg}"/>
+        <Setter Property="SelectionBrush" Value="{StaticResource TextAreaSelectionBg}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>

@@ -1,4 +1,5 @@
-﻿using Avalonia.Data.Converters;
+﻿using Avalonia.Controls;
+using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using gip.core.datamodel;
@@ -141,11 +142,12 @@ namespace gip.core.layoutengine.avui
             {
                 if (_ErrorBrush == null)
                 {
-                    ResourceInclude dict = new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/Shared.xaml", UriKind.Absolute));
-                    object res;
-                    if (!dict.TryGetResource("ConverterErrorBrush", null, out res))
-                        return null;
-                    return res as IBrush;
+                    Window avWindow = Database.Root.RootPageWPF as Window;
+                    if (avWindow != null)
+                    {
+                        avWindow.TryFindResource("ConverterErrorBrush", out object res);
+                        return res as IBrush;
+                    }
                 }
                 if (_ErrorBrush == null)
                     _ErrorBrush = Brushes.Red;

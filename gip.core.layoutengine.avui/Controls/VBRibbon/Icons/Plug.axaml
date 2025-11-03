@@ -9,8 +9,8 @@
                     <Canvas x:Name="Ebene_1_127" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path Data="F1M47.7202,667.2134C47.7202,659.3174,54.1452,652.8914,62.0422,652.8914L79.1002,652.8914L79.1002,681.5354L62.0422,681.5354C54.1452,681.5354,47.7202,675.1104,47.7202,667.2134 M104.0992,669.2094L104.0992,665.2144L83.0952,665.2144L83.0952,658.7464L98.5092,658.7464L98.5092,654.7484L83.0952,654.7484L83.0952,648.8944L62.0422,648.8944C52.6162,648.8944,44.8362,656.0494,43.8352,665.2144L33.1632,665.2144L33.1632,669.2094L43.8352,669.2094C44.8362,678.3754,52.6162,685.5304,62.0422,685.5304L83.0952,685.5304L83.0952,679.7264L98.5092,679.7264L98.5092,675.7334L83.0952,675.7334L83.0952,669.2094z" 
                               Stretch="Fill"
-                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}"
+                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
                               Width="24" 
                               Height="13" 
                               Canvas.Left="1.29514" 

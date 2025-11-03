@@ -142,7 +142,7 @@ namespace gip.core.layoutengine.avui
                     _roslynAssembly.Add(Assembly.Load("RoslynPad.Roslyn.Windows"));
                     _roslynAssembly.Add(Assembly.Load("RoslynPad.Editor.Windows"));
 
-                    if (ControlManager.WpfTheme == eWpfTheme.Gip)
+                    if (ControlManager.WpfTheme == eWpfTheme.Dark)
                         _classificationHighlightColors = new ClassificationHighlightColorsGip();
                     else
                         _classificationHighlightColors = new ClassificationHighlightColors();

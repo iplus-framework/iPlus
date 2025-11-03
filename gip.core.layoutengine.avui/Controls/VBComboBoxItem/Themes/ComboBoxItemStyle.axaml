@@ -5,7 +5,7 @@
    x:ClassModifier="internal">
 
 	<ControlTheme x:Key="{x:Type local:VBComboBoxItem}" TargetType="{x:Type local:VBComboBoxItem}">
-		<Setter Property="Foreground" Value="{DynamicResource ComboBoxItemFg}"/>
+		<Setter Property="Foreground" Value="{StaticResource ComboBoxItemFg}"/>
 		<Setter Property="FontWeight" Value="Normal"/>
 		<Setter Property="Template">
 			<ControlTemplate>
@@ -40,26 +40,26 @@
 		<!-- Highlighted State (equivalent to IsHighlighted in WPF) -->
 		<Style Selector="^:pointerover">
 			<Style Selector="^ /template/ Border#Bd">
-				<Setter Property="Background" Value="{DynamicResource ComboBoxItemSelectionFill}"/>
+				<Setter Property="Background" Value="{StaticResource ComboBoxItemSelectionFill}"/>
 				<Setter Property="BorderBrush" Value="#FF0000"/>
 			</Style>
-			<Setter Property="Foreground" Value="{DynamicResource ComboBoxItemSelectionFg}"/>
+			<Setter Property="Foreground" Value="{StaticResource ComboBoxItemSelectionFg}"/>
 			<Setter Property="FontWeight" Value="Bold"/>
 		</Style>
 
 		<!-- Selected State -->
 		<Style Selector="^:selected">
 			<Style Selector="^ /template/ Border#Bd">
-				<Setter Property="Background" Value="{DynamicResource ComboBoxItemSelectionFill}"/>
+				<Setter Property="Background" Value="{StaticResource ComboBoxItemSelectionFill}"/>
 				<Setter Property="BorderBrush" Value="#FF0000"/>
 			</Style>
-			<Setter Property="Foreground" Value="{DynamicResource ComboBoxItemSelectionFg}"/>
+			<Setter Property="Foreground" Value="{StaticResource ComboBoxItemSelectionFg}"/>
 			<Setter Property="FontWeight" Value="Bold"/>
 		</Style>
 
 		<!-- Disabled State -->
 		<Style Selector="^:disabled">
-			<Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}"/>
+			<Setter Property="Foreground" Value="{StaticResource SystemControlDisabledBaseMediumLowBrush}"/>
 		</Style>
 	</ControlTheme>
 

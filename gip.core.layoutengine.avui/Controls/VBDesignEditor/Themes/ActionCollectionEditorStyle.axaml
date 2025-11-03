@@ -37,7 +37,7 @@
                             ToolTip.Tip="{Binding Description}"
                             Grid.Column="0" />
                         <Border BorderThickness="1 0 0 0"
-                            BorderBrush="{DynamicResource ThemeBorderMidBrush}"
+                            BorderBrush="{StaticResource ThemeBorderMidBrush}"
                             Grid.Column="1"
                             HorizontalAlignment="Right">
                           <ContentPresenter x:Name="editorContainer"

@@ -4,6 +4,7 @@ using System.Text;
 using gip.core.datamodel;
 using Avalonia.Input;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui
 {
@@ -88,6 +89,11 @@ namespace gip.core.layoutengine.avui
         protected override VBDockPanel RootPanel { get => null; }
 
         public void OnTabItemMouseDown(object sender, PointerPressedEventArgs e)
+        {
+            OnTabItemButtonPressed(sender, e);
+        }
+
+        public void OnTabItemButtonPressed(object sender, RoutedEventArgs e)
         {
             if ((_VBRibbon != null) && (e.Source is Button))
             {

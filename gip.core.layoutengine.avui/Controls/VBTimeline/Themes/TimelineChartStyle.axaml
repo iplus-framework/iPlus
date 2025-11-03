@@ -75,7 +75,7 @@
                     HorizontalAlignment="Left"
                     Width="{Binding #PART_ScrollViewer.Bounds.Width}" 
                     BorderThickness="24,0,0,0"
-                    BorderBrush="{DynamicResource ThemeBackgroundBrush}"/>
+                    BorderBrush="{StaticResource ThemeBackgroundBrush}"/>
 
             <!--Theme="{StaticResource TimelineChartScrollViewerStyle}"-->
             <timeline:FrictionScrollViewer x:Name="PART_ScrollViewer" 

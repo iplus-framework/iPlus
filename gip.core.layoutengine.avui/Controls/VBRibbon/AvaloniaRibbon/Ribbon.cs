@@ -118,6 +118,9 @@ public class Ribbon : TabControl, IRibbon
 
     public static readonly StyledProperty<bool> IsMenuVisibleProperty = AvaloniaProperty.Register<Ribbon, bool>(nameof(IsMenuVisible), false);
 
+    public static readonly StyledProperty<double> TrayHeightProperty = AvaloniaProperty.Register<Ribbon, double>(nameof(TrayHeight), 96);
+
+
     #endregion Static Properties
 
     #region Fields
@@ -194,6 +197,12 @@ public class Ribbon : TabControl, IRibbon
     {
         get => GetValue(IsMenuVisibleProperty);
         set => SetValue(IsMenuVisibleProperty, value);
+    }
+
+    public double TrayHeight
+    {
+        get => GetValue(TrayHeightProperty);
+        set => SetValue(TrayHeightProperty, value);
     }
 
     public bool IsOpen

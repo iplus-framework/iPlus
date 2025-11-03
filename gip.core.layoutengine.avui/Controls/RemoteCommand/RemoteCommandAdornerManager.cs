@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Controls.Primitives;
+using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
@@ -52,8 +53,7 @@ namespace gip.core.layoutengine.avui
             {
                 try
                 {
-                    _templateResources = new ResourceDictionary();
-                    _templateResources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/RemoteCommand/RemoteCommandPopupTemplate.xaml", UriKind.Absolute)));
+                    _templateResources = AvaloniaXamlLoader.Load(new Uri("avares://gip.core.layoutengine.avui/Controls/RemoteCommand/RemoteCommandPopupTemplate.axaml", UriKind.Absolute)) as ResourceDictionary;
                 }
                 catch (Exception ex)
                 {

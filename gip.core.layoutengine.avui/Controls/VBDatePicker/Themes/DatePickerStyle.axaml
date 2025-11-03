@@ -100,8 +100,8 @@
         </Grid>
     </ControlTemplate>
     <Style x:Key="DatePickerTextBoxStyle" TargetType="{x:Type DatePickerTextBox}">
-        --><!--<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-        <Setter Property="Background" Value="{DynamicResource {x:Static ThemeBackgroundBrush}}"/>--><!--
+        --><!--<Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.WindowTextBrushKey}}"/>
+        <Setter Property="Background" Value="{StaticResource {x:Static ThemeBackgroundBrush}}"/>--><!--
         <Setter Property="Background" Value="Red"/>
         <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
         <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>

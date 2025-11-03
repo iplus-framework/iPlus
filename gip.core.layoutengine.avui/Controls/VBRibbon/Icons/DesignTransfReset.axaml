@@ -36,8 +36,8 @@
                         <Path x:Name="Mirr1" Width="3" Height="7" Canvas.Left="10.5" Canvas.Top="16.5" Stretch="Fill" StrokeJoin="Round" Stroke="#FFFF0000" Fill="#FF750000" Data="M 12,17L 12,17C 12.5523,17 13,17.4477 13,18L 13,22C 13,22.5523 12.5523,23 12,23L 12,23C 11.4477,23 11,22.5523 11,22L 11,18C 11,17.4477 11.4477,17 12,17 Z "/>
                         <Path x:Name="Path" Width="22.9392" Height="16.9051" Canvas.Left="0.41583" Canvas.Top="4.02663" 
                               Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}"
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
+                              Fill="{StaticResource RibbonButtonNormalContentFill}"
                               Data="F1 M 16.7429,20.4317C 17.7294,16.1777 18.716,11.9237 17.3756,10.3217C 16.0352,8.71961 12.368,9.76946 8.70071,10.8193L 9.60143,13.9656L 0.91583,11.3458L 6.89926,4.52663L 7.34962,6.0998L 7.79998,7.67297C 12.2822,6.38982 16.7644,5.10668 19.2736,6.94151C 21.7827,8.77633 22.3189,13.7291 22.855,18.6819L 16.7429,20.4317 Z "/>
                     </Canvas>                    
                 </Viewbox>

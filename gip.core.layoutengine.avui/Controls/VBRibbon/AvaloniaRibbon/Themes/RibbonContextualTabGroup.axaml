@@ -18,7 +18,7 @@
                 Grid.RowSpan="2"
                 Margin="0,2"
                 Background="{TemplateBinding Background}"
-                CornerRadius="{DynamicResource ControlCornerRadius}"
+                CornerRadius="{StaticResource ControlCornerRadius}"
                 IsHitTestVisible="False">
               <Border.OpacityMask>
                 <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
@@ -37,7 +37,7 @@
                 FontSize="11"
                 IsHitTestVisible="False"
                 Opacity="0.5"
-                TextBlock.Foreground="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+                TextBlock.Foreground="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
             <ItemsPresenter
                 x:Name="PART_ItemsPresenter"
                 Grid.Row="1"
@@ -81,7 +81,7 @@
                   Content="{TemplateBinding Header}"
                   FontSize="11"
                   Opacity="0.5"
-                  TextBlock.Foreground="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+                  TextBlock.Foreground="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
             </Panel>
             <Panel>
               <Border

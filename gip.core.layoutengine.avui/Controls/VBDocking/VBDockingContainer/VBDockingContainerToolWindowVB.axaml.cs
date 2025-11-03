@@ -136,6 +136,11 @@ namespace gip.core.layoutengine.avui
 
         public void OnTabItemMouseDown(object sender, PointerPressedEventArgs e)
         {
+            OnTabItemButtonPressed(sender, e);
+        }
+
+        public void OnTabItemButtonPressed(object sender, RoutedEventArgs e)
+        {
             if ((_VBRibbon != null) && (e.Source is Button))
             {
                 Button button = (Button)e.Source;

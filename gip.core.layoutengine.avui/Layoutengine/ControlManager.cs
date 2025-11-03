@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
 using gip.ext.design.avui;
@@ -14,12 +15,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Dark Theme
         /// </summary>
-        Gip,
+        Dark,
 
         /// <summary>
         /// Light Theme
         /// </summary>
-        Aero,
+        Light,
     };
 
     public class CustomControlStyleInfo
@@ -85,7 +86,7 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        private static eWpfTheme _WpfTheme = eWpfTheme.Gip;
+        private static eWpfTheme _WpfTheme = eWpfTheme.Dark;
         public static eWpfTheme WpfTheme
         {
             set
@@ -147,21 +148,19 @@ namespace gip.core.layoutengine.avui
                 app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative)));
             }
 
-            if (WpfTheme == eWpfTheme.Aero)
+            if (WpfTheme == eWpfTheme.Light)
             {
                 app.RequestedThemeVariant = ThemeVariant.Light;
-                //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/LightThemeColors.axaml", UriKind.Relative)));
-                //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Silver.xaml", UriKind.Relative)));
+                app.Resources.MergedDictionaries.Add(
+                    AvaloniaXamlLoader.Load(new Uri("avares://gip.core.layoutengine.avui/Controls/LightThemeColors.axaml", UriKind.Absolute)) as ResourceDictionary);
             }
-            else if (WpfTheme == eWpfTheme.Gip)
+            else if (WpfTheme == eWpfTheme.Dark)
             {
                 app.RequestedThemeVariant = ThemeVariant.Dark;
-                //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Relative)));
-                //app.Resources.MergedDictionaries.Add(new ResourceInclude(new Uri("/Fluent;Component/Themes/Office2010/Black.xaml", UriKind.Relative)));
+                app.Resources.MergedDictionaries.Add(
+                    AvaloniaXamlLoader.Load(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Absolute)) as ResourceDictionary);
             }
-
-            //if (!app.Styles.OfType<StyleInclude>().Where(s => s.Source != null s.Source.OriginalString.StartsWith("avares://gip.core.layoutengine.avui/Controls/Controls.axaml")).Any())
-            //    app.Styles.Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/")) { Source = new Uri("avares://gip.core.layoutengine.avui/Controls/Controls.axaml", UriKind.Relative) });
+            app.Styles.Add(new IPlusTheme());
         }
 
         static public ResourceInclude GetResourceDict(List<CustomControlStyleInfo> CustomControlStyleInfoList)

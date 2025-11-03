@@ -27,7 +27,7 @@
             <Border x:Name="uxPropertyNodeRow"
                     MinHeight="20"
                     BorderThickness="0 0 0 1"
-                    BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+                    BorderBrush="{StaticResource SystemControlBackgroundBaseLowBrush}">
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="{Binding FirstColumnWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type PropertyGrid:PropertyGridView}}}" />
@@ -52,7 +52,7 @@
                    FontWeight="{Binding IsSet, Converter={x:Static Converters:BoldWhenTrue.Instance}}" />
                 </Grid>
                 <Border Grid.Column="1" BorderThickness="1 0 0 0"
-                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+                        BorderBrush="{StaticResource SystemControlBackgroundBaseLowBrush}">
                   <ContentPresenter x:Name="editorContainer"
                       Content="{Binding Editor}"
                       VerticalAlignment="Center"
@@ -248,7 +248,7 @@
             <Border x:Name="uxPropertyNodeRow"
                     MinHeight="20"
                     BorderThickness="0 0 0 1"
-                    BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+                    BorderBrush="{StaticResource SystemControlBackgroundBaseLowBrush}">
               <Grid>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="{Binding FirstColumnWidth, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type PropertyGrid:PropertyGridView}}}" />
@@ -273,7 +273,7 @@
                    FontWeight="{Binding IsSet, Converter={x:Static Converters:BoldWhenTrue.Instance}}" />
                 </Grid>
                 <Border Grid.Column="1" BorderThickness="1 0 0 0"
-                        BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+                        BorderBrush="{StaticResource SystemControlBackgroundBaseLowBrush}">
                   <ContentPresenter x:Name="editorContainer"
                       Content="{Binding Editor}"
                       VerticalAlignment="Center"
@@ -357,12 +357,12 @@
         <ControlTemplate>
           <Border Background="#F9F9F4"
       BorderThickness="0 0 0 1"
-      BorderBrush="{DynamicResource SystemControlBackgroundBaseLowBrush}">
+      BorderBrush="{StaticResource SystemControlBackgroundBaseLowBrush}">
             <Path x:Name="arrow"
     Data="M 0 0 L 5 5 L 10 0"
     HorizontalAlignment="Center"
     VerticalAlignment="Center"
-    Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+    Fill="{StaticResource SystemControlForegroundBaseMediumBrush}" />
           </Border>
         </ControlTemplate>
       </Setter>

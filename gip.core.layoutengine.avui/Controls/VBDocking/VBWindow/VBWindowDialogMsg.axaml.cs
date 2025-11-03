@@ -294,7 +294,7 @@ namespace gip.core.layoutengine.avui
         public string MsgLevelImageGet(eMsgLevel level)
         {
             string imagePNG;
-            if (ControlManager.WpfTheme == eWpfTheme.Aero)
+            if (ControlManager.WpfTheme == eWpfTheme.Light)
             {
                 switch (level)
                 {

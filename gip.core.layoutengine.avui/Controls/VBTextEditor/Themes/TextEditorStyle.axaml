@@ -6,9 +6,9 @@
   <ControlTheme x:Key="{x:Type local:VBTextEditor}" TargetType="{x:Type local:VBTextEditor}">
     <Setter Property="FontFamily" Value="Consolas"/>
     <Setter Property="FontSize" Value="10"/>
-    <Setter Property="Foreground" Value="{DynamicResource TextEditorFgEnabled}"/>
-    <Setter Property="Background" Value="{DynamicResource TextEditorBgEnabled}"/>
-    <Setter Property="BorderBrush" Value="{DynamicResource TextEditorBorderEnabled}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextEditorFgEnabled}"/>
+    <Setter Property="Background" Value="{StaticResource TextEditorBgEnabled}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource TextEditorBorderEnabled}"/>
     <Setter Property="BorderThickness" Value="1"/>
     <Setter Property="Template">
       <Setter.Value>

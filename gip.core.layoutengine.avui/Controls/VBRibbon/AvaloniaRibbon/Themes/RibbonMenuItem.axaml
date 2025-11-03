@@ -40,7 +40,7 @@
           <Border
               Height="1"
               Margin="25,4"
-              Background="{DynamicResource SystemControlHighlightAltBaseLowBrush}"
+              Background="{StaticResource SystemControlHighlightAltBaseLowBrush}"
               IsVisible="{TemplateBinding IsLastItem}" />
         </StackPanel>
       </ControlTemplate>

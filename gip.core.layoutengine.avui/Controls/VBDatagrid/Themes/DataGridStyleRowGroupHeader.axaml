@@ -27,8 +27,8 @@
   </ControlTheme>
 
   <ControlTheme x:Key="{x:Type DataGridRowGroupHeader}" TargetType="{x:Type DataGridRowGroupHeader}">
-    <Setter Property="Foreground" Value="{DynamicResource DataGridRowGroupHeaderForegroundBrush}" />
-    <Setter Property="Background" Value="{DynamicResource DataGridRowGroupHeaderBackgroundBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource DataGridRowGroupHeaderForegroundBrush}" />
+    <Setter Property="Background" Value="{StaticResource DataGridRowGroupHeaderBackgroundBrush}" />
     <Setter Property="FontSize" Value="15" />
     <Setter Property="MinHeight" Value="32" />
     <Setter Property="Template">
@@ -78,7 +78,7 @@
                      VerticalAlignment="Stretch"
                      Fill="Transparent"
                      IsHitTestVisible="False"
-                     Stroke="{DynamicResource DataGridCurrencyVisualPrimaryBrush}"
+                     Stroke="{StaticResource DataGridCurrencyVisualPrimaryBrush}"
                      StrokeThickness="1" />
           <Grid x:Name="FocusVisual"
                 Grid.ColumnSpan="5"
@@ -88,14 +88,14 @@
                        VerticalAlignment="Stretch"
                        Fill="Transparent"
                        IsHitTestVisible="False"
-                       Stroke="{DynamicResource DataGridCellFocusVisualPrimaryBrush}"
+                       Stroke="{StaticResource DataGridCellFocusVisualPrimaryBrush}"
                        StrokeThickness="2" />
             <Rectangle Margin="2"
                        HorizontalAlignment="Stretch"
                        VerticalAlignment="Stretch"
                        Fill="Transparent"
                        IsHitTestVisible="False"
-                       Stroke="{DynamicResource DataGridCellFocusVisualSecondaryBrush}"
+                       Stroke="{StaticResource DataGridCellFocusVisualSecondaryBrush}"
                        StrokeThickness="1" />
           </Grid>
 
@@ -121,11 +121,11 @@
     </Style>
     
     <Style Selector="^:pointerover">
-      <Setter Property="Background" Value="{DynamicResource DataGridRowGroupHeaderHoveredBackgroundBrush}" />
+      <Setter Property="Background" Value="{StaticResource DataGridRowGroupHeaderHoveredBackgroundBrush}" />
     </Style>
     
     <Style Selector="^:pressed">
-      <Setter Property="Background" Value="{DynamicResource DataGridRowGroupHeaderPressedBackgroundBrush}" />
+      <Setter Property="Background" Value="{StaticResource DataGridRowGroupHeaderPressedBackgroundBrush}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

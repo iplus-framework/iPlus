@@ -36,7 +36,7 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
             // C#-Highlighting
             IHighlightingDefinition customHighlighting;
             string xshdFile = "gip.core.layoutengine.avui.Controls.VBDesignEditor.Editors.Highlighting.CSharp-ModeStyleGip.xshd";
-            if (ControlManager.WpfTheme == eWpfTheme.Aero)
+            if (ControlManager.WpfTheme == eWpfTheme.Light)
                 xshdFile = "gip.core.layoutengine.avui.Controls.VBDesignEditor.Editors.Highlighting.CSharp-ModeStyleAero.xshd";
 
             using (Stream s = this.GetType().Assembly.GetManifestResourceStream(xshdFile))

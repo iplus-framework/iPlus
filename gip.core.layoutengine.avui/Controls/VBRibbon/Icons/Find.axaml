@@ -46,7 +46,7 @@
               </Path.Fill>
             </Path>
             <Ellipse x:Name="Ellipse_138" Width="13" Height="13" Canvas.Left="2.5" Canvas.Top="2.5" Stretch="Fill" StrokeJoin="Round"
-                     Stroke="#FF000000">
+                     Stroke="#FF000000" StrokeThickness="1">
               <Ellipse.Fill>
                 <RadialGradientBrush RadiusX="54.5454%" RadiusY="54.5454%" Center="77.2727%,77.2727%" GradientOrigin="77.2727%,77.2727%">
                   <GradientStop Color="#99FF0000" Offset="0"/>

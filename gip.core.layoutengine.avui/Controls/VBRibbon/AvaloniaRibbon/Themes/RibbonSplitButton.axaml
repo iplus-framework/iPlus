@@ -6,7 +6,7 @@
 
   <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonSplitButton}" TargetType="local:RibbonSplitButton">
-    <Setter Property="BorderThickness" Value="{DynamicResource ButtonBorderThemeThickness}" />
+    <Setter Property="BorderThickness" Value="{StaticResource ButtonBorderThemeThickness}" />
     <Setter Property="Padding" Value="3" />
     <Setter Property="QuickAccessTemplate">
       <ControlTemplate>
@@ -80,17 +80,17 @@
                       PlacementTarget="{TemplateBinding}"
                       VerticalOffset="-1">
                     <Border
-                        Padding="{DynamicResource MenuFlyoutPresenterThemePadding}"
-                        Background="{DynamicResource MenuFlyoutPresenterBackground}"
-                        BorderBrush="{DynamicResource MenuFlyoutPresenterBorderBrush}"
-                        BorderThickness="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}"
-                        CornerRadius="{DynamicResource OverlayCornerRadius}"
-                        TextBlock.FontSize="{DynamicResource ContentControlFontSize}">
+                        Padding="{StaticResource MenuFlyoutPresenterThemePadding}"
+                        Background="{StaticResource MenuFlyoutPresenterBackground}"
+                        BorderBrush="{StaticResource MenuFlyoutPresenterBorderBrush}"
+                        BorderThickness="{StaticResource MenuFlyoutPresenterBorderThemeThickness}"
+                        CornerRadius="{StaticResource OverlayCornerRadius}"
+                        TextBlock.FontSize="{StaticResource ContentControlFontSize}">
                       <VisualLayerManager>
                         <ScrollViewer Classes="menuscroller">
                           <ItemsPresenter
                               Name="PART_ItemsPresenter"
-                              Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                              Margin="{StaticResource MenuFlyoutScrollerMargin}"
                               ItemsPanel="{TemplateBinding ItemsPanel}" />
                         </ScrollViewer>
                       </VisualLayerManager>
@@ -135,17 +135,17 @@
                       PlacementTarget="{TemplateBinding}"
                       VerticalOffset="-1">
                     <Border
-                        Padding="{DynamicResource MenuFlyoutPresenterThemePadding}"
-                        Background="{DynamicResource MenuFlyoutPresenterBackground}"
-                        BorderBrush="{DynamicResource MenuFlyoutPresenterBorderBrush}"
-                        BorderThickness="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}"
-                        CornerRadius="{DynamicResource OverlayCornerRadius}"
-                        TextBlock.FontSize="{DynamicResource ContentControlFontSize}">
+                        Padding="{StaticResource MenuFlyoutPresenterThemePadding}"
+                        Background="{StaticResource MenuFlyoutPresenterBackground}"
+                        BorderBrush="{StaticResource MenuFlyoutPresenterBorderBrush}"
+                        BorderThickness="{StaticResource MenuFlyoutPresenterBorderThemeThickness}"
+                        CornerRadius="{StaticResource OverlayCornerRadius}"
+                        TextBlock.FontSize="{StaticResource ContentControlFontSize}">
                       <VisualLayerManager>
                         <ScrollViewer Classes="menuscroller">
                           <ItemsPresenter
                               Name="PART_ItemsPresenter"
-                              Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                              Margin="{StaticResource MenuFlyoutScrollerMargin}"
                               ItemsPanel="{TemplateBinding ItemsPanel}" />
                         </ScrollViewer>
                       </VisualLayerManager>
@@ -205,17 +205,17 @@
                       PlacementTarget="{TemplateBinding}"
                       VerticalOffset="-1">
                     <Border
-                        Padding="{DynamicResource MenuFlyoutPresenterThemePadding}"
-                        Background="{DynamicResource MenuFlyoutPresenterBackground}"
-                        BorderBrush="{DynamicResource MenuFlyoutPresenterBorderBrush}"
-                        BorderThickness="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}"
-                        CornerRadius="{DynamicResource OverlayCornerRadius}"
-                        TextBlock.FontSize="{DynamicResource ContentControlFontSize}">
+                        Padding="{StaticResource MenuFlyoutPresenterThemePadding}"
+                        Background="{StaticResource MenuFlyoutPresenterBackground}"
+                        BorderBrush="{StaticResource MenuFlyoutPresenterBorderBrush}"
+                        BorderThickness="{StaticResource MenuFlyoutPresenterBorderThemeThickness}"
+                        CornerRadius="{StaticResource OverlayCornerRadius}"
+                        TextBlock.FontSize="{StaticResource ContentControlFontSize}">
                       <VisualLayerManager>
                         <ScrollViewer Classes="menuscroller">
                           <ItemsPresenter
                               Name="PART_ItemsPresenter"
-                              Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                              Margin="{StaticResource MenuFlyoutScrollerMargin}"
                               ItemsPanel="{TemplateBinding ItemsPanel}" />
                         </ScrollViewer>
                       </VisualLayerManager>
@@ -279,16 +279,16 @@
       <Setter Property="Background" Value="Transparent" />
       <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}" />
-      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
     </Style>
     <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonBackgroundPointerOver}" />
     </Style>
     <Style Selector="^[IsDropDownOpen=True] /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonBackgroundPointerOver}" />
     </Style>
     <Style Selector="^:disabled /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+      <Setter Property="Opacity" Value="{StaticResource ThemeDisabledOpacity}" />
     </Style>
 
     <!-- Top button styles -->

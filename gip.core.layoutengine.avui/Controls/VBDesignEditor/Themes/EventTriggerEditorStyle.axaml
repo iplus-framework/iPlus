@@ -20,7 +20,7 @@
                   <ColumnDefinition Width="60" />
                   <ColumnDefinition Width="*" />
                 </Grid.ColumnDefinitions>
-                <Border Grid.ColumnSpan="2" BorderBrush="{DynamicResource ThemeBorderMidBrush}" BorderThickness="1" />
+                <Border Grid.ColumnSpan="2" BorderBrush="{StaticResource ThemeBorderMidBrush}" BorderThickness="1" />
                 <local:VBTextBlock Text="Property" Grid.Row="0" Grid.Column="0"/>
                 <local:VBComboBox Grid.Row="0" Grid.Column="1" 
                                   ShowCaption="False" 

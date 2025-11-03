@@ -11,9 +11,9 @@
   <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonGroupBox}" TargetType="local:RibbonGroupBox">
     <Setter Property="Background" Value="Transparent" />
-    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundChromeMediumBrush}" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseMediumBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="BorderBrush" Value="{StaticResource SystemControlForegroundChromeMediumBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseMediumBrush}" />
+    <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
     <Setter Property="Padding" Value="5" />
     <Setter Property="VerticalAlignment" Value="Stretch" />
     <Setter Property="Template">
@@ -31,7 +31,7 @@
                   x:Name="VerticalSeparator"
                   Height="{StaticResource LargeControlHeight}"
                   Margin="4,0"
-                  BorderBrush="{DynamicResource SystemControlHighlightAltBaseLowBrush}"
+                  BorderBrush="{StaticResource SystemControlHighlightAltBaseLowBrush}"
                   BorderThickness="0.5"
                   DockPanel.Dock="Right">
                 <Interaction.Behaviors>
@@ -67,7 +67,7 @@
                   x:Name="HorizontalSeparator"
                   Margin="10,4"
                   HorizontalAlignment="Stretch"
-                  BorderBrush="{DynamicResource SystemControlHighlightAltBaseLowBrush}"
+                  BorderBrush="{StaticResource SystemControlHighlightAltBaseLowBrush}"
                   BorderThickness="0.5"
                   DockPanel.Dock="Bottom" />
               <DockPanel>
@@ -82,7 +82,7 @@
                       CommandParameter="{TemplateBinding CommandParameter}"
                       DockPanel.Dock="Right"
                       Focusable="False"
-                      Foreground="{DynamicResource SystemControlBackgroundBaseMediumHighBrush}">
+                      Foreground="{StaticResource SystemControlBackgroundBaseMediumHighBrush}">
                     <Button.IsVisible>
                       <Binding
                           Converter="{x:Static ObjectConverters.IsNotNull}"
@@ -198,8 +198,8 @@
       <Setter Property="Width" Value="0" />
     </Style>
     <Style Selector="^ /template/ Button#PART_CommandButton:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+      <Setter Property="Background" Value="{StaticResource ThemeControlMidBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderMidBrush}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

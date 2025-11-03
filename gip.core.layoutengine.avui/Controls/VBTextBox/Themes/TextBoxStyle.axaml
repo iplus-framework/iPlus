@@ -46,13 +46,13 @@
 
   <ControlTheme x:Key="TextBoxButton"
               TargetType="{x:Type Button}">
-    <Setter Property="Background" Value="{DynamicResource TextControlButtonBackground}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrush}" />
+    <Setter Property="Background" Value="{StaticResource TextControlButtonBackground}" />
+    <Setter Property="BorderBrush" Value="{StaticResource TextControlButtonBorderBrush}" />
     <Setter Property="Focusable" Value="False"/>
     <Setter Property="MinWidth" Value="34" />
-    <Setter Property="Padding" Value="{DynamicResource ButtonPadding}" />
+    <Setter Property="Padding" Value="{StaticResource ButtonPadding}" />
     <Setter Property="Width" Value="{Binding $self.Bounds.Height}"/>
-    <Setter Property="TextElement.Foreground" Value="{DynamicResource TextControlButtonForeground}"/>
+    <Setter Property="TextElement.Foreground" Value="{StaticResource TextControlButtonForeground}"/>
     <Setter Property="Template">
       <ControlTemplate TargetType="Button">
         <ContentPresenter x:Name="PART_ContentPresenter"
@@ -65,15 +65,15 @@
     </Setter>
 
     <Style Selector="^:pointerover /template/ ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPointerOver}" />
+      <Setter Property="Background" Value="{StaticResource TextControlButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TextControlButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{StaticResource TextControlButtonForegroundPointerOver}" />
     </Style>
 
     <Style Selector="^:pressed /template/ ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{StaticResource TextControlButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TextControlButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{StaticResource TextControlButtonForegroundPressed}" />
     </Style>
 
     <Style Selector="^:disabled /template/ ContentPresenter">
@@ -94,9 +94,9 @@
     </Setter>
 
     <Style Selector="^:checked /template/ ContentPresenter, ^:indeterminate /template/ ContentPresenter">
-      <Setter Property="Background" Value="{DynamicResource TextControlButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource TextControlButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource TextControlButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{StaticResource TextControlButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TextControlButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{StaticResource TextControlButtonForegroundPressed}" />
     </Style>
   </ControlTheme>
 
@@ -129,7 +129,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource Foreground}"
+                         Foreground="{StaticResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -221,7 +221,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource Foreground}"
+                         Foreground="{TemplateBinding Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -314,7 +314,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource Foreground}"
+                         Foreground="{StaticResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -398,7 +398,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource Foreground}"
+                         Foreground="{StaticResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -482,7 +482,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource Foreground}"
+                         Foreground="{StaticResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -567,7 +567,7 @@
                        Margin="{TemplateBinding Padding}">
               <TextBlock x:Name="PART_FloatingWatermark"
                          Opacity="0.5"
-                         Foreground="{DynamicResource Foreground}"
+                         Foreground="{StaticResource Foreground}"
                          FontSize="{TemplateBinding FontSize}"
                          IsVisible="False"
                          Text="{TemplateBinding Watermark}"
@@ -631,8 +631,8 @@
     <Setter Property="Padding" Value="1"/>
     <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredFocus}"/>
     <Setter Property="ContextFlyout" Value="{StaticResource DefaultTextBoxContextFlyout}" />
-    <Setter Property="SelectionBrush" Value="{DynamicResource HighlightBrush}"/>
-    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource HighlightForegroundBrush}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource HighlightBrush}"/>
+    <Setter Property="SelectionForegroundBrush" Value="{StaticResource HighlightForegroundBrush}"/>
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />
     <Setter Property="Template" Value="{StaticResource TextBoxTemplate}"/>
@@ -793,8 +793,8 @@
     <Setter Property="Padding" Value="1"/>
     <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredFocus}"/>
     <Setter Property="ContextFlyout" Value="{StaticResource DefaultTextBoxContextFlyout}" />
-    <Setter Property="SelectionBrush" Value="{DynamicResource HighlightBrush}"/>
-    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource HighlightForegroundBrush}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource HighlightBrush}"/>
+    <Setter Property="SelectionForegroundBrush" Value="{StaticResource HighlightForegroundBrush}"/>
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />
     <Setter Property="Template" Value="{StaticResource TextBox2Template}"/>
@@ -943,8 +943,8 @@
     <Setter Property="Padding" Value="1"/>
     <Setter Property="CaretBrush" Value="{StaticResource TextBoxFgRequiredFocus}"/>
     <Setter Property="ContextFlyout" Value="{StaticResource DefaultTextBoxContextFlyout}" />
-    <Setter Property="SelectionBrush" Value="{DynamicResource HighlightBrush}"/>
-    <Setter Property="SelectionForegroundBrush" Value="{DynamicResource HighlightForegroundBrush}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource HighlightBrush}"/>
+    <Setter Property="SelectionForegroundBrush" Value="{StaticResource HighlightForegroundBrush}"/>
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />
     <Setter Property="Template" Value="{StaticResource TextBox3Template}"/>

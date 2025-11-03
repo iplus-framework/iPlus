@@ -1,102 +1,102 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:local="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-    <!-- Add Resources Here -->
-    <ResourceDictionary.MergedDictionaries>
-        <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/Themes/SizeResources.axaml" />
-    </ResourceDictionary.MergedDictionaries>
+  <!-- Add Resources Here -->
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/Themes/SizeResources.axaml" />
+  </ResourceDictionary.MergedDictionaries>
 
-    <!-- Control Theme -->
-    <ControlTheme x:Key="{x:Type local:RibbonButton}" TargetType="{x:Type local:RibbonButton}">
-        <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
-        <Setter Property="Template">
-            <ControlTemplate>
-                <DataValidationErrors>
-                    <Border Classes="RibbonButtonBackgroundBorder" Background="Transparent" BorderBrush="Transparent"
-                            Padding="{TemplateBinding Padding}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                            BorderThickness="{TemplateBinding BorderThickness}">
-                        <DockPanel>
-                            <ContentPresenter Content="{TemplateBinding Icon}" DockPanel.Dock="Left" Width="16"
-                                              Height="16" />
-                            <ContentPresenter Classes="MediumContentPresenter" Content="{TemplateBinding Content}"
-                                              Margin="3,0,0,0" />
-                        </DockPanel>
-                    </Border>
-                </DataValidationErrors>
-            </ControlTemplate>
-        </Setter>
-        <Setter Property="QuickAccessTemplate">
-            <ControlTemplate>
-                <Button Classes="quickAccessButton" Command="{Binding Command}"
-                        CommandParameter="{Binding CommandParameter}" ToolTip.Tip="{Binding ToolTip.Tip}"
-                        local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34" Focusable="False">
-                    <ContentPresenter Content="{TemplateBinding QuickAccessIcon}" Width="16" Height="16" />
-                </Button>
-            </ControlTemplate>
-        </Setter>
-        <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPointerOver}" />
-        </Style>
-        <Style Selector="^:pressed /template/ Border.RibbonButtonBackgroundBorder">
-            <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}" />
-            <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushDisabled}" />
-        </Style>
-        <Style Selector="^local|RibbonButton:not(local|RibbonButton[Size=Large])">
-            <Setter Property="Padding" Value="3" />
-        </Style>
-        <Style Selector="^local|RibbonButton[Size=Large]">
-            <Setter Property="Padding" Value="9,4" />
-            <Setter Property="MaxWidth" Value="{StaticResource MaxControlWidth}" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
-            <Setter Property="Height" Value="{StaticResource LargeControlHeight}" />
-            <Setter Property="Template">
-                <ControlTemplate>
-                    <DataValidationErrors>
-                        <Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}">
-                            <DockPanel VerticalAlignment="Stretch">
-                                <ContentPresenter Content="{TemplateBinding LargeIcon}" DockPanel.Dock="Top"
-                                                  Width="32"
-                                                  Height="32" Foreground="{TemplateBinding Foreground}" />
-                                <ContentPresenter Content="{TemplateBinding Content}" Margin="0,3,0,0"
-                                                  VerticalAlignment="Stretch" Foreground="{TemplateBinding Foreground}" />
-                            </DockPanel>
-                        </Border>
-                    </DataValidationErrors>
+  <!-- Control Theme -->
+  <ControlTheme x:Key="{x:Type local:RibbonButton}" TargetType="{x:Type local:RibbonButton}">
+    <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DataValidationErrors>
+          <Border Classes="RibbonButtonBackgroundBorder" Background="Transparent" BorderBrush="Transparent"
+                  Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                  BorderThickness="{TemplateBinding BorderThickness}">
+            <DockPanel>
+              <ContentPresenter Content="{TemplateBinding Icon}" DockPanel.Dock="Left" Width="16"
+                                Height="16" />
+              <ContentPresenter Classes="MediumContentPresenter" Content="{TemplateBinding Content}"
+                                Margin="3,0,0,0" />
+            </DockPanel>
+          </Border>
+        </DataValidationErrors>
+      </ControlTemplate>
+    </Setter>
+    <Setter Property="QuickAccessTemplate">
+      <ControlTemplate>
+        <Button Classes="quickAccessButton" Command="{Binding Command}"
+                CommandParameter="{Binding CommandParameter}" ToolTip.Tip="{Binding ToolTip.Tip}"
+                local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}" MinWidth="45" Height="34" Focusable="False">
+          <ContentPresenter Content="{TemplateBinding QuickAccessIcon}" Width="16" Height="16" />
+        </Button>
+      </ControlTemplate>
+    </Setter>
+    <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="Background" Value="{StaticResource ButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushPointerOver}" />
+    </Style>
+    <Style Selector="^:pressed /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="Background" Value="{StaticResource ButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushDisabled}" />
+    </Style>
+    <Style Selector="^local|RibbonButton:not(local|RibbonButton[Size=Large])">
+      <Setter Property="Padding" Value="3" />
+    </Style>
+    <Style Selector="^local|RibbonButton[Size=Large]">
+      <Setter Property="Padding" Value="9,4" />
+      <Setter Property="MaxWidth" Value="{StaticResource MaxControlWidth}" />
+      <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Height" Value="{StaticResource LargeControlHeight}" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <DataValidationErrors>
+            <Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
+                    CornerRadius="{StaticResource ControlCornerRadius}">
+              <DockPanel VerticalAlignment="Stretch">
+                <ContentPresenter Content="{TemplateBinding LargeIcon}" DockPanel.Dock="Top"
+                                  Width="32"
+                                  Height="32" Foreground="{TemplateBinding Foreground}" />
+                <ContentPresenter Content="{TemplateBinding Content}" Margin="0,3,0,0"
+                                  VerticalAlignment="Stretch" Foreground="{TemplateBinding Foreground}" />
+              </DockPanel>
+            </Border>
+          </DataValidationErrors>
 
-                </ControlTemplate>
-            </Setter>
-        </Style>
-        <Style Selector="^local|RibbonButton[Size=Large] /template/ ContentPresenter TextBlock">
-            <Setter Property="TextWrapping" Value="Wrap" />
-            <Setter Property="TextAlignment" Value="Center" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
-            <Setter Property="Margin" Value="0,-3" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-        <Style Selector="^local|RibbonButton[Size=Medium]">
-            <Setter Property="Height" Value="{StaticResource SmallControlHeight}" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
-        </Style>
-        <Style Selector="^local|RibbonButton[Size=Small]">
-            <Setter Property="Width" Value="{StaticResource SmallControlWidth}" />
-            <Setter Property="Height" Value="{StaticResource SmallControlHeight}" />
-            <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
-            <Setter Property="Template">
-                <ControlTemplate>
-                    <DataValidationErrors>
-                        <Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}">
-                            <ContentPresenter Foreground="{TemplateBinding Foreground}"
-                                              Content="{TemplateBinding Icon}"
-                                              Width="16" Height="16" />
-                        </Border>
-                    </DataValidationErrors>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+    <Style Selector="^local|RibbonButton[Size=Large] /template/ ContentPresenter TextBlock">
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="TextAlignment" Value="Center" />
+      <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Margin" Value="0,-3" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="^local|RibbonButton[Size=Medium]">
+      <Setter Property="Height" Value="{StaticResource SmallControlHeight}" />
+      <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
+    </Style>
+    <Style Selector="^local|RibbonButton[Size=Small]">
+      <Setter Property="Width" Value="{StaticResource SmallControlWidth}" />
+      <Setter Property="Height" Value="{StaticResource SmallControlHeight}" />
+      <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <DataValidationErrors>
+            <Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
+                    CornerRadius="{StaticResource ControlCornerRadius}">
+              <ContentPresenter Foreground="{TemplateBinding Foreground}"
+                                Content="{TemplateBinding Icon}"
+                                Width="16" Height="16" />
+            </Border>
+          </DataValidationErrors>
 
-                </ControlTemplate>
-            </Setter>
-        </Style>
-    </ControlTheme>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+  </ControlTheme>
 </ResourceDictionary>

@@ -41,13 +41,13 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 	<ControlTheme x:Key="{x:Type local:VBContextMenu}" TargetType="local:VBContextMenu">
 		<Setter Property="Background" Value="{StaticResource SubMenuBackgroundBrush}" />
 		<Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
-<!--		<Setter Property="BorderBrush" Value="{DynamicResource MenuFlyoutPresenterBorderBrush}" />
-		<Setter Property="BorderThickness" Value="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}" />
-		<Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+<!--		<Setter Property="BorderBrush" Value="{StaticResource MenuFlyoutPresenterBorderBrush}" />
+		<Setter Property="BorderThickness" Value="{StaticResource MenuFlyoutPresenterBorderThemeThickness}" />
+		<Setter Property="CornerRadius" Value="{StaticResource OverlayCornerRadius}" />
 -->		<Setter Property="Focusable" Value="True" />
-<!--		<Setter Property="MaxWidth" Value="{DynamicResource FlyoutThemeMaxWidth}" />
-		<Setter Property="MinHeight" Value="{DynamicResource MenuFlyoutThemeMinHeight}" />
-		<Setter Property="Padding" Value="{DynamicResource MenuFlyoutPresenterThemePadding}" />-->
+<!--		<Setter Property="MaxWidth" Value="{StaticResource FlyoutThemeMaxWidth}" />
+		<Setter Property="MinHeight" Value="{StaticResource MenuFlyoutThemeMinHeight}" />
+		<Setter Property="Padding" Value="{StaticResource MenuFlyoutPresenterThemePadding}" />-->
 		<Setter Property="HorizontalAlignment" Value="Stretch" />
 		<Setter Property="WindowManagerAddShadowHint" Value="False" />
 		<Setter Property="Template">

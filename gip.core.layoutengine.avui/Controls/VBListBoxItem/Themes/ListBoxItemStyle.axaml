@@ -9,7 +9,7 @@
 		<Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
 		<Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType=ItemsControl}}"/>
 		<Setter Property="Padding" Value="2,0,0,0"/>
-		<Setter Property="Foreground" Value="{DynamicResource ListBoxItemFg}"/>
+		<Setter Property="Foreground" Value="{StaticResource ListBoxItemFg}"/>
 		<Setter Property="BorderThickness" Value="1"/>
 		<Setter Property="CornerRadius" Value="2"/>
 		<Setter Property="Template">
@@ -32,26 +32,26 @@
 		<!-- Selected State -->
 		<Style Selector="^:selected">
 			<Style Selector="^ /template/ Border#Bd">
-				<Setter Property="Background" Value="{DynamicResource ListBoxItemSelectionFill}"/>
+				<Setter Property="Background" Value="{StaticResource ListBoxItemSelectionFill}"/>
 				<Setter Property="BorderBrush" Value="#FF0000"/>
 			</Style>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectionFg}"/>
+			<Setter Property="Foreground" Value="{StaticResource ListBoxItemSelectionFg}"/>
 			<Setter Property="FontWeight" Value="Bold"/>
 		</Style>
 
 		<!-- Selected but not focused State -->
 		<Style Selector="^:selected">
 			<Style Selector="^ /template/ Border#Bd">
-				<Setter Property="Background" Value="{DynamicResource ListBoxItemSelectionNotActiveFill}"/>
+				<Setter Property="Background" Value="{StaticResource ListBoxItemSelectionNotActiveFill}"/>
 				<Setter Property="BorderBrush" Value="#FF0000"/>
 			</Style>
-			<Setter Property="Foreground" Value="{DynamicResource ListBoxItemSelectionFg}"/>
+			<Setter Property="Foreground" Value="{StaticResource ListBoxItemSelectionFg}"/>
 			<Setter Property="FontWeight" Value="Bold"/>
 		</Style>
 
 		<!-- Disabled State -->
 		<Style Selector="^:disabled">
-			<Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}"/>
+			<Setter Property="Foreground" Value="{StaticResource SystemControlDisabledBaseMediumLowBrush}"/>
 		</Style>
 	</ControlTheme>
 

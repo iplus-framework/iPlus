@@ -25,7 +25,7 @@ namespace gip.core.layoutengine.avui.timeline
 
             IBrush axisColor = Brushes.Beige;
 
-            if (ControlManager.WpfTheme == eWpfTheme.Aero)
+            if (ControlManager.WpfTheme == eWpfTheme.Light)
             {
                 axisColor = Brushes.Gray;
             }

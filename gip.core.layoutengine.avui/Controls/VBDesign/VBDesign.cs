@@ -383,9 +383,8 @@ namespace gip.core.layoutengine.avui
                         try
                         {
                             ContentControl contentControl = new ContentControl();
-                            ResourceDictionary dict = new ResourceDictionary();
-                            dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Absolute)));
-                            contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
+                            parentObj.TryFindResource("IconDesignStyleGip", out object resource);
+                            contentControl.Theme = (ControlTheme)resource;
                             Content = contentControl;
                         }
                         catch (Exception e)
@@ -427,9 +426,8 @@ namespace gip.core.layoutengine.avui
             if (string.IsNullOrEmpty(xaml))
             {
                 ContentControl contentControl = new ContentControl();
-                ResourceDictionary dict = new ResourceDictionary();
-                dict.MergedDictionaries.Add(new ResourceInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Design.xaml", UriKind.Absolute)));
-                contentControl.Theme = (ControlTheme)dict["IconDesignStyleGip"];
+                parentObj.TryFindResource("IconDesignStyleGip", out object resource);
+                contentControl.Theme = (ControlTheme)resource;
                 uiElement = contentControl;
             }
             else if (ACClassDesign != null && ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)

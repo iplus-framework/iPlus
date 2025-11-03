@@ -130,9 +130,9 @@ namespace gip.core.layoutengine.avui.timeline
 
         private bool _IsFirstInit = true;
 
-        static SolidColorBrush _dtAxisColor1 = new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Gip ? Colors.White : Colors.Black);
+        static SolidColorBrush _dtAxisColor1 = new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Dark ? Colors.White : Colors.Black);
 
-        static SolidColorBrush _dtAxisColor2 = new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Gip ? Colors.Orange : Colors.Blue);
+        static SolidColorBrush _dtAxisColor2 = new SolidColorBrush(ControlManager.WpfTheme == eWpfTheme.Dark ? Colors.Orange : Colors.Blue);
 
         //temp fix 
         private double _TempZoomOffset = 0;

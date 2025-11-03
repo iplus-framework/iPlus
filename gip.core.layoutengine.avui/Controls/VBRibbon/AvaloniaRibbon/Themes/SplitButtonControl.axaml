@@ -8,11 +8,11 @@
     <Setter Property="Size" Value="Large" />
     <Setter Property="HorizontalAlignment" Value="Center" />
     <Setter Property="VerticalAlignment" Value="Center" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
     <Setter Property="Focusable" Value="False" />
     <Setter Property="Padding" Value="9,3,9,3" />
     <Setter Property="MaxWidth" Value="68" />
@@ -30,7 +30,7 @@
                   Grid.Row="0"
                   CornerRadius="{TemplateBinding CornerRadius, Converter={StaticResource TopCornerRadiusFilterConverter}}"
                   Theme="{StaticResource FluentSplitButtonComponent}"
-                  MinWidth="{DynamicResource SplitButtonPrimaryButtonSize}"
+                  MinWidth="{StaticResource SplitButtonPrimaryButtonSize}"
                   Foreground="{TemplateBinding Foreground}"
                   Background="{TemplateBinding Background}"
                   Command="{TemplateBinding Command}"
@@ -57,7 +57,7 @@
 
           <Button x:Name="PART_SecondaryButton"
                   Grid.Row="1"
-                  MinWidth="{DynamicResource SplitButtonSecondaryButtonSize}"
+                  MinWidth="{StaticResource SplitButtonSecondaryButtonSize}"
                   BorderBrush="{TemplateBinding BorderBrush}"
                   Foreground="{TemplateBinding Foreground}"
                   Background="{TemplateBinding Background}"
@@ -79,7 +79,7 @@
     <Setter Property="QuickAccessTemplate">
       <ControlTemplate>
         <local:SplitButtonControl
-            Theme="{DynamicResource SmallSplitButton}"
+            Theme="{StaticResource SmallSplitButton}"
             VerticalAlignment="Stretch"
             local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}"
             Classes="quickAccessButton"
@@ -112,10 +112,10 @@
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
     <Setter Property="Focusable" Value="False" />
     <Setter Property="Padding" Value="9,3,9,3" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
     <Setter Property="MaxSize" Value="Medium" />
     <Setter Property="MinSize" Value="Medium" />
     <Setter Property="Template">
@@ -129,7 +129,7 @@
           <Button x:Name="PART_PrimaryButton"
                   Grid.Column="0"
                   Theme="{StaticResource FluentSplitButtonComponent}"
-                  MinWidth="{DynamicResource SplitButtonPrimaryButtonSize}"
+                  MinWidth="{StaticResource SplitButtonPrimaryButtonSize}"
                   Foreground="{TemplateBinding Foreground}"
                   Background="{TemplateBinding Background}"
                   BorderBrush="{TemplateBinding BorderBrush}"
@@ -181,7 +181,7 @@
       <ControlTemplate>
         <local:SplitButtonControl
             VerticalAlignment="Stretch"
-            Theme="{DynamicResource SmallSplitButton}"
+            Theme="{StaticResource SmallSplitButton}"
             local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}"
             Classes="quickAccessButton"
             Flyout="{Binding Flyout}"
@@ -213,10 +213,10 @@
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <Setter Property="KeyboardNavigation.IsTabStop" Value="True" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
     <Setter Property="Focusable" Value="False" />
     <Setter Property="Padding" Value="9,3,9,3" />
-    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
     <Setter Property="MaxSize" Value="Small" />
     <Setter Property="MinSize" Value="Small" />
     <Setter Property="Template">
@@ -230,7 +230,7 @@
           <Button x:Name="PART_PrimaryButton"
                   Grid.Column="0"
                   Theme="{StaticResource FluentSplitButtonComponent}"
-                  MinWidth="{DynamicResource SplitButtonPrimaryButtonSize}"
+                  MinWidth="{StaticResource SplitButtonPrimaryButtonSize}"
                   Foreground="{TemplateBinding Foreground}"
                   Background="{TemplateBinding Background}"
                   BorderBrush="{TemplateBinding BorderBrush}"
@@ -280,7 +280,7 @@
     <Setter Property="QuickAccessTemplate">
       <ControlTemplate>
         <local:SplitButtonControl
-            Theme="{DynamicResource SmallSplitButton}"
+            Theme="{StaticResource SmallSplitButton}"
             local:KeyTip.KeyTipKeys="{Binding KeyTip.Tip}"
             Classes="quickAccessButton"
             VerticalAlignment="Stretch"

@@ -353,8 +353,13 @@ namespace gip.core.layoutengine.avui
                 item.PART_TabItemBorder.PointerPressed += PART_TabItemBorder_PointerPressed;
                 item.PART_TabItemBorder.PointerMoved += PART_TabItemBorder_PointerMoved;
                 item.PART_TabItemBorder.PointerReleased += PART_TabItemBorder_PointerReleased;
+                if (item.PART_RibbonSwitchButton != null)
+                {
+                    item.PART_RibbonSwitchButton.Click += PART_SwitchButton_Click;
+                }
                 item._TabItemBorderEventsSubscr = true;
             }
+
         }
 
         void OnTabItemUnLoaded(object sender, RoutedEventArgs e)
@@ -370,13 +375,35 @@ namespace gip.core.layoutengine.avui
                 item.PART_TabItemBorder.PointerPressed -= PART_TabItemBorder_PointerPressed;
                 item.PART_TabItemBorder.PointerMoved -= PART_TabItemBorder_PointerMoved;
                 item.PART_TabItemBorder.PointerReleased -= PART_TabItemBorder_PointerReleased;
+                if (item.PART_RibbonSwitchButton != null)
+                {
+                    item.PART_RibbonSwitchButton.Click -= PART_SwitchButton_Click;
+                }
                 item._TabItemBorderEventsSubscr = false;
             }
         }
 
         #region Drag inner contents
         Point ptStartDrag;
-        
+
+        private void PART_SwitchButton_Click(object sender, RoutedEventArgs e)
+        {
+            VBDockingContainerBase clickedContent = this.ActiveContent;
+            if (clickedContent != null)
+            {
+                if (clickedContent is VBDockingContainerToolWindowVB)
+                {
+                    (clickedContent as VBDockingContainerToolWindowVB).OnTabItemButtonPressed(sender, e);
+                    return;
+                }
+                else if (clickedContent is VBDockingContainerTabbedDoc)
+                {
+                    (clickedContent as VBDockingContainerTabbedDoc).OnTabItemButtonPressed(sender, e);
+                    return;
+                }
+            }
+        }
+
         void PART_TabItemBorder_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             // Only preview events

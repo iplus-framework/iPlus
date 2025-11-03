@@ -15,10 +15,12 @@ using System.Collections.Generic;
 using MsBox.Avalonia.Enums;
 using Avalonia.ReactiveUI;
 using ReactiveUI;
+using gip.iplus.client.avui.Views;
+using Avalonia.Data;
 
 namespace gip.iplus.client.avui;
 
-public partial class LoginWindow : Window //ReactiveWindow<Settings>
+public partial class LoginWindow : ReactiveWindow<Settings>
 {
     protected object _WaitOnOkClick = new object();
     int _CountAttempts = 0;
@@ -29,19 +31,19 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
     public LoginWindow()
     {
         InitializeComponent();
-        //this.WhenActivated(disposable => { });
-
-        //this.Loaded += Login_Loaded;
-        //this.Unloaded += Login_Unloaded;
+        this.WhenActivated(disposable => { });
     }
 
     public LoginWindow(Action loginAction, Action mainAction) : this()
     {
         listboxInfo.ItemsSource = MsgDetails;
         listboxInfo.DisplayMemberBinding = new Avalonia.Data.Binding("Message");
+        selTheme.ItemsSource = System.Enum.GetValues(typeof(eWpfTheme));
         _LoginAction = loginAction;
         _ShowMainWindowAction = mainAction;
     }
+
+    private Settings UserSettings => DataContext as Settings;
 
     #region Eventhandler
 
@@ -62,36 +64,6 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
         selTheme.ItemsSource = null;
         base.OnUnloaded(e);
     }
-
-    //private async void Login_Loaded(object sender, RoutedEventArgs e)
-    //{
-    //    Monitor.Enter(_WaitOnOkClick);
-
-    //    //Task result = null;
-    //    //if (App.Current != null)
-    //    //{
-    //    //    result = Task.Run(() => App.Current.HandleLoginAndStartup(this));
-    //    //    //e.Handled = true;
-    //    //}
-
-    //    //await result;
-    //    //await Dispatcher.UIThread.InvokeAsync(() => { Close(); }, DispatcherPriority.Normal);
-    //}
-
-    //private void Login_Unloaded(object sender, RoutedEventArgs e)
-    //{
-    //    this.Loaded -= Login_Loaded;
-    //    this.Unloaded -= Login_Unloaded;
-    //    if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)
-    //    {
-    //        _CollectionChangedSubscr = false;
-    //        (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged -= _Messages_CollectionChanged;
-    //    }
-    //    selTheme.ItemsSource = null;
-
-    //    if (e != null)
-    //        e.Handled = true;
-    //}
 
     private async void DoLoginAction()
     {
@@ -191,14 +163,11 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
     /// <summary>
     /// 1. Call from App
     /// </summary>
-    /// <param name="display"></param>
-    /// <param name="defaultUser"></param>
-    /// <param name="defaultPassword"></param>
-    public async void DisplayLogin(bool display, string defaultUser, string defaultPassword, eWpfTheme wpfTheme, String errorMsg)
+    public async void DisplayLogin(bool display, String errorMsg)
     {
         if (!this.ProgressGrid.CheckAccess())
         {
-            await Dispatcher.UIThread.InvokeAsync(() => DisplayLogin(display, defaultUser, defaultPassword, wpfTheme, errorMsg), DispatcherPriority.Send);
+            await Dispatcher.UIThread.InvokeAsync(() => DisplayLogin(display, errorMsg), DispatcherPriority.Send);
             return;
         }
 
@@ -209,16 +178,12 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
             _CountAttempts++;
             if (_CountAttempts <= 1)
             {
-                _User = defaultUser;
-                TextboxUser.Text = _User;
                 TextboxKey.Text = "";
-#if DEBUG
-                _Password = defaultPassword;
-                TextboxPassword.Text = _Password;
-#endif
-                selTheme.ItemsSource = System.Enum.GetValues(typeof(eWpfTheme));
-                selTheme.SelectedValue = wpfTheme;
-                //selTheme.SelectedIndex = 0;
+//#if DEBUG
+//                TextboxPassword.Text = _Password;
+//#endif
+
+                //selTheme.SelectedValue = new Binding() { Path = "WPFTheme" };
             }
             else
             {
@@ -238,8 +203,7 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
                 Dispatcher.UIThread.Post(() =>
                     AsyncMessageBox.ShowMessageBox(userMsg.Message, "Info", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning), DispatcherPriority.Send);
 
-                _Password = "";
-                TextboxPassword.Text = _Password;
+                UserSettings.Password = "";
             }
 
             _CtrlPressed = false;
@@ -259,17 +223,9 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
     /// <summary>
     /// 2. Call from App and waits on User-OK-click
     /// </summary>
-    /// <param name="enteredUser"></param>
-    /// <param name="enteredPassword"></param>
-    /// <param name="shiftPressed"></param>
-    /// <param name="showAllMenus"></param>
-    public void GetLoginResult(ref string enteredUser, ref string enteredPassword, ref bool shiftPressed, ref bool f1Pressed)
+    public void WaitOnLoginResult()
     {
         Monitor.Enter(_WaitOnOkClick);
-        enteredUser = _User;
-        enteredPassword = _Password;
-        shiftPressed = _CtrlPressed;
-        f1Pressed = _F1Pressed;
         Monitor.Exit(_WaitOnOkClick);
     }
 
@@ -307,13 +263,13 @@ public partial class LoginWindow : Window //ReactiveWindow<Settings>
             //    return;
         }
         if (_IsLeftCtrlPressed)
-            _CtrlPressed = true;
+            UserSettings.CtrlPressed = true;
 
         if (IsLoginWithControlLoad)
-            _CtrlPressed = true;
+            UserSettings.CtrlPressed = true;
 
         if (_IsF1Pressed)
-            _F1Pressed = true;
+            UserSettings.F1Pressed = true;
 
         _WpfTheme = (eWpfTheme)System.Enum.Parse(typeof(eWpfTheme), selTheme.SelectedValue.ToString());
         _User = TextboxUser.Text;

@@ -12,7 +12,7 @@
   <ControlTheme x:Key="{x:Type local:RibbonDropDownItem}" TargetType="local:RibbonDropDownItem">
     <Setter Property="Foreground" Value="{Binding $parent[local:Ribbon].Foreground}" />
     <!--  Narrow padding should be used for mouse input, when non-narrow one should be used for touch input in future.  -->
-    <Setter Property="Padding" Value="{DynamicResource MenuFlyoutItemThemePaddingNarrow}" />
+    <Setter Property="Padding" Value="{StaticResource MenuFlyoutItemThemePaddingNarrow}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>
@@ -39,14 +39,14 @@
                               x:Name="PART_ToggleIconPresenter"
                               IsVisible="False"
                               Theme="{StaticResource FluentMenuItemIconTheme}"
-                              Margin="{DynamicResource MenuIconPresenterMargin}" />
+                              Margin="{StaticResource MenuIconPresenterMargin}" />
 
               <ContentControl Grid.Column="1"
                               x:Name="PART_IconPresenter"
                               IsVisible="False"
                               Theme="{StaticResource FluentMenuItemIconTheme}"
                               Content="{TemplateBinding Icon}"
-                              Margin="{DynamicResource MenuIconPresenterMargin}" />
+                              Margin="{StaticResource MenuIconPresenterMargin}" />
 
               <ContentPresenter Name="PART_HeaderPresenter"
                                 Content="{TemplateBinding Header}"
@@ -57,18 +57,18 @@
                                 Grid.Column="2" />
               <TextBlock x:Name="PART_InputGestureText"
                          Grid.Column="3"
-                         Margin="{DynamicResource MenuInputGestureTextMargin}"
+                         Margin="{StaticResource MenuInputGestureTextMargin}"
                          Text="{TemplateBinding InputGesture, Converter={StaticResource KeyGestureConverter}}"
                          HorizontalAlignment="Right"
                          VerticalAlignment="Center"
-                         Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                         Foreground="{StaticResource SystemControlForegroundBaseMediumBrush}" />
               <Path Name="PART_ChevronPath"
                     Stretch="Uniform"
                     Width="8"
                     Height="16"
                     Data="{StaticResource MenuItemChevronPathData}"
-                    Fill="{DynamicResource SystemControlForegroundBaseMediumHighBrush}"
-                    Margin="{DynamicResource MenuFlyoutItemChevronMargin}"
+                    Fill="{StaticResource SystemControlForegroundBaseMediumHighBrush}"
+                    Margin="{StaticResource MenuFlyoutItemChevronMargin}"
                     VerticalAlignment="Center"
                     Grid.Column="4" />
             </Grid>
@@ -76,21 +76,21 @@
           <Popup Name="PART_Popup"
                  WindowManagerAddShadowHint="False"
                  Placement="RightEdgeAlignedTop"
-                 HorizontalOffset="{DynamicResource MenuFlyoutSubItemPopupHorizontalOffset}"
+                 HorizontalOffset="{StaticResource MenuFlyoutSubItemPopupHorizontalOffset}"
                  IsLightDismissEnabled="False"
                  IsOpen="{TemplateBinding IsSubMenuOpen, Mode=TwoWay}">
-            <Border Background="{DynamicResource SystemControlTransientBackgroundBrush}"
-                    BorderBrush="{DynamicResource SystemControlTransientBorderBrush}"
-                    BorderThickness="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}"
-                    Padding="{DynamicResource MenuFlyoutPresenterThemePadding}"
-                    MaxWidth="{DynamicResource FlyoutThemeMaxWidth}"
-                    MinHeight="{DynamicResource MenuFlyoutThemeMinHeight}"
+            <Border Background="{StaticResource SystemControlTransientBackgroundBrush}"
+                    BorderBrush="{StaticResource SystemControlTransientBorderBrush}"
+                    BorderThickness="{StaticResource MenuFlyoutPresenterBorderThemeThickness}"
+                    Padding="{StaticResource MenuFlyoutPresenterThemePadding}"
+                    MaxWidth="{StaticResource FlyoutThemeMaxWidth}"
+                    MinHeight="{StaticResource MenuFlyoutThemeMinHeight}"
                     HorizontalAlignment="Stretch"
-                    CornerRadius="{DynamicResource OverlayCornerRadius}">
+                    CornerRadius="{StaticResource OverlayCornerRadius}">
               <ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
                 <ItemsPresenter Name="PART_ItemsPresenter"
                                 ItemsPanel="{TemplateBinding ItemsPanel}"
-                                Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                                Margin="{StaticResource MenuFlyoutScrollerMargin}"
                                 Grid.IsSharedSizeScope="True" />
               </ScrollViewer>
             </Border>
@@ -104,50 +104,50 @@
     </Style>
     <Style Selector="^:selected">
       <Style Selector="^ /template/ Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListLowBrush}" />
+        <Setter Property="Background" Value="{StaticResource SystemControlHighlightListLowBrush}" />
       </Style>
       <Style Selector="^ /template/ ContentPresenter#PART_HeaderPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PART_InputGestureText">
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseMediumBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseMediumBrush}" />
       </Style>
       <Style Selector="^ /template/ Path#PART_ChevronPath">
-        <Setter Property="Fill" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Fill" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
       </Style>
     </Style>
 
     <!--  Listen for PART_LayoutRoot:pointerover, so it will not be triggered when subitem is pressed  -->
     <Style Selector="^:pressed /template/ Border#PART_LayoutRoot:pointerover">
-      <Setter Property="Background" Value="{DynamicResource SystemControlHighlightListMediumBrush}" />
+      <Setter Property="Background" Value="{StaticResource SystemControlHighlightListMediumBrush}" />
       <Style Selector="^ ContentPresenter#PART_HeaderPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
       </Style>
       <Style Selector="^ TextBlock#PART_InputGestureText">
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseMediumBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseMediumBrush}" />
       </Style>
       <Style Selector="^ Path#PART_ChevronPath">
-        <Setter Property="Fill" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+        <Setter Property="Fill" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
       </Style>
     </Style>
 
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#PART_LayoutRoot">
-        <Setter Property="Background" Value="{DynamicResource SystemControlTransparentBrush}" />
+        <Setter Property="Background" Value="{StaticResource SystemControlTransparentBrush}" />
       </Style>
       <Style Selector="^ /template/ ContentPresenter#PART_HeaderPresenter">
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SystemControlDisabledBaseMediumLowBrush}" />
       </Style>
       <Style Selector="^ /template/ TextBlock#PART_InputGestureText">
-        <Setter Property="Foreground" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}" />
+        <Setter Property="Foreground" Value="{StaticResource SystemControlDisabledBaseMediumLowBrush}" />
       </Style>
       <Style Selector="^ /template/ Path#PART_ChevronPath">
-        <Setter Property="Fill" Value="{DynamicResource SystemControlDisabledBaseMediumLowBrush}" />
+        <Setter Property="Fill" Value="{StaticResource SystemControlDisabledBaseMediumLowBrush}" />
       </Style>
     </Style>
 
     <Style Selector="^:open /template/ Path#PART_ChevronPath">
-      <Setter Property="Fill" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Fill" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
     </Style>
 
     <Style Selector="^:empty /template/ Path#PART_ChevronPath">
@@ -187,8 +187,8 @@
     </Style>
   </ControlTheme>
   <ControlTheme x:Key="HorizontalMenuItem" TargetType="MenuItem" BasedOn="{StaticResource FluentTopLevelMenuItem}">
-    <Setter Property="Padding" Value="{DynamicResource HorizontalMenuFlyoutItemThemePaddingNarrow}" />
-    <Setter Property="Margin" Value="{DynamicResource HorizontalMenuFlyoutItemMargin}" />
+    <Setter Property="Padding" Value="{StaticResource HorizontalMenuFlyoutItemThemePaddingNarrow}" />
+    <Setter Property="Margin" Value="{StaticResource HorizontalMenuFlyoutItemMargin}" />
   </ControlTheme>
   <ControlTheme x:Key="FluentMenuItemIconTheme"
                 TargetType="ContentControl">

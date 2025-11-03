@@ -5,7 +5,7 @@
 
   <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonDropDownButton}" TargetType="local:RibbonDropDownButton">
-    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
     <Setter Property="Foreground" Value="{Binding $parent[local:Ribbon].Foreground}" />
     <Setter Property="Padding" Value="3" />
     <Setter Property="QuickAccessTemplate">
@@ -66,7 +66,7 @@
                   <ScrollViewer>
                     <ItemsPresenter
                         Name="PART_ItemsPresenter"
-                        Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                        Margin="{StaticResource MenuFlyoutScrollerMargin}"
                         ItemsPanel="{TemplateBinding ItemsPanel}" />
                   </ScrollViewer>
                 </Flyout>
@@ -113,7 +113,7 @@
                     <ScrollViewer>
                       <ItemsPresenter
                           Name="PART_ItemsPresenter"
-                          Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                          Margin="{StaticResource MenuFlyoutScrollerMargin}"
                           ItemsPanel="{TemplateBinding ItemsPanel}" />
                     </ScrollViewer>
                   </Flyout>
@@ -158,7 +158,7 @@
                     <ScrollViewer>
                       <ItemsPresenter
                           Name="PART_ItemsPresenter"
-                          Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                          Margin="{StaticResource MenuFlyoutScrollerMargin}"
                           ItemsPanel="{TemplateBinding ItemsPanel}" />
                     </ScrollViewer>
                   </Flyout>
@@ -172,7 +172,7 @@
 
     <!-- Interaction states -->
     <Style Selector="^:pointerover /template/ Border#border">
-      <Setter Property="BorderBrush" Value="{DynamicResource HoveredBorderBackgroundColorBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource HoveredBorderBackgroundColorBrush}" />
     </Style>
 
     <!-- RibbonButton image margin in dropdown -->
@@ -187,13 +187,13 @@
       <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}" />
     </Style>
     <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderMidBrush}" />
     </Style>
     <Style Selector="^[IsDropDownOpen=True] /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderMidBrush}" />
     </Style>
     <Style Selector="^:disabled /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+      <Setter Property="Opacity" Value="{StaticResource ThemeDisabledOpacity}" />
     </Style>
 
     <!-- Split button styles -->
@@ -202,10 +202,10 @@
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
     <Style Selector="^ /template/ Button#RibbonSplitButtonTopButton:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
+      <Setter Property="Background" Value="{StaticResource ThemeControlMidBrush}" />
     </Style>
     <Style Selector="^ /template/ Button#RibbonSplitButtonTopButton:pressed">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlHighBrush}" />
+      <Setter Property="Background" Value="{StaticResource ThemeControlHighBrush}" />
     </Style>
   </ControlTheme>
 

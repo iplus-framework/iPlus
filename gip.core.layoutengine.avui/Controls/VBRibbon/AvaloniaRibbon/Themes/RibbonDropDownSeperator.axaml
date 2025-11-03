@@ -11,7 +11,7 @@
                         Height="1"
                         Margin="5"
                         VerticalAlignment="Center"
-                        Fill="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                        Fill="{StaticResource SystemControlForegroundBaseMediumBrush}" />
         </Border>
       </ControlTemplate>
     </Setter>

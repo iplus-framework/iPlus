@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using Avalonia.Styling;
+using Avalonia.LogicalTree;
 
 namespace gip.core.layoutengine.avui
 {
@@ -28,6 +29,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
+            base.OnInitialized();
             if (!String.IsNullOrEmpty(IconName))
             {
                 ContentControl contentControl = new ContentControl();
@@ -38,12 +40,11 @@ namespace gip.core.layoutengine.avui
                     if (resource != null && resource is ControlTheme theme)
                     {
                         contentControl.Theme = theme;
+                        this.LargeIcon = contentControl;
+                        this.Size = AvaloniaRibbon.Models.RibbonControlSize.Medium;
                     }
                 }
-                this.Content = contentControl;
             }
-
-            base.OnInitialized();
             Loaded += CustomVBRibbonButton_Loaded;
             Unloaded += CustomVBRibbonButton_Unloaded;
         }
@@ -58,8 +59,18 @@ namespace gip.core.layoutengine.avui
             InitVBControl();
         }
 
+        protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToVisualTree(e);
+        }
+
+        protected override void OnAttachedToLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnAttachedToLogicalTree(e);
+        }
+
         bool _Initialized = false;
-        private Avalonia.Labs.Input.CommandBinding _CmdBindingExecute;
+        private CommandBinding _CmdBindingExecute;
 
         /// <summary>
         /// Initializes the VB control.
@@ -134,12 +145,14 @@ namespace gip.core.layoutengine.avui
                         if (AppCommands.FindVBApplicationCommand(ACCommand.ACUrl) == null)
                             _RemoveACCommand = true;
 
-                        this.Command = AppCommands.AddApplicationCommand(ACCommand);
-                        _CmdBindingExecute = new Avalonia.Labs.Input.CommandBinding();
-                        _CmdBindingExecute.Command = this.Command;
-                        _CmdBindingExecute.Executed += ucButton_Click;
-                        _CmdBindingExecute.CanExecute += ucButton_IsEnabled;
-                        Avalonia.Labs.Input.CommandManager.SetCommandBindings(this, new List<Avalonia.Labs.Input.CommandBinding> { _CmdBindingExecute });
+                        System.Windows.Input.ICommand command = AppCommands.AddApplicationCommand(ACCommand);
+                        _CmdBindingExecute = new CommandBinding();
+                        _CmdBindingExecute.Command = command;
+                        _CmdBindingExecute.Executed += Execute_Command;
+                        _CmdBindingExecute.CanExecute += CanExecute_Command;
+                        CommandManager.SetCommandBindings(this, new List<CommandBinding> { _CmdBindingExecute });
+                        this.Command = command;
+
 
                         // Falls Binding im XAML, dann keine Caption setzen
                         // TODO: Check if there's an Avalonia equivalent for IsDataBound
@@ -794,12 +807,13 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region Methods
+
         /// <summary>
         /// Handles the Button click event.
         /// </summary>
         /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The RoutedEvent agruments.</param>
-        protected virtual void ucButton_Click(object sender, ExecutedRoutedEventArgs e)
+        protected virtual void Execute_Command(object sender, ExecutedRoutedEventArgs e)
         {
             RoutedUICommandEx vbCommand = null;
             if (e != null)
@@ -840,7 +854,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void ucButton_IsEnabled(object sender, Avalonia.Labs.Input.CanExecuteRoutedEventArgs e)
+        private void CanExecute_Command(object sender, CanExecuteRoutedEventArgs e)
         {
             if (!this.IsVisible
                 || this.RightControlMode <= Global.ControlModes.Disabled)

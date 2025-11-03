@@ -6,12 +6,12 @@
 
   <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonMenu}" TargetType="local:RibbonMenu">
-    <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}" />
-    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+    <Setter Property="Background" Value="{StaticResource ThemeControlMidBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderLowBrush}" />
+    <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
     <Setter Property="Height" Value="30" />
-    <Setter Property="Content" Value="{DynamicResource AvaloniaRibbon.File}" />
-    <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}" />
+    <Setter Property="Content" Value="{StaticResource AvaloniaRibbon.File}" />
+    <Setter Property="FontSize" Value="{StaticResource FontSizeNormal}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>
@@ -37,14 +37,14 @@
               PlacementTarget="{Binding #ContentButton}">
             <Border
                 x:Name="MenuRootBorder"
-                Background="{DynamicResource MenuFlyoutPresenterBackground}"
-                BorderBrush="{DynamicResource MenuFlyoutPresenterBorderBrush}"
-                BorderThickness="{DynamicResource MenuFlyoutPresenterBorderThemeThickness}"
-                CornerRadius="{DynamicResource OverlayCornerRadius}"
-                TextBlock.Foreground="{DynamicResource ThemeForegroundBrush}">
+                Background="{StaticResource MenuFlyoutPresenterBackground}"
+                BorderBrush="{StaticResource MenuFlyoutPresenterBorderBrush}"
+                BorderThickness="{StaticResource MenuFlyoutPresenterBorderThemeThickness}"
+                CornerRadius="{StaticResource OverlayCornerRadius}"
+                TextBlock.Foreground="{StaticResource ThemeForegroundBrush}">
               <DockPanel LastChildFill="True">
                 <Border
-                    Background="{DynamicResource SystemControlForegroundChromeMediumBrush}"
+                    Background="{StaticResource SystemControlForegroundChromeMediumBrush}"
                     BoxShadow="4 0 10 #40000000"
                     CornerRadius="4,0,0,4">
                   <DockPanel MinWidth="200">

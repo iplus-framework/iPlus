@@ -8,7 +8,7 @@
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_102" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path x:Name="Path_103" Width="16" Height="21" Canvas.Left="0.999999" Canvas.Top="0.5" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 5.59091,1L 16.5,1L 16.5,21L 1.5,21L 1.5,5.61539L 5.59091,1 Z ">
                             <Path.Fill>
                                 <LinearGradientBrush StartPoint="50%,5%" EndPoint="50%,95%">
@@ -22,29 +22,29 @@
                             </Path.Fill>
                         </Path>
                         <Path x:Name="Path_104" Width="4.99999" Height="5" Canvas.Left="1.50001" Canvas.Top="0.5" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Fill="#FF565656" 
                               Data="F1 M 5.99999,1L 6,5L 2.00001,5L 5.99999,1 Z "/>
                         <Path x:Name="Line_105" Width="6" Height="1" Canvas.Left="7" Canvas.Top="6.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 7.5,7L 12.5,7"/>
                         <Path x:Name="Line_106" Width="11" Height="1" Canvas.Left="2.5" Canvas.Top="8.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 3,9L 13,9"/>
                         <Path x:Name="Line_107" Width="11" Height="1" Canvas.Left="2.5" Canvas.Top="10.5" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 3,11L 13,11"/>
                         <Path x:Name="Line_108" Width="11" Height="1" Canvas.Left="2.44185" Canvas.Top="14.404" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 2.94185,14.904L 12.9419,14.904"/>
                         <Path x:Name="Line_109" Width="11" Height="1" Canvas.Left="2.44185" Canvas.Top="16.404" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 2.94185,16.904L 12.9419,16.904"/>
                         <Path x:Name="Line_110" Width="11" Height="1" Canvas.Left="2.44185" Canvas.Top="12.404" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="#FF565656" 
+                              Stroke="#FF565656" StrokeThickness="1" 
                               Data="F1 M 2.94185,12.904L 12.9419,12.904"/>
                         <Ellipse x:Name="Ellipse_111" Width="13" Height="13" Canvas.Left="2.5" Canvas.Top="2.50001" Stretch="Fill" StrokeJoin="Round" 
-                                 Stroke="#FF000000">
+                                 Stroke="#FF000000" StrokeThickness="1">
                             <Ellipse.Fill>
                                 <RadialGradientBrush RadiusX="54%" RadiusY="54%" Center="77%,77%" GradientOrigin="77%,77%">
                                     <RadialGradientBrush.GradientStops>

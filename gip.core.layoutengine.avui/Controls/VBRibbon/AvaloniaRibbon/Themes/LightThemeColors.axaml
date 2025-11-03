@@ -37,11 +37,11 @@
 
   <SolidColorBrush x:Key="RibbonTrayBack" Color="#FF808080" />
 
-  <SolidColorBrush x:Key="AccentBrushLow" Color="{DynamicResource SystemAccentColor}" />
-  <SolidColorBrush x:Key="AccentBrushMed" Color="{DynamicResource SystemAccentColorLight1}" />
-  <SolidColorBrush x:Key="AccentBrushHigh" Color="{DynamicResource SystemAccentColorDark1}" />
-  <SolidColorBrush x:Key="AccentForegroundBrush" Color="{DynamicResource SystemAltHighColor}" />
-  <SolidColorBrush x:Key="AccentBrushIndicator" Color="{DynamicResource SystemAccentColor}" />
+  <SolidColorBrush x:Key="AccentBrushLow" Color="{StaticResource SystemAccentColor}" />
+  <SolidColorBrush x:Key="AccentBrushMed" Color="{StaticResource SystemAccentColorLight1}" />
+  <SolidColorBrush x:Key="AccentBrushHigh" Color="{StaticResource SystemAccentColorDark1}" />
+  <SolidColorBrush x:Key="AccentForegroundBrush" Color="{StaticResource SystemAltHighColor}" />
+  <SolidColorBrush x:Key="AccentBrushIndicator" Color="{StaticResource SystemAccentColor}" />
 
   <sys:Double x:Key="FontSizeNormal">12</sys:Double>
 

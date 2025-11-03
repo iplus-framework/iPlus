@@ -133,7 +133,7 @@
     
     <!-- Focus pseudo-class for focus visual (replaces FocusVisualStyle) -->
     <Style Selector="^:focus-visible">
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlForegroundChromeHighBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource SystemControlForegroundChromeHighBrush}"/>
     </Style>
   </ControlTheme>
 

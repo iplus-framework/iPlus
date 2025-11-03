@@ -11,15 +11,15 @@
   <ControlTheme x:Key="{x:Type local:Gallery}" TargetType="local:Gallery">
     <Setter Property="Height" Value="{StaticResource DefaultControlHeight}" />
     <Setter Property="Padding" Value="0" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlDisabledChromeDisabledHighBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlForegroundBaseHighBrush}" />
+    <Setter Property="Background" Value="{StaticResource SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource SystemControlDisabledChromeDisabledHighBrush}" />
     <Setter Property="BorderThickness" Value="1" />
     <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Disabled" />
     <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />
     <Setter Property="ScrollViewer.IsScrollInertiaEnabled" Value="True" />
-    <Setter Property="FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+    <Setter Property="FontSize" Value="{StaticResource ControlContentThemeFontSize}" />
     <Setter Property="Template">
       <ControlTemplate>
         <Panel>
@@ -28,7 +28,7 @@
               Background="{TemplateBinding Background}"
               BorderBrush="{TemplateBinding BorderBrush}"
               BorderThickness="{TemplateBinding BorderThickness}"
-              CornerRadius="{DynamicResource ControlCornerRadius}">
+              CornerRadius="{StaticResource ControlCornerRadius}">
             <DockPanel>
               <!--  /ScrollViewer  -->
               <UniformGrid
@@ -114,7 +114,7 @@
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
-                CornerRadius="{DynamicResource ControlCornerRadius}">
+                CornerRadius="{StaticResource ControlCornerRadius}">
               <ScrollViewer
                   x:Name="PART_FlyoutScrollViewer"
                   Height="200"

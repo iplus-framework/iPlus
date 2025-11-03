@@ -17,7 +17,7 @@
                     <Rectangle Fill="Transparent" Grid.ColumnSpan="2"/>
                     <Ellipse Name="Circle"
                              Grid.Column="0"
-                             Stroke="{DynamicResource ExpanderEllipseStroke}"
+                             Stroke="{StaticResource ExpanderEllipseStroke}"
                              Width="20"
                              Height="20"
                              HorizontalAlignment="Center"
@@ -25,7 +25,7 @@
                     <Path x:Name="Sign"
                           Grid.Column="0"
                           Data="M 0,5 H 10 M 5,0 V 10 Z"
-                          Stroke="{DynamicResource ExpanderSignStroke}"
+                          Stroke="{StaticResource ExpanderSignStroke}"
                           Width="10"
                           Height="10"
                           StrokeThickness="2"
@@ -46,16 +46,16 @@
             <Setter Property="Data" Value="M 0,5 H 10 Z"/>
         </Style>
         <Style Selector="^:pointerover /template/ Ellipse#Circle">
-            <Setter Property="Stroke" Value="{DynamicResource ExpanderEllipseStrokeHover}"/>
+            <Setter Property="Stroke" Value="{StaticResource ExpanderEllipseStrokeHover}"/>
         </Style>
         <Style Selector="^:pointerover /template/ Path#Sign">
-            <Setter Property="Stroke" Value="{DynamicResource ExpanderSignStrokeHover}"/>
+            <Setter Property="Stroke" Value="{StaticResource ExpanderSignStrokeHover}"/>
         </Style>
         <Style Selector="^:pressed /template/ Ellipse#Circle">
             <Setter Property="StrokeThickness" Value="1.5"/>
         </Style>
         <Style Selector="^:pressed /template/ Path#Sign">
-            <Setter Property="Stroke" Value="{DynamicResource ExpanderSignStrokeHover}"/>
+            <Setter Property="Stroke" Value="{StaticResource ExpanderSignStrokeHover}"/>
         </Style>
     </ControlTheme>
 

@@ -13,7 +13,7 @@
                         <Path x:Name="Line_23" Width="22.1421" Height="21.9999" Canvas.Left="0.500002" Canvas.Top="0.500082" 
                               Stretch="Fill" StrokeThickness="3" StrokeLineCap="Round" 
                               StrokeJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
                               Data="M 2,21L 21.1421,2.00008"/>
                     </Canvas>                        
                 </Viewbox>

@@ -68,7 +68,7 @@
         <ScrollBar Name="PART_VerticalScrollbar"
                    Grid.Row="1" Grid.Column="2"
                    Orientation="Vertical"
-                   Width="{DynamicResource ScrollBarSize}" />
+                   Width="{StaticResource ScrollBarSize}" />
 
         <!-- Bottom Right Corner -->
         <Rectangle Name="PART_BottomRightCorner"
@@ -82,7 +82,7 @@
           <ScrollBar Name="PART_HorizontalScrollbar"
                      Grid.Column="1"
                      Orientation="Horizontal"
-                     Height="{DynamicResource ScrollBarSize}" />
+                     Height="{StaticResource ScrollBarSize}" />
         </Grid>
 
         <!-- Disabled Visual Element -->
@@ -134,7 +134,7 @@
         <ScrollBar x:Name="PART_VerticalScrollBar"
                    Grid.Row="2" Grid.Column="1"
                    Orientation="Horizontal"
-                   Height="{DynamicResource ScrollBarSize}" />
+                   Height="{StaticResource ScrollBarSize}" />
 
         <!-- Horizontal ScrollBar for Vertical Layout (acts as vertical) -->
         <Grid Grid.Row="1" Grid.Column="2">
@@ -146,7 +146,7 @@
           <ScrollBar x:Name="PART_HorizontalScrollBar"
                      Grid.Row="1"
                      Orientation="Vertical"
-                     Width="{DynamicResource ScrollBarSize}" />
+                     Width="{StaticResource ScrollBarSize}" />
         </Grid>
 
         <!-- Disabled Visual Element for Vertical Layout -->
@@ -156,7 +156,7 @@
                 HorizontalAlignment="Stretch"
                 VerticalAlignment="Stretch"
                 CornerRadius="2"
-                Background="{DynamicResource CtrlFrmDisabled}"
+                Background="{StaticResource CtrlFrmDisabled}"
                 IsVisible="{Binding !$parent[local:VBDataGrid].IsEnabled}" />
       </Grid>
     </Border>

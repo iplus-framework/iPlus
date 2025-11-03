@@ -7,7 +7,7 @@
             <ControlTemplate TargetType="ContentControl">
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_5" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
-                        <Ellipse Width="17" Height="17" Canvas.Left="3.5" Canvas.Top="1.5" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
+                        <Ellipse Width="17" Height="17" Canvas.Left="3.5" Canvas.Top="1.5" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" StrokeThickness="1">
                             <Ellipse.Fill>
                                 <RadialGradientBrush RadiusX="50%" RadiusY="50%" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
@@ -19,15 +19,15 @@
                         </Ellipse>
                         <Path Width="2" Height="8" Canvas.Left="11" Canvas.Top="3" Stretch="Fill" StrokeThickness="2" StrokeLineCap="Round" 
                               StrokeJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
+                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
                               Data="F1 M 12,4L 12,10"/>
                         <Path Width="4.5338" Height="4.5338" Canvas.Left="11.4662" Canvas.Top="10" Stretch="Fill" StrokeThickness="2" 
                               StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
-                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
+                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
                               Data="F1 M 12.4662,11L 15,13.5338"/>
-                        <Ellipse Width="2" Height="2" Canvas.Left="5" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
+                        <Ellipse Width="2" Height="2" Canvas.Left="5" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" StrokeThickness="1">
                             <Ellipse.Fill>
                                 <RadialGradientBrush RadiusX="100%" RadiusY="100%" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
@@ -37,7 +37,7 @@
                                 </RadialGradientBrush>
                             </Ellipse.Fill>
                         </Ellipse>
-                        <Ellipse Width="2" Height="2" Canvas.Left="17" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
+                        <Ellipse Width="2" Height="2" Canvas.Left="17" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" StrokeThickness="1">
                             <Ellipse.Fill>
                                 <RadialGradientBrush RadiusX="1" RadiusY="1" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
@@ -47,7 +47,7 @@
                                 </RadialGradientBrush>
                             </Ellipse.Fill>
                         </Ellipse>
-                        <Ellipse Width="2" Height="2" Canvas.Left="11" Canvas.Top="15" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000">
+                        <Ellipse Width="2" Height="2" Canvas.Left="11" Canvas.Top="15" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" StrokeThickness="1">
                             <Ellipse.Fill>
                                 <RadialGradientBrush RadiusX="1" RadiusY="1" Center="50%,50%" GradientOrigin="50%,50%">
                                     <RadialGradientBrush.GradientStops>
@@ -58,11 +58,11 @@
                             </Ellipse.Fill>
                         </Ellipse>
                         <Path Width="8" Height="8" Canvas.Left="7.00001" Canvas.Top="14.75" Stretch="Fill" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
                               Fill="Red" 
                               Data="F1 M 14.5,18.75L 7.50001,15.25L 7.50001,22.25L 14.5,18.75 Z "/>
                         <Path Width="4" Height="8" Canvas.Left="14" Canvas.Top="15" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}" 
+                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
                               Fill="Red" 
                               Data="F1 M 16,15.5L 16,15.5C 16.8284,15.5 17.5,16.1716 17.5,17L 17.5,21C 17.5,21.8284 16.8284,22.5 16,22.5L 16,22.5C 15.1716,22.5 14.5,21.8284 14.5,21L 14.5,17C 14.5,16.1716 15.1716,15.5 16,15.5 Z "/>
                     </Canvas>

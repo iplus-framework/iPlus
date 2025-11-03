@@ -6,8 +6,8 @@
 
   <!-- Add Resources Here -->
   <ControlTheme x:Key="{x:Type local:RibbonToggleButton}" TargetType="local:RibbonToggleButton">
-    <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
-    <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
+    <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
     <Setter Property="Padding" Value="3" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -38,7 +38,7 @@
       <Setter Property="Padding" Value="9,4" />
       <Setter Property="MaxWidth" Value="66" />
       <Setter Property="Height" Value="72" />
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
       <Setter Property="Template">
         <ControlTemplate>
           <Border Classes="RibbonToggleButtonBackgroundBorder">
@@ -71,7 +71,7 @@
     <Style Selector="^[Size=Small]">
       <Setter Property="Width" Value="24" />
       <Setter Property="Height" Value="24" />
-      <Setter Property="Foreground" Value="{DynamicResource SystemControlHighlightAltBaseHighBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
       <Setter Property="Template">
         <ControlTemplate>
           <Border Classes="RibbonToggleButtonBackgroundBorder">
@@ -87,25 +87,25 @@
       <Setter Property="BorderBrush" Value="Transparent" />
       <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}" />
       <Setter Property="Padding" Value="{TemplateBinding Padding}" />
-      <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+      <Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />
     </Style>
 
     <!-- Pointer over state -->
     <Style Selector="^:pointerover /template/ Border.RibbonToggleButtonBackgroundBorder">
-      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{StaticResource ButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushPointerOver}" />
     </Style>
 
     <!-- Pressed state -->
     <Style Selector="^:pressed /template/ Border.RibbonToggleButtonBackgroundBorder">
-      <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ButtonBorderBrushDisabled}" />
+      <Setter Property="Background" Value="{StaticResource ButtonBackgroundDisabled}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushDisabled}" />
     </Style>
 
     <!-- Checked state -->
     <Style Selector="^:checked /template/ Border.RibbonToggleButtonBackgroundBorder">
-      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundChecked}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBackgroundChecked}" />
+      <Setter Property="Background" Value="{StaticResource ToggleButtonBackgroundChecked}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ToggleButtonBackgroundChecked}" />
     </Style>
   </ControlTheme>
 

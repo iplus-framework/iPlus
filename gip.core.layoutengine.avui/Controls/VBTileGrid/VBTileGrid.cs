@@ -394,7 +394,7 @@ namespace gip.core.layoutengine.avui
             groupName.Text = item.Title;
             groupName.Margin = new Thickness(7, 3, 0, 0);
             groupName.Background = new SolidColorBrush(Colors.Transparent);
-            if (ControlManager.WpfTheme == eWpfTheme.Gip)
+            if (ControlManager.WpfTheme == eWpfTheme.Dark)
                 groupName.Foreground = Brushes.White;
             else
                 groupName.Foreground = Brushes.Black;
@@ -473,7 +473,7 @@ namespace gip.core.layoutengine.avui
             tblock.Text = "+";
             tblock.Margin = new Thickness(10, 5, 0, 0);
             tblock.Background = new SolidColorBrush(Colors.Transparent);
-            if (ControlManager.WpfTheme == eWpfTheme.Gip)
+            if (ControlManager.WpfTheme == eWpfTheme.Dark)
                 tblock.Foreground = new SolidColorBrush(Colors.White);
             else
                 tblock.Foreground = Brushes.Black;
@@ -487,7 +487,7 @@ namespace gip.core.layoutengine.avui
         {
             Border bd = new Border();
             bd.Background = Brushes.Transparent;
-            if (ControlManager.WpfTheme == eWpfTheme.Gip)
+            if (ControlManager.WpfTheme == eWpfTheme.Dark)
                 bd.BorderBrush = Brushes.White;
             else
                 bd.BorderBrush = Brushes.Black;
@@ -530,7 +530,7 @@ namespace gip.core.layoutengine.avui
             groupName.Text = "Gruppe";
             groupName.ZIndex = 1;
             groupName.Background = Brushes.Transparent;
-            if (ControlManager.WpfTheme == eWpfTheme.Gip)
+            if (ControlManager.WpfTheme == eWpfTheme.Dark)
                 groupName.Foreground = Brushes.White;
             else
                 groupName.Foreground = Brushes.Black;

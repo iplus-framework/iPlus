@@ -2,18 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vb="http://www.iplus-framework.com/axaml" 
              mc:Ignorable="d" d:DesignWidth="600" d:DesignHeight="300"
-             Height="300" Width="600" MaxHeight="300" MaxWidth="600" MinHeight="180" MinWidth="525" WindowStartupLocation="CenterScreen"
+             Height="300" Width="600" MaxHeight="300" MaxWidth="600" MinHeight="300" MinWidth="600" WindowStartupLocation="CenterScreen" CanResize="False"
              Icon="/Assets/iPlusIconDesktop.ico"
              x:Class="gip.iplus.client.avui.LoginWindow">
-  <Window.Resources>
-    <ResourceDictionary>
-      <ResourceDictionary.MergedDictionaries>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml"/>
-      </ResourceDictionary.MergedDictionaries>
-    </ResourceDictionary>
-  </Window.Resources>
   <Window.Styles>
     <Style Selector="Image.iPlusLogoClass">
       <Style.Animations>
@@ -28,7 +20,8 @@
       </Style.Animations>
     </Style>
   </Window.Styles>
-  <Grid Background="{StaticResource AppDark}">
+  <ThemeVariantScope RequestedThemeVariant="Dark">
+  <Grid Background="#FF333333">
     <Grid.RowDefinitions>
       <RowDefinition></RowDefinition>
     </Grid.RowDefinitions>
@@ -45,48 +38,11 @@
         </LinearGradientBrush>
       </Border.Background>
     </Border>
-    <!--<LayoutTransformControl x:Name="_MainTransformControl">
-      <LayoutTransformControl.LayoutTransform>
-        <TransformGroup>
-          <ScaleTransform>
-            <ScaleTransform.ScaleX>
-              <Binding ElementName="sldZoom" Path="Value" Mode="OneWay"/>
-            </ScaleTransform.ScaleX>
-            <ScaleTransform.ScaleY>
-              <Binding ElementName="sldZoom" Path="Value" Mode="OneWay"/>
-            </ScaleTransform.ScaleY>
-          </ScaleTransform>
-        </TransformGroup>
-      </LayoutTransformControl.LayoutTransform>
-      <vb:VBDockPanel x:Name="SubMainDockPanel"  IsBackgroundPanel="True" LastChildFill="True" Margin="0">
-        <vb:VBDockPanel.GestureRecognizers>
-          <PinchGestureRecognizer />
-        </vb:VBDockPanel.GestureRecognizers>
-      </vb:VBDockPanel>
-    </LayoutTransformControl>-->
-
     <Image Classes="iPlusLogoClass" Source="/Assets/Login.png">
       <Image.RenderTransform>
         <ScaleTransform  ScaleX="1" ScaleY="1" />
       </Image.RenderTransform>
     </Image>
-<!--    <vb:VBBorder RenderTransformOrigin="0.5,0.5" Margin="20">
-      <Border.Background>
-        <ImageBrush Source="Assets/Login.png" Stretch="UniformToFill"/>
-      </Border.Background>
-      <Border.RenderTransform>
-        <ScaleTransform ScaleX="0" />
-      </Border.RenderTransform>
-      --><!--<Border.Triggers>
-        <EventTrigger RoutedEvent="Border.Loaded">
-          <BeginStoryboard>
-            <Storyboard>
-              <DoubleAnimation Storyboard.TargetProperty="(Border.RenderTransform).(ScaleTransform.ScaleX)" From="-1" To="1" Duration="0:0:6" RepeatBehavior="Forever" AutoReverse="True" />
-            </Storyboard>
-          </BeginStoryboard>
-        </EventTrigger>
-      </Border.Triggers>--><!--
-    </vb:VBBorder>-->
     <StackPanel Grid.Row="0" Grid.Column="1">
       <Grid x:Name="ProgressGrid">
         <Grid.RowDefinitions>
@@ -113,11 +69,11 @@
 
           <Border Grid.ColumnSpan="3" Grid.RowSpan="6" CornerRadius="4" BorderThickness="1"></Border>
           <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0" HorizontalAlignment="Left">
-            <vb:VBTextBlock Text="Initialization..." FontStyle="Italic" FontSize="14" FontWeight="Bold">
-            </vb:VBTextBlock>
+            <TextBlock Text="Initialization..." FontStyle="Italic" FontSize="14" FontWeight="Bold">
+            </TextBlock>
           </Border>
-          <vb:VBProgressBar x:Name="progressBar" Grid.Row="3" Grid.Column="1" IsIndeterminate="True"></vb:VBProgressBar>
-          <vb:VBListBox x:Name="listboxInfo" Grid.Row="5" Grid.Column="1" WidthCaptionMax="0" ShowCaption="False" Width="1000"></vb:VBListBox>
+          <ProgressBar x:Name="progressBar" Grid.Row="3" Grid.Column="1" IsIndeterminate="True"></ProgressBar>
+          <ListBox x:Name="listboxInfo" Grid.Row="5" Grid.Column="1"></ListBox>
         </Grid>
       </Grid>
       <Grid x:Name="LoginGrid" IsVisible="false">
@@ -149,27 +105,27 @@
           </Grid.RowDefinitions>
 
           <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
-            <vb:VBTextBlock Text="Login" FontStyle="Italic" FontSize="14" FontWeight="Bold">
-            </vb:VBTextBlock>
+            <TextBlock Text="Login" FontStyle="Italic" FontSize="14" FontWeight="Bold">
+            </TextBlock>
           </Border>
 
-          <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1" Name="label1">User</vb:VBTextBlock>
-          <vb:VBTextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" ShowCaption="False" Text="{Binding UserName, Mode=TwoWay}"/>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1" Name="label1">User</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" Text="{Binding UserName, Mode=TwoWay}"/>
 
-          <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Name="label2">Password</vb:VBTextBlock>
-          <vb:VBPasswordBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Margin="-1,0,-1,0" Grid.Column="2" ShowCaption="False" Name="TextboxPassword"/>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Name="label2">Password</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Margin="-1,0,-1,0" Grid.Column="2" Name="TextboxPassword" RevealPassword="False" PasswordChar="*" Text="{Binding Password, Mode=TwoWay}"/>
 
-          <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1" >Style</vb:VBTextBlock>
-          <vb:VBComboBox VerticalAlignment="Bottom" Height="25" Grid.Row="4" Grid.Column="2" Name="selTheme" ShowCaption="False" IsEditable="False"></vb:VBComboBox>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1" >Style</TextBlock>
+          <ComboBox VerticalAlignment="Bottom" Height="25" Grid.Row="4" Grid.Column="2" Name="selTheme" IsEditable="False" SelectedValue="{Binding WPFTheme}"></ComboBox>
 
-          <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="5" Grid.Column="1" Name="labelRestoreSameScreen">Multiple Screens</vb:VBTextBlock>
-          <vb:VBCheckBox VerticalAlignment="Bottom" Grid.Row="5" Grid.Column="2" Name="CheckRestoreSameScreen"></vb:VBCheckBox>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="5" Grid.Column="1" Name="labelRestoreSameScreen">Multiple Screens</TextBlock>
+          <CheckBox VerticalAlignment="Bottom" Grid.Row="5" Grid.Column="2" Name="CheckRestoreSameScreen"></CheckBox>
 
-          <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1" Name="labelTouchScreen">Touch screen</vb:VBTextBlock>
-          <vb:VBCheckBox VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="2" Name="CheckTouchScreen"></vb:VBCheckBox>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1" Name="labelTouchScreen">Touch screen</TextBlock>
+          <CheckBox VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="2" Name="CheckTouchScreen"></CheckBox>
 
-          <vb:VBTextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1" Name="label3" IsVisible="False">Programming-Key</vb:VBTextBlock>
-          <vb:VBTextBox VerticalAlignment="Bottom" Height="25" Grid.Row="6" Grid.Column="2" Name="TextboxKey" ShowCaption="False" IsVisible="False"/>
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1" Name="label3" IsVisible="False">Programming-Key</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="6" Grid.Column="2" Name="TextboxKey" IsVisible="False" />
         </Grid>
         <Grid Grid.Row="1" Grid.Column="0">
           <Grid.ColumnDefinitions>
@@ -181,16 +137,17 @@
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="35"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
             <RowDefinition Height="16*" />
           </Grid.RowDefinitions>
           <Border Grid.ColumnSpan="5" Grid.RowSpan="3"  CornerRadius="4" BorderThickness="1"></Border>
 
-          <vb:VBButton Grid.Row="1" Grid.Column="1" Name="ButtonLogin" IsDefault="True" Click="ButtonLogin_Click" PointerReleased="ButtonLogin_PointerReleased">Login</vb:VBButton>
-          <vb:VBButton Grid.Row="1" Grid.Column="3" Name="ButtonCancel" Click="ButtonCancel_Click">Cancel</vb:VBButton>
+          <Button Grid.Row="1" Grid.Column="1" Name="ButtonLogin" IsDefault="True" Click="ButtonLogin_Click" PointerReleased="ButtonLogin_PointerReleased" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Login</Button>
+          <Button Grid.Row="1" Grid.Column="3" Name="ButtonCancel" Click="ButtonCancel_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Cancel</Button>
         </Grid>
       </Grid>
     </StackPanel>
   </Grid>
+  </ThemeVariantScope>
 </Window>

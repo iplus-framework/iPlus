@@ -39,5 +39,6 @@
   <SolidColorBrush x:Key="ButtonFocusContentStroke" Color="#FFFF0000"/>
   <SolidColorBrush x:Key="ButtonFocusContentFill" Color="#FF700000"/>
   <SolidColorBrush x:Key="ButtonPressedContentStroke" Color="#FFFF0000"/>
-  
+  <SolidColorBrush x:Key="ButtonPressedContentFill" Color="#FFA00000"/>
+
 </ResourceDictionary>

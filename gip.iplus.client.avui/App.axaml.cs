@@ -1,8 +1,10 @@
 using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
+using Avalonia.Threading;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
@@ -11,9 +13,8 @@ using ReactiveUI;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace gip.iplus.client.avui;
 
@@ -22,6 +23,7 @@ public partial class App : Application
     static ACStartUpRoot _StartUpManager = null;
     public static App _GlobalApp = null;
     private LoginWindow _LoginWindow = null;
+    private Settings _AppSettings = null;
 
     #region internal Delegates
 
@@ -108,13 +110,12 @@ public partial class App : Application
 
         IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
         // Create the AutoSuspendHelper.
-        //var suspension = new AutoSuspendHelper(ApplicationLifetime);
-        //RxApp.SuspensionHost.CreateNewAppState = () => new Settings();
-        //RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
-        //// Load the saved view model state.
-        //var state = RxApp.SuspensionHost.GetAppState<Settings>();
-        //suspension.OnFrameworkInitializationCompleted();
-        var state = new Settings();
+        var suspension = new AutoSuspendHelper(ApplicationLifetime);
+        RxApp.SuspensionHost.CreateNewAppState = () => new Settings();
+        RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
+        // Load the saved view model state.
+        _AppSettings = RxApp.SuspensionHost.GetAppState<Settings>();
+        suspension.OnFrameworkInitializationCompleted();
 
         if (desktop != null)
         {
@@ -124,7 +125,6 @@ public partial class App : Application
 
 
             // Show splash screen window
-            //_LoginWindow = new LoginWindow();
             _LoginWindow = new LoginWindow(
                 () =>
                 {
@@ -140,7 +140,9 @@ public partial class App : Application
                         // If login was successful, show main window
                         if (ACRoot.SRoot != null)
                         {
-                            desktop.MainWindow = new MainWindow();
+                            var mainWindow = new MainWindow();
+                            UpdateLicenseTitle(mainWindow);
+                            desktop.MainWindow = mainWindow;
                             desktop.MainWindow.Show();
                         }
                         else
@@ -156,9 +158,7 @@ public partial class App : Application
                     }
                 }
             );
-            {
-                DataContext = state;
-            };
+            _LoginWindow.DataContext = _AppSettings;
             _LoginWindow.Show();
         }
         base.OnFrameworkInitializationCompleted();
@@ -196,21 +196,23 @@ public partial class App : Application
     {
         string[] cmLineArg = System.Environment.GetCommandLineArgs();
 
-        bool RegisterACObjects = false;
-        bool PropPersistenceOff = false;
-        bool WCFOff = cmLineArg.Contains("/" + Const.StartupParamWCFOff);
+        bool registerACObjects = false;
+        bool propPersistenceOff = false;
+        bool wcfOff = cmLineArg.Contains("/" + Const.StartupParamWCFOff);
         bool simulation = cmLineArg.Contains("/" + Const.StartupParamSimulation);
         bool fullscreen = cmLineArg.Contains("/" + Const.StartupParamFullscreen);
-        string UserName = "";
-        string PassWord = "";
-        eWpfTheme wpfTheme = eWpfTheme.Gip; //gip.iplus.client.Properties.Settings.Default.WpfTheme;
+
+        if (ACRoot.SRoot != null)
+            ACRoot.SRoot.Environment.License.PropertyChanged += License_PropertyChanged;
 
         if (!cmLineArg.Contains("/autologin"))
         {
-//            UserName = gip.iplus.client.Properties.Settings.Default.User;
-//#if DEBUG
-//            PassWord = gip.iplus.client.Properties.Settings.Default.Password;
-//#endif
+#if DEBUG
+            if (string.IsNullOrEmpty(_AppSettings.UserName))
+                _AppSettings.UserName = "superuser";
+            if (string.IsNullOrEmpty(_AppSettings.Password))
+                _AppSettings.Password = "superuser";
+#endif
         }
 
         if (cmLineArg.Contains("-controlLoad=True"))
@@ -221,70 +223,69 @@ public partial class App : Application
         {
             if (!cmLineArg.Contains("/autologin") || i > 0)
             {
-                _LoginWindow.DisplayLogin(true, UserName, PassWord, wpfTheme, errorMsg);
-                _LoginWindow.GetLoginResult(ref UserName, ref PassWord, ref RegisterACObjects, ref PropPersistenceOff);
-                wpfTheme = _LoginWindow.WpfTheme;
+                _LoginWindow.DisplayLogin(true, errorMsg);
+                _LoginWindow.WaitOnLoginResult();
                 errorMsg = "";
-                _LoginWindow.DisplayLogin(false, "", "", wpfTheme, errorMsg);
+                _LoginWindow.DisplayLogin(false, errorMsg);
             }
             else
             {
                 if (i > 0)
                     break;
+                // TODO: Windows oder Linux automatic login
                 //UserName = WindowsIdentity.GetCurrent().Name.Split('\\')[1];
                 //PassWord = "autologin";
             }
 
-            ControlManager.WpfTheme = wpfTheme;
-            short result = _StartUpManager.LoginUser(UserName, PassWord, RegisterACObjects, PropPersistenceOff, ref errorMsg, WCFOff, simulation, fullscreen);
+            ControlManager.WpfTheme = _AppSettings.WPFTheme;
+            short result = _StartUpManager.LoginUser(_AppSettings.UserName, _AppSettings.Password, registerACObjects, propPersistenceOff, ref errorMsg, wcfOff, simulation, fullscreen);
             if (result == 1)
             {
-                if (!cmLineArg.Contains("/autologin"))
-                {
-//                    gip.iplus.client.Properties.Settings.Default.User = UserName;
-//#if DEBUG
-//                    gip.iplus.client.Properties.Settings.Default.Password = PassWord;
-//#endif
-//                    gip.iplus.client.Properties.Settings.Default.WpfTheme = wpfTheme;
-//                    gip.iplus.client.Properties.Settings.Default.Save();
-                }
-
-                break;
+                if (cmLineArg.Contains("/autologin"))
+                    RxApp.SuspensionHost.ShouldPersistState = Observable.Never<IDisposable>();
+                        
+                    break;
             }
-            // Keine Lizenz
+            // No License
             if (result == -1)
                 break;
         }
     }
 
 
-//    private void License_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-//    {
-//        if (e != null && e.PropertyName == "IsTrial")
-//        {
-//            Dispatcher.Invoke(() =>
-//            {
-//                UpdateLicenseTitle();
-//            }, DispatcherPriority.Normal);
-//        }
-//    }
+    private void License_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+    {
+        if (e != null && e.PropertyName == "IsTrial")
+        {
+            IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
+            if (desktop != null)
+            {
+                if (!Dispatcher.UIThread.CheckAccess())
+                {
+                    Dispatcher.UIThread.InvokeAsync(() => UpdateLicenseTitle(desktop.MainWindow), DispatcherPriority.Send);
+                }
+                else
+                    UpdateLicenseTitle(desktop.MainWindow);
+            }
+        }
+    }
 
-//    private void UpdateLicenseTitle()
-//    {
-//        string info = "";
-//#if DEBUG
-//        info = "DEBUG";
-//#else
-//                if (ACRoot.SRoot.Environment.License.IsTrial)
-//                    info = "Trial";
-//                else if (ACRoot.SRoot.Environment.License.IsDeveloper)
-//                    info = "Development";
-//                else if (ACRoot.SRoot.Environment.License.IsRemoteDeveloper)
-//                    info = "Remote development";
-//#endif
+    private void UpdateLicenseTitle(Window mainWindow)
+    {
+        string info = "";
+#if DEBUG
+        info = "DEBUG";
+#else
+                if (ACRoot.SRoot.Environment.License.IsTrial)
+                    info = "Trial";
+                else if (ACRoot.SRoot.Environment.License.IsDeveloper)
+                    info = "Development";
+                else if (ACRoot.SRoot.Environment.License.IsRemoteDeveloper)
+                    info = "Remote development";
+#endif
 
-//        Application.Current.MainWindow.Title = String.Format("iPlus{3}({0}, {1}) {2}", ACRoot.SRoot.Environment.User.VBUserName,
-//                                                                  ACRoot.SRoot.Environment.DatabaseName, info, ACRoot.SRoot.Environment.License.LicensedToTitle);
-//    }
+        mainWindow.Title = String.Format("iPlus{3}({0}, {1}) {2}", ACRoot.SRoot.Environment.User.VBUserName,
+                                                                  ACRoot.SRoot.Environment.DatabaseName, info, ACRoot.SRoot.Environment.License.LicensedToTitle);
+    }
     #endregion
 }

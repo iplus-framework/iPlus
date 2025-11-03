@@ -7,10 +7,10 @@
 
   <ControlTheme x:Key="{x:Type local:Ribbon}" TargetType="local:Ribbon">
     <Setter Property="Focusable" Value="True" />
-    <Setter Property="HeaderBackground" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-    <Setter Property="HeaderForeground" Value="{DynamicResource ButtonForeground}" />
-    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-    <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}" />
+    <Setter Property="HeaderBackground" Value="{StaticResource SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="HeaderForeground" Value="{StaticResource ButtonForeground}" />
+    <Setter Property="Background" Value="{StaticResource SystemControlBackgroundChromeMediumLowBrush}" />
+    <Setter Property="Foreground" Value="{StaticResource ButtonForeground}" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Margin" Value="0,0,0,-8" />
@@ -60,7 +60,7 @@
                     DockPanel.Dock="Right"
                     Focusable="False"
                     IsChecked="{Binding IsCollapsed, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay}"
-                    ToolTip.Tip="{DynamicResource AvaloniaRibbon.MinimizeRibbon}">
+                    ToolTip.Tip="{StaticResource AvaloniaRibbon.MinimizeRibbon}">
                   <Path
                       Width="8"
                       Height="4"
@@ -74,7 +74,7 @@
                     Content="{TemplateBinding HelpPaneContent}"
                     DockPanel.Dock="Right"
                     Foreground="{TemplateBinding Foreground}"
-                    ToolTip.Tip="{DynamicResource AvaloniaRibbon.GetHelp}" />
+                    ToolTip.Tip="{StaticResource AvaloniaRibbon.GetHelp}" />
                 <Border
                     x:Name="TabHeadersClipBorder"
                     Margin="0,-34,0,0"
@@ -136,7 +136,7 @@
                 <ItemsControl
                   Name="PART_SelectedGroupsHost"
                   BorderThickness="1" CornerRadius="6" Background="{StaticResource RibbonTrayBack}" BorderBrush="{StaticResource RibbonTrayBorder}"
-                  Height="96"
+                  Height="{TemplateBinding TrayHeight}"
                   MinWidth="100"
                   HorizontalAlignment="Stretch"
                   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
@@ -144,16 +144,10 @@
                   TextBlock.Foreground="{TemplateBinding Foreground}">
                   <ItemsControl.ContextMenu>
                     <ContextMenu x:Name="PART_ContentAreaContextMenu">
-                      <ContextMenu.Styles>
-                        <Style Selector="MenuItem">
-                          <Setter Property="Template"
-                                  Value="{DynamicResource CheckableMenuItemControlTemplate}" />
-                        </Style>
-                      </ContextMenu.Styles>
                       <MenuItem x:Name="PART_PinLastHoveredControlToQuickAccess"
-                                Header="{DynamicResource AvaloniaRibbon.AddToQAT}" />
+                                Header="{StaticResource AvaloniaRibbon.AddToQAT}" />
                       <MenuItem x:Name="PART_CollapseRibbon"
-                                Header="{DynamicResource AvaloniaRibbon.MinimizeRibbon}" />
+                                Header="{StaticResource AvaloniaRibbon.MinimizeRibbon}" />
                     </ContextMenu>
                   </ItemsControl.ContextMenu>
                   <ItemsControl.ItemsPanel>
@@ -203,7 +197,7 @@
                       DockPanel.Dock="Bottom"
                       Focusable="False"
                       IsChecked="{Binding IsCollapsed, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay}"
-                      ToolTip.Tip="{DynamicResource AvaloniaRibbon.MinimizeRibbon}">
+                      ToolTip.Tip="{StaticResource AvaloniaRibbon.MinimizeRibbon}">
                     <Path
                         Width="4"
                         Height="8"
@@ -215,7 +209,7 @@
                   </ToggleButton>
                   <ContentPresenter
                       Content="{TemplateBinding HelpPaneContent}"
-                      ToolTip.Tip="{DynamicResource AvaloniaRibbon.GetHelp}" />
+                      ToolTip.Tip="{StaticResource AvaloniaRibbon.GetHelp}" />
                 </DockPanel>
                 <LayoutTransformControl VerticalAlignment="Top">
                   <LayoutTransformControl.LayoutTransform>
@@ -268,7 +262,7 @@
                       ContentTemplate="{TemplateBinding SelectedContentTemplate}"
                       IsVisible="False" />
                   <ContentControl Name="PART_GroupsPresenterHolder" VerticalAlignment="Stretch"
-                                  Background="{DynamicResource SystemControlForegroundChromeMediumBrush}">
+                                  Background="{StaticResource SystemControlForegroundChromeMediumBrush}">
                     <ItemsControl
                         Name="PART_SelectedGroupsHost"
                         BorderThickness="1" CornerRadius="6" Background="{StaticResource RibbonTrayBack}" BorderBrush="{StaticResource RibbonTrayBorder}"
@@ -282,13 +276,13 @@
                           <ContextMenu.Styles>
                             <Style Selector="MenuItem">
                               <Setter Property="Template"
-                                      Value="{DynamicResource CheckableMenuItemControlTemplate}" />
+                                      Value="{StaticResource CheckableMenuItemControlTemplate}" />
                             </Style>
                           </ContextMenu.Styles>
                           <MenuItem x:Name="PART_PinLastHoveredControlToQuickAccess"
-                                    Header="{DynamicResource AvaloniaRibbon.AddToQAT}" />
+                                    Header="{StaticResource AvaloniaRibbon.AddToQAT}" />
                           <MenuItem x:Name="PART_CollapseRibbon"
-                                    Header="{DynamicResource AvaloniaRibbon.MinimizeRibbon}" />
+                                    Header="{StaticResource AvaloniaRibbon.MinimizeRibbon}" />
                         </ContextMenu>
                       </ItemsControl.ContextMenu>
                       <ItemsControl.ItemsPanel>
@@ -319,8 +313,8 @@
       <Setter Property="BorderBrush" Value="Transparent" />
     </Style>
     <Style Selector="^ /template/ Button.RibbonHelpButton:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlMidBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderLowBrush}" />
+      <Setter Property="Background" Value="{StaticResource ThemeControlMidBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ThemeBorderLowBrush}" />
     </Style>
 
     <!-- Toggle button and help button common styles -->
@@ -340,29 +334,29 @@
 
     <!-- Toggle button default state -->
     <Style Selector="^ /template/ ToggleButton.RibbonToggleButton:not(:pointerover):not(:pressed), ^ /template/ Button.RibbonHelpButton:not(:pointerover):not(:pressed)">
-      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundChromeMediumBrush}" />
+      <Setter Property="Background" Value="{StaticResource SystemControlBackgroundAltHighBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource SystemControlBackgroundChromeMediumBrush}" />
     </Style>
 
     <!-- Toggle button checked state -->
     <Style Selector="^ /template/ ToggleButton.RibbonToggleButton:checked">
-      <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundChromeMediumBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForeground}" />
+      <Setter Property="Background" Value="{StaticResource SystemControlBackgroundAltHighBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource SystemControlBackgroundChromeMediumBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource ToggleButtonForeground}" />
     </Style>
 
     <!-- Toggle button checked hover state -->
     <Style Selector="^ /template/ ToggleButton.RibbonToggleButton:checked:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushPointerOver}" />
-      <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundPointerOver}" />
+      <Setter Property="Background" Value="{StaticResource ToggleButtonBackgroundPointerOver}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ToggleButtonBorderBrushPointerOver}" />
+      <Setter Property="Foreground" Value="{StaticResource ToggleButtonForegroundPointerOver}" />
     </Style>
 
     <!-- Toggle button checked pressed state -->
     <Style Selector="^ /template/ ToggleButton.RibbonToggleButton:checked:pressed">
-      <Setter Property="Background" Value="{DynamicResource ToggleButtonBackgroundPressed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource ToggleButtonBorderBrushPressed}" />
-      <Setter Property="Foreground" Value="{DynamicResource ToggleButtonForegroundPressed}" />
+      <Setter Property="Background" Value="{StaticResource ToggleButtonBackgroundPressed}" />
+      <Setter Property="BorderBrush" Value="{StaticResource ToggleButtonBorderBrushPressed}" />
+      <Setter Property="Foreground" Value="{StaticResource ToggleButtonForegroundPressed}" />
     </Style>
 
     <!-- Expand/Collapse path data for different orientations and states -->
@@ -461,19 +455,19 @@
 
     <!-- Menu item interaction states -->
     <Style Selector="^ /template/ Popup Menu.RibbonMenuMenu MenuItem:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeControlHighlightMidBrush}" />
+      <Setter Property="Background" Value="{StaticResource ThemeControlHighlightMidBrush}" />
     </Style>
     <Style Selector="^ /template/ Popup Menu.RibbonMenuMenu MenuItem:selected">
-      <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush4}" />
+      <Setter Property="Background" Value="{StaticResource ThemeAccentBrush4}" />
     </Style>
     <Style Selector="^ /template/ Popup Menu.RibbonMenuMenu MenuItem:selected:focus">
-      <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}" />
+      <Setter Property="Background" Value="{StaticResource ThemeAccentBrush3}" />
     </Style>
     <Style Selector="^ /template/ Popup Menu.RibbonMenuMenu MenuItem:selected:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush3}" />
+      <Setter Property="Background" Value="{StaticResource ThemeAccentBrush3}" />
     </Style>
     <Style Selector="^ /template/ Popup Menu.RibbonMenuMenu MenuItem:selected:focus:pointerover">
-      <Setter Property="Background" Value="{DynamicResource ThemeAccentBrush2}" />
+      <Setter Property="Background" Value="{StaticResource ThemeAccentBrush2}" />
     </Style>
 
     <!-- Menu item submenu behavior -->

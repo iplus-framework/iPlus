@@ -32,7 +32,7 @@
     <Setter Property="Padding" Value="3" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
-    <!--<Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />-->
+    <!--<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />-->
     <Setter Property="Focusable" Value="True" />
     <Setter Property="Template">
       <ControlTemplate>
@@ -117,34 +117,34 @@
     <!-- Disabled State -->
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="Background" Value="{DynamicResource TextBoxDisabledBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxDisabledBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource TextBoxDisabledBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxDisabledBorderBrush}" />
       </Style>
 
       <Style Selector="^ /template/ TextPresenter#PART_TextPresenter">
-        <Setter Property="TextBlock.Foreground" Value="{DynamicResource DisabledForeground}" />
+        <Setter Property="TextBlock.Foreground" Value="{StaticResource DisabledForeground}" />
       </Style>
     </Style>
 
     <!-- PointerOver State -->
     <Style Selector="^:pointerover">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxHoverBorderBrush}"/>
-        <Setter Property="Background" Value="{DynamicResource TextBoxHoverBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxHoverBorderBrush}"/>
+        <Setter Property="Background" Value="{StaticResource TextBoxHoverBackground}" />
       </Style>
     </Style>
 
     <!-- Focused State -->
     <Style Selector="^:focus">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="Background" Value="{DynamicResource TextBoxFocusBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource TextBoxFocusBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource TextBoxFocusBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource TextBoxFocusBorderBrush}" />
       </Style>
     </Style>
 
     <!-- Error State -->
     <Style Selector="^:error /template/ Border#BgElement">
-      <Setter Property="BorderBrush" Value="{DynamicResource TextBoxErrorBorderBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TextBoxErrorBorderBrush}" />
     </Style>
   </ControlTheme>
 

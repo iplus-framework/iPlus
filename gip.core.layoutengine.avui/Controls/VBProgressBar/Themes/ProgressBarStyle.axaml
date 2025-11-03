@@ -84,10 +84,10 @@
             <Setter Property="Width" Value="128" />
             <Setter Property="HorizontalAlignment" Value="Left" />
             <Setter Property="VerticalAlignment" Value="Stretch" />
-            <Setter Property="OpacityMask" Value="{DynamicResource ProgressBarHorizontalGlowMask}" />
+            <Setter Property="OpacityMask" Value="{StaticResource ProgressBarHorizontalGlowMask}" />
 
             <Style Selector="^ /template/ Rectangle#GlowBG">
-                <Setter Property="OpacityMask" Value="{DynamicResource ProgressBarHorizontalGlowInnerMask}" />
+                <Setter Property="OpacityMask" Value="{StaticResource ProgressBarHorizontalGlowInnerMask}" />
             </Style>
             <Style Selector="^ /template/ Rectangle#EdgeStreak">
                 <Setter Property="Height" Value="1" />
@@ -99,10 +99,10 @@
             <Setter Property="Height" Value="128" />
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="VerticalAlignment" Value="Top" />
-            <Setter Property="OpacityMask" Value="{DynamicResource ProgressBarVerticalGlowMask}" />
+            <Setter Property="OpacityMask" Value="{StaticResource ProgressBarVerticalGlowMask}" />
 
             <Style Selector="^ /template/ Rectangle#GlowBG">
-                <Setter Property="OpacityMask" Value="{DynamicResource ProgressBarVerticalGlowInnerMask}" />
+                <Setter Property="OpacityMask" Value="{StaticResource ProgressBarVerticalGlowInnerMask}" />
             </Style>
             <Style Selector="^ /template/ Rectangle#EdgeStreak">
                 <Setter Property="Width" Value="1" />
@@ -123,7 +123,7 @@
                     <Panel x:Name="AnimGlowMove"
                         Classes.verticalProgressBar="{Binding Orientation, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ProgressBar}}, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static lyot:Orientation.Vertical}, FallbackValue=False}">
                         <TemplatedControl x:Name="AnimGlow"
-                                        Theme="{DynamicResource ProgressBarGlowPattern}"
+                                        Theme="{StaticResource ProgressBarGlowPattern}"
                                         Background="{TemplateBinding Background}"
                                         Foreground="{TemplateBinding Foreground}"
                                         Classes.verticalProgressBar="{Binding Orientation, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ProgressBar}}, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static lyot:Orientation.Vertical}, FallbackValue=False}"
@@ -166,7 +166,7 @@
             CornerRadius="3">
       <Border x:Name="InnerBorder"
               Background="{TemplateBinding Background}"
-              BorderBrush="{DynamicResource ProgressBarFrameInnerBorderBrush}"
+              BorderBrush="{StaticResource ProgressBarFrameInnerBorderBrush}"
               BorderThickness="1"
               CornerRadius="2"
               ClipToBounds="True">
@@ -197,7 +197,7 @@
           <TemplatedControl x:Name="BarAnimation"
                           Background="{Binding #PART_Indicator.Background, Mode=OneWay}"
                           Foreground="{TemplateBinding Foreground}"
-                          Theme="{DynamicResource ProgressBarAnimation}"
+                          Theme="{StaticResource ProgressBarAnimation}"
                           Classes.verticalProgressBar="{Binding Orientation, Mode=OneWay, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ProgressBar}}, Converter={StaticResource EnumToBoolConverter}, ConverterParameter={x:Static lyot:Orientation.Vertical}, FallbackValue=False}">
             <TemplatedControl.Clip>
               <RectangleGeometry Rect="{Binding #PART_Indicator.Bounds, Mode=OneWay}" />
@@ -208,7 +208,7 @@
                                   VerticalAlignment="Center"
                                   IsVisible="{TemplateBinding ShowProgressText}">
             <TextBlock x:Name="ProgressText"
-                    Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                    Foreground="{StaticResource SystemControlForegroundBaseHighBrush}" />
           </LayoutTransformControl>
         </Panel>
       </Border>
@@ -216,10 +216,10 @@
   </ControlTemplate>
 
     <ControlTheme x:Key="ProgressBarStyle" TargetType="ProgressBar">
-        <Setter Property="Background" Value="{DynamicResource ProgressBarFrameBackground}" />
-        <Setter Property="BorderBrush" Value="{DynamicResource ProgressBarFrameOuterBorderBrush}" />
+        <Setter Property="Background" Value="{StaticResource ProgressBarFrameBackground}" />
+        <Setter Property="BorderBrush" Value="{StaticResource ProgressBarFrameOuterBorderBrush}" />
         <Setter Property="BorderThickness" Value="1" />
-        <Setter Property="Foreground" Value="{DynamicResource ProgressBarFill}" />
+        <Setter Property="Foreground" Value="{StaticResource ProgressBarFill}" />
         <Setter Property="Padding" Value="0" />
         <Setter Property="Template" Value="{StaticResource DefaultBar}" />
 
@@ -239,7 +239,7 @@
                 <Setter Property="Width" Value="{Binding TemplateSettings.Container2Width, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
             </Style>
             <Style Selector="^ /template/ Border#ShineBorder">
-                <Setter Property="Background" Value="{DynamicResource ProgressBarHorizontalShine}" />
+                <Setter Property="Background" Value="{StaticResource ProgressBarHorizontalShine}" />
             </Style>
 
             <Style Selector="^[IsEnabled=True]">
@@ -292,7 +292,7 @@
                 <Setter Property="Height" Value="{Binding TemplateSettings.Container2Width, RelativeSource={RelativeSource Mode=TemplatedParent}}" />
             </Style>
             <Style Selector="^ /template/ Border#ShineBorder">
-                <Setter Property="Background" Value="{DynamicResource ProgressBarVerticalShine}" />
+                <Setter Property="Background" Value="{StaticResource ProgressBarVerticalShine}" />
             </Style>
 
             <Style Selector="^[IsEnabled=True]">
@@ -370,10 +370,10 @@
 
 
     <ControlTheme x:Key="StorageBar" TargetType="ProgressBar" BasedOn="{StaticResource {x:Type ProgressBar}}">
-        <Setter Property="Background" Value="{DynamicResource ProgressBarStorageFrameBackground}" />
+        <Setter Property="Background" Value="{StaticResource ProgressBarStorageFrameBackground}" />
 
         <Style Selector="^ /template/ Border#InnerBorder">
-            <Setter Property="BorderBrush" Value="{DynamicResource ProgressBarStorageFrameInnerBorderBrush}" />
+            <Setter Property="BorderBrush" Value="{StaticResource ProgressBarStorageFrameInnerBorderBrush}" />
         </Style>
 
         <Style Selector="^ /template/ Border#ShineBorder">

@@ -52,7 +52,7 @@
 
     <!-- Disabled state -->
     <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
-      <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+      <Setter Property="Opacity" Value="{StaticResource ThemeDisabledOpacity}" />
     </Style>
 
     <!-- Contextual tab selected border -->
@@ -62,7 +62,7 @@
 
     <!-- Non-contextual tab selected border -->
     <Style Selector="^[IsContextual=False] /template/ Border#SelectedBorder">
-      <Setter Property="Background" Value="{DynamicResource TabItemHeaderSelectedPipeFill}" />
+      <Setter Property="Background" Value="{StaticResource TabItemHeaderSelectedPipeFill}" />
     </Style>
   </ControlTheme>
 </ResourceDictionary>

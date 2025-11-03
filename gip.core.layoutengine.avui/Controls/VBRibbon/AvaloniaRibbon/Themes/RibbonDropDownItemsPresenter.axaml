@@ -12,7 +12,7 @@
                         Background="{TemplateBinding Background}"
                         BorderBrush="{TemplateBinding BorderBrush}"
                         BorderThickness="{TemplateBinding BorderThickness}"
-                        CornerRadius="{DynamicResource ControlCornerRadius}">
+                        CornerRadius="{StaticResource ControlCornerRadius}">
             <StackPanel Orientation="Vertical">
               <Label
                                 x:Name="PART_HeaderLabel"
@@ -20,7 +20,7 @@
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Center"
                                 HorizontalContentAlignment="Stretch"
-                                Background="{DynamicResource SystemControlDisabledChromeDisabledHighBrush}"
+                                Background="{StaticResource SystemControlDisabledChromeDisabledHighBrush}"
                                 Content="{TemplateBinding Header}" />
               <DockPanel>
                 <ItemsPresenter

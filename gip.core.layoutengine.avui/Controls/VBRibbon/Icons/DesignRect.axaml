@@ -8,8 +8,8 @@
         <Viewbox Stretch="Uniform">
           <Canvas x:Name="Ebene_1_26" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
             <Rectangle x:Name="Rect" Width="20" Height="14" Canvas.Left="2" Canvas.Top="5" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round"
-                       Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentStroke}"
-                        Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:IVBDynamicIcon}}, Path=ContentFill}"
+                       Stroke="{StaticResource RibbonButtonNormalContentStroke}"
+                        Fill="{StaticResource RibbonButtonNormalContentFill}"
                                    />
             <Viewbox x:Name="Group_27" Width="11.1421" Height="18.0967" Canvas.Left="8.75" Canvas.Top="2.15333">
               <Canvas Width="11.1421" Height="18.0967">
