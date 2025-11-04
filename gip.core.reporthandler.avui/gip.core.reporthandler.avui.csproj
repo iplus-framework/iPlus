@@ -84,10 +84,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <PackageReference Include="BarcodeLib" Version="3.1.5" />
+    <!--<PackageReference Include="BarcodeLib" Version="3.1.5" />
     <PackageReference Include="BinaryKits.Zpl.Label" Version="3.2.1" />
 		<PackageReference Include="ESCPOS" Version="1.3.0" />
-		<PackageReference Include="QRCoder" Version="1.6.0" />
+		<PackageReference Include="QRCoder" Version="1.6.0" />-->
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
 		<PackageReference Include="System.Reflection.Context" Version="$(NetCorePackageVersion)" />
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
@@ -103,12 +103,6 @@
 		<ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
 		<ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
 		<ProjectReference Include="..\gip.core.reporthandler\gip.core.reporthandler.csproj" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Reference Include="BarcodeStandard">
-			<HintPath>..\..\..\packages\barcodelib\2.4.0\lib\netstandard2.0\BarcodeStandard.dll</HintPath>
-		</Reference>
 	</ItemGroup>
 
 	<ItemGroup>

@@ -13,15 +13,22 @@
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>
-          <Border Classes="RibbonButtonBackgroundBorder" Background="Transparent" BorderBrush="Transparent"
+          <!--<Border Classes="RibbonButtonBackgroundBorder" Background="Transparent" BorderBrush="Transparent"
                   Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
-                  BorderThickness="{TemplateBinding BorderThickness}">
-            <DockPanel>
+                  BorderThickness="{TemplateBinding BorderThickness}">-->
+          <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+                  Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                  BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
+            <!--<Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+                  Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                  BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">-->
+              <DockPanel>
               <ContentPresenter Content="{TemplateBinding Icon}" DockPanel.Dock="Left" Width="16"
                                 Height="16" />
-              <ContentPresenter Classes="MediumContentPresenter" Content="{TemplateBinding Content}"
+              <ContentPresenter Classes="MediumContentPresenter" Content="{TemplateBinding Content}" FontSize="9"
                                 Margin="3,0,0,0" />
             </DockPanel>
+            <!--</Border>-->
           </Border>
         </DataValidationErrors>
       </ControlTemplate>
@@ -36,13 +43,17 @@
       </ControlTemplate>
     </Setter>
     <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Background" Value="{StaticResource ButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{StaticResource RibbonButtonFocusBg}" />
+      <Setter Property="BorderBrush" Value="{StaticResource RibbonButtonFocusBg}" />
     </Style>
     <Style Selector="^:pressed /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Background" Value="{StaticResource ButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushDisabled}" />
+      <Setter Property="Background" Value="{StaticResource RibbonButtonPressedBg}" />
+      <Setter Property="BorderBrush" Value="{StaticResource RibbonButtonPressedBg}" />
     </Style>
+    <Style Selector="^:disabled /template/ Border.RibbonButtonBackgroundBorder">
+      <Setter Property="Background" Value="{StaticResource RibbonButtonDisabledBg}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource RibbonButtonDisabledBg}"/>
+    </Style>    
     <Style Selector="^local|RibbonButton:not(local|RibbonButton[Size=Large])">
       <Setter Property="Padding" Value="3" />
     </Style>
@@ -54,15 +65,22 @@
       <Setter Property="Template">
         <ControlTemplate>
           <DataValidationErrors>
-            <Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
-                    CornerRadius="{StaticResource ControlCornerRadius}">
-              <DockPanel VerticalAlignment="Stretch">
+            <!--<Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
+                    CornerRadius="{StaticResource ControlCornerRadius}">-->
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+                    Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                    BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
+              <!--<Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+                    Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                    BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">-->
+                <DockPanel VerticalAlignment="Stretch">
                 <ContentPresenter Content="{TemplateBinding LargeIcon}" DockPanel.Dock="Top"
                                   Width="32"
                                   Height="32" Foreground="{TemplateBinding Foreground}" />
-                <ContentPresenter Content="{TemplateBinding Content}" Margin="0,3,0,0"
-                                  VerticalAlignment="Stretch" Foreground="{TemplateBinding Foreground}" />
+                <ContentPresenter Content="{TemplateBinding Content}" Margin="0,3,0,0" FontSize="9"
+                                  VerticalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="{TemplateBinding Foreground}" />
               </DockPanel>
+              <!--</Border>-->
             </Border>
           </DataValidationErrors>
 
@@ -87,11 +105,18 @@
       <Setter Property="Template">
         <ControlTemplate>
           <DataValidationErrors>
-            <Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
-                    CornerRadius="{StaticResource ControlCornerRadius}">
-              <ContentPresenter Foreground="{TemplateBinding Foreground}"
+            <!--<Border Classes="RibbonButtonBackgroundBorder" Padding="{TemplateBinding Padding}"
+                    CornerRadius="{StaticResource ControlCornerRadius}">-->
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+                    Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                    BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
+              <!--<Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+                    Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
+                    BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">-->
+                <ContentPresenter Foreground="{TemplateBinding Foreground}"
                                 Content="{TemplateBinding Icon}"
                                 Width="16" Height="16" />
+              <!--</Border>-->
             </Border>
           </DataValidationErrors>
 

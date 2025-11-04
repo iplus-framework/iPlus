@@ -23,10 +23,10 @@
   <SolidColorBrush x:Key="RibbonButtonDisabledContentFill" Color="#FF808080"/>
 
   <LinearGradientBrush x:Key="RibbonButtonFocusBg" StartPoint="50%,100%" EndPoint="50%,0%">
-    <GradientStop Color="#FF727272" Offset="0"/>
-    <GradientStop Color="#FFB2B2B2" Offset="0.2"/>
-    <GradientStop Color="#FFC2C2C2" Offset="0.8"/>
-    <GradientStop Color="#FFE2E2E2" Offset="1"/>
+    <GradientStop Color="#FF626262" Offset="0"/>
+    <GradientStop Color="#FF929292" Offset="0.2"/>
+    <GradientStop Color="#FFA2A2A2" Offset="0.8"/>
+    <GradientStop Color="#FFC2C2C2" Offset="1"/>
   </LinearGradientBrush>
   <SolidColorBrush x:Key="RibbonButtonFocusContentStroke" Color="#FFFF0000"/>
   <SolidColorBrush x:Key="RibbonButtonFocusContentFill" Color="#FF700000"/>

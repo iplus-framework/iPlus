@@ -23,16 +23,16 @@
                   Width="30" Height="30"
                   Canvas.Left="0" Canvas.Top="0"
                   Stretch="Fill"
-                  Stroke="{StaticResource RibbonButtonDisabledBg}"
-                  Fill="{StaticResource RibbonButtonDisabledBg}"
+                  Stroke="{StaticResource {StaticResource RibbonButtonDisabledBg}}"
+                  Fill="{StaticResource {StaticResource RibbonButtonDisabledBg}}"
                   Data="F1 M 6.49999,0.499966L 24.5,0.499966C 27.8137,0.499966 30.5,3.18627 30.5,6.49996L 30.5,24.4991C 30.5,27.8128 27.8137,30.4991 24.5,30.4991L 6.49999,30.4991C 3.1863,30.4991 0.499999,27.8128 0.499999,24.4991L 0.499999,6.49996C 0.499999,3.18627 3.1863,0.499966 6.49999,0.499966 Z " StrokeThickness="1" StrokeJoin="Round">
             </Path>
             <Path x:Name="BdButtonFront"
                   Width="30" Height="30"
                   Canvas.Left="0" Canvas.Top="0"
                   Stretch="Fill"
-                  Stroke="{StaticResource RibbonButtonNormalBg}"
-                  Fill="{StaticResource RibbonButtonNormalBg}"
+                  Stroke="{StaticResource {StaticResource RibbonButtonNormalBg}}"
+                  Fill="{StaticResource {StaticResource RibbonButtonNormalBg}}"
                   Data="F1 M 6.00002,-5.72205e-006L 24,-5.72205e-006C 27.3137,-5.72205e-006 30,2.68629 30,5.99999L 30,23.9991C 30,27.3128 27.3137,29.9991 24,29.9991L 6.00002,29.9991C 2.6863,29.9991 -3.63623e-007,27.3128 -3.63623e-007,23.9991L -3.63623e-007,5.99999C -3.63623e-007,2.68629 2.6863,-5.72205e-006 6.00002,-5.72205e-006 Z " StrokeThickness="0" StrokeJoin="Round">
             </Path>
             <ContentPresenter x:Name="PART_ContentPresenter" Width="24" Height="24"
@@ -87,10 +87,10 @@
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>
-          <Border Classes="RibbonButtonBackgroundBorder" Background="RibbonButtonDisabledBg" BorderBrush="RibbonButtonDisabledBg"
+          <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonDisabledBg}" BorderBrush="{StaticResource RibbonButtonDisabledBg}"
                   Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                   BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-            <Border Classes="RibbonButtonBackgroundBorder" Background="Red" BorderBrush="RibbonButtonNormalBg"
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
                   Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                   BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
               <DockPanel>
@@ -136,10 +136,10 @@
       <Setter Property="Template">
         <ControlTemplate>
           <DataValidationErrors>
-            <Border Classes="RibbonButtonBackgroundBorder" Background="RibbonButtonDisabledBg" BorderBrush="RibbonButtonDisabledBg"
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonDisabledBg}" BorderBrush="{StaticResource RibbonButtonDisabledBg}"
                     Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                     BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-              <Border Classes="RibbonButtonBackgroundBorder" Background="RibbonButtonNormalBg" BorderBrush="RibbonButtonNormalBg"
+              <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
                     Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                     BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
               <DockPanel VerticalAlignment="Stretch">
@@ -174,10 +174,10 @@
       <Setter Property="Template">
         <ControlTemplate>
           <DataValidationErrors>
-            <Border Classes="RibbonButtonBackgroundBorder" Background="RibbonButtonDisabledBg" BorderBrush="RibbonButtonDisabledBg"
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonDisabledBg}" BorderBrush="{StaticResource RibbonButtonDisabledBg}"
                     Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                     BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-              <Border Classes="RibbonButtonBackgroundBorder" Background="RibbonButtonNormalBg" BorderBrush="RibbonButtonNormalBg"
+              <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
                     Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                     BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
               <ContentPresenter Foreground="{TemplateBinding Foreground}"
