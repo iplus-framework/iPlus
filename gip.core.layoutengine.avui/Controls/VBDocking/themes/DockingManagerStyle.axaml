@@ -15,9 +15,9 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto" />
               </Grid.RowDefinitions>
               <StackPanel Name="PART_btnPanelLeft" Grid.Column="0" Grid.Row="1" Orientation="Vertical">
               </StackPanel>
@@ -28,6 +28,7 @@
               <StackPanel Name="PART_btnPanelBottom" Grid.Column="1" Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
               </StackPanel>
               <Grid Grid.Column="1" Grid.Row="1" >
+                <StackPanel Name="PART_AvInvisibleInitDummy" IsVisible="false" />
                 <local:VBDockingGrid x:Name="PART_gridDocking"/>
                 <DockPanel Name="PART_panelFront" Opacity="0"  LastChildFill="False" />
               </Grid>

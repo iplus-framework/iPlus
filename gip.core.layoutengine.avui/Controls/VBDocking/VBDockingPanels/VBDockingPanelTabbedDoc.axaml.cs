@@ -17,11 +17,10 @@ namespace gip.core.layoutengine.avui
     {
         public readonly List<VBDockingContainerBase> Documents = new List<VBDockingContainerBase>();
 
-        //public VBDockingPanelTabbedDoc()
-        //    : base(null)
-        //{
-        //    InitializeComponent();
-        //}
+        public VBDockingPanelTabbedDoc()
+            : this(null)
+        {
+        }
 
         public VBDockingPanelTabbedDoc(VBDockingManager dockManager)
             : base(dockManager)

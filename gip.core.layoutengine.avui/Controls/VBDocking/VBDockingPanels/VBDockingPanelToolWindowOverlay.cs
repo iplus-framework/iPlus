@@ -13,6 +13,10 @@ namespace gip.core.layoutengine.avui
         public readonly VBDockingContainerToolWindow ReferencedContent;
 
         #region c´tors
+        public VBDockingPanelToolWindowOverlay() : this(null, null, Dock.Bottom)
+        {
+        }
+
         public VBDockingPanelToolWindowOverlay(VBDockingManager dockManager, VBDockingContainerToolWindow content, Dock initialDock)
             : base(dockManager, initialDock)
         {

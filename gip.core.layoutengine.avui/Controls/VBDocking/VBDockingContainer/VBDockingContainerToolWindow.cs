@@ -189,8 +189,10 @@ namespace gip.core.layoutengine.avui
             if (VBDockingPanel == null)
             {
                 _vbDockingPanel = new VBDockingPanelToolWindow(DockManager, dock);
+                DockManager.PART_AvInvisibleInitDummy?.Children.Add(_vbDockingPanel);
                 _vbDockingPanel.AddDockingContainerToolWindow(this);
                 _vbDockingPanel.Show();
+                DockManager.PART_AvInvisibleInitDummy?.Children.Remove(_vbDockingPanel);
                 DockManager.AddDockingPanelToolWindow(_vbDockingPanel as VBDockingPanelToolWindow);
             }
             else

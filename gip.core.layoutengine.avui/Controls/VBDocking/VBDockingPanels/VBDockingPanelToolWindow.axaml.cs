@@ -62,11 +62,10 @@ namespace gip.core.layoutengine.avui
     public partial class VBDockingPanelToolWindow : VBDockingPanelBase
     {
         #region ctors
-        //public VBDockingPanelToolWindow()
-        //    : base()
-        //{
-        //    InitVBDockingPanelToolWindow();
-        //}
+        public VBDockingPanelToolWindow()
+            : this(null)
+        {
+        }
 
         public VBDockingPanelToolWindow(VBDockingManager dockManager)
             : base(dockManager)
@@ -76,11 +75,9 @@ namespace gip.core.layoutengine.avui
         }
 
         public VBDockingPanelToolWindow(VBDockingManager dockManager, Dock initialDock)
-            : base(dockManager)
+            : this(dockManager)
         {
             _dock = initialDock;
-            InitializeComponent();
-            IsDragable = true;
         }
 
         internal override void DeInitVBControl(IACComponent bso = null)

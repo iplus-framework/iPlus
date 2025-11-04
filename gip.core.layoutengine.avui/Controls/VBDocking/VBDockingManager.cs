@@ -28,6 +28,7 @@ namespace gip.core.layoutengine.avui
     [TemplatePart(Name = "PART_btnPanelBottom", Type = typeof(StackPanel))]
     [TemplatePart(Name = "PART_gridDocking", Type = typeof(VBDockingGrid))]
     [TemplatePart(Name = "PART_panelFront", Type = typeof(DockPanel))]
+    [TemplatePart(Name = "PART_AvInvisibleInitDummy", Type = typeof(StackPanel))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDockingManager'}de{'VBDockingManager'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
     public partial class VBDockingManager : ContentControl, IVBDockDropSurface, IACInteractiveObject, IACObject, IVBGui
     {
@@ -65,7 +66,8 @@ namespace gip.core.layoutengine.avui
             }
 
             _PART_panelFront = e.NameScope.Find("PART_panelFront") as DockPanel;
-            
+            _PART_AvInvisibleInitDummy = e.NameScope.Find("PART_AvInvisibleInitDummy") as StackPanel;
+
             InitVBControl();
         }
 
@@ -811,28 +813,35 @@ namespace gip.core.layoutengine.avui
 
         private void MakeNewDockingButtonVisible(VBDockingButtonGroup group, VBDockingButton btn)
         {
-            btn.PointerEntered += new EventHandler<PointerEventArgs>(OnShowAutoHidePanel);
-            Border br = new Border();
-            br.Width = br.Height = 10;
+            btn.PointerEntered += OnShowAutoHidePanel;
+
+            LayoutTransformControl transformControl = null;
+            bool isFirstButton = PART_btnPanelLeft.Children.Count <= 0;
             switch (group.Dock)
             {
                 case Dock.Left:
-                    btn.RenderTransform = new RotateTransform(90);
-                    PART_btnPanelLeft.Children.Add(btn);
-                    PART_btnPanelLeft.Children.Add(br);
+                    transformControl = new LayoutTransformControl();
+                    transformControl.LayoutTransform = new RotateTransform(90);
+                    transformControl.Child = btn;
+                    transformControl.Margin = new Thickness(5, isFirstButton ? 0 : 10, 0, 0);
+                    PART_btnPanelLeft.Children.Add(transformControl);
                     break;
                 case Dock.Right:
-                    btn.RenderTransform = new RotateTransform(90);
-                    PART_btnPanelRight.Children.Add(btn);
-                    PART_btnPanelRight.Children.Add(br);
+                    transformControl = new LayoutTransformControl();
+                    transformControl.LayoutTransform = new RotateTransform(90);
+                    transformControl.Child = btn;
+                    transformControl.Margin = new Thickness(0, isFirstButton ? 0 : 10, 5, 0);
+                    PART_btnPanelRight.Children.Add(transformControl);
                     break;
                 case Dock.Top:
+                    if (!isFirstButton)
+                        btn.Margin = new Thickness(5, 0, 0, 0);
                     PART_btnPanelTop.Children.Add(btn);
-                    PART_btnPanelTop.Children.Add(br);
                     break;
                 case Dock.Bottom:
+                    if (!isFirstButton)
+                        btn.Margin = new Thickness(5, 0, 0, 0);
                     PART_btnPanelBottom.Children.Add(btn);
-                    PART_btnPanelBottom.Children.Add(br);
                     break;
             }
         }
@@ -844,37 +853,51 @@ namespace gip.core.layoutengine.avui
         private void MakeDockingButtonsVisible(VBDockingButtonGroup group)
         {
             foreach (VBDockingButton btn in group.Buttons)
-                btn.PointerEntered += new EventHandler<PointerEventArgs>(OnShowAutoHidePanel);
+                btn.PointerEntered += OnShowAutoHidePanel;
 
-            Border br = new Border();
-            br.Width = br.Height = 10;
+            LayoutTransformControl transformControl = null;
+            bool isFirstButton = true;
             switch (group.Dock)
             {
                 case Dock.Left:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
-                        btn.RenderTransform = new RotateTransform(90);
-                        PART_btnPanelLeft.Children.Add(btn);
+                        transformControl = new LayoutTransformControl();
+                        transformControl.LayoutTransform = new RotateTransform(90);
+                        transformControl.Child = btn;
+                        transformControl.Margin = new Thickness(5, isFirstButton ? 0 : 10, 0, 0);
+                        PART_btnPanelLeft.Children.Add(transformControl);
+                        isFirstButton = false;
                     }
-                    PART_btnPanelLeft.Children.Add(br);
                     break;
                 case Dock.Right:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
-                        btn.RenderTransform = new RotateTransform(90);
-                        PART_btnPanelRight.Children.Add(btn);
+                        transformControl = new LayoutTransformControl();
+                        transformControl.LayoutTransform = new RotateTransform(90);
+                        transformControl.Child = btn;
+                        transformControl.Margin = new Thickness(0, isFirstButton ? 0 : 10, 5, 0);
+                        PART_btnPanelRight.Children.Add(transformControl);
+                        isFirstButton = false;
                     }
-                    PART_btnPanelRight.Children.Add(br);
                     break;
                 case Dock.Top:
                     foreach (VBDockingButton btn in group.Buttons)
+                    {
+                        if (!isFirstButton)
+                            btn.Margin = new Thickness(5, 0, 0, 0);
                         PART_btnPanelTop.Children.Add(btn);
-                    PART_btnPanelTop.Children.Add(br);
+                        isFirstButton = false;
+                    }
                     break;
                 case Dock.Bottom:
                     foreach (VBDockingButton btn in group.Buttons)
+                    {
+                        if (!isFirstButton)
+                            btn.Margin = new Thickness(5, 0, 0, 0);
                         PART_btnPanelBottom.Children.Add(btn);
-                    PART_btnPanelBottom.Children.Add(br);
+                        isFirstButton = false;
+                    }
                     break;
             }
         }
@@ -888,27 +911,31 @@ namespace gip.core.layoutengine.avui
             if (group.Buttons.Count <= 0)
                 return;
             foreach (VBDockingButton btn in group.Buttons)
-                btn.PointerEntered -= new EventHandler<PointerEventArgs>(OnShowAutoHidePanel);
+                btn.PointerEntered -= OnShowAutoHidePanel;
 
             switch (group.Dock)
             {
                 case Dock.Left:
-                    PART_btnPanelLeft.Children.RemoveAt(PART_btnPanelLeft.Children.IndexOf(group.Buttons[group.Buttons.Count - 1]) + 1);
                     foreach (VBDockingButton btn in group.Buttons)
-                        PART_btnPanelLeft.Children.Remove(btn);
+                    {
+                        var transformedCtrl = PART_btnPanelLeft.Children.OfType<LayoutTransformControl>().Where(c => c.Child == btn).FirstOrDefault();
+                        if (transformedCtrl != null)
+                            PART_btnPanelLeft.Children.Remove(transformedCtrl);
+                    }
                     break;
                 case Dock.Right:
-                    PART_btnPanelRight.Children.RemoveAt(PART_btnPanelRight.Children.IndexOf(group.Buttons[group.Buttons.Count - 1]) + 1);
                     foreach (VBDockingButton btn in group.Buttons)
-                        PART_btnPanelRight.Children.Remove(btn);
+                    {
+                        var transformedCtrl = PART_btnPanelRight.Children.OfType<LayoutTransformControl>().Where(c => c.Child == btn).FirstOrDefault();
+                        if (transformedCtrl != null)
+                            PART_btnPanelRight.Children.Remove(transformedCtrl);
+                    }
                     break;
                 case Dock.Top:
-                    PART_btnPanelTop.Children.RemoveAt(PART_btnPanelTop.Children.IndexOf(group.Buttons[group.Buttons.Count - 1]) + 1);
                     foreach (VBDockingButton btn in group.Buttons)
                         PART_btnPanelTop.Children.Remove(btn);
                     break;
                 case Dock.Bottom:
-                    PART_btnPanelBottom.Children.RemoveAt(PART_btnPanelBottom.Children.IndexOf(group.Buttons[group.Buttons.Count - 1]) + 1);
                     foreach (VBDockingButton btn in group.Buttons)
                         PART_btnPanelBottom.Children.Remove(btn);
                     break;
@@ -951,26 +978,20 @@ namespace gip.core.layoutengine.avui
 
         private void RemoveDockingButtonFromStackPanel(StackPanel stackPanel, VBDockingButton button, VBDockingButtonGroup group)
         {
-            bool found = false;
-            Border br = null;
+            Control found = null;
             foreach (Control child in stackPanel.Children)
             {
-                if (found)
+                if (   (child is LayoutTransformControl transformCtrl && transformCtrl.Child == button)
+                    || (child == button))
                 {
-                    if (child is Border)
-                        br = child as Border;
+                    found = child;
                     break;
                 }
-                if (child == button)
-                {
-                    found = true;
-                }
             }
-            if (found)
+            if (found != null)
             {
-                stackPanel.Children.Remove(button);
-                if (br != null)
-                    stackPanel.Children.Remove(br);
+                found.PointerEntered -= OnShowAutoHidePanel;
+                stackPanel.Children.Remove(found);
                 group.Buttons.Remove(button);
             }
         }

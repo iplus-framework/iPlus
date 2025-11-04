@@ -86,43 +86,32 @@ namespace gip.core.layoutengine.avui
             get { return _owner; }
         }
 
-
-        public VBDockingOverlayWindow(VBDockingManager owner)
+        public VBDockingOverlayWindow() : this(null)
         {
-            //if (!Application.Current.Resources.Contains("DockDownButtonSyle"))
-            //{ 
-            //    using (FileStream fs = new FileStream(@"generic.xaml", FileMode.Open, FileAccess.Read))
-            //    {
-            //        ResourceDictionary resources = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(fs);
-            //        Application.Current.Resources.Add("DockDownButtonSyle", resources["DockDownButtonSyle"]);
-            //    }
-            //}
+        }
 
+
+        public VBDockingOverlayWindow(VBDockingManager owner) : base()
+        {
+            _owner = owner;
             InitializeComponent();
 
-            _owner = owner;
+            DockManager?.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockBottom, this));
+            DockManager?.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockTop, this));
+            DockManager?.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockLeft, this));
+            DockManager?.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockRight, this));
 
-            DockManager.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockBottom, this));
-            DockManager.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockTop, this));
-            DockManager.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockLeft, this));
-            DockManager.DragPanelServices.Register(new VBDockingOverlayWindowButton(btnDockRight, this));
+            owdBottom = new VBDockingOverlayWindowButton(btnDockPaneBottom, this, false);
+            owdTop = new VBDockingOverlayWindowButton(btnDockPaneTop, this, false);
+            owdLeft = new VBDockingOverlayWindowButton(btnDockPaneLeft, this, false);
+            owdRight = new VBDockingOverlayWindowButton(btnDockPaneRight, this, false);
+            owdInto = new VBDockingOverlayWindowButton(btnDockPaneInto, this, false);
 
-            owdBottom   = new VBDockingOverlayWindowButton(btnDockPaneBottom, this, false);
-            owdTop      = new VBDockingOverlayWindowButton(btnDockPaneTop,    this, false);
-            owdLeft     = new VBDockingOverlayWindowButton(btnDockPaneLeft,   this, false);
-            owdRight    = new VBDockingOverlayWindowButton(btnDockPaneRight,  this, false);
-            owdInto     = new VBDockingOverlayWindowButton(btnDockPaneInto, this, false);
-
-
-
-            DockManager.DragPanelServices.Register(owdBottom);
-            DockManager.DragPanelServices.Register(owdTop);
-            DockManager.DragPanelServices.Register(owdLeft);
-            DockManager.DragPanelServices.Register(owdRight);
-            DockManager.DragPanelServices.Register(owdInto);
-
-            //gridPaneRelativeDockingOptions.Width = 88;
-            //gridPaneRelativeDockingOptions.Height = 88;
+            DockManager?.DragPanelServices.Register(owdBottom);
+            DockManager?.DragPanelServices.Register(owdTop);
+            DockManager?.DragPanelServices.Register(owdLeft);
+            DockManager?.DragPanelServices.Register(owdRight);
+            DockManager?.DragPanelServices.Register(owdInto);
         }
 
         internal bool OnDrop(Button btnDock, Point point)

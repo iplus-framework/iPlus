@@ -23,7 +23,7 @@ namespace gip.core.layoutengine.avui
 
         #region c´tors
 
-        public VBDockingPanelBase() : base()
+        public VBDockingPanelBase() : this(null, null)
         {
         }
 
@@ -32,7 +32,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingPanelBase(VBDockingManager dockManager, VBDockingContainerToolWindow content) : this()
+        public VBDockingPanelBase(VBDockingManager dockManager, VBDockingContainerToolWindow content) : base()
         {
             _dockManager = dockManager;
 

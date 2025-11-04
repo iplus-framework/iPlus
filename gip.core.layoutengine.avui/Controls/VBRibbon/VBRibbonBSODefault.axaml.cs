@@ -9,6 +9,7 @@ using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.AvaloniaRibbon;
 using gip.core.layoutengine.avui.Helperclasses;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -574,6 +575,10 @@ namespace gip.core.layoutengine.avui
                     // damit die Routed-Events der Tastatureingaben(KeyGesture's) abgefangen werden
                     // Würde nicht das root-Objekt genommen, dann würde das Ribbon die Events nicht erhalten,
                     // da das Ribbon nicht im Element-Tree das Parent-Objekt des VBDesigns ist indem die Maske dargestellt wird
+
+                    //ReactiveCommand<Unit, Unit> ExampleCommand;
+
+                    //ReactiveCommand.Cre
 
                     CommandBinding cb = new CommandBinding();
                     cb.Command = button.Command;

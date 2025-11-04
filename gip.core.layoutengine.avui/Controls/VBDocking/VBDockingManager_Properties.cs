@@ -75,6 +75,18 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        private StackPanel _PART_AvInvisibleInitDummy;
+        /// <summary>
+        /// Invisible Helper-Element for temporary adding new created VBDockingPanelToolWindow into logical tree in order to call Initialize and ApplyTemplate() Method
+        /// </summary>
+        public StackPanel PART_AvInvisibleInitDummy
+        {
+            get
+            {
+                return _PART_AvInvisibleInitDummy;
+            }
+        }
+
         #endregion
 
         #region Deklarative Properties (XAML)
