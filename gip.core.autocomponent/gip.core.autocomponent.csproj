@@ -182,11 +182,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreWCF.ConfigurationManager" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.Http" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.NetTcp" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.Primitives" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.WebHttp" Version="$(CoreWCFVersion)" />
+    <PackageReference Include="CoreWCF.NetTcp" Version="1.8.0" />
+    <PackageReference Include="CoreWCF.Primitives" Version="1.8.0" />
+    <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
