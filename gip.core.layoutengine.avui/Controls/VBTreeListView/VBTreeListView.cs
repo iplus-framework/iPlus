@@ -150,12 +150,11 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-
-            this.Loaded += VBTreeListView_Loaded;
         }
 
-        private void VBTreeListView_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_IsColumnHeadersInitialized)
                 return;
 
@@ -361,7 +360,6 @@ namespace gip.core.layoutengine.avui
             _CurrentSortColumnHeader = null;
             _ColumnHeaders = null;
 
-            this.Loaded -= VBTreeListView_Loaded;
             _IsColumnHeadersInitialized = false;
             _Initialized = false;
             base.DeInitVBControl(bso);

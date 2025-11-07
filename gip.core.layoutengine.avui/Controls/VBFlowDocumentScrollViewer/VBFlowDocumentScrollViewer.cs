@@ -20,12 +20,12 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnInitialized()
         {
-            Loaded += VBFlowDocumentScrollViewer_Loaded;
             base.OnInitialized();
         }
 
-        private void VBFlowDocumentScrollViewer_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
         }
 
@@ -261,8 +261,6 @@ namespace gip.core.layoutengine.avui
         public void DeInitVBControl(IACComponent bso)
         {
             Content = null;
-            //_documentControl = null;
-            Loaded -= VBFlowDocumentScrollViewer_Loaded;
             this.ClearAllBindings();
         }
 

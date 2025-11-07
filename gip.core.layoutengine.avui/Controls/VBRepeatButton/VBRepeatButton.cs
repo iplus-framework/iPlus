@@ -24,8 +24,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Loaded += CustomVBRepeatButton_Loaded;
-            Unloaded += CustomVBRepeatButton_Unloaded;
         }
 
         /// <summary>
@@ -205,8 +203,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.Loaded -= CustomVBRepeatButton_Loaded;
-            this.Unloaded -= CustomVBRepeatButton_Unloaded;
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -346,8 +342,9 @@ namespace gip.core.layoutengine.avui
 
         #region Loaded Event
         bool _Loaded;
-        void CustomVBRepeatButton_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_dispTimer != null)
             {
                 if (!_dispTimer.IsEnabled)
@@ -379,8 +376,9 @@ namespace gip.core.layoutengine.avui
 
         }
 
-        void CustomVBRepeatButton_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)

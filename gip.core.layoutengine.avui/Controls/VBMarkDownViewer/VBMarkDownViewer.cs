@@ -32,10 +32,7 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Loaded += VBMarkDownViewer_Loaded;
-            Unloaded += VBMarkDownViewer_Unloaded;
             InitVBControl();
-
         }
 
         #endregion
@@ -299,8 +296,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Loaded = false;
-        void VBMarkDownViewer_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -325,8 +323,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBMarkDownViewer_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -351,15 +350,7 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            Loaded -= VBMarkDownViewer_Loaded;
-            Unloaded -= VBMarkDownViewer_Unloaded;
-            //this.SourceUpdated -= VBMarkDownViewer_SourceUpdated;
-            //this.TargetUpdated -= VBMarkDownViewer_TargetUpdated;
             _VBContentPropertyInfo = null;
-
-            //BindingOperations.ClearBinding(this, MarkdownScrollViewer.MarkdownProperty);
-            ////BindingOperations.ClearBinding(this, VBMarkDownViewer.ACUrlCmdMessageProperty);
-            //BindingOperations.ClearBinding(this, VBMarkDownViewer.ACCompInitStateProperty);
             this.ClearAllBindings();
         }
 

@@ -29,8 +29,6 @@ namespace gip.core.reporthandler.avui
 
         protected override void OnInitialized()
         {
-            Unloaded += VBReportEditor_Unloaded;
-            Loaded += VBReportEditor_Loaded;
             DataContextChanged += VBReportEditor_DataContextChanged;
             base.OnInitialized();
         }
@@ -41,8 +39,9 @@ namespace gip.core.reporthandler.avui
         }
 
         protected bool _Loaded = false, _WrongXAML = false;
-        protected void VBReportEditor_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_Loaded)
             {
                 RefreshDesignEditor();
@@ -234,8 +233,9 @@ namespace gip.core.reporthandler.avui
         }
 
         private IACComponent _LastElementACComponent = null;
-        void VBReportEditor_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (ContextACObject is IACComponent)
                 _LastElementACComponent = ContextACObject as IACComponent;
             DeInitVBControl();
@@ -249,8 +249,6 @@ namespace gip.core.reporthandler.avui
             if (parent != null && DataContext != null && !force)
                 return;
 
-            this.Loaded -= VBReportEditor_Loaded;
-            this.Unloaded -= VBReportEditor_Unloaded;
             this.DataContextChanged -= VBReportEditor_DataContextChanged;
 
             if (!String.IsNullOrEmpty(VBReportData))

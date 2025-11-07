@@ -30,10 +30,8 @@ namespace gip.ext.designer.avui.OutlineView
         protected DesignItem _DesignObjectBinding;
         protected IComponentService _componentService;
 
-        public BindingEditor()
+        public BindingEditor() : base()
         {
-            this.Loaded += BindingEditor_Loaded;
-            this.Unloaded += BindingEditor_Unloaded;
             this.InitializeComponent();
         }
 
@@ -47,14 +45,16 @@ namespace gip.ext.designer.avui.OutlineView
             base.OnApplyTemplate(e);
         }
 
-        void BindingEditor_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents += OnToolEvents;
         }
 
-        void BindingEditor_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents -= OnToolEvents;
         }

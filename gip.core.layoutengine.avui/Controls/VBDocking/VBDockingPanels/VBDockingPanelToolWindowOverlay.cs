@@ -9,8 +9,23 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     class VBDockingPanelToolWindowOverlay : VBDockingPanelToolWindow
     {
-        public readonly VBDockingPanelToolWindow ReferencedPane;
-        public readonly VBDockingContainerToolWindow ReferencedContent;
+        private VBDockingPanelToolWindow _ReferencedPane;
+        public VBDockingPanelToolWindow ReferencedPane
+        {
+            get
+            {
+                return _ReferencedPane;
+            }
+        }
+
+        private VBDockingContainerToolWindow _ReferencedContent;
+        public VBDockingContainerToolWindow ReferencedContent
+        {
+            get
+            {
+                return _ReferencedContent;
+            }
+        }
 
         #region c´tors
         public VBDockingPanelToolWindowOverlay() : this(null, null, Dock.Bottom)
@@ -20,14 +35,18 @@ namespace gip.core.layoutengine.avui
         public VBDockingPanelToolWindowOverlay(VBDockingManager dockManager, VBDockingContainerToolWindow content, Dock initialDock)
             : base(dockManager, initialDock)
         {
+        }
+
+        internal void InitWhenTemplateWasApplied(VBDockingContainerToolWindow content)
+        {
             if (PART_HideButton != null)
             {
                 var ltctl = PART_HideButton.Parent as LayoutTransformControl;
                 if (ltctl != null && ltctl.LayoutTransform == null)
                     ltctl.LayoutTransform = new RotateTransform(90);
             }
-            ReferencedPane = content.VBDockingPanel as VBDockingPanelToolWindow;
-            ReferencedContent = content;
+            _ReferencedPane = content.VBDockingPanel as VBDockingPanelToolWindow;
+            _ReferencedContent = content;
             AddDockingContainerToolWindow(ReferencedContent);
             Show(ReferencedContent);
             ReferencedContent.SetDockingPanel(ReferencedPane);

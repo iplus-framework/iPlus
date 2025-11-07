@@ -45,8 +45,6 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            Loaded += CustomVBRibbonButton_Loaded;
-            Unloaded += CustomVBRibbonButton_Unloaded;
         }
 
 
@@ -221,8 +219,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.Loaded -= CustomVBRibbonButton_Loaded;
-            this.Unloaded -= CustomVBRibbonButton_Unloaded;
             _VBContentTypeInfo = null;
 
 
@@ -414,8 +410,9 @@ namespace gip.core.layoutengine.avui
         #region Methods
         bool _Loaded;
         private bool _RemoveACCommand = false;
-        void CustomVBRibbonButton_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_Loaded)
                 return;
 
@@ -440,8 +437,9 @@ namespace gip.core.layoutengine.avui
 
         }
 
-        void CustomVBRibbonButton_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 

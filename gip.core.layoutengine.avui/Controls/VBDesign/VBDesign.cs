@@ -80,14 +80,9 @@ namespace gip.core.layoutengine.avui
 
         #region Control Loaded-Event
         protected bool _Loaded = false;
-        /// <summary>
-        /// Handles the Loaded event.
-        /// </summary>
-        /// <param name="sender">The sender parameter.</param>
-        /// <param name="e">The event arguments parameter.</param>
-        protected override void VBDesignBase_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.VBDesignBase_Loaded(sender, e);
+            base.OnLoaded(e);
             if (this.Content is Visual)
             {
                 var control = VBVisualTreeHelper.FindChildObjectInVisualTree<Boolean>(this.Content as Visual, "AutoFocus", true);

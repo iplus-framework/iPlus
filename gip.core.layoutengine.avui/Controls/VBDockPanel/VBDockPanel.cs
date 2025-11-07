@@ -42,8 +42,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public VBDockPanel()
         {
-            this.Loaded += VBDockPanel_Loaded;
-            this.Unloaded += VBDockPanel_Unloaded;
         }
 
         /// <summary>
@@ -185,8 +183,6 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            this.Loaded -= VBDockPanel_Loaded;
-            this.Unloaded -= VBDockPanel_Unloaded;
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -199,8 +195,9 @@ namespace gip.core.layoutengine.avui
             this.ClearAllBindings();
         }
 
-        void VBDockPanel_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             
             if (_dispTimer != null)
@@ -221,8 +218,9 @@ namespace gip.core.layoutengine.avui
             UpdateControlMode();
         }
 
-        void VBDockPanel_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)

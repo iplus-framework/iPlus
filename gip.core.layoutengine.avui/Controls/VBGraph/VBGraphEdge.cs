@@ -135,9 +135,9 @@ namespace gip.core.layoutengine.avui
                 UnsetEdgeFromRoute();
         }
 
-        protected override void VBConnectPath_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.VBConnectPath_Loaded(sender, e);
+            base.OnLoaded(e);
             if(ParentSurface != null)
                 ParentSurface.OnVBGraphEdgeLoaded();
         }

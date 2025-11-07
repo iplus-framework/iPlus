@@ -261,9 +261,9 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The event arguments.</param>
-        protected override void OnLoaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.OnLoaded(sender, e);
+            base.OnLoaded(e);
             if (_Loaded)
                 return;
 

@@ -37,9 +37,9 @@ namespace gip.core.layoutengine.avui
 
         #region Control Loaded-Event
         bool _Loaded = false;
-        protected override void VBDesignBase_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.VBDesignBase_Loaded(sender, e);
+            base.OnLoaded(e);
         }
 
         /// <summary>

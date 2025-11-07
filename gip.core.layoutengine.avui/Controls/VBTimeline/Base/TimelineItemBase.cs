@@ -29,7 +29,6 @@ namespace gip.core.layoutengine.avui.timeline
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Loaded += TimelineItem_Loaded;
             DoubleTapped += TimelineItemBase_DoubleTapped;
             ToolTip.AddToolTipOpeningHandler(this, TimelineItem_ToolTipOpening);
         }
@@ -76,7 +75,6 @@ namespace gip.core.layoutengine.avui.timeline
             if (contentControl != null)
                 contentControl.ClearAllBindings();
             this.ClearAllBindings();
-            Loaded -= TimelineItem_Loaded;
             DoubleTapped -= TimelineItemBase_DoubleTapped;
             ToolTip.RemoveToolTipOpeningHandler(this, TimelineItem_ToolTipOpening);
             VBTreeListViewItemMap = null;
@@ -84,8 +82,9 @@ namespace gip.core.layoutengine.avui.timeline
             return true;
         }
 
-        internal virtual void TimelineItem_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             int toolTipChildrenCount = 0;
 
             if (VBTimelineChart.container.Children.Count == 0 || (VBTimelineChart.container.Children.Count == 3 && VBTimelineChart.container.Children[2] != contentControl) && contentControl != null)

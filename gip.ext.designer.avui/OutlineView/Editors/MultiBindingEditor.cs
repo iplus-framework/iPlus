@@ -39,10 +39,8 @@ namespace gip.ext.designer.avui.OutlineView
         public ItemsControl PART_BindingList { get; set; }
         public ContentControl PART_BindingEditor { get; set; }
 
-        public MultiBindingEditor()
+        public MultiBindingEditor() : base()
         {
-            this.Loaded += MultiBindingEditor_Loaded;
-            this.Unloaded += MultiBindingEditor_Unloaded;
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -67,8 +65,9 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         bool _Loaded = false;
-        void MultiBindingEditor_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents += OnToolEvents;
             if (_Loaded)
@@ -90,8 +89,9 @@ namespace gip.ext.designer.avui.OutlineView
             _Loaded = true;
         }
 
-        void MultiBindingEditor_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_DesignObjectBinding != null)
                 _DesignObjectBinding.Services.Tool.ToolEvents -= OnToolEvents;
         }

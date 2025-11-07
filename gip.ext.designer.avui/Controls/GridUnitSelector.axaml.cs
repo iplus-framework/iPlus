@@ -39,13 +39,11 @@ namespace gip.ext.designer.avui.Controls
         public GridUnitSelector(GridRailAdorner rail) : this()
         {
             this.rail = rail;
-            
-            // Wire up event handlers after the control is loaded
-            this.Loaded += OnLoaded;
         }
 
-        private void OnLoaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             // Cache control references and wire up event handlers
             _fixedButton = this.FindControl<RadioButton>("fixedButton");
             _starButton = this.FindControl<RadioButton>("starButton");

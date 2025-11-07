@@ -28,9 +28,6 @@ namespace gip.core.layoutengine.avui.ganttchart
         {
             this.Source = source;
             this.Sink = sink;
-
-            Loaded += Connection_Loaded;
-            Unloaded += Connection_Unloaded;
         }
         #endregion
 
@@ -411,17 +408,16 @@ namespace gip.core.layoutengine.avui.ganttchart
             }
         }
 
-        private void Connection_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             RegisterSource();
             RegisterSink();
         }
 
-        void Connection_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
-            // do some housekeeping when Connection is unloaded
-
-            // remove event handler
+            base.OnUnloaded(e);
             UnregisterSource();
             UnregisterSink();
         }

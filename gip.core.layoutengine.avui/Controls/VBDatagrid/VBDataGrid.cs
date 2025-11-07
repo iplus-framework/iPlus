@@ -49,8 +49,6 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
             _ColumnsFromXAML = Columns.ToList();
-            Loaded += VBDataGrid_Loaded;
-            Unloaded += VBDataGrid_Unloaded;
             // Set up drag and drop event handlers for Avalonia
             if (DragEnabled == DragMode.Enabled)
             {
@@ -75,8 +73,9 @@ namespace gip.core.layoutengine.avui
 
         #region Loaded Event
 
-        void VBDataGrid_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -95,8 +94,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBDataGrid_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -320,8 +320,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            Loaded -= VBDataGrid_Loaded;
-            Unloaded -= VBDataGrid_Unloaded;
 
             _PropertyInfoOfACPropertySelected = null;
             _ACAccess = null;

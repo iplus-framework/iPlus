@@ -57,9 +57,8 @@ namespace gip.ext.designer.avui.OutlineView
         public ActionCollectionEditor PART_EnterActionsEditor { get; set; }
         public ActionCollectionEditor PART_ExitActionsEditor { get; set; }
 
-        public MultiTriggerEditor()
+        public MultiTriggerEditor() : base()
         {
-            this.Loaded += MultiTriggerEditor_Loaded;
             ConditionWrapperCollection = new ObservableCollection<ConditionWrapper>();
         }
 
@@ -123,8 +122,9 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         private bool _Loaded = false;
-        void MultiTriggerEditor_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_Loaded)
                 return;
             if (PART_ConditionList != null)

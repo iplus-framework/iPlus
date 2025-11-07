@@ -39,8 +39,6 @@ namespace gip.core.layoutengine.avui
 
         public VBStackPanel() : base()
         {
-            this.Loaded += VBStackPanel_Loaded;
-            this.Unloaded += VBStackPanel_Unloaded;
         }
 
         /// <summary>
@@ -82,8 +80,9 @@ namespace gip.core.layoutengine.avui
             _Initialized = true;
         }
 
-        void VBStackPanel_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             
             if (_dispTimer != null)
@@ -104,8 +103,9 @@ namespace gip.core.layoutengine.avui
             UpdateControlMode();
         }
 
-        void VBStackPanel_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -126,8 +126,6 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            this.Loaded -= VBStackPanel_Loaded;
-            this.Unloaded -= VBStackPanel_Unloaded;
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)

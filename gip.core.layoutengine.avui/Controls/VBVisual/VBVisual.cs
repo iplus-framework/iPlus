@@ -49,8 +49,6 @@ namespace gip.core.layoutengine.avui
             : base()
         {
             RightControlMode = Global.ControlModes.Enabled;
-            this.Loaded += OnVBVisual_Loaded;
-            this.Unloaded += VBVisual_Unloaded;
             this.DoubleTapped += VBVisual_DoubleTapped;
             VBDesignBase.IsSelectableEnum isSelectable = VBDesignBase.GetIsSelectable(this);
             if (isSelectable == VBDesignBase.IsSelectableEnum.Unset)
@@ -1014,8 +1012,9 @@ namespace gip.core.layoutengine.avui
             InsertVBVisual();
         }
 
-        protected virtual void OnVBVisual_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_VBLoaded)
                 return;
@@ -1039,9 +1038,9 @@ namespace gip.core.layoutengine.avui
             _VBLoaded = true;
         }
 
-        void VBVisual_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
-            
+            base.OnUnloaded(e);      
             if (!_VBLoaded)
                 return;
 
@@ -1098,8 +1097,6 @@ namespace gip.core.layoutengine.avui
             }
 
             LastElementACComponent = null;
-            this.Loaded -= OnVBVisual_Loaded;
-            this.Unloaded -= VBVisual_Unloaded;
             _VBInitialized = false;
             _ACClassDesign = null;
             _ACObject = null;

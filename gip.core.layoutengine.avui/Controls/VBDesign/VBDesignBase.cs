@@ -42,8 +42,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Loaded += VBDesignBase_Loaded;
-            this.Unloaded += VBDesignBase_Unloaded;
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -137,8 +135,6 @@ namespace gip.core.layoutengine.avui
             if (!_LoadedBase)
                 return;
             _LoadedBase = false;
-            this.Loaded -= VBDesignBase_Loaded;
-            this.Unloaded -= VBDesignBase_Unloaded;
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -167,8 +163,9 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        protected virtual void VBDesignBase_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             this.KeyUp -= DesignPanel_KeyUp;
             this.KeyDown -= DesignPanel_KeyDown;
             _pressedKeys.Clear();
@@ -183,8 +180,9 @@ namespace gip.core.layoutengine.avui
                 (ContextACObject as IACComponent).ACAction(new ACActionArgs(this, 0, 0, Global.ElementActionType.VBDesignUnloaded));
         }
 
-        protected virtual void VBDesignBase_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             this.KeyUp += DesignPanel_KeyUp;
             this.KeyDown += DesignPanel_KeyDown;
 

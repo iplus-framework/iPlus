@@ -42,9 +42,6 @@ namespace gip.core.layoutengine.avui
         {
             //HasTouchDevices = VBUtils.HasTouchDevices;
             base.OnInitialized();
-            Loaded += VBCheckBox_Loaded;
-            Unloaded += VBCheckBox_Unloaded;
-            GotFocus += VBCheckBox_GotFocus;
         }
 
         /// <summary>
@@ -320,8 +317,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Loaded = false;
-        void VBCheckBox_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -346,8 +344,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBCheckBox_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -372,9 +371,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.GotFocus -= VBCheckBox_GotFocus;
-            Loaded -= VBCheckBox_Loaded;
-            Unloaded -= VBCheckBox_Unloaded;
             _VBContentPropertyInfo = null;
             _ValidationRule = null;
             if (BSOACComponent != null)
@@ -437,10 +433,6 @@ namespace gip.core.layoutengine.avui
         private void VBCheckBox_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {
             UpdateControlMode();
-        }
-
-        private void VBCheckBox_GotFocus(object sender, GotFocusEventArgs e)
-        {
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

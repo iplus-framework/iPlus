@@ -24,12 +24,12 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 		{
             InitializeComponent();
             DataContext = this;
-            Loaded += VBTransformEditorView_Loaded;
         }
 
         bool _Loaded = false;
-        void VBTransformEditorView_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_Loaded)
                 return;
             RefreshView();

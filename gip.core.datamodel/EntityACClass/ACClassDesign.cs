@@ -1261,7 +1261,8 @@ namespace gip.core.datamodel
             ("<Style ", "<ControlTheme "),
             ("<Style.Setters>", "<ControlTheme.Setters>"),
             ("</Style.Setters>", "</ControlTheme.Setters>"),
-            ("</Style>", "</ControlTheme>")
+            ("</Style>", "</ControlTheme>"),
+            ("ToolTip=", "ToolTip.Tip=")
         };
 
         #endregion

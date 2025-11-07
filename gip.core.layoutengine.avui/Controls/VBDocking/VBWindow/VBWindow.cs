@@ -61,8 +61,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
-            this.Loaded += OnLoaded;
-
             // buttons on active window and not active window differ => manage
             base.OnInitialized();
             IRoot root = this.Root();
@@ -131,7 +129,6 @@ namespace gip.core.layoutengine.avui
             _PART_RestoreButton = null;
             _PART_tbTitle = null;
             _PART_cpClientWindowContent = null;
-            this.Loaded -= OnLoaded;
         }
 
         private void RegisterEvents(TemplateAppliedEventArgs e)
@@ -662,17 +659,6 @@ namespace gip.core.layoutengine.avui
             PART_RestoreButton.Background = Brushes.Transparent;
             PART_CloseButton.Background = Brushes.Transparent;*/
             base.OnClosed(e);
-        }
-
-        /// <summary>
-        /// Handles the OnLoaded event.
-        /// </summary>
-        /// <param name="sender">The sender parameter.</param>
-        /// <param name="e">The event arugments.</param>
-        protected virtual void OnLoaded(object sender, RoutedEventArgs e)
-        {
-            // refresh state
-            // OnStateChanged(new EventArgs());
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

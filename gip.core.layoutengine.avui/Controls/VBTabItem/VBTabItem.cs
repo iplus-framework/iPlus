@@ -49,15 +49,14 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Loaded += VBTabItem_Loaded;
-            Unloaded += VBTabItem_Unloaded;
             this.GetObservable(IsVisibleProperty).Subscribe(_ => VBTabItem_IsVisibleChanged());
         }
 
         VBTabControl vbTabControl = null;
 
-        void VBTabItem_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -175,8 +174,6 @@ namespace gip.core.layoutengine.avui
             if (!_LoadedBase)
                 return;
             _LoadedBase = false;
-            Loaded -= VBTabItem_Loaded;
-            Unloaded -= VBTabItem_Unloaded;
             
             if (_dispTimer != null)
             {
@@ -325,8 +322,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool IsCreated = false;
-        void VBTabItem_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (_dispTimer != null)
             {
                 if (!_dispTimer.IsEnabled)

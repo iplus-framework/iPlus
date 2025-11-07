@@ -55,8 +55,6 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
             this.GetObservable(SelectedDateProperty).Subscribe(_ => OnSelectedDatePropertyChanged());
-            Loaded += VBDateTimePicker_Loaded;
-            Unloaded += VBDateTimePicker_Unloaded;
         }
 
         private void OnSelectedDatePropertyChanged()
@@ -505,8 +503,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Loaded = false;
-        void VBDateTimePicker_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -531,8 +530,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBDateTimePicker_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -558,8 +558,6 @@ namespace gip.core.layoutengine.avui
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
             
-            Loaded -= VBDateTimePicker_Loaded;
-            Unloaded -= VBDateTimePicker_Unloaded;
             _VBContentPropertyInfo = null;
             _ValidationRule = null;
 

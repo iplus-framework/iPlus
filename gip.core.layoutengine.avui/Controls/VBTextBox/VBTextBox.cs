@@ -46,8 +46,6 @@ namespace gip.core.layoutengine.avui
             GotFocus += VBTextBox_GotFocus;
             this.TextInput += TextBox_PreviewTextInput;
             this.KeyDown += TextBox_PreviewKeyDown;
-            Loaded += VBTextBox_Loaded;
-            Unloaded += VBTextBox_Unloaded;
 
             CmdBindingPaste = new CommandBinding();
             CmdBindingPaste.Command = ApplicationCommands.Paste;
@@ -275,8 +273,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Loaded = false;
-        void VBTextBox_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -301,8 +300,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBTextBox_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -330,8 +330,6 @@ namespace gip.core.layoutengine.avui
             this.GotFocus -= VBTextBox_GotFocus;
             this.TextInput -= TextBox_PreviewTextInput;
             this.KeyDown -= TextBox_PreviewKeyDown;
-            this.Loaded -= VBTextBox_Loaded;
-            this.Unloaded -= VBTextBox_Unloaded;
 
             // TODO:
             //this.CommandBindings.Remove(CmdBindingPaste); //handle paste

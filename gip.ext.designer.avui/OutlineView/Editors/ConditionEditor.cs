@@ -43,10 +43,8 @@ namespace gip.ext.designer.avui.OutlineView
         public ComboBox PART_SelectorTriggerable { get; set; }
         public ContentControl PART_TriggerValueEditor { get; set; }
 
-        public ConditionEditor()
+        public ConditionEditor() : base()
         {
-            this.Loaded += ConditionEditor_Loaded;
-            this.Unloaded += ConditionEditor_Unloaded;
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -79,8 +77,10 @@ namespace gip.ext.designer.avui.OutlineView
         }
 
         private bool _Loaded = false;
-        void ConditionEditor_Loaded(object sender, RoutedEventArgs e)
+
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (!_Loaded)
             {
                 RefreshView();
@@ -88,8 +88,9 @@ namespace gip.ext.designer.avui.OutlineView
             _Loaded = true;
         }
 
-        void ConditionEditor_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
         }
 
         protected virtual void CreateWrapper()

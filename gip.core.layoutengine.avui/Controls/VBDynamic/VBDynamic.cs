@@ -34,14 +34,9 @@ namespace gip.core.layoutengine.avui
         #region Control Loaded-Event
         bool _Loaded = false;
 
-        /// <summary>
-        /// Handles the Loaded event.
-        /// </summary>
-        /// <param name="sender">The sender parameter.</param>
-        /// <param name="e">The event arguments.</param>
-        protected override void VBDesignBase_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            base.VBDesignBase_Loaded(sender, e);
+            base.OnLoaded(e);
         }
 
         /// <summary>

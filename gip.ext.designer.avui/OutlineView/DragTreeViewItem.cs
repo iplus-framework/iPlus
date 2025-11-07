@@ -25,14 +25,13 @@ namespace gip.ext.designer.avui.OutlineView
             // The styling is handled through XAML styles
         }
 
-        public DragTreeViewItem()
+        public DragTreeViewItem() : base()
         {
-            Loaded += DragTreeViewItem_Loaded;
-            Unloaded += DragTreeViewItem_Unloaded;
         }
 
-        void DragTreeViewItem_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             ParentTree = this.GetVisualAncestors().OfType<DragTreeView>().FirstOrDefault();
             if (ParentTree != null)
             {
@@ -40,8 +39,9 @@ namespace gip.ext.designer.avui.OutlineView
             }
         }
 
-        void DragTreeViewItem_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (ParentTree != null)
             {
                 ParentTree.ItemDetached(this);

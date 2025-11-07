@@ -42,8 +42,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Loaded += VBTreeView_Loaded;
-            this.Unloaded += VBTreeView_Unloaded;
             AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
             AddHandler(DragDrop.DragOverEvent, OnDragOver);
             AddHandler(DragDrop.DropEvent, OnDrop);
@@ -190,8 +188,9 @@ namespace gip.core.layoutengine.avui
 
         }
 
-        void VBTreeView_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -219,8 +218,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBTreeView_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -251,8 +251,6 @@ namespace gip.core.layoutengine.avui
             RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
             RemoveHandler(DragDrop.DropEvent, OnDrop);
             RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
-            this.Loaded -= VBTreeView_Loaded;
-            this.Unloaded -= VBTreeView_Unloaded;
             foreach (TreeViewItem item in Items)
             {
                 DeInitVBTreeViewItem(item);

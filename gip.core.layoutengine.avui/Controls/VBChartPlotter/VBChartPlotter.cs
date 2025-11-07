@@ -154,11 +154,6 @@ namespace gip.core.layoutengine.avui
             PropertyLogItems = new ObservableCollection<IVBChartItem>();
         }
 
-        protected override void OnInitialized()
-        {
-            this.Loaded += VBChartPlotter_Loaded;
-            this.Unloaded += VBChartPlotter_Unloaded;
-        }
 
         VBPropertyLogChart _VBPropertyLogChart = null;
 
@@ -517,13 +512,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Loaded = false;
-        /// <summary>
-        /// Loading control and refresh live console.
-        /// </summary>
-        /// <param name="sender">The sender.</param>
-        /// <param name="e">The Routed event arguments.</param>
-        void VBChartPlotter_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             if (!DisplayAsArchive)
                 InitVBControl();
             if (_Loaded)
@@ -535,8 +526,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBChartPlotter_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
             _Loaded = false;
@@ -579,8 +571,6 @@ namespace gip.core.layoutengine.avui
 
                 chartItem.DeInitVBControl(bso);
             }
-            this.Loaded -= VBChartPlotter_Loaded;
-            this.Loaded -= VBChartPlotter_Unloaded;
         }
 
 

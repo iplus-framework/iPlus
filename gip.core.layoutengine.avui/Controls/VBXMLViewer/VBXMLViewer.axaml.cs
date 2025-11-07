@@ -46,7 +46,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
-            Loaded += VBXMLViewer_Loaded;
             base.OnInitialized();
         }
 
@@ -100,12 +99,11 @@ namespace gip.core.layoutengine.avui
             }
 
             _XMLEditor.ChangeSyntaxHighlighting();
-
-            this.Loaded -= VBXMLViewer_Loaded;
         }
 
-        private void VBXMLViewer_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
         }
 

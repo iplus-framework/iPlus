@@ -59,8 +59,6 @@ namespace gip.core.layoutengine.avui
             base.OnInitialized();
             this.GetObservable(SelectedItemProperty).Subscribe(_ => OnSelectedItemChanged());
             this.GetObservable(SelectedValueProperty).Subscribe(_ => OnSelectedValueChanged());
-            Loaded += VBComboBox_Loaded;
-            Unloaded += VBComboBox_Unloaded;
         }
 
         private void OnSelectedValueChanged()
@@ -715,8 +713,9 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        void VBComboBox_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -729,8 +728,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBComboBox_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -749,8 +749,6 @@ namespace gip.core.layoutengine.avui
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
 
             _Initialized = false;
-            Loaded -= VBComboBox_Loaded;
-            Unloaded -= VBComboBox_Unloaded;
             if (_EditableTextBoxSite2 != null)
             {
                 _EditableTextBoxSite2.LostFocus -= _EditableTextBoxSite2_LostFocus;

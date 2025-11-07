@@ -38,17 +38,17 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
             InitVBControl();
-            this.Loaded += VBNumericUpDown_Loaded;
-            this.Unloaded += VBNumericUpDown_Unloaded;
         }
 
-        private void VBNumericUpDown_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
         }
 
-        private void VBNumericUpDown_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Initialized)
                 return;
 
@@ -435,8 +435,6 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            Loaded -= VBNumericUpDown_Loaded;
-            Unloaded -= VBNumericUpDown_Unloaded;
             TextBoxVB?.DeInitVBControl(bso);
             this.ClearAllBindings();
         }

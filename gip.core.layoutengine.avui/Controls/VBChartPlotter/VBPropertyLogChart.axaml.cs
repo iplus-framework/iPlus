@@ -43,8 +43,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
-            Loaded += VBPropertyLogChart_Loaded;
-            Unloaded += VBPropertyLogChart_Unloaded;
             base.OnInitialized();
         }
 
@@ -85,16 +83,18 @@ namespace gip.core.layoutengine.avui
 
 
         bool _Loaded = false;
-        private void VBPropertyLogChart_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
             _Loaded = true;
         }
 
-        void VBPropertyLogChart_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -136,8 +136,6 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            this.Loaded -= VBPropertyLogChart_Loaded;
-            this.Unloaded -= VBPropertyLogChart_Unloaded;
 
             if (ChartControl != null)
                 ChartControl.DeInitVBControl(bso);

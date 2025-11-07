@@ -164,8 +164,6 @@ namespace gip.core.layoutengine.avui
         public VBCanvas()
         {
             RightControlMode = Global.ControlModes.Enabled;
-            this.Loaded += VBCanvas_Loaded;
-            this.Unloaded += VBCanvas_Unloaded;
         }
 
         /// <summary>
@@ -235,8 +233,6 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            this.Loaded -= VBCanvas_Loaded;
-            this.Unloaded -= VBCanvas_Unloaded;
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -250,8 +246,9 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region Event Override
-        void VBCanvas_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_dispTimer != null)
             {
@@ -270,8 +267,9 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        void VBCanvas_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)

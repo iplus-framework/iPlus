@@ -65,8 +65,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Loaded += VBGrid_Loaded;
-            this.Unloaded += VBGrid_Unloaded;
         }
 
         #region Additional Dependency-Properties
@@ -285,8 +283,6 @@ namespace gip.core.layoutengine.avui
             if (!_Loaded)
                 return;
             _Loaded = false;
-            this.Loaded -= VBGrid_Loaded;
-            this.Unloaded -= VBGrid_Unloaded;
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)
@@ -332,8 +328,9 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        void VBGrid_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_dispTimer != null)
             {
@@ -353,8 +350,9 @@ namespace gip.core.layoutengine.avui
             UpdateControlMode();
         }
 
-        void VBGrid_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_dispTimer != null)
             {
                 if (_dispTimer.IsEnabled)

@@ -36,8 +36,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            Loaded += VBTextBlock_Loaded;
-            Unloaded += VBTextBlock_Unloaded;
         }
 
         void VBTextBlock_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
@@ -421,8 +419,9 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Loaded = false;
-        void VBTextBlock_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
             if (_Loaded)
                 return;
@@ -447,8 +446,9 @@ namespace gip.core.layoutengine.avui
             _Loaded = true;
         }
 
-        void VBTextBlock_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Loaded)
                 return;
 
@@ -473,8 +473,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            Loaded -= VBTextBlock_Loaded;
-            Unloaded -= VBTextBlock_Unloaded;
             _VBContentPropertyInfo = null;
 
             this.ClearAllBindings();

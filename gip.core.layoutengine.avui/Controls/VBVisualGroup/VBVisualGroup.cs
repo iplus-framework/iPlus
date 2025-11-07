@@ -55,8 +55,6 @@ namespace gip.core.layoutengine.avui
         public VBVisualGroup() : base()
         {
             RightControlMode = Global.ControlModes.Enabled;
-            Loaded += OnVBContentControl_Loaded;
-            Unloaded += VBVisualGroup_Unloaded;
             DoubleTapped += VBVisualGroup_DoubleTapped;
             VBDesignBase.IsSelectableEnum isSelectable = VBDesignBase.GetIsSelectable(this);
             if (isSelectable == VBDesignBase.IsSelectableEnum.Unset)
@@ -163,8 +161,6 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            Loaded -= OnVBContentControl_Loaded;
-            Unloaded -= VBVisualGroup_Unloaded;
             DoubleTapped -= VBVisualGroup_DoubleTapped;
             _Initialized = false;
             _ACClassDesign = null;
@@ -191,8 +187,9 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected bool _Initialized = false;
 
-        void VBVisualGroup_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (!_Initialized)
                 return;
 
@@ -200,13 +197,10 @@ namespace gip.core.layoutengine.avui
                 BSOACComponent.RemoveWPFRef(this.GetHashCode());
         }
 
-        /// <summary>
-        /// Handles on loaded event and runs VBControl initialization.
-        /// </summary>
-        /// <param name="sender">The sender parameter.</param>
-        /// <param name="e">The event arguments.</param>
-        protected virtual void OnVBContentControl_Loaded(object sender, RoutedEventArgs e)
+
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
         }
 

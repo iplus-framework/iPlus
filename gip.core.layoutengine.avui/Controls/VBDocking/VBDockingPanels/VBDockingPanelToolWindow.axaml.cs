@@ -12,6 +12,7 @@ using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.Xml;
+using Avalonia.VisualTree;
 
 namespace gip.core.layoutengine.avui
 {
@@ -700,7 +701,7 @@ namespace gip.core.layoutengine.avui
             if (VisibleContents.Count == 1 && State == VBDockingPanelState.Hidden)
             {
                 ChangeState(VBDockingPanelState.Docked);
-                if(DockManager != null)
+                if (DockManager != null)
                     DockManager.DragPanelServices.Register(this);
             }
 
@@ -829,7 +830,15 @@ namespace gip.core.layoutengine.avui
         {
             if (PART_cpClientWindowContent == null)
                 return;
-            PART_cpClientWindowContent.Content = content.Content;
+            if (content.Content != null && PART_cpClientWindowContent.Content != content.Content)
+            {
+                Control contentToSwitch = content.Content as Control;
+                if (contentToSwitch.GetVisualParent() != null && contentToSwitch.Parent != null)
+                {
+                    content.Content = null;
+                }
+                PART_cpClientWindowContent.Content = contentToSwitch;
+            }
             PART_cpClientWindowContent.IsVisible = true;
             RefreshTitle();
         }

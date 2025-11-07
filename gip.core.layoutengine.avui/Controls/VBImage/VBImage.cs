@@ -77,7 +77,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
-            this.Loaded += OnLoaded;
             base.OnInitialized();
         }
 
@@ -85,13 +84,9 @@ namespace gip.core.layoutengine.avui
 
         bool _Initialized = false;
 
-        /// <summary>
-        /// Handles OnLoaded event.
-        /// </summary>
-        /// <param name="sender">The sender parameter.</param>
-        /// <param name="e">The event arguments.</param>
-        protected virtual void OnLoaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitVBControl();
         }
         
@@ -167,7 +162,6 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = false;
             _VBContentPropertyInfo = null;
-            this.Loaded -= OnLoaded;
             Source = null;
             
             this.ClearValue(VBImage.ACClassDesignProperty);

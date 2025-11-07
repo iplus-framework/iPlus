@@ -37,8 +37,6 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected override void OnInitialized()
         {
-            Unloaded += VBDesignEditor_Unloaded;
-            Loaded += VBDesignEditor_Loaded;
             DataContextChanged += VBDesignEditor_DataContextChanged;
             base.OnInitialized();
         }
@@ -95,11 +93,9 @@ namespace gip.core.layoutengine.avui
         }
 
         protected bool _Loaded = false;
-        protected void VBDesignEditor_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
-            //DesignTab.PART_TabItemBorder.Visibility = System.Windows.Visibility.Collapsed;
-            //XAMLTab.Visibility = System.Windows.Visibility.Hidden;
-
+            base.OnLoaded(e);
             if (_SelectionManager != null && _SelectionManager.ReferencePoint != null)
             {
                 if (!_SelectionManager.ReferencePoint.Contains(this))
@@ -357,8 +353,9 @@ namespace gip.core.layoutengine.avui
         }
 
         private IACComponent _LastElementACComponent = null;
-        void VBDesignEditor_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             if (_SelectionManager != null && _SelectionManager.ReferencePoint != null)
                 _SelectionManager.ReferencePoint.Remove(this);
             if (ContextACObject is IACComponent)
@@ -386,8 +383,6 @@ namespace gip.core.layoutengine.avui
             if (parent != null && DataContext != null && !force)
                 return;
 
-            this.Loaded -= VBDesignEditor_Loaded;
-            this.Unloaded -= VBDesignEditor_Unloaded;
             this.DataContextChanged -= VBDesignEditor_DataContextChanged;
 
             // Clear bindings using Avalonia's method

@@ -185,17 +185,17 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            this.Unloaded += VBConnectPath_Unloaded;
-            this.Loaded += VBConnectPath_Loaded;
         }
 
-        protected virtual void VBConnectPath_Loaded(object sender, RoutedEventArgs e)
+        protected override void OnLoaded(RoutedEventArgs e)
         {
+            base.OnLoaded(e);
             InitConnectionPoints();
         }
 
-        void VBConnectPath_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnUnloaded(RoutedEventArgs e)
         {
+            base.OnUnloaded(e);
             // Remove List in VBConnector
             this.Source = null;
             this.Target = null;

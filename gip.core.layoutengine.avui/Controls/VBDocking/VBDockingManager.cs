@@ -1072,14 +1072,19 @@ namespace gip.core.layoutengine.avui
 
         private void ShowTempPanel(bool smooth)
         {
-            _tempPane = new VBDockingPanelToolWindowOverlay(this, _currentButton.DockingContainerToolWindow, _currentButton.DockingButtonGroup.Dock);
-            _tempPane.OnStateChanged += new EventHandler(_tempPane_OnStateChanged);
-
             VBDockingPanelToolWindow pane = PART_gridDocking.GetVBDockingPanelFromContainer(_currentButton.DockingContainerToolWindow) as VBDockingPanelToolWindow;
             pane.SetDefaultWithFromVBDesign(_currentButton.DockingContainerToolWindow);
             PART_panelFront.Children.Clear();
+
+            _tempPane = new VBDockingPanelToolWindowOverlay(this, _currentButton.DockingContainerToolWindow, _currentButton.DockingButtonGroup.Dock);
             DockPanel.SetDock(_tempPane, _currentButton.DockingButtonGroup.Dock);
+            // Avalonia special behaviour: Need to add to visual tree before initializing. But there is a Bug when Controls a reparented!
+            //PART_panelFront.Children.Add(_tempPane);
+            _tempPane.InitWhenTemplateWasApplied(_currentButton.DockingContainerToolWindow);
+            // Temporary solution:
             PART_panelFront.Children.Add(_tempPane);
+            _tempPane.OnStateChanged += new EventHandler(_tempPane_OnStateChanged);
+
             VBDockingSplitter splitter = null;
             bool right_left = false;
             double length = 0.0;
@@ -1250,16 +1255,18 @@ namespace gip.core.layoutengine.avui
                 _tempPanelAnimation.Height = 0;
             }
 
+            var transitionsFrontPanel = new Transitions();
+
             var opacityTransition = new DoubleTransition
             {
                 Property = Control.OpacityProperty,
                 Duration = TimeSpan.FromMilliseconds(200),
                 Easing = new LinearEasing()
             };
-            transitions.Add(opacityTransition);
+            transitionsFrontPanel.Add(opacityTransition);
 
             _tempPanelAnimation.Transitions = transitions;
-            PART_panelFront.Opacity = 0.0;
+            PART_panelFront.Transitions = transitionsFrontPanel;
 
             // Schedule cleanup after animation
             Dispatcher.UIThread.InvokeAsync(async () =>
