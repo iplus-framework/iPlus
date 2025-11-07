@@ -94,7 +94,7 @@
 		<PackageReference Include="QRCoder" Version="1.6.0" />
 		<PackageReference Include="QRCoder.Xaml" Version="1.6.0" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-		<PackageReference Include="System.Reflection.Context" Version="$(NetCorePackageVersion)" />
+		<PackageReference Include="System.Reflection.Context" Version="9.0.10" />
 	</ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
     <Reference Include="Microsoft.EntityFrameworkCore">

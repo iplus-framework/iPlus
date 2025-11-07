@@ -33,7 +33,6 @@
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
     <ProjectReference Include="..\gip.core.reporthandler.avui\gip.core.reporthandler.avui.csproj" />
     <ProjectReference Include="..\gip.core.visualcontrols.avui\gip.core.visualcontrols.avui.csproj" />
-    <ProjectReference Include="..\gip.core.webservices\gip.core.webservices.csproj" />
     <ProjectReference Include="..\gip.core.wpfservices.avui\gip.core.wpfservices.avui.csproj" />
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
   </ItemGroup>
