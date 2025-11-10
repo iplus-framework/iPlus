@@ -4,11 +4,11 @@
    xmlns:collections="using:Avalonia.Collections"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
   <ResourceDictionary.MergedDictionaries>
-    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleCell.axaml"/>
-    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleColumnHeader.axaml"/>
-    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleRow.axaml"/>
-    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleRowGroupHeader.axaml"/>
-    <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatagrid/Themes/DataGridStyleRowHeader.axaml"/>
+    <ResourceInclude Source="/Controls/VBDatagrid/Themes/DataGridStyleCell.axaml"/>
+    <ResourceInclude Source="/Controls/VBDatagrid/Themes/DataGridStyleColumnHeader.axaml"/>
+    <ResourceInclude Source="/Controls/VBDatagrid/Themes/DataGridStyleRow.axaml"/>
+    <ResourceInclude Source="/Controls/VBDatagrid/Themes/DataGridStyleRowGroupHeader.axaml"/>
+    <ResourceInclude Source="/Controls/VBDatagrid/Themes/DataGridStyleRowHeader.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
   <ControlTemplate TargetType="{x:Type local:VBDataGrid}" x:Key="TemplateDataGridHorizontal">

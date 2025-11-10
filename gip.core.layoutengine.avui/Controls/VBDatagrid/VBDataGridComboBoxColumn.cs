@@ -28,13 +28,10 @@ namespace gip.core.layoutengine.avui
         private readonly Lazy<ControlTheme> _cellComboDefaultTheme;
         public VBDataGridComboBoxColumn() : base()
         {
-            if (this.OwningGrid != null)
-            {
-                _cellComboEditTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCellComboEditTheme", out var theme) ? (ControlTheme)theme : null);
-                _cellComboDefaultTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCellComboDefaultTheme", out var theme) ? (ControlTheme)theme : null);
-            }
+            _cellComboEditTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellComboEditTheme", out var theme) ? (ControlTheme)theme : null);
+            _cellComboDefaultTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellComboDefaultTheme", out var theme) ? (ControlTheme)theme : null);
         }
 
 

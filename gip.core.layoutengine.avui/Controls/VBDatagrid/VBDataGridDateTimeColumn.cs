@@ -23,13 +23,10 @@ namespace gip.core.layoutengine.avui
         private readonly Lazy<ControlTheme> _cellTextBlockTheme;
         public VBDataGridDateTimeColumn() : base()
         {
-            if (this.OwningGrid != null)
-            {
-                _cellPickerTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCellDateTimeTheme", out var theme) ? (ControlTheme)theme : null);
-                _cellTextBlockTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCellTextBlockTheme", out var theme) ? (ControlTheme)theme : null);
-            }
+            _cellPickerTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellDateTimeTheme", out var theme) ? (ControlTheme)theme : null);
+            _cellTextBlockTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellTextBlockTheme", out var theme) ? (ControlTheme)theme : null);
         }
 
         #region VBLogic

@@ -485,87 +485,36 @@ namespace gip.core.layoutengine.avui
                 content = dockPanel;
             }
 
-            ProportionalDock horizontalArea = this.MainLayout.VisibleDockables.OfType<ProportionalDock>()
-                                                .Where(c => c.Orientation == Orientation.Horizontal).FirstOrDefault();
-
+            ProportionalDock horizontalArea = null;
             DocumentDock documentDock = null;
-            // All Documents (BSO's) have been closed including Docked windows.
-            if (horizontalArea == null)
-            {
-                horizontalArea = new ProportionalDock() { Orientation = Orientation.Horizontal };
-                int i = 0;
-                IDockable previousDockable = null;
-                ToolDock bottomDock = null;
-                ToolDock topDock = null;
-                foreach (var verticalDockElement in MainLayout.VisibleDockables)
-                {
-                    if (verticalDockElement is ToolDock toolDock)
-                    {
-                        if (toolDock.Alignment == Alignment.Top)
-                            topDock = toolDock;
-                        else if (toolDock.Alignment == Alignment.Bottom)
-                        {
-                            bottomDock = toolDock;
-                            if (previousDockable is ProportionalDockSplitter)
-                                i--;
-                            break;
-                        }
-                    }
-                    else if (verticalDockElement is DocumentDock)
-                        documentDock = verticalDockElement as DocumentDock;
-
-                    previousDockable = verticalDockElement;
-                    i++;
-                }
-
-                // If only top without a ProportionalDockSplitter, then add a splitter before Document Dock
-                if (topDock != null && bottomDock == null && !(previousDockable is ProportionalDockSplitter))
-                {
-                    MainLayout.VisibleDockables.Insert(i, new ProportionalDockSplitter());
-                    i++;
-                }
-
-                if (documentDock == null)
-                {
-                    // Add document dock
-                    documentDock = new DocumentDock
-                    {
-                        Id = "Documents",
-                        IsCollapsable = false,
-                        CanCreateDocument = false
-                    };
-                    documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
-                    horizontalArea.VisibleDockables.Add(documentDock);
-                }
-                else
-                {
-                    MainLayout.VisibleDockables.Remove(documentDock);
-                    i--;
-                    horizontalArea.VisibleDockables.Add(documentDock);
-                }
-
-                MainLayout.VisibleDockables.Insert(i, horizontalArea);
-                i++;
-
-                if (bottomDock != null && !(previousDockable is ProportionalDockSplitter))
-                    MainLayout.VisibleDockables.Insert(i, new ProportionalDockSplitter());
-            }
-
-            if (documentDock == null)
-                documentDock = horizontalArea.VisibleDockables.OfType<DocumentDock>().FirstOrDefault();
-            if (documentDock == null)
-                return; // Wrong initialization
+            EnsureDocumentDockStructure(out horizontalArea, out documentDock);
 
             if (   containerType == Global.VBDesignContainer.TabItem
                 || dockState == Global.VBDesignDockState.Tabbed)
             {
-                Document doc = new Document
+                DockableBase doc = null;
+                if (isCloseable)
                 {
-                    Id = "Doc_" + uiElement.GetHashCode().ToString(),
-                    Title = acCaption,
-                    Content = content,
-                    CanClose = isCloseable
-                };
+                    doc = new Tool
+                    {
+                        Id = "Doc_" + uiElement.GetHashCode().ToString(),
+                        Title = acCaption,
+                        Content = content,
+                        CanClose = isCloseable,
+                        CanFloat = isCloseable
+                    };
+                }
+                else
+                {
+                    doc = new Document
+                    {
+                        Id = "Doc_" + uiElement.GetHashCode().ToString(),
+                        Title = acCaption,
+                        Content = content,
+                        CanClose = isCloseable,
+                        CanFloat = isCloseable
+                    };
+                }
 
                 if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
                 {
@@ -654,7 +603,8 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-                        CanClose = isCloseable
+                        CanClose = isCloseable,
+                        CanFloat = isCloseable
                     };
 
                     if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
@@ -770,6 +720,90 @@ namespace gip.core.layoutengine.avui
                 //else
                 //    vbDialogRoot.Show();
                 //vbDialogRoot.ShowDialog();
+            }
+        }
+
+        private void EnsureDocumentDockStructure(out ProportionalDock horizontalArea, out DocumentDock documentDock)
+        {
+            documentDock = null;
+            horizontalArea = this.MainLayout.VisibleDockables.OfType<ProportionalDock>()
+                                    .Where(c => c.Orientation == Orientation.Horizontal).FirstOrDefault();
+
+            // All Documents (BSO's) have been closed including Docked windows.
+            if (horizontalArea == null)
+            {
+                horizontalArea = new ProportionalDock() { Orientation = Orientation.Horizontal };
+                int i = 0;
+                IDockable previousDockable = null;
+                ToolDock bottomDock = null;
+                ToolDock topDock = null;
+                foreach (var verticalDockElement in MainLayout.VisibleDockables)
+                {
+                    if (verticalDockElement is ToolDock toolDock)
+                    {
+                        if (toolDock.Alignment == Alignment.Top)
+                            topDock = toolDock;
+                        else if (toolDock.Alignment == Alignment.Bottom)
+                        {
+                            bottomDock = toolDock;
+                            if (previousDockable is ProportionalDockSplitter)
+                                i--;
+                            break;
+                        }
+                    }
+                    else if (verticalDockElement is DocumentDock)
+                        documentDock = verticalDockElement as DocumentDock;
+
+                    previousDockable = verticalDockElement;
+                    i++;
+                }
+
+                // If only top without a ProportionalDockSplitter, then add a splitter before Document Dock
+                if (topDock != null && bottomDock == null && !(previousDockable is ProportionalDockSplitter))
+                {
+                    MainLayout.VisibleDockables.Insert(i, new ProportionalDockSplitter());
+                    i++;
+                }
+
+                if (documentDock == null)
+                {
+                    // Add document dock
+                    documentDock = new DocumentDock
+                    {
+                        Id = "Documents",
+                        IsCollapsable = false,
+                        CanCreateDocument = false
+                    };
+                    documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
+                    horizontalArea.VisibleDockables.Add(documentDock);
+                }
+                else
+                {
+                    MainLayout.VisibleDockables.Remove(documentDock);
+                    i--;
+                    horizontalArea.VisibleDockables.Add(documentDock);
+                }
+
+                MainLayout.VisibleDockables.Insert(i, horizontalArea);
+                i++;
+
+                if (bottomDock != null && !(previousDockable is ProportionalDockSplitter))
+                    MainLayout.VisibleDockables.Insert(i, new ProportionalDockSplitter());
+            }
+
+            if (documentDock == null)
+                documentDock = horizontalArea.VisibleDockables.OfType<DocumentDock>().FirstOrDefault();
+            if (documentDock == null)
+            {
+                // Add document dock
+                documentDock = new DocumentDock
+                {
+                    Id = "Documents",
+                    IsCollapsable = false,
+                    CanCreateDocument = false
+                };
+                documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
+                horizontalArea.VisibleDockables.Add(documentDock);
             }
         }
 

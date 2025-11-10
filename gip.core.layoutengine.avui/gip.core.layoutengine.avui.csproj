@@ -168,14 +168,13 @@
     <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
     <PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
   </ItemGroup>
+  <ItemGroup Condition="'$(UseAvaloniaDataGridForkIPlus)' == 'True'">
+    <Reference Include="Avalonia.Controls.DataGrid">
+      <HintPath>$(AvaloniaDataGridIncludeDir)\Avalonia.Controls.DataGrid\$(Configuration)_$(AvaloniaBuildFramework)\Avalonia.Controls.DataGrid.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />
-    <Compile Remove="Controls\VBButton.xaml.cs" />
-    <Compile Remove="Controls\VBDatagrid\VBDataGridColumnHeadersPresenter2.cs" />
-    <Compile Remove="Controls\VBDocking\VBDockableContent.cs" />
-    <Compile Remove="Controls\VBTabitemRoot.cs" />
-    <Page Remove="Controls\VBButton.xaml" />
-    <Page Remove="Controls\VBButton\Themes\buttontestxaml.xaml" />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">

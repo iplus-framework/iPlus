@@ -27,13 +27,10 @@ namespace gip.core.layoutengine.avui
         private readonly Lazy<ControlTheme> _cellTextBlockTheme;
         public VBDataGridTextColumn() : base()
         {
-            if (this.OwningGrid != null)
-            {
-                _cellTextBoxTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCellTextBoxTheme", out var theme) ? (ControlTheme)theme : null);
-                _cellTextBlockTheme = new Lazy<ControlTheme>(() =>
-                    OwningGrid.TryFindResource("DataGridCellTextBlockTheme", out var theme) ? (ControlTheme)theme : null);
-            }
+            _cellTextBoxTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellTextBoxTheme", out var theme) ? (ControlTheme)theme : null);
+            _cellTextBlockTheme = new Lazy<ControlTheme>(() =>
+                OwningGrid.TryFindResource("DataGridCellTextBlockTheme", out var theme) ? (ControlTheme)theme : null);
         }
 
         /// <summary>

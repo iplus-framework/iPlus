@@ -40,5 +40,8 @@
     <CoreWCFVersion>1.8.0</CoreWCFVersion>-->
 
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
+    <AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
+    <UseAvaloniaDataGridForkIPlus>False</UseAvaloniaDataGridForkIPlus>
+    <AvaloniaDataGridIncludeDir>..\..\Avalonia.Controls.DataGrid\artifacts\bin</AvaloniaDataGridIncludeDir>
   </PropertyGroup>
 </Project>
