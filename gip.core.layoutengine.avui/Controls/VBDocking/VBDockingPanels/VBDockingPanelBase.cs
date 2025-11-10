@@ -27,12 +27,12 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingPanelBase(VBDockingManager dockManager)
+        public VBDockingPanelBase(VBDockingManagerOldWPF dockManager)
             : this(dockManager, null)
         {
         }
 
-        public VBDockingPanelBase(VBDockingManager dockManager, VBDockingContainerToolWindow content) : base()
+        public VBDockingPanelBase(VBDockingManagerOldWPF dockManager, VBDockingContainerToolWindow content) : base()
         {
             _dockManager = dockManager;
 
@@ -48,8 +48,8 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        VBDockingManager _dockManager;
-        public virtual VBDockingManager DockManager
+        VBDockingManagerOldWPF _dockManager;
+        public virtual VBDockingManagerOldWPF DockManager
         {
             get { return _dockManager; }
             //set { _dockManager = value; }
@@ -83,7 +83,7 @@ namespace gip.core.layoutengine.avui
             {
                 if (container.VBDesignContent != null)
                 {
-                    Size lastStoredSize = VBDockingManager.GetWindowSize(container.VBDesignContent);
+                    Size lastStoredSize = VBDockingManagerOldWPF.GetWindowSize(container.VBDesignContent);
                     if ((lastStoredSize.Width > 0) && (lastStoredSize.Height > 0) && (Math.Abs(PaneWidth - PaneDefaultWidth) <= Double.Epsilon) && (Math.Abs(PaneHeight - PaneDefaultHeight) <= Double.Epsilon))
                     {
                         PaneWidth = lastStoredSize.Width;
@@ -262,7 +262,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public virtual void Deserialize(VBDockingManager managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler)
+        public virtual void Deserialize(VBDockingManagerOldWPF managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler)
         {
             _dockManager = managerToAttach;
 

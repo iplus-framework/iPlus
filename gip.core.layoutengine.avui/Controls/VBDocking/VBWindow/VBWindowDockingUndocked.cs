@@ -86,7 +86,7 @@ namespace gip.core.layoutengine.avui
                 Content = HostedPane;
             Title = HostedPane.Title;
             RefreshTitle();
-            if (VBDockingManager.GetCloseButtonVisibility(HostedPane.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled && PART_CloseButton != null)
+            if (VBDockingManagerOldWPF.GetCloseButtonVisibility(HostedPane.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled && PART_CloseButton != null)
             {
                 PART_CloseButton.IsVisible = true;
             }

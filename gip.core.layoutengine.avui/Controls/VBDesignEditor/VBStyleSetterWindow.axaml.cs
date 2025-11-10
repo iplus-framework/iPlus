@@ -21,7 +21,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBStyleSetterWindow(VBDockingManager dockManager)
+        public VBStyleSetterWindow(VBDockingManagerOldWPF dockManager)
             : base(dockManager)
         {
             InitializeComponent();

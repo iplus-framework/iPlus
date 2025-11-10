@@ -38,7 +38,7 @@ namespace gip.core.layoutengine.avui
             return new VBMenuSeparator();
         }
 
-        public static void MainHeaderClick(object sender, PointerPressedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
+        public static void MainHeaderClick(object sender, PointerPressedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManagerOldWPF DockingManager, string WindowTitle)
         {
             var clickedOn = e.Source as MenuItem;
             if (clickedOn != null)
@@ -127,14 +127,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static VBDockingManager GetDockingManager(DesignItem extendedItem)
+        public static VBDockingManagerOldWPF GetDockingManager(DesignItem extendedItem)
         {
             var panel = extendedItem.Services.GetService(typeof(IDesignPanel)) as IDesignPanel;
-            return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as AvaloniaObject, typeof(VBDockingManager)) as VBDockingManager;
+            return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as AvaloniaObject, typeof(VBDockingManagerOldWPF)) as VBDockingManagerOldWPF;
         }
 
-        private VBDockingManager _DockingManager;
-        protected VBDockingManager DockingManager
+        private VBDockingManagerOldWPF _DockingManager;
+        protected VBDockingManagerOldWPF DockingManager
         {
             get
             {

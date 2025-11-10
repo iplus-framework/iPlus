@@ -22,7 +22,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingPanelTabbedDoc(VBDockingManager dockManager)
+        public VBDockingPanelTabbedDoc(VBDockingManagerOldWPF dockManager)
             : base(dockManager)
         {
             InitializeComponent();
@@ -240,13 +240,13 @@ namespace gip.core.layoutengine.avui
                 vbTabItem.IsDragable = true;
             if (container.VBDesignContent != null)
             {
-                vbTabItem.TabVisibilityACUrl = VBDockingManager.GetTabVisibilityACUrl(container.VBDesignContent);
-                if (VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
+                vbTabItem.TabVisibilityACUrl = VBDockingManagerOldWPF.GetTabVisibilityACUrl(container.VBDesignContent);
+                if (VBDockingManagerOldWPF.GetIsCloseableBSORoot(container.VBDesignContent))
                     vbTabItem.WithVisibleCloseButton = true;
-                if (VBDockingManager.GetRibbonBarVisibility(container.VBDesignContent) != datamodel.Global.ControlModes.Hidden)
+                if (VBDockingManagerOldWPF.GetRibbonBarVisibility(container.VBDesignContent) != datamodel.Global.ControlModes.Hidden)
                     vbTabItem.ShowRibbonBar = true;
                 if (vbTabItem.WithVisibleCloseButton == true)
-                    VBDockingManager.SetCloseButtonVisibility(container.VBDesignContent, Global.ControlModes.Enabled);
+                    VBDockingManagerOldWPF.SetCloseButtonVisibility(container.VBDesignContent, Global.ControlModes.Enabled);
             }
 
             if (isNewTabItem)
@@ -276,7 +276,7 @@ namespace gip.core.layoutengine.avui
             {
                 container.VBDesignLoaded += container_VBDesignLoaded;
                 tbcDocuments.Items.Add(vbTabItem);
-                if ((container.VBDesignContent != null) && VBDockingManager.GetIsCloseableBSORoot(container.VBDesignContent))
+                if ((container.VBDesignContent != null) && VBDockingManagerOldWPF.GetIsCloseableBSORoot(container.VBDesignContent))
                     tbcDocuments.SelectedItem = vbTabItem;
 
                 if (tbcDocuments.Items.Count == 1)

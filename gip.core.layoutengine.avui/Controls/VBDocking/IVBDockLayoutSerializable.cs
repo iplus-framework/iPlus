@@ -11,6 +11,6 @@ namespace gip.core.layoutengine.avui
     {
         void Serialize(XmlDocument doc, XmlNode parentNode);
 
-        void Deserialize(VBDockingManager managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler);
+        void Deserialize(VBDockingManagerOldWPF managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler);
     }
 }

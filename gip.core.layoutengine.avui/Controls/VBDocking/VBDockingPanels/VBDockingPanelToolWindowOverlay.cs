@@ -28,11 +28,11 @@ namespace gip.core.layoutengine.avui
         }
 
         #region c´tors
-        public VBDockingPanelToolWindowOverlay() : this(null, null, Dock.Bottom)
+        public VBDockingPanelToolWindowOverlay() : this(null, null, Avalonia.Controls.Dock.Bottom)
         {
         }
 
-        public VBDockingPanelToolWindowOverlay(VBDockingManager dockManager, VBDockingContainerToolWindow content, Dock initialDock)
+        public VBDockingPanelToolWindowOverlay(VBDockingManagerOldWPF dockManager, VBDockingContainerToolWindow content, Avalonia.Controls.Dock initialDock)
             : base(dockManager, initialDock)
         {
         }

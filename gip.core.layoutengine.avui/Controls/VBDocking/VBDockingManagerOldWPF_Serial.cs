@@ -11,19 +11,19 @@ using System.Xml.Linq;
 
 namespace gip.core.layoutengine.avui
 {
-    public partial class VBDockingManager
+    public partial class VBDockingManagerOldWPF
     {
         private void PersistDockStateToDesignList()
         {
-            //PART_gridDocking.PersistStateToVBDesignContent();
-            //foreach (VBDockingContainerToolWindow toolWin in ToolWindowContainerList)
-            //{
-            //    toolWin.PersistStateToVBDesignContent();
-            //}
-            //foreach (VBDockingContainerTabbedDoc tabbedDoc in TabbedDocContainerList)
-            //{
-            //    tabbedDoc.PersistStateToVBDesignContent();
-            //}
+            PART_gridDocking.PersistStateToVBDesignContent();
+            foreach (VBDockingContainerToolWindow toolWin in ToolWindowContainerList)
+            {
+                toolWin.PersistStateToVBDesignContent();
+            }
+            foreach (VBDockingContainerTabbedDoc tabbedDoc in TabbedDocContainerList)
+            {
+                tabbedDoc.PersistStateToVBDesignContent();
+            }
         }
 
         public string SerializeVBDesignList()
@@ -62,15 +62,15 @@ namespace gip.core.layoutengine.avui
                     continue;
                 XNamespace xNsUI = nsControl.Value.XMLNameSpace;
                 XElement xElement = new XElement(xNsUI + uiElement.GetType().Name,
-                    new XAttribute(xNsThis + thisTypeName + ".Container", VBDockingManager.GetContainer(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".DockState", VBDockingManager.GetDockState(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".DockPosition", VBDockingManager.GetDockPosition(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".RibbonBarVisibility", VBDockingManager.GetRibbonBarVisibility(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".IsCloseableBSORoot", VBDockingManager.GetIsCloseableBSORoot(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".CloseButtonVisibility", VBDockingManager.GetCloseButtonVisibility(uiElement).ToString()),
-                    new XAttribute(xNsThis + thisTypeName + ".DisableDockingOnClick", VBDockingManager.GetDisableDockingOnClick(uiElement).ToString())
+                    new XAttribute(xNsThis + thisTypeName + ".Container", VBDockingManagerOldWPF.GetContainer(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".DockState", VBDockingManagerOldWPF.GetDockState(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".DockPosition", VBDockingManagerOldWPF.GetDockPosition(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".RibbonBarVisibility", VBDockingManagerOldWPF.GetRibbonBarVisibility(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".IsCloseableBSORoot", VBDockingManagerOldWPF.GetIsCloseableBSORoot(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".CloseButtonVisibility", VBDockingManagerOldWPF.GetCloseButtonVisibility(uiElement).ToString()),
+                    new XAttribute(xNsThis + thisTypeName + ".DisableDockingOnClick", VBDockingManagerOldWPF.GetDisableDockingOnClick(uiElement).ToString())
                     );
-                Size size = VBDockingManager.GetWindowSize(uiElement);
+                Size size = VBDockingManagerOldWPF.GetWindowSize(uiElement);
                 xElement.Add(new XAttribute(xNsThis + thisTypeName + ".WindowSize", String.Format("{0},{1}", size.Width, size.Height)));
                 if (uiElement is Control)
                     xElement.Add(new XAttribute(xNsX + "Name", (uiElement as Control).Name));
@@ -94,32 +94,32 @@ namespace gip.core.layoutengine.avui
         {
             XmlDocument doc = new XmlDocument();
             doc.AppendChild(doc.CreateElement("DockingLibrary_Layout"));
-            //PART_gridDocking.Serialize(doc, doc.DocumentElement);
+            PART_gridDocking.Serialize(doc, doc.DocumentElement);
             return doc.OuterXml;
         }
 
         public void RestoreLayoutFromXml(string xml, GetContentFromTypeString getContentHandler)
         {
-            //XmlDocument doc = new XmlDocument();
-            //doc.LoadXml(xml);
+            XmlDocument doc = new XmlDocument();
+            doc.LoadXml(xml);
 
-            ////PART_gridDocking.Deserialize(this, doc.ChildNodes[0], getContentHandler);
+            PART_gridDocking.Deserialize(this, doc.ChildNodes[0], getContentHandler);
 
-            //List<VBDockingPanelBase> addedPanes = new List<VBDockingPanelBase>();
-            //foreach (VBDockingContainerToolWindow content in ToolWindowContainerList)
-            //{
-            //    VBDockingPanelToolWindow pane = content.VBDockingPanel as VBDockingPanelToolWindow;
-            //    if (pane != null && !addedPanes.Contains(pane))
-            //    {
-            //        if (pane.State == VBDockingPanelState.AutoHide)
-            //        {
-            //            addedPanes.Add(pane);
-            //            HideDockingPanelToolWindow_AsDockingButton(pane);
-            //        }
-            //    }
-            //}
+            List<VBDockingPanelBase> addedPanes = new List<VBDockingPanelBase>();
+            foreach (VBDockingContainerToolWindow content in ToolWindowContainerList)
+            {
+                VBDockingPanelToolWindow pane = content.VBDockingPanel as VBDockingPanelToolWindow;
+                if (pane != null && !addedPanes.Contains(pane))
+                {
+                    if (pane.State == VBDockingPanelState.AutoHide)
+                    {
+                        addedPanes.Add(pane);
+                        HideDockingPanelToolWindow_AsDockingButton(pane);
+                    }
+                }
+            }
 
-            //_currentButton = null;
+            _currentButton = null;
         }
     }
 }

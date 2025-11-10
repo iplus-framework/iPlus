@@ -21,12 +21,12 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerToolWindow(VBDockingManager manager)
+        public VBDockingContainerToolWindow(VBDockingManagerOldWPF manager)
             : base(manager)
         {
         }
 
-        public VBDockingContainerToolWindow(VBDockingManager manager, Control vbDesignContent)
+        public VBDockingContainerToolWindow(VBDockingManagerOldWPF manager, Control vbDesignContent)
             : base(manager, vbDesignContent)
         {
             RefreshTitle();
@@ -75,13 +75,13 @@ namespace gip.core.layoutengine.avui
             {
                 if (VBDesignContent != null)
                 {
-                    if (VBDockingManager.GetDockState(VBDesignContent) == datamodel.Global.VBDesignDockState.Docked)
+                    if (VBDockingManagerOldWPF.GetDockState(VBDesignContent) == datamodel.Global.VBDesignDockState.Docked)
                     {
-                        Show(TranslateDock(VBDockingManager.GetDockPosition(VBDesignContent)));
+                        Show(TranslateDock(VBDockingManagerOldWPF.GetDockPosition(VBDesignContent)));
                     }
-                    else if (VBDockingManager.GetDockState(VBDesignContent) == datamodel.Global.VBDesignDockState.FloatingWindow)
+                    else if (VBDockingManagerOldWPF.GetDockState(VBDesignContent) == datamodel.Global.VBDesignDockState.FloatingWindow)
                     {
-                        Show(TranslateDock(VBDockingManager.GetDockPosition(VBDesignContent)));
+                        Show(TranslateDock(VBDockingManagerOldWPF.GetDockPosition(VBDesignContent)));
                         if (_vbDockingPanel != null)
                         {
                             double desiredWidth = 300;
@@ -125,20 +125,20 @@ namespace gip.core.layoutengine.avui
                             }
                         }
                     }
-                    else if (VBDockingManager.GetDockState(VBDesignContent) == datamodel.Global.VBDesignDockState.Tabbed)
+                    else if (VBDockingManagerOldWPF.GetDockState(VBDesignContent) == datamodel.Global.VBDesignDockState.Tabbed)
                     {
                         ShowAsDocument();
                     }
                     else //if (this.ACDesignObject.DockState == datamodel.Global.ACDesignDockState.AutoHideButton)
                     {
-                        Show(TranslateDock(VBDockingManager.GetDockPosition(VBDesignContent)));
+                        Show(TranslateDock(VBDockingManagerOldWPF.GetDockPosition(VBDesignContent)));
                         if (_vbDockingPanel != null)
                             (_vbDockingPanel as VBDockingPanelToolWindow).AutoHide();
                     }
                 }
                 else
                 {
-                    Show(Dock.Right);
+                    Show(Avalonia.Controls.Dock.Right);
                 }
             }
         }
@@ -184,7 +184,7 @@ namespace gip.core.layoutengine.avui
         /// Show this content
         /// </summary>
         /// <remarks>Show this content in a dockable pane. If no pane was previuosly created, it creates a new one with passed initial dock. </remarks>
-        protected void Show(Dock dock)
+        protected void Show(Avalonia.Controls.Dock dock)
         {
             if (VBDockingPanel == null)
             {

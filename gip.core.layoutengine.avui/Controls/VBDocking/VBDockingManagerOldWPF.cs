@@ -30,12 +30,12 @@ namespace gip.core.layoutengine.avui
     [TemplatePart(Name = "PART_panelFront", Type = typeof(DockPanel))]
     [TemplatePart(Name = "PART_AvInvisibleInitDummy", Type = typeof(StackPanel))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDockingManager'}de{'VBDockingManager'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
-    public partial class VBDockingManager : ContentControl, IVBDockDropSurface, IACInteractiveObject, IACObject, IVBGui
+    public partial class VBDockingManagerOldWPF : ContentControl, IVBDockDropSurface, IACInteractiveObject, IACObject, IVBGui
     {
         public event EventHandler OnInitVBControlFinished;
 
         #region c'tors
-        public VBDockingManager() : base()
+        public VBDockingManagerOldWPF() : base()
         {
         }
 
@@ -126,7 +126,7 @@ namespace gip.core.layoutengine.avui
                 Path = "VBDockingManagerFreezing",
                 Mode = BindingMode.OneWay
             };
-            this.Bind(VBDockingManager.MasterPageFreezeProperty, bindingVarioWPF);
+            this.Bind(VBDockingManagerOldWPF.MasterPageFreezeProperty, bindingVarioWPF);
 
             AddSelectionChangedHandler();
             if (OnInitVBControlFinished != null)
@@ -209,7 +209,7 @@ namespace gip.core.layoutengine.avui
                     Path = Const.ACUrlCmdMessage,
                     Mode = BindingMode.OneWay
                 };
-                this.Bind(VBDockingManager.ACUrlCmdMessageProperty, binding);
+                this.Bind(VBDockingManagerOldWPF.ACUrlCmdMessageProperty, binding);
 
                 binding = new Binding
                 {
@@ -217,7 +217,7 @@ namespace gip.core.layoutengine.avui
                     Path = Const.InitState,
                     Mode = BindingMode.OneWay
                 };
-                this.Bind(VBDockingManager.ACCompInitStateProperty, binding);
+                this.Bind(VBDockingManagerOldWPF.ACCompInitStateProperty, binding);
             }
         }
 
@@ -342,9 +342,9 @@ namespace gip.core.layoutengine.avui
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
             vbDesign.VBContent = "*" + acClassDesignName;
-            VBDockingManager.SetContainer(vbDesign, Global.VBDesignContainer.ModalDialog);
-            VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
-            VBDockingManager.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
+            VBDockingManagerOldWPF.SetContainer(vbDesign, Global.VBDesignContainer.ModalDialog);
+            VBDockingManagerOldWPF.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
+            VBDockingManagerOldWPF.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
             ShowVBDesign(vbDesign, acCaption);
         }
 
@@ -355,12 +355,12 @@ namespace gip.core.layoutengine.avui
             VBDesign vbDesign = new VBDesign();
             vbDesign.DataContext = forObject;
             vbDesign.VBContent = "*" + acClassDesignName;
-            VBDockingManager.SetContainer(vbDesign, containerType);
-            VBDockingManager.SetDockState(vbDesign, dockState);
-            VBDockingManager.SetDockPosition(vbDesign, dockPosition);
-            VBDockingManager.SetIsCloseableBSORoot(vbDesign, isClosableBSORoot);
-            VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
-            VBDockingManager.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
+            VBDockingManagerOldWPF.SetContainer(vbDesign, containerType);
+            VBDockingManagerOldWPF.SetDockState(vbDesign, dockState);
+            VBDockingManagerOldWPF.SetDockPosition(vbDesign, dockPosition);
+            VBDockingManagerOldWPF.SetIsCloseableBSORoot(vbDesign, isClosableBSORoot);
+            VBDockingManagerOldWPF.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
+            VBDockingManagerOldWPF.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
 
             //VBDockingManager.SetWindowSize(vbDesign, defaultWindowSize);
             VBDesignList.Add(vbDesign);
@@ -389,17 +389,17 @@ namespace gip.core.layoutengine.avui
                 vbDesign.AutoStartACComponent = acUrl;
                 vbDesign.AutoStartParameter = parameterList;
 
-                VBDockingManager.SetContainer(vbDesign, Global.VBDesignContainer.DockableWindow);
-                VBDockingManager.SetDockState(vbDesign, dockState);
-                VBDockingManager.SetDockPosition(vbDesign, Global.VBDesignDockPosition.Right);
-                VBDockingManager.SetIsCloseableBSORoot(vbDesign, true);
+                VBDockingManagerOldWPF.SetContainer(vbDesign, Global.VBDesignContainer.DockableWindow);
+                VBDockingManagerOldWPF.SetDockState(vbDesign, dockState);
+                VBDockingManagerOldWPF.SetDockPosition(vbDesign, Global.VBDesignDockPosition.Right);
+                VBDockingManagerOldWPF.SetIsCloseableBSORoot(vbDesign, true);
                 if (ribbonVisibilityOff)
-                    VBDockingManager.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Collapsed);
+                    VBDockingManagerOldWPF.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Collapsed);
                 else
-                    VBDockingManager.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Enabled);
-                VBDockingManager.SetCloseButtonVisibility(vbDesign, Global.ControlModes.Enabled);
+                    VBDockingManagerOldWPF.SetRibbonBarVisibility(vbDesign, Global.ControlModes.Enabled);
+                VBDockingManagerOldWPF.SetCloseButtonVisibility(vbDesign, Global.ControlModes.Enabled);
                 if (ControlManager.TouchScreenMode)
-                    VBDockingManager.SetDisableDockingOnClick(vbDesign, true);
+                    VBDockingManagerOldWPF.SetDisableDockingOnClick(vbDesign, true);
                 VBDesignList.Add(vbDesign);
                 ShowVBDesign(vbDesign);
             }
@@ -440,7 +440,7 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            Global.VBDesignContainer containerType = VBDockingManager.GetContainer(uiElement);
+            Global.VBDesignContainer containerType = VBDockingManagerOldWPF.GetContainer(uiElement);
 
             if (containerType == Global.VBDesignContainer.TabItem)
             {
@@ -554,7 +554,7 @@ namespace gip.core.layoutengine.avui
                 if (vbDesign != null)
                 {
                     if (ControlManager.TouchScreenMode && IsBSOManager)
-                        VBDockingManager.SetDisableDockingOnClick(vbDesign, true);
+                        VBDockingManagerOldWPF.SetDisableDockingOnClick(vbDesign, true);
                     vbDesign.InitVBControl();
                 }
                 toolWin.ReInitDataContext();
@@ -565,7 +565,7 @@ namespace gip.core.layoutengine.avui
                 if (vbDesign != null)
                 {
                     if (ControlManager.TouchScreenMode && IsBSOManager)
-                        VBDockingManager.SetDisableDockingOnClick(vbDesign, true);
+                        VBDockingManagerOldWPF.SetDisableDockingOnClick(vbDesign, true);
                     vbDesign.InitVBControl();
                 }
                 tabbedDoc.ReInitDataContext();
@@ -642,7 +642,7 @@ namespace gip.core.layoutengine.avui
             if (!(uiElement is VBDesign))
                 return;
             VBDesign uiElementAsDataDesign = (uiElement as VBDesign);
-            if (VBDockingManager.GetIsCloseableBSORoot(uiElementAsDataDesign))
+            if (VBDockingManagerOldWPF.GetIsCloseableBSORoot(uiElementAsDataDesign))
                 uiElementAsDataDesign.StopAutoStartComponent();
             VBDesignList.Remove(uiElement);
             this.Focus();
@@ -731,7 +731,7 @@ namespace gip.core.layoutengine.avui
                 VBDockingContainerToolWindowVB tabbedDoc = tab as VBDockingContainerToolWindowVB;
                 if (tabbedDoc != null)
                 {
-                    if (VBDockingManager.GetIsCloseableBSORoot(tabbedDoc.VBDesignContent))
+                    if (VBDockingManagerOldWPF.GetIsCloseableBSORoot(tabbedDoc.VBDesignContent))
                     {
                         RemoveDockingContainerToolWindowTabbed(tabbedDoc);
                         tabbedDoc.OnCloseWindow();
@@ -819,26 +819,26 @@ namespace gip.core.layoutengine.avui
             bool isFirstButton = PART_btnPanelLeft.Children.Count <= 0;
             switch (group.Dock)
             {
-                case Dock.Left:
+                case Avalonia.Controls.Dock.Left:
                     transformControl = new LayoutTransformControl();
                     transformControl.LayoutTransform = new RotateTransform(90);
                     transformControl.Child = btn;
                     transformControl.Margin = new Thickness(5, isFirstButton ? 0 : 10, 0, 0);
                     PART_btnPanelLeft.Children.Add(transformControl);
                     break;
-                case Dock.Right:
+                case Avalonia.Controls.Dock.Right:
                     transformControl = new LayoutTransformControl();
                     transformControl.LayoutTransform = new RotateTransform(90);
                     transformControl.Child = btn;
                     transformControl.Margin = new Thickness(0, isFirstButton ? 0 : 10, 5, 0);
                     PART_btnPanelRight.Children.Add(transformControl);
                     break;
-                case Dock.Top:
+                case Avalonia.Controls.Dock.Top:
                     if (!isFirstButton)
                         btn.Margin = new Thickness(5, 0, 0, 0);
                     PART_btnPanelTop.Children.Add(btn);
                     break;
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Bottom:
                     if (!isFirstButton)
                         btn.Margin = new Thickness(5, 0, 0, 0);
                     PART_btnPanelBottom.Children.Add(btn);
@@ -859,7 +859,7 @@ namespace gip.core.layoutengine.avui
             bool isFirstButton = true;
             switch (group.Dock)
             {
-                case Dock.Left:
+                case Avalonia.Controls.Dock.Left:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
                         transformControl = new LayoutTransformControl();
@@ -870,7 +870,7 @@ namespace gip.core.layoutengine.avui
                         isFirstButton = false;
                     }
                     break;
-                case Dock.Right:
+                case Avalonia.Controls.Dock.Right:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
                         transformControl = new LayoutTransformControl();
@@ -881,7 +881,7 @@ namespace gip.core.layoutengine.avui
                         isFirstButton = false;
                     }
                     break;
-                case Dock.Top:
+                case Avalonia.Controls.Dock.Top:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
                         if (!isFirstButton)
@@ -890,7 +890,7 @@ namespace gip.core.layoutengine.avui
                         isFirstButton = false;
                     }
                     break;
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Bottom:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
                         if (!isFirstButton)
@@ -915,7 +915,7 @@ namespace gip.core.layoutengine.avui
 
             switch (group.Dock)
             {
-                case Dock.Left:
+                case Avalonia.Controls.Dock.Left:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
                         var transformedCtrl = PART_btnPanelLeft.Children.OfType<LayoutTransformControl>().Where(c => c.Child == btn).FirstOrDefault();
@@ -923,7 +923,7 @@ namespace gip.core.layoutengine.avui
                             PART_btnPanelLeft.Children.Remove(transformedCtrl);
                     }
                     break;
-                case Dock.Right:
+                case Avalonia.Controls.Dock.Right:
                     foreach (VBDockingButton btn in group.Buttons)
                     {
                         var transformedCtrl = PART_btnPanelRight.Children.OfType<LayoutTransformControl>().Where(c => c.Child == btn).FirstOrDefault();
@@ -931,11 +931,11 @@ namespace gip.core.layoutengine.avui
                             PART_btnPanelRight.Children.Remove(transformedCtrl);
                     }
                     break;
-                case Dock.Top:
+                case Avalonia.Controls.Dock.Top:
                     foreach (VBDockingButton btn in group.Buttons)
                         PART_btnPanelTop.Children.Remove(btn);
                     break;
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Bottom:
                     foreach (VBDockingButton btn in group.Buttons)
                         PART_btnPanelBottom.Children.Remove(btn);
                     break;
@@ -953,19 +953,19 @@ namespace gip.core.layoutengine.avui
                     VBDockingButton button = queryButton.First();
                     switch (group.Dock)
                     {
-                        case Dock.Left:
+                        case Avalonia.Controls.Dock.Left:
                             RemoveDockingButtonFromStackPanel(PART_btnPanelLeft, button, group);
                             groupToRemove = group;
                             break;
-                        case Dock.Right:
+                        case Avalonia.Controls.Dock.Right:
                             RemoveDockingButtonFromStackPanel(PART_btnPanelRight, button, group);
                             groupToRemove = group;
                             break;
-                        case Dock.Top:
+                        case Avalonia.Controls.Dock.Top:
                             RemoveDockingButtonFromStackPanel(PART_btnPanelTop, button, group);
                             groupToRemove = group;
                             break;
-                        case Dock.Bottom:
+                        case Avalonia.Controls.Dock.Bottom:
                             RemoveDockingButtonFromStackPanel(PART_btnPanelBottom, button, group);
                             groupToRemove = group;
                             break;
@@ -1030,8 +1030,8 @@ namespace gip.core.layoutengine.avui
 
                 switch (_currentButton.DockingButtonGroup.Dock)
                 {
-                    case Dock.Left:
-                    case Dock.Right:
+                    case Avalonia.Controls.Dock.Left:
+                    case Avalonia.Controls.Dock.Right:
                         if (_tempPanelAnimation != null)
                             pane.PaneWidth = _lengthAnimation;
                         else
@@ -1039,8 +1039,8 @@ namespace gip.core.layoutengine.avui
                         length = _tempPane.Width;
                         right_left = true;
                         break;
-                    case Dock.Top:
-                    case Dock.Bottom:
+                    case Avalonia.Controls.Dock.Top:
+                    case Avalonia.Controls.Dock.Bottom:
                         if (_tempPanelAnimation != null)
                             pane.PaneHeight = _lengthAnimation;
                         else
@@ -1092,22 +1092,22 @@ namespace gip.core.layoutengine.avui
 
             switch (_currentButton.DockingButtonGroup.Dock)
             {
-                case Dock.Left:
+                case Avalonia.Controls.Dock.Left:
                     splitter = new VBDockingSplitter(_tempPane, null, VBDockSplitOrientation.Vertical);
                     length = pane.PaneWidth;
                     right_left = true;
                     break;
-                case Dock.Right:
+                case Avalonia.Controls.Dock.Right:
                     splitter = new VBDockingSplitter(null, _tempPane, VBDockSplitOrientation.Vertical);
                     length = pane.PaneWidth;
                     right_left = true;
                     break;
-                case Dock.Top:
+                case Avalonia.Controls.Dock.Top:
                     splitter = new VBDockingSplitter(_tempPane, null, VBDockSplitOrientation.Horizontal);
                     length = pane.PaneHeight;
                     right_left = false;
                     break;
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Bottom:
                     splitter = new VBDockingSplitter(null, _tempPane, VBDockSplitOrientation.Horizontal);
                     length = pane.PaneHeight;
                     right_left = false;
@@ -1137,12 +1137,12 @@ namespace gip.core.layoutengine.avui
             {
                 switch (_currentButton.DockingButtonGroup.Dock)
                 {
-                    case Dock.Left:
-                    case Dock.Right:
+                    case Avalonia.Controls.Dock.Left:
+                    case Avalonia.Controls.Dock.Right:
                         panel.PaneWidth = _tempPane.PaneWidth;
                         break;
-                    case Dock.Top:
-                    case Dock.Bottom:
+                    case Avalonia.Controls.Dock.Top:
+                    case Avalonia.Controls.Dock.Bottom:
                         panel.PaneHeight = _tempPane.PaneHeight;
                         break;
                 }
@@ -1331,7 +1331,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        internal void MoveTo(VBDockingPanelToolWindow sourcePanel, VBDockingPanelBase destinationPanel, Dock relativeDock)
+        internal void MoveTo(VBDockingPanelToolWindow sourcePanel, VBDockingPanelBase destinationPanel, Avalonia.Controls.Dock relativeDock)
         {
             PART_gridDocking.MoveTo(sourcePanel, destinationPanel, relativeDock);
         }

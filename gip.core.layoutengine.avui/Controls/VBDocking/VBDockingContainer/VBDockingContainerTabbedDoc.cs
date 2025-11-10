@@ -9,7 +9,7 @@ using Avalonia.Interactivity;
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
-    /// Represent a container for tabbed documents. Use with <see cref="VBDockingManager"/>.
+    /// Represent a container for tabbed documents. Use with <see cref="VBDockingManagerOldWPF"/>.
     /// </summary>
     public class VBDockingContainerTabbedDoc : VBDockingContainerBase
     {
@@ -18,12 +18,12 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerTabbedDoc(VBDockingManager manager)
+        public VBDockingContainerTabbedDoc(VBDockingManagerOldWPF manager)
             : base(manager)
         {
         }
 
-        public VBDockingContainerTabbedDoc(VBDockingManager manager, Control vbDesignContent)
+        public VBDockingContainerTabbedDoc(VBDockingManagerOldWPF manager, Control vbDesignContent)
             : base(manager, vbDesignContent)
         {
         }
@@ -106,19 +106,19 @@ namespace gip.core.layoutengine.avui
                         _VBRibbon.IsVisible = true;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
-                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
+                            VBDockingManagerOldWPF.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
                     }
                     else
                     {
                         _VBRibbon.IsVisible = false;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
-                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);
+                            VBDockingManagerOldWPF.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);
                     }
                 }
                 else if ((button.Name == "PART_CloseButton") && (VBDesignContent != null))
                 {
-                    if (VBDockingManager.GetIsCloseableBSORoot(VBDesignContent))
+                    if (VBDockingManagerOldWPF.GetIsCloseableBSORoot(VBDesignContent))
                     {
                         CloseTab();
                     }

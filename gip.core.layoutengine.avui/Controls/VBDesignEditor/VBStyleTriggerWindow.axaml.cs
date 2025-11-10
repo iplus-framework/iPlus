@@ -15,7 +15,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBStyleTriggerWindow(VBDockingManager dockManager)
+        public VBStyleTriggerWindow(VBDockingManagerOldWPF dockManager)
             : base(dockManager)
 		{
 			InitializeComponent();

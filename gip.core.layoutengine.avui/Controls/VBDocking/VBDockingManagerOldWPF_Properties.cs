@@ -1,11 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Metadata;
-using Dock.Avalonia.Controls;
-using Dock.Model.Avalonia;
-using Dock.Model.Avalonia.Controls;
-using Dock.Model.Avalonia.Core;
-using Dock.Model.Core;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
@@ -13,125 +8,142 @@ using System.ComponentModel;
 
 namespace gip.core.layoutengine.avui
 {
-    public partial class VBDockingManager
+    public partial class VBDockingManagerOldWPF
     {
 
         #region PART's
-
-        private Factory _Factory;
-        public Factory Factory
+        private Border _PART_BorderFreeze;
+        public Border PART_BorderFreeze
         {
             get
             {
-                return _Factory;
+                return _PART_BorderFreeze;
             }
         }
 
-        ProportionalDock _MainLayout;
-        public ProportionalDock MainLayout
+        private StackPanel _PART_btnPanelLeft;
+        public StackPanel PART_btnPanelLeft
         {
             get
             {
-                return _MainLayout;
+                return _PART_btnPanelLeft;
             }
         }
 
-        bool _TabStripVisibleStyleIsSet = false;
-        DockControl _DockControl;
-        public DockControl DockControl
+        private StackPanel _PART_btnPanelRight;
+        public StackPanel PART_btnPanelRight
         {
             get
             {
-                return _DockControl;
+                return _PART_btnPanelRight;
             }
         }
 
-        private List<DockedDesignInfo> _DesignToolMap;
-        internal List<DockedDesignInfo> DesignToolMap
+        private StackPanel _PART_btnPanelTop;
+        public StackPanel PART_btnPanelTop
         {
             get
             {
-                if (_DesignToolMap == null)
-                    _DesignToolMap = new List<DockedDesignInfo>();
-                return _DesignToolMap;
+                return _PART_btnPanelTop;
             }
         }
 
-        internal enum ClosingState
+        private StackPanel _PART_btnPanelBottom;
+        public StackPanel PART_btnPanelBottom
         {
-            None,
-            /// <summary>
-            /// Closing was initiated from Background
-            /// </summary>
-            BSO,
-            /// <summary>
-            /// Closing was initiated by user from GUI by clicking the Close-Button
-            /// </summary>
-            GUI
+            get
+            {
+                return _PART_btnPanelBottom;
+            }
         }
 
-        internal class DockedDesignInfo
+        private VBDockingGrid _PART_gridDocking;
+        public VBDockingGrid PART_gridDocking
         {
-            public DockableBase Dockable { get; set; }
-            public VBDesign Design { get; set; }
-            public ClosingState State { get; set; }
+            get
+            {
+                return _PART_gridDocking;
+            }
         }
 
-        //private List<>
+        private DockPanel _PART_panelFront;
+        public DockPanel PART_panelFront
+        {
+            get
+            {
+                return _PART_panelFront;
+            }
+        }
+
+        private StackPanel _PART_AvInvisibleInitDummy;
+        /// <summary>
+        /// Invisible Helper-Element for temporary adding new created VBDockingPanelToolWindow into logical tree in order to call Initialize and ApplyTemplate() Method
+        /// </summary>
+        public StackPanel PART_AvInvisibleInitDummy
+        {
+            get
+            {
+                return _PART_AvInvisibleInitDummy;
+            }
+        }
 
         #endregion
 
         #region Deklarative Properties (XAML)
         public static readonly AttachedProperty<Global.VBDesignContainer> ContainerProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Global.VBDesignContainer>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Global.VBDesignContainer>(
                                    "Container", Global.VBDesignContainer.TabItem);
 
         public static readonly AttachedProperty<Global.VBDesignDockState> DockStateProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Global.VBDesignDockState>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Global.VBDesignDockState>(
                                    "DockState", Global.VBDesignDockState.Tabbed);
 
         public static readonly AttachedProperty<Global.VBDesignDockPosition> DockPositionProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Global.VBDesignDockPosition>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Global.VBDesignDockPosition>(
                                    "DockPosition", Global.VBDesignDockPosition.Bottom);
 
         public static readonly AttachedProperty<Global.ControlModes> RibbonBarVisibilityProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Global.ControlModes>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Global.ControlModes>(
                                    "RibbonBarVisibility", Global.ControlModes.Hidden);
 
         public static readonly AttachedProperty<bool> IsCloseableBSORootProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, bool>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, bool>(
                                    "IsCloseableBSORoot", false);
 
         public static readonly AttachedProperty<bool> DisableDockingOnClickProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, bool>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, bool>(
                                    "DisableDockingOnClick", false);
 
         public static readonly AttachedProperty<Size> WindowSizeProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Size>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Size>(
                                    "WindowSize", new Size());
 
         public static readonly AttachedProperty<String> WindowTitleProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, String>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, String>(
                                    "WindowTitle", string.Empty);
 
         public static readonly AttachedProperty<Global.ControlModes> PART_closeButtonVisibilityProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Global.ControlModes>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Global.ControlModes>(
                                    "PART_closeButtonVisibility", Global.ControlModes.Hidden);
 
         public static readonly AttachedProperty<Global.ControlModes> CloseButtonVisibilityProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, Global.ControlModes>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, Global.ControlModes>(
                                    "CloseButtonVisibility", Global.ControlModes.Hidden);
 
         public static readonly AttachedProperty<string> TabVisibilityACUrlProperty =
-                               AvaloniaProperty.RegisterAttached<VBDockingManager, Control, string>(
+                               AvaloniaProperty.RegisterAttached<VBDockingManagerOldWPF, Control, string>(
                                    "TabVisibilityACUrl", string.Empty);
 
         public static readonly StyledProperty<double> TabItemMinHeightProperty =
-                               AvaloniaProperty.Register<VBDockingManager, double>(
+                               AvaloniaProperty.Register<VBDockingManagerOldWPF, double>(
                                    nameof(TabItemMinHeight), 0.0);
 
-        public static readonly AttachedProperty<IACBSO> BSOACComponentProperty = ContentPropertyHandler.BSOACComponentProperty.AddOwner<VBDockingManager>();
 
+        public string ACClassUrl
+        {
+            get;
+            set;
+        }
 
         public List<Control> _VBDesignList = new List<Control>();
         [Content]
@@ -155,87 +167,70 @@ namespace gip.core.layoutengine.avui
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.ContainerProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.ContainerProperty, value);
         }
 
         public static Global.VBDesignContainer GetContainer(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.ContainerProperty);
+            return element.GetValue(VBDockingManagerOldWPF.ContainerProperty);
         }
 
         public static void SetDockState(Control element, Global.VBDesignDockState value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.DockStateProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.DockStateProperty, value);
         }
 
         public static Global.VBDesignDockState GetDockState(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.DockStateProperty);
+            return element.GetValue(VBDockingManagerOldWPF.DockStateProperty);
         }
 
         public static void SetDockPosition(Control element, Global.VBDesignDockPosition value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.DockPositionProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.DockPositionProperty, value);
         }
 
         public static Global.VBDesignDockPosition GetDockPosition(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.DockPositionProperty);
-        }
-
-        public Alignment TranslateAlignment(Global.VBDesignDockPosition dock)
-        {
-            switch (dock)
-            {
-                case Global.VBDesignDockPosition.Bottom:
-                    return Alignment.Bottom;
-                case Global.VBDesignDockPosition.Left:
-                    return Alignment.Left;
-                case Global.VBDesignDockPosition.Right:
-                    return Alignment.Right;
-                case Global.VBDesignDockPosition.Top:
-                    return Alignment.Top;
-                default:
-                    return Alignment.Right;
-            }
+            return element.GetValue(VBDockingManagerOldWPF.DockPositionProperty);
         }
 
         public static void SetRibbonBarVisibility(Control element, Global.ControlModes value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.RibbonBarVisibilityProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.RibbonBarVisibilityProperty, value);
         }
 
         public static Global.ControlModes GetRibbonBarVisibility(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.RibbonBarVisibilityProperty);
+            return element.GetValue(VBDockingManagerOldWPF.RibbonBarVisibilityProperty);
         }
 
         public static void SetIsCloseableBSORoot(Control element, bool value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.IsCloseableBSORootProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.IsCloseableBSORootProperty, value);
         }
 
         public static bool GetIsCloseableBSORoot(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.IsCloseableBSORootProperty);
+            return element.GetValue(VBDockingManagerOldWPF.IsCloseableBSORootProperty);
         }
 
         public static void SetDisableDockingOnClick(Control element, bool value)
@@ -245,7 +240,7 @@ namespace gip.core.layoutengine.avui
                 return;
                 //throw new ArgumentNullException("element");
             }
-            element.SetValue(VBDockingManager.DisableDockingOnClickProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.DisableDockingOnClickProperty, value);
         }
 
         public static bool GetDisableDockingOnClick(Control element)
@@ -255,7 +250,7 @@ namespace gip.core.layoutengine.avui
                 return false;
                 //throw new ArgumentNullException("element");
             }
-            return element.GetValue(VBDockingManager.DisableDockingOnClickProperty);
+            return element.GetValue(VBDockingManagerOldWPF.DisableDockingOnClickProperty);
         }
 
 
@@ -263,14 +258,14 @@ namespace gip.core.layoutengine.avui
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.WindowSizeProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.WindowSizeProperty, value);
         }
 
         public static Size GetWindowSize(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.WindowSizeProperty);
+            return element.GetValue(VBDockingManagerOldWPF.WindowSizeProperty);
         }
 
 
@@ -278,21 +273,21 @@ namespace gip.core.layoutengine.avui
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.WindowTitleProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.WindowTitleProperty, value);
         }
 
         public static String GetWindowTitle(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.WindowTitleProperty);
+            return element.GetValue(VBDockingManagerOldWPF.WindowTitleProperty);
         }
 
         public static void SetCloseButtonVisibility(Control element, Global.ControlModes value)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.CloseButtonVisibilityProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.CloseButtonVisibilityProperty, value);
         }
 
         public static Global.ControlModes GetCloseButtonVisibility(Control element)
@@ -302,7 +297,7 @@ namespace gip.core.layoutengine.avui
                 return Global.ControlModes.Enabled;
                 //throw new ArgumentNullException("element");
             }
-            return element.GetValue(VBDockingManager.CloseButtonVisibilityProperty);
+            return element.GetValue(VBDockingManagerOldWPF.CloseButtonVisibilityProperty);
         }
 
 
@@ -310,14 +305,14 @@ namespace gip.core.layoutengine.avui
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            element.SetValue(VBDockingManager.TabVisibilityACUrlProperty, value);
+            element.SetValue(VBDockingManagerOldWPF.TabVisibilityACUrlProperty, value);
         }
 
         public static string GetTabVisibilityACUrl(Control element)
         {
             if (element == null)
                 throw new ArgumentNullException("element");
-            return element.GetValue(VBDockingManager.TabVisibilityACUrlProperty);
+            return element.GetValue(VBDockingManagerOldWPF.TabVisibilityACUrlProperty);
         }
 
         public double TabItemMinHeight
@@ -400,14 +395,8 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public IACBSO BSOACComponent
-        {
-            get { return GetValue(BSOACComponentProperty); }
-            set { SetValue(BSOACComponentProperty, value); }
-        }
-
         public static readonly StyledProperty<bool> IsBSOManagerProperty
-            = AvaloniaProperty.Register<VBDockingManager, bool>(nameof(IsBSOManager));
+            = AvaloniaProperty.Register<VBDockingManagerOldWPF, bool>(nameof(IsBSOManager));
         [Category("VBControl")]
         public bool IsBSOManager
         {
@@ -415,10 +404,53 @@ namespace gip.core.layoutengine.avui
             set { SetValue(IsBSOManagerProperty, value); }
         }
 
+        /// <summary>
+        /// List of managed contents (hiddens too)
+        /// </summary>
+        List<VBDockingContainerBase> ToolWindowContainerList = new List<VBDockingContainerBase>();
+
+        /// <summary>
+        /// Returns a documents list
+        /// </summary>
+        public VBDockingContainerTabbedDoc[] TabbedDocContainerList
+        {
+            get
+            {
+                if (PART_gridDocking == null)
+                    return new VBDockingContainerTabbedDoc[0];
+                int diff = PART_gridDocking.vbDockingPanelTabbedDoc.Documents.Count - PART_gridDocking.vbDockingPanelTabbedDoc.ContainerToolWindowsList.Count;
+                if (diff <= 0)
+                    return new VBDockingContainerTabbedDoc[0];
+                VBDockingContainerTabbedDoc[] docs = new VBDockingContainerTabbedDoc[diff];
+                int i = 0;
+                foreach (VBDockingContainerBase content in PART_gridDocking.vbDockingPanelTabbedDoc.Documents)
+                {
+                    if (content is VBDockingContainerTabbedDoc)
+                        docs[i++] = content as VBDockingContainerTabbedDoc;
+                }
+
+                return docs;
+            }
+        }
+
+        /// <summary>
+        /// Return active document. Return Selected Item in TabControl
+        /// </summary>
+        /// <remarks>If no document is present or a dockable content is active in the Documents pane return null</remarks>
+        public VBDockingContainerTabbedDoc ActiveDocument
+        {
+            get
+            {
+                if (vbDockingPanelTabbedDoc == null)
+                    return null;
+                return vbDockingPanelTabbedDoc.ActiveDocument;
+            }
+        }
+
 
         #region FocusView
 
-        public static readonly StyledProperty<string> FocusViewProperty = AvaloniaProperty.Register<VBDockingManager, string>(nameof(FocusView));
+        public static readonly StyledProperty<string> FocusViewProperty = AvaloniaProperty.Register<VBDockingManagerOldWPF, string>(nameof(FocusView));
 
         [Category("VBControl")]
         public string FocusView
@@ -429,17 +461,72 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
+        /// <summary>
+        /// Returns currently active documents pane (at the moment this is only one per DockManager control)
+        /// </summary>
+        /// <returns>The DocumentsPane</returns>
+        internal VBDockingPanelTabbedDoc vbDockingPanelTabbedDoc
+        {
+            get
+            {
+                if (PART_gridDocking == null)
+                    return null;
+                return PART_gridDocking.vbDockingPanelTabbedDoc;
+            }
+        }
+
+
+        private bool _SelectionChangedHandlerAdded = false;
+        private void AddSelectionChangedHandler()
+        {
+            if (_SelectionChangedHandlerAdded)
+                return;
+            if (vbDockingPanelTabbedDoc_TabControl == null)
+                return;
+            vbDockingPanelTabbedDoc_TabControl.SelectionChanged += vbDockingPanelTabbedDoc_TabControl_SelectionChanged;
+            _SelectionChangedHandlerAdded = true;
+        }
+
+
+        private void RemoveSelectionChangedHandler()
+        {
+            if (!_SelectionChangedHandlerAdded)
+                return;
+            if (vbDockingPanelTabbedDoc_TabControl == null)
+                return;
+            vbDockingPanelTabbedDoc_TabControl.SelectionChanged -= vbDockingPanelTabbedDoc_TabControl_SelectionChanged;
+            _SelectionChangedHandlerAdded = false;
+        }
+
+        void vbDockingPanelTabbedDoc_TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (TabbedDocSelectionChanged != null)
+            {
+                TabbedDocSelectionChanged(sender, e);
+            }
+        }
+
+        public event EventHandler<SelectionChangedEventArgs> TabbedDocSelectionChanged;
+        public VBTabControl vbDockingPanelTabbedDoc_TabControl
+        {
+            get
+            {
+                if (vbDockingPanelTabbedDoc == null)
+                    return null;
+                return vbDockingPanelTabbedDoc.TabControl;
+            }
+        }
         #endregion
 
         #region Persistence
-        public static readonly StyledProperty<bool> FreezeActiveProperty = AvaloniaProperty.Register<VBDockingManager, bool>(nameof(FreezeActive));
+        public static readonly StyledProperty<bool> FreezeActiveProperty = AvaloniaProperty.Register<VBDockingManagerOldWPF, bool>(nameof(FreezeActive));
         public bool FreezeActive
         {
             get { return GetValue(FreezeActiveProperty); }
             set { SetValue(FreezeActiveProperty, value); }
         }
 
-        public static readonly StyledProperty<WPFControlSelectionEventArgs> MasterPageFreezeProperty = AvaloniaProperty.Register<VBDockingManager, WPFControlSelectionEventArgs>(nameof(MasterPageFreeze));
+        public static readonly StyledProperty<WPFControlSelectionEventArgs> MasterPageFreezeProperty = AvaloniaProperty.Register<VBDockingManagerOldWPF, WPFControlSelectionEventArgs>(nameof(MasterPageFreeze));
 
         public WPFControlSelectionEventArgs MasterPageFreeze
         {
@@ -450,7 +537,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACUrlCmdMessage.
         /// </summary>
-        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty = AvaloniaProperty.Register<VBDockingManager, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
+        public static readonly StyledProperty<ACUrlCmdMessage> ACUrlCmdMessageProperty = AvaloniaProperty.Register<VBDockingManagerOldWPF, ACUrlCmdMessage>(nameof(ACUrlCmdMessage));
 
         /// <summary>
         /// Gets or sets the ACUrlCmdMessage.
@@ -464,7 +551,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the dependency property for ACCompInitState.
         /// </summary>
-        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBDockingManager, ACInitState>(nameof(ACCompInitState));
+        public static readonly StyledProperty<ACInitState> ACCompInitStateProperty = AvaloniaProperty.Register<VBDockingManagerOldWPF, ACInitState>(nameof(ACCompInitState));
 
         /// <summary>
         /// Gets or sets the ACCompInitState.
@@ -483,6 +570,11 @@ namespace gip.core.layoutengine.avui
                 OnACUrlMessageReceived();
             else if (change.Property == ACCompInitStateProperty)
                 InitStateChanged();
+            else if (change.Property == FocusViewProperty)
+            {
+                if (vbDockingPanelTabbedDoc != null && change.NewValue != null)
+                    vbDockingPanelTabbedDoc.FocusView = change.NewValue.ToString();
+            }
             else if (change.Property == DataContextProperty)
             {
                 if (change.NewValue == null && change.OldValue != null)
@@ -508,6 +600,57 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
+    }
+
+    /// <summary>
+    /// The settings for window position of the VBDesign.
+    /// </summary>
+    [Serializable]
+    public class SettingsVBDesignWndPos
+    {
+        /// <summary>
+        /// Creates a new instance of SettingsWndPos.
+        /// </summary>
+        public SettingsVBDesignWndPos()
+        {
+        }
+
+        /// <summary>
+        /// Creates a new instance of SettingsWndPos.
+        /// </summary>
+        /// <param name="acIdentifier">The acIdentifier parameter.</param>
+        /// <param name="wndRect">The widnow rectangle parameter.</param>
+        public SettingsVBDesignWndPos(string acIdentifier, Rect wndRect)
+        {
+            ACIdentifier = acIdentifier;
+            WndRect = wndRect;
+        }
+
+        /// <summary>
+        /// Gets or sets the ACIdentifier.
+        /// </summary>
+        public string ACIdentifier
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Gets or sets the WndRect.
+        /// </summary>
+        public Rect WndRect
+        {
+            get;
+            set;
+        }
+    }
+
+    /// <summary>
+    /// Represents the list of settings for window position of VBDesign.
+    /// </summary>
+    [Serializable]
+    public class SettingsVBDesignWndPosList : List<SettingsVBDesignWndPos>
+    {
     }
 
 }

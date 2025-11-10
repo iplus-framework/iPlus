@@ -8,7 +8,7 @@ using System.ComponentModel;
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
-    /// Represents a container for tool window in docking container. Use with <see cref="VBDockingManager"/>.
+    /// Represents a container for tool window in docking container. Use with <see cref="VBDockingManagerOldWPF"/>.
     /// </summary>
     public partial class VBDockingContainerToolWindowVB : VBDockingContainerToolWindow, IVBDialog
     {
@@ -17,7 +17,7 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerToolWindowVB(VBDockingManager dockManager, Control vbDesignContent)
+        public VBDockingContainerToolWindowVB(VBDockingManagerOldWPF dockManager, Control vbDesignContent)
             : base(dockManager, vbDesignContent)
         {
             InitializeComponent();
@@ -151,21 +151,21 @@ namespace gip.core.layoutengine.avui
                         _VBRibbon.IsVisible = true;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
-                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
+                            VBDockingManagerOldWPF.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Enabled);
                     }
                     else
                     {
                         _VBRibbon.IsVisible = false;
                         // Call SetRibbonBarVisibility for persistance of user-Design
                         if (VBDesignContent != null)
-                            VBDockingManager.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);
+                            VBDockingManagerOldWPF.SetRibbonBarVisibility(VBDesignContent, Global.ControlModes.Collapsed);
                     }
                 }
                 else if ((button.Name == "PART_CloseButton") && (VBDesignContent != null))
                 {
                     if (BSOACComponent != null && !BSOACComponent.ACSaveOrUndoChanges())
                         return;
-                    if (VBDockingManager.GetIsCloseableBSORoot(VBDesignContent))
+                    if (VBDockingManagerOldWPF.GetIsCloseableBSORoot(VBDesignContent))
                     {
                         if (DockManager != null)
                             DockManager.RemoveDockingContainerToolWindowTabbed(this);

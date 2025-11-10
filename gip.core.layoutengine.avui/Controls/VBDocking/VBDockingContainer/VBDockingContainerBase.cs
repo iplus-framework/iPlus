@@ -22,12 +22,12 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingContainerBase(VBDockingManager manager)
+        public VBDockingContainerBase(VBDockingManagerOldWPF manager)
         {
             DockManager = manager;
         }
 
-        public VBDockingContainerBase(VBDockingManager manager, Control vbDesignContent)
+        public VBDockingContainerBase(VBDockingManagerOldWPF manager, Control vbDesignContent)
         {
             DockManager = manager;
             this.VBDesignContent = vbDesignContent;
@@ -163,7 +163,7 @@ namespace gip.core.layoutengine.avui
         #region Properties Docking-Framework
 
         protected VBDockingPanelBase _vbDockingPanel = null;
-        public VBDockingManager DockManager;
+        public VBDockingManagerOldWPF DockManager;
 
         #endregion
 
@@ -252,7 +252,7 @@ namespace gip.core.layoutengine.avui
                 }
 
 
-                string title = VBDockingManager.GetWindowTitle(VBDesignContent);
+                string title = VBDockingManagerOldWPF.GetWindowTitle(VBDesignContent);
                 if (!String.IsNullOrEmpty(title))
                     acCaption = title;
                 if (String.IsNullOrEmpty(acCaption) && (ContextACObject != null))
@@ -273,11 +273,11 @@ namespace gip.core.layoutengine.avui
                 return;
 
             // Standardbar
-            if (VBDockingManager.GetRibbonBarVisibility(VBDesignContent) != Global.ControlModes.Hidden)
+            if (VBDockingManagerOldWPF.GetRibbonBarVisibility(VBDesignContent) != Global.ControlModes.Hidden)
             {
                 _VBRibbon = new VBRibbonBSODefault();
-                _VBRibbon.SetValue(DockPanel.DockProperty, Dock.Top);
-                if (VBDockingManager.GetRibbonBarVisibility(VBDesignContent) == Global.ControlModes.Collapsed)
+                _VBRibbon.SetValue(DockPanel.DockProperty, Avalonia.Controls.Dock.Top);
+                if (VBDockingManagerOldWPF.GetRibbonBarVisibility(VBDesignContent) == Global.ControlModes.Collapsed)
                     _VBRibbon.IsVisible = false;
                 else
                     _VBRibbon.IsVisible = true;
@@ -391,34 +391,34 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public Dock TranslateDock(Global.VBDesignDockPosition dock)
+        public Avalonia.Controls.Dock TranslateDock(Global.VBDesignDockPosition dock)
         {
             switch (dock)
             {
                 case Global.VBDesignDockPosition.Bottom:
-                    return Dock.Bottom;
+                    return Avalonia.Controls.Dock.Bottom;
                 case Global.VBDesignDockPosition.Left:
-                    return Dock.Left;
+                    return Avalonia.Controls.Dock.Left;
                 case Global.VBDesignDockPosition.Right:
-                    return Dock.Right;
+                    return Avalonia.Controls.Dock.Right;
                 case Global.VBDesignDockPosition.Top:
-                    return Dock.Top;
+                    return Avalonia.Controls.Dock.Top;
                 default:
-                    return Dock.Right;
+                    return Avalonia.Controls.Dock.Right;
             }
         }
 
-        public Global.VBDesignDockPosition TranslateDock(Dock dock)
+        public Global.VBDesignDockPosition TranslateDock(Avalonia.Controls.Dock dock)
         {
             switch (dock)
             {
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Bottom:
                     return Global.VBDesignDockPosition.Bottom;
-                case Dock.Left:
+                case Avalonia.Controls.Dock.Left:
                     return Global.VBDesignDockPosition.Left;
-                case Dock.Right:
+                case Avalonia.Controls.Dock.Right:
                     return Global.VBDesignDockPosition.Right;
-                case Dock.Top:
+                case Avalonia.Controls.Dock.Top:
                     return Global.VBDesignDockPosition.Top;
                 default:
                     return Global.VBDesignDockPosition.Right;
@@ -493,20 +493,20 @@ namespace gip.core.layoutengine.avui
                 if (VBDockingPanel is VBDockingPanelToolWindow)
                 {
                     VBDockingPanelToolWindow toolWindow = (VBDockingPanel as VBDockingPanelToolWindow);
-                    VBDockingManager.SetDockPosition(VBDesignContent, TranslateDock(toolWindow.Dock));
-                    VBDockingManager.SetDockState(VBDesignContent, TranslateDockingPanelState(toolWindow.State));
+                    VBDockingManagerOldWPF.SetDockPosition(VBDesignContent, TranslateDock(toolWindow.Dock));
+                    VBDockingManagerOldWPF.SetDockState(VBDesignContent, TranslateDockingPanelState(toolWindow.State));
                     if (_VBRibbon != null)
-                        VBDockingManager.SetRibbonBarVisibility(VBDesignContent, VBRibbonVisibility);
-                    VBDockingManager.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.Bounds.Width, (int)VBDockingPanel.Bounds.Height));
-                    VBDockingManager.SetCloseButtonVisibility(VBDesignContent, VBDockingManager.GetCloseButtonVisibility(VBDesignContent));
+                        VBDockingManagerOldWPF.SetRibbonBarVisibility(VBDesignContent, VBRibbonVisibility);
+                    VBDockingManagerOldWPF.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.Bounds.Width, (int)VBDockingPanel.Bounds.Height));
+                    VBDockingManagerOldWPF.SetCloseButtonVisibility(VBDesignContent, VBDockingManagerOldWPF.GetCloseButtonVisibility(VBDesignContent));
                 }
                 else if (VBDockingPanel is VBDockingPanelTabbedDoc)
                 {
                     VBDockingPanelTabbedDoc toolWindow = (VBDockingPanel as VBDockingPanelTabbedDoc);
-                    VBDockingManager.SetDockState(VBDesignContent, Global.VBDesignDockState.Tabbed);
+                    VBDockingManagerOldWPF.SetDockState(VBDesignContent, Global.VBDesignDockState.Tabbed);
                     if (_VBRibbon != null)
-                        VBDockingManager.SetRibbonBarVisibility(VBDesignContent, VBRibbonVisibility);
-                    VBDockingManager.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.Bounds.Width, (int)VBDockingPanel.Bounds.Height));
+                        VBDockingManagerOldWPF.SetRibbonBarVisibility(VBDesignContent, VBRibbonVisibility);
+                    VBDockingManagerOldWPF.SetWindowSize(VBDesignContent, new Size((int)VBDockingPanel.Bounds.Width, (int)VBDockingPanel.Bounds.Height));
                 }
             }
         }

@@ -323,9 +323,7 @@ namespace gip.core.layoutengine.avui
             AvaloniaProperty.Register<VBDesign, IACObjectDesign>(nameof(ContentACObject));
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
-        {
-            base.OnPropertyChanged(change);
-            
+        {          
             if (change.Property == ContentACObjectProperty)
             {
                 if (!_LoadDesignLocked)
@@ -335,6 +333,7 @@ namespace gip.core.layoutengine.avui
             {
                 RootPageWPF_VBDesignEditingEvent();
             }
+            base.OnPropertyChanged(change);
         }
 
         public bool CoerceRefreshDesign
@@ -1100,7 +1099,7 @@ namespace gip.core.layoutengine.avui
             IsDesignerActive = true;
 
             string dockingManagerName = "";
-            VBDockingManager parentDockingManager = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManager)) as VBDockingManager;
+            VBDockingManagerOldWPF parentDockingManager = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManagerOldWPF)) as VBDockingManagerOldWPF;
             if (parentDockingManager != null)
                 dockingManagerName = parentDockingManager.Name;
 

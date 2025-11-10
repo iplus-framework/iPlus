@@ -9,6 +9,6 @@ namespace gip.core.layoutengine.avui
     public class VBDockingButtonGroup
     {
         public readonly List<VBDockingButton> Buttons = new List<VBDockingButton>();
-        public Dock Dock; 
+        public Avalonia.Controls.Dock Dock; 
     }
 }

@@ -12,7 +12,7 @@ namespace gip.core.autocomponent
     /// Manager für Anwendungsobjekte
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Businessobject-Manager'}de{'Anwendungsobjekt-Manager'}", Global.ACKinds.TACBusinessobjects, Global.ACStorableTypes.Required, false, false)]
-    public class Businessobjects : ACComponentManager, IBusinessobjects, IACBSO
+    public class Businessobjects : ACComponentManager, IBusinessobjects
     {
         public const string ClassName = "Businessobjects";
 

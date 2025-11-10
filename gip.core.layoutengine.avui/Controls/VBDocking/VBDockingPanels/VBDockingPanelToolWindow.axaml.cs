@@ -68,14 +68,14 @@ namespace gip.core.layoutengine.avui
         {
         }
 
-        public VBDockingPanelToolWindow(VBDockingManager dockManager)
+        public VBDockingPanelToolWindow(VBDockingManagerOldWPF dockManager)
             : base(dockManager)
         {
             InitializeComponent();
             IsDragable = true;
         }
 
-        public VBDockingPanelToolWindow(VBDockingManager dockManager, Dock initialDock)
+        public VBDockingPanelToolWindow(VBDockingManagerOldWPF dockManager, Avalonia.Controls.Dock initialDock)
             : this(dockManager)
         {
             _dock = initialDock;
@@ -575,12 +575,12 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Current docking border
         /// </summary>
-        Dock _dock = Dock.Right;
+        Avalonia.Controls.Dock _dock = Avalonia.Controls.Dock.Right;
 
         /// <summary>
         /// Current docking border
         /// </summary>
-        public Dock Dock
+        public Avalonia.Controls.Dock Dock
         {
             get
             {
@@ -758,7 +758,7 @@ namespace gip.core.layoutengine.avui
                 VisibleContents.Add(content);
                 AddItem(content);
             }
-            if (this.ActiveContent != null && this.ActiveContent.VBDesignContent != null && VBDockingManager.GetCloseButtonVisibility(this.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled)
+            if (this.ActiveContent != null && this.ActiveContent.VBDesignContent != null && VBDockingManagerOldWPF.GetCloseButtonVisibility(this.ActiveContent.VBDesignContent) == Global.ControlModes.Enabled)
             {
                 if (PART_CloseButton != null)
                     PART_CloseButton.IsVisible = true;
@@ -914,10 +914,10 @@ namespace gip.core.layoutengine.avui
             VBTabItem vbTabItem = new VBTabItem();
             if (content.VBDesignContent != null)
             {
-                vbTabItem.TabVisibilityACUrl = VBDockingManager.GetTabVisibilityACUrl(content.VBDesignContent);
-                if (VBDockingManager.GetIsCloseableBSORoot(content.VBDesignContent))
+                vbTabItem.TabVisibilityACUrl = VBDockingManagerOldWPF.GetTabVisibilityACUrl(content.VBDesignContent);
+                if (VBDockingManagerOldWPF.GetIsCloseableBSORoot(content.VBDesignContent))
                     vbTabItem.WithVisibleCloseButton = true;
-                if (VBDockingManager.GetRibbonBarVisibility(content.VBDesignContent) != datamodel.Global.ControlModes.Hidden)
+                if (VBDockingManagerOldWPF.GetRibbonBarVisibility(content.VBDesignContent) != datamodel.Global.ControlModes.Hidden)
                     vbTabItem.ShowRibbonBar = true;
             }
             vbTabItem.Content = new ContentPresenter();
@@ -1104,7 +1104,7 @@ namespace gip.core.layoutengine.avui
             if (_lastState != VBDockingPanelState.FloatingWindow && State != VBDockingPanelState.FloatingWindow)
             {
                 ChangeState(VBDockingPanelState.FloatingWindow);
-                VBDockingManager parentDockManager = DockManager;
+                VBDockingManagerOldWPF parentDockManager = DockManager;
                 VBWindowDockingUndocked wnd = new VBWindowDockingUndocked(this);
                 SetFloatingWindowSizeAndPosition(wnd);
 
@@ -1184,7 +1184,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="destinationPane"></param>
         /// <param name="relativeDock"></param>
-        internal void MoveTo(VBDockingPanelBase destinationPane, Dock relativeDock)
+        internal void MoveTo(VBDockingPanelBase destinationPane, Avalonia.Controls.Dock relativeDock)
         {
             VBDockingPanelToolWindow dockableDestPane = destinationPane as VBDockingPanelToolWindow;
             if (dockableDestPane != null)
@@ -1235,7 +1235,7 @@ namespace gip.core.layoutengine.avui
         /// Change dock border
         /// </summary>
         /// <param name="dock">New dock border</param>
-        public void ChangeDock(Dock dock)
+        public void ChangeDock(Avalonia.Controls.Dock dock)
         {
             //if (dock != _dock)
             {
@@ -1284,7 +1284,7 @@ namespace gip.core.layoutengine.avui
             if (IsHidden)
                 return;
 
-            if (Dock == Dock.Left || Dock == Dock.Right)
+            if (Dock == Avalonia.Controls.Dock.Left || Dock == Avalonia.Controls.Dock.Right)
             {
                 if (Bounds.Width > 20 && Bounds.Width < 1500)
                     PaneWidth = Bounds.Width;
@@ -1327,7 +1327,7 @@ namespace gip.core.layoutengine.avui
                     {
                         try
                         {
-                            Size size = VBDockingManager.GetWindowSize(docCont.VBDesignContent);
+                            Size size = VBDockingManagerOldWPF.GetWindowSize(docCont.VBDesignContent);
                             if (size != null && !double.IsNaN(size.Width) && !double.IsNaN(size.Height) && size.Width >= 0 && size.Height >= 0)
                             {
                                 sizeHeight = size.Height;
@@ -1648,11 +1648,11 @@ namespace gip.core.layoutengine.avui
             base.Serialize(doc, parentNode);
         }
 
-        public override void Deserialize(VBDockingManager managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler)
+        public override void Deserialize(VBDockingManagerOldWPF managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler)
         {
             base.Deserialize(managerToAttach, node, getObjectHandler);
 
-            _dock = (Dock)Enum.Parse(typeof(Dock), node.Attributes["Dock"].Value);
+            _dock = (Avalonia.Controls.Dock)Enum.Parse(typeof(Avalonia.Controls.Dock), node.Attributes["Dock"].Value);
             SetState((VBDockingPanelState)Enum.Parse(typeof(VBDockingPanelState), node.Attributes["State"].Value));
             _lastState = (VBDockingPanelState)Enum.Parse(typeof(VBDockingPanelState), node.Attributes["LastState"].Value);
 

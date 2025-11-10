@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Styling;
+using Dock.Avalonia.Themes.Fluent;
 using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
@@ -160,6 +161,7 @@ namespace gip.core.layoutengine.avui
                 app.Resources.MergedDictionaries.Add(
                     AvaloniaXamlLoader.Load(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Absolute)) as ResourceDictionary);
             }
+            app.Styles.Add(new DockFluentTheme());
             app.Styles.Add(new IPlusTheme());
         }
 

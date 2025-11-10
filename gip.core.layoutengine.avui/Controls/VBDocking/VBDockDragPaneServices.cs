@@ -10,14 +10,14 @@ namespace gip.core.layoutengine.avui
         List<IVBDockDropSurface> Surfaces = new List<IVBDockDropSurface>();
         List<IVBDockDropSurface> SurfacesWithDragOver = new List<IVBDockDropSurface>();
 
-        VBDockingManager _owner;
+        VBDockingManagerOldWPF _owner;
 
-        public VBDockingManager DockManager
+        public VBDockingManagerOldWPF DockManager
         {
             get { return _owner; }
         }
 
-        public VBDockDragPanelServices(VBDockingManager owner)
+        public VBDockDragPanelServices(VBDockingManagerOldWPF owner)
         {
             _owner = owner;
         }

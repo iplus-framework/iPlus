@@ -65,9 +65,9 @@ namespace gip.core.layoutengine.avui
 
         }
 
-        Dock _dock;
+        Avalonia.Controls.Dock _dock;
 
-        public Dock Dock
+        public Avalonia.Controls.Dock Dock
         {
             get { return _dock; }
         }
@@ -90,7 +90,7 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Create a group with no panes
         /// </summary>
-        public VBDockingGroup(VBDockingGroup firstGroup, VBDockingGroup secondGroup, Dock groupDock)
+        public VBDockingGroup(VBDockingGroup firstGroup, VBDockingGroup secondGroup, Avalonia.Controls.Dock groupDock)
         {
             FirstChildGroup = firstGroup;
             SecondChildGroup = secondGroup;
@@ -134,7 +134,7 @@ namespace gip.core.layoutengine.avui
                     return new GridLength(AttachedVBDockingPanel.PaneWidth, GridUnitType.Pixel);
                 else
                 {
-                    if (Dock == Dock.Left || Dock == Dock.Right)
+                    if (Dock == Avalonia.Controls.Dock.Left || Dock == Avalonia.Controls.Dock.Right)
                         return new GridLength(FirstChildGroup.GroupWidth.Value+SecondChildGroup.GroupWidth.Value+4, GridUnitType.Pixel);
                     else
                         return FirstChildGroup.GroupWidth;
@@ -150,7 +150,7 @@ namespace gip.core.layoutengine.avui
                     return new GridLength(AttachedVBDockingPanel.PaneHeight, GridUnitType.Pixel);
                 else
                 {
-                    if (Dock == Dock.Top || Dock == Dock.Bottom)
+                    if (Dock == Avalonia.Controls.Dock.Top || Dock == Avalonia.Controls.Dock.Bottom)
                         return new GridLength(FirstChildGroup.GroupHeight.Value + SecondChildGroup.GroupHeight.Value + 4, GridUnitType.Pixel);
                     else
                         return FirstChildGroup.GroupHeight;
@@ -180,15 +180,15 @@ namespace gip.core.layoutengine.avui
                 FirstChildGroup.Arrange(grid);
             else
             {
-                if (Dock == Dock.Left || Dock == Dock.Right)
+                if (Dock == Avalonia.Controls.Dock.Left || Dock == Avalonia.Controls.Dock.Right)
                 {
                     grid.RowDefinitions.Add(new RowDefinition());
                     grid.ColumnDefinitions.Add(new ColumnDefinition());
                     grid.ColumnDefinitions.Add(new ColumnDefinition());
                     //grid.ColumnDefinitions[0].Width = (Dock == Dock.Left) ? new GridLength(AttachedPane.PaneWidth) : new GridLength(1, GridUnitType.Star);
                     //grid.ColumnDefinitions[1].Width = (Dock == Dock.Right) ? new GridLength(AttachedPane.PaneWidth) : new GridLength(1, GridUnitType.Star);
-                    grid.ColumnDefinitions[0].Width = (Dock == Dock.Left) ? FirstChildGroup.GroupWidth : new GridLength(1, GridUnitType.Star);
-                    grid.ColumnDefinitions[1].Width = (Dock == Dock.Right) ? SecondChildGroup.GroupWidth : new GridLength(1, GridUnitType.Star);
+                    grid.ColumnDefinitions[0].Width = (Dock == Avalonia.Controls.Dock.Left) ? FirstChildGroup.GroupWidth : new GridLength(1, GridUnitType.Star);
+                    grid.ColumnDefinitions[1].Width = (Dock == Avalonia.Controls.Dock.Right) ? SecondChildGroup.GroupWidth : new GridLength(1, GridUnitType.Star);
 
                     //grid.ColumnDefinitions[0].MinWidth = 50;
                     //grid.ColumnDefinitions[1].MinWidth = 50;
@@ -225,8 +225,8 @@ namespace gip.core.layoutengine.avui
                     grid.RowDefinitions.Add(new RowDefinition());
                     //grid.RowDefinitions[0].Height = (Dock == Dock.Top) ? new GridLength(AttachedPane.PaneHeight) : new GridLength(1, GridUnitType.Star);
                     //grid.RowDefinitions[1].Height = (Dock == Dock.Bottom) ? new GridLength(AttachedPane.PaneHeight) : new GridLength(1, GridUnitType.Star);
-                    grid.RowDefinitions[0].Height = (Dock == Dock.Top) ? FirstChildGroup.GroupHeight : new GridLength(1, GridUnitType.Star);
-                    grid.RowDefinitions[1].Height = (Dock == Dock.Bottom) ? SecondChildGroup.GroupHeight : new GridLength(1, GridUnitType.Star);
+                    grid.RowDefinitions[0].Height = (Dock == Avalonia.Controls.Dock.Top) ? FirstChildGroup.GroupHeight : new GridLength(1, GridUnitType.Star);
+                    grid.RowDefinitions[1].Height = (Dock == Avalonia.Controls.Dock.Bottom) ? SecondChildGroup.GroupHeight : new GridLength(1, GridUnitType.Star);
 
                     grid.RowDefinitions[0].MinHeight = 50;
                     grid.RowDefinitions[1].MinHeight = 50;
@@ -278,12 +278,12 @@ namespace gip.core.layoutengine.avui
         {
             switch (panel.Dock)
             {
-                case Dock.Right:
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Right:
+                case Avalonia.Controls.Dock.Bottom:
                     return new VBDockingGroup(this, new VBDockingGroup(panel), panel.Dock);
-                    
-                case Dock.Left:
-                case Dock.Top:
+
+                case Avalonia.Controls.Dock.Left:
+                case Avalonia.Controls.Dock.Top:
                     return new VBDockingGroup(new VBDockingGroup(panel), this, panel.Dock);
             }
 
@@ -400,9 +400,9 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public void Deserialize(VBDockingManager managerToAttach, System.Xml.XmlNode node, GetContentFromTypeString getObjectHandler)
+        public void Deserialize(VBDockingManagerOldWPF managerToAttach, System.Xml.XmlNode node, GetContentFromTypeString getObjectHandler)
         {
-            _dock = (Dock)Enum.Parse(typeof(Dock), node.Attributes["Dock"].Value);
+            _dock = (Avalonia.Controls.Dock)Enum.Parse(typeof(Avalonia.Controls.Dock), node.Attributes["Dock"].Value);
 
             if (node.ChildNodes[0].Name == "VBDockingPanelToolWindow")
             {

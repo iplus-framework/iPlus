@@ -1,0 +1,6 @@
+<UserControl x:Class="gip.core.layoutengine.avui.VBDockingManager"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <!--<DockControl x:Name="DockControl">            
+    </DockControl>-->
+</UserControl>

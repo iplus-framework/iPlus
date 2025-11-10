@@ -18,7 +18,7 @@ namespace gip.core.layoutengine.avui
 
         }
 
-        internal void AttachDockManager(VBDockingManager dockManager)
+        internal void AttachDockManager(VBDockingManagerOldWPF dockManager)
         {
             _vbDockingPanelTabbedDoc = new VBDockingPanelTabbedDoc(dockManager);
             _rootGroup = new VBDockingGroup(vbDockingPanelTabbedDoc);
@@ -101,7 +101,7 @@ namespace gip.core.layoutengine.avui
         }
 #endif
 
-        public void Add(VBDockingPanelToolWindow panel, VBDockingPanelBase relativePanel, Dock relativeDock)
+        public void Add(VBDockingPanelToolWindow panel, VBDockingPanelBase relativePanel, Avalonia.Controls.Dock relativeDock)
         {
             //Console.WriteLine("Add(...)");
             AttachDockingPanelToolWindowEvents(panel);
@@ -109,8 +109,8 @@ namespace gip.core.layoutengine.avui
 
             switch (relativeDock)
             {
-                case Dock.Right:
-                case Dock.Bottom:
+                case Avalonia.Controls.Dock.Right:
+                case Avalonia.Controls.Dock.Bottom:
                     {
                         if (group == _rootGroup)
                         {
@@ -124,8 +124,8 @@ namespace gip.core.layoutengine.avui
                         }
                     }
                     break;
-                case Dock.Left:
-                case Dock.Top:
+                case Avalonia.Controls.Dock.Left:
+                case Avalonia.Controls.Dock.Top:
                     {
                         if (group == _rootGroup)
                         {
@@ -159,7 +159,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public void MoveTo(VBDockingPanelToolWindow sourcePanel, VBDockingPanelBase destinationPanel, Dock relativeDock)
+        public void MoveTo(VBDockingPanelToolWindow sourcePanel, VBDockingPanelBase destinationPanel, Avalonia.Controls.Dock relativeDock)
         {
             Remove(sourcePanel);
             Add(sourcePanel, destinationPanel, relativeDock);
@@ -238,7 +238,7 @@ namespace gip.core.layoutengine.avui
             parentNode.AppendChild(node_rootGroup);
         }
 
-        public void Deserialize(VBDockingManager managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler)
+        public void Deserialize(VBDockingManagerOldWPF managerToAttach, XmlNode node, GetContentFromTypeString getObjectHandler)
         {
             _rootGroup = new VBDockingGroup();
             _rootGroup.Deserialize(managerToAttach, node, getObjectHandler);

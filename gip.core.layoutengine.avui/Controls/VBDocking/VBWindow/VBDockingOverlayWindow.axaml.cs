@@ -79,9 +79,9 @@ namespace gip.core.layoutengine.avui
         VBDockingOverlayWindowButton owdRight;
         VBDockingOverlayWindowButton owdInto;
 
-        VBDockingManager _owner;
+        VBDockingManagerOldWPF _owner;
 
-        public VBDockingManager DockManager
+        public VBDockingManagerOldWPF DockManager
         {
             get { return _owner; }
         }
@@ -91,7 +91,7 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public VBDockingOverlayWindow(VBDockingManager owner) : base()
+        public VBDockingOverlayWindow(VBDockingManagerOldWPF owner) : base()
         {
             _owner = owner;
             InitializeComponent();
@@ -117,21 +117,21 @@ namespace gip.core.layoutengine.avui
         internal bool OnDrop(Button btnDock, Point point)
         {
             if (btnDock == btnDockBottom)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Dock.Bottom);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Avalonia.Controls.Dock.Bottom);
             else if (btnDock == btnDockLeft)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Dock.Left);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Avalonia.Controls.Dock.Left);
             else if (btnDock == btnDockRight)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Dock.Right);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Avalonia.Controls.Dock.Right);
             else if (btnDock == btnDockTop)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Dock.Top);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.ChangeDock(Avalonia.Controls.Dock.Top);
             else if (btnDock == btnDockPaneTop)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Dock.Top);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Avalonia.Controls.Dock.Top);
             else if (btnDock == btnDockPaneBottom)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Dock.Bottom);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Avalonia.Controls.Dock.Bottom);
             else if (btnDock == btnDockPaneLeft)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Dock.Left);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Avalonia.Controls.Dock.Left);
             else if (btnDock == btnDockPaneRight)
-                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Dock.Right);
+                DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveTo(CurrentDropPane, Avalonia.Controls.Dock.Right);
             else if (btnDock == btnDockPaneInto)
             {
                 DockManager.DragPanelServices.FloatingWindow.HostedPane.ReferencedPane.MoveInto(CurrentDropPane);

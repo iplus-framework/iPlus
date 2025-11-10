@@ -78,53 +78,53 @@ public partial class MainView : UserControl, IRootPageWPF
             if (mainWindow == null)
                 return;
 
-            if (!_InFullscreen)
-            {
-                if (_RootVBDesign != null
-                    && DockingManager != null
-                    && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
-                    && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
-                {
-                    TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
+            //if (!_InFullscreen)
+            //{
+            //    if (_RootVBDesign != null
+            //        && DockingManager != null
+            //        && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
+            //        && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
+            //    {
+            //        TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
 
-                    LayoutTransformControl transformControl = new LayoutTransformControl();
-                    TransformGroup transformGroup = new TransformGroup();
-                    transformGroup.Children.Add(new ScaleTransform()
-                    {
-                        ScaleX = sldZoom.Value,
-                        ScaleY = sldZoom.Value
-                    });
-                    transformControl.LayoutTransform = transformGroup;
-                    transformControl.Child = tabItem.Content as Control;
-                    _FullscreenContent = transformControl;
-                    tabItem.Content = null;
-                    this.Content = _FullscreenContent;
-                    // TODO Avalonia:
-                    //mainWindow.WindowStyle = WindowStyle.None;
-                    mainWindow.WindowState = WindowState.Maximized;
-                    _InFullscreen = true;
-                    e.Handled = true;
-                }
-            }
-            else
-            {
-                if (_RootVBDesign != null
-                    && _FullscreenContent != null
-                    && DockingManager != null
-                    && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
-                    && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
-                {
-                    this.Content = MainDockPanel;
-                    TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
-                    tabItem.Content = _FullscreenContent.Child;
-                    _FullscreenContent = null;
-                    // TODO Avalonia:
-                    //mainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
-                    mainWindow.WindowState = WindowState.Normal;
-                    _InFullscreen = false;
-                    e.Handled = true;
-                }
-            }
+            //        LayoutTransformControl transformControl = new LayoutTransformControl();
+            //        TransformGroup transformGroup = new TransformGroup();
+            //        transformGroup.Children.Add(new ScaleTransform()
+            //        {
+            //            ScaleX = sldZoom.Value,
+            //            ScaleY = sldZoom.Value
+            //        });
+            //        transformControl.LayoutTransform = transformGroup;
+            //        transformControl.Child = tabItem.Content as Control;
+            //        _FullscreenContent = transformControl;
+            //        tabItem.Content = null;
+            //        this.Content = _FullscreenContent;
+            //        // TODO Avalonia:
+            //        //mainWindow.WindowStyle = WindowStyle.None;
+            //        mainWindow.WindowState = WindowState.Maximized;
+            //        _InFullscreen = true;
+            //        e.Handled = true;
+            //    }
+            //}
+            //else
+            //{
+            //    if (_RootVBDesign != null
+            //        && _FullscreenContent != null
+            //        && DockingManager != null
+            //        && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
+            //        && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
+            //    {
+            //        this.Content = MainDockPanel;
+            //        TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
+            //        tabItem.Content = _FullscreenContent.Child;
+            //        _FullscreenContent = null;
+            //        // TODO Avalonia:
+            //        //mainWindow.WindowStyle = WindowStyle.SingleBorderWindow;
+            //        mainWindow.WindowState = WindowState.Normal;
+            //        _InFullscreen = false;
+            //        e.Handled = true;
+            //    }
+            //}
         }
         base.OnKeyUp(e);
     }
@@ -268,6 +268,7 @@ public partial class MainView : UserControl, IRootPageWPF
             DockingManager.Name = "mainDockingManager";
         }
         DockingManager.IsBSOManager = true;
+        DockingManager.BSOACComponent = ACRoot.SRoot.Businessobjects;
         DockingManager.InitBusinessobjectsAtStartup();
         if (!_startingFullScreen && ACRoot.SRoot.Fullscreen)
         {
@@ -338,33 +339,33 @@ public partial class MainView : UserControl, IRootPageWPF
 
     public FocusBSOResult FocusBSO(IACBSO bso)
     {
-        if (DockingManager == null
-            || DockingManager.vbDockingPanelTabbedDoc_TabControl == null
-            || DockingManager.vbDockingPanelTabbedDoc_TabControl.Items.Count <= 0)
-            return FocusBSOResult.NotFocusable;
-        VBTabItem vbTabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as VBTabItem;
-        VBDesign vbDesign = VBLogicalTreeHelper.FindChildObject(vbTabItem, typeof(VBDesign)) as VBDesign;
-        if (vbDesign != null && vbDesign.BSOACComponent == bso)
-            return FocusBSOResult.AlreadyFocused;
-        VBTabItem tabitem2Select = null;
-        foreach (var tabitem in DockingManager.vbDockingPanelTabbedDoc_TabControl.Items)
-        {
-            vbTabItem = tabitem as VBTabItem;
-            if (vbTabItem != null)
-            {
-                vbDesign = VBLogicalTreeHelper.FindChildObject(vbTabItem, typeof(VBDesign)) as VBDesign;
-                if (vbDesign != null && vbDesign.BSOACComponent == bso)
-                {
-                    tabitem2Select = vbTabItem;
-                    break;
-                }
-            }
-        }
-        if (tabitem2Select != null)
-        {
-            DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem = tabitem2Select;
-            return FocusBSOResult.SelectionSwitched;
-        }
+        //if (DockingManager == null
+        //    || DockingManager.vbDockingPanelTabbedDoc_TabControl == null
+        //    || DockingManager.vbDockingPanelTabbedDoc_TabControl.Items.Count <= 0)
+        //    return FocusBSOResult.NotFocusable;
+        //VBTabItem vbTabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as VBTabItem;
+        //VBDesign vbDesign = VBLogicalTreeHelper.FindChildObject(vbTabItem, typeof(VBDesign)) as VBDesign;
+        //if (vbDesign != null && vbDesign.BSOACComponent == bso)
+        //    return FocusBSOResult.AlreadyFocused;
+        //VBTabItem tabitem2Select = null;
+        //foreach (var tabitem in DockingManager.vbDockingPanelTabbedDoc_TabControl.Items)
+        //{
+        //    vbTabItem = tabitem as VBTabItem;
+        //    if (vbTabItem != null)
+        //    {
+        //        vbDesign = VBLogicalTreeHelper.FindChildObject(vbTabItem, typeof(VBDesign)) as VBDesign;
+        //        if (vbDesign != null && vbDesign.BSOACComponent == bso)
+        //        {
+        //            tabitem2Select = vbTabItem;
+        //            break;
+        //        }
+        //    }
+        //}
+        //if (tabitem2Select != null)
+        //{
+        //    DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem = tabitem2Select;
+        //    return FocusBSOResult.SelectionSwitched;
+        //}
         return FocusBSOResult.NotFocusable;
     }
 
@@ -803,18 +804,18 @@ public partial class MainView : UserControl, IRootPageWPF
     {
         if (!mainMenu.Items.Any() || DockingManager == null)
             return;
-        if (_RootVBDesign != null
-            && DockingManager != null
-            && DockingManager.vbDockingPanelTabbedDoc_TabControl != null)
-        {
-            if (DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem == null)
-            {
-                string startUrl = mainMenu.Items.FirstOrDefault().ACUrl;
-                DockingManager.StartBusinessobject(startUrl, null, null, true);
-            }
-            _InFullscreen = false;
-            SwitchFullScreen();
-        }
+        //if (_RootVBDesign != null
+        //    && DockingManager != null
+        //    && DockingManager.vbDockingPanelTabbedDoc_TabControl != null)
+        //{
+        //    if (DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem == null)
+        //    {
+        //        string startUrl = mainMenu.Items.FirstOrDefault().ACUrl;
+        //        DockingManager.StartBusinessobject(startUrl, null, null, true);
+        //    }
+        //    _InFullscreen = false;
+        //    SwitchFullScreen();
+        //}
     }
 
     public bool InFullscreen
@@ -830,52 +831,52 @@ public partial class MainView : UserControl, IRootPageWPF
         if (mainWindow == null)
             return;
 
-        if (!_InFullscreen)
-        {
-            if (_RootVBDesign != null
-                && DockingManager != null
-                && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
-                && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
-            {
-                TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
+        //if (!_InFullscreen)
+        //{
+        //    if (_RootVBDesign != null
+        //        && DockingManager != null
+        //        && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
+        //        && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
+        //    {
+        //        TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
 
-                LayoutTransformControl transformControl = new LayoutTransformControl();
-                TransformGroup transformGroup = new TransformGroup();
-                transformGroup.Children.Add(new ScaleTransform()
-                {
-                    ScaleX = sldZoom.Value,
-                    ScaleY = sldZoom.Value
-                });
-                transformControl.LayoutTransform = transformGroup;
-                transformControl.Child = tabItem.Content as Control;
-                _FullscreenContent = transformControl;
-                tabItem.Content = null;
-                this.Content = _FullscreenContent;
+        //        LayoutTransformControl transformControl = new LayoutTransformControl();
+        //        TransformGroup transformGroup = new TransformGroup();
+        //        transformGroup.Children.Add(new ScaleTransform()
+        //        {
+        //            ScaleX = sldZoom.Value,
+        //            ScaleY = sldZoom.Value
+        //        });
+        //        transformControl.LayoutTransform = transformGroup;
+        //        transformControl.Child = tabItem.Content as Control;
+        //        _FullscreenContent = transformControl;
+        //        tabItem.Content = null;
+        //        this.Content = _FullscreenContent;
 
-                // TODO Avalonia:
-                //this.WindowStyle = System.Windows.WindowStyle.None;
-                mainWindow.WindowState = WindowState.Maximized;
-                _InFullscreen = true;
-            }
-        }
-        else
-        {
-            if (_RootVBDesign != null
-                && _FullscreenContent != null
-                && DockingManager != null
-                && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
-                && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
-            {
-                this.Content = MainDockPanel;
-                TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
-                tabItem.Content = _FullscreenContent.Child;
-                _FullscreenContent = null;
-                // TODO Avalonia:
-                //this.WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
-                mainWindow.WindowState = WindowState.Normal;
-                _InFullscreen = false;
-            }
-        }
+        //        // TODO Avalonia:
+        //        //this.WindowStyle = System.Windows.WindowStyle.None;
+        //        mainWindow.WindowState = WindowState.Maximized;
+        //        _InFullscreen = true;
+        //    }
+        //}
+        //else
+        //{
+        //    if (_RootVBDesign != null
+        //        && _FullscreenContent != null
+        //        && DockingManager != null
+        //        && DockingManager.vbDockingPanelTabbedDoc_TabControl != null
+        //        && DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem != null)
+        //    {
+        //        this.Content = MainDockPanel;
+        //        TabItem tabItem = DockingManager.vbDockingPanelTabbedDoc_TabControl.SelectedItem as TabItem;
+        //        tabItem.Content = _FullscreenContent.Child;
+        //        _FullscreenContent = null;
+        //        // TODO Avalonia:
+        //        //this.WindowStyle = System.Windows.WindowStyle.SingleBorderWindow;
+        //        mainWindow.WindowState = WindowState.Normal;
+        //        _InFullscreen = false;
+        //    }
+        //}
     }
 
 

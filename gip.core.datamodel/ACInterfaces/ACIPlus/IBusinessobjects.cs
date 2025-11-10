@@ -23,7 +23,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Interface IBusinessobjects
     /// </summary>
-    public interface IBusinessobjects : IACComponent
+    public interface IBusinessobjects : IACComponent, IACBSO
     {
         bool FindAndRemoveWPFRef(int hashOfDepObj);
 

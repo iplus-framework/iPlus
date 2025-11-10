@@ -18,7 +18,7 @@ namespace gip.core.layoutengine.avui
         {
             if (DockingContainerToolWindow != null)
             {
-                if (VBDockingManager.GetDisableDockingOnClick(DockingContainerToolWindow.VBDesignContent))
+                if (VBDockingManagerOldWPF.GetDisableDockingOnClick(DockingContainerToolWindow.VBDesignContent))
                     return;
                 DockingContainerToolWindow.AutoHide();
             }
@@ -64,12 +64,12 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static readonly StyledProperty<Dock> DockProperty = AvaloniaProperty.Register<VBDockingButton, Dock>(nameof(Dock));
-        public Dock Dock
+        public static readonly StyledProperty<Avalonia.Controls.Dock> DockProperty = AvaloniaProperty.Register<VBDockingButton, Avalonia.Controls.Dock>(nameof(Dock));
+        public Avalonia.Controls.Dock Dock
         {
             get
             {
-                return (Dock)GetValue(DockProperty);
+                return (Avalonia.Controls.Dock)GetValue(DockProperty);
             }
             set
             {
