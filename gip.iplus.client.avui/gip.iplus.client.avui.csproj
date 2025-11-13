@@ -38,8 +38,14 @@
     <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="Views\LoginView.axaml.cs">
+      <DependentUpon>LoginView.axaml</DependentUpon>
+    </Compile>
     <Compile Update="Views\LoginWindow.axaml.cs">
       <DependentUpon>LoginWindow.axaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\MainSingleView.axaml.cs">
+      <DependentUpon>MainSingleView.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

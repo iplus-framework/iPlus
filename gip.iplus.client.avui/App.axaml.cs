@@ -5,12 +5,15 @@ using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Avalonia.ReactiveUI;
 using Avalonia.Threading;
+using CoreWCF.IdentityModel.Tokens;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.iplus.client.avui.Views;
+using Org.BouncyCastle.Bcpg.OpenPgp;
 using ReactiveUI;
 using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
@@ -23,6 +26,7 @@ public partial class App : Application
     static ACStartUpRoot _StartUpManager = null;
     public static App _GlobalApp = null;
     private LoginWindow _LoginWindow = null;
+    private LoginView _LoginView = null;
     private Settings _AppSettings = null;
 
     #region internal Delegates
@@ -109,16 +113,17 @@ public partial class App : Application
 
 
         IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
-        // Create the AutoSuspendHelper.
-        var suspension = new AutoSuspendHelper(ApplicationLifetime);
-        RxApp.SuspensionHost.CreateNewAppState = () => new Settings();
-        RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
-        // Load the saved view model state.
-        _AppSettings = RxApp.SuspensionHost.GetAppState<Settings>();
-        suspension.OnFrameworkInitializationCompleted();
 
         if (desktop != null)
         {
+            // Create the AutoSuspendHelper.
+            var suspension = new AutoSuspendHelper(ApplicationLifetime);
+            RxApp.SuspensionHost.CreateNewAppState = () => new Settings();
+            RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
+            // Load the saved view model state.
+            _AppSettings = RxApp.SuspensionHost.GetAppState<Settings>();
+            suspension.OnFrameworkInitializationCompleted();
+
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
@@ -150,17 +155,50 @@ public partial class App : Application
                             desktop.Shutdown();
                         }
                     }
-                    else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
-                    {
-                        // If login was successful, show main window
-                        if (ACRoot.SRoot != null)
-                            singleViewPlatform.MainView = new MainView();
-                    }
                 }
             );
             _LoginWindow.DataContext = _AppSettings;
             _LoginWindow.Show();
         }
+        else
+        {
+            ISingleViewApplicationLifetime singleViewPlatform = ApplicationLifetime as ISingleViewApplicationLifetime;
+            if (singleViewPlatform != null)
+            {
+                // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
+                // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
+                DisableAvaloniaDataAnnotationValidation();
+
+                _LoginView = new LoginView(
+                () =>
+                {
+                    HandleLoginAndStartup();
+                },
+                () =>
+                {
+                    ControlManager.RegisterImplicitStyles(this);
+
+                    if (singleViewPlatform != null)
+                    {
+                        // If login was successful, show main window
+                        if (ACRoot.SRoot != null)
+                        {
+                            singleViewPlatform.MainView = null;
+                            singleViewPlatform.MainView = new MainSingleView();
+                        }
+                    }
+                }
+            );
+
+                _AppSettings = new Settings();
+                _LoginView.DataContext = _AppSettings;
+
+
+                singleViewPlatform.MainView = _LoginView;
+            }
+        }
+
+
         base.OnFrameworkInitializationCompleted();
     }
 
@@ -223,10 +261,48 @@ public partial class App : Application
         {
             if (!cmLineArg.Contains("/autologin") || i > 0)
             {
-                _LoginWindow.DisplayLogin(true, errorMsg);
-                _LoginWindow.WaitOnLoginResult();
-                errorMsg = "";
-                _LoginWindow.DisplayLogin(false, errorMsg);
+                if (_LoginWindow != null)
+                {
+                    _LoginWindow.DisplayLogin(true, errorMsg);
+                    _LoginWindow.WaitOnLoginResult();
+                    errorMsg = "";
+                    _LoginWindow.DisplayLogin(false, errorMsg);
+                }
+                else if (_LoginView != null)
+                {
+                    _LoginView.DisplayLogin(true, errorMsg);
+                    _LoginView.WaitOnLoginResult();
+
+                    ACValueItemList settings = CommandLineHelper.Settings;
+
+                    string dbSource = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabaseSource)).FirstOrDefault()?.Value as string;
+                    string dbName = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabaseName)).FirstOrDefault()?.Value as string;
+                    string dbUser = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabaseUser)).FirstOrDefault()?.Value as string;
+                    string dbPass = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.DatabasePassword)).FirstOrDefault()?.Value as string;
+
+                    var config = CommandLineHelper.ConfigCurrentDir;
+                    var existingConnection = config?.ConnectionStrings?.ConnectionStrings["iPlusV5_Entities"];
+
+                    string connSettingsFormat = @"Integrated Security=True; Encrypt=False; data source={0}; initial catalog={1}; Trusted_Connection=False; persist security info=True; user id={2}; password={3}; multipleactiveresultsets=True; application name=iPlus";
+
+                    var setting = new ConnectionStringSettings(
+                            "iPlusV5_Entities",
+                            string.Format(connSettingsFormat, dbSource, dbName, dbUser, dbPass),
+                            "System.Data.SqlClient");
+
+                    if (existingConnection != null)
+                    {
+                        existingConnection.ProviderName = setting.ProviderName;
+                        existingConnection.ConnectionString = setting.ConnectionString;
+                    }
+                    else
+                    {
+                        config.ConnectionStrings.ConnectionStrings.Add(setting);
+                    }
+
+                    errorMsg = "";
+                    _LoginView.DisplayLogin(false, errorMsg);
+                }
             }
             else
             {

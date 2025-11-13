@@ -20,6 +20,7 @@ using System.Text;
 using System.Configuration;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace gip.core.datamodel
 {
@@ -141,5 +142,48 @@ namespace gip.core.datamodel
             }
         }
 
+        private static string _SettingsPath = Path.Combine(AppContext.BaseDirectory, "settingsiPlus.config");
+
+        private static ACValueItemList _Settings;
+        public static ACValueItemList Settings
+        {
+            get
+            {
+                if (_Settings != null)
+                    return _Settings;
+
+                if (File.Exists(_SettingsPath))
+                {
+                    try
+                    {
+                        DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueItemList));
+                        using (FileStream fs = new FileStream(_SettingsPath, FileMode.Open))
+                        {
+                            _Settings = serializer.ReadObject(fs) as ACValueItemList;
+                        }
+                        return _Settings;
+                    }
+                    catch(Exception)
+                    {
+                        // ignore
+                    }
+                }
+                _Settings = new ACValueItemList();
+                return _Settings;
+
+            }
+        }
+
+        public static void SaveSettings()
+        {
+            if (_Settings == null)
+                return;
+            DataContractSerializer serializer = new DataContractSerializer(typeof(ACValueItemList));
+            using (FileStream fs = new FileStream(_SettingsPath, FileMode.Create))
+            {
+                serializer.WriteObject(fs, _Settings);
+            }
+        }
     }
+
 }

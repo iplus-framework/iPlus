@@ -24,6 +24,7 @@ namespace gip.core.datamodel
     /// <summary>
     /// Class ACValueItemList
     /// </summary>
+    [CollectionDataContract]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'ACEnumObjectList'}de{'ACEnumObjectList'}", Global.ACKinds.TACClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class ACValueItemList : List<ACValueItem>
     {
@@ -31,6 +32,11 @@ namespace gip.core.datamodel
         /// The _ property
         /// </summary>
         string _Property;
+
+        public ACValueItemList()
+        {
+
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ACValueItemList"/> class.
