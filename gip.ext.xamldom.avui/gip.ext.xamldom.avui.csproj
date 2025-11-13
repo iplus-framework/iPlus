@@ -36,6 +36,7 @@
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
+    <MSBuildLogVerbosity>diagnostic</MSBuildLogVerbosity>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
@@ -69,8 +70,20 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Xaml.Behaviors" Version="11.3.6.6" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
+    <!--<PackageReference Include="Xaml.Behaviors" Version="11.3.6.6" />-->
   </ItemGroup>
+
+  <!-- Use Avalonia Nuget -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Xaml.Behaviors" Version="11.3.6.6" />
+  </ItemGroup>
+
+  <!-- Use Avalonia Fork -->
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets"/>
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\ReactiveUI.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaBehavioursInclude.props" />
 </Project>

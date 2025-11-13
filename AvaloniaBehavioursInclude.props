@@ -1,0 +1,43 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup  Condition="'$(UseAvaloniaForkIPlus)' == 'True'">
+    <Reference Include="Xaml.Behaviors">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.dll</HintPath>
+    </Reference>
+    <!--<Reference Include="Xaml.Behaviors.Avalonia">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Avalonia"\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Avalonia.dll</HintPath>
+    </Reference>-->
+    <!--<Reference Include="Xaml.Behaviors.Interactions">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.dll</HintPath>
+    </Reference>-->
+    <!--<Reference Include="Xaml.Behaviors.Interactions.Custom">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.Custom\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.Custom.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.DragAndDrop">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.DragAndDrop\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.DragAndDrop.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.DragAndDrop.DataGrid">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.DragAndDrop.DataGrid\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.DragAndDrop.DataGrid.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.Draggable">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.Draggable\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.Draggable.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.Events">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.Events\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.Events.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.ReactiveUI">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\aml.Behaviors.Interactions.ReactiveUI\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.ReactiveUI">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.ReactiveUI\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.Responsive">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.Responsive\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.Responsive.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactions.Scripting">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactions.Scripting\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactions.Scripting.dll</HintPath>
+    </Reference>
+    <Reference Include="Xaml.Behaviors.Interactivity">
+      <HintPath>$(AvaloniaBehavioursIncludeDir)\Xaml.Behaviors.Interactivity\bin\$(Configuration)\$(AvaloniaBuildFramework)\Xaml.Behaviors.Interactivity.dll</HintPath>
+    </Reference>-->
+  </ItemGroup>
+</Project>

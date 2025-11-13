@@ -35,6 +35,7 @@
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
+    <MSBuildLogVerbosity>diagnostic</MSBuildLogVerbosity>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
@@ -73,12 +74,27 @@
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
-  <ItemGroup>
+  
+  <!-- Use Avalonia Nuget -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
     <PackageReference Include="Simplecto.Avalonia.RichTextBox" Version="1.3.9" />
     <PackageReference Include="Xaml.Behaviors" Version="11.3.6.6" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
   </ItemGroup>
+
+  <!-- Use Avalonia Fork -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'True'">
+    <Reference Include="Simplecto.Avalonia.RichTextBox">
+      <HintPath>$(AvaloniaRichTextBoxIncludeDir)\$(Configuration)\$(AvaloniaBuildFramework)\AvRichTextBox.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\ReactiveUI.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaBehavioursInclude.props" />
+
   <ItemGroup>
     <Folder Include="Interfaces\" />
     <Folder Include="Services\" />

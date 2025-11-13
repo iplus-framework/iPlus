@@ -12,8 +12,8 @@
     <UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
     
 	
-	<!-- Settings for entity framework main and DOT-NET 9.0 -->
-	<DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
+	  <!-- Settings for entity framework main and DOT-NET 9.0 -->
+	  <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
     <UITargetFramework>net9.0-windows7.0</UITargetFramework>
     <NetCorePackageVersion>9.0.7</NetCorePackageVersion>
     <EFCoreBuildFramework>net8.0</EFCoreBuildFramework>
@@ -41,7 +41,15 @@
 
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
     <AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
-    <UseAvaloniaDataGridForkIPlus>False</UseAvaloniaDataGridForkIPlus>
-    <AvaloniaDataGridIncludeDir>..\..\Avalonia.Controls.DataGrid\artifacts\bin</AvaloniaDataGridIncludeDir>
+    <UseAvaloniaForkIPlus>False</UseAvaloniaForkIPlus>
+    <AvaloniaRootDir>..\..\av_main</AvaloniaRootDir>
+    <AvaloniaNativeBuildDir>$(AvaloniaRootDir)\src\Avalonia.Native\bin</AvaloniaNativeBuildDir>
+    <AvaloniaMarkupBuildDir>$(AvaloniaRootDir)\src\Markup\Avalonia.Markup.Xaml.Loader\bin</AvaloniaMarkupBuildDir>
+    <AvaloniaSkiaBuildDir>$(AvaloniaRootDir)\src\Skia\Avalonia.Skia\bin</AvaloniaSkiaBuildDir>
+    <AvaloniaDataGridIncludeDir>..\..\Avalonia.Controls.DataGrid\artifacts\bin\Avalonia.Controls.DataGrid</AvaloniaDataGridIncludeDir>
+    <AvaloniaRichTextBoxIncludeDir>..\..\AvRichTextBox\AvRichTextBox\bin</AvaloniaRichTextBoxIncludeDir>
+    <AvaloniaBehavioursIncludeDir>..\..\Avalonia.Xaml.Behaviors\src</AvaloniaBehavioursIncludeDir>
+    <AvaloniaLabsIncludeDir>..\..\Avalonia.Labs\src</AvaloniaLabsIncludeDir>
+    <IncludeAvaloniaGenerators Condition="'$(UseAvaloniaForkIPlus)' == 'True'">True</IncludeAvaloniaGenerators>
   </PropertyGroup>
 </Project>

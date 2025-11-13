@@ -145,7 +145,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageReference Include="ClosedXML" Version="0.105.0" />
     <PackageReference Include="Dock.Avalonia" Version="11.3.6.5" />
     <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="11.3.6.5" />
@@ -168,11 +167,30 @@
     <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
     <PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
   </ItemGroup>
-  <ItemGroup Condition="'$(UseAvaloniaDataGridForkIPlus)' == 'True'">
+  
+  <!-- Use Avalonia Nuget -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
+    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+  </ItemGroup>
+
+  <!-- Use Avalonia Fork -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'True'">
+    <Reference Include="Simplecto.Avalonia.RichTextBox">
+      <HintPath>$(AvaloniaRichTextBoxIncludeDir)\$(Configuration)\$(AvaloniaBuildFramework)\AvRichTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Labs.CommandManager">
+      <HintPath>$(AvaloniaLabsIncludeDir)\Avalonia.Labs.CommandManager\bin\$(Configuration)\$(AvaloniaBuildFramework)\Avalonia.Labs.CommandManager.dll</HintPath>
+    </Reference>
     <Reference Include="Avalonia.Controls.DataGrid">
-      <HintPath>$(AvaloniaDataGridIncludeDir)\Avalonia.Controls.DataGrid\$(Configuration)_$(AvaloniaBuildFramework)\Avalonia.Controls.DataGrid.dll</HintPath>
+      <HintPath>$(AvaloniaDataGridIncludeDir)\$(Configuration)_$(AvaloniaBuildFramework)\Avalonia.Controls.DataGrid.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\ReactiveUI.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaBehavioursInclude.props" />
+
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />
   </ItemGroup>

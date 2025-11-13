@@ -28,9 +28,16 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-  <ItemGroup>
+  
+  <!-- Use Avalonia Nuget -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
   </ItemGroup>
+
+  <!-- Use Avalonia Fork -->
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />

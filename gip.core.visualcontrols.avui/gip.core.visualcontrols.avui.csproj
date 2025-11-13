@@ -77,9 +77,17 @@
     <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
   </ItemGroup>
-   <ItemGroup>
+  
+  <!-- Use Avalonia Nuget -->
+  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-  </ItemGroup> 
+  </ItemGroup>
+
+  <!-- Use Avalonia Fork -->
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
+  
   <ItemGroup>
     <Resource Include="Controls\VBOperatingMode\Themes\imageAuto.png" />
     <Resource Include="Controls\VBOperatingMode\Themes\imageMaint.png" />
