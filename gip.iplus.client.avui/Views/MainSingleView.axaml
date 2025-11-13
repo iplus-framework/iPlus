@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vb="http://www.iplus-framework.com/axaml"
+             xmlns:local="clr-namespace:gip.iplus.client.avui"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="gip.iplus.client.avui.MainSingleView">
+	<Grid x:Name="MainDockPanel">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto"/>
+			<RowDefinition Height="*"/>
+		</Grid.RowDefinitions>
+		<!-- Hamburger button in top left -->
+		<ToggleButton x:Name="HamburgerButton"
+			    Grid.Row="0"
+                Content="☰"
+                Width="40"
+                Height="40"
+                Margin="10"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Top"
+			    />
+
+		<!-- Overlay for Side Menu (slides in from left) -->
+		<Border Name="MenuOverlay"
+				Grid.Row="1"
+                Background="#222"
+                Width="220"
+                VerticalAlignment="Stretch"
+                HorizontalAlignment="Left"
+                IsVisible="{Binding IsChecked, ElementName=HamburgerButton}" >
+			<vb:VBMenu x:Name="MainMenu" />
+		</Border>
+
+		<ContentControl x:Name="MainContentControl"
+                         Grid.Row="1"
+                         Margin="0"
+                         HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch"
+                         />
+	</Grid>
+
+</UserControl>

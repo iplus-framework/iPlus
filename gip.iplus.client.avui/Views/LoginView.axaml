@@ -1,0 +1,182 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"              
+			 x:Class="gip.iplus.client.avui.LoginView">
+  <ThemeVariantScope RequestedThemeVariant="Dark">
+  <Grid Background="#FF333333">
+    <Grid.RowDefinitions>
+      <RowDefinition></RowDefinition>
+	  <RowDefinition></RowDefinition>
+    </Grid.RowDefinitions>
+
+    <Border>
+      <Border.Background>
+        <LinearGradientBrush Opacity="1" SpreadMethod="Pad" StartPoint="50%,0%" EndPoint="50%,100%">
+          <GradientStop Color="#FF000004" Offset="0" />
+          <GradientStop Color="#FF000020" Offset="0.3" />
+          <GradientStop Color="#FF000030" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+    </Border>
+	  
+	  <Image Classes="iPlusLogoClass" Source="/Assets/Login.png" DoubleTapped="Image_DoubleTapped">
+      <Image.RenderTransform>
+        <ScaleTransform  ScaleX="1" ScaleY="1" />
+      </Image.RenderTransform>
+    </Image>
+   
+	  <StackPanel Grid.Row="1">
+      <Grid x:Name="ProgressGrid" IsVisible="false" >
+        <Grid.RowDefinitions>
+          <RowDefinition Height="250"></RowDefinition>
+          <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+          </Grid.RowDefinitions>
+
+          <Border Grid.ColumnSpan="3" Grid.RowSpan="6" CornerRadius="4" BorderThickness="1"></Border>
+          <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0" HorizontalAlignment="Left">
+            <TextBlock Text="Initialization..." FontStyle="Italic" FontSize="14" FontWeight="Bold">
+            </TextBlock>
+          </Border>
+          <ProgressBar x:Name="progressBar" Grid.Row="3" Grid.Column="1" IsIndeterminate="True"></ProgressBar>
+          <ListBox x:Name="listboxInfo" Grid.Row="5" Grid.Column="1"></ListBox>
+        </Grid>
+      </Grid>
+      <Grid x:Name="LoginGrid" IsVisible="true">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="200"></RowDefinition>
+          <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Row="0" Grid.Column="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="80*"></ColumnDefinition>
+            <ColumnDefinition Width="120*"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="25*" />
+          </Grid.RowDefinitions>
+
+          <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
+            <TextBlock Text="Login" FontStyle="Italic" FontSize="14" FontWeight="Bold">
+            </TextBlock>
+          </Border>
+
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1" Name="label1">User</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="2" Grid.Column="2" Name="TextboxUser" Text="{Binding UserName, Mode=TwoWay}"/>
+
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="3" Grid.Column="1" Name="label2">Password</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Margin="-1,0,-1,0" Grid.Column="2" Name="TextboxPassword" RevealPassword="False" PasswordChar="*" Text="{Binding Password, Mode=TwoWay}"/>
+
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1" >Style</TextBlock>
+          <ComboBox VerticalAlignment="Bottom" Height="25" Grid.Row="4" Grid.Column="2" Name="selTheme" IsEditable="False" SelectedValue="{Binding WPFTheme}"></ComboBox>
+
+        </Grid>
+        <Grid Grid.Row="1" Grid.Column="0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="50*"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="50*"></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="40"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="16*" />
+          </Grid.RowDefinitions>
+          <Border Grid.ColumnSpan="5" Grid.RowSpan="3"  CornerRadius="4" BorderThickness="1"></Border>
+
+          <Button Grid.Row="1" Grid.Column="1" Name="ButtonLogin" IsDefault="True" Click="ButtonLogin_Click" PointerReleased="ButtonLogin_PointerReleased" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Login</Button>
+          <Button Grid.Row="1" Grid.Column="3" Name="ButtonCancel" Click="ButtonCancel_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Cancel</Button>
+        </Grid>
+      </Grid>
+      <Grid x:Name="SettingsGrid" IsVisible="False">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="200"></RowDefinition>
+          <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0" >
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="10"></ColumnDefinition>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="20"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="10*" />
+          </Grid.RowDefinitions>
+
+          <Border Grid.Row="1" Grid.Column="1" CornerRadius="4" Margin="3,0,3,0"  Width="100" HorizontalAlignment="Left">
+            <TextBlock Text="Settings" FontStyle="Italic" FontSize="14" FontWeight="Bold">
+            </TextBlock>
+          </Border>
+
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="2" Grid.Column="1"  Name="DatabaseSourceCaption">Database source</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="3" Grid.Column="1" Name="DatabaseSource" />
+
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="4" Grid.Column="1"  Name="DatabaseNameCaption">Database name</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="5" Grid.Column="1" Margin="-1,0,-1,0" Name="DatabaseName"  />
+          
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="6" Grid.Column="1"  Name="DatabaseUserCaption">Database username</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="7" Grid.Column="1" Name="DatabaseUser" />
+
+          <TextBlock VerticalAlignment="Bottom" Grid.Row="8" Grid.Column="1"  Name="DatabasePasswordCaption">Database password</TextBlock>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*"/>
+
+          <Button Grid.Row="11" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" PointerReleased="ButtonSave_PointerReleased" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Save</Button>
+
+        </Grid>
+
+
+          
+
+      </Grid>
+    </StackPanel>
+  </Grid>
+  </ThemeVariantScope>
+</UserControl>
