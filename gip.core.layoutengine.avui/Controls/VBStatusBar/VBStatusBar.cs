@@ -2,7 +2,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Templates;
-using StatusBar.Avalonia.Controls;
 using System;
 using System.Collections.Generic;
 using System.Linq;

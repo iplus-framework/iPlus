@@ -54,7 +54,6 @@
     <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.3" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <PackageReference Include="EntityFramework" Version="6.5.1" />
     <!--<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />-->
   </ItemGroup>

@@ -1,5 +1,4 @@
 using Avalonia.Controls;
-using StatusBar.Avalonia;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -50,6 +50,7 @@
     <AvaloniaRichTextBoxIncludeDir>..\..\AvRichTextBox\AvRichTextBox\bin</AvaloniaRichTextBoxIncludeDir>
     <AvaloniaBehavioursIncludeDir>..\..\Avalonia.Xaml.Behaviors\src</AvaloniaBehavioursIncludeDir>
     <AvaloniaLabsIncludeDir>..\..\Avalonia.Labs\src</AvaloniaLabsIncludeDir>
+    <AvaloniaDockIncludeDir>..\..\Avalonia.Dock\src</AvaloniaDockIncludeDir>
     <IncludeAvaloniaGenerators Condition="'$(UseAvaloniaForkIPlus)' == 'True'">True</IncludeAvaloniaGenerators>
   </PropertyGroup>
 </Project>

@@ -146,9 +146,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <PackageReference Include="Dock.Avalonia" Version="11.3.6.5" />
-    <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="11.3.6.5" />
-    <PackageReference Include="Dock.Model.Avalonia" Version="11.3.6.5" />
     <PackageReference Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageReference Include="MessageBox.Avalonia" Version="3.2.0" />
     <PackageReference Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
@@ -161,7 +158,6 @@
     <PackageReference Include="QuickGraphCore" Version="1.0.0" />
     <PackageReference Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
-    <PackageReference Include="StatusBar.Avalonia" Version="0.0.2" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
@@ -171,6 +167,9 @@
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
     <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Dock.Avalonia" Version="11.3.6.5" />
+    <PackageReference Include="Dock.Avalonia.Themes.Fluent" Version="11.3.6.5" />
+    <PackageReference Include="Dock.Model.Avalonia" Version="11.3.6.5" />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->
@@ -183,6 +182,27 @@
     </Reference>
     <Reference Include="Avalonia.Controls.DataGrid">
       <HintPath>$(AvaloniaDataGridIncludeDir)\$(Configuration)_$(AvaloniaBuildFramework)\Avalonia.Controls.DataGrid.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Avalonia">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.Avalonia\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Controls.ProportionalStackPanel">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.Controls.ProportionalStackPanel\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Controls.ProportionalStackPanel.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Controls.Recycling">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.Controls.Recycling\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Controls.Recycling.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.MarkupExtension">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.MarkupExtension\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.MarkupExtension.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Model">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.xxx\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Settings">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.xxx\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Settings.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Avalonia.Themes.Fluent">
+      <HintPath>$(AvaloniaDockIncludeDir)\Dock.xxx\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Avalonia.Themes.Fluent.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />

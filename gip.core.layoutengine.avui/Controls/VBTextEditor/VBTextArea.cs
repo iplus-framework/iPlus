@@ -9,8 +9,6 @@ using AvaloniaEdit.Editing;
 using Avalonia.Controls;
 using Avalonia;
 using Avalonia.Controls.Primitives;
-using StatusBar.Avalonia;
-using StatusBar.Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {

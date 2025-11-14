@@ -15,7 +15,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Data.Entity.Core.Metadata.Edm;
 using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.IO;

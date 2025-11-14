@@ -1,6 +1,7 @@
-﻿<UserControl x:Class="gip.core.layoutengine.avui.VBClock"
+﻿<UserControl
     xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    x:Class="gip.core.layoutengine.avui.VBClock">
     
     <Viewbox>
 		<Canvas Width="100" Height="100" x:Name="_canvas">

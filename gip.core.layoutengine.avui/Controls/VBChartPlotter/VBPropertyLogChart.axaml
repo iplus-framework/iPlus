@@ -1,8 +1,8 @@
-﻿<UserControl x:Class="gip.core.layoutengine.avui.VBPropertyLogChart"
-    xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
-    Background="Transparent" x:Name="ucChart">
+    Background="Transparent" x:Name="ucChart"
+    x:Class="gip.core.layoutengine.avui.VBPropertyLogChart">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
