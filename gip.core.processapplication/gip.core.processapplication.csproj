@@ -54,7 +54,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.IO.Ports" Version="$(NetCorePackageVersion)" />
+    <PackageReference Include="System.IO.Ports"  />
     <None Update="readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

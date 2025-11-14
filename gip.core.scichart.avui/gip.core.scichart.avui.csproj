@@ -51,7 +51,7 @@
     <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SciChart" Version="8.9.0.28760" />
+    <PackageReference Include="SciChart"  />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

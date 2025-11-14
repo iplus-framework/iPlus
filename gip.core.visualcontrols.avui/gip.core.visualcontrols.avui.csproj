@@ -80,7 +80,7 @@
   
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
+    <PackageReference Include="Avalonia"  />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->

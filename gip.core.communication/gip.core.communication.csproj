@@ -71,12 +71,12 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NModbus" Version="3.0.81" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client" Version="1.5.376.244" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Configuration" Version="1.5.376.244" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.5.376.244" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates" Version="1.5.376.244" />
-    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Server" Version="1.5.376.244" />
+    <PackageReference Include="NModbus"  />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Client"  />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Configuration"  />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core"  />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates"  />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Server"  />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">

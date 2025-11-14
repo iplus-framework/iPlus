@@ -49,10 +49,10 @@
       <HintPath>$(EFCoreIncludeDir)\EFCore.SqlServer\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Relational" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)" />
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
   </ItemGroup>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(OutDir)\gip.core.archiver.dll" DestinationFolder="$(SolutionDir)\bin\$(ConfigurationName)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />

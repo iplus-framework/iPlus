@@ -184,15 +184,15 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <PackageReference Include="Google.Cloud.Translate.V3" Version="3.9.0" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
-    <PackageReference Include="Microsoft.Extensions.AI" Version="9.7.1" />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.7.1-preview.1.25365.4" />
-    <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.3" />
-    <PackageReference Include="OllamaSharp" Version="5.3.4" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
-    <PackageReference Include="TextCopy" Version="6.2.1" />
+    <PackageReference Include="ClosedXML"  />
+    <PackageReference Include="Google.Cloud.Translate.V3"  />
+    <PackageReference Include="Microsoft.Data.SqlClient"  />
+    <PackageReference Include="Microsoft.Extensions.AI"  />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI"  />
+    <PackageReference Include="ModelContextProtocol"  />
+    <PackageReference Include="OllamaSharp"  />
+    <PackageReference Include="System.Configuration.ConfigurationManager"  />
+    <PackageReference Include="TextCopy"  />
   </ItemGroup>
   <PropertyGroup />
   <ItemGroup>

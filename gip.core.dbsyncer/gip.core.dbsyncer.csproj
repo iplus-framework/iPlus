@@ -58,13 +58,15 @@
       <HintPath>$(EFCoreIncludeDir)\EFCore.SqlServer\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.SqlServer.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+  </ItemGroup>
   <ItemGroup>
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Relational" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
+    <PackageReference Include="System.ComponentModel.Annotations"  />
+    <PackageReference Include="System.Data.DataSetExtensions"  />
+    <PackageReference Include="System.Configuration.ConfigurationManager"  />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="helper\ScriptFileInfo.cs" />

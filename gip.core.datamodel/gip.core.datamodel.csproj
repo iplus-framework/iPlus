@@ -190,35 +190,38 @@
       <HintPath>$(EFCoreIncludeDir)\EFCore.Proxies\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.Proxies.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.0" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Design" Version="$(NetCorePackageVersion)"><!-- Remove IncludeAssets to allow compiling against the assembly -->
-		<!--<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->  
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'" >
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Abstractions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" >
+      <!-- Remove IncludeAssets to allow compiling against the assembly -->
+      <!--<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>-->
       <PrivateAssets>compile</PrivateAssets>
     </PackageReference>
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)" />
-    <PackageReference Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(NetCorePackageVersion)" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="$(NetCorePackageVersion)">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Proxies" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  />
+    <PackageReference Include="Microsoft.Data.SqlClient"  />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" >
       <PrivateAssets>compile</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="SkiaSharp" Version="3.119.1" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
-    <PackageReference Include="System.Drawing.Common" Version="$(NetCorePackageVersion)" />
-    <PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
+    <PackageReference Include="Newtonsoft.Json"  />
+    <PackageReference Include="SkiaSharp"  />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies"  />
+    <PackageReference Include="System.ComponentModel.Annotations"  />
+    <PackageReference Include="System.Configuration.ConfigurationManager"  />
+    <PackageReference Include="System.Data.DataSetExtensions"  />
+    <PackageReference Include="System.Data.SqlClient"  />
+    <PackageReference Include="System.Drawing.Common"  />
+    <PackageReference Include="System.ServiceModel.Federation"  />
+    <PackageReference Include="Microsoft.CodeAnalysis"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="ACHelperclasses\EntityFramework\NoConfigurationManager.cs" />

@@ -70,14 +70,14 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <!--<PackageReference Include="Xaml.Behaviors" Version="11.3.6.6" />-->
+    <!--<PackageReference Include="Xaml.Behaviors"  />-->
   </ItemGroup>
 
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
-    <PackageReference Include="Avalonia" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-    <PackageReference Include="Xaml.Behaviors" Version="11.3.6.6" />
+    <PackageReference Include="Avalonia"  />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader"  />
+    <PackageReference Include="Xaml.Behaviors"  />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->

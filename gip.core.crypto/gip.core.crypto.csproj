@@ -20,10 +20,10 @@
     <MySourceFiles Include="$(ProjectDir)\VBControlScripts\*.*">
       <InProject>false</InProject>
     </MySourceFiles>
-    <PackageReference Include="Egelke.EHealth.Client.Pki" Version="2.4.0" />
-    <PackageReference Include="IM.Xades" Version="3.0.0" />
-    <PackageReference Include="Portable.BouncyCastle" Version="1.9.0" />
-    <PackageReference Include="TimeStampClient" Version="1.2.0" />
+    <PackageReference Include="Egelke.EHealth.Client.Pki"  />
+    <PackageReference Include="IM.Xades"  />
+    <PackageReference Include="Portable.BouncyCastle"  />
+    <PackageReference Include="TimeStampClient"  />
     <None Update="readme.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>

@@ -46,16 +46,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreWCF.ConfigurationManager" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.Http" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.Primitives" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="CoreWCF.WebHttp" Version="$(CoreWCFVersion)" />
-    <PackageReference Include="ModelContextProtocol" Version="0.3.0-preview.3" />
-    <PackageReference Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <!--<PackageReference Include="Microsoft.AspNetCore.Hosting" Version="2.2.7" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />-->
+    <PackageReference Include="CoreWCF.ConfigurationManager"  />
+    <PackageReference Include="CoreWCF.Http"  />
+    <PackageReference Include="CoreWCF.Primitives"  />
+    <PackageReference Include="CoreWCF.WebHttp"  />
+    <PackageReference Include="ModelContextProtocol"  />
+    <PackageReference Include="ModelContextProtocol.AspNetCore"  />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI"  />
+    <PackageReference Include="System.Data.DataSetExtensions"  />
+    <!--<PackageReference Include="Microsoft.AspNetCore.Hosting"  />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel"  />-->
   </ItemGroup>
   <Import Project="..\gip.core.webservices.shared\gip.core.webservices.shared.projitems" Label="Shared" />
 </Project>

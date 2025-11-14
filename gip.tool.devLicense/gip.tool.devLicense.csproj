@@ -17,12 +17,12 @@
     <Resource Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <PackageReference Include="System.Management" Version="8.0.0" />
-    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.421302">
+    <PackageReference Include="System.Data.DataSetExtensions"  />
+    <PackageReference Include="System.Management"  />
+    <PackageReference Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" >
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="WindowsAPICodePack" Version="8.0.6" />
+    <PackageReference Include="WindowsAPICodePack"  />
   </ItemGroup>
   <ItemGroup>
     <Content Include="appsettings.json" />

@@ -169,23 +169,23 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AvalonEdit" Version="6.3.1.120" />
-    <PackageReference Include="ClosedXML" Version="0.105.0" />
-    <PackageReference Include="MdXaml" Version="1.27.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="QuickGraphCore" Version="1.0.0" />
-    <PackageReference Include="RoslynPad.Editor.Windows" Version="4.12.1" />
-    <PackageReference Include="RoslynPad.Roslyn" Version="4.12.1" />
-    <PackageReference Include="RoslynPad.Roslyn.Windows" Version="4.12.1" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
-    <PackageReference Include="System.ServiceModel.Federation" Version="8.1.2" />
+    <PackageReference Include="AvalonEdit"  />
+    <PackageReference Include="ClosedXML"  />
+    <PackageReference Include="MdXaml"  />
+    <PackageReference Include="Microsoft.CodeAnalysis"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  />
+    <PackageReference Include="QuickGraphCore"  />
+    <PackageReference Include="RoslynPad.Editor.Windows"  />
+    <PackageReference Include="RoslynPad.Roslyn"  />
+    <PackageReference Include="RoslynPad.Roslyn.Windows"  />
+    <PackageReference Include="System.Data.DataSetExtensions"  />
+    <PackageReference Include="System.ServiceModel.Duplex"  />
+    <PackageReference Include="System.ServiceModel.NetTcp"  />
+    <PackageReference Include="System.ServiceModel.Federation"  />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

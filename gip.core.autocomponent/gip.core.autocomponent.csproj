@@ -182,19 +182,19 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="CoreWCF.NetTcp" Version="1.8.0" />
-    <PackageReference Include="CoreWCF.Primitives" Version="1.8.0" />
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.3.0" />
-    <PackageReference Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
-    <PackageReference Include="Microsoft.Database.Collections.Generic" Version="2.0.4" />
-    <PackageReference Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
-    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
-    <PackageReference Include="System.ServiceModel.Duplex" Version="6.0.0" />
-    <PackageReference Include="System.ServiceModel.NetTcp" Version="8.1.2" />
+    <PackageReference Include="CoreWCF.NetTcp"  />
+    <PackageReference Include="CoreWCF.Primitives"  />
+    <PackageReference Include="Microsoft.AspNetCore"  />
+    <PackageReference Include="Microsoft.CodeAnalysis"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
+    <PackageReference Include="Microsoft.Database.Collections.Generic"  />
+    <PackageReference Include="System.Data.DataSetExtensions"  />
+    <PackageReference Include="System.Configuration.ConfigurationManager"  />
+    <PackageReference Include="System.IO.Compression"  />
+    <PackageReference Include="System.ServiceModel.Duplex"  />
+    <PackageReference Include="System.ServiceModel.NetTcp"  />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="ACIPlus\Communications\Helperclasses\SyncQueueEvents.cs" />

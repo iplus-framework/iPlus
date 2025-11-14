@@ -54,6 +54,6 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Windows.Compatibility" Version="$(NetCorePackageVersion)" />
+    <PackageReference Include="Microsoft.Windows.Compatibility"  />
   </ItemGroup>
 </Project>
