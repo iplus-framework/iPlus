@@ -1,0 +1,38 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Base">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Base.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Controls">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.DesignerSupport">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.DesignerSupport.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Dialogs">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Dialogs.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Metal">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Metal.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.MicroCom">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.MicroCom.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.OpenGL">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.OpenGL.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Remote.Protocol">
+      <HintPath>$(AvaloniaRootDir)/src/Avalonia.Remote.Protocol/bin/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Remote.Protocol.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Vulkan">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Vulkan.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <Import Project="./AvaloniaBaseMarkupInclude.props" /> 
+  <ItemGroup>
+    <PackageReference Include="MicroCom.Runtime"/>
+  </ItemGroup>
+</Project> 

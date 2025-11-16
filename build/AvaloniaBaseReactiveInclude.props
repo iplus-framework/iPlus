@@ -1,0 +1,7 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia.ReactiveUI">
+      <HintPath>$(AvaloniaRootDir)/src/Avalonia.ReactiveUI/bin/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.ReactiveUI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

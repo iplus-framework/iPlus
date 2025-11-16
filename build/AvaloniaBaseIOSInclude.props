@@ -1,0 +1,7 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia.iOS">
+      <HintPath>$(AvaloniaRootDir)/src/iOS/Avalonia.iOS/bin/$(Configuration)/$(AvsCurrentIOSTargetFramework)/Avalonia.iOS.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

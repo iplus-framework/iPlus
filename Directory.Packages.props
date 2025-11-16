@@ -1,9 +1,19 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
+    <CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">4.12.0</CodeAnalysisVersion>
+    <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion>
+    <DotNetExtensionsVersion>9.0.9</DotNetExtensionsVersion>
+    <NuGetVersion>6.14.0</NuGetVersion>
+    <CoreWCFVersion>1.8.0</CoreWCFVersion>
+    <!-- For Entity Framework -->
+    <NetCorePackageVersion>9.0.7</NetCorePackageVersion>
+    <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
   </PropertyGroup>
-  <ItemGroup>    
-    <PackageVersion Include="AvalonEdit" Version="6.3.1.120" />
+
+  <ItemGroup>
+    <!-- Avalonia packages - only include when NOT using fork -->
     <PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
@@ -11,12 +21,28 @@
     <PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Diagnostics" Version="$(AvaloniaVersion)" />
+    <PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)" />
+    <PackageVersion Include="Avalonia.Headless.NUnit" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersion)" />
-    <PackageVersion Include="Avalonia.Labs.CommandManager" Version="11.3.1" />
     <PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+
+    <!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
+    <PackageVersion Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
+    <PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
+    <PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
+    <PackageVersion Include="MessageBox.Avalonia" Version="3.2.0" />
+    <PackageVersion Include="Markdown.Avalonia" Version="11.0.2" />
+    <PackageVersion Include="Dock.Avalonia" Version="11.3.6.5" />
+    <PackageVersion Include="Dock.Avalonia.Themes.Fluent" Version="11.3.6.5" />
+    <PackageVersion Include="Dock.Model.Avalonia" Version="11.3.6.5" />
+  
+    <!-- iplus using packages -->
+    <PackageVersion Include="AvalonEdit" Version="6.3.1.120" />
+    <PackageVersion Include="Avalonia.BuildServices" Version="11.3.1" />
+    <PackageVersion Include="Avalonia.Labs.CommandManager" Version="11.3.1" />
     <PackageVersion Include="BarcodeLib" Version="3.1.5" />
     <PackageVersion Include="BinaryKits.Zpl.Label" Version="3.2.1" />
     <PackageVersion Include="ClosedXML" Version="0.105.0" />
@@ -25,28 +51,26 @@
     <PackageVersion Include="CoreWCF.Http" Version="$(CoreWCFVersion)" />
     <PackageVersion Include="CoreWCF.NetTcp" Version="1.8.0" />
     <PackageVersion Include="CoreWCF.Primitives" Version="$(CoreWCFVersion)" />
-    <PackageVersion Include="CoreWCF.Primitives" Version="1.8.0" />
     <PackageVersion Include="CoreWCF.WebHttp" Version="$(CoreWCFVersion)" />
-    <PackageVersion Include="Dock.Avalonia" Version="11.3.6.5" />
-    <PackageVersion Include="Dock.Avalonia.Themes.Fluent" Version="11.3.6.5" />
-    <PackageVersion Include="Dock.Model.Avalonia" Version="11.3.6.5" />
     <PackageVersion Include="Egelke.EHealth.Client.Pki" Version="2.4.0" />
     <PackageVersion Include="ESCPOS" Version="1.3.0" />
     <PackageVersion Include="QRCoder" Version="1.6.0" />
     <PackageVersion Include="QRCoder.Xaml" Version="1.6.0" />
     <PackageVersion Include="Google.Cloud.Translate.V3" Version="3.9.0" />
+    <PackageVersion Include="HtmlAgilityPack" Version="1.12.0" />
     <PackageVersion Include="IM.Xades" Version="3.0.0" />
-    <PackageVersion Include="Markdown.Avalonia" Version="11.0.2" />
     <PackageVersion Include="MdXaml" Version="1.27.0" />
-    <PackageVersion Include="MessageBox.Avalonia" Version="3.2.0" />
+    <PackageVersion Include="MicroCom.Runtime" Version="0.11.0" />
     <PackageVersion Include="Microsoft.AspNetCore" Version="2.3.0" />
     <PackageVersion Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.2.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Common" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="$(CodeAnalysisVersion)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Features" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Scripting.Common" Version="4.8.0" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="$(CodeAnalysisVersion)" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Scripting.Common" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
     <PackageVersion Include="Microsoft.CSharp" Version="4.7.0" />
@@ -65,7 +89,6 @@
     <PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="$(NetCorePackageVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.WindowsServices" Version="$(NetCorePackageVersion)" />
     <PackageVersion Include="Microsoft.Windows.Compatibility" Version="$(NetCorePackageVersion)" />
-    <PackageVersion Include="Microsoft.Windows.Compatibility" Version="7.0.5" />
     <PackageVersion Include="ModelContextProtocol" Version="0.3.0-preview.3" />
     <PackageVersion Include="ModelContextProtocol.AspNetCore" Version="0.3.0-preview.3" />
     <PackageVersion Include="MSTest.TestFramework" Version="4.0.0-preview.25372.6" />
@@ -77,18 +100,22 @@
     <PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Core" Version="1.5.376.244" />
     <PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates" Version="1.5.376.244" />
     <PackageVersion Include="OPCFoundation.NetStandard.Opc.Ua.Server" Version="1.5.376.244" />
-    <PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
     <PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
     <PackageVersion Include="QuickGraphCore" Version="1.0.0" />
-    <PackageVersion Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
     <PackageVersion Include="RoslynPad.Editor.Windows" Version="4.12.1" />
     <PackageVersion Include="RoslynPad.Roslyn" Version="4.12.1" />
-    <PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
     <PackageVersion Include="RoslynPad.Roslyn.Windows" Version="4.12.1" />
+    <PackageVersion Include="ReactiveUI" Version="20.1.1" />
     <PackageVersion Include="SciChart" Version="8.9.0.28760" />
     <PackageVersion Include="Simplecto.Avalonia.RichTextBox" Version="1.3.9" />
-    <PackageVersion Include="SkiaSharp" Version="3.119.1" />
-    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
+    <PackageVersion Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.Skottie" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="3$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
     <PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
@@ -98,7 +125,6 @@
     <PackageVersion Include="System.IO.Compression" Version="4.3.0" />
     <PackageVersion Include="System.IO.Ports" Version="$(NetCorePackageVersion)" />
     <PackageVersion Include="System.Management" Version="$(NetCorePackageVersion)" />
-    <PackageVersion Include="System.Management" Version="8.0.0" />
     <PackageVersion Include="System.Net.Http" Version="4.3.4" />
     <PackageVersion Include="System.Reflection.Context" Version="9.0.10" />
     <PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
@@ -111,5 +137,98 @@
     <PackageVersion Include="WindowsAPICodePack" Version="8.0.6" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.17" />
     <PackageVersion Include="Xaml.Behaviors" Version="11.3.6.6" />
+    <PackageVersion Include="System.Text.Json" Version="$(DotNetExtensionsVersion)" />
+
+    <!-- Additional Packages for Roslyn Pad -->
+    <PackageVersion Include="AvalonLibrary" Version="4.0.1" />
+    <PackageVersion Include="DialogHost.Avalonia" Version="0.9.2" />
+    <PackageVersion Include="Dirkster.AvalonDock" Version="4.72.1" />
+    <PackageVersion Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
+    <PackageVersion Include="IgnoresAccessChecksToGenerator" Version="0.8.0" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.Maui.Resizetizer" Version="9.0.70" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
+    <PackageVersion Include="Microsoft.VisualStudio.Validation" Version="17.8.8" />
+    <PackageVersion Include="Mono.Cecil" Version="0.11.6" />
+    <PackageVersion Include="Nerdbank.Streams" Version="2.12.87" />
+    <PackageVersion Include="NuGet.Commands" Version="$(NuGetVersion)" />
+    <PackageVersion Include="NuGet.Versioning" Version="$(NuGetVersion)" />
+    <PackageVersion Include="System.Linq.Async" Version="6.0.1" />
+    <PackageVersion Include="System.Reactive.Core" Version="6.0.1" />
+    <PackageVersion Include="System.Reactive.Linq" Version="6.0.1" />
+    <PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="System.Reflection.Metadata" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="System.Composition" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="Xunit.StaFact" Version="2.1.7" />
+    <PackageVersion Include="xunit.v3" Version="2.0.2" />
+
+    <!-- Additional Packages for Avalonia Dock, Avalonia Behaviours -->
+    <PackageVersion Include="Caliburn.Micro.Core" Version="5.0.181-beta" />
+    <PackageVersion Include="Caliburn.Micro.Avalonia" Version="5.0.181-beta" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
+    <PackageVersion Include="Nuke.Common" Version="9.0.4" />
+    <PackageVersion Include="Prism.Core" Version="9.0.537" />
+    <PackageVersion Include="protobuf-net" Version="3.2.56" />
+    <PackageVersion Include="ReactiveGenerator" Version="0.12.0" />
+    <PackageVersion Include="ReactiveMarbles.PropertyChanged" Version="2.0.27" />
+    <PackageVersion Include="ReactiveProperty" Version="9.7.0" />
+    <PackageVersion Include="StaticViewLocator" Version="0.0.1" />
+    <PackageVersion Include="System.Runtime.Serialization.Formatters" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="WebViewControl-Avalonia" Version="3.120.10" />
+    <PackageVersion Include="WebViewControl-Avalonia-ARM64" Version="3.120.10" />
+    <PackageVersion Include="YamlDotNet" Version="16.3.0" />
+    <PackageVersion Include="xunit" Version="2.9.3" />
+    <PackageVersion Include="xunit.abstractions" Version="2.0.3" />
+    <PackageVersion Include="xunit.assert" Version="2.9.3" />
+    <PackageVersion Include="xunit.core" Version="2.9.3" />
+    <PackageVersion Include="xunit.extensibility.core" Version="2.9.3" />
+    <PackageVersion Include="xunit.extensibility.execution" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.console" Version="2.9.3" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="3.1.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageVersion>
+
+    <!-- Additional Packages for Avalonia Edit -->
+    <!-- Additional Packages for Avalonia Edit -->
+    <PackageVersion Include="Moq" Version="4.18.4" />
+    <PackageVersion Include="TextMateSharp" Version="1.0.70" />
+    <PackageVersion Include="TextMateSharp.Grammars" Version="1.0.70" />
+    <PackageVersion Include="System.Collections.Immutable" Version="$(DotNetExtensionsVersion)" />
+    <PackageVersion Include="NUnit" Version="3.13.2" />
+    <PackageVersion Include="NUnit3TestAdapter" Version="4.4.2" />
+
+    <!-- Additional Packages for Avalonia Labs -->
+    <PackageVersion Include="coverlet.collector" Version="3.1.2" />
+    <PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.5" />
+    <PackageVersion Include="Tmds.DBus.Protocol" Version="0.20.0" />
+    <PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.19" />
+    <PackageVersion Include="MicroCom.CodeGenerator.Roslyn " Version="0.11.0" />
+    <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.106" />
+    <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
+
+    <!-- Additional Packages for Avalonia DataGrid -->
+    <PackageVersion Include="JetBrains.dotMemoryUnit" Version="3.2.20220510" />
+
+    <!-- Additional Packages for SVG -->
+    <PackageVersion Include="Nerdbank.GitVersioning" Version="3.3.37" />
+    <PackageVersion Include="System.Resources.Extensions" Version="5.0.0" />
+    <PackageVersion Include="BenchmarkDotNet" Version="0.13.5" />
+
+    <!-- Additional Packages for SVG.Skia -->
+    <PackageVersion Include="Svg" Version="3.4.4" />
+    <PackageVersion Include="ExCSS" Version="4.3.1" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.1" />
+    <PackageVersion Include="System.Memory" Version="4.6.3" />
+    <PackageVersion Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
+    <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
+    <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.14.8" />
+
   </ItemGroup>
 </Project>

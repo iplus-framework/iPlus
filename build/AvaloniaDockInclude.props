@@ -1,0 +1,31 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Dock.Avalonia">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Avalonia/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Controls.ProportionalStackPanel">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Controls.ProportionalStackPanel/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Controls.ProportionalStackPanel.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Controls.Recycling">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Controls.Recycling/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Controls.Recycling.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.MarkupExtension">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.MarkupExtension/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.MarkupExtension.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Model">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Model/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Settings">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Settings/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Settings.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Avalonia.Themes.Fluent">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Avalonia.Themes.Fluent/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Avalonia.Themes.Fluent.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Model.Avalonia">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Model.Avalonia/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Model.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="Dock.Controls.Recycling.Model">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Controls.Recycling.Model/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Controls.Recycling.Model.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

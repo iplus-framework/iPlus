@@ -1,0 +1,28 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <!--<Reference Include="RoslynPad.Avalonia">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Avalonia/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Avalonia.dll</HintPath>
+    </Reference>-->
+    <Reference Include="RoslynPad.Build">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Build/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Build.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Common.UI">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Common.UI/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Common.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Editor.Avalonia">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Editor.Avalonia/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Editor.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Roslyn">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Roslyn/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Roslyn.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Roslyn.Avalonia">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Roslyn.Avalonia/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Roslyn.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Runtime">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Runtime/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="RoslynPad.Themes">
+      <HintPath>$(AvaloniaRoslynPadIncludeDir)/RoslynPad.Themes/bin/$(Configuration)/$(AvaloniaBuildFramework)/RoslynPad.Themes.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

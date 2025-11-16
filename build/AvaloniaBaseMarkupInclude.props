@@ -1,0 +1,13 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia.Markup">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Markup.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Markup.Xaml">
+      <HintPath>$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Markup.Xaml.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Markup.Xaml.Loader">
+      <HintPath>$(AvaloniaMarkupBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Markup.Xaml.Loader.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

@@ -1,0 +1,7 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="MessageBox.Avalonia">
+      <HintPath>$(AvaloniaMessageBoxIncludeDir)/$(Configuration)/$(AvaloniaBuildFramework)/MsBox.Avalonia.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

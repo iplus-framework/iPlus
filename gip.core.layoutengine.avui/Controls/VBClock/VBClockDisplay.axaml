@@ -1,8 +1,9 @@
-﻿<UserControl x:Class="gip.core.layoutengine.avui.VBClockDisplay"
+﻿<UserControl
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:wc="clr-namespace:gip.core.layoutengine.avui">
-    <Border Padding="5">
+    xmlns:wc="clr-namespace:gip.core.layoutengine.avui"
+		x:Class="gip.core.layoutengine.avui.VBClockDisplay">
+  <Border Padding="5">
 		<DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="_panel">
 			<TextBlock
 					Foreground="White"

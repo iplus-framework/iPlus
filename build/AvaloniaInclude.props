@@ -1,0 +1,9 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="./AvaloniaBaseInclude.props" />
+  <Import Project="./AvaloniaBaseDesktopInclude.props" />
+  <Import Project="./AvaloniaBaseDiagnosticsInclude.props" />
+  <Import Project="./AvaloniaBaseFluentInclude.props" />
+  <Import Project="./AvaloniaBaseSkiaInclude.props" />
+  <Import Project="./AvaloniaBaseColorPickerInclude.props" />
+  <Import Project="./AvaloniaBaseBuildServicesInclude.props" />
+</Project> 

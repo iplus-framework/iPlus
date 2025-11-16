@@ -1356,11 +1356,11 @@ namespace gip.core.layoutengine.avui
             base.OnPointerReleased(e);
         }
 
-        protected override void OnAccessKey(RoutedEventArgs e)
-        {
-            base.OnAccessKey(e);
-            this.Focus();
-        }
+        //protected override void OnAccessKey(RoutedEventArgs e)
+        //{
+        //    base.OnAccessKey(e);
+        //    this.Focus();
+        //}
 
         void VBTextBox_SourceUpdated(object sender, AvaloniaPropertyChangedEventArgs e)
         {

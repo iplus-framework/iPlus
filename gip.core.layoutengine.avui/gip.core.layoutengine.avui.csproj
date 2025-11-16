@@ -32,13 +32,15 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>$(SolutionDir)bin\Debug\gip.core.layoutengine.avui.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
-    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'False'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn Condition="'$(UseAvaloniaFork)' == 'True'">1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;MSB3277</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -146,70 +148,69 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ClosedXML"  />
-    <PackageReference Include="Markdown.Avalonia"  />
-    <PackageReference Include="MessageBox.Avalonia"  />
     <PackageReference Include="Microsoft.CodeAnalysis"  />
     <PackageReference Include="Microsoft.CodeAnalysis.Common"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  />
-    <PackageReference Include="OxyPlot.Avalonia"  />
     <PackageReference Include="QuickGraphCore"  />
-    <PackageReference Include="RoslynPad.Editor.Avalonia"  />
-    <PackageReference Include="RoslynPad.Roslyn.Avalonia"  />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.ServiceModel.Duplex"  />
     <PackageReference Include="System.ServiceModel.NetTcp"  />
     <PackageReference Include="System.ServiceModel.Federation"  />
+    <PackageReference Include="HtmlAgilityPack" />
   </ItemGroup>
   
   <!-- Use Avalonia Nuget -->
-  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Avalonia"  />
     <PackageReference Include="Dock.Avalonia"  />
     <PackageReference Include="Dock.Avalonia.Themes.Fluent"  />
     <PackageReference Include="Dock.Model.Avalonia"  />
+    <PackageReference Include="System.Text.Json" />
+    <PackageReference Include="RoslynPad.Editor.Avalonia"  />
+    <PackageReference Include="RoslynPad.Roslyn.Avalonia"  />
+    <PackageReference Include="OxyPlot.Avalonia"  />
+    <PackageReference Include="Markdown.Avalonia"  />
+    <PackageReference Include="MessageBox.Avalonia"  />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->
-  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'True'">
-    <Reference Include="Simplecto.Avalonia.RichTextBox">
-      <HintPath>$(AvaloniaRichTextBoxIncludeDir)\$(Configuration)\$(AvaloniaBuildFramework)\AvRichTextBox.dll</HintPath>
-    </Reference>
-    <Reference Include="Avalonia.Labs.CommandManager">
-      <HintPath>$(AvaloniaLabsIncludeDir)\Avalonia.Labs.CommandManager\bin\$(Configuration)\$(AvaloniaBuildFramework)\Avalonia.Labs.CommandManager.dll</HintPath>
-    </Reference>
-    <Reference Include="Avalonia.Controls.DataGrid">
-      <HintPath>$(AvaloniaDataGridIncludeDir)\$(Configuration)_$(AvaloniaBuildFramework)\Avalonia.Controls.DataGrid.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.Avalonia">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.Avalonia\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Avalonia.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.Controls.ProportionalStackPanel">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.Controls.ProportionalStackPanel\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Controls.ProportionalStackPanel.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.Controls.Recycling">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.Controls.Recycling\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Controls.Recycling.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.MarkupExtension">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.MarkupExtension\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.MarkupExtension.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.Model">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.xxx\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Model.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.Settings">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.xxx\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Settings.dll</HintPath>
-    </Reference>
-    <Reference Include="Dock.Avalonia.Themes.Fluent">
-      <HintPath>$(AvaloniaDockIncludeDir)\Dock.xxx\bin\$(Configuration)\$(AvaloniaBuildFramework)\Dock.Avalonia.Themes.Fluent.dll</HintPath>
-    </Reference>
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <!-- Exclude conflicting NuGet packages -->
+    <!--<PackageReference Update="Avalonia" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Base" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Controls" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.DesignerSupport" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Dialogs" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Markup" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Markup.Xaml" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Metal" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.MicroCom" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.OpenGL" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Vulkan" ExcludeAssets="all" />
+    <PackageReference Update="Avalonia.Remote.Protocol" ExcludeAssets="all" />-->
+
+    <!-- Third-party packages with Avalonia dependencies excluded -->
+    <PackageReference Include="OxyPlot.Avalonia">
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <PrivateAssets>none</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets" />
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\ReactiveUI.props" />
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaBehavioursInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBehavioursInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDockInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRoslynPadInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDataGridInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMarkdownInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMessageBoxInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaSvgSkiaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaCommandManagerInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
 
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

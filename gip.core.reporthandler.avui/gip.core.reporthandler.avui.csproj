@@ -93,21 +93,17 @@
   </ItemGroup>
 
   <!-- Use Avalonia Nuget -->
-  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'False'">
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Avalonia"  />
     <PackageReference Include="Simplecto.Avalonia.RichTextBox"  />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->
-  <ItemGroup Condition="'$(UseAvaloniaForkIPlus)' == 'True'">
-    <Reference Include="Simplecto.Avalonia.RichTextBox">
-      <HintPath>$(AvaloniaRichTextBoxIncludeDir)\$(Configuration)\$(AvaloniaBuildFramework)\AvRichTextBox.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="..\AvaloniaInclude.props" />
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\BuildTargets.targets" />
-  <Import Condition="'$(UseAvaloniaForkIPlus)' == 'True'" Project="$(AvaloniaRootDir)\build\SourceGenerators.props" />
-  
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
+
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
     <Reference Include="Microsoft.EntityFrameworkCore">
       <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>

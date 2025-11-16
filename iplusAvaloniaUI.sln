@@ -84,10 +84,39 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
 		.mcp.json = .mcp.json
-		AvaloniaBehavioursInclude.props = AvaloniaBehavioursInclude.props
-		AvaloniaInclude.props = AvaloniaInclude.props
 		Directory.Build.props = Directory.Build.props
 		Directory.Packages.props = Directory.Packages.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		build\Avalonia.Build.props = build\Avalonia.Build.props
+		build\AvaloniaBaseAndroidInclude.props = build\AvaloniaBaseAndroidInclude.props
+		build\AvaloniaBaseBrowserInclude.props = build\AvaloniaBaseBrowserInclude.props
+		build\AvaloniaBaseBuildServicesInclude.props = build\AvaloniaBaseBuildServicesInclude.props
+		build\AvaloniaBaseColorPickerInclude.props = build\AvaloniaBaseColorPickerInclude.props
+		build\AvaloniaBaseDesktopInclude.props = build\AvaloniaBaseDesktopInclude.props
+		build\AvaloniaBaseDiagnosticsInclude.props = build\AvaloniaBaseDiagnosticsInclude.props
+		build\AvaloniaBaseFluentInclude.props = build\AvaloniaBaseFluentInclude.props
+		build\AvaloniaBaseHeadlessInclude.props = build\AvaloniaBaseHeadlessInclude.props
+		build\AvaloniaBaseInclude.props = build\AvaloniaBaseInclude.props
+		build\AvaloniaBaseIOSInclude.props = build\AvaloniaBaseIOSInclude.props
+		build\AvaloniaBaseMarkupInclude.props = build\AvaloniaBaseMarkupInclude.props
+		build\AvaloniaBaseReactiveInclude.props = build\AvaloniaBaseReactiveInclude.props
+		build\AvaloniaBaseSkiaInclude.props = build\AvaloniaBaseSkiaInclude.props
+		build\AvaloniaBehavioursInclude.props = build\AvaloniaBehavioursInclude.props
+		build\AvaloniaCommandManagerInclude.props = build\AvaloniaCommandManagerInclude.props
+		build\AvaloniaDataGridInclude.props = build\AvaloniaDataGridInclude.props
+		build\AvaloniaDialogHostInclude.props = build\AvaloniaDialogHostInclude.props
+		build\AvaloniaDockInclude.props = build\AvaloniaDockInclude.props
+		build\AvaloniaEditInclude.props = build\AvaloniaEditInclude.props
+		build\AvaloniaInclude.props = build\AvaloniaInclude.props
+		build\AvaloniaMarkdownInclude.props = build\AvaloniaMarkdownInclude.props
+		build\AvaloniaMessageBoxInclude.props = build\AvaloniaMessageBoxInclude.props
+		build\AvaloniaRichTextBoxInclude.props = build\AvaloniaRichTextBoxInclude.props
+		build\AvaloniaRoslynPadInclude.props = build\AvaloniaRoslynPadInclude.props
+		build\AvaloniaSvgSkiaInclude.props = build\AvaloniaSvgSkiaInclude.props
+		build\EntityFramework.Build.props = build\EntityFramework.Build.props
 	EndProjectSection
 EndProject
 Global
@@ -258,6 +287,7 @@ Global
 		{1C1A049E-235C-4CD0-B6FA-D53AC418F4DA} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
 		{EBD9022F-BC83-4846-9A11-6F7F3772DC64} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
 		{7AD1DAC8-7FBE-49D5-8614-7321233DB82E} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {98B3D62C-99C4-441A-BDBB-AA6225B4CF1C}

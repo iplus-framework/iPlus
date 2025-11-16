@@ -48,4 +48,24 @@
     </None>
   </ItemGroup>
 
+  <!-- Conditional App.config selection -->
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <None Include="App.Fork.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>$(AssemblyName).dll.config</TargetPath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
+    <None Include="App.NuGet.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>$(AssemblyName).dll.config</TargetPath>
+    </None>
+  </ItemGroup>
+
+  <!-- Remove the default App.config -->
+  <ItemGroup>
+    <None Remove="App.config" />
+  </ItemGroup>
+
 </Project>

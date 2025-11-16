@@ -1,0 +1,19 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Markdown.Avalonia.Full">
+      <HintPath>$(AvaloniaMarkdownIncludeDir)\Markdown.Avalonia\bin\$(Configuration)\$(AvaloniaBuildFramework)\Markdown.Avalonia.Full.dll</HintPath>
+    </Reference>
+    <Reference Include="Markdown.Avalonia.Html">
+      <HintPath>$(AvaloniaMarkdownIncludeDir)\Markdown.Avalonia.Html\bin\$(Configuration)\$(AvaloniaBuildFramework)\Markdown.Avalonia.Html.dll</HintPath>
+    </Reference>
+    <Reference Include="Markdown.Avalonia.Svg">
+      <HintPath>$(AvaloniaMarkdownIncludeDir)\Markdown.Avalonia.Svg\bin\$(Configuration)\$(AvaloniaBuildFramework)\Markdown.Avalonia.Svg.dll</HintPath>
+    </Reference>
+    <Reference Include="Markdown.Avalonia.SyntaxHigh">
+      <HintPath>$(AvaloniaMarkdownIncludeDir)\Markdown.Avalonia.SyntaxHigh\bin\$(Configuration)\$(AvaloniaBuildFramework)\Markdown.Avalonia.SyntaxHigh.dll</HintPath>
+    </Reference>
+    <Reference Include="Markdown.Avalonia.Tight">
+      <HintPath>$(AvaloniaMarkdownIncludeDir)\Markdown.Avalonia.Tight\bin\$(Configuration)\$(AvaloniaBuildFramework)\Markdown.Avalonia.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

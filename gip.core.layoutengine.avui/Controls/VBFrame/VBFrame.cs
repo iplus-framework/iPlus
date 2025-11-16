@@ -2,7 +2,6 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
-using Avalonia.ReactiveUI;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
@@ -12,7 +11,7 @@ using System.ComponentModel;
 namespace gip.core.layoutengine.avui
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBFrameController'}de{'VBFrameController'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
-    public class VBFrameController : RoutedViewHost //, IACInteractiveObject, IACObject, IVBGui
+    public class VBFrameController : ContentControl //, IACInteractiveObject, IACObject, IVBGui
     {
 
         //public static readonly DependencyProperty RibbonBarVisibilityProperty =

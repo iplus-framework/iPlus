@@ -1,0 +1,19 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Svg.Skia">
+      <HintPath>$(AvaloniaSvgIncludeDir)\Svg.Skia\bin\$(Configuration)\$(AvaloniaBuildFramework)\Svg.Skia.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg.Model">
+      <HintPath>$(AvaloniaSvgIncludeDir)\Svg.Model\bin\$(Configuration)\$(AvaloniaBuildFramework)\Svg.Model.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg.Custom">
+      <HintPath>$(AvaloniaSvgIncludeDir)\Svg.Custom\bin\$(Configuration)\$(AvaloniaBuildFramework)\Svg.Custom.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg.Controls.Avalonia">
+      <HintPath>$(AvaloniaSvgIncludeDir)\Svg.Controls.Avalonia\bin\$(Configuration)\$(AvaloniaBuildFramework)\Svg.Controls.Avalonia.dll</HintPath>
+    </Reference>
+    <Reference Include="ShimSkiaSharp">
+      <HintPath>$(AvaloniaSvgIncludeDir)\ShimSkiaSharp\bin\$(Configuration)\$(AvaloniaBuildFramework)\ShimSkiaSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

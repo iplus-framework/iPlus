@@ -9,7 +9,6 @@ using System.Diagnostics;
 using Avalonia.Media;
 using Avalonia.Input;
 using Avalonia;
-using System.Reactive.Disposables;
 using Avalonia.Input.Raw;
 using Avalonia.Controls;
 

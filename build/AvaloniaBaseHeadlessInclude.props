@@ -1,0 +1,13 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia.Headless">
+      <HintPath>$(AvaloniaRootDir)/src/Headless/Avalonia.Headless/bin/$(Configuration)/$(TargetFramework)/Avalonia.Headless.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Headless.XUnit">
+      <HintPath>$(AvaloniaRootDir)/src/Headless/Avalonia.Headless.XUnit/bin/$(Configuration)/$(TargetFramework)/Avalonia.Headless.XUnit.dll</HintPath>
+    </Reference>
+    <Reference Include="Avalonia.Headless.NUnit">
+      <HintPath>$(AvaloniaRootDir)/src/Headless/Avalonia.Headless.NUnit/bin/$(Configuration)/$(TargetFramework)/Avalonia.Headless.NUnit.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 
