@@ -3,7 +3,7 @@
     <UseAvaloniaFork>False</UseAvaloniaFork>
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
     <AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
-    
+
     <!-- Use forward slashes for cross-platform compatibility -->
     <AvaloniaRootDir>$(MSBuildThisFileDirectory)../../av_main</AvaloniaRootDir>
     <AvaloniaNativeBuildDir>$(AvaloniaRootDir)/src/Avalonia.Native/bin</AvaloniaNativeBuildDir>
@@ -22,6 +22,7 @@
     <AvaloniaDialogHostIncludeDir>$(MSBuildThisFileDirectory)../../AvDialogHost.Avalonia/DialogHost.Avalonia/bin</AvaloniaDialogHostIncludeDir>
     <AvaloniaRoslynPadIncludeDir>$(MSBuildThisFileDirectory)../../roslynpad/src</AvaloniaRoslynPadIncludeDir>
     <AvaloniaMessageBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvMessageBox.Avalonia/MsBox.Avalonia/bin</AvaloniaMessageBoxIncludeDir>
+    <AvaloniaOxyPlotIncludeDir>$(MSBuildThisFileDirectory)../../avOxyplot-avalonia/Source/OxyPlot.Avalonia/bin</AvaloniaOxyPlotIncludeDir>
 
     <IncludeAvaloniaGenerators Condition="'$(UseAvaloniaFork)' == 'True'">True</IncludeAvaloniaGenerators>   
   </PropertyGroup>

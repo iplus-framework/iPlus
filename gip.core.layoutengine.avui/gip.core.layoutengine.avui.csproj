@@ -176,28 +176,7 @@
     <PackageReference Include="MessageBox.Avalonia"  />
   </ItemGroup>
 
-  <!-- Use Avalonia Fork -->
-  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
-    <!-- Exclude conflicting NuGet packages -->
-    <!--<PackageReference Update="Avalonia" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Base" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Controls" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.DesignerSupport" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Dialogs" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Markup" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Markup.Xaml" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Metal" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.MicroCom" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.OpenGL" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Vulkan" ExcludeAssets="all" />
-    <PackageReference Update="Avalonia.Remote.Protocol" ExcludeAssets="all" />-->
-
-    <!-- Third-party packages with Avalonia dependencies excluded -->
-    <PackageReference Include="OxyPlot.Avalonia">
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <PrivateAssets>none</PrivateAssets>
-    </PackageReference>
-  </ItemGroup>
+  <!-- Use Avalonia Fork -->  
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
@@ -211,6 +190,7 @@
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaSvgSkiaInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaCommandManagerInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaOxyPlotInclude.props" />
 
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

@@ -77,6 +77,11 @@
     <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml"  />
+    <PackageReference Include="DocumentFormat.OpenXml.Framework"  />
+  </ItemGroup>
   
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">

@@ -103,6 +103,7 @@
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRichTextBoxInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
 
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
     <Reference Include="Microsoft.EntityFrameworkCore">

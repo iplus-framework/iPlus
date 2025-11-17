@@ -28,6 +28,7 @@
     <PackageVersion Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+    <PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.25547.20250602" />
 
     <!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
     <PackageVersion Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
@@ -145,6 +146,8 @@
     <PackageVersion Include="Dirkster.AvalonDock" Version="4.72.1" />
     <PackageVersion Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.72.1" />
     <PackageVersion Include="IgnoresAccessChecksToGenerator" Version="0.8.0" />
+    <PackageVersion Include="MessagePack" Version="3.1.4" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.LanguageServer.Protocol" Version="4.14.0-3.25275.7" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(DotNetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(DotNetExtensionsVersion)" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(DotNetExtensionsVersion)" />
@@ -196,7 +199,6 @@
     </PackageVersion>
 
     <!-- Additional Packages for Avalonia Edit -->
-    <!-- Additional Packages for Avalonia Edit -->
     <PackageVersion Include="Moq" Version="4.18.4" />
     <PackageVersion Include="TextMateSharp" Version="1.0.70" />
     <PackageVersion Include="TextMateSharp.Grammars" Version="1.0.70" />
@@ -211,7 +213,6 @@
     <PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.19" />
     <PackageVersion Include="MicroCom.CodeGenerator.Roslyn " Version="0.11.0" />
     <PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.106" />
-    <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.1" />
 
     <!-- Additional Packages for Avalonia DataGrid -->
     <PackageVersion Include="JetBrains.dotMemoryUnit" Version="3.2.20220510" />
@@ -229,6 +230,21 @@
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.14.8" />
+
+    <!-- Additional Packages for RichtTextBox -->
+    <PackageVersion Include="DocumentFormat.OpenXml" Version="3.3.0" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Framework" Version="3.3.0" />
+    <PackageVersion Include="RtfDomParser" Version="7.0.0" />
+
+    <!-- Additional Packages for Markdown -->
+    <PackageVersion Include="Avalonia.Svg" Version="$(AvaloniaVersion)" />
+    <PackageVersion Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
+
+    <!-- Additional Packages for OxyPlot -->
+    <PackageVersion Include="OxyPlot.Core" Version="2.1.2" />
+    <PackageVersion Include="OxyPlot.ExampleLibrary" Version="2.1.2" />
+    <PackageVersion Include="Serilog.Sinks.Trace" Version="2.1.0" />
+    <PackageVersion Include="JetBrains.Annotations" Version="11.0.0" />
 
   </ItemGroup>
 </Project>
