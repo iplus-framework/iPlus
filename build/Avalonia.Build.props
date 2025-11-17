@@ -35,6 +35,6 @@
     <Message Text="Configuration: $(Configuration)" Importance="high" />
   </Target>-->
 
-  <Import Project="$(AvaloniaRootDir)/build/TargetFrameworks.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'False' AND Exists('$(AvaloniaRootDir)/build/TargetFrameworks.props')" Project="$(AvaloniaRootDir)/build/TargetFrameworks.props" />
 
 </Project>
