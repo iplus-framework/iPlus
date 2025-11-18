@@ -119,6 +119,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E
 		build\AvaloniaRichTextBoxInclude.props = build\AvaloniaRichTextBoxInclude.props
 		build\AvaloniaRoslynPadInclude.props = build\AvaloniaRoslynPadInclude.props
 		build\AvaloniaSvgSkiaInclude.props = build\AvaloniaSvgSkiaInclude.props
+		build\Build-Avalonia.bat = build\Build-Avalonia.bat
+		build\Build-AvaloniaProjects.ps1 = build\Build-AvaloniaProjects.ps1
 		build\EntityFramework.Build.props = build\EntityFramework.Build.props
 	EndProjectSection
 EndProject
