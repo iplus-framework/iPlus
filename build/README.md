@@ -2,6 +2,39 @@
 
 This directory contains PowerShell scripts to batch compile Avalonia-dependent projects for the iPlus framework.
 
+## Preparation steps:
+Clone all avalonia forks from iplus-framework into the same directory level like iplus.
+
+https://github.com/iplus-framework/XamlX.git
+https://github.com/iplus-framework/Avalonia.git
+https://github.com/iplus-framework/roslynpad.git
+https://github.com/iplus-framework/SVG.git
+https://github.com/iplus-framework/AvSvg.Skia.git
+https://github.com/iplus-framework/AvRichTextBox.git
+https://github.com/iplus-framework/avOxyplot-avalonia.git
+https://github.com/iplus-framework/AvMessageBox.Avalonia.git
+https://github.com/iplus-framework/AvDialogHost.Avalonia.git
+https://github.com/iplus-framework/AvaloniaEdit.git
+https://github.com/iplus-framework/Xaml.Behaviors.git
+https://github.com/iplus-framework/Avalonia.Dock.git
+https://github.com/iplus-framework/Avalonia.Labs.git
+https://github.com/iplus-framework/Avalonia.Controls.DataGrid.git
+
+Avalonia uses XamlX for Xaml-Compilation. Replace the "..\external\XamlX" dummy folder in the avalonia ui solution with a symbolic link to the XamlX-Project:
+mklink /D "D:\Devel\iPlusGit\V5\av_main\external\XamlX" "D:\Devel\iPlusGit\V5\XamlX"
+
+Do the same for the Datagrid:
+mklink /D "D:\Devel\iPlusGit\V5\av_main\external\Avalonia.Controls.DataGrid" "D:\Devel\iPlusGit\V5\Avalonia.Controls.DataGrid"
+
+Call workload restore to get the wasm tools for android, ios and browser:
+> dotnet workload restore
+> dotnet restore
+
+AvSvg.Skia uses SVG. Replace the "..\externals\SVG" dummy folder in the AvSvg.Skia solution with a symbolic link to the SVG-Project:
+mklink /D "D:\Devel\iPlusGit\V5\AvSvg.Skia\externals\SVG" "D:\Devel\iPlusGit\V5\SVG"
+
+Afterwards run this Build-Script or compile all solutions step by step in visual studio.
+
 ## Scripts Overview
 
 ### 1. `Build-AvaloniaProjects.ps1` - Main Build Script
