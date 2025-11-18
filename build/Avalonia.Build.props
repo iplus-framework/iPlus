@@ -1,41 +1,4 @@
-<Project> 
-  <PropertyGroup>
-    <UseAvaloniaFork>False</UseAvaloniaFork>
-    <AvaloniaVersion>11.3.8</AvaloniaVersion>
-    <AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
-
-    <!-- Use forward slashes for cross-platform compatibility -->
-    <AvaloniaRootDir>$(MSBuildThisFileDirectory)../../av_main</AvaloniaRootDir>
-    <AvaloniaNativeBuildDir>$(AvaloniaRootDir)/src/Avalonia.Native/bin</AvaloniaNativeBuildDir>
-    <AvaloniaMarkupBuildDir>$(AvaloniaRootDir)/src/Markup/Avalonia.Markup.Xaml.Loader/bin</AvaloniaMarkupBuildDir>
-    <AvaloniaSkiaBuildDir>$(AvaloniaRootDir)/src/Skia/Avalonia.Skia/bin</AvaloniaSkiaBuildDir>
-
-    <!-- Other directories with consistent path separators -->
-    <AvaloniaDataGridIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.Controls.DataGrid/artifacts/bin/Avalonia.Controls.DataGrid</AvaloniaDataGridIncludeDir>
-    <AvaloniaRichTextBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvRichTextBox/AvRichTextBox/bin</AvaloniaRichTextBoxIncludeDir>
-    <AvaloniaBehavioursIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.Xaml.Behaviors/src</AvaloniaBehavioursIncludeDir>
-    <AvaloniaLabsIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.Labs/src</AvaloniaLabsIncludeDir>
-    <AvaloniaDockIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.Dock/src</AvaloniaDockIncludeDir>
-    <AvaloniaMarkdownIncludeDir>$(MSBuildThisFileDirectory)../../AvMarkdown.Avalonia</AvaloniaMarkdownIncludeDir>
-    <AvaloniaSvgIncludeDir>$(MSBuildThisFileDirectory)../../AvSvg.Skia/src</AvaloniaSvgIncludeDir>
-    <AvaloniaEditIncludeDir>$(MSBuildThisFileDirectory)../../AvaloniaEdit/src/AvaloniaEdit/bin</AvaloniaEditIncludeDir>
-    <AvaloniaDialogHostIncludeDir>$(MSBuildThisFileDirectory)../../AvDialogHost.Avalonia/DialogHost.Avalonia/bin</AvaloniaDialogHostIncludeDir>
-    <AvaloniaRoslynPadIncludeDir>$(MSBuildThisFileDirectory)../../roslynpad/src</AvaloniaRoslynPadIncludeDir>
-    <AvaloniaMessageBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvMessageBox.Avalonia/MsBox.Avalonia/bin</AvaloniaMessageBoxIncludeDir>
-    <AvaloniaOxyPlotIncludeDir>$(MSBuildThisFileDirectory)../../avOxyplot-avalonia/Source/OxyPlot.Avalonia/bin</AvaloniaOxyPlotIncludeDir>
-
-    <IncludeAvaloniaGenerators Condition="'$(UseAvaloniaFork)' == 'True'">True</IncludeAvaloniaGenerators>   
-  </PropertyGroup>
-
-  <!-- Add diagnostic output to help troubleshoot -->
-  <!--<Target Name="DiagnoseAvaloniaPaths" BeforeTargets="Build">
-    <Message Text="AvaloniaRootDir: $(AvaloniaRootDir)" Importance="high" />
-    <Message Text="AvaloniaNativeBuildDir: $(AvaloniaNativeBuildDir)" Importance="high" />
-    <Message Text="AvaloniaMarkupBuildDir: $(AvaloniaMarkupBuildDir)" Importance="high" />
-    <Message Text="AvaloniaBuildFramework: $(AvaloniaBuildFramework)" Importance="high" />
-    <Message Text="Configuration: $(Configuration)" Importance="high" />
-  </Target>-->
-
-  <Import Condition="'$(UseAvaloniaFork)' == 'False' AND Exists('$(AvaloniaRootDir)/build/TargetFrameworks.props')" Project="$(AvaloniaRootDir)/build/TargetFrameworks.props" />
-
+<Project>
+  <Import Project="$(MSBuildThisFileDirectory)/Avalonia.Version.props" />
+  <Import Project="$(MSBuildThisFileDirectory)/AvaloniaBaseCompileInclude.props" />
 </Project>

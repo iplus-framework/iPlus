@@ -26,9 +26,22 @@
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'true'">
+    <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="SkiaSharp.Skottie" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
+    <!--<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />-->
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
+    <!--<PackageReference Include="SkiaSharp.NativeAssets.macOS" />-->
+    <!--<PackageReference Include="SkiaSharp.NativeAssets.Android" />-->
+    <PackageReference Include="SkiaSharp.NativeAssets.WebAssembly" />
+    <PackageReference Include="HarfBuzzSharp" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Linux" />
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.Win32" />
+    <!--<PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" />-->
+    <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" />
+  </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseReactiveInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMessageBoxInclude.props" />
 

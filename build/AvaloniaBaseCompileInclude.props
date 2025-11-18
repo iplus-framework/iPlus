@@ -1,0 +1,7 @@
+<Project>
+  <Import Condition="'$(UseAvaloniaFork)' == 'True' AND Exists('$(AvaloniaRootDir)/build/BuildTargets.targets')" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True' AND Exists('$(AvaloniaRootDir)/build/SourceGenerators.props')" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
+  <PropertyGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+    <AvaloniaUseCompiledBindingsByDefault>False</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+</Project>

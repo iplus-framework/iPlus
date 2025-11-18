@@ -412,8 +412,10 @@ namespace gip.ext.designer.avui.Converters
         public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
             // Ensure all bindings are provided and attached to correct target type
-            if (values?.Count != 2 || !targetType.IsAssignableFrom(typeof(Point)))
+            if (values == null || values.Count < 1 || !targetType.IsAssignableFrom(typeof(Point)))
                 throw new NotSupportedException();
+            if (values[0] is Point p)
+                return new Point(p.X, p.Y);
 
             return new Point((double)values[0], (double)values[1]);
         }

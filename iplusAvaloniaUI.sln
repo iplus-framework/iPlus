@@ -91,10 +91,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
 	ProjectSection(SolutionItems) = preProject
 		build\Avalonia.Build.props = build\Avalonia.Build.props
+		build\Avalonia.Version.props = build\Avalonia.Version.props
 		build\AvaloniaBaseAndroidInclude.props = build\AvaloniaBaseAndroidInclude.props
 		build\AvaloniaBaseBrowserInclude.props = build\AvaloniaBaseBrowserInclude.props
 		build\AvaloniaBaseBuildServicesInclude.props = build\AvaloniaBaseBuildServicesInclude.props
 		build\AvaloniaBaseColorPickerInclude.props = build\AvaloniaBaseColorPickerInclude.props
+		build\AvaloniaBaseCompileInclude.props = build\AvaloniaBaseCompileInclude.props
 		build\AvaloniaBaseDesktopInclude.props = build\AvaloniaBaseDesktopInclude.props
 		build\AvaloniaBaseDiagnosticsInclude.props = build\AvaloniaBaseDiagnosticsInclude.props
 		build\AvaloniaBaseFluentInclude.props = build\AvaloniaBaseFluentInclude.props
@@ -267,7 +269,7 @@ Global
 		{88DA149F-21B2-48AB-82C4-28FB6BDFD783} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{889DAD2E-8E03-4A47-9A24-8EE759B37A70} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{220E6D9A-907A-44A2-9FA7-945972475ABA} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
-		{906813D8-6A71-4CC3-9033-22609FC865B7} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
+		{906813D8-6A71-4CC3-9033-22609FC865B7} = {AF7F207F-AE68-4199-9316-91411DFF93E4}
 		{02211577-F0BE-4511-A9B5-A4026ACC1979} = {2BADE20B-33ED-4F31-B56A-C847CF134A7D}
 		{66A378A1-E9F4-4AD5-8946-D0EC06C2902F} = {B8BA799D-B3ED-4E8B-A22F-E0A099A48862}
 		{AA244D31-0BE9-4AD9-BCAF-25D21298552E} = {4A180E41-9761-46E2-ACA3-4BD41764496C}

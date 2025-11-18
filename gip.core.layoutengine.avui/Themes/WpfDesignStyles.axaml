@@ -114,8 +114,7 @@
                 IsVisible="{Binding Path=RelativeToPoint, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource CollapsedWhenNullConverter}}">
             <Line.EndPoint>
               <MultiBinding Converter="{StaticResource PointConverter}">
-                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="RelativeToPoint.X"/>
-                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="RelativeToPoint.Y"/>
+                <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="RelativeToPoint"/>
               </MultiBinding>
             </Line.EndPoint>
           </Line>
@@ -410,7 +409,6 @@
             <TextBlock.Text>
               <MultiBinding Converter="{x:Static Converters:ControlToRealHeightConverter.Instance}" StringFormat="0">
                 <MultiBinding.Bindings>
-                  <Binding />
                   <Binding Path="ActualHeight" UpdateSourceTrigger="PropertyChanged" />
                   <Binding Path="Height" UpdateSourceTrigger="PropertyChanged" />
                 </MultiBinding.Bindings>
@@ -440,7 +438,6 @@
             <TextBlock.Text>
               <MultiBinding Converter="{x:Static Converters:ControlToRealWidthConverter.Instance}" StringFormat="0">
                 <MultiBinding.Bindings>
-                  <Binding />
                   <Binding Path="ActualWidth" UpdateSourceTrigger="PropertyChanged" />
                   <Binding Path="Width" UpdateSourceTrigger="PropertyChanged" />
                 </MultiBinding.Bindings>

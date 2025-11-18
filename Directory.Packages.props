@@ -7,9 +7,15 @@
     <DotNetExtensionsVersion>9.0.9</DotNetExtensionsVersion>
     <NuGetVersion>6.14.0</NuGetVersion>
     <CoreWCFVersion>1.8.0</CoreWCFVersion>
+    
     <!-- For Entity Framework -->
     <NetCorePackageVersion>9.0.7</NetCorePackageVersion>
-    <SkiaSharpVersion>3.119.1</SkiaSharpVersion>
+    
+    <!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
+    <SkiaSharpVersion>3.119.0</SkiaSharpVersion>
+    
+    <!-- $(AvaloniaRootDir)\av_main\build\HarfBuzzSharp.props -->
+    <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,6 +35,7 @@
     <PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.25547.20250602" />
+    <PackageVersion Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 
     <!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
     <PackageVersion Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
@@ -110,11 +117,12 @@
     <PackageVersion Include="SciChart" Version="8.9.0.28760" />
     <PackageVersion Include="Simplecto.Avalonia.RichTextBox" Version="1.3.9" />
     <PackageVersion Include="SkiaSharp" Version="$(SkiaSharpVersion)" />
-    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.Skottie" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="3$(SkiaSharpVersion)" />
+    <PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
     <PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
@@ -225,7 +233,12 @@
     <!-- Additional Packages for SVG.Skia -->
     <PackageVersion Include="Svg" Version="3.4.4" />
     <PackageVersion Include="ExCSS" Version="4.3.1" />
-    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="8.3.1.1" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux.NoDependencies" Version="$(HarfBuzzSharpVersion)" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Win32" Version="$(HarfBuzzSharpVersion)" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.macOS" Version="3$(HarfBuzzSharpVersion)" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.Android" Version="$(HarfBuzzSharpVersion)" />
+    <PackageVersion Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="$(HarfBuzzSharpVersion)" />
     <PackageVersion Include="System.Memory" Version="4.6.3" />
     <PackageVersion Include="System.CommandLine" Version="2.0.0-beta1.20371.2" />
     <PackageVersion Include="SixLabors.ImageSharp" Version="3.1.11" />
@@ -239,7 +252,13 @@
     <!-- Additional Packages for Markdown -->
     <PackageVersion Include="Avalonia.Svg" Version="$(AvaloniaVersion)" />
     <PackageVersion Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
-
+    <PackageVersion Include="Serilog" Version="3.0.1" />
+    <PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
+    <PackageVersion Include="ApprovalTests" Version="5.2.4" />
+    <PackageVersion Include="Html2Markdown" Version="6.2.0.3" />
+    <PackageVersion Include="ReverseMarkdown" Version="4.3.0" />
+    <PackageVersion Include="MarkdownFromHtml" Version="1.1.1" />
+    
     <!-- Additional Packages for OxyPlot -->
     <PackageVersion Include="OxyPlot.Core" Version="2.1.2" />
     <PackageVersion Include="OxyPlot.ExampleLibrary" Version="2.1.2" />
