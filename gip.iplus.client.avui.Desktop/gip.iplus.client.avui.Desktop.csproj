@@ -34,6 +34,7 @@
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseReactiveInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRoslynPadInclude.props" />
 
   <ItemGroup>
     <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj" />

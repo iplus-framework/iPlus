@@ -670,7 +670,7 @@ namespace gip.core.layoutengine.avui
             OnDoubleTapped(e);
         }
 
-        protected virtual void OnDoubleTapped(TappedEventArgs e)
+        protected override void OnDoubleTapped(TappedEventArgs e)
         {
             if (DblClick != null && DblClick != "")
             {

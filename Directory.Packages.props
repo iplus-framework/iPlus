@@ -4,7 +4,7 @@
     <CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
     <CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">4.12.0</CodeAnalysisVersion>
     <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion>
-    <DotNetExtensionsVersion>9.0.9</DotNetExtensionsVersion>
+    <DotNetExtensionsVersion>9.0.0</DotNetExtensionsVersion>
     <NuGetVersion>6.14.0</NuGetVersion>
     <CoreWCFVersion>1.8.0</CoreWCFVersion>
     
@@ -16,6 +16,10 @@
     
     <!-- $(AvaloniaRootDir)\av_main\build\HarfBuzzSharp.props -->
     <HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
+
+    <!-- ClosedXML uses transitive packages of DocumentFormat.OpenXml and this result in an package conflict. 
+    Therefore this declaration is used for override in csproj -->
+    <DocumentFormatOpenXmlVersion>3.3.0</DocumentFormatOpenXmlVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -245,9 +249,18 @@
     <PackageVersion Include="Microsoft.Build.Tasks.Core" Version="17.14.8" />
 
     <!-- Additional Packages for RichtTextBox -->
-    <PackageVersion Include="DocumentFormat.OpenXml" Version="3.3.0" />
-    <PackageVersion Include="DocumentFormat.OpenXml.Framework" Version="3.3.0" />
+    <PackageVersion Include="DocumentFormat.OpenXml" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Framework" Version="$(DocumentFormatOpenXmlVersion)" />
     <PackageVersion Include="RtfDomParser" Version="7.0.0" />
+    <!-- Force DocumentFormat.OpenXml version resolution -->
+    <PackageVersion Include="DocumentFormat.OpenXml.Packaging" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Drawing" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Office" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Office2010" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Office2013" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Office2016" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Office2019" Version="$(DocumentFormatOpenXmlVersion)" />
+    <PackageVersion Include="DocumentFormat.OpenXml.Office2021" Version="$(DocumentFormatOpenXmlVersion)" />
 
     <!-- Additional Packages for Markdown -->
     <PackageVersion Include="Avalonia.Svg" Version="$(AvaloniaVersion)" />
