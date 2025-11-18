@@ -33,6 +33,8 @@ Call workload restore to get the wasm tools for android, ios and browser:
 AvSvg.Skia uses SVG. Replace the "..\externals\SVG" dummy folder in the AvSvg.Skia solution with a symbolic link to the SVG-Project:
 mklink /D "D:\Devel\iPlusGit\V5\AvSvg.Skia\externals\SVG" "D:\Devel\iPlusGit\V5\SVG"
 
+**Set the UseAvaloniaFork Property in Avalonia.Version.props to 'True' !!!**
+
 Afterwards run this Build-Script or compile all solutions step by step in visual studio.
 
 ## Files
