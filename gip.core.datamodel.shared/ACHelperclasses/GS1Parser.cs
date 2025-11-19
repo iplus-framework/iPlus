@@ -331,11 +331,23 @@ namespace gip.core.datamodel
                 sb.Append(EAN128StartCode);
             }
             bool notLast = true;
+
             foreach (var item in input)
             {
                 notLast = item.variable && (item.ai != input.Last().ai);
-                sb.Append(item.ai);
-                sb.Append(item.val);
+
+                if(item.ai.Contains('d'))
+                {
+                    AII aii = GetAII(item.ai);
+                    decimal decimalValue = decimal.Parse(item.val);
+                    string numStr = GetNumericGSValue(item.ai, decimalValue, aii.LengthOfAI, aii.LengthOfData);
+                    sb.Append(numStr);
+                }
+                else
+                {
+                    sb.Append(item.ai);
+                    sb.Append(item.val);
+                }
 
                 if (item.variable && notLast)
                 {
@@ -344,6 +356,18 @@ namespace gip.core.datamodel
             }
             return sb.ToString();
         }
+
+        public static string GetNumericGSValue(string ai, decimal value, int decimals, int lengthOfData)
+        {
+            string actualAI = ai.Replace("d", decimals.ToString());
+
+            int scaledValue = (int)(value * (decimal)Math.Pow(10, decimals));
+
+            string data = scaledValue.ToString().PadLeft(lengthOfData, '0');
+
+            return actualAI + data;
+        }
+
 
         public static string BuildHriString(string[] aiOrder, List<(string ai, string val, bool variable)> input)
         {

@@ -6,11 +6,11 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using BarcodeLib;
 using gip.core.datamodel;
 using QRCoder.Xaml;
 using static gip.core.datamodel.GS1;
 using System.Linq;
+using BarcodeLib;
 
 namespace gip.core.reporthandler.Flowdoc
 {
