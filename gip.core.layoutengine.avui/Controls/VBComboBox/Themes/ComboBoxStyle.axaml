@@ -11,9 +11,13 @@
   <ControlTemplate x:Key="ComboBoxReadonlyTemplate" TargetType="local:VBComboBox">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <!--<ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
         <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>-->
+        <!-- Workaround https://github.com/AvaloniaUI/Avalonia/issues/20126  -->
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaptionMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContent}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContentMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -104,9 +108,13 @@
   <ControlTemplate x:Key="ComboBoxEditableTemplate" TargetType="local:VBComboBox">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <!--<ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
         <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>-->
+        <!-- Workaround https://github.com/AvaloniaUI/Avalonia/issues/20126  -->
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaptionMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContent}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContentMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -208,10 +216,15 @@
   <ControlTemplate x:Key="ComboBox2ReadonlyTemplate" TargetType="local:VBComboBox2">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <!--<ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
         <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
         <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>-->
+        <!-- Workaround https://github.com/AvaloniaUI/Avalonia/issues/20126  -->
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaptionMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContent}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContentMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption2}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption2Max}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 
@@ -307,10 +320,15 @@
   <ControlTemplate x:Key="ComboBox2EditableTemplate" TargetType="local:VBComboBox2">
     <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+        <!--<ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
         <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
         <ColumnDefinition Width="{TemplateBinding WidthCaption2}" MaxWidth="{TemplateBinding WidthCaption2Max}"/>
-        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
+        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>-->
+        <!-- Workaround https://github.com/AvaloniaUI/Avalonia/issues/20126  -->
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaptionMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContent}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContentMax}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption2}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption2Max}"/>
+        <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
       </Grid.ColumnDefinitions>
       <local:VBTextBlock x:Name="PART_Caption" 
                          Grid.Column="0" 

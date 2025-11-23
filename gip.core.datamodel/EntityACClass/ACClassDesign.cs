@@ -1257,12 +1257,13 @@ namespace gip.core.datamodel
         }
 
         public static readonly (string WpfNamespace, string AvaloniaNamespace)[] C_AvaloniaFindAndReplace = new[]
-{
+        {
             ("<Style ", "<ControlTheme "),
             ("<Style.Setters>", "<ControlTheme.Setters>"),
             ("</Style.Setters>", "</ControlTheme.Setters>"),
             ("</Style>", "</ControlTheme>"),
-            ("ToolTip=", "ToolTip.Tip=")
+            ("ToolTip=", "ToolTip.Tip="),
+            ("DataGrid.Columns", "vb:VBDataGrid.Columns")
         };
 
         #endregion

@@ -17,9 +17,13 @@
             <ControlTemplate>
                 <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
+                        <!--<ColumnDefinition Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"/>
                         <ColumnDefinition Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"/>
-                        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>
+                        <ColumnDefinition Width="{TemplateBinding WidthPadding}"/>-->
+                      <!-- Workaround https://github.com/AvaloniaUI/Avalonia/issues/20126  -->
+                      <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaptionMax}"/>
+                      <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContent}" MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContentMax}"/>
+                      <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
                     </Grid.ColumnDefinitions>
                     
                     <local:VBTextBlock x:Name="PART_Caption" 

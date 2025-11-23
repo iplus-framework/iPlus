@@ -24,7 +24,7 @@ namespace gip.core.layoutengine.avui
     /// Stellt ein Steuerelement dar, mit dem unformatierter Text angezeigt oder bearbeitet werden kann.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTextBox'}de{'VBTextBox'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBTextBox : TextBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
+    public class VBTextBox : MaskedTextBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IClearVBContent
     {
         #region c'tors
         static VBTextBox()
@@ -32,10 +32,15 @@ namespace gip.core.layoutengine.avui
             StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBTextBox>();
         }
 
-        public VBTextBox()
+        public VBTextBox() : base()
         {
             this.Focusable = true;
         }
+
+        /// <summary>
+        /// Override StyleKeyOverride to use VBTextBox's own ControlTheme instead of TextBox's theme
+        /// </summary>
+        protected override Type StyleKeyOverride => typeof(VBTextBox);
 
         /// <summary>
         /// The event hander for Initialized event.
@@ -43,10 +48,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            GotFocus += VBTextBox_GotFocus;
-            this.TextInput += TextBox_PreviewTextInput;
-            this.KeyDown += TextBox_PreviewKeyDown;
-
             CmdBindingPaste = new CommandBinding();
             CmdBindingPaste.Command = ApplicationCommands.Paste;
             CmdBindingPaste.Executed += TextBox_Paste;
@@ -54,7 +55,6 @@ namespace gip.core.layoutengine.avui
             CmdBindingCut.Command = ApplicationCommands.Cut;
             CmdBindingCut.CanExecute += TextBox_CanCut;
             CommandManager.SetCommandBindings(this, new List<CommandBinding> { CmdBindingPaste, CmdBindingCut });
-            ResolveMaskProvider(Mask);
         }
 
         /// <summary>
@@ -327,9 +327,6 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
-            this.GotFocus -= VBTextBox_GotFocus;
-            this.TextInput -= TextBox_PreviewTextInput;
-            this.KeyDown -= TextBox_PreviewKeyDown;
 
             // TODO:
             //this.CommandBindings.Remove(CmdBindingPaste); //handle paste
@@ -337,7 +334,6 @@ namespace gip.core.layoutengine.avui
 
             _VBContentPropertyInfo = null;
 
-            MaskProvider = null;
             _ValidationRule = null;
             this.ClearAllBindings();
         }
@@ -508,11 +504,6 @@ namespace gip.core.layoutengine.avui
             set { SetValue(IncludePromptProperty, value); }
         }
 
-        protected virtual void OnIncludePromptChanged(bool oldValue, bool newValue)
-        {
-            ResolveMaskProvider(Mask);
-        }
-
         #endregion //IncludePrompt
 
         #region IncludeLiterals
@@ -528,32 +519,11 @@ namespace gip.core.layoutengine.avui
             set { SetValue(IncludeLiteralsProperty, value); }
         }
 
-        protected virtual void OnIncludeLiteralsChanged(bool oldValue, bool newValue)
-        {
-            ResolveMaskProvider(Mask);
-        }
 
         #endregion //IncludeLiterals
         #endregion
 
         #region Mask
-        public static readonly StyledProperty<string> MaskProperty = 
-            AvaloniaProperty.Register<VBTextBox, string>(nameof(Mask), default(String));
-        [Category("VBControl")]
-        [Bindable(true)]
-        [ACPropertyInfo(9999)]
-        public string Mask
-        {
-            get { return GetValue(MaskProperty); }
-            set { SetValue(MaskProperty, value); }
-        }
-
-        protected virtual void OnMaskChanged(string oldValue, string newValue)
-        {
-            ResolveMaskProvider(newValue);
-            UpdateText(MaskProvider, 0);
-        }
-
         /// <summary>
         /// Represents the dependency property for StringFormat.
         /// </summary>
@@ -643,15 +613,6 @@ namespace gip.core.layoutengine.avui
 
         #endregion
 
-        public static readonly StyledProperty<bool> OverrideTemplateTriggerProperty = 
-            AvaloniaProperty.Register<VBTextBox, bool>(nameof(OverrideTemplateTrigger));
-
-        public bool OverrideTemplateTrigger
-        {
-            get { return GetValue(OverrideTemplateTriggerProperty); }
-            set { SetValue(OverrideTemplateTriggerProperty, value); }
-        }
-
         // DAMIR ONLY TEST:
         public bool ResourceKeyTestOn
         {
@@ -739,18 +700,6 @@ namespace gip.core.layoutengine.avui
             {
                 // Note: Avalonia handles binding updates differently
                 // This would need to be implemented differently in Avalonia
-            }
-            else if (change.Property == IncludePromptProperty)
-            {
-                OnIncludePromptChanged((bool)change.OldValue, (bool)change.NewValue);
-            }
-            else if (change.Property == IncludeLiteralsProperty)
-            {
-                OnIncludeLiteralsChanged((bool)change.OldValue, (bool)change.NewValue);
-            }
-            else if (change.Property == MaskProperty)
-            {
-                OnMaskChanged(change.OldValue as string, change.NewValue as string);
             }
             else if (change.Property == ACCaptionProperty)
             {
@@ -1315,11 +1264,10 @@ namespace gip.core.layoutengine.avui
 
         #region Event-Handling and Mask-Handling
 
-        protected MaskedTextProvider MaskProvider { get; set; }
-
-        void VBTextBox_GotFocus(object sender, GotFocusEventArgs e)
+        protected override void OnGotFocus(GotFocusEventArgs e)
         {
-            SelectAll();
+            //SelectAll();
+            base.OnGotFocus(e);
         }
 
 
@@ -1372,158 +1320,16 @@ namespace gip.core.layoutengine.avui
             if (_ValidationRule != null)
                 _ValidationRule.Validate(this, e.NewValue, System.Globalization.CultureInfo.CurrentUICulture);
             UpdateControlMode();
-            ConvertValueToText(this.Text);
-        }
-
-        protected object ConvertTextToValue(string text)
-        {
-            object convertedValue = null;
-            if (VBContentPropertyInfo == null)
-                return null;
-
-            Type dataType = VBContentPropertyInfo.ObjectType;
-
-            string valueToConvert = MaskProvider?.ToString() ?? text;
-
-            if (valueToConvert?.GetType() == dataType || dataType.IsInstanceOfType(valueToConvert))
-            {
-                convertedValue = valueToConvert;
-            }
-            else if (String.IsNullOrWhiteSpace(valueToConvert))
-            {
-                if (dataType.IsValueType)
-                    convertedValue = Activator.CreateInstance(dataType);
-            }
-            else if (null == convertedValue && valueToConvert is IConvertible)
-            {
-                convertedValue = Convert.ChangeType(valueToConvert, dataType);
-            }
-
-            return convertedValue;
-        }
-
-        protected string ConvertValueToText(object value)
-        {
-            if (value == null)
-                value = string.Empty;
-
-            //I have only seen this occur while in Blend, but we need it here so the Blend designer doesn't crash.
-            if (MaskProvider == null)
-                return value.ToString();
-
-            if (!MaskProvider.Set(value.ToString()))
-                MaskProvider.Clear();
-            return MaskProvider.ToDisplayString();
-        }
-
-        void TextBox_PreviewTextInput(object sender, TextInputEventArgs e)
-        {
-            //if the text is readonly do not add the text
-            if (this.IsReadOnly)
-            {
-                e.Handled = true;
-                return;
-            }
-
-            int position = this.SelectionStart;
-            MaskedTextProvider provider = MaskProvider;
-            if (provider != null)
-            {
-                if (position < this.Text.Length)
-                {
-                    position = GetNextCharacterPosition(position);
-
-                    // Note: Avalonia doesn't have Insert key toggle behavior like WPF
-                    if (provider.InsertAt(e.Text, position))
-                        position++;
-
-                    position = GetNextCharacterPosition(position);
-                }
-
-                UpdateText(provider, position);
-                e.Handled = true;
-            }
-        }
-
-        void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
-        {
-            MaskedTextProvider provider = MaskProvider;
-            if (provider != null)
-            {
-                int position = this.SelectionStart;
-                int selectionlength = this.SelectionEnd - this.SelectionStart;
-                // If no selection use the start position else use end position
-                int endposition = (selectionlength == 0) ? position : position + selectionlength - 1;
-
-                if (e.Key == Key.Delete && position < this.Text.Length)//handle the delete key
-                {
-                    if (provider.RemoveAt(position, endposition))
-                        UpdateText(provider, position);
-
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Space)
-                {
-                    if (provider.InsertAt(" ", position))
-                        UpdateText(provider, position);
-                    e.Handled = true;
-                }
-                else if (e.Key == Key.Back)//handle the back space
-                {
-                    if ((position > 0) && (selectionlength == 0))
-                    {
-                        position--;
-                        if (provider.RemoveAt(position))
-                            UpdateText(provider, position);
-                    }
-
-                    if (selectionlength != 0)
-                    {
-                        if (provider.RemoveAt(position, endposition))
-                        {
-                            if (position > 0)
-                                position--;
-
-                            UpdateText(provider, position);
-                        }
-                    }
-
-                    e.Handled = true;
-                }
-            }
         }
 
         private void UpdateText(MaskedTextProvider provider, int position)
         {
             if (provider == null)
-            {
                 return;
-            }
 
             Text = provider.ToDisplayString();
             this.SelectionStart = position;
         }
-
-        private int GetNextCharacterPosition(int startPosition)
-        {
-            int position = MaskProvider.FindEditPositionFrom(startPosition, true);
-            return position == -1 ? startPosition : position;
-        }
-
-        private void ResolveMaskProvider(string mask)
-        {
-            //do not create a mask provider if the Mask is empty, which can occur if the IncludePrompt and IncludeLiterals properties
-            //are set prior to the Mask.
-            if (String.IsNullOrEmpty(mask))
-                return;
-
-            MaskProvider = new MaskedTextProvider(mask, System.Globalization.CultureInfo.CurrentCulture)
-            {
-                IncludePrompt = this.IncludePrompt,
-                IncludeLiterals = this.IncludeLiterals
-            };
-        }
-
 
         private void TextBox_Paste(object sender, Avalonia.Labs.Input.ExecutedRoutedEventArgs e)
         {
@@ -1595,6 +1401,7 @@ namespace gip.core.layoutengine.avui
                     b.UpdateTarget();
                 }
             }
+            base.OnKeyDown(e);
         }
 
         #endregion

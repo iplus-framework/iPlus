@@ -9,6 +9,7 @@ namespace gip.core.layoutengine.avui
         public VBPasswordBox()
             : base()
         {
+            //Classes.Add("revealPasswordButton");
             this.PasswordChar = '•';
         }
 

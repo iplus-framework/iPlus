@@ -143,5 +143,6 @@
 
   <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/AvaloniaRibbon/Themes/AvaloniaRibbon.axaml" />
   <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingControlStyle.axaml" />
+  <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/VBPasswordBox/PasswordBoxStyle.axaml" />
 </Styles>
 
