@@ -29,8 +29,12 @@
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'true'">
     <PackageReference Include="SkiaSharp" />
     <PackageReference Include="SkiaSharp.Skottie" />
-    <PackageReference Include="SkiaSharp.NativeAssets.Linux" />
-    <!--<PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />-->
+    <!-- Explicitly exclude the regular Linux native assets to ensure that the right version from skiasharp.nativeassets.linux.nodependencies/3.119.0 is taken 
+    and not the wrong from skiasharp.nativeassets.linux/2.88.9  -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux">
+      <ExcludeAssets>all</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
     <PackageReference Include="SkiaSharp.NativeAssets.Win32" />
     <!--<PackageReference Include="SkiaSharp.NativeAssets.macOS" />-->
     <!--<PackageReference Include="SkiaSharp.NativeAssets.Android" />-->
@@ -54,7 +58,9 @@
     <ProjectReference Include="..\gip.core.crypto\gip.core.crypto.csproj" />
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
-    <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj" />
+    <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj">
+      <ExcludeAssets>SkiaSharp.NativeAssets.Linux</ExcludeAssets>
+    </ProjectReference>
     <ProjectReference Include="..\gip.core.manager\gip.core.manager.csproj" />
     <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
     <ProjectReference Include="..\gip.core.reporthandler.avui\gip.core.reporthandler.avui.csproj" />

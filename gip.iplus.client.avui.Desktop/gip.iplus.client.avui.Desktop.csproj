@@ -14,6 +14,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Explicitly exclude the regular Linux native assets to ensure that the right version from skiasharp.nativeassets.linux.nodependencies/3.119.0 is taken 
+    and not the wrong from skiasharp.nativeassets.linux/2.88.9  -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux">
+      <ExcludeAssets>all</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" />
     <PackageReference Include="ReactiveUI" />
   </ItemGroup>
@@ -37,7 +42,10 @@
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRoslynPadInclude.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj" />
+    <ProjectReference Include="..\gip.iplus.client.avui\gip.iplus.client.avui.csproj">
+     <!-- Exclude the conflicting SkiaSharp.NativeAssets.Linux package -->
+      <ExcludeAssets>SkiaSharp.NativeAssets.Linux</ExcludeAssets>
+     </ProjectReference>
   </ItemGroup>
 
   <ItemGroup>
