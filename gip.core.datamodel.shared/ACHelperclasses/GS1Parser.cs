@@ -271,10 +271,22 @@ namespace gip.core.datamodel
                 }
                 // get the data to the current AI
                 string code = GetCode(data, ai, ref index);
+                code = TrimBarcodeString(code);
                 result[ai] = new ParseResult() { StringResult = code, DecimalPlaces = decimalPos };
             }
 
             return result;
+        }
+
+        public static string TrimBarcodeString(string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                char[] separators = { '\u001d', '\u001e', '\u001f' };
+                value = value.Trim(separators);
+            }
+
+            return value;
         }
 
         public static string Generate(Dictionary<AII, ParseResult> input, bool useEanStartCode)
