@@ -109,6 +109,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
     </Reference>
+    <Reference Include="System.Text.Json, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Text.Json.4.7.2\lib\net461\System.Text.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Numerics.Vectors, Version=4.1.5.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Numerics.Vectors.4.6.0\lib\net462\System.Numerics.Vectors.dll</HintPath>
@@ -130,11 +133,14 @@
     <Compile Include="FileSystem\CyclicExport\PAXMLCyclicExport.cs" />
     <Compile Include="FileSystem\CyclicExport\PAFileCyclicExport.cs" />
     <Compile Include="FileSystem\CyclicExport\PAFileCyclicGroupBase.cs" />
+    <Compile Include="FileSystem\PAJSONDocExporterBase.cs" />
     <Compile Include="FileSystem\PAXMLDocExporterBase.cs" />
     <Compile Include="FileSystem\PAXMLDocImporterScript.cs" />
     <Compile Include="FileSystem\PAFileSystemWatcherBase.cs" />
     <Compile Include="FileSystem\PAFileSystemXMLWatcher.cs" />
     <Compile Include="FileSystem\PAXMLDocImporterBase.cs" />
+    <Compile Include="FileSystem\PAFileSystemJSONWatcher.cs" />
+    <Compile Include="FileSystem\PAJSONDocImporterBase.cs" />
     <Compile Include="FileSystem\PropertyExport\PAFilePropertyLogGroup.cs" />
     <Compile Include="FileSystem\PropertyExport\PAFilePropertyLogConfig.cs" />
     <Compile Include="FileSystem\PropertyExport\PAFilePropertyLogExport.cs" />
@@ -222,8 +228,10 @@
     <Compile Include="SPSCommunication\Driver\Siemens\ISOonTCP_RFC1006\Types\Word.cs" />
     <Compile Include="WebService\ACRestClient.cs" />
     <Compile Include="WebService\ACRestClient_DigestExtension.cs" />
+    <Compile Include="WebService\IExporterToExternalSystem.cs" />
     <Compile Include="WebService\PAExportERPGroup.cs" />
     <Compile Include="WebService\PAExporterERPBase.cs" />
+    <Compile Include="WebService\PAJSONExporterERPBase.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj">
@@ -270,7 +278,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="VBControlScripts\2022-11-19 17-06_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

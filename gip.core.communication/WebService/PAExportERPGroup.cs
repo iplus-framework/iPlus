@@ -93,7 +93,7 @@ namespace gip.core.communication
 
                 List<string> expDirList = new List<string>();
 
-                foreach (PAExporterERPBase exp in FindChildComponents<PAExporterERPBase>())
+                foreach (IExporterToExternalSystem exp in FindChildComponents<IExporterToExternalSystem>())
                 {
                     if (string.IsNullOrEmpty(exp.ExportDir) || !Directory.Exists(exp.ExportDir) || exp.ExportOff || expDirList.Contains(exp.ExportDir))
                         continue;
@@ -101,7 +101,7 @@ namespace gip.core.communication
                     expDirList.Add(exp.ExportDir);
                 }
 
-                foreach(string expDir in expDirList)
+                foreach (string expDir in expDirList)
                 {
                     foreach (string filePath in Directory.EnumerateFiles(expDir))
                     {
@@ -132,7 +132,7 @@ namespace gip.core.communication
 
                         foreach(ERPFileItem fileItem in filesToSend)
                         {
-                            PAExporterERPBase exporter = FindChildComponents<PAExporterERPBase>(c => c.ACIdentifier == fileItem.ACIdentifier).FirstOrDefault();
+                            IExporterToExternalSystem exporter = FindChildComponents<IExporterToExternalSystem>(c => c.ACIdentifier == fileItem.ACIdentifier).FirstOrDefault();
                             if (exporter != null)
                             {
                                 if (exporter.ReSendObject(fileItem))
@@ -274,40 +274,47 @@ namespace gip.core.communication
             }
         }
 
-        public ERPFileItem(DateTime sendTime, string acIdentifier, string exportDir)
+        public ERPFileItem(DateTime sendTime, string acIdentifier, string exportDir, string fileNameExtension = ".xml")
         {
             SendTime = sendTime;
             ACIdentifier = acIdentifier;
-            FilePath = GenerateFilePath(sendTime, acIdentifier, exportDir);
+            FileNameExtension = fileNameExtension;
+            FilePath = GenerateFilePath(sendTime, acIdentifier, exportDir, fileNameExtension);
         }
 
         public string FilePath
         {
             get;
-            set;
+            private set;
         }
 
         public DateTime SendTime
         {
             get;
-            set;
+            private set;
         }
 
         public string ACIdentifier
         {
             get;
-            set;
+            private set;
         }
 
-        public static string GenerateFilePath(DateTime dateTime, string exporterACIdentifier, string exportDir)
+        public string FileNameExtension
+        {
+            get;
+            private set;
+        }
+
+        public static string GenerateFilePath(DateTime dateTime, string exporterACIdentifier, string exportDir, string fileNameExtension = ".xml")
         {
             string fileName = GenerateFileName(dateTime, exporterACIdentifier);
             return Path.Combine(exportDir, fileName);
         }
 
-        public static string GenerateFileName(DateTime dateTime, string exporterACIdentifier)
+        public static string GenerateFileName(DateTime dateTime, string exporterACIdentifier, string fileNameExtension = ".xml")
         {
-            return string.Format("{0}{1}{2}.xml", dateTime.ToString(C_FormatStamp), C_ACIdentifierSeparator, exporterACIdentifier);
+            return string.Format("{0}{1}{2}{3}", dateTime.ToString(C_FormatStamp), C_ACIdentifierSeparator, exporterACIdentifier, fileNameExtension);
         }
     }
 }

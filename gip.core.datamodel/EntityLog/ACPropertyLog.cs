@@ -41,6 +41,7 @@ namespace gip.core.datamodel
         /// <param name="to">Aggregates to this date time point.</param>
         /// <param name="acClassID">The ID of ACClass related to the property log.</param>
         /// <param name="acClassPropertyID">The ID of ACClassProperty related to the log.</param>
+        /// <param name="sortByEventTime"></param>
         /// <returns>Aggregate values of property logs.</returns>
         public static IEnumerable<ACPropertyLogSum> AggregateDurationOfPropertyValues(DateTime from, DateTime to, Guid acClassID, Guid acClassPropertyID, bool sortByEventTime = false)
         {
