@@ -684,6 +684,14 @@ namespace gip.core.datamodel
         /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
         bool IsEnabledACActionToTarget(IACInteractiveObject targetVBDataObject, ACActionArgs actionArgs);
 
+        /// <summary>
+        /// Retrieves a collection of property names that should be observed when IsEnabledMethod should be called.
+        /// Implement this method to specify which properties, when changed, should trigger a reevaluation of the IsEnabledMethod from a IVBContent UI Control via System.Reactive.ReactiveCommand.
+        /// </summary>
+        /// <param name="acMethodName">Name of the method that should be called from a IVBContent UI Control via System.Reactive.ReactiveCommand</param>
+        /// <returns>An <see cref="IEnumerable{T}"/> of strings representing the names of the properties to observe. 
+        /// If IsEnabledMethod exsits an the returned collections is empty than the IsEnabledMethod is called via CommandBinding CanExecuteRoutedEventHandler (old standard behaviour) </returns>
+        IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName);
 
         /// <summary>Occurs when ACAction(ACActionArgs actionArgs) is invoked.</summary>
         event ACActionEventHandler ACActionEvent;

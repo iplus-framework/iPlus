@@ -1,36 +1,35 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.Serialization;
-using System.Xml;
-using System.Xml.Serialization;
+using System.Text.Json;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using System.Linq;
+using System.Text;
 
 namespace gip.core.communication
 {
 
     [ACSerializeableInfo]
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAAlarmChangeState'}de{'PAAlarmChangeState'}", Global.ACKinds.TACEnum)]
-    public enum PAXMLDocSerializerType : short
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'PAJSONDocSerializerType'}de{'PAJSONDocSerializerType'}", Global.ACKinds.TACEnum)]
+    public enum PAJSONDocSerializerType : short
     {
-        DataContractSerializer = 0,
-        XMLSerializer = 1,
+        SystemTextJson = 0,
+        CustomSerializer = 1,
     }
 
 
     //TODO Ivan: add message(alarm) translation
     /// <summary>
-    /// Represents the base class for ERP's web service inovker(exporter) and archiver.
+    /// Represents the base class for ERP's web service invoker(exporter) and archiver using JSON format.
     /// The component which inherits this class must be installed as child-component of PAExportERPGroup component or their descendants. 
     /// </summary>
-    [ACClassInfo(Const.PackName_VarioSystem, "en{'WebService Exporter'}de{'Web Service Exporter'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, false)]
-    public abstract class PAExporterERPBase : PAXMLDocExporterBase, IExporterToExternalSystem
+    [ACClassInfo(Const.PackName_VarioSystem, "en{'JSON WebService Exporter'}de{'JSON Web Service Exporter'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.Required, false, false)]
+    public abstract class PAJSONExporterERPBase : PAJSONDocExporterBase, IExporterToExternalSystem
     {
         #region c'tors
 
-        public PAExporterERPBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
+        public PAJSONExporterERPBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "") :
             base(acType, content, parentACObject, parameter, acIdentifier)
         {
 
@@ -47,7 +46,7 @@ namespace gip.core.communication
             return base.ACDeInit(deleteACClassTask);
         }
 
-        public const string ClassName = "PAExporterBase";
+        public const string ClassName = "PAJSONExporterBase";
 
         #endregion
 
@@ -63,19 +62,24 @@ namespace gip.core.communication
             get;
         }
 
-        protected virtual PAXMLDocSerializerType SerializerType
+        protected virtual PAJSONDocSerializerType SerializerType
         {
             get
             {
-                return PAXMLDocSerializerType.DataContractSerializer;
+                return PAJSONDocSerializerType.SystemTextJson;
             }
         }
 
-        protected virtual IEnumerable<Type> KnownTypesForDCSerializer
+        protected virtual JsonSerializerOptions JsonSerializerOptions
         {
             get
             {
-                return null;
+                return new JsonSerializerOptions
+                {
+                    WriteIndented = JSONWriteIndented,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    PropertyNameCaseInsensitive = true
+                };
             }
         }
 
@@ -83,7 +87,7 @@ namespace gip.core.communication
         {
             get
             {
-                return ".xml";
+                return ".json";
             }
         }
 
@@ -113,9 +117,9 @@ namespace gip.core.communication
         #region Static methods
 
         /// <summary>
-        /// Registers a virtual method with required parameters. It must be inovked from a static constructor.
+        /// Registers a virtual method with required parameters. It must be invoked from a static constructor.
         /// </summary>
-        /// <param name="acMethod">The acMehtod signature.</param>
+        /// <param name="acMethod">The acMethod signature.</param>
         /// <param name="typeOfComponent">The type of component on which will be registered.</param>
         /// <param name="acMethodDescTranslation">The acMethod's description translation.</param>
         public static void RegisterSendACMethod(ACMethod acMethod, Type typeOfComponent, string acMethodDescTranslation)
@@ -137,7 +141,7 @@ namespace gip.core.communication
         /// <summary>
         /// Invokes the web service method.
         /// </summary>
-        /// <param name="objectToSend">The object which will be sended in a method inovke. This object type must be equals to the overriden property SendObjectType</param>
+        /// <param name="objectToSend">The object which will be sended in a method invoke. This object type must be equals to the overriden property SendObjectType</param>
         /// <returns>True if is invoke/send successfull, otherwise false.</returns>
         public abstract bool SendToWebService(object objectToSend);
 
@@ -146,7 +150,7 @@ namespace gip.core.communication
         #region Virtual methods
 
         /// <summary>
-        /// Invokes the BuildAndSend method in a delegate queue. This method MUST be overriden and decorated with ACMethodAsync attribute. Overriden method must return base.ExecuteBuildAndSend(acMehtod);
+        /// Invokes the BuildAndSend method in a delegate queue. This method MUST be overriden and decorated with ACMethodAsync attribute. Overriden method must return base.ExecuteBuildAndSend(acMethod);
         /// </summary>
         /// <param name="acMethod">The acMethod with parameters.</param>
         /// <returns>The ACMethod event arguments(RequestID and ACMethodResult)</returns>
@@ -197,19 +201,19 @@ namespace gip.core.communication
             Msg msg = null;
 
             if(string.IsNullOrEmpty(ExportDir))
-                msg = new Msg("Temp directory (ExportDir) is not configured!", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(0)", 157);
+                msg = new Msg("Temp directory (ExportDir) is not configured!", this, eMsgLevel.Error, "PAJSONExporterERPBase", "IsEnabledExecuteBuildAndSend(0)", 157);
 
             if (msg == null && ArchivingOn && string.IsNullOrEmpty(ArchiveDir))
-                msg = new Msg("Arhiving is enabled but Archive directory is not configured!", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(10)", 161);
+                msg = new Msg("Archiving is enabled but Archive directory is not configured!", this, eMsgLevel.Error, "PAJSONExporterERPBase", "IsEnabledExecuteBuildAndSend(10)", 161);
 
             if(msg == null && ExportDir == ArchiveDir)
-                msg = new Msg("Temp directory and Archive directory is same directory. This is not allowed. Please, change one of those two.", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(20)", 164);
+                msg = new Msg("Temp directory and Archive directory is same directory. This is not allowed. Please, change one of those two.", this, eMsgLevel.Error, "PAJSONExporterERPBase", "IsEnabledExecuteBuildAndSend(20)", 164);
 
             if (msg == null && ParentExportGroup == null)
-                msg = new Msg("The parent component is not PAExportERPGroup!", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(30)", 157);
+                msg = new Msg("The parent component is not PAExportERPGroup!", this, eMsgLevel.Error, "PAJSONExporterERPBase", "IsEnabledExecuteBuildAndSend(30)", 157);
 
             if (msg == null && !acMethod.IsValid())
-                msg = new Msg("acMethod is not valid", this, eMsgLevel.Error, "PAExporterERPBase", "IsEnabledExecuteBuildAndSend(40)", 158);
+                msg = new Msg("acMethod is not valid", this, eMsgLevel.Error, "PAJSONExporterERPBase", "IsEnabledExecuteBuildAndSend(40)", 158);
 
             if (msg != null)
             {
@@ -226,7 +230,7 @@ namespace gip.core.communication
         /// </summary>
         /// <param name="acMethod">The acMethod with parameters for object creation.</param>
         /// <param name="sendTime">The dateTime stamp when is operation added to delegate queue.</param>
-        /// <param name="currentAsyncRMI">The current async remote inovker.</param>
+        /// <param name="currentAsyncRMI">The current async remote invoker.</param>
         public virtual void BuildAndSend(ACMethod acMethod, DateTime sendTime, ACPointAsyncRMIWrap<ACComponent> currentAsyncRMI)
         {
             PerformanceEvent perfEvent = null;
@@ -312,7 +316,7 @@ namespace gip.core.communication
             }
             catch (Exception e)
             {
-                Msg msg = new Msg(e.Message, this, eMsgLevel.Exception, "PAExporterERPBase", "BuildAndSend(10)", 30);
+                Msg msg = new Msg(e.Message, this, eMsgLevel.Exception, "PAJSONExporterERPBase", "BuildAndSend(10)", 30);
                 if(IsAlarmActive(IsExportingAlarm, msg.Message) == null)
                     Messages.LogMessageMsg(msg);
                 AddAlarm(msg);
@@ -328,6 +332,131 @@ namespace gip.core.communication
                         Messages.LogDebug(this.GetACUrl(), "BuildAndSend(Duration)", bpSerialized);
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Serializes object to JSON file in a target directory.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="objectToSerialize">The object to serialize.</param>
+        /// <param name="objectType">The type of object which will be serialized.</param>
+        /// <returns>Null if is serialization successfull, otherwise false.</returns>
+        public virtual Msg SerializeToFile(string filePath, object objectToSerialize, Type objectType)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                return new Msg("The parameter filePath is empty!", this, eMsgLevel.Error, ClassName, "SerializeToFile(10)", 188);
+
+            if (objectToSerialize == null)
+                return new Msg("The parameter objectToSerialize is null!", this, eMsgLevel.Error, ClassName, "SerializeToFile(20)", 191);
+
+            try
+            {
+                if (SerializerType == PAJSONDocSerializerType.SystemTextJson)
+                {
+                    var options = JsonSerializerOptions;
+                    string jsonString = JsonSerializer.Serialize(objectToSerialize, objectType, options);
+                    File.WriteAllText(filePath, jsonString, Encoding.UTF8);
+                }
+                else if (SerializerType == PAJSONDocSerializerType.CustomSerializer)
+                {
+                    // For custom serializer implementation - can be overridden in derived classes
+                    var options = JsonSerializerOptions;
+                    string jsonString = JsonSerializer.Serialize(objectToSerialize, objectType, options);
+                    File.WriteAllText(filePath, jsonString, Encoding.UTF8);
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                return new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "SerializeToFile(30)", 204);
+            }
+        }
+
+        /// <summary>
+        /// Deserializes object from JSON file.
+        /// </summary>
+        /// <param name="filePath">The file path.</param>
+        /// <param name="objectType">The object type.</param>
+        /// <param name="deserializedObject">Returns the deserialized object.</param>
+        /// <returns>Null if is deserialization successfull, otherwise false.</returns>
+        public virtual Msg DeserializeFromFile(string filePath, Type objectType, out object deserializedObject)
+        {
+            deserializedObject = null;
+
+            if (string.IsNullOrEmpty(filePath))
+                return new Msg("The parameter filePath is empty!", this, eMsgLevel.Error, ClassName, "DeserializeFromFile(10)", 213);
+
+            try
+            {
+                if (SerializerType == PAJSONDocSerializerType.SystemTextJson)
+                {
+                    string jsonContent = File.ReadAllText(filePath, Encoding.UTF8);
+                    var options = JsonSerializerOptions;
+                    deserializedObject = JsonSerializer.Deserialize(jsonContent, objectType, options);
+                }
+                else if (SerializerType == PAJSONDocSerializerType.CustomSerializer)
+                {
+                    // For custom serializer implementation - can be overridden in derived classes
+                    string jsonContent = File.ReadAllText(filePath, Encoding.UTF8);
+                    var options = JsonSerializerOptions;
+                    deserializedObject = JsonSerializer.Deserialize(jsonContent, objectType, options);
+                }
+                return null;
+            }
+            catch (Exception e)
+            {
+                return new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "DeserializeFromFile(20)", 226);
+            }
+        }
+
+        /// <summary>
+        /// Moves file from temporary send directory to archive directory.
+        /// </summary>
+        /// <param name="tempDirFilePath"></param>
+        /// <returns></returns>
+        public virtual Msg MoveFromTempDirToArchiveDir(string tempDirFilePath)
+        {
+            try
+            {
+                string fileName = Path.GetFileName(tempDirFilePath);
+                string destFileName = FindAndCreateArchivePath(fileName);
+                File.Move(tempDirFilePath, destFileName);
+            }
+            catch (Exception e)
+            {
+                return new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "MoveFromTempDirToArchiveDir", 238);
+            }
+            return null;
+        }
+
+        public virtual void ArchiveInvokeDirect(string methodName, object callParam, Type callParamType, object result, Type resultType)
+        {
+            string filePath = FindAndCreateArchivePath(ERPFileItem.GenerateFileName(DateTime.Now, ACIdentifier, FileNameExtension));
+            try
+            {
+                var archiveData = new
+                {
+                    CallParameters = new
+                    {
+                        MethodName = methodName,
+                        Timestamp = DateTime.Now,
+                        Data = callParam
+                    },
+                    CallResult = result != null ? new
+                    {
+                        Timestamp = DateTime.Now,
+                        Data = result
+                    } : null
+                };
+
+                var options = JsonSerializerOptions;
+                string jsonString = JsonSerializer.Serialize(archiveData, options);
+                File.WriteAllText(filePath, jsonString, Encoding.UTF8);
+            }
+            catch (Exception e)
+            {
+                new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "ArchiveInvokeDirect", 184);
             }
         }
 
@@ -381,157 +510,6 @@ namespace gip.core.communication
             }
 
             return false;
-        }
-
-        /// <summary>
-        /// Serializes object to file in a target directory.
-        /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="objectToSerialize">The object to serialize.</param>
-        /// <param name="objectType">The type of object which will be serialized.</param>
-        /// <returns>Null if is serialization successfull, otherwise false.</returns>
-        public virtual Msg SerializeToFile(string filePath, object objectToSerialize, Type objectType)
-        {
-            if (string.IsNullOrEmpty(filePath))
-                return new Msg("The parameter filePath is empty!", this, eMsgLevel.Error, ClassName, "SerializeToFile(10)", 188);
-
-            if (objectToSerialize == null)
-                return new Msg("The parameter objectToSerialize is null!", this, eMsgLevel.Error, ClassName, "SerializeToFile(20)", 191);
-
-            try
-            {
-                if (SerializerType == PAXMLDocSerializerType.DataContractSerializer)
-                {
-                    DataContractSerializer dcs = null;
-                    if (KnownTypesForDCSerializer != null && KnownTypesForDCSerializer.Any())
-                        dcs = new DataContractSerializer(objectType, KnownTypesForDCSerializer);
-                    else
-                        dcs = new DataContractSerializer(objectType);
-
-                    using (FileStream fs = new FileStream(filePath, FileMode.Create))
-                    {
-                        dcs.WriteObject(fs, objectToSerialize);
-                    }
-                }
-                else if (SerializerType == PAXMLDocSerializerType.XMLSerializer)
-                {
-                    var serializer = new XmlSerializer(objectType);
-                    using (TextWriter writer = new StreamWriter(filePath))
-                    {
-                        serializer.Serialize(writer, objectToSerialize);
-                        writer.Close();
-                    }
-                }
-                return null;
-            }
-            catch (Exception e)
-            {
-                return new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "SerializeToFile(30)", 204);
-            }
-        }
-
-        /// <summary>
-        /// Deserializes object from file.
-        /// </summary>
-        /// <param name="filePath">The file path.</param>
-        /// <param name="objectType">The object type.</param>
-        /// <param name="deserializedObject">Returns the deserialized object.</param>
-        /// <returns>Null if is deserialization successfull, otherwise false.</returns>
-        public virtual Msg DeserializeFromFile(string filePath, Type objectType, out object deserializedObject)
-        {
-            deserializedObject = null;
-
-            if (string.IsNullOrEmpty(filePath))
-                return new Msg("The parameter filePath is empty!", this, eMsgLevel.Error, ClassName, "DeserializeFromFile(10)", 213);
-
-            try
-            {
-                if (SerializerType == PAXMLDocSerializerType.DataContractSerializer)
-                {
-                    DataContractSerializer dcs = null;
-                    if (KnownTypesForDCSerializer != null && KnownTypesForDCSerializer.Any())
-                        dcs = new DataContractSerializer(objectType, KnownTypesForDCSerializer);
-                    else
-                        dcs = new DataContractSerializer(objectType);
-                    using (FileStream fs = new FileStream(filePath, FileMode.Open))
-                    {
-                        deserializedObject = dcs.ReadObject(fs);
-                    }
-                }
-                else
-                {
-                    XmlSerializer xmlSerializer = new XmlSerializer(objectType);
-                    using (FileStream fs = new FileStream(filePath, FileMode.Open))
-                    {
-                        using (XmlReader xmlReader = XmlReader.Create(fs))
-                        {
-                            deserializedObject = xmlSerializer.Deserialize(xmlReader);
-                        }
-                    }
-                }
-                return null;
-            }
-            catch (Exception e)
-            {
-                return new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "DeserializeFromFile(20)", 226);
-            }
-        }
-
-        /// <summary>
-        /// Moves file from temporary send directory to archive directory.
-        /// </summary>
-        /// <param name="tempDirFilePath"></param>
-        /// <returns></returns>
-        public virtual Msg MoveFromTempDirToArchiveDir(string tempDirFilePath)
-        {
-            try
-            {
-                string fileName = Path.GetFileName(tempDirFilePath);
-                string destFileName = FindAndCreateArchivePath(fileName);
-                File.Move(tempDirFilePath, destFileName);
-            }
-            catch (Exception e)
-            {
-                return new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "MoveFromTempDirToArchiveDir", 238);
-            }
-            return null;
-        }
-
-        public virtual void ArchiveInvokeDirect(string methodName, object callParam, Type callParamType, object result, Type resultType)
-        {
-            string filePath = FindAndCreateArchivePath(ERPFileItem.GenerateFileName(DateTime.Now, ACIdentifier, FileNameExtension));
-            try
-            {
-                string output = "===================CALL PARAMETERS PART==================" + System.Environment.NewLine;
-
-                using (StringWriter sw = new StringWriter())
-                using (XmlWriter xmlWriter = new XmlTextWriter(sw))
-                {
-                    DataContractSerializer dcs = new DataContractSerializer(callParamType);
-                    dcs.WriteObject(xmlWriter, callParam);
-                    output += sw.GetStringBuilder().ToString();
-                }
-
-                if (result != null)
-                {
-                    output += System.Environment.NewLine + System.Environment.NewLine;
-                    output += "===================CALL RESULT PART==================";
-                    output += System.Environment.NewLine + System.Environment.NewLine;
-
-                    using (StringWriter sw = new StringWriter())
-                    using (XmlWriter xmlWriter = new XmlTextWriter(sw))
-                    {
-                        DataContractSerializer dcs = new DataContractSerializer(resultType);
-                        dcs.WriteObject(xmlWriter, result);
-                        output += sw.GetStringBuilder().ToString();
-                    }
-                }
-                File.WriteAllText(filePath, output);
-            }
-            catch (Exception e)
-            {
-                new Msg(e.Message, this, eMsgLevel.Exception, ClassName, "ArchiveInvokeDirect", 184);
-            }
         }
 
         #endregion

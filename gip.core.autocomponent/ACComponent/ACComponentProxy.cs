@@ -502,6 +502,10 @@ namespace gip.core.autocomponent
             return childsOnServer;
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            return RMInvoker.ExecuteMethod(nameof(GetPropsToObserveForIsEnabled), new Object[] { acMethodName }) as IEnumerable<string>;
+        }
 
         #endregion
 

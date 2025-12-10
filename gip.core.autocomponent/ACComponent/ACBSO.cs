@@ -785,7 +785,7 @@ namespace gip.core.autocomponent
         /// <param name="designName"></param>
         /// <param name="paOrderInfo"></param>
         /// <returns></returns>
-        public ACClassDesign GetDesignForPrinting(string printerName, string designName = null, PAOrderInfo paOrderInfo = null)
+        public virtual ACClassDesign GetDesignForPrinting(string printerName, string designName = null, PAOrderInfo paOrderInfo = null)
         {
             ACClassDesign printDesign = null;
             if (!String.IsNullOrEmpty(designName))

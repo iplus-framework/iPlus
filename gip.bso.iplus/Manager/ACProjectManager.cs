@@ -1714,17 +1714,18 @@ namespace gip.bso.iplus
         /// <param name="acUsage">The ac usage.</param>
         public void SetDefaultPropertyACClassDesign(ACClassProperty acClassProperty, ACClassDesign acClassDesign, Global.ACKinds acKind, Global.ACUsages acUsage)
         {
-            var query1 = acClassProperty.GetConfigListOfType(acClassDesign.ACClass).Where(c => c.LocalConfigACUrl == "Design_" + acUsage.ToString());
+            IACConfig acConfig = acClassProperty.GetConfigListOfType(acClassDesign.ACClass).Where(c => c.LocalConfigACUrl == "Design_" + acUsage.ToString()).FirstOrDefault();
 
-            if (query1.Any())
+            if (acConfig != null)
             {
-                (query1.First() as ACClassConfig).DeleteACObject(Database, false);
+                (acConfig as ACClassConfig).DeleteACObject(Database, false);
+                acClassProperty.ClearCacheOfConfigurationEntries();
             }
             if (acClassDesign == null)
                 return;
             if (acClassDesign == acClassProperty.GetDesign(acClassProperty, acUsage, acKind))
                 return;
-            IACConfig acConfig = acClassProperty.NewACConfig(acClassDesign.ACClass, acClassProperty.Database.GetACType(typeof(ACComposition)));
+            acConfig = acClassProperty.NewACConfig(acClassDesign.ACClass, acClassProperty.Database.GetACType(typeof(ACComposition)), "Design_" + acUsage.ToString());
 
             ACComposition acComposition = new ACComposition();
             acComposition.SetComposition(acClassDesign);

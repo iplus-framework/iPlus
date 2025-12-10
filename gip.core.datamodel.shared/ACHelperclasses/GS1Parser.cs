@@ -1,4 +1,4 @@
-// Copyright (c) 2024, gipSoft d.o.o.
+﻿// Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using System;
 using System.Collections.Generic;
@@ -273,10 +273,22 @@ namespace gip.core.datamodel
                 }
                 // get the data to the current AI
                 string code = GetCode(data, ai, ref index);
+                code = TrimBarcodeString(code);
                 result[ai] = new ParseResult() { StringResult = code, DecimalPlaces = decimalPos };
             }
 
             return result;
+        }
+
+        public static string TrimBarcodeString(string value)
+        {
+            if (!string.IsNullOrEmpty(value))
+            {
+                char[] separators = { '\u001d', '\u001e', '\u001f' };
+                value = value.Trim(separators);
+            }
+
+            return value;
         }
 
         public static string Generate(Dictionary<AII, ParseResult> input, bool useEanStartCode)
@@ -333,11 +345,23 @@ namespace gip.core.datamodel
                 sb.Append(EAN128StartCode);
             }
             bool notLast = true;
+
             foreach (var item in input)
             {
                 notLast = item.variable && (item.ai != input.Last().ai);
-                sb.Append(item.ai);
-                sb.Append(item.val);
+
+                if(item.ai.Contains('d'))
+                {
+                    AII aii = GetAII(item.ai);
+                    decimal decimalValue = decimal.Parse(item.val);
+                    string numStr = GetNumericGSValue(item.ai, decimalValue, aii.LengthOfAI, aii.LengthOfData);
+                    sb.Append(numStr);
+                }
+                else
+                {
+                    sb.Append(item.ai);
+                    sb.Append(item.val);
+                }
 
                 if (item.variable && notLast)
                 {
@@ -346,6 +370,18 @@ namespace gip.core.datamodel
             }
             return sb.ToString();
         }
+
+        public static string GetNumericGSValue(string ai, decimal value, int decimals, int lengthOfData)
+        {
+            string actualAI = ai.Replace("d", decimals.ToString());
+
+            int scaledValue = (int)(value * (decimal)Math.Pow(10, decimals));
+
+            string data = scaledValue.ToString().PadLeft(lengthOfData, '0');
+
+            return actualAI + data;
+        }
+
 
         public static string BuildHriString(string[] aiOrder, List<(string ai, string val, bool variable)> input)
         {

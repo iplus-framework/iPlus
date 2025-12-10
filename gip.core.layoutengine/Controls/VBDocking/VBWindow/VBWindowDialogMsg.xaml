@@ -1,7 +1,9 @@
 ﻿<local:VBWindowDialog x:Class="gip.core.layoutengine.VBWindowDialogMsg"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Height="500" Width="750" MaxHeight="350" Background="Black" ResizeMode="NoResize" Foreground="Yellow"
+        MinHeight="150" MinWidth="400" MaxWidth="800" 
+        SizeToContent="WidthAndHeight"
+        Background="Black" ResizeMode="NoResize" Foreground="Yellow"
         xmlns:local="clr-namespace:gip.core.layoutengine"
         Icon="/gip.core.layoutengine;Component/Images/iPlusIconDesktop.ico">
 
@@ -18,24 +20,24 @@
     </Window.Resources>
     <Grid Name="gridRoot">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition Width="50"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="50"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition Height="Auto" MinHeight="50"></RowDefinition>
-            <RowDefinition Height="150"></RowDefinition>
-            <RowDefinition Height="35"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="10"/>
+            <RowDefinition Height="Auto" MinHeight="50"/>
+            <RowDefinition Height="Auto" MinHeight="75"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="10"/>
         </Grid.RowDefinitions>
-        <ContentPresenter Grid.Column="1" Grid.Row="1" x:Name="imgIcon" Width="48" Height="48"
+        <ContentPresenter Grid.Row="1" Grid.Column="1" x:Name="imgIcon" Width="48" Height="48"
                                       HorizontalAlignment="Center"
                                       VerticalAlignment="Center"
                                       RecognizesAccessKey="True"/>
-        <local:VBTextBlock x:Name="txtMessage" Grid.Column="2"  Grid.Row="1" TextWrapping="Wrap" TextAlignment="Left" Margin="10 10 10 10" VerticalAlignment="Center" Foreground="White" />
-        <local:VBDataGrid x:Name="lstDetails" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding MsgDetailsView}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="FullRow" CanUserAddRows="False">
+        <local:VBTextBlock Grid.Row="1" Grid.Column="2" x:Name="txtMessage" TextWrapping="Wrap" TextAlignment="Left" Margin="10 10 10 10" VerticalAlignment="Center" Foreground="White" />
+        <local:VBDataGrid x:Name="lstDetails" Grid.Row="2" Grid.Column="2" ItemsSource="{Binding MsgDetailsView}" AutoGenerateColumns="False" SelectionMode="Single" SelectionUnit="FullRow" CanUserAddRows="False" MaxHeight="200">
             <DataGrid.Columns>
                 <DataGridTemplateColumn>
                     <DataGridTemplateColumn.CellTemplate>

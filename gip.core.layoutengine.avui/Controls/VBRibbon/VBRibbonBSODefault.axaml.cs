@@ -235,8 +235,6 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         VBRibbonButton _ButtonSearch;
-        List<CommandBinding> _BindingsInRoot = new List<CommandBinding>();
-        List<VBRibbonButton> _ButtonList = new List<VBRibbonButton>();
         bool _Initialized = false;
 
         /// <summary>
@@ -304,34 +302,6 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = false;
 
-            if (_BindingsInRoot != null)
-            {
-                Control rootParentOfBSO = RootParentOfBSO;
-                if (rootParentOfBSO != null)
-                {
-                    // TODO: In Avalonia, CommandBindings are handled differently
-                    // This would need to be adapted based on how commands are bound to the root control
-                    foreach (CommandBinding cb in _BindingsInRoot)
-                    {
-                        // Remove command bindings - implementation depends on how they were added
-                    }
-                }
-            }
-            _BindingsInRoot = null;
-            if (_ButtonList != null)
-            {
-                foreach (VBRibbonButton button in _ButtonList)
-                {
-                    if (button.Command != null)
-                    {
-                        AppCommands.RemoveVBApplicationCommand(button.Command);
-                        button.Command = null;
-                    }
-                }
-            }
-            _ButtonList = null;
-
-            // TODO: Clear command bindings in Avalonia way
             if (_ButtonSearch != null)
             {
                 _ButtonSearch.PointerReleased -= searchbutton_PointerReleased;
@@ -558,50 +528,13 @@ namespace gip.core.layoutengine.avui
                 }
 
                 button.ACCommand = new ACCommand(acCaption, command, parameterList);
-                System.Windows.Input.ICommand iCommand = AppCommands.AddApplicationCommand(button.ACCommand);
-                button.Command = iCommand;
-                //button.VBContent = command;
+                button.ACCommandHandling = ACCommandHelper.ApplyACCommand(button, BSOACComponent, command, button.ACCommand, this); //ExecutedCommandHandler, CanExecuteCommandHandler;
                 button.ACCaption = acCaption;
                 button.Content = acCaption;
-                _ButtonList.Add(button);
                 if (specifiedCommandList == _EditString)
                 {
                     button.Focus();
-                    //button.SetValue(FocusManager.IsFocusScopeProperty, true);
                 }
-                else
-                {
-                    // Trage CommandBindings beim root-WPF-Objekt ein, das den selben BSO-Datacontext hat,
-                    // damit die Routed-Events der Tastatureingaben(KeyGesture's) abgefangen werden
-                    // Würde nicht das root-Objekt genommen, dann würde das Ribbon die Events nicht erhalten,
-                    // da das Ribbon nicht im Element-Tree das Parent-Objekt des VBDesigns ist indem die Maske dargestellt wird
-
-                    //ReactiveCommand<Unit, Unit> ExampleCommand;
-
-                    //ReactiveCommand.Cre
-
-                    CommandBinding cb = new CommandBinding();
-                    cb.Command = button.Command;
-                    cb.Executed += ExecutedCommandHandler;
-                    cb.CanExecute += CanExecuteCommandHandler;
-                    //button.Click += RibbonButton_Click;
-
-                    if (rootParentOfBSO != null)
-                    {
-                        _BindingsInRoot.Add(cb);
-                        // TODO: Add command binding to root control in Avalonia way
-                        // This might need to be implemented differently based on the root control type
-                        CommandManager.SetCommandBindings(rootParentOfBSO, _BindingsInRoot);
-                    }
-                    else
-                    {
-                        // TODO: Add command binding to this control in Avalonia way
-                        CommandManager.SetCommandBindings(this, new List<CommandBinding> { cb });
-                    }
-                }
-
-                //button.Focusable = false;
-                // TODO: EndInit equivalent in Avalonia might not be needed
 
                 button.RightControlMode = Global.ControlModes.Enabled;
                 if (ContextACObject is IACBSO)

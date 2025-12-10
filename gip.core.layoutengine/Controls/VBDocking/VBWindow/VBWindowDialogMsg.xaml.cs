@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
-using System.Windows.Threading;
 using gip.core.layoutengine.Controls.VBDocking.VBWindow;
 
 namespace gip.core.layoutengine
@@ -50,9 +42,7 @@ namespace gip.core.layoutengine
 
             if (!(_Msg is MsgWithDetails))
             {
-                gridRoot.RowDefinitions[2].Height = new GridLength(0);
-                this.Height = 500;
-                this.Width = 750;
+                lstDetails.Visibility = System.Windows.Visibility.Collapsed;
             }
 
             try

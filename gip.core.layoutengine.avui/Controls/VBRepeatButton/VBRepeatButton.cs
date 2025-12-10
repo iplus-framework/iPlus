@@ -15,7 +15,7 @@ using System.Linq;
 
 namespace gip.core.layoutengine.avui
 { 
-    public class VBRepeatButton : RepeatButton, IVBContent, IACObject
+    public class VBRepeatButton : RepeatButton, IVBContent, IACObject, IACCommandControl
     {
         #region c'tors
         /// <summary>
@@ -111,15 +111,7 @@ namespace gip.core.layoutengine.avui
                             ACCommand = menuItem;
                         else
                             ACCommand = new ACCommand(VBContentMethodInfo.ACCaption, VBContent, ParameterList);
-                        if (AppCommands.FindVBApplicationCommand(ACCommand.ACUrl) == null)
-                            _RemoveACCommand = true;
-
-                        this.Command = AppCommands.AddApplicationCommand(ACCommand);
-                        _CmdBindingExecute = new Avalonia.Labs.Input.CommandBinding();
-                        _CmdBindingExecute.Command = this.Command;
-                        _CmdBindingExecute.Executed += ucButton_Click;
-                        _CmdBindingExecute.CanExecute += ucButton_IsEnabled;
-                        Avalonia.Labs.Input.CommandManager.SetCommandBindings(this, new List<Avalonia.Labs.Input.CommandBinding> { _CmdBindingExecute });
+                        _ACCommandHandling = ACCommandHelper.ApplyACCommand(this, dcSource as IACComponent, dcPath, ACCommand, this); //, ucButton_Click, ucButton_IsEnabled);
 
                         // Falls Binding im XAML, dann keine Caption setzen
                         // TODO: Check if there's an Avalonia equivalent for IsDataBound
@@ -213,7 +205,7 @@ namespace gip.core.layoutengine.avui
             _VBContentTypeInfo = null;
 
 
-            if (_RemoveACCommand)
+            if (_ACCommandHandling != null && _ACCommandHandling.RemoveExistingAppCommand)
             {
                 if (ACCommand != null)
                 {
@@ -221,7 +213,6 @@ namespace gip.core.layoutengine.avui
                     if (command != null)
                     {
                         AppCommands.RemoveVBApplicationCommand(command);
-                        // TODO: CommandBindings.RemoveCommandBinding for Avalonia
                     }
                 }
             }
@@ -415,7 +406,12 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        private bool _RemoveACCommand = false;
+        ACCommandHelper.Result _ACCommandHandling;
+        public ACCommandHelper.Result ACCommandHandling
+        {
+            get { return _ACCommandHandling; }
+            internal set { _ACCommandHandling = value; }
+        }
 
         #endregion
 

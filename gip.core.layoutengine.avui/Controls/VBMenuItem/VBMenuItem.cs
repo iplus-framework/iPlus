@@ -37,7 +37,7 @@ namespace gip.core.layoutengine.avui
             ContextACObject = acComponent;
             ACCommand = acCommand;
 
-            if(acCommand is ACMenuItem)
+            if (acCommand is ACMenuItem)
             {
                 ACMenuItem menuItem = acCommand as ACMenuItem;
                 if(!string.IsNullOrEmpty(menuItem.IconACUrl))

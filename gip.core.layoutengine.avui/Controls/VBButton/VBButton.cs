@@ -9,12 +9,15 @@ using Avalonia.Interactivity;
 using Avalonia.Labs.Input;
 using Avalonia.Media;
 using Avalonia.Threading;
+using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using ReactiveUI;
+using System.Reactive;
 
 namespace gip.core.layoutengine.avui
 {
@@ -25,8 +28,11 @@ namespace gip.core.layoutengine.avui
     /// Stellt ein iPlus-Schaltflächenelement dar, das auf ein Click-Ereignis reagiert.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBButton'}de{'VBButton'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBButton : Button, IVBDynamicIcon, IVBContent, IACObject
+    public class VBButton : Button, IVBDynamicIcon, IVBContent, IACObject, IACCommandControl
     {
+        public VBButton() : base()
+        {
+        }
         #region c'tors
         /// <summary>
         /// The event hander for Initialized event.
@@ -124,15 +130,7 @@ namespace gip.core.layoutengine.avui
                             ACCommand = menuItem;
                         else
                             ACCommand = new ACCommand(VBContentMethodInfo.ACCaption, VBContent, ParameterList);
-                        if (AppCommands.FindVBApplicationCommand(ACCommand.ACUrl) == null)
-                            _RemoveACCommand = true;
-
-                        this.Command = AppCommands.AddApplicationCommand(ACCommand);
-                        _CmdBindingExecute = new CommandBinding();
-                        _CmdBindingExecute.Command = this.Command;
-                        _CmdBindingExecute.Executed += ucButton_Click;
-                        _CmdBindingExecute.CanExecute += ucButton_IsEnabled;
-                        CommandManager.SetCommandBindings(this, new List<CommandBinding> { _CmdBindingExecute });
+                        _ACCommandHandling = ACCommandHelper.ApplyACCommand(this, dcSource as IACComponent, dcPath, ACCommand, this); //, ucButton_Click, ucButton_IsEnabled);
 
                         // Falls Binding im XAML, dann keine Caption setzen
                         // TODO: Check if there's an Avalonia equivalent for IsDataBound
@@ -226,7 +224,7 @@ namespace gip.core.layoutengine.avui
             _VBContentTypeInfo = null;
 
 
-            if (_RemoveACCommand)
+            if (_ACCommandHandling != null && _ACCommandHandling.RemoveExistingAppCommand)
             {
                 if (ACCommand != null)
                 {
@@ -234,18 +232,17 @@ namespace gip.core.layoutengine.avui
                     if (command != null)
                     {
                         AppCommands.RemoveVBApplicationCommand(command);
-                        // TODO: CommandBindings.RemoveCommandBinding for Avalonia
                     }
                 }
             }
 
-            // TODO: CommandBindings.Remove for Avalonia
             this.Command = null;
             _ParameterList = null;
             ACCommand = null;
             _ACContentList = null;
             _TypeMemberMouseDown = null;
             _TypeMemberMouseUp = null;
+            _ACCommandHandling = null;
             this.ClearAllBindings();
         }
 
@@ -467,7 +464,12 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        private bool _RemoveACCommand = false;
+        ACCommandHelper.Result _ACCommandHandling;
+        public ACCommandHelper.Result ACCommandHandling
+        {
+            get { return _ACCommandHandling; }
+            internal set { _ACCommandHandling = value; }
+        }
 
         #endregion
 
@@ -1119,7 +1121,6 @@ namespace gip.core.layoutengine.avui
             // TODO: CommandManager.InvalidateRequerySuggested equivalent for Avalonia
         }
 
-
         #endregion
 
         #region IACObject Member
@@ -1273,5 +1274,6 @@ namespace gip.core.layoutengine.avui
         }
 
         #endregion
+
     }
 }
