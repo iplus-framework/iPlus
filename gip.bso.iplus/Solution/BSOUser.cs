@@ -1044,6 +1044,32 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AssignGroup):
+                case nameof(IsEnabledAssignGroup):
+                    return new string[] { nameof(CurrentUser), nameof(SelectedGroup) };
+                case nameof(UnassignGroup):
+                case nameof(IsEnabledUnassignGroup):
+                    return new string[] { nameof(CurrentUser), nameof(SelectedAssignedUserGroup) };
+                case nameof(AssignACProject):
+                case nameof(IsEnabledAssignACProject):
+                case nameof(AssignAllACProject):
+                case nameof(IsEnabledAssignAllACProject):
+                    return new string[] { nameof(CurrentUserInstance), nameof(SelectedACProject) };
+                case nameof(UnassignACProject):
+                case nameof(IsEnabledUnassignACProject):
+                case nameof(UnassignAllACProject):
+                case nameof(IsEnabledUnassignAllACProject):
+                    return new string[] { nameof(CurrentUserInstance), nameof(SelectedAssignedVBUserACProject) };
+                case nameof(UserClone):
+                    return new string[] { nameof(SelectedUser) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
     }

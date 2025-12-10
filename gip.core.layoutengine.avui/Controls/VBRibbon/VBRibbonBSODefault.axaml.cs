@@ -528,7 +528,7 @@ namespace gip.core.layoutengine.avui
                 }
 
                 button.ACCommand = new ACCommand(acCaption, command, parameterList);
-                button.ACCommandHandling = ACCommandHelper.ApplyACCommand(button, BSOACComponent, command, button.ACCommand, this); //ExecutedCommandHandler, CanExecuteCommandHandler;
+                button.ACCommandHandling = ACCommandHelper.ApplyACCommand(button, BSOACComponent, command, button.ACCommand, this, ExecutedCommandHandler, CanExecuteCommandHandler);
                 button.ACCaption = acCaption;
                 button.Content = acCaption;
                 if (specifiedCommandList == _EditString)
@@ -590,13 +590,16 @@ namespace gip.core.layoutengine.avui
         void ExecutedCommandHandler(object sender, ExecutedRoutedEventArgs e)
         {
             ACCommand acCommand = RoutedEventHelper.GetACCommand(e);
-            if (!acCommand.ParameterList.Any())
+            if (acCommand != null)
             {
-                ExecuteCommand(acCommand.GetACUrl());
-            }
-            else
-            {
-                ExecuteCommand(acCommand.GetACUrl(), acCommand.ParameterList.ToValueArray());
+                if (!acCommand.ParameterList.Any())
+                {
+                    ExecuteCommand(acCommand.GetACUrl());
+                }
+                else
+                {
+                    ExecuteCommand(acCommand.GetACUrl(), acCommand.ParameterList.ToValueArray());
+                }
             }
             e.Handled = true;
         }
@@ -604,22 +607,25 @@ namespace gip.core.layoutengine.avui
         void CanExecuteCommandHandler(object sender, CanExecuteRoutedEventArgs e)
         {
             ACCommand acCommand = RoutedEventHelper.GetACCommand(e);
-            if (string.IsNullOrEmpty(acCommand.GetACUrl()))
+            if (acCommand != null)
             {
-                e.CanExecute = true;
-            }
-            else
-            {
-                if (!acCommand.ParameterList.Any())
+                if (string.IsNullOrEmpty(acCommand.GetACUrl()))
                 {
-                    e.CanExecute = ContextACObject.IsEnabledACUrlCommand(acCommand.GetACUrl());
+                    e.CanExecute = true;
                 }
-                else
+                else if (ContextACObject != null)
                 {
-                    e.CanExecute = ContextACObject.IsEnabledACUrlCommand(acCommand.GetACUrl(), acCommand.ParameterList);
+                    if (!acCommand.ParameterList.Any())
+                    {
+                        e.CanExecute = ContextACObject.IsEnabledACUrlCommand(acCommand.GetACUrl());
+                    }
+                    else
+                    {
+                        e.CanExecute = ContextACObject.IsEnabledACUrlCommand(acCommand.GetACUrl(), acCommand.ParameterList);
+                    }
+                    //if (e.CanExecute)
+                    RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(acCommand.GetACUrl(), e.Source as Control, ContextACObject as IACComponent, true);
                 }
-                //if (e.CanExecute)
-                RemoteCommandAdornerManager.Instance.VisualizeIfRemoteControlled(acCommand.GetACUrl(), e.Source as Control, ContextACObject as IACComponent, true);
             }
         }
 

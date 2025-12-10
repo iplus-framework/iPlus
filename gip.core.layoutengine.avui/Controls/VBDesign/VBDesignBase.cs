@@ -26,7 +26,7 @@ namespace gip.core.layoutengine.avui
 {
 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDesignBase'}de{'VBDesignBase'}", Global.ACKinds.TACVBControl)]
-    public abstract class VBDesignBase : ContentControl, IVBContent, IACObject, IACMenuBuilderWPFTree
+    public abstract class VBDesignBase : ContentControl, IVBContent, IACObject, IACMenuBuilderWPFTree, ICommandBindingOwner
     {
         #region c'tors
         static VBDesignBase()

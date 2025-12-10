@@ -1,6 +1,6 @@
 <Project> 
   <PropertyGroup>
-    <UseAvaloniaFork>True</UseAvaloniaFork>
+    <UseAvaloniaFork>False</UseAvaloniaFork>
     <AvaloniaVersion>11.3.8</AvaloniaVersion>
     <AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
 

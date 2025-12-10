@@ -16,6 +16,10 @@ using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui.Helperclasses
 {
+    public interface ICommandBindingOwner : ILogical
+    {
+    }
+
     public interface IACCommandControl : IVBContent, ILogical
     {
         ACCommand ACCommand { get; set; }
@@ -73,12 +77,14 @@ namespace gip.core.layoutengine.avui.Helperclasses
             if (interactiveObject == null || control.Command != null)
                 return null;
 
+            Result result = null;
+            // Determine observable properties for ReactiveCommand
             methodNameForCommand = methodNameForCommand.Replace(ACUrlHelper.Delimiter_InvokeMethod.ToString(), string.Empty);
             IEnumerable<string> observableProperties = interactiveObject.GetPropsToObserveForIsEnabled(methodNameForCommand);
             // If there are observable properties, create a ReactiveCommand
             if (observableProperties != null && observableProperties.Any())
             {
-                return new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observableProperties), false);
+                result = new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observableProperties), false);
             }
             // Fallback to CommandBinding approach
             else
@@ -87,7 +93,11 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     logical = control;
                 if (logical == null)
                     return null;
-                InputElement topLevel = logical.FindLogicalAncestorOfType<VBDesign>();
+                InputElement topLevel = null;
+                if (logical is ICommandBindingOwner)
+                    topLevel = logical as InputElement;
+                if (topLevel == null)
+                    topLevel = logical.FindLogicalAncestorOfType<ICommandBindingOwner>() as InputElement;
                 if (topLevel == null)
                     topLevel = TopLevel.GetTopLevel(logical as Visual);
                 if (topLevel == null)
@@ -115,8 +125,11 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 commandBindings.Add(cb);
                 CommandManager.SetCommandBindings(topLevel, commandBindings);
 
-                return new Result(iCommand, removeExistingCommand);
+                result = new Result(iCommand, removeExistingCommand);
             }
+            if (result != null && result.Command != null)
+                control.Command = result.Command;
+            return result;
         }
 
         #region Reactive Command

@@ -13,14 +13,14 @@ namespace gip.core.layoutengine.avui.Helperclasses
             if (e is CanExecuteRoutedEventArgs)
             {
                 CanExecuteRoutedEventArgs m = (CanExecuteRoutedEventArgs)e;
-                n = (RoutedUICommandEx)m.Command;
+                n = m.Command as RoutedUICommandEx;
             }
             else
             {
                 ExecutedRoutedEventArgs m = (ExecutedRoutedEventArgs)e;
-                n = (RoutedUICommandEx)m.Command;
+                n = m.Command as RoutedUICommandEx;
             }
-            return n.ACCommand;
+            return n?.ACCommand;
         }
 
         public static CommandBinding FindCommandBinding(this IList<CommandBinding> cbColl, RoutedUICommandEx appCommand)
