@@ -20,6 +20,9 @@
     <!-- ClosedXML uses transitive packages of DocumentFormat.OpenXml and this result in an package conflict. 
     Therefore this declaration is used for override in csproj -->
     <DocumentFormatOpenXmlVersion>3.3.0</DocumentFormatOpenXmlVersion>
+
+    <SkiaSharpNativeAssetsLinuxVersion>$(SkiaSharpVersion)</SkiaSharpNativeAssetsLinuxVersion>
+    <SkiaSharpNativeAssetsLinuxNoDependenciesVersion>$(SkiaSharpVersion)</SkiaSharpNativeAssetsLinuxNoDependenciesVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -150,8 +153,9 @@
     <PackageVersion Include="WindowsAPICodePack" Version="8.0.6" />
     <PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.17" />
     <PackageVersion Include="Xaml.Behaviors" Version="11.3.6.6" />
-    <PackageVersion Include="System.Text.Json" Version="$(DotNetExtensionsVersion)" />
-
+    <!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
+    <PackageVersion Include="System.Text.Json" Version="9.0.9" />
+  
     <!-- Additional Packages for Roslyn Pad -->
     <PackageVersion Include="AvalonLibrary" Version="4.0.1" />
     <PackageVersion Include="DialogHost.Avalonia" Version="0.9.2" />

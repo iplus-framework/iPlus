@@ -97,11 +97,11 @@
     <AvaloniaResource Include="Images\pinned.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <AvaloniaResource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
-    <AvaloniaResource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
-    <AvaloniaResource Include="Controls\VBDocking\Icons\DockPane.PNG" />
-    <AvaloniaResource Include="Controls\VBDocking\Icons\DockRight.PNG" />
-    <AvaloniaResource Include="Controls\VBDocking\Icons\DockTop.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\icons\DockBottom.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\icons\DockLeft.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\icons\DockPane.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\icons\DockRight.PNG" />
+    <AvaloniaResource Include="Controls\VBDocking\icons\DockTop.PNG" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Images\QuestionMark.JPG" />
