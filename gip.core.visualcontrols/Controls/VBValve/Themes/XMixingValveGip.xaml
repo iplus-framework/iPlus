@@ -353,11 +353,32 @@
             <MultiTrigger>
                 <MultiTrigger.Conditions>
                     <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="True"/>
                     <Condition Property="FaultState" Value="Off"/>
                 </MultiTrigger.Conditions>
                 <Setter TargetName="ContrBody" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
                 <Setter TargetName="PolyBottom" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
                 <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="True"/>
+                    <Condition Property="Pos2" Value="False"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="ContrBody" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyLeft" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="Pos1" Value="False"/>
+                    <Condition Property="Pos2" Value="True"/>
+                    <Condition Property="FaultState" Value="Off"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="ContrBody" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
+                <Setter TargetName="PolyBottom" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
                 <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
             </MultiTrigger>
             <MultiTrigger>

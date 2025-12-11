@@ -4,6 +4,7 @@
 using System.Linq;
 using gip.core.datamodel;
 using System.Data;
+using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
@@ -164,6 +165,7 @@ namespace gip.core.datamodel
         /// Index of the CurrentNavObject in the NavObjectList-Collection.
         /// </summary>
         /// <value>Index from 0. If NavObjectList is empty "-1" is returned.</value>
+        [ACPropertyInfo(999, "", "en{'Position of current'}de{'Position aktueller Datensatz'}")]
         public int NavRowCurrent
         {
             get
@@ -181,6 +183,7 @@ namespace gip.core.datamodel
                 {
                     _NavRowCurrent = -1;
                 }
+                OnPropertyChanged();
             }
         }
         #endregion
@@ -357,8 +360,26 @@ namespace gip.core.datamodel
                     acComponent.OnPropertyChanged(property.ACIdentifier);
             }
         }
-        #endregion
 
-        #endregion
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName, string acAccessPropertyName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(NavigateFirst):
+                case nameof(IsEnabledNavigateFirst):
+                case nameof(NavigateLast):
+                case nameof(IsEnabledNavigateLast):
+                case nameof(NavigatePrev):
+                case nameof(IsEnabledNavigatePrev):
+                case nameof(NavigateNext):
+                case nameof(IsEnabledNavigateNext):
+                    return new string[] { acAccessPropertyName + ACUrlHelper.Delimiter_DirSeperator + nameof(NavRowCurrent),
+                                          acAccessPropertyName + ACUrlHelper.Delimiter_DirSeperator + nameof(NavRowCount)};
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName, acAccessPropertyName);
+        }
     }
+    #endregion
+
+    #endregion
 }

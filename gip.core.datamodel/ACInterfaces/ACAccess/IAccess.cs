@@ -17,6 +17,7 @@ using System.Linq;
 using System.Collections;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace gip.core.datamodel
 {
@@ -97,5 +98,6 @@ namespace gip.core.datamodel
         /// <returns>True, if OK-Button was clicked</returns>
         bool ShowChangeColumnValuesDialog(ACColumnItem column);
 
+        IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName, string acAccessPropertyName);
     }
 }

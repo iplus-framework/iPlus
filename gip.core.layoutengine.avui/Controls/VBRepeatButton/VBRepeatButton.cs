@@ -36,7 +36,6 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Initialized = false;
-        private Avalonia.Labs.Input.CommandBinding _CmdBindingExecute;
 
         /// <summary>
         /// Initializes the VB control.

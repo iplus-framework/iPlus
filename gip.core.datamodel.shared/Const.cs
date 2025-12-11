@@ -161,10 +161,11 @@ namespace gip.core.datamodel
         public const string CmdNameNavigateLast = "NavigateLast";      // Laden der letzten Entity
         public const string CmdNavigateLast = "!" + CmdNameNavigateLast;      // Laden der letzten Entity
 
-        public const string CmdNavigateFirstPrimary = "AccessPrimary" + CmdNavigateFirst;    // Laden der ersten EntityPrimary
-        public const string CmdNavigatePrevPrimary = "AccessPrimary" + CmdNavigatePrev;      // Laden der vorherigen EntityPrimary
-        public const string CmdNavigateNextPrimary = "AccessPrimary" + CmdNavigateNext;      // Laden der nächsten EntityPrimary
-        public const string CmdNavigateLastPrimary = "AccessPrimary" + CmdNavigateLast;      // Laden der letzten EntityPrimary
+        public const string BSOAccessPrimaryName = "AccessPrimary";
+        public const string CmdNavigateFirstPrimary = BSOAccessPrimaryName + CmdNavigateFirst;    // Laden der ersten EntityPrimary
+        public const string CmdNavigatePrevPrimary = BSOAccessPrimaryName + CmdNavigatePrev;      // Laden der vorherigen EntityPrimary
+        public const string CmdNavigateNextPrimary = BSOAccessPrimaryName + CmdNavigateNext;      // Laden der nächsten EntityPrimary
+        public const string CmdNavigateLastPrimary = BSOAccessPrimaryName + CmdNavigateLast;      // Laden der letzten EntityPrimary
 
         public const string CmdNameDesignModeOn = "DesignModeOn";              // Entwurfmodus beim VBCanvas einschalten
         public const string CmdDesignModeOn = "!" + CmdNameDesignModeOn;              // Entwurfmodus beim VBCanvas einschalten

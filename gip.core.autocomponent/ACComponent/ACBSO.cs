@@ -88,8 +88,15 @@ namespace gip.core.autocomponent
                 _ChangeLogBSO.Detach();
                 _ChangeLogBSO = null;
             }
-            if (this.Database != null && this.Database.ChangeTracker != null)
-                this.Database.ChangeTracker.StateChanged -= ChangeTracker_StateChanged;
+            try
+            {
+
+                if (this.Database != null && this.Database.ChangeTracker != null)
+                    this.Database.ChangeTracker.StateChanged -= ChangeTracker_StateChanged;
+            }
+            catch (ObjectDisposedException ex)
+            {
+            }
 
             bool hasOneBSOThisContext = false;
             foreach (ACBSO bso in Root.Businessobjects.FindChildComponents<ACBSO>(c => c is ACBSO))
@@ -1280,6 +1287,19 @@ namespace gip.core.autocomponent
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case Const.CmdNameSave:
+                case Const.IsEnabledPrefix + Const.CmdNameSave:
+                case Const.CmdNameUndo:
+                case Const.IsEnabledPrefix + Const.CmdNameUndo:
+                    return new string[] { nameof(DbChangeCount) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

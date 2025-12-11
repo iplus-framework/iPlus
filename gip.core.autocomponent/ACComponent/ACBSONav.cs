@@ -478,6 +478,25 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            if (AccessNav == null)
+                return base.GetPropsToObserveForIsEnabled(acMethodName);
+            switch (acMethodName)
+            {
+                case nameof(NavigateFirst):
+                case nameof(IsEnabledNavigateFirst):
+                case nameof(NavigateLast):
+                case nameof(IsEnabledNavigateLast):
+                case nameof(NavigatePrev):
+                case nameof(IsEnabledNavigatePrev):
+                case nameof(NavigateNext):
+                case nameof(IsEnabledNavigateNext):
+                    return AccessNav.GetPropsToObserveForIsEnabled(acMethodName, Const.BSOAccessPrimaryName);
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
         #region Delete logic (IDeleteInfo) implementation

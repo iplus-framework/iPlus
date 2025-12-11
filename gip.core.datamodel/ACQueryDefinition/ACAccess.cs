@@ -138,6 +138,7 @@ namespace gip.core.datamodel
         /// Returns the count of objects in NavList.
         /// </summary>
         /// <value>Count of objects in NavList.</value>
+        [ACPropertyInfo(999, "", "en{'Row count'}de{'Zeilenanzahl'}")]
         public int NavRowCount
         {
             get
@@ -214,9 +215,10 @@ namespace gip.core.datamodel
                 _NavList = new ObservableCollection<T>();
             if (NavSearchExecuted != null)
                 NavSearchExecuted(this, _NavList);
-            OnPropertyChanged("NavList");
-            OnPropertyChanged("NavObjectList");
-            OnPropertyChanged("QueryItemsCount");
+            OnPropertyChanged(nameof(NavList));
+            OnPropertyChanged(nameof(NavObjectList));
+            OnPropertyChanged(nameof(QueryItemsCount));
+            OnPropertyChanged(nameof(NavRowCount));
             OnPostNavSearch();
             return result != null;
         }
@@ -397,5 +399,10 @@ namespace gip.core.datamodel
         public event NavSearchExecutedEventHandler NavSearchExecuted;
 
         #endregion
+
+        public virtual IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName, string acAccessPropertyName)
+        {
+            return null;
+        }
     }
 }

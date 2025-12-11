@@ -58,7 +58,35 @@ namespace gip.core.processapplication
                 return _PAPointMatIn2;
             }
         }
+        #endregion
 
+        #region Read-Values from PLC
+        [ACPropertyBindingTarget(630, "Read from PLC", "en{'Open direction 2'}de{'Offen Richtung 2'}", "", false, false, RemotePropID = 36)]
+        public IACContainerTNet<Boolean> Pos2Open { get; set; }
+        public void OnSetPos2Open(IACPropertyNetValueEvent valueEvent)
+        {
+            bool newValue = (valueEvent as ACPropertyValueEvent<bool>).Value;
+            if (newValue != Pos2Open.ValueT && this.Root.Initialized)
+            {
+                if (newValue)
+                {
+                    TurnOnInstant.ValueT = DateTime.Now;
+                    SwitchingFrequency.ValueT++;
+                }
+                else
+                {
+                    TurnOffInstant.ValueT = DateTime.Now;
+                    if (TurnOnInstant.ValueT > DateTime.MinValue && TurnOnInstant.ValueT < TurnOffInstant.ValueT)
+                        OperatingTime.ValueT += TurnOffInstant.ValueT - TurnOnInstant.ValueT;
+                }
+            }
+        }
+
+        #endregion
+
+        #region Write-Values to PLC
+        [ACPropertyBindingTarget(650, "Write to PLC", "en{'open request direction 2'}de{'Öffnen Anforderung Richtung 2'}", "", false, false, RemotePropID = 37)]
+        public IACContainerTNet<Boolean> ReqPos2Open { get; set; }
         #endregion
 
 

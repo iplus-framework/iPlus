@@ -1048,6 +1048,11 @@ namespace gip.bso.iplus
         {
             switch (acMethodName)
             {
+                case nameof(Load):
+                case nameof(IsEnabledLoad):
+                case nameof(Delete):
+                case nameof(IsEnabledDelete):
+                    return new string[] { nameof(CurrentUser), nameof(SelectedUser) };
                 case nameof(AssignGroup):
                 case nameof(IsEnabledAssignGroup):
                     return new string[] { nameof(CurrentUser), nameof(SelectedGroup) };

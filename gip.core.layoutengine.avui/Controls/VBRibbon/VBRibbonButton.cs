@@ -68,7 +68,6 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _Initialized = false;
-        private CommandBinding _CmdBindingExecute;
 
         /// <summary>
         /// Initializes the VB control.

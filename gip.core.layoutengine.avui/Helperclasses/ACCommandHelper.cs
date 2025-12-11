@@ -84,7 +84,35 @@ namespace gip.core.layoutengine.avui.Helperclasses
             // If there are observable properties, create a ReactiveCommand
             if (observableProperties != null && observableProperties.Any())
             {
-                result = new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observableProperties), false);
+                List<Tuple<INotifyPropertyChanged, string>> observablePropertyTuples = new List<Tuple<INotifyPropertyChanged, string>>();
+                foreach (var vbContent in observableProperties)
+                {
+                    //IACType dcACTypeInfo = null;
+                    //object dcSource = null;
+                    //string dcPath = "";
+                    //Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
+                    //if (interactiveObject.ACUrlBinding(vbContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
+                    //{
+                    //    INotifyPropertyChanged observableObject = dcSource as INotifyPropertyChanged;
+                    //    if (observableObject != null)
+                    //    {
+                    //        observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, dcPath));
+                    //    }
+                    //}
+                    ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
+                    interactiveObject.ACUrlTypeInfo(vbContent, ref acUrlTypeInfo);
+                    int count = acUrlTypeInfo.Count;
+                    if (count < 2)
+                        continue;
+                    var lastSegment = acUrlTypeInfo[count - 1];
+                    var penultimateSegment = acUrlTypeInfo[count - 2];
+                    if (penultimateSegment.Value is INotifyPropertyChanged observableObject)
+                    {
+                        observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, lastSegment.SegmentName));
+                    }
+                }
+
+                result = new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observablePropertyTuples), false);
             }
             // Fallback to CommandBinding approach
             else
@@ -154,6 +182,30 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     h => propertyOwner.PropertyChanged += h,
                     h => propertyOwner.PropertyChanged -= h)
                     .Where(evt => evt.EventArgs.PropertyName == prop.ACIdentifier)
+                    .Select(_ => Unit.Default))
+                .ToArray();
+
+            // Merge all observables and evaluate the condition
+            var canExecuteObservable = Observable.Merge(propertyObservables)
+                .Select(_ => ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner))
+                .StartWith(ReactiveEvaluateCanExecute(canExecuteMethodName, propertyOwner));
+
+            return ReactiveCommand.Create(executeAction, canExecuteObservable);
+        }
+
+        public static ReactiveCommand<Unit, Unit> CreateReactiveCommand(
+            Action executeAction,
+            string canExecuteMethodName,
+            IACComponent propertyOwner,
+            IEnumerable<Tuple<INotifyPropertyChanged, string>> propertiesToObserve)
+        {
+            // Create observables for each property dynamically
+            var propertyObservables = propertiesToObserve
+                .Where(prop => prop != null)
+                .Select(prop => Observable.FromEventPattern<PropertyChangedEventHandler, PropertyChangedEventArgs>(
+                    h => prop.Item1.PropertyChanged += h,
+                    h => prop.Item1.PropertyChanged -= h)
+                    .Where(evt => evt.EventArgs.PropertyName == prop.Item2)
                     .Select(_ => Unit.Default))
                 .ToArray();
 
