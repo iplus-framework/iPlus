@@ -11,6 +11,8 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenu/Themes/MenuStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuItem/Themes/MenuItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBMenuSeparator/Themes/MenuSeparatorStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBSideMenu/Themes/SideMenuStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBSideMenuItem/Themes/SideMenuItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBContextMenu/Themes/ContextMenuStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTabControl/Themes/TabControlStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTabItem/Themes/TabItemStyle.axaml"/>

@@ -1072,6 +1072,7 @@ namespace gip.core.datamodel
             TabItem = 0, // Als Tabitem im Docking-Manager der aktuellen Docking-Manager-ebene
             DockableWindow = 1, // Als dock- und dragbares-bares Fenster des aktuellen Docking-Managers
             ModalDialog = 2, // Als modaler Dialog
+            SingleView = 3
         }
 
         static ACValueItemList _VBDesignContainerEnumList = null;
