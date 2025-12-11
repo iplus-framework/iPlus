@@ -1,0 +1,52 @@
+<ResourceDictionary
+   xmlns="https://github.com/avaloniaui"
+   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+    <ControlTheme x:Key="{x:Type local:VBSideMenu}" TargetType="{x:Type local:VBSideMenu}" BasedOn="{StaticResource {x:Type Menu}}">
+        <Setter Property="Background" Value="{StaticResource MenuBackground}"/>
+        <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
+       
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        >
+                    <DockPanel>
+                        <!-- Header -->
+                        <Border DockPanel.Dock="Top" 
+                                Padding="12">
+                            <Grid ColumnDefinitions="Auto,*">
+                                <Button Name="PART_BackButton"
+                                        Grid.Column="0"
+                                        IsVisible="{TemplateBinding IsBackVisible}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="4"
+                                        Margin="0,0,8,0"
+                                        VerticalAlignment="Center">
+                                    <PathIcon Data="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"
+                                              Height="24"
+                                              Width="24"/>
+                                </Button>
+                                
+                                <TextBlock Name="PART_Title"
+                                           Grid.Column="1"
+                                           Text="{TemplateBinding CurrentTitle}"
+                                           FontSize="18"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+
+                        <!-- Menu Items -->
+                        <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                                    VerticalScrollBarVisibility="Auto">
+                            <ItemsControl Name="PART_ItemsControl" Padding="0">
+                            </ItemsControl>
+                        </ScrollViewer>
+                    </DockPanel>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </ControlTheme>
+
+</ResourceDictionary>

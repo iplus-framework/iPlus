@@ -17,6 +17,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using Avalonia.Diagnostics;
 
 namespace gip.iplus.client.avui;
 
@@ -56,7 +57,13 @@ public partial class MainSingleView : UserControl, IRootPageWPF
         }
 
         if (mainMenu != null)
-            CreateMenu(mainMenu.Items, MainMenu.Items);
+        {
+            VBSideMenuItem rootItem = new VBSideMenuItem();
+            CreateMenu(mainMenu.Items, rootItem.Items);
+
+            MainMenu.Items.Add(rootItem);
+        }
+            
 
         this.DataContext = ACRoot.SRoot.Businessobjects;
 
@@ -88,7 +95,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF
                 continue;
             }
 
-            VBMenuItem menuItem = new VBMenuItem(ContextACObject, acMenuItem);
+            VBSideMenuItem menuItem = new VBSideMenuItem(ContextACObject, acMenuItem);
             items.Add(menuItem);
             if (acMenuItem.Items != null && acMenuItem.Items.Count > 0)
             {
@@ -270,7 +277,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF
             vbDesign.AutoStartACComponent = acUrl;
             vbDesign.AutoStartParameter = parameterList;
 
- 
+
             VBDesignList.Add(vbDesign);
             ShowVBDesign(vbDesign);
         }
@@ -312,12 +319,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF
             }
         }
 
-
-
-        MainContentControl.Content = uiElement;
-        uiElement.InvalidateArrange();
-        //_RootVBDesign.Content = uiElement;
-
+        MainContentControl.AddMainDesign(uiElement as VBDesign);
     }
 
     #endregion
@@ -774,5 +776,11 @@ public partial class MainSingleView : UserControl, IRootPageWPF
 
     public void SwitchFullScreen()
     {
+    }
+
+    private void BackButton_Click(object? sender, RoutedEventArgs e)
+    {
+        MainContentControl.CloseDesign();
+
     }
 }

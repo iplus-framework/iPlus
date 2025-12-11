@@ -183,8 +183,12 @@ namespace gip.core.layoutengine.avui
             if (string.IsNullOrEmpty(VBContent))
             {
                 _LoadDesignLocked = true;
-                if (Parent is Grid ParentGrid && ParentGrid.Name == "MainGridMobile")
+                if (Parent is VBDesignController ParentGrid && ParentGrid.Name == "MainContentControl")
+                {
                     ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMainMobile);
+                    if (ContentACObject == null)
+                        ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+                }
                 else
                     ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
                 _LoadDesignLocked = false;
