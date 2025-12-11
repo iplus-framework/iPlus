@@ -9,18 +9,25 @@ namespace gip.core.layoutengine.avui.Helperclasses
     {
         public static ACCommand GetACCommand(RoutedEventArgs e)
         {
-            RoutedUICommandEx n;
+            RoutedCommand n;
             if (e is CanExecuteRoutedEventArgs)
             {
                 CanExecuteRoutedEventArgs m = (CanExecuteRoutedEventArgs)e;
-                n = m.Command as RoutedUICommandEx;
+                n = m.Command as RoutedCommand;
             }
             else
             {
                 ExecutedRoutedEventArgs m = (ExecutedRoutedEventArgs)e;
-                n = m.Command as RoutedUICommandEx;
+                n = m.Command as RoutedCommand;
             }
-            return n?.ACCommand;
+            if (n == null)
+                return null;
+            else if (n is RoutedUICommandEx ex)
+                return ex.ACCommand;
+            else
+            {
+                return AppCommands.GetACCommandIfStandardApplicationCommands(n);
+            }
         }
 
         public static CommandBinding FindCommandBinding(this IList<CommandBinding> cbColl, RoutedUICommandEx appCommand)

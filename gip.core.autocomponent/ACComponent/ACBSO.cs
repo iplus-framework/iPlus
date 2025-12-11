@@ -73,6 +73,13 @@ namespace gip.core.autocomponent
             return true;
         }
 
+        public override bool ACPostInit()
+        {
+            if (this.Database != null && this.Database.ChangeTracker != null)
+                this.Database.ChangeTracker.StateChanged += ChangeTracker_StateChanged;
+            return base.ACPostInit();
+        }
+
         private IACComponent _TempParentACComponent;
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
@@ -81,6 +88,9 @@ namespace gip.core.autocomponent
                 _ChangeLogBSO.Detach();
                 _ChangeLogBSO = null;
             }
+            if (this.Database != null && this.Database.ChangeTracker != null)
+                this.Database.ChangeTracker.StateChanged -= ChangeTracker_StateChanged;
+
             bool hasOneBSOThisContext = false;
             foreach (ACBSO bso in Root.Businessobjects.FindChildComponents<ACBSO>(c => c is ACBSO))
             {
@@ -108,6 +118,29 @@ namespace gip.core.autocomponent
             _CurrentProgressInfo = null;
             _TrialExpiredLock = null;
             return result;
+        }
+
+        private void ChangeTracker_StateChanged(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityStateChangedEventArgs e)
+        {
+            DbChangeCount++;
+        }
+
+        private uint _DbChangeCount;
+        [ACPropertyInfo(9999, "", "en{'Entity has changed counter'}de{'Entity Änderungszähler'}")]
+        public uint DbChangeCount
+        {
+            get
+            {
+                return _DbChangeCount;
+            }
+            set
+            {
+                if (_DbChangeCount != value)
+                {
+                    _DbChangeCount = value;
+                    OnPropertyChanged();
+                }
+            }
         }
 
         private object _TrialExpiredLock = new object();

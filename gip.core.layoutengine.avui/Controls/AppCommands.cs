@@ -103,7 +103,7 @@ namespace gip.core.layoutengine.avui
         {
             try
             {
-                ICommand appCmd = IsWindowsCommand(acUrl);
+                ICommand appCmd = IsStandardApplicationCommand(acUrl);
                 if (appCmd != null)
                     return appCmd;
 
@@ -167,7 +167,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private static ICommand IsWindowsCommand(string cmdName)
+        public static ICommand IsStandardApplicationCommand(string cmdName)
         {
             switch (cmdName)
             {
@@ -184,6 +184,26 @@ namespace gip.core.layoutengine.avui
                 default:
                     return null;
             }
+        }
+
+        public static ACCommand GetACCommandIfStandardApplicationCommands(RoutedCommand n)
+        {
+            //switch (n.Name)
+            //{
+            //    case Const.CmdNameCut:
+            //        return new ACCommand(Const.CmdNameCut, Const.CmdCut, null);
+            //    case Const.CmdNameCopy:
+            //        return new ACCommand(Const.CmdNameCopy, Const.CmdCopy, null);
+            //    case Const.CmdNamePaste:
+            //        return new ACCommand(Const.CmdNamePaste, Const.CmdPaste, null);
+            //    case Const.CmdNameUndo:
+            //        return new ACCommand(Const.CmdNameUndo, Const.CmdUndo, null);
+            //    case Const.CmdNameRedo:
+            //        return new ACCommand(Const.CmdNameRedo, Const.CmdRedo, null);
+            //    default:
+            //        return null;
+            //}
+            return null;
         }
         #endregion
 
