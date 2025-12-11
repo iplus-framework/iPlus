@@ -1,7 +1,16 @@
 <Project>
-  <Import Condition="'$(UseAvaloniaFork)' == 'True' AND Exists('$(AvaloniaRootDir)/build/BuildTargets.targets')" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True' AND Exists('$(AvaloniaRootDir)/build/SourceGenerators.props')" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
-  <PropertyGroup Condition="'$(UseAvaloniaFork)' == 'True'">
+  <!-- Only import Avalonia build targets and generators if this is an Avalonia UI project -->
+  <!-- A project is considered an Avalonia UI project if it contains ".avui" in its name -->
+  <PropertyGroup>
+    <IsAvaloniaUIProject Condition="'$(IsAvaloniaUIProject)' == '' AND $(MSBuildProjectName.Contains('.avui'))">true</IsAvaloniaUIProject>
+    <IsAvaloniaUIProject Condition="'$(IsAvaloniaUIProject)' == ''">false</IsAvaloniaUIProject>
+  </PropertyGroup>
+  
+  <!-- Only import Avalonia generators for Avalonia UI projects -->
+  <Import Condition="'$(UseAvaloniaFork)' == 'True' AND '$(IsAvaloniaUIProject)' == 'true' AND Exists('$(AvaloniaRootDir)/build/BuildTargets.targets')" Project="$(AvaloniaRootDir)/build/BuildTargets.targets" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True' AND '$(IsAvaloniaUIProject)' == 'true' AND Exists('$(AvaloniaRootDir)/build/SourceGenerators.props')" Project="$(AvaloniaRootDir)/build/SourceGenerators.props" />
+  
+  <PropertyGroup Condition="'$(UseAvaloniaFork)' == 'True' AND '$(IsAvaloniaUIProject)' == 'true'">
     <AvaloniaUseCompiledBindingsByDefault>False</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 </Project>
