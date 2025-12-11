@@ -1279,6 +1279,19 @@ namespace gip.core.autocomponent
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case Const.CmdNameSave:
+                case Const.IsEnabledPrefix + Const.CmdNameSave:
+                case Const.CmdNameUndo:
+                case Const.IsEnabledPrefix + Const.CmdNameUndo:
+                    return new string[] { nameof(DbChangeCount) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
         #endregion
 
     }

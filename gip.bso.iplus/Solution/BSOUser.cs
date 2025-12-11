@@ -1048,11 +1048,6 @@ namespace gip.bso.iplus
         {
             switch (acMethodName)
             {
-                case nameof(Save):
-                case nameof(IsEnabledSave):
-                case nameof(UndoSave):
-                case nameof(IsEnabledUndoSave):
-                    return new string[] { nameof(DbChangeCount) };
                 case nameof(Load):
                 case nameof(IsEnabledLoad):
                 case nameof(Delete):
