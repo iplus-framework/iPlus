@@ -192,7 +192,7 @@
     <PackageReference Include="Microsoft.Database.Collections.Generic"  />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.Configuration.ConfigurationManager"  />
-    <PackageReference Include="System.IO.Compression"  />
+    <!--<PackageReference Include="System.IO.Compression"  />-->
     <PackageReference Include="System.ServiceModel.Duplex"  />
     <PackageReference Include="System.ServiceModel.NetTcp"  />
   </ItemGroup>
