@@ -1,4 +1,5 @@
-﻿using Avalonia.Controls;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.VisualTree;
 using gip.core.datamodel;
@@ -30,10 +31,18 @@ namespace gip.core.layoutengine.avui
             base.OnApplyTemplate(e);
 
             _button = e.NameScope.Find<Button>("PART_Button");
-
-            _button.Click += _button_Click;
+            if (_button != null)
+                _button.Click += _button_Click;
         }
 
+        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromVisualTree(e);
+            if (_button != null)
+                _button.Click -= _button_Click;
+            _button = null;
+
+        }
 
         private void _button_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
@@ -56,8 +65,5 @@ namespace gip.core.layoutengine.avui
                 base.OnClick(e);
             }
         }
-
-        public ObservableCollection<VBSideMenuItem> SubItems { get; set; }
-        public Action? Action { get; set; }
     }
 }
