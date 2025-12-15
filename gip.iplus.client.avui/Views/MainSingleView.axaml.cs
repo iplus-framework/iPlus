@@ -229,6 +229,9 @@ public partial class MainSingleView : UserControl, IRootPageWPF
         if (MainDockPanel == null)
             return;
 
+        if (MainSplitView.IsPaneOpen)
+            MainSplitView.IsPaneOpen = false;
+
         bool ribbonVisibilityOff = false;
         string caption = "";
         ACMenuItem menuItem = acCommand as ACMenuItem;
@@ -362,45 +365,45 @@ public partial class MainSingleView : UserControl, IRootPageWPF
     }
 
 
-    private void ClientConnIcon_DoubleTapped(object sender, TappedEventArgs e)
-    {
-        if (e.KeyModifiers == KeyModifiers.Control)
-        {
-            if (!ACRoot.SRoot.Environment.User.IsSuperuser)
-                return;
-            WCFClientManager channelManager = ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFClientManager") as WCFClientManager;
-            if (channelManager != null)
-            {
-                channelManager.BroadcastShutdownAllClients();
-            }
-        }
-        else
-        {
-            //if (DockingManager == null)
-            //    return;
-            ACComponent channelManager = (ACComponent)ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFClientManager");
-            //if (channelManager != null)
-            //    DockingManager.ShowDialog(channelManager, "ConnectionInfo", "", false);
-        }
-    }
+    //private void ClientConnIcon_DoubleTapped(object sender, TappedEventArgs e)
+    //{
+    //    if (e.KeyModifiers == KeyModifiers.Control)
+    //    {
+    //        if (!ACRoot.SRoot.Environment.User.IsSuperuser)
+    //            return;
+    //        WCFClientManager channelManager = ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFClientManager") as WCFClientManager;
+    //        if (channelManager != null)
+    //        {
+    //            channelManager.BroadcastShutdownAllClients();
+    //        }
+    //    }
+    //    else
+    //    {
+    //        //if (DockingManager == null)
+    //        //    return;
+    //        ACComponent channelManager = (ACComponent)ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFClientManager");
+    //        //if (channelManager != null)
+    //        //    DockingManager.ShowDialog(channelManager, "ConnectionInfo", "", false);
+    //    }
+    //}
 
-    private void ServerConnIcon_DoubleTapped(object sender, TappedEventArgs e)
-    {
-        if (e.KeyModifiers == KeyModifiers.Control)
-        {
-            WCFServiceManager serviceHost = ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFServiceManager") as WCFServiceManager;
-            if (serviceHost != null)
-                serviceHost.ShutdownClients();
-        }
-        else
-        {
-            //if (DockingManager == null)
-            //    return;
-            ACComponent serviceHost = (ACComponent)ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFServiceManager");
-            //if (serviceHost != null)
-            //    DockingManager.ShowDialog(serviceHost, "ConnectionInfo", "", false);
-        }
-    }
+    //private void ServerConnIcon_DoubleTapped(object sender, TappedEventArgs e)
+    //{
+    //    if (e.KeyModifiers == KeyModifiers.Control)
+    //    {
+    //        WCFServiceManager serviceHost = ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFServiceManager") as WCFServiceManager;
+    //        if (serviceHost != null)
+    //            serviceHost.ShutdownClients();
+    //    }
+    //    else
+    //    {
+    //        //if (DockingManager == null)
+    //        //    return;
+    //        ACComponent serviceHost = (ACComponent)ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFServiceManager");
+    //        //if (serviceHost != null)
+    //        //    DockingManager.ShowDialog(serviceHost, "ConnectionInfo", "", false);
+    //    }
+    //}
 
 
     #region IRootPageWPF

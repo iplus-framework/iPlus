@@ -14,56 +14,66 @@ namespace gip.core.layoutengine.avui
 {
     public class VBSideMenuItem : VBMenuItem
     {
+        #region c'tors
         public VBSideMenuItem()
         {
 
         }
 
-        public VBSideMenuItem(IACObject acComponent, ACCommand acCommand) : base (acComponent, acCommand)
+        public VBSideMenuItem(IACObject acComponent, ACCommand acCommand) : base(acComponent, acCommand)
         {
 
         }
+        #endregion
 
-        private Button? _button;
+        #region Properties
+
+        private Button _MenuButton;
+
+        #endregion
+
+        #region Methods
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
 
-            _button = e.NameScope.Find<Button>("PART_Button");
-            if (_button != null)
-                _button.Click += _button_Click;
+            _MenuButton = e.NameScope.Find<Button>("PART_Button");
+            if (_MenuButton != null)
+                _MenuButton.Click += _button_Click;
         }
 
-        protected override void OnDetachedFromVisualTree(VisualTreeAttachmentEventArgs e)
+        public virtual void DeInitVBControl()
         {
-            base.OnDetachedFromVisualTree(e);
-            if (_button != null)
-                _button.Click -= _button_Click;
-            _button = null;
+            if (_MenuButton != null)
+                _MenuButton.Click -= _button_Click;
 
+            foreach (var item in this.Items)
+            {
+                VBSideMenuItem menuItem = item as VBSideMenuItem;
+                if (menuItem != null)
+                {
+                    menuItem.DeInitVBControl();
+                }
+            }
         }
 
         private void _button_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
         {
             if (this.Items.Any())
             {
-                VBSideMenu sideMenu = this.FindAncestorOfType<VBSideMenu>() as VBSideMenu;
+                VBSideMenu sideMenu = this.FindAncestorOfType<VBSideMenu>();
                 if (sideMenu != null)
                 {
-                     sideMenu.OnMenuItemClicked(this);
+                    sideMenu.OnMenuItemClicked(this);
                 }
             }
             else
             {
-                SplitView parentSplitView = this.FindAncestorOfType<SplitView>() as SplitView;
-                if (parentSplitView != null)
-                {
-                    parentSplitView.IsPaneOpen = false;
-                }
-
                 base.OnClick(e);
             }
         }
+
+        #endregion
     }
 }
