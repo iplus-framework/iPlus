@@ -1,5 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Metadata;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -47,6 +48,16 @@ namespace gip.core.wpfservices.avui
         }
 
         public bool IsAvaloniaUI => true;
+
+        public bool IsAvaloniaSingleViewApplication
+        {
+            get
+            {
+                if (Avalonia.Application.Current?.ApplicationLifetime is ISingleViewApplicationLifetime)
+                    return true;
+                return false;
+            }
+        }
 
     }
 }

@@ -607,6 +607,8 @@ namespace gip.core.autocomponent
 
         public bool IsAvaloniaUI { get { return WPFServices != null ? WPFServices.IsAvaloniaUI : false; } }
 
+        public bool IsSingleViewApp => WPFServices != null ? WPFServices.IsAvaloniaSingleViewApplication : false;
+
         #endregion
 
         #region IACInteractiveObject
@@ -981,8 +983,6 @@ namespace gip.core.autocomponent
         }
 
         #endregion
-
-
     }
 
     public delegate void ACPropertyNetSendEventHandler(object sender, ACPropertyNetSendEventArgs e);
