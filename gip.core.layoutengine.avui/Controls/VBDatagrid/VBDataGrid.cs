@@ -128,6 +128,9 @@ namespace gip.core.layoutengine.avui
             string pathOfBindingForSelItm = "";
             Global.ControlModes rightControlMode = Global.ControlModes.Hidden;
 
+            if (double.IsNaN(RowHeight) && Database.Root.IsSingleViewApp)
+                RowHeight = 45;
+
             if (!ContextACObject.ACUrlBinding(VBContent, ref _PropertyInfoOfACPropertySelected, ref sourceOfBindingForSelItm, ref pathOfBindingForSelItm, ref rightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00003", "VBDataGrid", VBContent);
