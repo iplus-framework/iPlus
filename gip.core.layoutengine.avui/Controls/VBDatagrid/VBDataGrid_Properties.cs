@@ -661,10 +661,10 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        #region Mobile Members
+        #region Single view app Members
 
         /// <summary>
-        /// Represents the styled property for checking if the control is opened in the Mobile App.
+        /// Represents the styled property for checking if the control is opened in the signle view App.
         /// </summary>
         public static readonly StyledProperty<string> OpenDesignOnClickProperty
             = AvaloniaProperty.Register<VBDataGrid, string>(nameof(OpenDesignOnClick));
