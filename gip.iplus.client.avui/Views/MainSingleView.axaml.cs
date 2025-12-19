@@ -788,10 +788,18 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     }
 
     #region IFocusChangeListener
-    protected override void OnLosingFocus(FocusChangingEventArgs e)
+
+    // This method doesn't exist in nuget packages of Avalonia version 11.3.8
+    //protected override void OnLosingFocus(FocusChangingEventArgs e)
+    //{
+    //    base.OnLosingFocus(e);
+    //    LastFocusedElement = e.OldFocusedElement;
+    //}
+
+    protected override void OnLostFocus(RoutedEventArgs e)
     {
-        base.OnLosingFocus(e);
-        LastFocusedElement = e.OldFocusedElement;
+        base.OnLostFocus(e);
+        LastFocusedElement = e.Source as IInputElement;
     }
 
     public IInputElement LastFocusedElement { get; private set; }
