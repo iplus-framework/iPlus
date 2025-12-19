@@ -897,4 +897,14 @@ public partial class MainView : UserControl, IRootPageWPF
         }
     }
 
+    #region IFocusChangeListener
+    protected override void OnLosingFocus(FocusChangingEventArgs e)
+    {
+        base.OnLosingFocus(e);
+        LastFocusedElement = e.OldFocusedElement;
+    }
+
+    public IInputElement LastFocusedElement { get; private set;  }
+    #endregion
+
 }
