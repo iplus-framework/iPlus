@@ -914,7 +914,7 @@ namespace gip.bso.iplus
             return CurrentUser != null;
         }
 
-        #region Methdds -> User Design replaces
+        #region Methods -> User Design replaces
 
         /// <summary>
         /// Source Property: ReplaceBSO

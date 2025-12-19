@@ -20,7 +20,7 @@ using System.Linq;
 namespace gip.core.layoutengine.avui
 { 
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBDockingManager'}de{'VBDockingManager'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.NotStorable, true, false)]
-    public partial class VBDockingManager : UserControl, IACInteractiveObject, IACObject, IVBGui
+    public partial class VBDockingManager : UserControl, IACInteractiveObject, IACObject, IVBGui, ICommandBindingOwner
     {
         public event EventHandler OnInitVBControlFinished;
 

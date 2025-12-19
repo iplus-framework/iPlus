@@ -4303,6 +4303,8 @@ namespace gip.core.autocomponent
         [ACMethodInfo("", "", 9999)]
         public virtual IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
         {
+            if (Const.IsAvaloniaHotKeyManagerBugPresent && Const.IsBuiltInAppCommand(acMethodName))
+                return new string[] { nameof(InitState) };
             return null;
         }
         #endregion

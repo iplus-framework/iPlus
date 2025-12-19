@@ -19,7 +19,7 @@ using System.Text;
 
 namespace gip.iplus.client.avui;
 
-public partial class MainView : UserControl, IRootPageWPF
+public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
 {
     public MainView()
     {

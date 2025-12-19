@@ -20,11 +20,18 @@ namespace gip.core.layoutengine.avui.Helperclasses
     {
     }
 
+    public interface IFocusChangeListener
+    {
+        IInputElement LastFocusedElement { get; }
+    }
+
     public interface IACCommandControl : IVBContent, ILogical
     {
         ACCommand ACCommand { get; set; }
 
         ICommand Command { get; set; }
+
+        KeyGesture HotKey { get; set; }
     }
 
     public static class ACCommandHelper
@@ -78,6 +85,24 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 return null;
 
             Result result = null;
+            bool isBuiltInGesture = false;
+            System.Windows.Input.ICommand iCommand = AppCommands.FindVBApplicationCommand(acCommmand.ACUrl);
+            KeyGesture keyGesture = null;
+            if (control.HotKey == null)
+            {
+                RoutedCommand routedCmd = iCommand as RoutedCommand;
+                if (routedCmd != null && routedCmd.Gestures != null && routedCmd.Gestures.Any())
+                {
+                    keyGesture = routedCmd.Gestures[0] as KeyGesture;
+                    if (keyGesture != null)
+                    {
+                        isBuiltInGesture = AppCommands.IsBuiltInGesture(keyGesture);
+                        if (!isBuiltInGesture || !Const.IsAvaloniaHotKeyManagerBugPresent)
+                            control.HotKey = keyGesture;
+                    }
+                }
+            }
+
             // Determine observable properties for ReactiveCommand
             methodNameForCommand = methodNameForCommand.Replace(ACUrlHelper.Delimiter_InvokeMethod.ToString(), string.Empty);
             IEnumerable<string> observableProperties = interactiveObject.GetPropsToObserveForIsEnabled(methodNameForCommand);
@@ -87,18 +112,6 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 List<Tuple<INotifyPropertyChanged, string>> observablePropertyTuples = new List<Tuple<INotifyPropertyChanged, string>>();
                 foreach (var vbContent in observableProperties)
                 {
-                    //IACType dcACTypeInfo = null;
-                    //object dcSource = null;
-                    //string dcPath = "";
-                    //Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
-                    //if (interactiveObject.ACUrlBinding(vbContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
-                    //{
-                    //    INotifyPropertyChanged observableObject = dcSource as INotifyPropertyChanged;
-                    //    if (observableObject != null)
-                    //    {
-                    //        observablePropertyTuples.Add(new Tuple<INotifyPropertyChanged, string>(observableObject, dcPath));
-                    //    }
-                    //}
                     ACUrlTypeInfo acUrlTypeInfo = new ACUrlTypeInfo();
                     interactiveObject.ACUrlTypeInfo(vbContent, ref acUrlTypeInfo);
                     int count = acUrlTypeInfo.Count;
@@ -112,7 +125,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
                     }
                 }
 
-                result = new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observablePropertyTuples), false);
+                result = new Result(CreateReactiveCommand(() => ReactiveExecuteCommand(control, methodNameForCommand, interactiveObject), methodNameForCommand, interactiveObject, observablePropertyTuples), false);
             }
             // Fallback to CommandBinding approach
             else
@@ -122,6 +135,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 if (logical == null)
                     return null;
                 InputElement topLevel = null;
+                if (topLevel == null)
+                    topLevel = logical.FindLogicalAncestorOfType<VBDockingManager>() as InputElement;
                 if (logical is ICommandBindingOwner)
                     topLevel = logical as InputElement;
                 if (topLevel == null)
@@ -131,7 +146,6 @@ namespace gip.core.layoutengine.avui.Helperclasses
                 if (topLevel == null)
                     return null;
                 bool removeExistingCommand = false;
-                System.Windows.Input.ICommand iCommand = AppCommands.FindVBApplicationCommand(acCommmand.ACUrl);
                 if (iCommand == null)
                 {
                     removeExistingCommand = true;
@@ -148,15 +162,25 @@ namespace gip.core.layoutengine.avui.Helperclasses
                         
                 // Use default handlers if not provided
                 cb.Executed += executeDelegate ?? DefaultExecuteHandler;
-                cb.CanExecute += canExecuteDelegate ?? DefaultCanExecuteHandler;
-                        
-                commandBindings.Add(cb);
-                CommandManager.SetCommandBindings(topLevel, commandBindings);
+                if (canExecuteDelegate != null)
+                    cb.CanExecute += canExecuteDelegate;
+                else
+                    cb.CanExecute += isBuiltInGesture ? DefaultCannotExecuteHandler : DefaultCanExecuteHandler;
+
+                if (!isBuiltInGesture)
+                {
+                    commandBindings.Add(cb);
+                    CommandManager.SetCommandBindings(topLevel, commandBindings);
+                }
 
                 result = new Result(iCommand, removeExistingCommand);
             }
-            if (result != null && result.Command != null)
+
+            if (result != null && result.Command != null && (!isBuiltInGesture || Const.IsAvaloniaHotKeyManagerBugPresent))
+            {
                 control.Command = result.Command;
+            }
+
             return result;
         }
 
@@ -227,6 +251,8 @@ namespace gip.core.layoutengine.avui.Helperclasses
         {
             try
             {
+                if (Const.IsAvaloniaHotKeyManagerBugPresent && AppCommands.IsBuiltInAppCommand(methodName))
+                    return true;
                 string methodCmd = methodName;
                 if (!methodCmd.StartsWith(ACUrlHelper.Delimiter_InvokeMethod))
                     methodCmd = ACUrlHelper.Delimiter_InvokeMethod + methodName;
@@ -267,10 +293,41 @@ namespace gip.core.layoutengine.avui.Helperclasses
             return false;
         }
 
-        private static void ReactiveExecuteCommand(string methodName, IACComponent propertyOwner)
+        private static void ReactiveExecuteCommand(IACCommandControl control, string methodName, IACComponent propertyOwner)
         {
             try
             {
+                if (Const.IsAvaloniaHotKeyManagerBugPresent && AppCommands.IsBuiltInAppCommand(methodName) && control is Visual visual)
+                {
+                    TopLevel topLevel = TopLevel.GetTopLevel(visual);
+                    if (topLevel == null)
+                        return;
+                    IFocusChangeListener focusChangeListener = topLevel as IFocusChangeListener;
+                    if (focusChangeListener == null)
+                        focusChangeListener = topLevel.Content as IFocusChangeListener;
+                    if (focusChangeListener == null)
+                        return;
+                    TextBox inputElement = focusChangeListener.LastFocusedElement as TextBox; // topLevel.FocusManager.GetFocusedElement();
+                    if (inputElement == null)
+                        return;
+                    // Select all because Avalonia doesn't have a separate Keyboard-Focus and Logical Focus like WPF
+                    if (methodName == Const.CmdNameCopy || methodName == Const.CmdNameCut)
+                        inputElement.SelectAll();
+                    //else if (methodName == Const.CmdNamePaste)
+                    //    inputElement.MoveEnd(true);
+                    KeyGesture keyGesture = AppCommands.GetBuiltInKeyGesture(methodName);
+                    if (keyGesture != null)
+                    {
+                        inputElement.RaiseEvent(new KeyEventArgs
+                        {
+                            RoutedEvent = InputElement.KeyDownEvent,
+                            Key = keyGesture.Key,
+                            KeyModifiers = keyGesture.KeyModifiers
+                        });
+                    }
+                    return;
+                }
+
                 string methodCmd = methodName;
                 if (!methodCmd.StartsWith(ACUrlHelper.Delimiter_InvokeMethod))
                     methodCmd = ACUrlHelper.Delimiter_InvokeMethod + methodName;
@@ -401,6 +458,11 @@ namespace gip.core.layoutengine.avui.Helperclasses
             {
                 e.CanExecute = false;
             }
+        }
+
+        public static void DefaultCannotExecuteHandler(object sender, CanExecuteRoutedEventArgs e)
+        {
+            e.CanExecute = false;
         }
 
         /// <summary>

@@ -262,6 +262,15 @@ namespace gip.core.datamodel
         //public const string CmdShowBusinessobjectDialogModeless = "!ShowBusinessobjectDialogModeless";
         //public const string CmdShowBusinessobjectDialogCancel = "!ShowBusinessobjectDialogCancel";
 
+        #region Built-In ApplicationCommands
+
+        /// <summary>
+        /// Temporary workaround for this bug:
+        /// https://github.com/AvaloniaUI/Avalonia/discussions/15963
+        /// If this Property is set, then a special Implementation in ACCommandHelper is used with ReactiveCommands to handle the Built-In ApplicationCommands correctly.
+        /// </summary>
+        public const bool IsAvaloniaHotKeyManagerBugPresent = true;
+
         public const string CmdNameCopy = "Copy";                      // Kopieren, ApplicationCommands.Copy
         public const string CmdCopy = "!" + CmdNameCopy;                      // Kopieren, ApplicationCommands.Copy
         public const string CmdNameCut = "Cut";                        // Ausschneiden, ApplicationCommands.Cut
@@ -275,8 +284,28 @@ namespace gip.core.datamodel
         public const string CmdNameRedo = "Redo";                      // Wiederherstellen, ApplicationCommands.Redo
         public const string CmdRedo = "!" + CmdNameRedo;                      // Wiederherstellen, ApplicationCommands.Redo
 
-        
-        public const string CmdSelectAll = "!SelectAll";            // Alles auswählen
+        public const string CmdNameSelectAll = "SelectAll";                      // Alles auswählen
+        public const string CmdSelectAll = "!" + CmdNameSelectAll;            // Alles auswählen
+
+        public static bool IsBuiltInAppCommand(string acMethodName)
+        {
+            if ((acMethodName == Const.CmdNameCopy)
+                || (acMethodName == Const.CmdCopy)
+                || (acMethodName == Const.CmdNameCut)
+                || (acMethodName == Const.CmdCut)
+                || (acMethodName == Const.CmdNamePaste)
+                || (acMethodName == Const.CmdPaste)
+                || (acMethodName == Const.CmdNameUndo)
+                || (acMethodName == Const.CmdUndo)
+                || (acMethodName == Const.CmdNameRedo)
+                || (acMethodName == Const.CmdRedo)
+                || (acMethodName == Const.CmdNameSelectAll)
+                || (acMethodName == Const.CmdSelectAll))
+                return true;
+            return false;
+        }
+        #endregion
+
         public const string CmdClear = "!Clear";                    // Leeren
 
         public const string CmdTooltip = "Tooltip";

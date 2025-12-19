@@ -53,29 +53,90 @@ namespace gip.core.layoutengine.avui
         private static RoutedUICommandEx cmdQueryPreviewDlg;
         private static RoutedUICommandEx cmdQueryDesignDlg;
         private static RoutedUICommandEx cmdFindAndReplace;
-        private static RoutedUICommandEx cmdNavigate;
+        private static RoutedUICommandEx cmdExport;
+
+        public static readonly KeyGesture NewGesture = new KeyGesture(Key.N, ApplicationCommands.PlatformCommandKey);
+        public static readonly KeyGesture SaveGesture = new KeyGesture(Key.S, ApplicationCommands.PlatformCommandKey);
+        public static readonly KeyGesture UndoSaveGesture = new KeyGesture(Key.S, KeyModifiers.Alt);
+        public static readonly KeyGesture LoadGesture = new KeyGesture(Key.L, ApplicationCommands.PlatformCommandKey);
+        public static readonly KeyGesture RestoreGesture = new KeyGesture(Key.D, ApplicationCommands.PlatformCommandKey | KeyModifiers.Shift);
+        public static readonly KeyGesture PrintGesture = new KeyGesture(Key.P, ApplicationCommands.PlatformCommandKey);
+
+        public static readonly KeyGesture MoveCursorToTheStartOfDocumentGesture = Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration.MoveCursorToTheStartOfDocument.FirstOrDefault() ?? new KeyGesture(Key.Home, ApplicationCommands.PlatformCommandKey);
+        public static readonly KeyGesture MoveCursorToTheEndOfDocumentGesture = Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration.MoveCursorToTheEndOfDocument.FirstOrDefault() ?? new KeyGesture(Key.End, ApplicationCommands.PlatformCommandKey);
+        public static readonly KeyGesture PageUpGesture = Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration.PageUp.FirstOrDefault() ?? new KeyGesture(Key.PageUp);
+        public static readonly KeyGesture PageDownGesture = Avalonia.Application.Current?.PlatformSettings?.HotkeyConfiguration.PageDown.FirstOrDefault() ?? new KeyGesture(Key.PageDown);
 
         static AppCommands()
         {
             _CommandList = new List<RoutedUICommandEx>();
-            cmdNew = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNew, null), new KeyGesture(Key.N, KeyModifiers.Control));
+            cmdNew = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNew, null), NewGesture);
             ACValueList parameterListLoad = new ACValueList();
             parameterListLoad.Add(new ACValue("requery", true));
-            cmdLoad = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdLoad, parameterListLoad), new KeyGesture(Key.L, KeyModifiers.Control));
-            cmdDelete = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdDelete, null), new KeyGesture(Key.D, KeyModifiers.Control));
-            cmdRestore = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdRestore, null), new KeyGesture(Key.D, KeyModifiers.Control | KeyModifiers.Shift));
-            cmdSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSave, null), new KeyGesture(Key.S, KeyModifiers.Control));
-            cmdUndoSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdUndoSave, null), new KeyGesture(Key.S, KeyModifiers.Alt));
-            cmdSearch = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSearch, null), new KeyGesture(Key.F, KeyModifiers.Control));
-            cmdNavigateFirst = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateFirstPrimary, null), new KeyGesture(Key.Home, KeyModifiers.Control));
-            cmdNavigatePrev = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigatePrevPrimary, null), new KeyGesture(Key.PageUp, KeyModifiers.Control));
-            cmdNavigateNext = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateNextPrimary, null), new KeyGesture(Key.PageDown, KeyModifiers.Control));
-            cmdNavigateLast = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateLastPrimary, null), new KeyGesture(Key.End, KeyModifiers.Control));
-            cmdQueryPrintDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPrintDlg, null), new KeyGesture(Key.P, KeyModifiers.Control));
+            cmdLoad = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdLoad, parameterListLoad), LoadGesture);
+            cmdDelete = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdDelete, null), ApplicationCommands.DeleteGesture);
+            cmdRestore = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdRestore, null), RestoreGesture);
+            cmdSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSave, null), SaveGesture);
+            cmdUndoSave = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdUndoSave, null), UndoSaveGesture);
+            cmdSearch = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdSearch, null), ApplicationCommands.FindGesture);
+            cmdNavigateFirst = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateFirstPrimary, null), MoveCursorToTheStartOfDocumentGesture);
+            cmdNavigatePrev = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigatePrevPrimary, null), PageUpGesture);
+            cmdNavigateNext = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateNextPrimary, null), PageDownGesture);
+            cmdNavigateLast = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdNavigateLastPrimary, null), MoveCursorToTheEndOfDocumentGesture);
+            cmdQueryPrintDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPrintDlg, null), PrintGesture);
             cmdQueryPreviewDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryPreviewDlg, null), new KeyGesture(Key.F2, KeyModifiers.Control));
             cmdQueryDesignDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryDesignDlg, null), new KeyGesture(Key.F2, KeyModifiers.Alt));
-            cmdFindAndReplace = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdFindAndReplace, null), new KeyGesture(Key.F, KeyModifiers.Control));
-            cmdNavigate = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdExport, null), new KeyGesture(Key.E, KeyModifiers.Control));
+            cmdFindAndReplace = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdFindAndReplace, null), ApplicationCommands.ReplaceGesture);
+            cmdExport = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdExport, null), new KeyGesture(Key.E, KeyModifiers.Control));
+        }
+
+        public static bool IsBuiltInGesture(KeyGesture gesture)
+        {
+            if (gesture == null)
+                return false;
+            if (gesture.Equals(ApplicationCommands.PasteGesture)
+                || gesture.Equals(ApplicationCommands.CopyGesture)
+                || gesture.Equals(ApplicationCommands.CutGesture)
+                || gesture.Equals(ApplicationCommands.SelectAllGesture)
+                || gesture.Equals(ApplicationCommands.UndoGesture)
+                || gesture.Equals(ApplicationCommands.RedoGesture)
+                )
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public static bool IsBuiltInAppCommand(string acMethodName)
+        {
+            return Const.IsBuiltInAppCommand(acMethodName);
+        }
+
+        public static KeyGesture GetBuiltInKeyGesture(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case Const.CmdNamePaste:
+                case Const.CmdPaste:
+                    return ApplicationCommands.PasteGesture;
+                case Const.CmdNameCopy:
+                case Const.CmdCopy:
+                    return ApplicationCommands.CopyGesture;
+                case Const.CmdNameCut:
+                case Const.CmdCut:
+                    return ApplicationCommands.CutGesture;
+                case Const.CmdNameSelectAll:
+                case Const.CmdSelectAll:
+                    return ApplicationCommands.SelectAllGesture;
+                case Const.CmdNameUndo:
+                case Const.CmdUndo:
+                    return ApplicationCommands.UndoGesture;
+                case Const.CmdNameRedo:
+                case Const.CmdRedo:
+                    return ApplicationCommands.RedoGesture;
+                default:
+                    return null;
+            }
         }
 
         #region public Methods

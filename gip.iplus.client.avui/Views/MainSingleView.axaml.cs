@@ -21,7 +21,7 @@ using Avalonia.Diagnostics;
 
 namespace gip.iplus.client.avui;
 
-public partial class MainSingleView : UserControl, IRootPageWPF
+public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeListener
 {
     public MainSingleView()
     {
@@ -786,4 +786,14 @@ public partial class MainSingleView : UserControl, IRootPageWPF
         MainContentControl.CloseDesign();
 
     }
+
+    #region IFocusChangeListener
+    protected override void OnLosingFocus(FocusChangingEventArgs e)
+    {
+        base.OnLosingFocus(e);
+        LastFocusedElement = e.OldFocusedElement;
+    }
+
+    public IInputElement LastFocusedElement { get; private set; }
+    #endregion
 }
