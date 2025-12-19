@@ -68,6 +68,8 @@ namespace gip.core.autocomponent
         [ACPropertyBindingSource(706, "", "en{'End time for view'}de{'End zur Anzeige'}", "", false, false)]
         public IACContainerTNet<DateTime> EndTimeView { get; set; }
 
+        public IACContainerTNet<bool> ConditionProperty { get; set; }
+
         #endregion
 
         #region Constructors
@@ -79,8 +81,16 @@ namespace gip.core.autocomponent
             Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
             method.ParameterValueList.Add(new ACValue("Duration", typeof(TimeSpan), TimeSpan.Zero, Global.ParamOption.Required));
             paramTranslation.Add("Duration", "en{'Waitingtime'}de{'Wartezeit'}");
+
+            method.ParameterValueList.Add(new ACValue("ConditionWaitACUrl", typeof(string), null, Global.ParamOption.Optional));
+            paramTranslation.Add("ConditionWaitACUrl", "en{'Condition wait on property ACUrl'}de{'Condition wait on property ACUrl'}");
+
+            method.ParameterValueList.Add(new ACValue("ACUrlCmdOnStart", typeof(string), null, Global.ParamOption.Optional));
+            paramTranslation.Add("ACUrlCmdOnStart", "en{'ACUrlCommand on start'}de{'ACUrlCommand am Start'}");
+
             method.ParameterValueList.Add(new ACValue("ACUrlCmdOnEnd", typeof(string), null, Global.ParamOption.Optional));
             paramTranslation.Add("ACUrlCmdOnEnd", "en{'ACUrlCommand on end'}de{'ACUrlCommand am Ende'}");
+
             var wrapper = new ACMethodWrapper(method, "en{'Wait'}de{'Warten'}", typeof(PWNodeWait), paramTranslation, null);
             ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), ACStateConst.SMStarting, wrapper);
             //ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), PABaseState.SMStarting, method, "en{'Wait'}de{'Warten'}", null);
@@ -95,6 +105,7 @@ namespace gip.core.autocomponent
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
             UnSubscribeToTimerCycle();
+            UnsubscribeFromConditionProperty();
             if (StartTime != null)
                 (StartTime as IACPropertyNetServer).ValueUpdatedOnReceival -= PWNodeWait_ValueUpdatedOnReceival;
             if (EndTime != null)
@@ -105,7 +116,6 @@ namespace gip.core.autocomponent
                 ResetTimeProperties(true);
             return base.ACDeInit(deleteACClassTask);
         }
-
 
         public override bool ACPostInit()
         {
@@ -124,6 +134,7 @@ namespace gip.core.autocomponent
         {
             base.Recycle(content, parentACObject, parameter, acIdentifier);
             ResetTimeProperties(true);
+            UnsubscribeFromConditionProperty();
         }
 
         private void ResetTimeProperties(bool resetPersistedStartEnd = false)
@@ -166,6 +177,36 @@ namespace gip.core.autocomponent
                     }
                 }
                 return TimeSpan.Zero;
+            }
+        }
+
+        public string ConditionWaitACUrl
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ConditionWaitACUrl");
+                    if (acValue != null)
+                        return acValue.ParamAsString;
+                }
+                return null;
+            }
+        }
+
+        public string ACUrlCmdOnStart
+        {
+            get
+            {
+                var method = MyConfiguration;
+                if (method != null)
+                {
+                    var acValue = method.ParameterValueList.GetACValue("ACUrlCmdOnStart");
+                    if (acValue != null)
+                        return acValue.ParamAsString;
+                }
+                return null;
             }
         }
 
@@ -248,6 +289,8 @@ namespace gip.core.autocomponent
             if (!CheckParentGroupAndHandleSkipMode())
                 return;
 
+            OnACUrlCmdOnStart();
+
             //if (!PreExecute(PABaseState.SMStarting))
             //  return;
             var newMethod = NewACMethodWithConfiguration();
@@ -292,6 +335,7 @@ namespace gip.core.autocomponent
         [ACMethodState("en{'Running'}de{'Läuft'}", 30, true)]
         public override void SMRunning()
         {
+            SubscribeToConditionProperty();
             SubscribeToTimerCycle();
         }
 
@@ -299,15 +343,45 @@ namespace gip.core.autocomponent
         public override void SMCompleted()
         {
             UnSubscribeToTimerCycle();
+            UnsubscribeFromConditionProperty();
             OnACUrlCmdOnEnd();
             base.SMCompleted();
         }
 
+        protected virtual void OnACUrlCmdOnStart()
+        {
+            string acUrlCmd = ACUrlCmdOnStart;
+            if (string.IsNullOrEmpty(acUrlCmd))
+                return;
+
+            RunACUrlCommand(acUrlCmd);
+        }
+
         protected virtual void OnACUrlCmdOnEnd()
         {
-            string cmd = ACUrlCmdOnEnd;
-            if (!String.IsNullOrEmpty(cmd))
-                ACUrlCommand(cmd);
+            string acUrlCmd = ACUrlCmdOnEnd;
+            if (string.IsNullOrEmpty(acUrlCmd))
+                return;
+
+            RunACUrlCommand(acUrlCmd);
+        }
+
+        protected virtual void RunACUrlCommand(string acUrlCmd)
+        {
+            ACComponent component = this;
+            string cmd = acUrlCmd;
+
+            if (acUrlCmd.StartsWith(nameof(PWGroup.AccessedProcessModule)))
+            {
+                PWGroup parentGroup = ParentACComponent as PWGroup;
+                if (parentGroup == null)
+                    return;
+                component = parentGroup.AccessedProcessModule;
+                cmd = acUrlCmd.Substring(nameof(PWGroup.AccessedProcessModule).Length);
+            }
+
+            if (component != null)
+                component.ACUrlCommand(cmd);
         }
 
         public override void Pause()
@@ -352,7 +426,7 @@ namespace gip.core.autocomponent
 
 #endregion
 
-#region Protected
+        #region Protected
 
         protected virtual void SubscribeToTimerCycle()
         {
@@ -386,6 +460,69 @@ namespace gip.core.autocomponent
                 _SubscribedToTimerCycle = false;
                 if (wasDetached)
                     this.ACRef.Detach();
+            }
+        }
+
+        protected virtual void SubscribeToConditionProperty()
+        {
+            string acUrlofProperty = ConditionWaitACUrl;
+            if (string.IsNullOrEmpty(acUrlofProperty))
+                return;
+
+            ACComponent component = this;
+            string acUrlCmd = ConditionWaitACUrl;
+            string cmd = acUrlCmd;
+
+            if (acUrlCmd.StartsWith(nameof(PWGroup.AccessedProcessModule)))
+            {
+                PWGroup parentGroup = ParentACComponent as PWGroup;
+                if (parentGroup == null)
+                    return;
+                component = parentGroup.AccessedProcessModule;
+                cmd = acUrlCmd.Substring(nameof(PWGroup.AccessedProcessModule).Length);
+            }
+
+            if (component != null && ConditionProperty == null)
+            {
+                string propertyName = cmd.Split(new char[] { '\\' }).LastOrDefault();
+                cmd = cmd.Substring(0, cmd.Length - propertyName.Length - 1);
+
+                ACComponent propComponent = component.ACUrlCommand(cmd) as ACComponent;
+                if (propComponent == null)
+                    return;
+
+                IACContainerTNet<bool> conditionProperty = propComponent.GetPropertyNet(propertyName) as IACContainerTNet<bool>;
+                if (conditionProperty != null)
+                {
+                    if (conditionProperty.ValueT)
+                    {
+                        CurrentACState = ACStateEnum.SMCompleted;
+                        return;
+                    }
+
+                    ConditionProperty = conditionProperty;
+                   (ConditionProperty as IACPropertyNetServer).ValueUpdatedOnReceival += ConditionProperty_ValueUpdatedOnReceival;
+                }
+            }
+        }
+
+        protected virtual void UnsubscribeFromConditionProperty()
+        {
+            if (ConditionProperty != null)
+            {
+                (ConditionProperty as IACPropertyNetServer).ValueUpdatedOnReceival -= ConditionProperty_ValueUpdatedOnReceival;
+                ConditionProperty = null;
+            }
+        }
+
+        private void ConditionProperty_ValueUpdatedOnReceival(object sender, ACPropertyChangedEventArgs e, ACPropertyChangedPhase phase)
+        {
+            if (phase == ACPropertyChangedPhase.BeforeBroadcast)
+                return;
+
+            if (ConditionProperty != null && ConditionProperty.ValueT)
+            {
+                CurrentACState = ACStateEnum.SMCompleted;    
             }
         }
 
@@ -454,7 +591,8 @@ namespace gip.core.autocomponent
                 ElapsedTime.ValueT = nowDST - StartTime.ValueT;
                 if ((dt < nowDST || dt == DateTime.MinValue)
                      && CurrentACState >= ACStateEnum.SMStarting
-                     && CurrentACState <= ACStateEnum.SMCompleted)
+                     && CurrentACState <= ACStateEnum.SMCompleted
+                     && ConditionProperty == null)
                 {
                     CurrentACState = ACStateEnum.SMCompleted;
                 }
@@ -481,7 +619,8 @@ namespace gip.core.autocomponent
 
                 if (RemainingTime.ValueT < TimeSpan.Zero
                      && CurrentACState >= ACStateEnum.SMStarting
-                     && CurrentACState <= ACStateEnum.SMCompleted)
+                     && CurrentACState <= ACStateEnum.SMCompleted
+                     && ConditionProperty == null)
                 {
                     CurrentACState = ACStateEnum.SMCompleted;
                 }
