@@ -184,7 +184,9 @@ public partial class App : Application
                         if (ACRoot.SRoot != null)
                         {
                             singleViewPlatform.MainView = null;
-                            singleViewPlatform.MainView = new MainSingleView();
+                            MainSingleView singleView = new MainSingleView();
+                            singleViewPlatform.MainView = singleView;
+                            ACRoot.SRoot.RootPageWPF = singleView;
                         }
                     }
                 }

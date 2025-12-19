@@ -19,13 +19,12 @@
                         BorderThickness="1,1,1,1"
                         Background="{StaticResource ButtonNormalBackground}"
                         BorderBrush="{StaticResource ButtonNormalBorder}"
-                        BoxShadow="2 2 5 0 #71000000"
-                        Margin="{TemplateBinding Margin}">
+                        BoxShadow="2 2 5 0 #71000000">
                     <Border x:Name="BorderFocus" 
                             Margin="2" 
                             BorderThickness="1" 
                             CornerRadius="4">
-                        <ContentPresenter Margin="1"
+                        <ContentPresenter Margin="1" Content="{TemplateBinding Content}"
                                           HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>
                     </Border>

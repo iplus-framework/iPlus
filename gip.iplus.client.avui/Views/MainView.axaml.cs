@@ -69,7 +69,7 @@ public partial class MainView : UserControl, IRootPageWPF
     }
 
     private bool _InFullscreen = false;
-    LayoutTransformControl _FullscreenContent = null;
+    //LayoutTransformControl _FullscreenContent = null;
     protected override void OnKeyUp(KeyEventArgs e)
     {
         if (e.Key == Key.F11)

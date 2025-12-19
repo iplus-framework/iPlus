@@ -2,6 +2,7 @@
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
@@ -14,15 +15,26 @@ namespace gip.core.layoutengine.avui
 {
     public class VBSideMenu : Menu
     {
-        private ItemsControl? _itemsControl;
-        private Button? _backButton;
-        private TextBlock? _titleText;
+        #region c'tors
 
-        public VBSideMenuItem CurrentItem 
+        public VBSideMenu() : base()
         {
-            get; 
-            set; 
-        } 
+
+        }
+
+        #endregion
+
+        #region Properties
+
+        private ItemsControl _itemsControl;
+        private Button _backButton;
+        private TextBlock _titleText;
+
+        public VBSideMenuItem CurrentItem
+        {
+            get;
+            set;
+        }
 
         public static readonly StyledProperty<bool> IsBackVisibleProperty =
             AvaloniaProperty.Register<VBSideMenu, bool>(nameof(IsBackVisible), false);
@@ -41,6 +53,10 @@ namespace gip.core.layoutengine.avui
             get => GetValue(CurrentTitleProperty);
             set => SetValue(CurrentTitleProperty, value);
         }
+
+        #endregion
+
+        #region Methods
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
@@ -66,7 +82,8 @@ namespace gip.core.layoutengine.avui
 
         private void UpdateDisplay()
         {
-            if (_itemsControl == null || CurrentItem == null) return;
+            if (_itemsControl == null || CurrentItem == null) 
+                return;
 
             _itemsControl.ItemsSource = CurrentItem.Items;
 
@@ -95,5 +112,26 @@ namespace gip.core.layoutengine.avui
                 }
             }
         }
+
+        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        {
+            base.OnDetachedFromLogicalTree(e);
+
+            if (_backButton != null)
+            {
+                _backButton.Click -= OnBackClick;
+            }
+
+            foreach (var item in Items)
+            {
+                VBSideMenuItem menuItem = item as VBSideMenuItem;
+                if (menuItem != null)
+                {
+                    menuItem.DeInitVBControl();
+                }
+            }
+        }
+
+        #endregion
     }
 }

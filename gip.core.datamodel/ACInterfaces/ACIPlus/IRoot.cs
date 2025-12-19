@@ -52,6 +52,8 @@ namespace gip.core.datamodel
 
         bool IsAvaloniaUI { get; }
 
+        bool IsSingleViewApp { get; }
+
         IWPFServices WPFServices { get; }
 
         #endregion

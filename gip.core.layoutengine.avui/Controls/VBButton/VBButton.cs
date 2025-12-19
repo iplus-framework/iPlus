@@ -196,6 +196,18 @@ namespace gip.core.layoutengine.avui
                 ToolTip.SetTip(this, this.Root().Environment.TranslateText(ContextACObject, VBToolTip));
             }
 
+            if (VBContent == null && !string.IsNullOrEmpty(OpenDesignOnClick) && ContextACObject != null)
+            {
+                IACComponent comp = ContextACObject as IACComponent;
+                if (comp != null)
+                {
+                    ACClassDesign design = comp.GetDesign(OpenDesignOnClick);
+                    if (design != null)
+                    {
+                        Content = design.ACCaption;
+                    }
+                }
+            }
         }
 
         /// <summary>
@@ -529,6 +541,16 @@ namespace gip.core.layoutengine.avui
                         ContextACObject.ACUrlCommand(VBContentMemberMouseUp);
                     }
                 }
+
+                if (OpenDesignOnClick != null)
+                {
+                    VBDesignController controller =  VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDesignController)) as VBDesignController;
+                    if (controller != null)
+                    {
+                        controller.ShowDesign(OpenDesignOnClick);
+                    }
+                }
+
             }
             IsTouchLeave = true;
             base.OnPointerReleased(e);
@@ -1152,6 +1174,22 @@ namespace gip.core.layoutengine.avui
         {
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
+        #endregion
+
+        #region Single view app Members
+
+        /// <summary>
+        /// Represents the styled property for checking if the control is opened in the signle view App.
+        /// </summary>
+        public static readonly StyledProperty<string> OpenDesignOnClickProperty
+            = AvaloniaProperty.Register<VBButton, string>(nameof(OpenDesignOnClick));
+
+        public string OpenDesignOnClick
+        {
+            get { return GetValue(OpenDesignOnClickProperty); }
+            set { SetValue(OpenDesignOnClickProperty, value); }
+        }
+
         #endregion
 
         #region Mouse-Up-Down

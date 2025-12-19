@@ -30,5 +30,10 @@ namespace gip.core.datamodel
         void AddXamlNamespacesFromAssembly(Assembly classAssembly);
 
         bool IsAvaloniaUI { get; }
+
+        bool IsAvaloniaSingleViewApplication
+        {
+            get;
+        }
     }
 }

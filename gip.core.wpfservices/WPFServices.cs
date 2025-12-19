@@ -47,5 +47,7 @@ namespace gip.core.wpfservices
         }
 
         public bool IsAvaloniaUI => false;
+
+        public bool IsAvaloniaSingleViewApplication => false;
     }
 }

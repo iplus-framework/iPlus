@@ -128,6 +128,9 @@ namespace gip.core.layoutengine.avui
             string pathOfBindingForSelItm = "";
             Global.ControlModes rightControlMode = Global.ControlModes.Hidden;
 
+            if (double.IsNaN(RowHeight) && Database.Root.IsSingleViewApp)
+                RowHeight = 45;
+
             if (!ContextACObject.ACUrlBinding(VBContent, ref _PropertyInfoOfACPropertySelected, ref sourceOfBindingForSelItm, ref pathOfBindingForSelItm, ref rightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00003", "VBDataGrid", VBContent);
@@ -577,6 +580,15 @@ namespace gip.core.layoutengine.avui
             else if (e.InitialPressMouseButton == MouseButton.Left)
             {
                 OnPreviewMouseLeftButtonUp(e);
+
+                if (OpenDesignOnClick != null)
+                {
+                    VBDesignController controller = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDesignController)) as VBDesignController;
+                    if (controller != null)
+                    {
+                        controller.ShowDesign(OpenDesignOnClick);
+                    }
+                }
             }
             base.OnPointerReleased(e);
         }
@@ -643,36 +655,36 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
-            if (OpenDesignOnClick != null && firstTimeOpened == false)
-            {
-                VBDesignController controller = FindParentOfType(this, typeof(VBDesignController)) as VBDesignController;
-                if (controller != null)
-                {
-                    controller.ShowDesign(OpenDesignOnClick);
-                }
+            //if (OpenDesignOnClick != null && firstTimeOpened == false)
+            //{
+            //    VBDesignController controller = FindParentOfType(this, typeof(VBDesignController)) as VBDesignController;
+            //    if (controller != null)
+            //    {
+            //        controller.ShowDesign(OpenDesignOnClick);
+            //    }
 
 
-                //if (this.Parent is VBDesign designParent)
-                //{
-                //    var p = designParent.Parent as Grid;
-                //    if (p?.TemplatedParent is VBPage page)
-                //    {
-                //        var frame = page.FrameController;
-                //        frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
-                //    }
-                //}
-                //if (this.Parent is VBGrid gridParent)
-                //{
-                //    var designParentGrid = gridParent.Parent as VBDesign;
-                //    var p = designParentGrid.Parent as Grid;
-                //    if (p?.TemplatedParent is VBPage page)
-                //    {
-                //        var frame = page.FrameController;
-                //        frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
-                //    }
-                //}
-            }
-            firstTimeOpened = false;
+            //    //if (this.Parent is VBDesign designParent)
+            //    //{
+            //    //    var p = designParent.Parent as Grid;
+            //    //    if (p?.TemplatedParent is VBPage page)
+            //    //    {
+            //    //        var frame = page.FrameController;
+            //    //        frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
+            //    //    }
+            //    //}
+            //    //if (this.Parent is VBGrid gridParent)
+            //    //{
+            //    //    var designParentGrid = gridParent.Parent as VBDesign;
+            //    //    var p = designParentGrid.Parent as Grid;
+            //    //    if (p?.TemplatedParent is VBPage page)
+            //    //    {
+            //    //        var frame = page.FrameController;
+            //    //        frame.ShowDesign(OpenDesignOnClick, BSOACComponent, "");
+            //    //    }
+            //    //}
+            //}
+            //firstTimeOpened = false;
 
             base.OnSelectionChanged(e);
         }
@@ -938,26 +950,26 @@ namespace gip.core.layoutengine.avui
             return _DisabledColumnList.Contains(column);
         }
 
-        /// <summary>
-        /// Finds the parent of the type defined in parameter type.
-        /// </summary>
-        /// <param name="forObject">The forObject parameter.</param>
-        /// <param name="type">The type parameter.</param>
-        /// <returns></returns>
-        public static Visual FindParentOfType(Visual forObject, Type type)
-        {
-            if (forObject == null || type == null)
-                return null;
+        ///// <summary>
+        ///// Finds the parent of the type defined in parameter type.
+        ///// </summary>
+        ///// <param name="forObject">The forObject parameter.</param>
+        ///// <param name="type">The type parameter.</param>
+        ///// <returns></returns>
+        //public static Visual FindParentOfType(Visual forObject, Type type)
+        //{
+        //    if (forObject == null || type == null)
+        //        return null;
             
-            var parent = forObject.GetVisualParent();
-            while (parent != null)
-            {
-                if (type.IsAssignableFrom(parent.GetType()))
-                    return parent;
-                parent = parent.GetVisualParent();
-            }
-            return null;
-        }
+        //    var parent = forObject.GetVisualParent();
+        //    while (parent != null)
+        //    {
+        //        if (type.IsAssignableFrom(parent.GetType()))
+        //            return parent;
+        //        parent = parent.GetVisualParent();
+        //    }
+        //    return null;
+        //}
 
         private Control GetNearestContainer(Visual element, ref string vbContent)
         {

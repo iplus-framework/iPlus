@@ -75,7 +75,15 @@ namespace gip.core.layoutengine.avui
 
         public string ACIdentifier => Name;
 
-        public string ACCaption => throw new NotImplementedException();
+        public static readonly StyledProperty<string> ACCaptionProperty =
+            AvaloniaProperty.Register<VBDesignController, string>(nameof(ACCaption), "");
+
+        public string ACCaption
+        {
+            get => GetValue(ACCaptionProperty);
+            set => SetValue(ACCaptionProperty, value);
+        }
+
 
         public void ShowDesign(string designName)
         {
@@ -88,6 +96,7 @@ namespace gip.core.layoutengine.avui
 
                 _DesignsStack.Add(vbDesign);
                 Content = vbDesign;
+                ACCaption = vbDesign.ACCaption;
 
                 IsMainDesignActive = false;
             }
@@ -98,7 +107,9 @@ namespace gip.core.layoutengine.avui
             if (DesignsStack.Count > 1)
             {
                 DesignsStack.RemoveAt(DesignsStack.Count - 1);
-                Content = DesignsStack.LastOrDefault();
+                VBDesign design = DesignsStack.LastOrDefault();
+                Content = design;
+                ACCaption = design.ACCaption;
 
                 if (Content == MainDesign)
                     IsMainDesignActive = true;
@@ -114,6 +125,8 @@ namespace gip.core.layoutengine.avui
             MainDesign = design;
             Content = design;
             IsMainDesignActive = true;
+
+            ACCaption = MainDesign.ACCaption;
 
             this.ClearBinding(ACUrlCmdMessageProperty);
 
