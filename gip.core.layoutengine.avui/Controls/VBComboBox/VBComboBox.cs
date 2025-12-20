@@ -23,6 +23,7 @@ using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Styling;
+using static Avalonia.Controls.AutoCompleteBox;
 
 namespace gip.core.layoutengine.avui
 {
@@ -48,6 +49,15 @@ namespace gip.core.layoutengine.avui
         // Define pseudo classes - using string-based pseudo classes for Avalonia
         private const string HasValuePseudoClass = ":has-value";
         private const string NoValuePseudoClass = ":no-value";
+
+        static VBComboBox()
+        {
+            // Add class handler to intercept text input even when handled by TextBox
+            InputElement.TextInputEvent.AddClassHandler<VBComboBox>(
+                (cb, e) => cb.HandleTextInputForSearch(e),
+                RoutingStrategies.Bubble,
+                handledEventsToo: true);
+        }
 
         public VBComboBox()
         {
@@ -174,12 +184,12 @@ namespace gip.core.layoutengine.avui
 
         protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            return new ComboBoxItem(); // Use Avalonia's ComboBoxItem directly
+            return new VBComboBoxItem(); // Use Avalonia's ComboBoxItem directly
         }
 
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
         {
-            return NeedsContainer<ComboBoxItem>(item, out recycleKey);
+            return NeedsContainer<VBComboBoxItem>(item, out recycleKey);
         }
 
         public static readonly StyledProperty<UpdateSourceTrigger> UpdateSourceTriggerProperty
@@ -551,8 +561,7 @@ namespace gip.core.layoutengine.avui
                     bool isACValueItem = false;
                     if (ItemTemplate == null && vbShowColumns != null)
                     {
-                        DataTemplate dataTemplate = new DataTemplate();
-
+                        ResolveSearchPath(vbShowColumns, dsACTypeInfo, dcACTypeInfo, out textPath, out isACValueItem, out selectedValuePath);
                         var template = new FuncDataTemplate<object>((value, namescope) =>
                         {
                             StackPanel factorySP = new StackPanel();
@@ -562,11 +571,11 @@ namespace gip.core.layoutengine.avui
                             int maxColumnCount = vbShowColumns.Count();
                             if (String.IsNullOrEmpty(VBShowColumns) && maxColumnCount >= 3)
                                 maxColumnCount = 3;
-                            double maxColWidth = 1000 / maxColumnCount;
-                            if (maxColWidth > 250)
-                                maxColWidth = 250;
-                            else if (maxColWidth < 50)
-                                maxColWidth = 50;
+                            double maxColWidth = 600 / maxColumnCount;
+                            if (maxColWidth > 200)
+                                maxColWidth = 200;
+                            else if (maxColWidth < 25)
+                                maxColWidth = 25;
 
                             foreach (var dataShowColumn in vbShowColumns)
                             {
@@ -583,7 +592,6 @@ namespace gip.core.layoutengine.avui
                                 {
                                     if (dsColACTypeInfo.ObjectType == typeof(ACValueItem))
                                     {
-                                        isACValueItem = true;
                                         TextBlock factoryTextBlock = new TextBlock();
                                         Binding binding1 = new Binding();
                                         binding1.Path = dataShowColumn.ACIdentifier;
@@ -592,8 +600,6 @@ namespace gip.core.layoutengine.avui
                                         factoryTextBlock.SetValue(TextBlock.WidthProperty, maxColWidth);
                                         //factoryTextBlock.SetValue(Grid.ColumnProperty, columnCount);
                                         factorySP.Children.Add(factoryTextBlock);
-                                        selectedValuePath = Const.Value;
-                                        textPath = dataShowColumn.ACIdentifier;
                                         break;
                                     }
                                     continue;
@@ -606,24 +612,23 @@ namespace gip.core.layoutengine.avui
                                             dsColPath += "." + dsColACTypeInfo.ValueTypeACClass.GetColumns(1).First().ACIdentifier;
                                     }
                                 }
-                                if (columnCount == 0)
-                                    textPath = dsColPath;
                                 if (dsColACTypeInfo != null && dsColACTypeInfo.ObjectType == typeof(bool))
                                 {
-                                    CheckBox factoryTextBlock = new CheckBox();
+                                    VBCheckBox factoryTextBlock = new VBCheckBox();
 
                                     Binding binding1 = new Binding();
                                     binding1.Path = dsColPath;
                                     binding1.Mode = BindingMode.OneWay;
+                                    maxColWidth = 30;
                                     factoryTextBlock.Bind(CheckBox.IsCheckedProperty, binding1);
                                     factoryTextBlock.SetValue(CheckBox.IsEnabledProperty, false);
                                     factoryTextBlock.SetValue(CheckBox.WidthProperty, maxColWidth);
+                                    factoryTextBlock.SetValue(VBCheckBox.ShowCaptionProperty, false);
                                     factorySP.Children.Add(factoryTextBlock);
                                 }
                                 else
                                 {
                                     TextBlock factoryTextBlock = new TextBlock();
-
                                     Binding binding1 = new Binding();
                                     binding1.Path = dsColPath;
                                     binding1.Mode = BindingMode.OneWay;
@@ -638,7 +643,7 @@ namespace gip.core.layoutengine.avui
                             return factorySP;
                         } 
                         );
-                        ItemTemplate = dataTemplate;
+                        ItemTemplate = template;
                     }
                     // Handle display columns
                     else if (vbShowColumns != null && vbShowColumns.Count > 0)
@@ -664,9 +669,19 @@ namespace gip.core.layoutengine.avui
                         textPath = dsColPath;
                     }
 
-                    string currentTextPath = GetValue(TextSearch.TextProperty) as string;
-                    if (String.IsNullOrEmpty(currentTextPath))
-                        SetValue(TextSearch.TextProperty, textPath);
+                    //SetTextBinding
+                    if (!this.IsSet(TextSearch.TextBindingProperty) && !string.IsNullOrEmpty(textPath))
+                    {
+                        SetValue(TextSearch.TextBindingProperty, new Binding
+                        {
+                            Path = textPath//,
+                            //Mode = BindingMode.OneWay
+                        });
+                    }
+
+                    //string currentTextPath = GetValue(TextSearch.TextProperty) as string;
+                    //if (String.IsNullOrEmpty(currentTextPath))
+                    //    SetValue(TextSearch.TextProperty, textPath);
 
                     // Special handling for enum, as here always an IEnumerable<ACValueItem> is generated as data source
                     if (dcACTypeInfo.ObjectType.IsEnum || isACValueItem)
@@ -710,6 +725,55 @@ namespace gip.core.layoutengine.avui
 
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("VBComboBox", "InitVBControl(10)", msg);
+            }
+        }
+
+        public void ResolveSearchPath(List<ACColumnItem> vbShowColumns, IACType dsACTypeInfo, IACType dcACTypeInfo, out string textPath, out bool isACValueItem, out string selectedValuePath)
+        {
+            textPath = "";
+            selectedValuePath = null;
+            isACValueItem = false;
+
+            int columnCount = 0;
+            int maxColumnCount = vbShowColumns.Count();
+            if (String.IsNullOrEmpty(VBShowColumns) && maxColumnCount >= 3)
+                maxColumnCount = 3;
+
+            foreach (var dataShowColumn in vbShowColumns)
+            {
+                IACType dsColACTypeInfo = dsACTypeInfo;
+                object dsColSource = null;
+                string dsColPath = "";
+                Global.ControlModes dsColRightControlMode = Global.ControlModes.Hidden;
+
+                if (dcACTypeInfo.ObjectType.IsEnum)
+                {
+                    dsColPath = dataShowColumn.PropertyName;
+                }
+                else if (!dsACTypeInfo.ACType.ACUrlBinding(dataShowColumn.PropertyName, ref dsColACTypeInfo, ref dsColSource, ref dsColPath, ref dsColRightControlMode))
+                {
+                    if (dsColACTypeInfo.ObjectType == typeof(ACValueItem))
+                    {
+                        isACValueItem = true;
+                        selectedValuePath = Const.Value;
+                        textPath = dataShowColumn.ACIdentifier;
+                        break;
+                    }
+                    continue;
+                }
+                else
+                {
+                    if (dsColACTypeInfo.ValueTypeACClass.ACKind != Global.ACKinds.TACLRBaseTypes)
+                    {
+                        if (dsColACTypeInfo.ValueTypeACClass.GetColumns(1).Count > 0)
+                            dsColPath += "." + dsColACTypeInfo.ValueTypeACClass.GetColumns(1).First().ACIdentifier;
+                    }
+                }
+                if (columnCount == 0)
+                    textPath = dsColPath;
+                columnCount++;
+                if (columnCount >= maxColumnCount)
+                    break;
             }
         }
 
@@ -902,18 +966,22 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override void OnKeyUp(KeyEventArgs e)
+        protected override void OnKeyDown(KeyEventArgs e)
         {
-            if (e.KeyModifiers.HasFlag(KeyModifiers.Control))
+            base.OnKeyDown(e);
+
+            if (e.Handled)
+                return;
+
+            if (e.KeyModifiers.HasFlag(KeyModifiers.Control) && e.Key == Key.Delete)
             {
-                if (e.Key == Key.Delete)
-                {
-                    SelectedIndex = -1;
-                }
+                SelectedIndex = -1;
+                e.Handled = true;
             }
             else if (e.Key == Key.F3)
             {
                 Filter();
+                e.Handled = true;
             }
             else if (e.Key == Key.Enter)
             {
@@ -924,7 +992,18 @@ namespace gip.core.layoutengine.avui
                 }
                 e.Handled = true;
             }
-            base.OnKeyUp(e);
+        }
+
+        // Workaround. Because Textbox sets in  OnTextInput(TextInputEventArgs e) e.Handled = true;
+        private void HandleTextInputForSearch(TextInputEventArgs e)
+        {
+            if (!IsTextSearchEnabled)
+                return;
+
+            if (e.Handled)
+                e.Handled = false;
+            OnTextInput(e);
+
         }
 
         #endregion

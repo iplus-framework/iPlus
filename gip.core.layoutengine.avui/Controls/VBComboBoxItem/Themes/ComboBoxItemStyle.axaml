@@ -7,7 +7,7 @@
 	<ControlTheme x:Key="{x:Type local:VBComboBoxItem}" TargetType="{x:Type local:VBComboBoxItem}">
 		<Setter Property="Foreground" Value="{StaticResource ComboBoxItemFg}"/>
 		<Setter Property="FontWeight" Value="Normal"/>
-		<Setter Property="Template">
+    <Setter Property="Template">
 			<ControlTemplate>
 				<Grid x:Name="ItemGrid">
 					<Grid.RowDefinitions>
@@ -29,7 +29,8 @@
 							CornerRadius="2"
 							Background="{TemplateBinding Background}" 
 							Padding="{TemplateBinding Padding}">
-						<ContentPresenter 
+						<ContentPresenter Grid.Row="1" 
+              Name="PART_ContentPresenter"
 							Content="{TemplateBinding Content}"
 							ContentTemplate="{TemplateBinding ContentTemplate}"/>
 					</Border>

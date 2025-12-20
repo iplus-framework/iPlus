@@ -1,7 +1,7 @@
 <Project> 
   <PropertyGroup>
     <UseAvaloniaFork>False</UseAvaloniaFork>
-    <AvaloniaVersion>11.3.8</AvaloniaVersion>
+    <AvaloniaVersion>11.3.9</AvaloniaVersion>
     <AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
 
     <!-- Use forward slashes for cross-platform compatibility -->

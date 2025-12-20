@@ -36,6 +36,7 @@
                     Stretch="Uniform"
                     StrokeLineCap="Round"
                     StrokeJoin="Round"
+                    StrokeThickness="1"
                     Stroke="{StaticResource CheckBoxEnabledCheckBorder}"
                     Fill="{StaticResource CheckBoxEnabledCheckFill}"/>
               </Panel>
@@ -44,8 +45,8 @@
                    Stretch="Uniform" 
                    IsVisible="False">
             <Canvas x:Name="CanvasCheckNull" Width="16" Height="16">
-              <Ellipse Height="15" Name="ellipse1" Stroke="Red" Width="15" />
-              <Line StartPoint="2.8,2.8" EndPoint="12.2,12.2" Stroke="Red"/>
+              <Ellipse Height="15" Name="ellipse1" Stroke="Red" Width="15" StrokeThickness="1" />
+              <Line StartPoint="2.8,2.8" EndPoint="12.2,12.2" Stroke="Red" StrokeThickness="1" />
             </Canvas>
           </Viewbox>
         </Grid>
