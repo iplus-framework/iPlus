@@ -4,72 +4,68 @@
     xmlns:wc="clr-namespace:gip.core.layoutengine.avui"
 		x:Class="gip.core.layoutengine.avui.VBClockDisplay">
   <Border Padding="5">
-		<DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="_panel">
-			<TextBlock
+    <DockPanel LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="_panel">
+      <TextBlock
 					Foreground="White"
 					DockPanel.Dock="Top"
 					TextWrapping="Wrap"
 					TextAlignment="Center"
 					FontSize="24">
-				<TextBlock.Resources>
-					<wc:FormattedMultiTextConverter x:Key="FormattedMultiTextConverter" />
-				</TextBlock.Resources>
-				<TextBlock.Text>
-					<MultiBinding Converter="{StaticResource FormattedMultiTextConverter}" ConverterParameter="{}{0:t}">
-						<Binding Path="Now" />
-					</MultiBinding>
-				</TextBlock.Text>
-				<TextBlock.RenderTransform>
-					<ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
-				</TextBlock.RenderTransform>
-			</TextBlock>
-            <TextBlock
-					Foreground="White"
-					DockPanel.Dock="Top"
-					TextWrapping="Wrap"
-					TextAlignment="Center"
-					FontSize="24">
-				<TextBlock.Resources>
-					<wc:FormattedMultiTextConverter x:Key="FormattedMultiTextConverter" />
-				</TextBlock.Resources>
-				<TextBlock.Text>
-					<MultiBinding Converter="{StaticResource FormattedMultiTextConverter}" ConverterParameter="{}{0:d}">
-						<Binding Path="Now" />
-					</MultiBinding>
-				</TextBlock.Text>
-				<TextBlock.RenderTransform>
-					<ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
-				</TextBlock.RenderTransform>
-            </TextBlock>
-            <wc:VBClock DockPanel.Dock="Bottom" TimeInfo="{Binding Path=TimeInfo}" Margin="5" x:Name="_clock">
-				<wc:VBClock.RenderTransform>
-					<ScaleTransform ScaleX="{Binding ClockZoom}" ScaleY="{Binding ClockZoom}" />
-				</wc:VBClock.RenderTransform>
-			</wc:VBClock>
-		</DockPanel>
-	</Border>
+        <TextBlock.Resources>
+          <wc:FormattedTextConverter x:Key="FormattedTextConverter" />
+        </TextBlock.Resources>
+        <TextBlock.Text>
+          <Binding Path="Now" Converter="{StaticResource FormattedTextConverter}" ConverterParameter="{}{0:t}" />
+        </TextBlock.Text>
+        <TextBlock.RenderTransform>
+          <ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
+        </TextBlock.RenderTransform>
+      </TextBlock>
+      <TextBlock
+    Foreground="White"
+    DockPanel.Dock="Top"
+    TextWrapping="Wrap"
+    TextAlignment="Center"
+    FontSize="24">
+        <TextBlock.Resources>
+          <wc:FormattedTextConverter x:Key="FormattedTextConverter" />
+        </TextBlock.Resources>
+        <TextBlock.Text>
+          <Binding Path="Now" Converter="{StaticResource FormattedTextConverter}" ConverterParameter="{}{0:d}" />
+        </TextBlock.Text>
+        <TextBlock.RenderTransform>
+          <ScaleTransform ScaleX="{Binding TextZoom}" ScaleY="{Binding TextZoom}" />
+        </TextBlock.RenderTransform>
+      </TextBlock>
+      <wc:VBClock DockPanel.Dock="Bottom" TimeInfo="{Binding Path=TimeInfo}" Margin="5" x:Name="_clock">
+        <wc:VBClock.RenderTransform>
+          <ScaleTransform ScaleX="{Binding ClockZoom}" ScaleY="{Binding ClockZoom}" />
+        </wc:VBClock.RenderTransform>
+      </wc:VBClock>
+    </DockPanel>
+  </Border>
 
-	<!-- Avalonia-style animations using Styles instead of UserControl.Triggers -->
-	<UserControl.Styles>
-		<Style Selector="UserControl:pointerover">
-			<Style.Animations>
-				<Animation Duration="0:0:0.5" FillMode="Both">
-					<KeyFrame Cue="100%">
-						<Setter Property="wc:VBClockDisplay.ClockZoom" Value="2" />
-						<Setter Property="wc:VBClockDisplay.TextZoom" Value="1.5" />
-					</KeyFrame>
-				</Animation>
-			</Style.Animations>
-		</Style>
-		<Style Selector="UserControl:not(:pointerover)">
-			<Style.Animations>
-				<Animation Duration="0:0:0.5" FillMode="Both">
-					<KeyFrame Cue="100%">
-						<Setter Property="wc:VBClockDisplay.ClockZoom" Value="1" />
-						<Setter Property="wc:VBClockDisplay.TextZoom" Value="1" />
-					</KeyFrame>
-				</Animation>
-			</Style.Animations>
-		</Style>
-	</UserControl.Styles>
+  <!-- Avalonia-style animations using Styles instead of UserControl.Triggers -->
+  <UserControl.Styles>
+    <Style Selector="UserControl:pointerover">
+      <Style.Animations>
+        <Animation Duration="0:0:0.5" FillMode="Both">
+          <KeyFrame Cue="100%">
+            <Setter Property="wc:VBClockDisplay.ClockZoom" Value="2" />
+            <Setter Property="wc:VBClockDisplay.TextZoom" Value="1.5" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="UserControl:not(:pointerover)">
+      <Style.Animations>
+        <Animation Duration="0:0:0.5" FillMode="Both">
+          <KeyFrame Cue="100%">
+            <Setter Property="wc:VBClockDisplay.ClockZoom" Value="1" />
+            <Setter Property="wc:VBClockDisplay.TextZoom" Value="1" />
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+  </UserControl.Styles>
 </UserControl>

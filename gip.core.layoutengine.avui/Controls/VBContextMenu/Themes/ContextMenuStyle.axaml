@@ -60,10 +60,10 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 						MinHeight="{TemplateBinding MinHeight}"
 						HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
 						CornerRadius="{TemplateBinding CornerRadius}">
-					<LayoutTransformControl>
+					<!--<LayoutTransformControl>
 						<LayoutTransformControl.LayoutTransform>
 							<ScaleTransform ScaleX="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}" ScaleY="{Binding $parent[local:VBContextMenu].Zoom, Mode=OneWay}" />
-						</LayoutTransformControl.LayoutTransform>
+						</LayoutTransformControl.LayoutTransform>-->
 
 						<ScrollViewer Theme="{StaticResource FluentMenuScrollViewer}">
 							<ItemsPresenter Name="PART_ItemsPresenter"
@@ -72,7 +72,7 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 											KeyboardNavigation.TabNavigation="Continue"
 											Grid.IsSharedSizeScope="True" />
 						</ScrollViewer>
-					</LayoutTransformControl>
+					<!--</LayoutTransformControl>-->
 				</Border>
 			</ControlTemplate>
 		</Setter>

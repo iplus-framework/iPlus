@@ -1,6 +1,8 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Shapes;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Media;
 using Avalonia.Threading;
 using System;
@@ -26,11 +28,6 @@ namespace gip.core.layoutengine.avui
 			InitializeComponent();
 
 			_canvas.DataContext = this;
-
-			_timer = new DispatcherTimer();
-			_timer.Interval = new TimeSpan( 0, 0, 0, 0, 100 );
-			_timer.Tick += new EventHandler( _timer_Tick );
-			_timer.Start();
 		}
 
 		static VBClock()
@@ -145,7 +142,32 @@ namespace gip.core.layoutengine.avui
 			}
 		}
 
-		private void _timer_Tick( object sender, EventArgs e )
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer = null;
+            }
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 0, 0, 100);
+            _timer.Tick += new EventHandler(_timer_Tick);
+            _timer.Start();
+        }
+
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer = null;
+            }
+        }
+
+        private void _timer_Tick( object sender, EventArgs e )
 		{
 			VBClockTimeInfo ti = TimeInfo;
 

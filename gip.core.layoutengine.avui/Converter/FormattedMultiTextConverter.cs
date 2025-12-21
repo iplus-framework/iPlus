@@ -20,6 +20,23 @@ namespace gip.core.layoutengine.avui
 			return null;
 		}
 
-		#endregion
-	}
+        #endregion
+    }
+
+	public class FormattedTextConverter : IValueConverter
+    {
+        #region IMultiValueConverter Members
+
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return string.Format((string)parameter, value);
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return null;
+        }
+
+        #endregion
+    }
 }

@@ -46,27 +46,31 @@
                                  MaxLength="{TemplateBinding MaxLength}"                   
                                  InnerLeftContent="{TemplateBinding InnerLeftContent}"
                                  InnerRightContent="{TemplateBinding InnerRightContent}"
-                                 IsTabStop="True"/>
+                                 IsTabStop="True"
+                                 ShowCaption="False"/>
 
                         <Popup Name="PART_Popup"
-                               MinWidth="{Binding Bounds.Width, RelativeSource={RelativeSource TemplatedParent}}"
+                               MinWidth="{Binding Bounds.Width, ElementName=PART_Root}"
+                               MaxWidth="{Binding Bounds.Width, ElementName=PART_Root}"
                                MaxHeight="{TemplateBinding MaxDropDownHeight}"
                                IsLightDismissEnabled="True"
                                PlacementTarget="{TemplateBinding}">
                             <Border Background="{StaticResource AutoCompleteBoxBgEnabled}"
                                     BorderBrush="{StaticResource AutoCompleteBoxBorderEnabled}"
                                     BorderThickness="1"
-                                    CornerRadius="3"
-                                    BoxShadow="0 4 8 0 #40000000">
-                                <ListBox Name="PART_SelectingItemsControl"
+                                    CornerRadius="0,0,8,8"
+                                    BoxShadow="3 3 3 0 #71000000"
+                                    Margin="3,0,3,3">
+                                <local:VBListBox Name="PART_SelectingItemsControl"
                                          Background="Transparent"
                                          BorderThickness="0"
+                                         ShowCaption="False"
                                          Foreground="{TemplateBinding Foreground}"
                                          ItemTemplate="{TemplateBinding ItemTemplate}"
                                          ScrollViewer.HorizontalScrollBarVisibility="Auto"
                                          ScrollViewer.VerticalScrollBarVisibility="Auto">
-                                    <ListBox.ItemContainerTheme>
-                                        <ControlTheme TargetType="ListBoxItem">
+                                  <local:VBListBox.ItemContainerTheme>
+                                        <ControlTheme TargetType="{x:Type local:VBListBoxItem}">
                                             <Setter Property="Padding" Value="8,4"/>
                                             <Setter Property="Template">
                                                 <ControlTemplate TargetType="ListBoxItem">
@@ -82,7 +86,7 @@
                                                               StrokeThickness="1" 
                                                               StrokeDashArray="1,2" 
                                                               StartPoint="0,0" 
-                                                              EndPoint="{Binding Bounds.Width, ElementName=ItemGrid},0"
+                                                              EndPoint="1,0"
                                                               HorizontalAlignment="Stretch" 
                                                               ClipToBounds="True"/>
                                                         
@@ -99,9 +103,8 @@
                                                                     <ColumnDefinition />
                                                                 </Grid.ColumnDefinitions>
                                                                 <Image DataContext="{Binding SourceItem}" Source="{local:VBStaticResource VBContent=IconACUrl}" />
-                                                                <TextBlock x:Name="TB" 
+                                                                <local:VBTextBlock x:Name="TB" 
                                                                            Grid.Column="2" 
-                                                                           Foreground="{StaticResource TextControlForeground}" 
                                                                            Text="{Binding CurrentItemCaption}" 
                                                                            VerticalAlignment="Center"/>
                                                             </Grid>
@@ -113,15 +116,11 @@
                                             <!-- Selected State -->
                                             <Style Selector="^:selected">
                                                 <Style Selector="^ /template/ Border#BD">
-                                                    <Setter Property="Background">
-                                                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-                                                            <GradientStop Color="#4CFF6565" Offset="0"/>
-                                                            <GradientStop Color="#7FFF0018" Offset="1"/>
-                                                        </LinearGradientBrush>
-                                                    </Setter>
+                                                  <Setter Property="Background" Value="{StaticResource ComboBoxItemSelectionFill}"/>
+                                                  <Setter Property="BorderBrush" Value="#FF0000"/>
                                                 </Style>
                                                 <Style Selector="^ /template/ TextBlock#TB">
-                                                    <Setter Property="Foreground" Value="#444444" />
+                                                    <Setter Property="Foreground" Value="{StaticResource ComboBoxItemSelectionFg}" />
                                                     <Setter Property="FontWeight" Value="Bold" />
                                                 </Style>
                                             </Style>
@@ -129,21 +128,17 @@
                                             <!-- PointerOver State -->
                                             <Style Selector="^:pointerover">
                                                 <Style Selector="^ /template/ Border#BD">
-                                                    <Setter Property="Background">
-                                                        <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
-                                                            <GradientStop Color="#4CFF6565" Offset="0"/>
-                                                            <GradientStop Color="#7FFF0018" Offset="1"/>
-                                                        </LinearGradientBrush>
-                                                    </Setter>
+                                                  <Setter Property="Background" Value="{StaticResource ComboBoxItemSelectionFill}"/>
+                                                  <Setter Property="BorderBrush" Value="#FF0000"/>
                                                 </Style>
                                                 <Style Selector="^ /template/ TextBlock#TB">
-                                                    <Setter Property="Foreground" Value="#444444" />
+                                                    <Setter Property="Foreground" Value="{StaticResource ComboBoxItemSelectionFg}" />
                                                 </Style>
                                                 <Setter Property="Opacity" Value="0.75" />
                                             </Style>
                                         </ControlTheme>
-                                    </ListBox.ItemContainerTheme>
-                                </ListBox>
+                                    </local:VBListBox.ItemContainerTheme>
+                                </local:VBListBox>
                             </Border>
                         </Popup>
                     </Panel>

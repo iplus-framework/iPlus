@@ -62,7 +62,7 @@ namespace gip.core.layoutengine.avui
             AddToComponentReference();
 
             _Factory = new Factory();
-            _Factory.HostWindowLocator = new Dictionary<string, Func<IHostWindow?>>
+            _Factory.HostWindowLocator = new Dictionary<string, Func<IHostWindow>>
             {
                 [nameof(IDockWindow)] = () => new HostWindow()
             };

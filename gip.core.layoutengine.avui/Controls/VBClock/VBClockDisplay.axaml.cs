@@ -1,5 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using Avalonia.Threading;
 using System;
 using System.Collections;
@@ -24,14 +26,34 @@ namespace gip.core.layoutengine.avui
 			InitializeComponent();
 
 			_panel.DataContext = this;
-
-			_timer = new DispatcherTimer();
-			_timer.Interval = new TimeSpan( 0, 0, 1 );
-			_timer.Tick += new EventHandler( _timer_Tick );
-			_timer.Start();
 		}
 
-		static VBClockDisplay()
+        protected override void OnLoaded(RoutedEventArgs e)
+        {
+            base.OnLoaded(e);
+
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer = null;
+            }
+            _timer = new DispatcherTimer();
+            _timer.Interval = new TimeSpan(0, 0, 1);
+            _timer.Tick += new EventHandler(_timer_Tick);
+            _timer.Start();
+        }
+
+        protected override void OnUnloaded(RoutedEventArgs e)
+        {
+            base.OnUnloaded(e);
+            if (_timer != null)
+            {
+                _timer.Stop();
+                _timer = null;
+            }
+        }
+
+        static VBClockDisplay()
 		{
 			TimeInfoProperty.Changed.AddClassHandler<VBClockDisplay>((sender, e) => TimeInfo_Changed(sender, e));
 		}
