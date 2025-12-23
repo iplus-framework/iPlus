@@ -26,6 +26,7 @@
     <UseWindowsForms>false</UseWindowsForms>
     <UseWPF>false</UseWPF>
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
+    <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">AVALONIAFORK</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
@@ -136,6 +137,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controls\VBChartPlotter\Themes\" />
+    <Folder Include="Controls\VBDocking\Themes\DockAvalonia\" />
     <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
@@ -147,36 +149,36 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ClosedXML"  />
+    <PackageReference Include="ClosedXML" />
     <!-- Force package override for DocumentFormat of ClosedXML -->
     <PackageReference Include="DocumentFormat.OpenXml" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
     <PackageReference Include="DocumentFormat.OpenXml.Framework" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
-    <PackageReference Include="Microsoft.CodeAnalysis"  />
-    <PackageReference Include="Microsoft.CodeAnalysis.Common"  />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
-    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild"  />
-    <PackageReference Include="QuickGraphCore"  />
-    <PackageReference Include="System.Data.DataSetExtensions"  />
-    <PackageReference Include="System.ServiceModel.Duplex"  />
-    <PackageReference Include="System.ServiceModel.NetTcp"  />
-    <PackageReference Include="System.ServiceModel.Federation"  />
+    <PackageReference Include="Microsoft.CodeAnalysis" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" />
+    <PackageReference Include="QuickGraphCore" />
+    <PackageReference Include="System.Data.DataSetExtensions" />
+    <PackageReference Include="System.ServiceModel.Duplex" />
+    <PackageReference Include="System.ServiceModel.NetTcp" />
+    <PackageReference Include="System.ServiceModel.Federation" />
     <PackageReference Include="HtmlAgilityPack" />
   </ItemGroup>
   
   <!-- Use Avalonia Nuget -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Avalonia"  />
-    <PackageReference Include="Dock.Avalonia"  />
-    <PackageReference Include="Dock.Avalonia.Themes.Fluent"  />
-    <PackageReference Include="Dock.Model.Avalonia"  />
+    <PackageReference Include="Avalonia" />
+    <PackageReference Include="Dock.Avalonia" />
+    <PackageReference Include="Dock.Avalonia.Themes.Fluent" />
+    <PackageReference Include="Dock.Model.Avalonia" />
     <PackageReference Include="System.Text.Json" />
-    <PackageReference Include="RoslynPad.Editor.Avalonia"  />
-    <PackageReference Include="RoslynPad.Roslyn.Avalonia"  />
-    <PackageReference Include="OxyPlot.Avalonia"  />
-    <PackageReference Include="Markdown.Avalonia"  />
-    <PackageReference Include="MessageBox.Avalonia"  />
+    <PackageReference Include="RoslynPad.Editor.Avalonia" />
+    <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
+    <PackageReference Include="OxyPlot.Avalonia" />
+    <PackageReference Include="Markdown.Avalonia" />
+    <PackageReference Include="MessageBox.Avalonia" />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->  

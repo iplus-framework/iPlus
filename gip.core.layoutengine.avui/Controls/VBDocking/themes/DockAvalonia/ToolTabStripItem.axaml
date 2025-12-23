@@ -1,0 +1,162 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:core="using:Dock.Model.Core"
+                    xmlns:converters="using:Dock.Avalonia.Converters"
+                    x:DataType="core:IDockable"
+                    x:CompileBindings="True">
+  <Design.PreviewWith>
+    <Border Padding="20">
+      <StackPanel Spacing="20">
+        <ToolTabStripItem>Leaf</ToolTabStripItem>
+        <ToolTabStripItem IsSelected="True">Arch</ToolTabStripItem>
+        <ToolTabStripItem Background="Yellow">Background</ToolTabStripItem>
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+
+  <x:Double x:Key="TabStripItemMinHeight">48</x:Double>
+  <x:Double x:Key="TabStripItemPipeThickness">2</x:Double>
+
+  <ContextMenu x:Key="ToolTabStripItemContextMenu">
+    <MenuItem Header="{DynamicResource ToolTabStripItemFloatString}"
+              Command="{Binding Owner.Factory.FloatDockable}"
+              CommandParameter="{Binding}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <Binding Path="CanFloat" />
+          <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+            <Binding Path="((core:IDock)Owner).CanCloseLastDockable" FallbackValue="{x:True}" />
+            <Binding Path="((core:IDock)Owner).VisibleDockables.Count" FallbackValue="0" />
+          </MultiBinding>
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolTabStripItemFloatAllString}"
+              Command="{Binding Owner.Factory.FloatAllDockables}"
+              CommandParameter="{Binding}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <Binding Path="CanFloat" />
+          <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+            <Binding Path="((core:IDock)Owner).CanCloseLastDockable" FallbackValue="{x:True}" />
+            <Binding Path="((core:IDock)Owner).VisibleDockables.Count" FallbackValue="0" />
+          </MultiBinding>
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolTabStripItemDockString}"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding}"
+              IsEnabled="{Binding OriginalOwner, Converter={x:Static ObjectConverters.IsNotNull}, FallbackValue=False}"
+              IsVisible="{Binding CanPin, FallbackValue=False}" />
+    <MenuItem Header="{DynamicResource ToolTabStripItemDockAsDocumentString}"
+              Command="{Binding Owner.Factory.DockAsDocument}"
+              CommandParameter="{Binding}"
+              IsVisible="{Binding Owner, Converter={x:Static converters:OwnerIsToolDockConverter.Instance}}" />
+    <MenuItem Header="{DynamicResource ToolTabStripItemAutoHideString}"
+              Command="{Binding Owner.Factory.PinDockable}"
+              CommandParameter="{Binding }"
+              IsEnabled="{Binding OriginalOwner, Converter={x:Static ObjectConverters.IsNull}, FallbackValue=False}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <Binding Path="CanPin" FallbackValue="{x:False}" />
+          <Binding Path="$parent[HostWindow]" Converter="{x:Static ObjectConverters.IsNull}" />
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+    <MenuItem Header="{DynamicResource ToolTabStripItemCloseString}"
+              Command="{Binding Owner.Factory.CloseDockable}"
+              CommandParameter="{Binding}">
+      <MenuItem.IsVisible>
+        <MultiBinding Converter="{x:Static BoolConverters.And}">
+          <Binding Path="CanClose" />
+          <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+            <Binding Path="((core:IDock)Owner).CanCloseLastDockable" FallbackValue="{x:True}" />
+            <Binding Path="((core:IDock)Owner).VisibleDockables.Count" FallbackValue="0" />
+          </MultiBinding>
+        </MultiBinding>
+      </MenuItem.IsVisible>
+    </MenuItem>
+  </ContextMenu>
+
+  <ControlTheme x:Key="{x:Type ToolTabStripItem}" TargetType="ToolTabStripItem">
+
+    <Setter Property="(AutomationProperties.AutomationId)" Value="{Binding Id}" />
+    <Setter Property="(AutomationProperties.Name)" Value="{Binding Title}" />
+
+    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding CanDrag}" />
+    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding CanDrop}" />
+    <Setter Property="(DockProperties.DockGroup)" Value="{Binding DockGroup}" />
+
+    <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
+    <Setter Property="FontWeight" Value="Normal" />
+    <Setter Property="MinHeight" Value="0" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    <Setter Property="BorderThickness" Value="0 0 0 0" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Padding" Value="4 1 4 0" />
+    <Setter Property="TabContextMenu" Value="{DynamicResource ToolTabStripItemContextMenu}" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Panel>
+          <Border Background="{TemplateBinding Background}"
+                  TextElement.FontFamily="{TemplateBinding FontFamily}"
+                  TextElement.FontSize="{TemplateBinding FontSize}"
+                  TextElement.FontWeight="{TemplateBinding FontWeight}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  ContextMenu="{TemplateBinding TabContextMenu}"
+                  Padding="{TemplateBinding Padding}"
+                  DockProperties.IsDragArea="True"
+                  DockProperties.IsDropArea="True"
+                  DockProperties.IsDockTarget="True"
+                  DockProperties.ShowDockIndicatorOnly="True"
+                  DockProperties.IndicatorDockOperation="Fill">
+            <DockableControl TrackingMode="Tab">
+              <DockPanel Background="Transparent">
+                <StackPanel x:Name="DragTool"
+                            Background="Transparent"
+                            Orientation="Horizontal"
+                            Spacing="2">
+                  <StackPanel Margin="2" Orientation="Horizontal">
+                    <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].IconTemplate}"
+                                      Content="{Binding}" />
+                    <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].HeaderTemplate}"
+                                      Content="{Binding}" />
+                  </StackPanel>
+                  <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].ModifiedTemplate}"
+                                    IsVisible="{Binding IsModified}"
+                                    Content="{Binding}" />
+                </StackPanel>
+              </DockPanel>
+            </DockableControl>
+          </Border>
+        </Panel>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockApplicationAccentBrushMed}" />
+    </Style>
+
+    <Style Selector="^:selected">
+      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+      <Setter Property="Foreground" Value="{DynamicResource DockApplicationAccentBrushMed}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+      <Setter Property="BorderThickness" Value="1 0 1 1" />
+      <Setter Property="Margin" Value="0 0 0 0" />
+      <Setter Property="Padding" Value="4 2 4 0" />
+    </Style>
+
+    <Style Selector="^:selected:pointerover">
+      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    </Style>
+
+  </ControlTheme>
+
+</ResourceDictionary>

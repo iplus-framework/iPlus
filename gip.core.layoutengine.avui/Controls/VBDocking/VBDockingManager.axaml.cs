@@ -443,12 +443,29 @@ namespace gip.core.layoutengine.avui
             Global.VBDesignDockState dockState = VBDockingManager.GetDockState(uiElement);
             bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement);
             Size size = VBDockingManager.GetWindowSize(uiElement);
-            double toolMaxWidth = 400;
-            double toolMaxHeight = 1200;
+            double toolWidth = 400;
+            double toolHeight = 1200;
             if (size.Width > 0.0001)
-                toolMaxWidth = size.Width;
+                toolWidth = size.Width;
             if (size.Height > 0.0001)
-                toolMaxHeight = size.Height;
+                toolHeight = size.Height;
+            double toolMinWidth = toolWidth * 0.5;
+            double toolMinHeight = toolHeight * 0.5;
+            double toolMaxWidth = toolWidth * 2;
+            double toolMaxHeight = toolHeight * 2;
+
+            PixelRect? pixelRect = null;
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel != null && topLevel.Screens != null && topLevel.Screens.Primary != null)
+                pixelRect = topLevel.Screens.Primary.Bounds;
+
+#if AVALONIAFORK
+            if (pixelRect.HasValue)
+            {
+                toolMaxWidth = pixelRect.Value.Width;
+                toolMaxHeight = pixelRect.Value.Height;
+            }
+#endif
 
             Control content = uiElement;
             var ribbonVisibility = VBDockingManager.GetRibbonBarVisibility(uiElement);
@@ -501,7 +518,16 @@ namespace gip.core.layoutengine.avui
                         Title = acCaption,
                         Content = content,
                         CanClose = isCloseable,
-                        CanFloat = isCloseable
+                        CanFloat = isCloseable,
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        Width = toolWidth,
+                        Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
                     };
                 }
                 else
@@ -512,7 +538,16 @@ namespace gip.core.layoutengine.avui
                         Title = acCaption,
                         Content = content,
                         CanClose = isCloseable,
-                        CanFloat = isCloseable
+                        CanFloat = isCloseable,
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        Width = toolWidth,
+                        Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif                    
                     };
                 }
 
@@ -550,6 +585,13 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        Width = toolWidth,
+                        Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
                         CanClose = isCloseable
                     };
 
@@ -603,6 +645,13 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        Width = toolWidth,
+                        Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
                         CanClose = isCloseable,
                         CanFloat = isCloseable
                     };
@@ -866,13 +915,13 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public void SaveUserFloatingWindowSize(VBDockingContainerBase dockingContainer, Point ptFloatingWindow, Size sizeFloatingWindow)
-        {
-            if (ContextACObject == null)
-                return;
-            SettingsVBDesignWndPos wndPos = new SettingsVBDesignWndPos(dockingContainer.ACIdentifier, new Rect(ptFloatingWindow, sizeFloatingWindow));
-            this.Root().RootPageWPF.StoreSettingsWndPos(wndPos);
-        }
+        //public void SaveUserFloatingWindowSize(VBDockingContainerBase dockingContainer, Point ptFloatingWindow, Size sizeFloatingWindow)
+        //{
+        //    if (ContextACObject == null)
+        //        return;
+        //    SettingsVBDesignWndPos wndPos = new SettingsVBDesignWndPos(dockingContainer.ACIdentifier, new Rect(ptFloatingWindow, sizeFloatingWindow));
+        //    this.Root().RootPageWPF.StoreSettingsWndPos(wndPos);
+        //}
 
         bool _ReinitAtStartupDone = false;
         public void InitBusinessobjectsAtStartup()

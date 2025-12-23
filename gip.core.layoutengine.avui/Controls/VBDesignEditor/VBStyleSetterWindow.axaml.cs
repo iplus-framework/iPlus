@@ -6,6 +6,8 @@ using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml;
 
 namespace gip.core.layoutengine.avui
 {
@@ -15,21 +17,22 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Stellt ein Fenster für Style Setter dar.
     /// </summary>
-    public partial class VBStyleSetterWindow : VBDockingContainerToolWindow, ITypeEditorInitItem
+    public partial class VBStyleSetterWindow : VBWindow, ITypeEditorInitItem
     {
-        public VBStyleSetterWindow()
-        {
-        }
-
-        public VBStyleSetterWindow(VBDockingManagerOldWPF dockManager)
-            : base(dockManager)
+        public VBStyleSetterWindow() : base()
         {
             InitializeComponent();
         }
 
+        //public VBStyleSetterWindow(VBDockingManager dockManager) : base()
+        //    //: base(dockManager)
+        //{
+        //    InitializeComponent();
+        //}
+
         DesignItem _DesignObject;
         public void LoadItemsCollection(DesignItem designObject)
-		{
+        {
             if (designObject == null)
                 return;
             _DesignObject = designObject;
@@ -42,7 +45,7 @@ namespace gip.core.layoutengine.avui
             SetterEditor.InitEditor(designObject, settersProp);
         }
 
-        protected override VBDockPanel RootPanel { get => _DesignObject?.Component as VBDockPanel; }
+        protected virtual VBDockPanel RootPanel { get => _DesignObject?.Component as VBDockPanel; }
 
     }
 }

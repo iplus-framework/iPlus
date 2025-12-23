@@ -38,7 +38,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="acObject">The acObject parameter.</param>
         /// <param name="uiElement">The uiElement parameter.</param>
         /// <param name="dockManager">The dockManager parameter.</param>
-        public VBWindowDialogRoot(IACObject acObject, Control uiElement, VBDockingManagerOldWPF dockManager) : base(dockManager)
+        public VBWindowDialogRoot(IACObject acObject, Control uiElement, VBDockingManager dockManager) : base(dockManager)
         {
             this.SizeToContent = SizeToContent.Height;
             this.MaxHeight = Screens.Primary.WorkingArea.Height;
@@ -168,13 +168,13 @@ namespace gip.core.layoutengine.avui
                 return _Control;
             }
         }
-        protected VBDockingManagerOldWPF _DockManager;
+        protected VBDockingManager _DockManager;
         #endregion
 
         protected override void OnClosing(WindowClosingEventArgs e)
         {
-            if (_DockManager != null)
-                _DockManager.CloseAndRemoveVBDesign(_Control);
+            //if (_DockManager != null)
+            //    _DockManager.CloseAndRemoveVBDesign(_Control);
 
             //BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACUrlCmdMessageProperty);
             //BindingOperations.ClearBinding(this, VBWindowDialogRoot.ACCompInitStateProperty);
@@ -281,10 +281,10 @@ namespace gip.core.layoutengine.avui
             this.Content = _RootPanelDialog;
             _Loaded = true;
 
-            if (VBDockingManagerOldWPF.GetCloseButtonVisibility(_Control) == Global.ControlModes.Enabled)
-                PART_CloseButton.IsVisible = true;
-            else
-                PART_CloseButton.IsVisible = false;
+            //if (VBDockingManagerOldWPF.GetCloseButtonVisibility(_Control) == Global.ControlModes.Enabled)
+            //    PART_CloseButton.IsVisible = true;
+            //else
+            //    PART_CloseButton.IsVisible = false;
         }
 
 

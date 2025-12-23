@@ -734,17 +734,18 @@ namespace gip.core.layoutengine.avui
             if (tabControl == null)
                 tabControl = this.Parent as VBTabControl;
 
-            VBDockingPanelTabbedDoc vbDockingPanelTabbedDoc = tabControl?.Parent as VBDockingPanelTabbedDoc;
-            VBDockingContainerBase vbDockingContainerBase = null;
+            // TODO:
+            //VBDockingPanelTabbedDoc vbDockingPanelTabbedDoc = tabControl?.Parent as VBDockingPanelTabbedDoc;
+            //VBDockingContainerBase vbDockingContainerBase = null;
 
-            if (this.Content is ContentPresenter presenter && vbDockingPanelTabbedDoc != null)
-                vbDockingContainerBase = vbDockingPanelTabbedDoc.Documents.FirstOrDefault(c => c.Content == presenter.Content);
+            //if (this.Content is ContentPresenter presenter && vbDockingPanelTabbedDoc != null)
+            //    vbDockingContainerBase = vbDockingPanelTabbedDoc.Documents.FirstOrDefault(c => c.Content == presenter.Content);
 
-            if (vbDockingContainerBase != null)
-            {
-                vbDockingPanelTabbedDoc.RemoveDockingContainerToolWindow(vbDockingContainerBase);
-                vbDockingContainerBase.OnCloseWindow();
-            }
+            //if (vbDockingContainerBase != null)
+            //{
+            //    vbDockingPanelTabbedDoc.RemoveDockingContainerToolWindow(vbDockingContainerBase);
+            //    vbDockingContainerBase.OnCloseWindow();
+            //}
         }
 
         public void ribbonSwitchButton_Click(object sender, RoutedEventArgs e)

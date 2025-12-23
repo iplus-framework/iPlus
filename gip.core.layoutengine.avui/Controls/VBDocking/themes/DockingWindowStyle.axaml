@@ -200,7 +200,7 @@
     </Setter>
   </ControlTheme>
 
-  <ControlTemplate x:Key="DockingWindowStyle" TargetType="{x:Type local:VBWindowDockingUndocked}">
+  <!--<ControlTemplate x:Key="DockingWindowStyle" TargetType="{x:Type local:VBWindowDockingUndocked}">
     <DockPanel>
       <DockPanel.RenderTransform>
         <ScaleTransform>
@@ -299,15 +299,15 @@
         </Grid>
       </Border>
     </DockPanel>
-  </ControlTemplate>
+  </ControlTemplate>-->
 
-  <ControlTheme x:Key="{x:Type local:VBWindowDockingUndocked}" TargetType="{x:Type local:VBWindowDockingUndocked}">
+  <!--<ControlTheme x:Key="{x:Type local:VBWindowDockingUndocked}" TargetType="{x:Type local:VBWindowDockingUndocked}">
     <Setter Property="Template" Value="{StaticResource DockingWindowStyle}"/>
-    <!--<Setter Property="WindowStyle" Value="None"/>-->
+    --><!--<Setter Property="WindowStyle" Value="None"/>--><!--
     <Setter Property="TransparencyBackgroundFallback" Value="Transparent"/>
-  </ControlTheme>
+  </ControlTheme>-->
 
-  <ControlTheme x:Key="{x:Type local:VBDockingPanelToolWindow}" TargetType="{x:Type local:VBDockingPanelToolWindow}">
+  <!--<ControlTheme x:Key="{x:Type local:VBDockingPanelToolWindow}" TargetType="{x:Type local:VBDockingPanelToolWindow}">
     <Setter Property="Template">
       <ControlTemplate>
         <Border x:Name="Shdw" CornerRadius="0,0,8,8" BoxShadow="2 5 10 0 #71000000">
@@ -381,7 +381,7 @@
       </ControlTemplate>
     </Setter>
 
-    <!-- IsUndocked = True state -->
+    --><!-- IsUndocked = True state --><!--
     <Style Selector="^[IsUndocked=true] /template/ Border#PART_PanelHeader">
       <Setter Property="IsVisible" Value="False"/>
     </Style>
@@ -394,14 +394,14 @@
       <Setter Property="BorderThickness" Value="0,0,0,0"/>
     </Style>
 
-    <!-- IsDragable = False state -->
+    --><!-- IsDragable = False state --><!--
     <Style Selector="^[IsDragable=false] /template/ Border#PART_PanelHeader">
       <Setter Property="Cursor" Value="Arrow"/>
     </Style>
-  </ControlTheme>
+  </ControlTheme>-->
 
-  <ControlTheme x:Key="{x:Type local:VBDockingPanelToolWindowOverlay}" TargetType="{x:Type local:VBDockingPanelToolWindowOverlay}" BasedOn="{StaticResource {x:Type local:VBDockingPanelToolWindow}}" />
-  <ControlTheme x:Key="{x:Type local:VBDockingButton}" TargetType="{x:Type local:VBDockingButton}" BasedOn="{StaticResource {x:Type local:VBButton}}" />
+  <!--<ControlTheme x:Key="{x:Type local:VBDockingPanelToolWindowOverlay}" TargetType="{x:Type local:VBDockingPanelToolWindowOverlay}" BasedOn="{StaticResource {x:Type local:VBDockingPanelToolWindow}}" />
+  <ControlTheme x:Key="{x:Type local:VBDockingButton}" TargetType="{x:Type local:VBDockingButton}" BasedOn="{StaticResource {x:Type local:VBButton}}" />-->
 
 
 </ResourceDictionary>

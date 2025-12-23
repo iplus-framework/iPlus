@@ -3,7 +3,7 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-  <ControlTheme x:Key="{x:Type local:VBDockingManagerOldWPF}" TargetType="{x:Type local:VBDockingManagerOldWPF}">
+  <!--<ControlTheme x:Key="{x:Type local:VBDockingManager}" TargetType="{x:Type local:VBDockingManager}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -38,7 +38,7 @@
       </Setter.Value>
     </Setter>
 
-    <!-- FreezeActive = True + PointerOver combined condition -->
+    --><!-- FreezeActive = True + PointerOver combined condition --><!--
     <Style Selector="^[FreezeActive=true]:pointerover /template/ Border#PART_BorderFreeze">
       <Setter Property="BorderThickness" Value="4,4,4,4"/>
       <Setter Property="Background" Value="GreenYellow"/>
@@ -47,5 +47,5 @@
     <Style Selector="^[FreezeActive=true]:pointerover /template/ Grid#bordergrid">
       <Setter Property="Opacity" Value="0.95"/>
     </Style>
-  </ControlTheme>
+  </ControlTheme>-->
 </ResourceDictionary>

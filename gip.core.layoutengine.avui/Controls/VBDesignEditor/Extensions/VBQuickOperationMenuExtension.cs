@@ -38,7 +38,7 @@ namespace gip.core.layoutengine.avui
             return new VBMenuSeparator();
         }
 
-        public static void MainHeaderClick(object sender, PointerPressedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManagerOldWPF DockingManager, string WindowTitle)
+        public static void MainHeaderClick(object sender, PointerPressedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
         {
             var clickedOn = e.Source as MenuItem;
             if (clickedOn != null)
@@ -50,12 +50,13 @@ namespace gip.core.layoutengine.avui
                     {
                         if (DockingManager != null)
                         {
-                            var editor = new VBStyleSetterWindow(DockingManager);
-                            editor.LoadItemsCollection(extendedItem);
-                            editor.Title = "Style Setter: " + WindowTitle;
-                            editor.Show(e);
-                            Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 400));
-                            (editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
+                            // TODO:
+                            //var editor = new VBStyleSetterWindow(DockingManager);
+                            //editor.LoadItemsCollection(extendedItem);
+                            //editor.Title = "Style Setter: " + WindowTitle;
+                            //editor.Show(e);
+                            //Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 400));
+                            //(editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
                         }
                         return;
                     }
@@ -63,12 +64,13 @@ namespace gip.core.layoutengine.avui
                     {
                         if (DockingManager != null)
                         {
-                            var editor = new VBStyleTriggerWindow(DockingManager);
-                            editor.LoadItemsCollection(extendedItem);
-                            editor.Title = "Style Trigger: " + WindowTitle;
-                            editor.Show(e);
-                            Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 500));
-                            (editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
+                            // TODO:
+                            //var editor = new VBStyleTriggerWindow(DockingManager);
+                            //editor.LoadItemsCollection(extendedItem);
+                            //editor.Title = "Style Trigger: " + WindowTitle;
+                            //editor.Show(e);
+                            //Rect wndRect = new Rect(DockingManager.PointToScreen(e.GetPosition(DockingManager)).ToPoint(1.0), new Size(750, 500));
+                            //(editor.VBDockingPanel as VBDockingPanelToolWindow).FloatingWindow(wndRect);
                         }
                         return;
                     }
@@ -127,14 +129,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public static VBDockingManagerOldWPF GetDockingManager(DesignItem extendedItem)
+        public static VBDockingManager GetDockingManager(DesignItem extendedItem)
         {
             var panel = extendedItem.Services.GetService(typeof(IDesignPanel)) as IDesignPanel;
-            return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as AvaloniaObject, typeof(VBDockingManagerOldWPF)) as VBDockingManagerOldWPF;
+            return VBVisualTreeHelper.FindParentObjectInVisualTree(panel as AvaloniaObject, typeof(VBDockingManager)) as VBDockingManager;
         }
 
-        private VBDockingManagerOldWPF _DockingManager;
-        protected VBDockingManagerOldWPF DockingManager
+        private VBDockingManager _DockingManager;
+        protected VBDockingManager DockingManager
         {
             get
             {

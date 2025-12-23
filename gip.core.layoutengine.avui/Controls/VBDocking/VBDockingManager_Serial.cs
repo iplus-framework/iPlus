@@ -98,8 +98,8 @@ namespace gip.core.layoutengine.avui
             return doc.OuterXml;
         }
 
-        public void RestoreLayoutFromXml(string xml, GetContentFromTypeString getContentHandler)
-        {
+        //public void RestoreLayoutFromXml(string xml, GetContentFromTypeString getContentHandler)
+        //{
             //XmlDocument doc = new XmlDocument();
             //doc.LoadXml(xml);
 
@@ -120,6 +120,6 @@ namespace gip.core.layoutengine.avui
             //}
 
             //_currentButton = null;
-        }
+        //}
     }
 }

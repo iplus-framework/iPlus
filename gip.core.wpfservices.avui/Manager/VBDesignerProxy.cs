@@ -350,30 +350,32 @@ namespace gip.core.wpfservices.avui
 
         public void CloseDockableWindow(IACObject window)
         {
-            if (window is VBDockingContainerToolWindowVB)
-            {
-                VBDockingContainerToolWindow vbDockingContainerToolWindow = window as VBDockingContainerToolWindow;
-                if (vbDockingContainerToolWindow != null)
-                {
-                    if (vbDockingContainerToolWindow.VBDockingPanel != null)
-                    {
-                        if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelToolWindow)
-                        {
-                            VBDockingPanelToolWindow VBDockingPanel = vbDockingContainerToolWindow.VBDockingPanel as VBDockingPanelToolWindow;
-                            if (VBDockingPanel != null && VBDockingPanel.State != VBDockingPanelState.AutoHide)
-                                VBDockingPanel.ChangeState(VBDockingPanelState.Hidden);
-                            window.ACUrlCommand(Const.CmdClose);
-                        }
-                        else if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelTabbedDoc)
-                        {
-                            VBDockingPanelTabbedDoc VBDockingPanel = ((VBDockingContainerToolWindow)window).VBDockingPanel as VBDockingPanelTabbedDoc;
-                            if (VBDockingPanel != null)
-                                VBDockingPanel.RemoveDockingContainerToolWindow((VBDockingContainerBase)window);
-                        }
-                    }
-                }
-            }
-            else if (window != null)
+            // TODO:
+            //if (window is VBDockingContainerToolWindowVB)
+            //{
+            //    VBDockingContainerToolWindow vbDockingContainerToolWindow = window as VBDockingContainerToolWindow;
+            //    if (vbDockingContainerToolWindow != null)
+            //    {
+            //        if (vbDockingContainerToolWindow.VBDockingPanel != null)
+            //        {
+            //            if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelToolWindow)
+            //            {
+            //                VBDockingPanelToolWindow VBDockingPanel = vbDockingContainerToolWindow.VBDockingPanel as VBDockingPanelToolWindow;
+            //                if (VBDockingPanel != null && VBDockingPanel.State != VBDockingPanelState.AutoHide)
+            //                    VBDockingPanel.ChangeState(VBDockingPanelState.Hidden);
+            //                window.ACUrlCommand(Const.CmdClose);
+            //            }
+            //            else if (vbDockingContainerToolWindow.VBDockingPanel is VBDockingPanelTabbedDoc)
+            //            {
+            //                VBDockingPanelTabbedDoc VBDockingPanel = ((VBDockingContainerToolWindow)window).VBDockingPanel as VBDockingPanelTabbedDoc;
+            //                if (VBDockingPanel != null)
+            //                    VBDockingPanel.RemoveDockingContainerToolWindow((VBDockingContainerBase)window);
+            //            }
+            //        }
+            //    }
+            //}
+            //else 
+            if (window != null)
                 window.ACUrlCommand(Const.CmdClose);
         }
 

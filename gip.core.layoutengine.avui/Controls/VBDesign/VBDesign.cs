@@ -1103,7 +1103,7 @@ namespace gip.core.layoutengine.avui
             IsDesignerActive = true;
 
             string dockingManagerName = "";
-            VBDockingManagerOldWPF parentDockingManager = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManagerOldWPF)) as VBDockingManagerOldWPF;
+            VBDockingManager parentDockingManager = VBVisualTreeHelper.FindParentObjectInVisualTree(this, typeof(VBDockingManager)) as VBDockingManager;
             if (parentDockingManager != null)
                 dockingManagerName = parentDockingManager.Name;
 
@@ -1111,27 +1111,29 @@ namespace gip.core.layoutengine.avui
             IACObject propertyWindow = designManager.PropertyWindow;
             if (propertyWindow != null)
             {
-                if (propertyWindow is VBDockingContainerBase)
-                {
-                    VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                    {
-                        (container.VBDesignContent as Control).Loaded += VBPropertyWindowContent_Loaded;
-                    }
-                }
+                // TODO:
+                //if (propertyWindow is VBDockingContainerBase)
+                //{
+                //    VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
+                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
+                //    {
+                //        (container.VBDesignContent as Control).Loaded += VBPropertyWindowContent_Loaded;
+                //    }
+                //}
             }
 
             IACObject logicalTreeWindow = designManager.LogicalTreeWindow;
             if (logicalTreeWindow != null)
             {
-                if (logicalTreeWindow is VBDockingContainerBase)
-                {
-                    VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                    {
-                        (container.VBDesignContent as Control).Loaded += VBLogicalTreeWindowContent_Loaded;
-                    }
-                }
+                // TODO:
+                //if (logicalTreeWindow is VBDockingContainerBase)
+                //{
+                //    VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
+                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
+                //    {
+                //        (container.VBDesignContent as Control).Loaded += VBLogicalTreeWindowContent_Loaded;
+                //    }
+                //}
             }
 
             this.Root().RootPageWPF.VBDesignEditingActivated(this);
@@ -1213,27 +1215,29 @@ namespace gip.core.layoutengine.avui
             IACObject propertyWindow = designManager.PropertyWindow;
             if (propertyWindow != null)
             {
-                if (propertyWindow is VBDockingContainerBase)
-                {
-                    VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                    {
-                        (container.VBDesignContent as Control).Loaded -= VBPropertyWindowContent_Loaded;
-                    }
-                }
+                // TODO:
+                //if (propertyWindow is VBDockingContainerBase)
+                //{
+                //    VBDockingContainerBase container = propertyWindow as VBDockingContainerBase;
+                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
+                //    {
+                //        (container.VBDesignContent as Control).Loaded -= VBPropertyWindowContent_Loaded;
+                //    }
+                //}
             }
 
             IACObject logicalTreeWindow = designManager.LogicalTreeWindow;
             if (logicalTreeWindow != null)
             {
-                if (logicalTreeWindow is VBDockingContainerBase)
-                {
-                    VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
-                    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
-                    {
-                        (container.VBDesignContent as Control).Loaded -= VBLogicalTreeWindowContent_Loaded;
-                    }
-                }
+                // TODO:
+                //if (logicalTreeWindow is VBDockingContainerBase)
+                //{
+                //    VBDockingContainerBase container = logicalTreeWindow as VBDockingContainerBase;
+                //    if ((container.VBDesignContent != null) && container.VBDesignContent is Control)
+                //    {
+                //        (container.VBDesignContent as Control).Loaded -= VBLogicalTreeWindowContent_Loaded;
+                //    }
+                //}
             }
 
 

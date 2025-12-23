@@ -1,4 +1,4 @@
-﻿<local:VBDockingContainerToolWindow x:Class="gip.core.layoutengine.avui.VBStyleSetterWindow"
+﻿<local:VBWindow x:Class="gip.core.layoutengine.avui.VBStyleSetterWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Height="400" Width="750" Background="Black"
@@ -6,4 +6,4 @@
         Icon="/gip.core.layoutengine.avui;component/Images/iPlusIconDesktop.ico"
         Title="Style-Setters">
     <local:VBSettersCollectionEditor x:Name="SetterEditor"></local:VBSettersCollectionEditor>
-</local:VBDockingContainerToolWindow>
+</local:VBWindow>

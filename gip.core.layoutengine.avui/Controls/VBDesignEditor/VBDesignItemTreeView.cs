@@ -108,8 +108,8 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private VBDockingManagerOldWPF _DockingManager;
-        protected VBDockingManagerOldWPF DockingManager
+        private VBDockingManager _DockingManager;
+        protected VBDockingManager DockingManager
         {
             get
             {

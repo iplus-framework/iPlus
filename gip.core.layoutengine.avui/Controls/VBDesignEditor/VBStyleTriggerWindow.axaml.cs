@@ -1,4 +1,5 @@
-﻿using gip.ext.design.avui;
+﻿using Avalonia.Controls;
+using gip.ext.design.avui;
 using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.core.layoutengine.avui
@@ -9,21 +10,22 @@ namespace gip.core.layoutengine.avui
     /// <summary xml:lang="de">
     /// Stellt ein Fenster für den Triggerstil dar.
     /// </summary>
-    public partial class VBStyleTriggerWindow : VBDockingContainerToolWindow, ITypeEditorInitItem
+    public partial class VBStyleTriggerWindow : VBWindow, ITypeEditorInitItem
     {
-        public VBStyleTriggerWindow()
+        public VBStyleTriggerWindow() : base()
         {
+            InitializeComponent();
         }
 
-        public VBStyleTriggerWindow(VBDockingManagerOldWPF dockManager)
-            : base(dockManager)
-		{
-			InitializeComponent();
-		}
+        //public VBStyleTriggerWindow(VBDockingManager dockManager) : base()
+        //    //: base(dockManager)
+        //{
+        //    InitializeComponent();
+        //}
 
         DesignItem _DesignObject;
         public void LoadItemsCollection(DesignItem designObject)
-		{
+        {
             if (designObject == null)
                 return;
             _DesignObject = designObject;
@@ -36,7 +38,7 @@ namespace gip.core.layoutengine.avui
             TriggerEditor.InitEditor(designObject, triggersProp);
         }
 
-        protected override VBDockPanel RootPanel { get => _DesignObject?.Component as VBDockPanel; }
+        protected virtual VBDockPanel RootPanel { get => _DesignObject?.Component as VBDockPanel; }
 
     }
 }
