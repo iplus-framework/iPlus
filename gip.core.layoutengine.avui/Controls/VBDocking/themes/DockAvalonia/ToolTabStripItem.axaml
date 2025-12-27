@@ -92,10 +92,10 @@
     <Setter Property="FontWeight" Value="Normal" />
     <Setter Property="MinHeight" Value="0" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
-    <Setter Property="Background" Value="Transparent" />
-    <Setter Property="Foreground" Value="{DynamicResource DockThemeForegroundBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
-    <Setter Property="BorderThickness" Value="0 0 0 0" />
+    <Setter Property="Background" Value="{StaticResource TabItemNormalBackground}" />
+    <Setter Property="Foreground" Value="{StaticResource TabItemFgNormalBrush}" />
+    <Setter Property="BorderBrush" Value="{StaticResource TabItemNormalBorderBrush}" />
+    <Setter Property="BorderThickness" Value="0,0,1,1" />
     <Setter Property="Margin" Value="0" />
     <Setter Property="Padding" Value="4 1 4 0" />
     <Setter Property="TabContextMenu" Value="{DynamicResource ToolTabStripItemContextMenu}" />
@@ -104,6 +104,7 @@
       <ControlTemplate>
         <Panel>
           <Border Background="{TemplateBinding Background}"
+                  CornerRadius="0,0,5,5"
                   TextElement.FontFamily="{TemplateBinding FontFamily}"
                   TextElement.FontSize="{TemplateBinding FontSize}"
                   TextElement.FontWeight="{TemplateBinding FontWeight}"
@@ -139,23 +140,30 @@
       </ControlTemplate>
     </Setter>
 
-    <Style Selector="^:pointerover">
+    <!--<Style Selector="^:pointerover">
       <Setter Property="Background" Value="{DynamicResource DockApplicationAccentBrushMed}" />
-    </Style>
+    </Style>-->
 
     <Style Selector="^:selected">
-      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource DockApplicationAccentBrushMed}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+      <Setter Property="Background" Value="{StaticResource TabItemSelectedBackground}" />
+      <Setter Property="Foreground" Value="{StaticResource TabItemFgSelectedBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TabItemSelectedBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1 0 1 1" />
       <Setter Property="Margin" Value="0 0 0 0" />
       <Setter Property="Padding" Value="4 2 4 0" />
     </Style>
 
-    <Style Selector="^:selected:pointerover">
-      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+    <Style Selector="^:not(:selected):pointerover">
+      <Setter Property="Background" Value="{StaticResource TabItemHotBackground}"/>
+      <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TabItemHotBorderBrush}"/>
     </Style>
+
+    <!--<Style Selector="^:selected:pointerover">
+      <Setter Property="Background" Value="{StaticResource TabItemHotBackground}"/>
+      <Setter Property="Foreground" Value="{StaticResource TabItemFgSelectedBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TabItemHotBorderBrush}"/>
+    </Style>-->
 
   </ControlTheme>
 

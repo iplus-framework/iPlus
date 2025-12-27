@@ -519,8 +519,8 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         CanClose = isCloseable,
                         CanFloat = isCloseable,
-                        MaxWidth = toolMaxWidth,
-                        MaxHeight = toolMaxHeight,
+                        //MaxWidth = toolMaxWidth,
+                        //MaxHeight = toolMaxHeight,
 #if AVALONIAFORK
                         Width = toolWidth,
                         Height = toolHeight,

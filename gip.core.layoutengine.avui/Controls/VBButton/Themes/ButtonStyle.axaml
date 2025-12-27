@@ -4,7 +4,7 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
     <!-- VBButton ControlTheme -->
-    <ControlTheme x:Key="{x:Type local:VBButton}" TargetType="local:VBButton">
+    <ControlTheme x:Key="VBButtonStyle" TargetType="Button">
         <Setter Property="Background" Value="{StaticResource ButtonNormalBackground}"/>
         <Setter Property="BorderBrush" Value="{StaticResource ButtonNormalBorder}"/>
         <Setter Property="BorderThickness" Value="1"/>
@@ -12,10 +12,8 @@
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Setter Property="Padding" Value="1"/>
-        <Setter Property="ContentStroke" Value="{StaticResource ButtonNormalContentStroke}"/>
-        <Setter Property="ContentFill" Value="{StaticResource ButtonNormalContentFill}"/>
         <Setter Property="Template">
-            <ControlTemplate TargetType="local:VBButton">
+            <ControlTemplate>
               <!--<Grid Margin="0,0,-3,-3">-->
                 <Border x:Name="BorderButton"  
                         CornerRadius="4" 
@@ -59,8 +57,6 @@
         </Style>
         <Style Selector="^:pointerover">
             <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
-            <Setter Property="ContentStroke" Value="{StaticResource ButtonFocusContentStroke}"/>
-            <Setter Property="ContentFill" Value="{StaticResource ButtonFocusContentFill}"/>
         </Style>
 
         <!-- Pressed State -->
@@ -71,8 +67,6 @@
         </Style>
         <Style Selector="^:pressed">
             <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
-            <Setter Property="ContentStroke" Value="{StaticResource ButtonPressedContentStroke}"/>
-            <Setter Property="ContentFill" Value="{StaticResource ButtonPressedContentFill}"/>
         </Style>
 
         <!-- Disabled State -->
@@ -81,9 +75,37 @@
         </Style>
         <Style Selector="^:disabled">
             <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
-            <Setter Property="ContentStroke" Value="{StaticResource ButtonDisabledContentStroke}"/>
-            <Setter Property="ContentFill" Value="{StaticResource ButtonDisabledContentFill}"/>
         </Style>
     </ControlTheme>
+
+  <!-- Standard Button Control Theme -->
+  <!--<ControlTheme x:Key="{x:Type Button}" TargetType="Button" BasedOn="{StaticResource VBButtonStyle}" />-->
+
+  <!-- VBButton ControlTheme -->
+  <ControlTheme x:Key="{x:Type local:VBButton}" TargetType="local:VBButton" BasedOn="{StaticResource VBButtonStyle}">
+    <Setter Property="ContentStroke" Value="{StaticResource ButtonNormalContentStroke}"/>
+    <Setter Property="ContentFill" Value="{StaticResource ButtonNormalContentFill}"/>
+
+    <!-- Mouse Over State (only when not touch leave) -->
+    <Style Selector="^:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
+      <Setter Property="ContentStroke" Value="{StaticResource ButtonFocusContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource ButtonFocusContentFill}"/>
+    </Style>
+
+    <!-- Pressed State -->
+    <Style Selector="^:pressed">
+      <Setter Property="Foreground" Value="{StaticResource ButtonFocusForeground}"/>
+      <Setter Property="ContentStroke" Value="{StaticResource ButtonPressedContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource ButtonPressedContentFill}"/>
+    </Style>
+
+    <!-- Disabled State -->
+    <Style Selector="^:disabled">
+      <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
+      <Setter Property="ContentStroke" Value="{StaticResource ButtonDisabledContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource ButtonDisabledContentFill}"/>
+    </Style>
+  </ControlTheme>
 
 </ResourceDictionary>

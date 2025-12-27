@@ -2,52 +2,53 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
-  
+
   <RadialGradientBrush x:Key="CloseButtonBrushStyle">
-    <GradientStop Color="#ADADAD" Offset="0"/>
+    <GradientStop Color="#FFFDFDFD" Offset="0"/>
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </RadialGradientBrush>
-  <SolidColorBrush x:Key="CloseButtonBorderBrush" Color="#2D2D2D"/>
-  <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#9D9D9D"/>
+  <SolidColorBrush x:Key="CloseButtonBorderBrush" Color="#FF6D6D6D"/>
+  <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#FFDDDDDD"/>
 
   <RadialGradientBrush x:Key="CloseButtonBrushHotStyle">
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="0"/>
-    <GradientStop Color="#626262" Offset="1"/>
+    <GradientStop Color="#FFA2A2A2" Offset="1"/>
   </RadialGradientBrush>
   <SolidColorBrush x:Key="CloseButtonBorderBrushHot" Color="Red"/>
   <SolidColorBrush x:Key="CloseButtonFillBrushHot" Color="#FF770000"/>
 
   <LinearGradientBrush x:Key="TabItemNormalBackground" EndPoint="0%,100%" StartPoint="0%,0%">
-    <GradientStop Color="#535353" Offset="0"/>
-    <GradientStop Color="#4B4B4B" Offset="0.5"/>
-    <GradientStop Color="#3D3D3D" Offset="0.5"/>
-    <GradientStop Color="#2D2D2D" Offset="1"/>
+    <GradientStop Color="#939393" Offset="0"/>
+    <GradientStop Color="#8B8B8B" Offset="0.5"/>
+    <GradientStop Color="#7D7D7D" Offset="0.5"/>
+    <GradientStop Color="#6D6D6D" Offset="1"/>
   </LinearGradientBrush>
-  <SolidColorBrush x:Key="TabItemNormalBorderBrush" Color="#535353"/>
+  <SolidColorBrush x:Key="TabItemNormalBorderBrush" Color="#939393"/>
 
   <LinearGradientBrush x:Key="TabItemSelectedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
-    <GradientStop Color="#B2B2B2" Offset="0.15"/>
-    <GradientStop Color="#A2A2A2" Offset=".5"/>
-    <GradientStop Color="#929292" Offset=".5"/>
+    <GradientStop Color="#F2F2F2" Offset="0.15"/>
+    <GradientStop Color="#E2E2E2" Offset=".5"/>
+    <GradientStop Color="#D2D2D2" Offset=".5"/>
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </LinearGradientBrush>
 
   <LinearGradientBrush x:Key="TabItemDisabledBackground" EndPoint="0%,100%" StartPoint="0%,0%">
-    <GradientStop Color="#535353" Offset="0"/>
-    <GradientStop Color="#4B4B4B" Offset="0.5"/>
-    <GradientStop Color="#3D3D3D" Offset="0.5"/>
-    <GradientStop Color="#2D2D2D" Offset="1"/>
+    <GradientStop Color="#939393" Offset="0"/>
+    <GradientStop Color="#8B8B8B" Offset="0.5"/>
+    <GradientStop Color="#7D7D7D" Offset="0.5"/>
+    <GradientStop Color="#6D6D6D" Offset="1"/>
   </LinearGradientBrush>
-  <SolidColorBrush x:Key="TabItemDisabledBorderBrush" Color="#535353"/>
+  <SolidColorBrush x:Key="TabItemDisabledBorderBrush" Color="#939393"/>
 
   <LinearGradientBrush x:Key="TabItemHotBackground" EndPoint="0%,100%" StartPoint="0%,0%">
-    <GradientStop Color="#434343" Offset="0.15"/>
-    <GradientStop Color="#3B3B3B" Offset=".5"/>
-    <GradientStop Color="#2D2D2D" Offset=".5"/>
-    <GradientStop Color="#1D1D1D" Offset="1"/>
+    <GradientStop Color="#838383" Offset="0.15"/>
+    <GradientStop Color="#7B7B7B" Offset=".5"/>
+    <GradientStop Color="#6D6D6D" Offset=".5"/>
+    <GradientStop Color="#5D5D5D" Offset="1"/>
   </LinearGradientBrush>
-  <SolidColorBrush x:Key="TabItemHotBorderBrush" Color="#434343"/>
+  <SolidColorBrush x:Key="TabItemHotBorderBrush" Color="#838383"/>
   <SolidColorBrush x:Key="TabItemFgSelectedBrush" Color="Black"/>
-  <SolidColorBrush x:Key="TabItemFgNormalBrush" Color="#B2B2B2"/>
-  
+  <SolidColorBrush x:Key="TabItemFgNormalBrush" Color="#F2F2F2"/>
+
+
 </ResourceDictionary>

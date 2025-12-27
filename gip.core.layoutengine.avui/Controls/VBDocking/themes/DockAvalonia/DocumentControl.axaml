@@ -112,8 +112,12 @@
             </DocumentTabStrip.Styles>
           </DocumentTabStrip>
           <Grid x:Name="PART_Grid"
-                IsVisible="{Binding #PART_TabStrip.IsVisible}" />
-          <Border x:Name="PART_Border">
+                IsVisible="{Binding #PART_TabStrip.IsVisible}"
+                Margin="0,-1,0,0"/>
+          <Border x:Name="PART_Border" 
+                  CornerRadius="0,0,6,6"
+                  BoxShadow="3 3 3 0 #71000000"
+                  Margin="0,-1,3,3">
             <DockableControl DataContext="{Binding ActiveDockable}"
                              TrackingMode="Visible">
               <ContentControl x:Name="PART_ContentPresenter"
@@ -149,15 +153,16 @@
     </Style>
 
     <Style Selector="^/template/ Grid#PART_Grid">
-      <Setter Property="Background" Value="{DynamicResource DockThemeBorderLowBrush}" />
+      <Setter Property="Background" Value="Transparent" />
     </Style>
 
     <Style Selector="^:active /template/ Grid#PART_Grid">
-      <Setter Property="Background" Value="{DynamicResource DockApplicationAccentBrushLow}" />
+      <Setter Property="Background" Value="Transparent" />
     </Style>
 
     <Style Selector="^/template/ Border#PART_Border">
-      <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource TabItemSelectedBorderBrush}" />
+      <Setter Property="Background" Value="{StaticResource AppLight}" />
       <Setter Property="BorderThickness" Value="1,1,1,1" />
     </Style>
 

@@ -6,7 +6,7 @@
                     xmlns:converters="using:Dock.Avalonia.Converters"
                     x:CompileBindings="True">
   <Design.PreviewWith>
-  <ToolChromeControl Width="300" Height="400" />
+    <ToolChromeControl Width="300" Height="400" />
   </Design.PreviewWith>
 
   <MenuFlyout x:Key="ToolChromeControlContextMenu">
@@ -79,9 +79,9 @@
     <!--<Setter Property="Width" Value="{Binding Width}" />
     <Setter Property="Height" Value="{Binding Height}" />-->
 
-    <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
-    <Setter Property="BorderBrush" Value="{DynamicResource DockThemeBorderLowBrush}" />
-    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderBrush" Value="{StaticResource TabItemSelectedBorderBrush}" />
+    <Setter Property="BorderThickness" Value="1" />
     <Setter Property="Padding" Value="0" />
     <Setter Property="IsPinned" Value="{Binding ActiveDockable.OriginalOwner, FallbackValue=False, Converter={x:Static ObjectConverters.IsNotNull}}" />
     <Setter Property="IsMaximized" Value="{Binding $parent[Window].WindowState, FallbackValue=False, Converter={x:Static IsMaximizedConverter.Instance}}" />
@@ -93,89 +93,98 @@
 
     <Setter Property="Template">
       <ControlTemplate>
-        <Grid RowDefinitions="Auto,*">
-          <ContentPresenter x:Name="PART_ContentPresenter"
-                            Background="{TemplateBinding Background}"
-                            BorderBrush="{TemplateBinding BorderBrush}"
-                            BorderThickness="{TemplateBinding BorderThickness}"
-                            Content="{TemplateBinding Content}"
-                            Padding="{TemplateBinding Padding}"
-                            Grid.Row="1" />
-          <Border x:Name="PART_Border"
-                  Background="{StaticResource DockingHeaderSelectedBackground}"
+        <Border x:Name="PART_Window"
+                BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
+                CornerRadius="6,6,6,6"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                BoxShadow="3 3 3 0 #71000000"
+                Margin="0,0,3,3">
+          <Grid RowDefinitions="Auto,*">
+            <Border x:Name="PART_ContentAndFooter" Grid.Row="1"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="0,0,6,6"
+                    BorderThickness="0">
+              <ContentPresenter x:Name="PART_ContentPresenter"
+                                Content="{TemplateBinding Content}"
+                                Padding="{TemplateBinding Padding}"
+                                Grid.Row="1" />
+            </Border>
+            <Border x:Name="PART_Border"
+                  Background="{StaticResource DockingHeaderBackground}"
                   BorderBrush="{StaticResource TabItemSelectedBorderBrush}"
                   VerticalAlignment="Top"
                   CornerRadius="6,6,0,0"
+                  BorderThickness="0"
                   ContextFlyout="{TemplateBinding ToolFlyout}"
                   Grid.Row="{Binding GripMode, Converter={x:Static GripModeConverters.GridRowAutoHideConverter}}">
-            <Grid x:Name="PART_Grip">
-              <DockPanel LastChildFill="True" Margin="8 0">
-                <Panel DockPanel.Dock="Left">
-                  <TextBlock x:Name="PART_Title"
-                             Text="{Binding ActiveDockable.Title, FallbackValue=TITLE}" />
-                </Panel>
-                <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
-                  <Button x:Name="PART_MenuButton"
-                          Theme="{TemplateBinding MenuButtonTheme}"
-                          Flyout="{TemplateBinding ToolFlyout}">
-                    <Viewbox Margin="2">
-                      <Path x:Name="PART_MenuPath" />
-                    </Viewbox>
-                  </Button>
-                  <Button x:Name="PART_PinButton"
-                          Command="{Binding Owner.Factory.PinDockable}"
-                          CommandParameter="{Binding ActiveDockable}"
-                          Theme="{TemplateBinding PinButtonTheme}">
-                    <Button.IsVisible>
-                      <MultiBinding Converter="{x:Static BoolConverters.And}">
-                        <Binding Path="ActiveDockable.CanPin" FallbackValue="{x:False}" />
-                        <TemplateBinding Property="IsFloating" Converter="{x:Static BoolConverters.Not}" />
-                      </MultiBinding>
-                    </Button.IsVisible>
-                    <Viewbox>
-                      <Path x:Name="PART_PinPath" />
-                    </Viewbox>
-                  </Button>
-                  <Button x:Name="PART_MaximizeRestoreButton"
-                          IsVisible="{TemplateBinding IsFloating}"
-                          Theme="{TemplateBinding MaximizeButtonTheme}">
-                    <Viewbox>
-                      <Path x:Name="PART_MaximizeRestorePath" />
-                    </Viewbox>
-                  </Button>
-                  <Button x:Name="PART_CloseButton"
-                          Command="{Binding Owner.Factory.CloseDockable}"
-                          CommandParameter="{Binding ActiveDockable}"
-                          Theme="{TemplateBinding CloseButtonTheme}">
-                    <Button.IsVisible>
-                      <MultiBinding Converter="{x:Static BoolConverters.And}">
-                        <Binding Path="ActiveDockable.CanClose" FallbackValue="{x:False}" />
-                        <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
-                          <Binding Path="(core:IDock).CanCloseLastDockable" FallbackValue="{x:True}" />
-                          <Binding Path="(core:IDock).VisibleDockables.Count" FallbackValue="0" />
+              <Grid x:Name="PART_Grip">
+                <DockPanel LastChildFill="True" Margin="8 0">
+                  <Panel DockPanel.Dock="Left">
+                    <TextBlock x:Name="PART_Title"
+                               Text="{Binding ActiveDockable.Title, FallbackValue=TITLE}" />
+                  </Panel>
+                  <StackPanel DockPanel.Dock="Right" Orientation="Horizontal">
+                    <Button x:Name="PART_MenuButton"
+                            Theme="{TemplateBinding MenuButtonTheme}"
+                            Flyout="{TemplateBinding ToolFlyout}">
+                      <Viewbox Margin="2">
+                        <Path x:Name="PART_MenuPath" />
+                      </Viewbox>
+                    </Button>
+                    <Button x:Name="PART_PinButton"
+                            Command="{Binding Owner.Factory.PinDockable}"
+                            CommandParameter="{Binding ActiveDockable}"
+                            Theme="{TemplateBinding PinButtonTheme}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                          <Binding Path="ActiveDockable.CanPin" FallbackValue="{x:False}" />
+                          <TemplateBinding Property="IsFloating" Converter="{x:Static BoolConverters.Not}" />
                         </MultiBinding>
-                      </MultiBinding>
-                    </Button.IsVisible>
-                    <Viewbox>
-                      <Path x:Name="PART_ClosePath" />
-                    </Viewbox>
-                  </Button>
-                </StackPanel>
-                <Grid x:Name="PART_Grid" />
-              </DockPanel>
-            </Grid>
-          </Border>
-          <Panel x:Name="PART_Panel"
-                 Background="{TemplateBinding BorderBrush}"
-                 Height="1"
-                 VerticalAlignment="Top"
-                 Grid.Row="{Binding GripMode, Converter={x:Static GripModeConverters.GridRowAutoHideConverter}}" />
-        </Grid>
+                      </Button.IsVisible>
+                      <Viewbox>
+                        <Path x:Name="PART_PinPath" />
+                      </Viewbox>
+                    </Button>
+                    <Button x:Name="PART_MaximizeRestoreButton"
+                            IsVisible="{TemplateBinding IsFloating}"
+                            Theme="{TemplateBinding MaximizeButtonTheme}">
+                      <Viewbox>
+                        <Path x:Name="PART_MaximizeRestorePath" />
+                      </Viewbox>
+                    </Button>
+                    <Button x:Name="PART_CloseButton"
+                            Command="{Binding Owner.Factory.CloseDockable}"
+                            CommandParameter="{Binding ActiveDockable}"
+                            Theme="{TemplateBinding CloseButtonTheme}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{x:Static BoolConverters.And}">
+                          <Binding Path="ActiveDockable.CanClose" FallbackValue="{x:False}" />
+                          <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
+                            <Binding Path="(core:IDock).CanCloseLastDockable" FallbackValue="{x:True}" />
+                            <Binding Path="(core:IDock).VisibleDockables.Count" FallbackValue="0" />
+                          </MultiBinding>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                      <Viewbox>
+                        <Path x:Name="PART_ClosePath" />
+                      </Viewbox>
+                    </Button>
+                  </StackPanel>
+                  <Grid x:Name="PART_Grid" />
+                </DockPanel>
+              </Grid>
+            </Border>
+            <Panel x:Name="PART_Panel"
+                   Background="Transparent"
+                   Height="1"
+                   VerticalAlignment="Top"
+                   Grid.Row="{Binding GripMode, Converter={x:Static GripModeConverters.GridRowAutoHideConverter}}" />
+          </Grid>
+        </Border>
       </ControlTemplate>
     </Setter>
 
     <Style Selector="^/template/ Border#PART_Border">
-      <Setter Property="BorderThickness" Value="1 1 1 0" />
       <Setter Property="IsVisible"
               Value="{Binding GripMode, Converter={x:Static GripModeConverters.IsVisibleVisibleConverter}}" />
     </Style>
@@ -185,8 +194,8 @@
               Value="{Binding GripMode, Converter={x:Static GripModeConverters.IsVisibleAutoHideOrVisibleConverter}}" />
     </Style>
 
-    <Style Selector="^:floating /template/ Border#PART_Border">
-      <Setter Property="BorderThickness" Value="0" />
+    <Style Selector="^:floating">
+      <Setter Property="BorderThickness" Value="1" />
     </Style>
 
     <Style Selector="^/template/ Panel#PART_Panel">
@@ -218,9 +227,9 @@
       <Setter Property="Foreground" Value="{DynamicResource DockApplicationAccentForegroundBrush}" />
     </Style>
 
-    <Style Selector="^/template/ Grid#PART_Grip">
-      <Setter Property="Background" Value="{DynamicResource DockThemeBackgroundBrush}" />
-    </Style>
+    <!--<Style Selector="^/template/ Grid#PART_Grip">
+      <Setter Property="Background" Value="{StaticResource DockingHeaderBackground}" />
+    </Style>-->
 
     <Style Selector="^/template/ Grid#PART_Grip">
       <Setter Property="(DockProperties.IsDragArea)" Value="True" />
@@ -231,7 +240,7 @@
     </Style>
 
     <Style Selector="^:active /template/ Grid#PART_Grip">
-      <Setter Property="Background" Value="{DynamicResource DockThemeAccentBrush}" />
+      <Setter Property="Background" Value="{StaticResource DockingHeaderSelectedBackground}" />
     </Style>
 
     <Style Selector="^/template/ Grid#PART_Grid">

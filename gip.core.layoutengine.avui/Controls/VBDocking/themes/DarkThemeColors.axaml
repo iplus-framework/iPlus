@@ -4,6 +4,12 @@
    x:ClassModifier="internal">
 
   <SolidColorBrush x:Key="DockingHeaderNormalBorderBrush" Color="#535353"/>
+  <LinearGradientBrush x:Key="DockingHeaderBackground" EndPoint="0%,100%" StartPoint="0%,0%">
+    <GradientStop Color="#B2B2B2" Offset="0.15"/>
+    <GradientStop Color="#A2A2A2" Offset=".5"/>
+    <GradientStop Color="#929292" Offset=".5"/>
+    <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
+  </LinearGradientBrush>
   <LinearGradientBrush x:Key="DockingHeaderSelectedBackground" EndPoint="0%,100%" StartPoint="0%,0%">
     <GradientStop Color="#B2B2B2" Offset="0.15"/>
     <GradientStop Color="#A2A2A2" Offset=".5"/>
@@ -42,5 +48,20 @@
       <GradientStop Color="#FF390000" Offset="1"/>
     </LinearGradientBrush.GradientStops>
   </LinearGradientBrush>
+
+  <SolidColorBrush x:Key="DockApplicationAccentBrushLow">#007ACC</SolidColorBrush>
+  <SolidColorBrush x:Key="DockApplicationAccentBrushMed">#1C97EA</SolidColorBrush>
+  <SolidColorBrush x:Key="DockApplicationAccentBrushHigh">#52B0EF</SolidColorBrush>
+  <SolidColorBrush x:Key="DockApplicationAccentForegroundBrush">#F0F0F0</SolidColorBrush>
+  <SolidColorBrush x:Key="DockApplicationAccentBrushIndicator">#007ACC</SolidColorBrush>
+
+  <SolidColorBrush x:Key="DockThemeBorderLowBrush" Color="{DynamicResource SystemBaseMediumLowColor}" />
+  <SolidColorBrush x:Key="DockThemeBackgroundBrush" Color="{StaticResource ColorAppLight}" />
+  <SolidColorBrush x:Key="DockThemeAccentBrush" Color="{DynamicResource SystemAccentColor}" />
+  <SolidColorBrush x:Key="DockThemeForegroundBrush" Color="{DynamicResource SystemBaseHighColor}" />
+  <SolidColorBrush x:Key="DockThemeControlBackgroundBrush" Color="{DynamicResource SystemAltHighColor}" />
+
+  <!-- Brushes used by ToolChromeControl icons and grip -->
+  <SolidColorBrush x:Key="DockToolChromeIconBrush" Color="#474747" />
 
 </ResourceDictionary>

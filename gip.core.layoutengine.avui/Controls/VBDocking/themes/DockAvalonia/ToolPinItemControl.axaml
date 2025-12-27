@@ -74,7 +74,8 @@
                       CornerRadius="0"
                       Command="{Binding Owner.Factory.PreviewPinnedDockable}"
                       CommandParameter="{Binding}"
-                      IsVisible="{Binding CanPin}">
+                      IsVisible="{Binding CanPin}"
+                      Theme="{StaticResource VBButtonStyle}">
                 <TextBlock Text="{Binding Title}"
                            VerticalAlignment="Center"
                            HorizontalAlignment="Left"
