@@ -43,7 +43,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DocumentTabStripItem.axaml" />
         <!--<ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DocumentTabStrip.axaml" />-->
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolTabStripItem.axaml" />
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolTabStrip.axaml" />
+        <!--<ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolTabStrip.axaml" />-->
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DockTarget.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/GlobalDockTarget.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DocumentControl.axaml" />
@@ -66,7 +66,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DockControl.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/HostWindowTitleBar.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/HostWindow.axaml" />-->
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DragPreviewControl.axaml" />
+        <!--<ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DragPreviewControl.axaml" />-->
         <!--<ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DragPreviewWindow.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/PinnedDockWindow.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DockAdornerWindow.axaml" />-->
