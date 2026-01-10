@@ -462,8 +462,16 @@ namespace gip.core.layoutengine.avui
 #if AVALONIAFORK
             if (pixelRect.HasValue)
             {
-                toolMaxWidth = pixelRect.Value.Width;
-                toolMaxHeight = pixelRect.Value.Height;
+                toolMaxWidth = pixelRect.Value.Width * 0.9;
+                toolMaxHeight = pixelRect.Value.Height * 0.9;
+            }
+#else
+            if (pixelRect.HasValue)
+            {
+                if (toolMaxWidth > pixelRect.Value.Width * 0.9)
+                    toolMaxWidth = pixelRect.Value.Width * 0.9;
+                if (toolMaxHeight > pixelRect.Value.Height * 0.9)
+                    toolMaxHeight = pixelRect.Value.Height * 0.9;
             }
 #endif
 
@@ -547,7 +555,7 @@ namespace gip.core.layoutengine.avui
 #else
                         MinWidth = toolMinWidth,
                         MinHeight = toolMinHeight,
-#endif                    
+#endif
                     };
                 }
 
@@ -643,12 +651,16 @@ namespace gip.core.layoutengine.avui
                         Id = "Tool_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
                         Content = content,
+#if AVALONIAFORK
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
                         Width = toolWidth,
                         Height = toolHeight,
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
 #else
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
                         MinWidth = toolMinWidth,
                         MinHeight = toolMinHeight,
 #endif
@@ -1049,9 +1061,9 @@ namespace gip.core.layoutengine.avui
                 _DialogStack.Remove(dialog);
             }
         }
-        #endregion
+#endregion
 
-        #endregion
+#endregion
 
         #region Add and Remove DockingContainerTabbedDoc
         public void CloseAllTabs()

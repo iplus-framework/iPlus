@@ -17,6 +17,8 @@
     <Setter Property="MaxWidth" Value="{Binding MaxWidth}" />
     <Setter Property="MinHeight" Value="{Binding MinHeight}" />
     <Setter Property="MaxHeight" Value="{Binding MaxHeight}" />
+    <!--<Setter Property="Width" Value="{Binding Width}" />
+    <Setter Property="Height" Value="{Binding Height}" />-->
 
     <Setter Property="IconTemplate">
       <DataTemplate DataType="core:IDockable">
