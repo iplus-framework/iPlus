@@ -156,8 +156,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Flowdoc\Document\Barcode\BarcodeValue.cs" />
-    <Compile Include="Flowdoc\Document\Barcode\BarcodeValueCollection.cs" />
+    <Compile Include="FlowDoc\Document\Barcode\BarcodeValue.cs" />
+    <Compile Include="FlowDoc\Document\Barcode\BarcodeValueCollection.cs" />
     <Compile Include="Manager\ACPerfLog2ExcelWriter.cs" />
     <Compile Include="Manager\BlockDocumentPosition.cs" />
     <Compile Include="Manager\PAPrintInfo.cs" />
@@ -255,58 +255,58 @@
     <Compile Include="FlowDocEditor\Editor\Misc\FluentAddons\SymbolPanel.xaml.cs">
       <DependentUpon>SymbolPanel.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Flowdoc\Document\Barcode\InlineBarcode.cs" />
-    <Compile Include="Flowdoc\Document\InlineFlowDocContentValue.cs" />
-    <Compile Include="Flowdoc\Document\InlineUIValueBase.cs" />
-    <Compile Include="Flowdoc\Document\TableRowDataHeader.cs" />
-    <Compile Include="Flowdoc\ReportConfiguration\ConfigurationMethod.cs" />
-    <Compile Include="Flowdoc\ReportConfiguration\ConfigurationParameter.cs" />
-    <Compile Include="Flowdoc\ReportConfiguration\ReportConfiguration.cs" />
-    <Compile Include="Flowdoc\Document\InlineACMethodValue.cs" />
-    <Compile Include="Flowdoc\Document\InlineTableCellConfigurationValue.cs" />
-    <Compile Include="Flowdoc\Document\TableRowDataBase.cs" />
-    <Compile Include="Flowdoc\Events\PaginatorNewTableCellEventArgs.cs" />
-    <Compile Include="Flowdoc\Events\PaginatorNextRowEventArgs.cs" />
-    <Compile Include="Flowdoc\DocumentWalker.cs" />
-    <None Include="Flowdoc\Document\Chart\BarChart2D.cs">
+    <Compile Include="FlowDoc\Document\Barcode\InlineBarcode.cs" />
+    <Compile Include="FlowDoc\Document\InlineFlowDocContentValue.cs" />
+    <Compile Include="FlowDoc\Document\InlineUIValueBase.cs" />
+    <Compile Include="FlowDoc\Document\TableRowDataHeader.cs" />
+    <Compile Include="FlowDoc\ReportConfiguration\ConfigurationMethod.cs" />
+    <Compile Include="FlowDoc\ReportConfiguration\ConfigurationParameter.cs" />
+    <Compile Include="FlowDoc\ReportConfiguration\ReportConfiguration.cs" />
+    <Compile Include="FlowDoc\Document\InlineACMethodValue.cs" />
+    <Compile Include="FlowDoc\Document\InlineTableCellConfigurationValue.cs" />
+    <Compile Include="FlowDoc\Document\TableRowDataBase.cs" />
+    <Compile Include="FlowDoc\Events\PaginatorNewTableCellEventArgs.cs" />
+    <Compile Include="FlowDoc\Events\PaginatorNextRowEventArgs.cs" />
+    <Compile Include="FlowDoc\DocumentWalker.cs" />
+    <None Include="FlowDoc\Document\Chart\BarChart2D.cs">
       <SubType>Code</SubType>
     </None>
-    <Compile Include="Flowdoc\Document\InlineAggregateValue.cs" />
-    <Compile Include="Flowdoc\Document\InlineContextValue.cs" />
-    <Compile Include="Flowdoc\Document\InlineDocumentValue.cs" />
-    <Compile Include="Flowdoc\Document\InlineTableCellValue.cs" />
-    <Compile Include="Flowdoc\Document\ReportProperties.cs" />
-    <Compile Include="Flowdoc\Document\SectionDataGroup.cs" />
-    <Compile Include="Flowdoc\Document\SectionReportFooter.cs" />
-    <Compile Include="Flowdoc\Document\SectionReportHeader.cs" />
-    <Compile Include="Flowdoc\Document\TableRowData.cs" />
-    <Compile Include="Flowdoc\Document\TableRowDataDyn.cs" />
-    <Compile Include="Flowdoc\Document\TableRowDataDynHeader.cs" />
-    <Compile Include="Flowdoc\Events\ImageErrorEventArgs.cs" />
-    <Compile Include="Flowdoc\Events\ImageEventArgs.cs" />
-    <Compile Include="Flowdoc\Events\PaginatorEventArgs.cs" />
-    <Compile Include="Flowdoc\Events\PaginatorOnSetValueEventArgs.cs" />
-    <Compile Include="Flowdoc\Document\InlineValueBase.cs" />
-    <Compile Include="Flowdoc\Document\InlinePropertyValueBase.cs" />
-    <Compile Include="Flowdoc\Document\InlineBoolValue.cs" />
-    <Compile Include="Flowdoc\Interfaces\IAggregateValue.cs" />
-    <Compile Include="Flowdoc\Interfaces\IChart.cs" />
-    <Compile Include="Flowdoc\Interfaces\IInlineValue.cs" />
-    <Compile Include="Flowdoc\Interfaces\IInlinePropertyValue.cs" />
-    <Compile Include="Flowdoc\Interfaces\IDictRef.cs" />
-    <Compile Include="Flowdoc\Interfaces\ITableRowData.cs" />
-    <Compile Include="Flowdoc\MultipleReportPaginator.cs" />
-    <Compile Include="Flowdoc\ReportContextValueType.cs" />
-    <Compile Include="Flowdoc\ReportDocument.cs" />
-    <Compile Include="Flowdoc\ReportPaginator.cs" />
-    <Compile Include="Flowdoc\ReportPaginatorDynamicCache.cs" />
-    <Compile Include="Flowdoc\ReportPaginatorStaticCache.cs" />
-    <Compile Include="Flowdoc\VBReportEditor.xaml.cs">
+    <Compile Include="FlowDoc\Document\InlineAggregateValue.cs" />
+    <Compile Include="FlowDoc\Document\InlineContextValue.cs" />
+    <Compile Include="FlowDoc\Document\InlineDocumentValue.cs" />
+    <Compile Include="FlowDoc\Document\InlineTableCellValue.cs" />
+    <Compile Include="FlowDoc\Document\ReportProperties.cs" />
+    <Compile Include="FlowDoc\Document\SectionDataGroup.cs" />
+    <Compile Include="FlowDoc\Document\SectionReportFooter.cs" />
+    <Compile Include="FlowDoc\Document\SectionReportHeader.cs" />
+    <Compile Include="FlowDoc\Document\TableRowData.cs" />
+    <Compile Include="FlowDoc\Document\TableRowDataDyn.cs" />
+    <Compile Include="FlowDoc\Document\TableRowDataDynHeader.cs" />
+    <Compile Include="FlowDoc\Events\ImageErrorEventArgs.cs" />
+    <Compile Include="FlowDoc\Events\ImageEventArgs.cs" />
+    <Compile Include="FlowDoc\Events\PaginatorEventArgs.cs" />
+    <Compile Include="FlowDoc\Events\PaginatorOnSetValueEventArgs.cs" />
+    <Compile Include="FlowDoc\Document\InlineValueBase.cs" />
+    <Compile Include="FlowDoc\Document\InlinePropertyValueBase.cs" />
+    <Compile Include="FlowDoc\Document\InlineBoolValue.cs" />
+    <Compile Include="FlowDoc\Interfaces\IAggregateValue.cs" />
+    <Compile Include="FlowDoc\Interfaces\IChart.cs" />
+    <Compile Include="FlowDoc\Interfaces\IInlineValue.cs" />
+    <Compile Include="FlowDoc\Interfaces\IInlinePropertyValue.cs" />
+    <Compile Include="FlowDoc\Interfaces\IDictRef.cs" />
+    <Compile Include="FlowDoc\Interfaces\ITableRowData.cs" />
+    <Compile Include="FlowDoc\MultipleReportPaginator.cs" />
+    <Compile Include="FlowDoc\ReportContextValueType.cs" />
+    <Compile Include="FlowDoc\ReportDocument.cs" />
+    <Compile Include="FlowDoc\ReportPaginator.cs" />
+    <Compile Include="FlowDoc\ReportPaginatorDynamicCache.cs" />
+    <Compile Include="FlowDoc\ReportPaginatorStaticCache.cs" />
+    <Compile Include="FlowDoc\VBReportEditor.xaml.cs">
       <DependentUpon>VBReportEditor.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Flowdoc\VBReportViewer.cs" />
-    <Compile Include="Flowdoc\XamlHelper.cs" />
-    <Compile Include="Flowdoc\XPSPrinterUtils.cs" />
+    <Compile Include="FlowDoc\VBReportViewer.cs" />
+    <Compile Include="FlowDoc\XamlHelper.cs" />
+    <Compile Include="FlowDoc\XPSPrinterUtils.cs" />
     <Compile Include="LLClasses\StreamSerializationHelper.cs" />
     <Compile Include="LLObjectDataProvider\DataProviderWrapper.cs" />
     <Compile Include="LLObjectDataProvider\ObjectDataProvider.cs" />
@@ -525,7 +525,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Flowdoc\VBReportEditor.xaml">
+    <Page Include="FlowDoc\VBReportEditor.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

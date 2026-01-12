@@ -202,17 +202,17 @@
     </Compile>
     <Compile Include="Controls\VBClock\VBClockTimeInfo.cs" />
     <Compile Include="Controls\VBContentControl\VBContentControl.cs" />
-    <Compile Include="Controls\VBDataGrid\DataGridHelper.cs" />
-    <Compile Include="Controls\VBDataGrid\DataGridRowHeaderCommand.cs" />
-    <Compile Include="Controls\VBDataGrid\HorizontalMouseScrollHelper.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridColumnHeader.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridACValueColumn.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridCheckBoxColumn.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridColumnHeadersPresenter.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridComboBoxColumn.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridDateTimeColumn.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridTemplateColumn.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGridTextColumn.cs" />
+    <Compile Include="Controls\VBDatagrid\DataGridHelper.cs" />
+    <Compile Include="Controls\VBDatagrid\DataGridRowHeaderCommand.cs" />
+    <Compile Include="Controls\VBDatagrid\HorizontalMouseScrollHelper.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridColumnHeader.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridACValueColumn.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridCheckBoxColumn.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridColumnHeadersPresenter.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridComboBoxColumn.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridDateTimeColumn.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridTemplateColumn.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGridTextColumn.cs" />
     <Compile Include="Controls\VBDesignEditor\Editors\TransformOutlineNode.cs" />
     <Compile Include="Controls\VBDesignEditor\Editors\VBBindingEditorPopup.xaml.cs">
       <DependentUpon>VBBindingEditorPopup.xaml</DependentUpon>
@@ -708,11 +708,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDocking\Themes\DockingManagerStyleGip.xaml">
+    <Page Include="Controls\VBDocking\themes\DockingManagerStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDocking\Themes\DockingManagerStyleAero.xaml">
+    <Page Include="Controls\VBDocking\themes\DockingManagerStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -752,15 +752,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDocking\Themes\DockingWindowStyleAero.xaml">
+    <Page Include="Controls\VBDocking\themes\DockingWindowStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDocking\Themes\DockingWindowStyleGip.xaml">
+    <Page Include="Controls\VBDocking\themes\DockingWindowStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDocking\Themes\VBDockingLibraryResources.xaml">
+    <Page Include="Controls\VBDocking\themes\VBDockingLibraryResources.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1319,11 +1319,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Controls\VBCheckBox\Themes\CheckBoxStyleAero.xaml">
+    <Page Include="Controls\VBCheckbox\Themes\CheckBoxStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBCheckBox\Themes\CheckBoxStyleGip.xaml">
+    <Page Include="Controls\VBCheckbox\Themes\CheckBoxStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1455,11 +1455,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDataGrid\Themes\DataGridStyleAero.xaml">
+    <Page Include="Controls\VBDatagrid\Themes\DataGridStyleAero.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Controls\VBDataGrid\Themes\DataGridStyleGip.xaml">
+    <Page Include="Controls\VBDatagrid\Themes\DataGridStyleGip.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1666,11 +1666,11 @@
     <Compile Include="Controls\VBSlider\VBSlider.cs" />
     <Compile Include="Controls\VBCustomControl.cs" />
     <Compile Include="Controls\VBButton\VBButton.cs" />
-    <Compile Include="Controls\VBCheckBox\VBCheckBox.cs" />
+    <Compile Include="Controls\VBCheckbox\VBCheckBox.cs" />
     <Compile Include="Controls\VBComboBoxItem\VBComboBoxItem.cs" />
     <Compile Include="Controls\VBComboBox\VBComboBox.cs" />
     <Compile Include="Controls\VBContextMenu\VBContextMenu.cs" />
-    <Compile Include="Controls\VBDataGrid\VBDataGrid.cs" />
+    <Compile Include="Controls\VBDatagrid\VBDataGrid.cs" />
     <Compile Include="Controls\VBDatePicker\VBDatePicker.cs" />
     <Compile Include="Controls\VBDockPanel\VBDockPanel.cs" />
     <Compile Include="Controls\VBListBox\VBListBox.cs" />
@@ -1809,7 +1809,7 @@
       <Project>{889DAD2E-8E03-4A47-9A24-8EE759B37A70}</Project>
       <Name>gip.ext.graphics</Name>
     </ProjectReference>
-    <ProjectReference Include="..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj">
+    <ProjectReference Include="..\gip.ext.xamldom\project\gip.ext.xamldom.csproj">
       <Project>{88da149f-21b2-48ab-82c4-28fb6bdfd783}</Project>
       <Name>gip.ext.xamldom</Name>
     </ProjectReference>
@@ -1843,11 +1843,11 @@
     <Resource Include="Images\pinned.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockPane.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockRight.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockTop.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockBottom.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockLeft.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockPane.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockRight.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockTop.PNG" />
   </ItemGroup>
   <ItemGroup>
     <Page Include="Controls\VBVisualGroup\Themes\VBVisualGroupStyleGip.xaml">

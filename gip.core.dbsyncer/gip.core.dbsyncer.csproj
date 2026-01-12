@@ -56,9 +56,9 @@
     <Compile Include="Command\DBSyncerVersionCommand.cs" />
     <Compile Include="helper\DbSyncerSettings.cs" />
     <Compile Include="helper\SQLScripts.cs" />
-    <Compile Include="model\DBContextHelper.cs" />
-    <Compile Include="model\DbSyncerInfo.cs" />
-    <Compile Include="model\DbSyncerInfoContext.cs" />
+    <Compile Include="Model\DBContextHelper.cs" />
+    <Compile Include="Model\DbSyncerInfo.cs" />
+    <Compile Include="Model\DbSyncerInfoContext.cs" />
     <Compile Include="Command\DbSyncerInfoContextCommand.cs" />
     <Compile Include="Command\DbSyncerInfoCommand.cs" />
     <Compile Include="Messages\BaseSyncMessage.cs" />
@@ -66,9 +66,9 @@
     <Compile Include="Messages\NoUpdateNeeded.cs" />
     <Compile Include="Messages\ProgressMessage.cs" />
     <Compile Include="Messages\SuccessMessage.cs" />
-    <Compile Include="model\DBSyncerVersion.cs" />
+    <Compile Include="Model\DBSyncerVersion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="model\ScriptFileInfo.cs" />
+    <Compile Include="Model\ScriptFileInfo.cs" />
     <Compile Include="SyncTask.cs" />
     <Compile Include="UpdateSettings.cs" />
   </ItemGroup>
