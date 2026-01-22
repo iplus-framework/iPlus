@@ -107,7 +107,7 @@
     <Reference Include="System.IdentityModel.Selectors" />
     <Reference Include="System.Memory, Version=4.0.2.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\System.Memory.4.6.0\lib\net462\System.Memory.dll</HintPath>
+      <HintPath>..\..\packages\System.Memory.4.5.5\lib\net461\System.Memory.dll</HintPath>
     </Reference>
     <Reference Include="System.Text.Json, Version=4.0.1.2, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\..\packages\System.Text.Json.4.7.2\lib\net461\System.Text.Json.dll</HintPath>

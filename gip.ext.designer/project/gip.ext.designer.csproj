@@ -409,14 +409,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Themes\Generic.xaml">
+    <Page Include="themes\generic.xaml">
       <SubType>Designer</SubType>
     </Page>
-    <ProjectReference Include="..\..\gip.ext.widgets\Project\gip.ext.widgets.csproj">
+    <ProjectReference Include="..\..\gip.ext.widgets\project\gip.ext.widgets.csproj">
       <Project>{8035765f-d51f-4a0c-a746-2fd100e19419}</Project>
       <Name>gip.ext.widgets</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj">
+    <ProjectReference Include="..\..\gip.ext.xamldom\project\gip.ext.xamldom.csproj">
       <Project>{88da149f-21b2-48ab-82c4-28fb6bdfd783}</Project>
       <Name>gip.ext.xamldom</Name>
     </ProjectReference>

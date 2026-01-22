@@ -35,13 +35,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.core.visualcontrols", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.chart", "gip.ext.chart\gip.ext.chart.csproj", "{25779059-D15F-48CD-88BD-7DEA111A2036}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.designer", "gip.ext.designer\Project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.designer", "gip.ext.designer\project\gip.ext.designer.csproj", "{78CC29AC-CC79-4355-B1F2-97936DF198AC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.opctoolbox", "gip.ext.opctoolbox\gip.ext.opctoolbox.csproj", "{BB162D04-7C12-4700-AB7D-9D1A5B823E2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.widgets", "gip.ext.widgets\Project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.widgets", "gip.ext.widgets\project\gip.ext.widgets.csproj", "{8035765F-D51F-4A0C-A746-2FD100E19419}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.xamldom", "gip.ext.xamldom\Project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.xamldom", "gip.ext.xamldom\project\gip.ext.xamldom.csproj", "{88DA149F-21B2-48AB-82C4-28FB6BDFD783}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "gip.ext.graphics", "gip.ext.graphics\gip.ext.graphics.csproj", "{889DAD2E-8E03-4A47-9A24-8EE759B37A70}"
 EndProject
