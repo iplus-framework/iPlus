@@ -76,24 +76,44 @@ namespace gip.core.autocomponent
 
         static PWNodeWait()
         {
-            ACMethod method;
-            method = new ACMethod(ACStateConst.SMStarting);
-            Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
-            method.ParameterValueList.Add(new ACValue("Duration", typeof(TimeSpan), TimeSpan.Zero, Global.ParamOption.Required));
-            paramTranslation.Add("Duration", "en{'Waitingtime'}de{'Wartezeit'}");
+            List<ACMethodWrapper> wrappers = ACMethod.OverrideFromBase(typeof(PWNodeWait), ACStateConst.SMStarting);
 
-            method.ParameterValueList.Add(new ACValue("ConditionWaitACUrl", typeof(string), null, Global.ParamOption.Optional));
-            paramTranslation.Add("ConditionWaitACUrl", "en{'Condition wait on property ACUrl'}de{'Condition wait on property ACUrl'}");
+            if (wrappers != null)
+            {
+                foreach (ACMethodWrapper wrapper in wrappers)
+                {
+                    wrapper.Method.ParameterValueList.Add(new ACValue("Duration", typeof(TimeSpan), TimeSpan.Zero, Global.ParamOption.Required));
+                    wrapper.ParameterTranslation.Add("Duration", "en{'Waitingtime'}de{'Wartezeit'}");
 
-            method.ParameterValueList.Add(new ACValue("ACUrlCmdOnStart", typeof(string), null, Global.ParamOption.Optional));
-            paramTranslation.Add("ACUrlCmdOnStart", "en{'ACUrlCommand on start'}de{'ACUrlCommand am Start'}");
+                    wrapper.Method.ParameterValueList.Add(new ACValue("ConditionWaitACUrl", typeof(string), null, Global.ParamOption.Optional));
+                    wrapper.ParameterTranslation.Add("ConditionWaitACUrl", "en{'Condition wait on property ACUrl'}de{'Condition wait on property ACUrl'}");
 
-            method.ParameterValueList.Add(new ACValue("ACUrlCmdOnEnd", typeof(string), null, Global.ParamOption.Optional));
-            paramTranslation.Add("ACUrlCmdOnEnd", "en{'ACUrlCommand on end'}de{'ACUrlCommand am Ende'}");
+                    wrapper.Method.ParameterValueList.Add(new ACValue("ACUrlCmdOnStart", typeof(string), null, Global.ParamOption.Optional));
+                    wrapper.ParameterTranslation.Add("ACUrlCmdOnStart", "en{'ACUrlCommand on start'}de{'ACUrlCommand am Start'}");
 
-            var wrapper = new ACMethodWrapper(method, "en{'Wait'}de{'Warten'}", typeof(PWNodeWait), paramTranslation, null);
-            ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), ACStateConst.SMStarting, wrapper);
-            //ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), PABaseState.SMStarting, method, "en{'Wait'}de{'Warten'}", null);
+                    wrapper.Method.ParameterValueList.Add(new ACValue("ACUrlCmdOnEnd", typeof(string), null, Global.ParamOption.Optional));
+                    wrapper.ParameterTranslation.Add("ACUrlCmdOnEnd", "en{'ACUrlCommand on end'}de{'ACUrlCommand am Ende'}");
+                }
+            }
+
+            //ACMethod method;
+            //method = new ACMethod(ACStateConst.SMStarting);
+            //Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
+            //method.ParameterValueList.Add(new ACValue("Duration", typeof(TimeSpan), TimeSpan.Zero, Global.ParamOption.Required));
+            //paramTranslation.Add("Duration", "en{'Waitingtime'}de{'Wartezeit'}");
+
+            //method.ParameterValueList.Add(new ACValue("ConditionWaitACUrl", typeof(string), null, Global.ParamOption.Optional));
+            //paramTranslation.Add("ConditionWaitACUrl", "en{'Condition wait on property ACUrl'}de{'Condition wait on property ACUrl'}");
+
+            //method.ParameterValueList.Add(new ACValue("ACUrlCmdOnStart", typeof(string), null, Global.ParamOption.Optional));
+            //paramTranslation.Add("ACUrlCmdOnStart", "en{'ACUrlCommand on start'}de{'ACUrlCommand am Start'}");
+
+            //method.ParameterValueList.Add(new ACValue("ACUrlCmdOnEnd", typeof(string), null, Global.ParamOption.Optional));
+            //paramTranslation.Add("ACUrlCmdOnEnd", "en{'ACUrlCommand on end'}de{'ACUrlCommand am Ende'}");
+
+            //var wrapper = new ACMethodWrapper(method, "en{'Wait'}de{'Warten'}", typeof(PWNodeWait), paramTranslation, null);
+            //ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), ACStateConst.SMStarting, wrapper);
+            ////ACMethod.RegisterVirtualMethod(typeof(PWNodeWait), PABaseState.SMStarting, method, "en{'Wait'}de{'Warten'}", null);
             RegisterExecuteHandler(typeof(PWNodeWait), HandleExecuteACMethod_PWNodeWait);
         }
 

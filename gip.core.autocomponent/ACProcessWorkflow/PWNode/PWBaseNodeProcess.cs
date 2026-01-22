@@ -40,6 +40,8 @@ namespace gip.core.autocomponent
             TMP.Add(new ACValue("TimeInfo", typeof(PATimeInfo), null, Global.ParamOption.Required));
             _SVirtualEventArgs.Add("PWPointRunning", TMP);
 
+            ACMethod.OverrideFromBase(typeof(PWBaseNodeProcess), ACStateConst.SMStarting);
+
             RegisterExecuteHandler(typeof(PWBaseNodeProcess), HandleExecuteACMethod_PWBaseNodeProcess);
         }
 
