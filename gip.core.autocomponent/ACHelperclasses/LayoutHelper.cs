@@ -10,7 +10,7 @@ namespace gip.core.autocomponent
         #region DockingManager
         static public string DockingManagerBegin(string name, string attributes)
         {
-            return "<vb:VBDockingManager x:Name=\"" + name + "\" " + attributes + ">";
+            return "<vb:VBDockingManager xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:vbs=\"http://www.iplus-framework.com/shapes/xaml\" xmlns:vb=\"http://www.iplus-framework.com/xaml\" xmlns:vbr=\"http://www.iplus-framework.com/report/xaml\" xmlns:vbv=\"http://www.iplus-framework.com/visual/xaml\" x:Name=\"" + name + "\" " + attributes + ">";
         }
 
         static public string DockingManagerEnd()

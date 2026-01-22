@@ -2,6 +2,8 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Concurrent;
+using System.Data.Common;
+using System.Runtime.Remoting.Contexts;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -10,12 +12,30 @@ using System.ServiceModel.Web;
 namespace gip.core.webservices
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Json Host iPlus'}de{'Json Host iPlus'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, false)]
-    public class PAJsonServiceHost : PAWebServiceBase
+    public partial class PAJsonServiceHost : PAWebServiceBase
     {
         #region c´tors
         public PAJsonServiceHost(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _UseCustomHttpListener = new ACPropertyConfigValue<bool>(this, nameof(UseCustomHttpListener), false);
+        }
+
+        public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
+        {
+            if (UseCustomHttpListener)
+                InitPAJsonServiceHostListener();
+            return base.ACInit(startChildMode);
+        }
+        #endregion
+
+        #region Config
+        private ACPropertyConfigValue<bool> _UseCustomHttpListener;
+        [ACPropertyConfig("en{'Use Custom http listener'}de{'Verwende eigenen http listener'}")]
+        public bool UseCustomHttpListener
+        {
+            get => _UseCustomHttpListener.ValueT;
+            set => _UseCustomHttpListener.ValueT = value;
         }
         #endregion
 
@@ -24,15 +44,14 @@ namespace gip.core.webservices
 
         public override ServiceHost CreateService()
         {
-            // Kommando um http-Service bei Windows freizuschalten
-            // >netsh http add urlacl url=http://+:8730/ user="\Everyone"
+            if (UseCustomHttpListener)
+                return CreateHttpListenerService();
+            else
+                return CreateWCFHttpService();
+        }
 
-            // Kommando um http-Service bei Windows zu deaktiveren
-            // >netsh http delete urlacl url=http://+:8730/
-
-            // Kommando um alle Einträge anzuzeigen:
-            // >netsh http show urlacl
-
+        protected ServiceHost CreateWCFHttpService()
+        {
             int servicePort = ServicePort;
             if (servicePort <= 0)
             {
@@ -40,24 +59,51 @@ namespace gip.core.webservices
                 ServicePort = servicePort;
             }
 
-            string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
+            // Plattform-spezifische URI
+            string strUri;
+            bool isWine = !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WINE")) ||
+                           System.Environment.OSVersion.Platform == PlatformID.Unix;
+
+            if (isWine)
+            {
+                // Für Wine: localhost verwenden
+                strUri = String.Format("http://localhost:{0}/", servicePort);
+            }
+            else
+            {
+                // Für Windows: Standard-Wildcard
+                //strUri = String.Format("http://+:{0}/", servicePort);
+                strUri = String.Format("http://localhost:{0}/", servicePort);
+            }
+
             Uri uri = new Uri(strUri);
-            WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
+            ServiceHost serviceHost = new ServiceHost(ServiceType, uri);
             serviceHost.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
-            WebHttpBinding httpBinding = new WebHttpBinding() 
-            { 
-                ContentTypeMapper = GetContentTypeMapper(), 
-                AllowCookies = true 
+
+            WebHttpBinding httpBinding = new WebHttpBinding()
+            {
+                HostNameComparisonMode = HostNameComparisonMode.WeakWildcard,
+                ContentTypeMapper = GetContentTypeMapper(),
+                AllowCookies = true,
+                BypassProxyOnLocal = true,
+                UseDefaultWebProxy = false,
+                Security = new WebHttpSecurity
+                {
+                    Mode = WebHttpSecurityMode.None // Falls Transport-Security Probleme macht
+                }
             };
             httpBinding.MaxReceivedMessageSize = int.MaxValue;
             httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
             httpBinding.MaxBufferSize = int.MaxValue;
-            //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
             httpBinding.MaxBufferPoolSize = int.MaxValue;
 
             ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
             if (serviceEndpoint != null)
+            {
                 serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
+                // Explizit WebHttpBehavior hinzufügen (WebServiceHost macht das automatisch)
+                serviceEndpoint.EndpointBehaviors.Add(new WebHttpBehavior());
+            }
 
             ServiceMetadataBehavior metad = serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
             if (metad == null)
@@ -74,6 +120,7 @@ namespace gip.core.webservices
                     OnAddKnownTypesToOperationContract(endpoint, opDescr);
                 }
             }
+
             return serviceHost;
         }
 
@@ -116,9 +163,12 @@ namespace gip.core.webservices
             }
         }
 
+        private CoreWebService _serviceInstance;
         public override object GetWebServiceInstance()
         {
-            return new CoreWebService();
+            if (_serviceInstance == null)
+                _serviceInstance = new CoreWebService();
+            return _serviceInstance;
         }
 
         private ConcurrentDictionary<Guid, VBUserRights> _Sessions = new ConcurrentDictionary<Guid, VBUserRights>();

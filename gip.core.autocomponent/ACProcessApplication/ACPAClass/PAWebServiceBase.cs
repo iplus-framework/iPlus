@@ -223,6 +223,7 @@ namespace gip.core.autocomponent
                 {
                     _SvcHost.Opened += _SvcHost_Opened;
                     _SvcHost.Faulted += _SvcHost_Faulted;
+                    _SvcHost.Closed += _SvcHost_Closed;
                     _SvcHost.UnknownMessageReceived += _SvcHost_UnknownMessageReceived;
 
                     if (_SvcHost.State != CommunicationState.Opened)
@@ -236,6 +237,11 @@ namespace gip.core.autocomponent
                     Messages.LogException(GetACUrl(), "StartService()", e.InnerException.Message);
                 StopService();
             }
+        }
+
+        private void _SvcHost_Closed(object sender, EventArgs e)
+        {
+            OnServiceHostClosed();
         }
 
         protected void _SvcHost_Opened(object sender, EventArgs e)
@@ -295,6 +301,8 @@ namespace gip.core.autocomponent
                         _SvcHost.Close();
                     }
                 }
+                else
+                    OnServiceHostClosed();
                 _SvcHost = null;
             }
             catch (Exception e)
@@ -308,6 +316,10 @@ namespace gip.core.autocomponent
         public bool IsEnabledStopService()
         {
             return _SvcHost != null;
+        }
+
+        protected virtual void OnServiceHostClosed()
+        {
         }
 
         public override void AcknowledgeAlarms()
