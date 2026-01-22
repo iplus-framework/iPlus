@@ -117,6 +117,7 @@ namespace gip.core.datamodel
             Add("252", "GlobalIdentifierSerialisedForTrade", 3, DataType.Numeric, 2, false);
             Add("30", "AmountInParts", 2, DataType.Numeric, 8, true);
             Add("310d", "NetWeight_Kilogram", 4, DataType.Numeric, 6, false);
+            Add("310m", "NetWeight_Kilogram", 2, DataType.Numeric, 6, false);
             Add("311d", "Length_Meter", 4, DataType.Numeric, 6, false);
             Add("312d", "Width_Meter", 4, DataType.Numeric, 6, false);
             Add("313d", "Heigth_Meter", 4, DataType.Numeric, 6, false);
@@ -348,7 +349,7 @@ namespace gip.core.datamodel
             {
                 notLast = item.variable && (item.ai != input.Last().ai);
 
-                if(item.ai.Contains('d'))
+                if(item.ai.Contains('d') || item.ai.Contains('m'))
                 {
                     AII aii = GetAII(item.ai);
                     decimal decimalValue = decimal.Parse(item.val);
@@ -372,8 +373,14 @@ namespace gip.core.datamodel
         public static string GetNumericGSValue(string ai, decimal value, int decimals, int lengthOfData)
         {
             string actualAI = ai.Replace("d", decimals.ToString());
+            actualAI = ai.Replace("m", decimals.ToString());
 
-            int scaledValue = (int)(value * (decimal)Math.Pow(10, decimals));
+            decimal maxValue = (decimal)(Math.Pow(10, lengthOfData) - 1) / (decimal)Math.Pow(10, decimals); 
+            int scaledValue  =0;
+            if(value < maxValue)
+            {
+                scaledValue = (int)(value * (decimal)Math.Pow(10, decimals));
+            }
 
             string data = scaledValue.ToString().PadLeft(lengthOfData, '0');
 
@@ -490,7 +497,14 @@ namespace gip.core.datamodel
                     {
                         decimalPlaces = places;
                     }
-                    ai = ai.Remove(ai.Length - 1) + "d";
+                    if(decimalPlaces != null && decimalPlaces == 2)
+                    {
+                        ai = ai.Remove(ai.Length - 1) + "m";
+                    }
+                    else
+                    {
+                        ai = ai.Remove(ai.Length - 1) + "d";
+                    }
                 }
                 // try to get the ai from the dictionary
                 if (aiiDict.TryGetValue(ai, out result))
