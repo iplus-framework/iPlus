@@ -59,43 +59,21 @@ namespace gip.core.webservices
                 ServicePort = servicePort;
             }
 
-            // Plattform-spezifische URI
-            string strUri;
-            bool isWine = !string.IsNullOrEmpty(System.Environment.GetEnvironmentVariable("WINE")) ||
-                           System.Environment.OSVersion.Platform == PlatformID.Unix;
-
-            if (isWine)
-            {
-                // Für Wine: localhost verwenden
-                strUri = String.Format("http://localhost:{0}/", servicePort);
-            }
-            else
-            {
-                // Für Windows: Standard-Wildcard
-                //strUri = String.Format("http://+:{0}/", servicePort);
-                strUri = String.Format("http://localhost:{0}/", servicePort);
-            }
-
+            string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
             Uri uri = new Uri(strUri);
-            ServiceHost serviceHost = new ServiceHost(ServiceType, uri);
+            WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
             serviceHost.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
-
             WebHttpBinding httpBinding = new WebHttpBinding()
             {
-                HostNameComparisonMode = HostNameComparisonMode.WeakWildcard,
                 ContentTypeMapper = GetContentTypeMapper(),
-                AllowCookies = true,
-                BypassProxyOnLocal = true,
-                UseDefaultWebProxy = false,
-                Security = new WebHttpSecurity
-                {
-                    Mode = WebHttpSecurityMode.None // Falls Transport-Security Probleme macht
-                }
+                AllowCookies = true
             };
             httpBinding.MaxReceivedMessageSize = int.MaxValue;
             httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
             httpBinding.MaxBufferSize = int.MaxValue;
+            //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
             httpBinding.MaxBufferPoolSize = int.MaxValue;
+
 
             ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
             if (serviceEndpoint != null)
