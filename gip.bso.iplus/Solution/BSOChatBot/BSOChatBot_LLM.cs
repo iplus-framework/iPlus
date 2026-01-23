@@ -451,9 +451,21 @@ namespace gip.bso.iplus
                         ollama = new OllamaApiClient(new HttpClient { BaseAddress = new Uri(Endpoint), Timeout = TimeSpan.FromSeconds(HttpTimeOut) }, ModelName);
                     return ollama;
                 case "OpenAICompatible":
+                    var openAIOptions = new OpenAI.OpenAIClientOptions() { Endpoint = new Uri(Endpoint) };
+                    
+                    // Configure custom HttpClient with timeout if specified
+                    if (this.HttpTimeOut > 0)
+                    {
+                        var httpClient = new HttpClient
+                        {
+                            Timeout = TimeSpan.FromSeconds(HttpTimeOut)
+                        };
+                        openAIOptions.Transport = new System.ClientModel.Primitives.HttpClientPipelineTransport(httpClient);
+                    }
+                    
                     var chatClient = new OpenAI.Chat.ChatClient(ModelName,
                         new System.ClientModel.ApiKeyCredential(ApiKey),
-                        new OpenAI.OpenAIClientOptions() { Endpoint = new Uri(Endpoint) })
+                        openAIOptions)
                     .AsIChatClient()
                     .AsBuilder()
                     .UseFunctionInvocation()
@@ -462,7 +474,19 @@ namespace gip.bso.iplus
                         chatClient.UseDistributedCache(new MemoryDistributedCache(Options.Create(new MemoryDistributedCacheOptions())));
                     return chatClient.Build();
                 case "OpenAI":
-                    var openai = new OpenAI.OpenAIClient(ApiKey)
+                    var openAIClientOptions = new OpenAI.OpenAIClientOptions();
+                    
+                    // Configure custom HttpClient with timeout if specified
+                    if (this.HttpTimeOut > 0)
+                    {
+                        var httpClient = new HttpClient
+                        {
+                            Timeout = TimeSpan.FromSeconds(HttpTimeOut)
+                        };
+                        openAIClientOptions.Transport = new System.ClientModel.Primitives.HttpClientPipelineTransport(httpClient);
+                    }
+                    
+                    var openai = new OpenAI.OpenAIClient(new System.ClientModel.ApiKeyCredential(ApiKey), openAIClientOptions)
                         .GetChatClient(ModelName)
                         .AsIChatClient()
                         .AsBuilder()
@@ -485,6 +509,10 @@ namespace gip.bso.iplus
             }
             catch (Exception ex)
             {
+                #if DEBUG
+                Messages.LogException(this.GetACUrl(), "InitializeSelectedAIClient", ex);
+                #endif
+                
                 IsConnected = false;
                 ChatOutput = $"Error initializing AI client: {ex.Message}";
             }

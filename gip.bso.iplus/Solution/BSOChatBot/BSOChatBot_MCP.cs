@@ -24,6 +24,11 @@ using System.Collections.Concurrent;
 
 namespace gip.bso.iplus
 {
+    /// <summary>
+    /// Partial class for BSOChatBot handling MCP integration
+    /// You need to install node.js for using npx to connect to MCP servers:
+    /// https://nodejs.org/en/download
+    /// </summary>
     public partial class BSOChatBot : ACBSO
     {
         #region Properties
