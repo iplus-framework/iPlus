@@ -351,6 +351,7 @@
                 <Setter TargetName="OpModeBack" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=BorderBrushMaint}" />
             </Trigger>
             <MultiTrigger>
+                <!-- Openend between -->
                 <MultiTrigger.Conditions>
                     <Condition Property="Pos1" Value="True"/>
                     <Condition Property="Pos2" Value="True"/>
@@ -362,6 +363,7 @@
                 <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
             </MultiTrigger>
             <MultiTrigger>
+                <!-- 100% Open -->
                 <MultiTrigger.Conditions>
                     <Condition Property="Pos1" Value="True"/>
                     <Condition Property="Pos2" Value="False"/>
@@ -372,6 +374,7 @@
                 <Setter TargetName="PolyRight" Property="Fill" Value="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=FillBrushRunning}" />
             </MultiTrigger>
             <MultiTrigger>
+                <!-- 0% Closed -->
                 <MultiTrigger.Conditions>
                     <Condition Property="Pos1" Value="False"/>
                     <Condition Property="Pos2" Value="True"/>

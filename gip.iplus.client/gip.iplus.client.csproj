@@ -130,8 +130,8 @@
     <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <Target Name="AfterBuild">
-    <Copy SourceFiles="..\..\packages\Matrix\MATRIX32.dll" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
-    <Copy SourceFiles="..\..\packages\Matrix\MATRIX64.dll" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="..\..\packages\Matrix\MATRIX32.DLL" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
+    <Copy SourceFiles="..\..\packages\Matrix\MATRIX64.DLL" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="..\..\packages\Matrix\matrix.ini" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
 	<Target Name="CopyToNet7Windows" AfterTargets="Build">

@@ -95,6 +95,13 @@ namespace gip.core.processapplication
 
         #region Handle execute helpers
 
+        public override bool IsEnabledOpen()
+        {
+            if (ReqOpeningWidth.ValueT <= 0.0001)
+                return false;
+            return true;
+        }
+
         public static bool HandleExecuteACMethod_PAEActuator2way_Analog(out object result, IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, object[] acParameter)
         {
             return HandleExecuteACMethod_PAEActuator1way_Analog(out result, acComponent, acMethodName, acClassMethod, acParameter);

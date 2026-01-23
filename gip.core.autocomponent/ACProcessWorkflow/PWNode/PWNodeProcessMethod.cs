@@ -25,6 +25,7 @@ namespace gip.core.autocomponent
         #region Constructors
         static PWNodeProcessMethod()
         {
+            ACMethod.OverrideFromBase(typeof(PWNodeProcessMethod), ACStateConst.SMStarting);
             RegisterExecuteHandler(typeof(PWNodeProcessMethod), HandleExecuteACMethod_PWNodeProcessMethod);
         }
 
