@@ -19,8 +19,8 @@ using System.ServiceModel;
 namespace gip.core.webservices
 {
     /// <summary>
-    /// Stellt Kontext-Informationen für HttpListener-basierte Webservices bereit.
-    /// Ersetzt WebOperationContext für nicht-WCF-Umgebungen.
+    /// Provides context information for HttpListener-based web services.
+    /// Replaces WebOperationContext for non-WCF environments.
     /// </summary>
     public static class HttpListenerWebContext
     {
@@ -50,7 +50,7 @@ namespace gip.core.webservices
     }
 
     /// <summary>
-    /// Repräsentiert eine Route zu einer WebService-Operation
+    /// Represents a route to a web service operation
     /// </summary>
     public class WebServiceRoute
     {
@@ -67,7 +67,7 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Versucht die Route gegen eine URL zu matchen und extrahiert Parameter
+        /// Attempts to match the route against a URL and extracts parameters
         /// </summary>
         public bool TryMatch(string httpMethod, string path, out Dictionary<string, string> parameters)
         {
@@ -90,21 +90,21 @@ namespace gip.core.webservices
     }
 
     /// <summary>
-    /// Registry für WebService-Routen mit Reflection-basiertem Routing
+    /// Registry for web service routes with reflection-based routing
     /// </summary>
     public class WebServiceRouteRegistry
     {
         private List<WebServiceRoute> _routes = new List<WebServiceRoute>();
 
         /// <summary>
-        /// Registriert alle Routen aus einem Service-Interface-Type
+        /// Registers all routes from a service interface type
         /// </summary>
         public void RegisterRoutes(Type serviceInterfaceType)
         {
-            // Registriere Methoden aus dem Interface selbst
+            // Register methods from the interface itself
             RegisterRoutesFromType(serviceInterfaceType);
 
-            // Registriere Methoden aus allen Basis-Interfaces
+            // Register methods from all base interfaces
             foreach (var baseInterface in serviceInterfaceType.GetInterfaces())
             {
                 RegisterRoutesFromType(baseInterface);
@@ -115,7 +115,7 @@ namespace gip.core.webservices
         {
             foreach (var method in interfaceType.GetMethods())
             {
-                // Suche nach WebGet oder WebInvoke Attributen
+                // Search for WebGet or WebInvoke attributes
                 var webGetAttr = method.GetCustomAttribute<WebGetAttribute>();
                 var webInvokeAttr = method.GetCustomAttribute<WebInvokeAttribute>();
 
@@ -144,8 +144,8 @@ namespace gip.core.webservices
                 OperationName = method.Name
             };
 
-            // Parse UriTemplate und erstelle Regex
-            // z.B. "Login/{userName}" -> "^Login/(?<userName>[^/]+)$"
+            // Parse UriTemplate and create regex
+            // e.g. "Login/{userName}" -> "^Login/(?<userName>[^/]+)$"
             string pattern = "^" + uriTemplate;
             var paramMatches = Regex.Matches(uriTemplate, @"\{([^}]+)\}");
             
@@ -162,7 +162,7 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Findet eine passende Route für HTTP-Methode und Pfad
+        /// Finds a matching route for HTTP method and path
         /// </summary>
         public WebServiceRoute FindRoute(string httpMethod, string path, out Dictionary<string, string> parameters)
         {
@@ -198,8 +198,8 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Erstellt die Standard-JSON-Serialisierungseinstellungen.
-        /// Überschreiben Sie diese Methode, um benutzerdefinierte Einstellungen zu konfigurieren.
+        /// Creates the default JSON serialization settings.
+        /// Override this method to configure custom settings.
         /// </summary>
         protected virtual JsonSerializerSettings CreateDefaultJsonSettings()
         {
@@ -213,14 +213,14 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Hook-Methode zum Konfigurieren der Serialisierung für spezifische Endpunkte.
-        /// Äquivalent zu OnAddKnownTypesToOperationContract in WCF-Version.
+        /// Hook method for configuring serialization for specific endpoints.
+        /// Equivalent to OnAddKnownTypesToOperationContract in WCF version.
         /// </summary>
-        /// <param name="operationName">Name der aufgerufenen Operation</param>
-        /// <param name="settings">JSON-Serializer-Einstellungen die angepasst werden können</param>
+        /// <param name="operationName">Name of the invoked operation</param>
+        /// <param name="settings">JSON serializer settings that can be customized</param>
         protected virtual void OnConfigureJsonSerialization(string operationName, JsonSerializerSettings settings)
         {
-            // Standard-Implementierung - überschreiben in abgeleiteten Klassen
+            // Default implementation - override in derived classes
         }
 
         public ServiceHost CreateHttpListenerService()
@@ -238,10 +238,10 @@ namespace gip.core.webservices
             _listener = new HttpListener();
             _cancellationToken = new CancellationTokenSource();
 
-            // Registriere alle Routen aus dem Service-Interface
+            // Register all routes from the service interface
             _routeRegistry.RegisterRoutes(ServiceInterfaceType);
 
-            // Versuche verschiedene Prefixes für Wine-Kompatibilität
+            // Try different prefixes for Wine compatibility
             string[] prefixes = new[]
             {
                 $"http://+:{servicePort}/",
@@ -270,10 +270,10 @@ namespace gip.core.webservices
             if (!started)
                 throw new Exception("Konnte HttpListener auf keinem Prefix starten");
 
-            // Starte Listener-Loop
+            // Start listener loop
             Task.Run(() => ListenAsync(_cancellationToken.Token));
 
-            return null; // Kein WCF ServiceHost
+            return null; // No WCF ServiceHost
         }
 
         private async Task ListenAsync(CancellationToken token)
@@ -303,7 +303,7 @@ namespace gip.core.webservices
                 var request = context.Request;
                 var response = context.Response;
 
-                // Setze Kontext für CoreWebService (ersetzt WebOperationContext)
+                // Set context for CoreWebService (replaces WebOperationContext)
                 HttpListenerWebContext.CurrentSessionID = GetSessionIDFromCookie(context);
                 HttpListenerWebContext.CurrentServicePort = GetServicePort(context);
 
@@ -319,7 +319,7 @@ namespace gip.core.webservices
                     return;
                 }
 
-                // Authentifizierung prüfen
+                // Check authentication
                 if (!CheckAuthorization(context))
                 {
                     response.StatusCode = 401;
@@ -328,7 +328,7 @@ namespace gip.core.webservices
                     return;
                 }
 
-                // Route Request basierend auf UriTemplate-Matching mit Reflection
+                // Route request based on UriTemplate matching with reflection
                 string path = request.Url.AbsolutePath.TrimStart('/');
                 object result = null;
                 string operationName = string.Empty;
@@ -340,7 +340,7 @@ namespace gip.core.webservices
                 }
                 else
                 {
-                    // Finde passende Route
+                    // Find matching route
                     Dictionary<string, string> urlParameters;
                     var route = _routeRegistry.FindRoute(request.HttpMethod, path, out urlParameters);
 
@@ -349,7 +349,7 @@ namespace gip.core.webservices
                         operationName = route.OperationName;
                         result = await InvokeServiceMethod(route, urlParameters, request);
                         
-                        // Spezielle Behandlung für Login
+                        // Special handling for Login
                         if (operationName == "Login")
                         {
                             var loginResponse = result as WSResponse<VBUserRights>;
@@ -359,7 +359,7 @@ namespace gip.core.webservices
                                 SetSessionCookie(context, loginResponse.Data.SessionID.Value);
                             }
                         }
-                        // Spezielle Behandlung für Logout
+                        // Special handling for Logout
                         else if (operationName == "Logout" && urlParameters.ContainsKey("sessionID"))
                         {
                             if (Guid.TryParse(urlParameters["sessionID"], out Guid sessionGuid))
@@ -375,7 +375,7 @@ namespace gip.core.webservices
                     }
                 }
 
-                // JSON-Settings für diese Operation konfigurieren
+                // Configure JSON settings for this operation
                 var operationSettings = CloneJsonSettings(_jsonSettings);
                 OnConfigureJsonSerialization(operationName, operationSettings);
 
@@ -408,44 +408,44 @@ namespace gip.core.webservices
             }
             finally
             {
-                // Kontext aufräumen
+                // Clean up context
                 HttpListenerWebContext.Clear();
             }
         }
 
         /// <summary>
-        /// Ruft eine Service-Methode per Reflection auf
+        /// Invokes a service method via reflection
         /// </summary>
         protected virtual async Task<object> InvokeServiceMethod(WebServiceRoute route, Dictionary<string, string> urlParameters, HttpListenerRequest request)
         {
             var methodParams = route.Method.GetParameters();
             object[] args = new object[methodParams.Length];
 
-            // Body für POST/PUT lesen
+            // Read body for POST/PUT
             string requestBody = null;
             if (request.HttpMethod == "POST" || request.HttpMethod == "PUT")
             {
                 requestBody = ReadRequestBody(request);
             }
 
-            // Parameter vorbereiten
+            // Prepare parameters
             for (int i = 0; i < methodParams.Length; i++)
             {
                 var param = methodParams[i];
                 
-                // Versuche Parameter aus URL zu holen
+                // Try to get parameter from URL
                 if (urlParameters.ContainsKey(param.Name))
                 {
                     args[i] = ConvertParameter(urlParameters[param.Name], param.ParameterType);
                 }
-                // Versuche Parameter aus Request-Body zu deserialisieren
+                // Try to deserialize parameter from request body
                 else if (!string.IsNullOrEmpty(requestBody))
                 {
-                    // Konfiguriere JSON-Settings für diese Operation
+                    // Configure JSON settings for this operation
                     var deserializeSettings = CloneJsonSettings(_jsonSettings);
                     OnConfigureJsonSerialization(route.OperationName, deserializeSettings);
 
-                    // Bei einem einzelnen Parameter: direkt deserialisieren
+                    // For a single parameter: deserialize directly
                     if (methodParams.Length == 1 || i == 0)
                     {
                         try
@@ -454,7 +454,7 @@ namespace gip.core.webservices
                         }
                         catch
                         {
-                            // Fallback: String-Parameter
+                            // Fallback: string parameter
                             if (param.ParameterType == typeof(string))
                                 args[i] = requestBody;
                             else
@@ -462,20 +462,20 @@ namespace gip.core.webservices
                         }
                     }
                 }
-                // Default-Wert
+                // Default value
                 else
                 {
                     args[i] = param.ParameterType.IsValueType ? Activator.CreateInstance(param.ParameterType) : null;
                 }
             }
 
-            // Service-Instanz holen
+            // Get service instance
             object serviceInstance = GetWebServiceInstance();
 
-            // Methode aufrufen
+            // Invoke method
             object result = route.Method.Invoke(serviceInstance, args);
 
-            // Wenn Methode async ist (Task<T>), await
+            // If method is async (Task<T>), await
             if (result is Task)
             {
                 await (Task)result;
@@ -488,7 +488,7 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Konvertiert einen String-Parameter in den Zieltyp
+        /// Converts a string parameter to the target type
         /// </summary>
         protected object ConvertParameter(string value, Type targetType)
         {
@@ -513,7 +513,7 @@ namespace gip.core.webservices
             if (targetType == typeof(double))
                 return double.Parse(value);
 
-            // Nullable-Typen
+            // Nullable types
             if (targetType.IsGenericType && targetType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 if (string.IsNullOrEmpty(value) || value == "*" || value == "null")
@@ -533,16 +533,16 @@ namespace gip.core.webservices
 
         protected bool CheckAuthorization(HttpListenerContext context)
         {
-            // Prüfe zuerst Session-Cookie
+            // Check session cookie first
             Guid? sessionId = GetSessionIDFromCookie(context);
             if (sessionId.HasValue)
             {
                 var userRights = GetRightsForSession(sessionId.Value);
                 if (userRights != null)
-                    return true; // Gültige Session vorhanden
+                    return true; // Valid session exists
             }
 
-            // Kein gültiges Session-Cookie -> Prüfe Authorization Header
+            // No valid session cookie -> check Authorization header
             string authHeader = context.Request.Headers["Authorization"];
             if (string.IsNullOrEmpty(authHeader))
                 return false;
@@ -566,7 +566,7 @@ namespace gip.core.webservices
 
                 if (loggedIn && !sessionId.HasValue)
                 {
-                    // Erstelle neue Session und setze Cookie
+                    // Create new session and set cookie
                     Guid newSessionId = Guid.NewGuid();
                     SetSessionCookie(context, newSessionId);
                 }
@@ -581,7 +581,7 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Extrahiert die Session-ID aus dem Cookie-Header
+        /// Extracts the session ID from the cookie header
         /// </summary>
         protected Guid? GetSessionIDFromCookie(HttpListenerContext context)
         {
@@ -593,7 +593,7 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Setzt ein Session-Cookie in der Response
+        /// Sets a session cookie in the response
         /// </summary>
         protected void SetSessionCookie(HttpListenerContext context, Guid sessionId)
         {
@@ -602,12 +602,12 @@ namespace gip.core.webservices
         }
 
         /// <summary>
-        /// Extrahiert den aktuellen ServicePort aus dem HttpListenerContext
+        /// Extracts the current service port from the HttpListenerContext
         /// </summary>
         protected int? GetServicePort(HttpListenerContext context)
         {
             int? servicePort = context.Request.Url?.Port;
-            // Port forwarding: Wenn Port > 10000, dann -10000
+            // Port forwarding: If port > 10000, then -10000
             if (servicePort.HasValue && servicePort >= 10000)
                 servicePort -= 10000;
             return servicePort;
@@ -623,7 +623,7 @@ namespace gip.core.webservices
 
         protected string ExtractOperationName(string path)
         {
-            // Extrahiert den letzten Teil des Pfads als Operationsname
+            // Extracts the last part of the path as operation name
             var parts = path.TrimEnd('/').Split('/');
             return parts.Length > 0 ? parts[parts.Length - 1] : string.Empty;
         }
