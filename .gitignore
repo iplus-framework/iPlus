@@ -343,3 +343,4 @@ healthchecksdb
 /TwinCAT/V1/projects/TCatExample/*.~u
 
 .vscode/
+.continue/mcpServers/new-mcp-server.yaml
