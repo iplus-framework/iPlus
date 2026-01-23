@@ -712,7 +712,7 @@ namespace gip.bso.iplus
             return message;
         }
 
-        public static IEnumerable<ChatMessage> GetConversations(this IEnumerable<ChatMessageWrapper> messageWrappers)
+        public static IList<ChatMessage> GetConversations(this IEnumerable<ChatMessageWrapper> messageWrappers)
         {
             List<ChatMessage> conversationList = new List<ChatMessage>();
             foreach (var item in messageWrappers)

@@ -149,6 +149,9 @@ namespace Microsoft.Extensions.AI
                         case nameof(ChatClientSettings.UseCaching):
                             settings.UseCaching = reader.TokenType == JsonTokenType.Null ? null : reader.GetBoolean();
                             break;
+                        case nameof(ChatClientSettings.NoAssistantPrefill):
+                            settings.NoAssistantPrefill = reader.TokenType == JsonTokenType.Null ? null : reader.GetBoolean();
+                            break;
                         case nameof(ChatClientSettings.AdditionalPropertiesJSON):
                             settings.AdditionalPropertiesJSON = reader.GetString();
                             break;
@@ -239,6 +242,9 @@ namespace Microsoft.Extensions.AI
 
             if (value.UseCaching.HasValue)
                 writer.WriteBoolean(nameof(ChatClientSettings.UseCaching), value.UseCaching.Value);
+                
+            if (value.NoAssistantPrefill.HasValue)
+                writer.WriteBoolean(nameof(ChatClientSettings.NoAssistantPrefill), value.NoAssistantPrefill.Value);
 
             if (value.ToolMode != null)
             {

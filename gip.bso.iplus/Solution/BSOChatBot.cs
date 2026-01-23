@@ -610,6 +610,15 @@ IMPORTANT NOTES:
                 var chatOptions = new ChatOptions();
                 if (SelectedChatClientSettings != null)
                 {
+                    // If NoAssistantPrefill is set, remove any leading assistant messages that might act as prefill
+                    if (SelectedChatClientSettings.NoAssistantPrefill.HasValue && SelectedChatClientSettings.NoAssistantPrefill.Value)
+                    {
+                        // Remove any leading assistant messages that might act as prefill
+                        while (messages.Any() && messages[messages.Count-1].Role == ChatRole.Assistant)
+                        {
+                            messages.RemoveAt(messages.Count-1);
+                        }
+                    }
                     chatOptions = SelectedChatClientSettings.ToChatOptions();
                     if (_CurrentChatClient is OllamaApiClient ollamaClient)
                     {

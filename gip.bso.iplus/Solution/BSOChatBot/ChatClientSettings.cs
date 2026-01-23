@@ -173,7 +173,7 @@ namespace gip.bso.iplus
         [JsonIgnore]
         private Dictionary<string, object> _AdditionalProperties;
         [JsonIgnore]
-        [ACPropertyInfo(13, "", "en{'Additional Properties'}de{'Zusätzliche Eigenschaften'}")]
+        [ACPropertyInfo(13, "", "en{'Additional Properties'}de{'Zusï¿½tzliche Eigenschaften'}")]
         public Dictionary<string, object> AdditionalProperties
         {
             get => _AdditionalProperties;
@@ -185,7 +185,7 @@ namespace gip.bso.iplus
 
         [JsonIgnore]
         private bool _IncludeApiKeyInSerialization = false;
-        [ACPropertyInfo(14, "", "en{'Include API Key in Serialization'}de{'API Key in Serialization einschließen'}")]
+        [ACPropertyInfo(14, "", "en{'Include API Key in Serialization'}de{'API Key in Serialization einschlieï¿½en'}")]
         public bool IncludeApiKeyInSerialization
         {
             get => _IncludeApiKeyInSerialization;
@@ -270,6 +270,19 @@ namespace gip.bso.iplus
             }
         }
 
+         [JsonIgnore]
+        private bool? _noAssistantPrefill = null;
+        [ACPropertyInfo(9, "", "en{'No Assistant Prefill'}de{'Kein Assistenten-VorbefÃ¼llen'}")]
+        public bool? NoAssistantPrefill
+        {
+            get { return _noAssistantPrefill; }
+            set
+            {
+                SetProperty(ref _noAssistantPrefill, value);
+                OnPropertyChanged();
+            }
+        }       
+
         /// <summary>
         /// Example JSON representation of AdditionalProperties:
         /// {
@@ -283,7 +296,7 @@ namespace gip.bso.iplus
         /// </summary>
         [JsonIgnore]
         private string _AdditionalPropertiesJSON;
-        [ACPropertyInfo(16, "", "en{'Additional Properties JSON'}de{'Zusätzliche Eigenschaften JSON'}")]
+        [ACPropertyInfo(16, "", "en{'Additional Properties JSON'}de{'Zusï¿½tzliche Eigenschaften JSON'}")]
         public string AdditionalPropertiesJSON
         {
             get => _AdditionalPropertiesJSON;
