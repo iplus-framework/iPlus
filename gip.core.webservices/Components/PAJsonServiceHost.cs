@@ -74,14 +74,9 @@ namespace gip.core.webservices
             //httpBinding.MaxReceivedMessageSize = WCFServiceManager.MaxBufferSize;
             httpBinding.MaxBufferPoolSize = int.MaxValue;
 
-
             ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
             if (serviceEndpoint != null)
-            {
                 serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
-                // Explizit WebHttpBehavior hinzufügen (WebServiceHost macht das automatisch)
-                serviceEndpoint.EndpointBehaviors.Add(new WebHttpBehavior());
-            }
 
             ServiceMetadataBehavior metad = serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
             if (metad == null)
