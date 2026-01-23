@@ -184,18 +184,18 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="ClosedXML"  />
+    <PackageReference Include="ClosedXML" />
     <!-- Force package override for DocumentFormat of ClosedXML -->
     <PackageReference Include="DocumentFormat.OpenXml" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
     <PackageReference Include="DocumentFormat.OpenXml.Framework" VersionOverride="$(DocumentFormatOpenXmlVersion)" />
-    <PackageReference Include="Google.Cloud.Translate.V3"  />
-    <PackageReference Include="Microsoft.Data.SqlClient"  />
-    <PackageReference Include="Microsoft.Extensions.AI"  />
-    <PackageReference Include="Microsoft.Extensions.AI.OpenAI"  />
-    <PackageReference Include="ModelContextProtocol"  />
-    <PackageReference Include="OllamaSharp"  />
-    <PackageReference Include="System.Configuration.ConfigurationManager"  />
-    <PackageReference Include="TextCopy"  />
+    <PackageReference Include="Google.Cloud.Translate.V3" />
+    <PackageReference Include="Microsoft.Data.SqlClient" />
+    <PackageReference Include="Microsoft.Extensions.AI" />
+    <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
+    <PackageReference Include="ModelContextProtocol" />
+    <PackageReference Include="OllamaSharp" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" />
+    <PackageReference Include="TextCopy" />
   </ItemGroup>
   <PropertyGroup />
   <ItemGroup>
@@ -226,6 +226,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="VBControlScripts\2025-08-13 14-31_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="VBControlScripts\2026-01-23 14-14_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="VBControlScripts\2025-07-27 07-28_dlisak.zip">

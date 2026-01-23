@@ -74,12 +74,12 @@ namespace gip.core.autocomponent
 
         ACThread _ACHostStartThread = null;
 
-        private IWebHost _Host = null;
+        private IWebHost _SvcHost = null;
         public IWebHost Host
         {
             get
             {
-                return _Host;
+                return _SvcHost;
             }
         }
 
@@ -272,7 +272,7 @@ namespace gip.core.autocomponent
 
             try
             {
-                _Host = CreateService();
+                _SvcHost = CreateService();
                 _ACHostStartThread = new ACThread(StartHost);
                 _ACHostStartThread.Name = "ACUrl:" + this.GetACUrl() + ";StartHost();";
                 _ACHostStartThread.Start();
@@ -366,9 +366,10 @@ namespace gip.core.autocomponent
                 if (Host != null)
                 {
                     Host.StopAsync();
-                    _Host = null;
+                    _SvcHost = null;
                 }
-
+                else
+                    OnServiceHostClosed();
                 //if (_SvcHost != null)
                 //{
                 //    _SvcHost.Opened -= _SvcHost_Opened;
@@ -392,6 +393,10 @@ namespace gip.core.autocomponent
         public virtual bool IsEnabledStopService()
         {
             return Host != null;
+        }
+
+        protected virtual void OnServiceHostClosed()
+        {
         }
 
         public override void AcknowledgeAlarms()

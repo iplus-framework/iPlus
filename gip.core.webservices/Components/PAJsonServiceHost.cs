@@ -28,19 +28,44 @@ using System.Xml;
 namespace gip.core.webservices
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Json Host iPlus'}de{'Json Host iPlus'}", Global.ACKinds.TPABGModule, Global.ACStorableTypes.Required, false, false)]
-    public class PAJsonServiceHost : PAWebServiceBase
+    public partial class PAJsonServiceHost : PAWebServiceBase
     {
         #region c´tors
         public PAJsonServiceHost(gip.core.datamodel.ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
+            _UseCustomHttpListener = new ACPropertyConfigValue<bool>(this, nameof(UseCustomHttpListener), false);
+        }
+
+        public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
+        {
+            if (UseCustomHttpListener)
+                InitPAJsonServiceHostListener();
+            return base.ACInit(startChildMode);
         }
         #endregion
 
+        #region Config
+        private ACPropertyConfigValue<bool> _UseCustomHttpListener;
+        [ACPropertyConfig("en{'Use Custom http listener'}de{'Verwende eigenen http listener'}")]
+        public bool UseCustomHttpListener
+        {
+            get => _UseCustomHttpListener.ValueT;
+            set => _UseCustomHttpListener.ValueT = value;
+        }
+        #endregion
 
         #region Implementation
 
         public override IWebHost CreateService()
+        {
+            if (UseCustomHttpListener)
+                return CreateHttpListenerService();
+            else
+                return CreateWCFHttpService();
+        }
+
+        protected IWebHost CreateWCFHttpService()
         {
             // Kommando um http-Service bei Windows freizuschalten
             // >netsh http add urlacl url=http://+:8730/ user="\Everyone"
@@ -154,9 +179,12 @@ namespace gip.core.webservices
             }
         }
 
+        private CoreWebService _serviceInstance;
         public override object GetWebServiceInstance()
         {
-            return new CoreWebService();
+            if (_serviceInstance == null)
+                _serviceInstance = new CoreWebService();
+            return _serviceInstance;
         }
 
         private ConcurrentDictionary<Guid, VBUserRights> _Sessions = new ConcurrentDictionary<Guid, VBUserRights>();

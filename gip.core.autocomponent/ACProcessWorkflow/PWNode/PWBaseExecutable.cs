@@ -26,6 +26,15 @@ namespace gip.core.autocomponent
 
         static PWBaseExecutable()
         {
+            ACMethod method;
+            method = new ACMethod(ACStateConst.SMStarting);
+            Dictionary<string, string> paramTranslation = new Dictionary<string, string>();
+            method.ParameterValueList.Add(new ACValue("IsSkippable", typeof(bool), true, Global.ParamOption.Required));
+            paramTranslation.Add("IsSkippable", "en{'Is Skippable'}de{'Ist überspringbar'}");
+
+            var wrapper = new ACMethodWrapper(method, "en{'Executable'}de{'Executable'}", typeof(PWBaseExecutable), paramTranslation, null);
+            ACMethod.RegisterVirtualMethod(typeof(PWBaseExecutable), ACStateConst.SMStarting, wrapper);
+
             RegisterExecuteHandler(typeof(PWBaseExecutable), HandleExecuteACMethod_PWBaseExecutable);
         }
 
@@ -287,6 +296,16 @@ namespace gip.core.autocomponent
         {
             get
             {
+                ACMethod myConfig = MyConfiguration;
+                if (myConfig != null)
+                {
+                    ACValue isSkippable = myConfig.ParameterValueList.GetACValue("IsSkippable");
+                    if (isSkippable != null)
+                    {
+                        return isSkippable.ParamAsBoolean;
+                    }
+                }
+
                 return true;
             }
         }
@@ -403,6 +422,7 @@ namespace gip.core.autocomponent
             return HandleExecuteACMethod_PWBase(out result, acComponent, acMethodName, acClassMethod, acParameter);
         }
         #endregion
+
 
         public override void Reset()
         {
