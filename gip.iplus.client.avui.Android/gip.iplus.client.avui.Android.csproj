@@ -14,6 +14,10 @@
     <EnableAvaloniaXamlCompilation>True</EnableAvaloniaXamlCompilation>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|$(DefaultNetCoreTargetFramework)-android|AnyCPU'">
+		<EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+	</PropertyGroup>
+
   <ItemGroup>
     <AndroidResource Include="Icon.png">
       <Link>Resources\drawable\Icon.png</Link>
