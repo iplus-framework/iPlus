@@ -134,7 +134,10 @@
     <Copy SourceFiles="..\..\packages\Matrix\MATRIX64.DLL" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
     <Copy SourceFiles="..\..\packages\Matrix\matrix.ini" DestinationFolder="$(ProjectDir)$(OutDir)" OverwriteReadOnlyFiles="true" SkipUnchangedFiles="false" />
   </Target>
-	<Target Name="CopyToNet7Windows" AfterTargets="Build">
-		<Exec Command="xcopy &quot;$(SolutionDir)bin\$(Configuration)\$(DefaultNetCoreTargetFramework)\*.*&quot; &quot;$(SolutionDir)bin\$(Configuration)\$(UITargetFramework)\&quot; /Y /I /E /EXCLUDE:$(ProjectDir)\AfterBuildCopyExclude.txt" />
-	</Target>
+    <Target Name="CopyToNet7Windows" AfterTargets="Build" Condition="'$(OS)' == 'Windows_NT'">
+        <Exec Command="xcopy &quot;$(SolutionDir)bin\$(Configuration)\$(DefaultNetCoreTargetFramework)\*.*&quot; &quot;$(SolutionDir)bin\$(Configuration)\$(UITargetFramework)\&quot; /Y /I /E /EXCLUDE:$(ProjectDir)\AfterBuildCopyExclude.txt" />
+    </Target>
+    <Target Name="CopyToNet7Linux" AfterTargets="Build" Condition="'$(OS)' != 'Windows_NT'">
+        <Exec Command="cp -r &quot;$(SolutionDir)bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/.&quot; &quot;$(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/&quot;" />
+    </Target>
 </Project>

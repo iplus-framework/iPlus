@@ -87,29 +87,7 @@
     <ProjectReference Include="..\gip.ext.designer\project\gip.ext.designer.csproj" />
     <ProjectReference Include="..\gip.ext.design\project\gip.ext.design.csproj" />
     <ProjectReference Include="..\gip.ext.graphics\gip.ext.graphics.csproj" />
-    <ProjectReference Include="..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
-      <Install>false</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
-      <Visible>False</Visible>
-      <ProductName>.NET Framework 3.5 SP1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
-      <Visible>False</Visible>
-      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
-    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
-      <Visible>False</Visible>
-      <ProductName>Windows Installer 3.1</ProductName>
-      <Install>true</Install>
-    </BootstrapperPackage>
+    <ProjectReference Include="..\gip.ext.xamldom\project\gip.ext.xamldom.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\unpinned.bmp" />
@@ -118,11 +96,11 @@
     <Resource Include="Images\pinned.bmp" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Controls\VBDocking\Icons\DockBottom.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockLeft.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockPane.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockRight.PNG" />
-    <Resource Include="Controls\VBDocking\Icons\DockTop.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockBottom.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockLeft.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockPane.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockRight.PNG" />
+    <Resource Include="Controls\VBDocking\icons\DockTop.PNG" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\QuestionMark.JPG" />
