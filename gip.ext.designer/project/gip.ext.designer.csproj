@@ -59,8 +59,8 @@
     <ProjectReference Include="..\..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\..\gip.ext.design\project\gip.ext.design.csproj" />
     <ProjectReference Include="..\..\gip.ext.graphics\gip.ext.graphics.csproj" />
-    <ProjectReference Include="..\..\gip.ext.widgets\Project\gip.ext.widgets.csproj" />
-    <ProjectReference Include="..\..\gip.ext.xamldom\Project\gip.ext.xamldom.csproj" />
+    <ProjectReference Include="..\..\gip.ext.widgets\project\gip.ext.widgets.csproj" />
+    <ProjectReference Include="..\..\gip.ext.xamldom\project\gip.ext.xamldom.csproj" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
     <Reference Include="Microsoft.EntityFrameworkCore">

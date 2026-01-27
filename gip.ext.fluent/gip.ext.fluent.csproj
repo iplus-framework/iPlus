@@ -162,7 +162,7 @@
     <Page Remove="Themes\Office2010\RibbonWindow.xaml" />
   </ItemGroup>
   <PropertyGroup>
-    <PreBuildEvent>goto :exit
+    <PreBuildEvent Condition="'$(OS)' == 'Windows_NT'">goto :exit
 attrib -r $(ProjectDir)Themes\Generic.xaml
 "$(ProjectDir)Themes\XamlCombine.exe" Generic.txt Generic.xaml
 attrib -r $(ProjectDir)Themes\Office2010\Black.xaml
