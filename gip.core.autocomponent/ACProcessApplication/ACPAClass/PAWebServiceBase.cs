@@ -74,8 +74,8 @@ namespace gip.core.autocomponent
 
         ACThread _ACHostStartThread = null;
 
-        private IWebHost _SvcHost = null;
-        public IWebHost Host
+        private IHost _SvcHost = null;
+        public IHost Host
         {
             get
             {
@@ -199,7 +199,7 @@ namespace gip.core.autocomponent
         /// Override this method and create the ServiceHost.
         /// </summary>
         /// <returns></returns>
-        public abstract IWebHost CreateService();
+        public abstract IHost CreateService();
 
         #endregion
 

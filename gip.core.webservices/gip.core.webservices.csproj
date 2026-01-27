@@ -15,7 +15,7 @@
     <PackageProjectUrl>https://github.com/iplus-framework</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <RepositoryUrl>https://github.com/iplus-framework/iPlus.git</RepositoryUrl>
-    <PackageReadmeFile>readme.md</PackageReadmeFile>
+	<PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>

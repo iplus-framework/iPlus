@@ -161,7 +161,7 @@ namespace gip.bso.iplus
             }
         }
 
-        private Dictionary<string, IMcpClient> _McpClients;
+        private Dictionary<string, McpClient> _McpClients;
 
         #endregion
 
@@ -246,7 +246,7 @@ namespace gip.bso.iplus
             {
                 // Initialize MCP clients dictionary if needed
                 if (_McpClients == null)
-                    _McpClients = new Dictionary<string, IMcpClient>();
+                    _McpClients = new Dictionary<string, McpClient>();
 
                 // Parse the JSON configuration
                 McpServerConfig config;
@@ -311,18 +311,17 @@ namespace gip.bso.iplus
                 var connectedServers = new List<string>();
 
                 // Create MCP client with sampling capability
-                var samplingHandler = _CurrentChatClient?.CreateSamplingHandler();
                 var clientOptions = new McpClientOptions
                 {
                     Capabilities = new ClientCapabilities
                     {
-                        Sampling = samplingHandler != null ? new SamplingCapability { SamplingHandler = samplingHandler } : null
+                        Sampling = _CurrentChatClient != null ? new SamplingCapability() : null
                     }
                 };
 
                 // Connect to each MCP server with proper error handling
                 var connectionTasks = new List<Task>();
-                var connectionResults = new ConcurrentBag<(string serverName, IMcpClient client, List<AITool> tools, Exception error)>();
+                var connectionResults = new ConcurrentBag<(string serverName, McpClient client, List<AITool> tools, Exception error)>();
 
                 foreach (var serverEntry in config.mcpServers)
                 {
@@ -388,7 +387,7 @@ namespace gip.bso.iplus
             string serverName,
             McpServerInfo serverInfo,
             McpClientOptions clientOptions,
-            ConcurrentBag<(string serverName, IMcpClient client, List<AITool> tools, Exception error)> results)
+            ConcurrentBag<(string serverName, McpClient client, List<AITool> tools, Exception error)> results)
         {
             try
             {
@@ -404,7 +403,7 @@ namespace gip.bso.iplus
 
                 // Connect to MCP server with timeout
                 using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30-second timeout
-                var mcpClient = await McpClientFactory.CreateAsync(
+                var mcpClient = await McpClient.CreateAsync(
                     transport,
                     clientOptions,
                     _LoggerFactory,
@@ -439,7 +438,7 @@ namespace gip.bso.iplus
                 ToolCheckList.Clear();
                 McpConnected = false;
                 ChatOutput = "All MCP clients disconnected";
-                _McpClients = new Dictionary<string, IMcpClient>();
+                _McpClients = new Dictionary<string, McpClient>();
                 OnPropertyChanged(nameof(AvailableTools));
             }
             catch (Exception ex)

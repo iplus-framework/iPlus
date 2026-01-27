@@ -184,8 +184,11 @@
   <ItemGroup>
     <PackageReference Include="CoreWCF.NetTcp"  />
     <PackageReference Include="CoreWCF.Primitives"  />
-    <PackageReference Include="Microsoft.AspNetCore"  />
-    <PackageReference Include="Microsoft.CodeAnalysis"  />
+	<PackageReference Include="CoreWCF.ConfigurationManager"  />
+	<PackageReference Include="CoreWCF.Http"  />
+	<PackageReference Include="CoreWCF.WebHttp"  />
+    <PackageReference Condition="'$(UseDotNet10)' == 'False'" Include="Microsoft.AspNetCore"  />
+	<PackageReference Include="Microsoft.CodeAnalysis"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />

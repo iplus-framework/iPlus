@@ -1,28 +1,29 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using gip.core.autocomponent;
-using gip.core.datamodel;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
 using CoreWCF;
 using CoreWCF.Channels;
+using CoreWCF.Configuration;
 using CoreWCF.Description;
 using CoreWCF.Dispatcher;
 using CoreWCF.Web;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Hosting;
+﻿using gip.core.autocomponent;
+using gip.core.datamodel;
 using Microsoft.AspNetCore;
-using System.Diagnostics;
-using CoreWCF.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Security.Policy;
 using System.ServiceModel;
-using Swashbuckle.AspNetCore.Swagger;
+using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace gip.core.webservices
@@ -57,7 +58,7 @@ namespace gip.core.webservices
 
         #region Implementation
 
-        public override IWebHost CreateService()
+        public override IHost CreateService()
         {
             if (UseCustomHttpListener)
                 return CreateHttpListenerService();
@@ -65,7 +66,7 @@ namespace gip.core.webservices
                 return CreateWCFHttpService();
         }
 
-        protected IWebHost CreateWCFHttpService()
+        protected IHost CreateWCFHttpService()
         {
             // Kommando um http-Service bei Windows freizuschalten
             // >netsh http add urlacl url=http://+:8730/ user="\Everyone"
@@ -76,86 +77,78 @@ namespace gip.core.webservices
             // Kommando um alle Einträge anzuzeigen:
             // >netsh http show urlacl
 
-            IWebHost host = WebHost.CreateDefaultBuilder()
-                .UseKestrel(options =>
+            var builder = WebApplication.CreateBuilder();
+            
+            int servicePort = ServicePort;
+            if (servicePort <= 0)
+            {
+                servicePort = 8730;
+                ServicePort = servicePort;
+            }
+
+            builder.WebHost.UseKestrel(options =>
+            {
+                options.ListenAnyIP(servicePort);
+                //options.ListenAnyIP(8731, listenOptions =>
+                //{
+                //    listenOptions.UseHttps();
+                //});
+            });
+
+            builder.Services.AddServiceModelWebServices(o =>
+            {
+                o.Title = "Mobile Service API";
+                o.Version = "1";
+                o.Description = "API Description";
+                o.TermsOfService = new("https://github.com/iplus-framework/iPlus");
+                o.ContactName = "Contact";
+                o.ContactEmail = "info@iplus-framework.com";
+                //o.ContactUrl = new("http://example.com/contact");
+                //o.ExternalDocumentUrl = new("http://example.com/doc.pdf");
+                //o.ExternalDocumentDescription = "Documentation";
+            });
+
+            builder.Services.AddSingleton(new SwaggerOptions());
+
+            var app = builder.Build();
+
+            app.UseSwagger();
+            app.UseSwaggerUI();
+            ((IApplicationBuilder)app).UseServiceModel(serviceBuilder =>
+            {
+                string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
+                Uri uri = new Uri(strUri);
+                WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = GetContentTypeMapper() };
+                httpBinding.MaxReceivedMessageSize = int.MaxValue;
+                httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
+                httpBinding.MaxBufferSize = int.MaxValue;
+                httpBinding.MaxBufferPoolSize = int.MaxValue;
+                serviceBuilder.AddService(ServiceType);
+                serviceBuilder.AddServiceWebEndpoint(ServiceType, ServiceInterfaceType, httpBinding, uri, null);
+
+                serviceBuilder.ConfigureAllServiceHostBase((serviceHostBase) =>
                 {
-                    int servicePort = ServicePort;
-                    if (servicePort <= 0)
+                    // Set the authorization manager
+                    serviceHostBase.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
+
+                    ServiceMetadataBehavior metad = serviceHostBase.Description.Behaviors.Find<ServiceMetadataBehavior>();
+                    if (metad == null)
                     {
-                        servicePort = 8730;
-                        ServicePort = servicePort;
+                        metad = new ServiceMetadataBehavior();
+                        serviceHostBase.Description.Behaviors.Add(metad);
                     }
-                    options.ListenAnyIP(servicePort);
-                    //options.ListenAnyIP(8731, listenOptions =>
-                    //{
-                    //    listenOptions.UseHttps();
-                    //});
-                })
-                .ConfigureServices(services =>
-                {
-                    services.AddServiceModelWebServices(o =>
+                    metad.HttpGetEnabled = true;
+                    foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHostBase.Description.Endpoints)
                     {
-                        o.Title = "Mobile Service API";
-                        o.Version = "1";
-                        o.Description = "API Description";
-                        o.TermsOfService = new("https://github.com/iplus-framework/iPlus");
-                        o.ContactName = "Contact";
-                        o.ContactEmail = "info@iplus-framework.com";
-                        //o.ContactUrl = new("http://example.com/contact");
-                        //o.ExternalDocumentUrl = new("http://example.com/doc.pdf");
-                        //o.ExternalDocumentDescription = "Documentation";
-                    });
-
-                    services.AddSingleton(new SwaggerOptions());
-                })
-                .Configure(app =>
-                {
-                    app.UseSwagger();
-                    app.UseSwaggerUI();
-                    app.UseServiceModel(builder =>
-                    {
-                        int servicePort = ServicePort;
-                        if (servicePort <= 0)
+                        foreach (OperationDescription opDescr in endpoint.Contract.Operations)
                         {
-                            servicePort = 8730;
-                            ServicePort = servicePort;
+                            OnAddKnownTypesToOperationContract(endpoint, opDescr);
                         }
+                    }
+                });
+            });
 
-                        string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
-                        Uri uri = new Uri(strUri);
-                        WebHttpBinding httpBinding = new WebHttpBinding() { ContentTypeMapper = GetContentTypeMapper() };
-                        httpBinding.MaxReceivedMessageSize = int.MaxValue;
-                        httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
-                        httpBinding.MaxBufferSize = int.MaxValue;
-                        httpBinding.MaxBufferPoolSize = int.MaxValue;
-                        builder.AddService(ServiceType);
-                        builder.AddServiceWebEndpoint(ServiceType, ServiceInterfaceType, httpBinding, uri, null);
-
-                        builder.ConfigureAllServiceHostBase((serviceHostBase) =>
-                        {
-                            // Set the authorization manager
-                            serviceHostBase.Authorization.ServiceAuthorizationManager = new WSRestAuthorizationManager();
-
-                            ServiceMetadataBehavior metad = serviceHostBase.Description.Behaviors.Find<ServiceMetadataBehavior>();
-                            if (metad == null)
-                            {
-                                metad = new ServiceMetadataBehavior();
-                                serviceHostBase.Description.Behaviors.Add(metad);
-                            }
-                            metad.HttpGetEnabled = true;
-                            foreach (CoreWCF.Description.ServiceEndpoint endpoint in serviceHostBase.Description.Endpoints)
-                            {
-                                foreach (OperationDescription opDescr in endpoint.Contract.Operations)
-                                {
-                                    OnAddKnownTypesToOperationContract(endpoint, opDescr);
-                                }
-                            }
-                        });
-                    });
-                })
-                .Build();
-
-            return host;
+            return app;
         }
 
         public virtual WebContentTypeMapper GetContentTypeMapper()

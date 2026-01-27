@@ -242,8 +242,8 @@ namespace gip.ext.designer.OutlineView
                 MethodInfo setMethod = SetterTargetPropertyInfo.PropertyType.GetMethod("Set" + SetterTargetPropertyName, BindingFlags.Public | BindingFlags.Static);
                 if (getMethod != null && setMethod != null)
                 {
-                    FieldInfo field = SetterTargetPropertyInfo.PropertyType.GetField(SetterTargetPropertyName + "Property", BindingFlags.Public | BindingFlags.Static);
-                    if (field != null && field.FieldType == typeof(DependencyProperty))
+                    FieldInfo @field = SetterTargetPropertyInfo.PropertyType.GetField(SetterTargetPropertyName + "Property", BindingFlags.Public | BindingFlags.Static);
+                    if (@field != null && @field.FieldType == typeof(DependencyProperty))
                     {
                         return true;
                     }

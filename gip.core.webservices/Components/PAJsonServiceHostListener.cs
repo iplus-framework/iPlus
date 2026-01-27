@@ -2,6 +2,7 @@ using CoreWCF.Web;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System;
@@ -224,7 +225,7 @@ namespace gip.core.webservices
             // Default implementation - override in derived classes
         }
 
-        public IWebHost CreateHttpListenerService()
+        public IHost CreateHttpListenerService()
         {
             if (_routeRegistry == null || _jsonSettings == null)
                 InitPAJsonServiceHostListener();

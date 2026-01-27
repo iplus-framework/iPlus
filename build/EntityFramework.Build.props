@@ -1,6 +1,6 @@
 <Project>
-  <PropertyGroup>
-	  <!-- Set this property to true to work with the performance improved EF-Version at https://github.com/iplus-framework/efcore/tree/ef_90_iPlus
+	<PropertyGroup>
+		<!-- Set this property to true to work with the performance improved EF-Version at https://github.com/iplus-framework/efcore/tree/ef_90_iPlus
     until this changes are not merged into the official repository. 
     This fork also enables automatic refreshing of entity objects from database     
     For NET 9.0 clone the branch "ef_90_iPlus" into a directory on the same level as the iPlus directory.
@@ -9,31 +9,31 @@
     https://github.com/iplus-framework/efcore/tree/ef_main_iPlus
     Don't compile the test projects of entity framework. Only the projects in the src-driectory are needed.
     -->
-    <UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
-    
-	
-	  <!-- Settings for entity framework main and DOT-NET 9.0 -->
-	  <DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
-    <UITargetFramework>net9.0-windows7.0</UITargetFramework>
-    <EFCoreBuildFramework>net8.0</EFCoreBuildFramework>
-    <EFCoreRootDir>$(MSBuildThisFileDirectory)../../../ef_90_iPlus</EFCoreRootDir>
-    <EFCoreIncludeDir>$(EFCoreRootDir)/artifacts\bin</EFCoreIncludeDir>
-    <EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir>
-    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR</CompilerDefFCoreForkIPlus>
-    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'"></CompilerDefFCoreForkIPlus>
+	<UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
+	</PropertyGroup>
 
+	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
+		<!-- Settings for entity framework main and DOT-NET 9.0 -->
+		<DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
+		<UITargetFramework>net9.0-windows7.0</UITargetFramework>
+		<EFCoreBuildFramework>net8.0</EFCoreBuildFramework>
+		<EFCoreRootDir>$(MSBuildThisFileDirectory)../../../ef_90_iPlus</EFCoreRootDir>
+		<EFCoreIncludeDir>$(EFCoreRootDir)/artifacts\bin</EFCoreIncludeDir>
+		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir>
+		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR</CompilerDefFCoreForkIPlus>
+		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'"></CompilerDefFCoreForkIPlus>
+	</PropertyGroup>
 
-    <!-- Settings for entity framework main and DOT-NET 10.0 and higher -->
-    <!--<DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
-    <UITargetFramework>net10.0-windows7.0</UITargetFramework>
-    <NetCorePackageVersion>10.0.0-preview.6.25358.103</NetCorePackageVersion>
-    <EFCoreBuildFramework>net10.0</EFCoreBuildFramework>
-    <EFCoreRootDir>..\..\ef_main_iPlus</EFCoreRootDir>
-    <EFCoreIncludeDir>$(EFCoreRootDir)\artifacts\bin</EFCoreIncludeDir>
-    <EFCoreToolsDir>$(EFCoreRootDir)\src\EFCore.Tools</EFCoreToolsDir>
-    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR;NET10</CompilerDefFCoreForkIPlus>
-    <CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'">NET10</CompilerDefFCoreForkIPlus>
-    <CodeAnalysisVersion>4.14.0</CodeAnalysisVersion>
-    <CoreWCFVersion>1.8.0</CoreWCFVersion>-->
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
+		<!-- Settings for entity framework main and DOT-NET 10.0 and higher -->
+		<DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
+		<UITargetFramework>net10.0-windows</UITargetFramework>
+		<NetCorePackageVersion>10.0.0</NetCorePackageVersion>
+		<EFCoreBuildFramework>net10.0</EFCoreBuildFramework>
+		<EFCoreRootDir>../../../ef_main_iPlus</EFCoreRootDir>
+		<EFCoreIncludeDir>$(EFCoreRootDir)/artifacts/bin</EFCoreIncludeDir>
+		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir>
+		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR;NET10</CompilerDefFCoreForkIPlus>
+		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'">NET10</CompilerDefFCoreForkIPlus>
+	</PropertyGroup>
 </Project>

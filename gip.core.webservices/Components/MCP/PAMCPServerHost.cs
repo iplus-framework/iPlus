@@ -254,7 +254,7 @@ namespace gip.core.webservices
         }
 
 
-        public VBUserRights ResolveUserForSession(IMcpServer server, bool autoremoveSessionID = false)
+        public VBUserRights ResolveUserForSession(McpServer server, bool autoremoveSessionID = false)
         {
             var userContextService = server.Services?.GetService(typeof(IVBUserContextService)) as VBUserContextService;
             if (userContextService == null)
@@ -291,7 +291,7 @@ namespace gip.core.webservices
             return vBUserRights;
         }
 
-        public override IWebHost CreateService()
+        public override IHost CreateService()
         {
             throw new NotImplementedException();
         }

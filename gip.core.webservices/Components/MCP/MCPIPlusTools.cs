@@ -50,13 +50,12 @@ namespace gip.core.webservices
 
 
         #region MCP-Tools
-        [McpServerTool]
-        [Description("(1) Thesaurus for the agent: " +
+        [McpServerTool(Name = "get_thesaurus"), Description("(1) Thesaurus for the agent: " +
             "Overview of the types used in the system in order to be able to derive from the terms chosen by the user what intention he has and which objects he is talking about. " +
             "Each result contains an ACIdentifier (unique type name) and Description. " +
             "Use this tool FIRST to discover what component types exist in the system before querying specific instances or type information.")]
         public static string get_thesaurus(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("Language code for localized descriptions (e.g., 'en', 'de')")]
@@ -77,15 +76,14 @@ namespace gip.core.webservices
         }
 
 
-        [McpServerTool]
-        [Description("(2) Component Type Information: Returns detailed information about specific component or object types, including their unique ClassID which is required for other tool operations. " +
+        [McpServerTool(Name = "get_type_infos"), Description("(2) Component Type Information: Returns detailed information about specific component or object types, including their unique ClassID which is required for other tool operations. " +
             "Pass ACIdentifiers obtained from get_thesaurus to get the ClassIDs needed for instance queries and property/method discovery. " +
             "Use this tool BEFORE you call get_instance_info so that you can pass the correct types or ClassIds there while the types are still unknown to you. " +
             "If you have access to the github-mcp-server, use the search_code tool by passing 'org:iplus-framework' + ACIdentifier to the search query parameter. " +
             "If the search is successful, you can read the class's source code to better understand how it works and in which states you can call which methods and properties using execute_acurl_command. " +
             "Source code can only be retrieved for types with IsCodeOnGithub set to true. If false, traverse the inheritance hierarchy (BaseClassId) until a class with IsCodeOnGithub true is found. ")]
         public static string get_type_infos(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("(required) Comma-separated list of ACIdentifiers (type names) from the thesaurus or ClassIDs that have already been resolved using the ACIdentifier. Can be base class names to find derived types when used with `getDerivedTypes=true`")]
@@ -110,8 +108,7 @@ namespace gip.core.webservices
             return GetAppTree(mcpHost).get_type_infos(mcpHost, userRights, acIdentifiersOrClassIDs, i18nLangTag, getDerivedTypes);
         }
 
-        [McpServerTool]
-        [Description("(3) Application Tree Navigation: Explores the hierarchical tree structure of component instances, similar to a file system directory listing. " +
+        [McpServerTool(Name = "get_instance_info"), Description("(3) Application Tree Navigation: Explores the hierarchical tree structure of component instances, similar to a file system directory listing. " +
             "Returns the tree with ACIdentifiers (ACId field) that form the path for ACUrl addressing. " +
             "ALWAYS think hierarchically and PASS MULTIPLE ClassIDs separated by commas in a single call if possible to efficiently examine parent-child relationships (e.g. \"ParentClassID,ChildClassID\"). " +
             "Search conditions correspond positionally to ClassIDs - use partial matches like numbers or keywords rather than full identifiers (e.g., '4,' to find items with '4' in the first ClassID and any items for the second ClassID). " +
@@ -120,7 +117,7 @@ namespace gip.core.webservices
             "If you pass ClassIDs of types in category 4, you get the ACUrl with which you can execute database queries using execute_acurl_command without having to use business objects (category 2) " +
             "with which you can also manipulate data and handle business processes.")]
         public static string get_instance_info(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("Comma-separated list of ClassIDs (values that you got from tool get_type_infos) for the component types you want to find. Include both parent and child type IDs when exploring hierarchical relationships. Order by compositional logic (parent -> children).")]
@@ -138,8 +135,7 @@ namespace gip.core.webservices
         }
 
 
-        [McpServerTool]
-        [Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. " +
+        [McpServerTool(Name = "get_property_info"), Description("(4) Component Property Discovery: Lists all available properties of a component type or instance. " +
             "Use this before reading/writing property values to discover available property names and their data types. " +
             "If the data type is a complex value, the value of the DataTypeClassID field can be passed recursively to get_property_info to analyze its structure. " +
             "This is useful, for example, for Entity Framework objects to be able to read and modify field values. " +
@@ -149,7 +145,7 @@ namespace gip.core.webservices
             "To effect state changes, ALWAYS prefer to FIRST find a suitable method via get_method_info and execute it via execute_acurl_command instead of changing the property value directly, " +
             "because the methods validate whether a command may be executed or not. ")]
         public static string get_property_info(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("ClassID of the component type whose properties you want to discover.")]
@@ -162,8 +158,7 @@ namespace gip.core.webservices
         }
 
 
-        [McpServerTool]
-        [Description("(5) Component Method Discovery: " +
+        [McpServerTool(Name = "get_method_info"), Description("(5) Component Method Discovery: " +
             "Lists all available methods of a component type or instance with their parameters. " +
             "Use this before invoking methods via execute_acurl_command to discover available method names and their parameters. " +
             "ALWAYS check available methods FIRST when you need to PERFORM operations or CHANGE component states BEFORE you set property values directly which you have discovered via get_property_info. " +
@@ -171,7 +166,7 @@ namespace gip.core.webservices
             "so that you can check whether the method is allowed to be executed at all. " +
             "If there is no suitable IsEnabled method, you can always call the method. ")]
         public static string get_method_info(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("ClassID of the component type whose methods you want to discover")]
@@ -184,8 +179,7 @@ namespace gip.core.webservices
         }
 
 
-        [McpServerTool]
-        [Description("(6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). " +
+        [McpServerTool(Name = "execute_acurl_command"), Description("(6) Component Interaction: Execute operations on specific component instances using ACUrl addressing (like file system paths). " +
             "SUPPORTS BULK OPERATIONS - pass multiple comma-separated ACUrls for efficient batch execution. " +
             "The ACUrl uses ACIdentifiers (ACId field) separated by backslashes to address the complete path from root to target component. " +
             "To QUERY the state of components, prefer reading properties instead of method calls. " +
@@ -194,7 +188,7 @@ namespace gip.core.webservices
             "Calling void methods without a return value does not necessarily mean that the operation was performed successfully if the response is \"Success: true\". " +
             "It simply means that the method could be called. Whether the desired operation was performed can only be verified by reading the object state or property values.")]
         public static string execute_acurl_command(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("Component address path using format: \\Root\\Parent\\Child\\...\\Target\\Operation\r\n" +
@@ -236,8 +230,7 @@ namespace gip.core.webservices
             return GetAppTree(mcpHost).execute_acurl_command(mcpHost, userRights, acUrl, writeProperty, detailLevel, parametersJson);
         }
 
-        [McpServerTool]
-        [Description("(7) Component instantiation: " +
+        [McpServerTool(Name = "create_new_instance"), Description("(7) Component instantiation: " +
             "Business objects/apps are dynamic instances (types from get_thesaurus in category 3) and must first be instantiated. " +
             "Do NOT use this method for types obtained via get_thesaurus for other categories (0,1,2,4) " +
             "Upon successful instantiation, they return the same tree structure as with get_instance_info. " +
@@ -247,7 +240,7 @@ namespace gip.core.webservices
             "Therefore, do not use other instances that you did not create yourself to ensure exclusive access.When the app is no longer needed, terminate the instance by calling execute_acurl_command with a tilde: " +
             "\\Root\\Businessobjects\\~ACIdentifier(InstanceID)")]
         public static string create_new_instance(
-            IMcpServer server,
+            McpServer server,
             RequestContext<CallToolRequestParams> context,
             IACComponent mcpHost,
             [Description("ClassID (values that you got from tool get_type_infos) for the component type you want to instantiate.")]
