@@ -12,11 +12,14 @@ using System.Timers;
 using System.Net;
 using System.Threading;
 using gip.core.datamodel;
+#if !ANDROID
 using CoreWCF;
 using CoreWCF.Channels;
+#endif
 
 namespace gip.core.autocomponent
 {
+#if !ANDROID
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'WCFService'}de{'WCFService'}", Global.ACKinds.TACSimpleClass, Global.ACStorableTypes.NotStorable, true, false)]
     public class WCFService : IWCFService
@@ -303,4 +306,9 @@ namespace gip.core.autocomponent
             }
         }
     }
+#else
+    public class WCFService
+    {
+    }
+#endif
 }

@@ -158,7 +158,11 @@ namespace gip.core.autocomponent
                             {
                                 _UnsentAsyncRMI.ForEach(c => c.Point = this);
                                 if ((ACRoot.SRoot.Communications != null) && (ACRoot.SRoot.Communications.WCFServiceManager != null))
+                                {
+#if !ANDROID
                                     ACRoot.SRoot.Communications.WCFServiceManager.SubscriptionUpdatedEvent += WCFServiceManager_SubscriptionUpdatedEvent;
+#endif
+                                }
                             }
                         }
                     }
@@ -423,7 +427,9 @@ namespace gip.core.autocomponent
                         {
                             UnsentAsyncRMI.Add(serviceEntry);
                         }
+#if !ANDROID
                         ACRoot.SRoot.Communications.WCFServiceManager.SubscriptionUpdatedEvent += WCFServiceManager_SubscriptionUpdatedEvent;
+#endif
                         Persist(true);
                     }
                 }
@@ -437,6 +443,7 @@ namespace gip.core.autocomponent
             return false;
         }
 
+#if !ANDROID
         private void WCFServiceManager_SubscriptionUpdatedEvent(object sender, EventArgs e)
         {
             if (_UnsentAsyncRMI == null)
@@ -486,6 +493,7 @@ namespace gip.core.autocomponent
             if (unsentChanged)
                 Persist(true);
         }
+#endif
 
         protected bool InvokeRemoteCallbackDelegate(ACPointAsyncRMIWrap<T> serviceEntry, ACMethodEventArgs Result, PointProcessingState state = PointProcessingState.Deleted)
         {

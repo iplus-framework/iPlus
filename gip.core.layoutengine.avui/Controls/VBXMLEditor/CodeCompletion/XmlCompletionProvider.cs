@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Xml;
 
 namespace gip.core.layoutengine.avui.CodeCompletion
@@ -78,21 +77,21 @@ namespace gip.core.layoutengine.avui.CodeCompletion
     public class XmlCompletionDataProvider : ICompletionDataProvider
     {
 
-        #region Static Fields
+        #regionï¿½Staticï¿½Fields
 
         XmlSchemaCompletionData defaultSchemaCompletionData = null;
 
-        #endregion Static Fields
+        #endregionï¿½Staticï¿½Fields
 
-        #region Fields
+        #regionï¿½Fields
 
 
         protected string preSelection = null;
         string defaultNamespacePrefix = String.Empty;
 
-        #endregion Fields
+        #endregionï¿½Fields
 
-        #region Properties
+        #regionï¿½Properties
 
         /// <summary>
         /// Determines is code completion schema loaded.
@@ -103,9 +102,9 @@ namespace gip.core.layoutengine.avui.CodeCompletion
         }
 
 
-        #endregion Properties
+        #endregionï¿½Properties
 
-        #region Static Methods
+        #regionï¿½Staticï¿½Methods
 
         /// <summary>
         /// Loads code comepletion schema from file.
@@ -151,7 +150,7 @@ namespace gip.core.layoutengine.avui.CodeCompletion
             }
         }
 
-        #endregion Static Methods
+        #endregionï¿½Staticï¿½Methods
 
         #region ICompletionDataProvider Members
 

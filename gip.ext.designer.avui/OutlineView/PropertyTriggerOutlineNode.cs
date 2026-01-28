@@ -203,8 +203,8 @@ namespace gip.ext.designer.avui.OutlineView
                 MethodInfo setMethod = TriggerTargetPropertyInfo.PropertyType.GetMethod("Set" + TriggerTargetPropertyName, BindingFlags.Public | BindingFlags.Static);
                 if (getMethod != null && setMethod != null)
                 {
-                    FieldInfo field = TriggerTargetPropertyInfo.PropertyType.GetField(TriggerTargetPropertyName + "Property", BindingFlags.Public | BindingFlags.Static);
-                    if (field != null && field.FieldType == typeof(AvaloniaProperty))
+                    FieldInfo @field = TriggerTargetPropertyInfo.PropertyType.GetField(TriggerTargetPropertyName + "Property", BindingFlags.Public | BindingFlags.Static);
+                    if (@field != null && @field.FieldType == typeof(AvaloniaProperty))
                     {
                         return true;
                     }

@@ -173,8 +173,10 @@ namespace gip.core.autocomponent
         {
             if (ACOperationMode != ACOperationModes.Live)
                 return;
+#if !ANDROID
             if (_WCFServiceManager != null)
                 _WCFServiceManager.OpenServiceHost();
+#endif
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
@@ -294,7 +296,9 @@ namespace gip.core.autocomponent
         {
             if (_WCFServiceManager == null || (ACOperationMode != ACOperationModes.Live))
                 return;
+#if !ANDROID
             _WCFServiceManager.BroadcastACMessageToClients(acMessage);
+#endif
         }
 
         /// <summary>Method sends a PropertyValueEvent from this Real/Server-Object
@@ -305,7 +309,9 @@ namespace gip.core.autocomponent
         {
             if (_WCFServiceManager == null || (ACOperationMode != ACOperationModes.Live))
                 return;
+#if !ANDROID
             _WCFServiceManager.BroadcastPropertyValueToClients(eventArgs, forACComponent);
+#endif
         }
 
         /// <summary>
@@ -316,7 +322,9 @@ namespace gip.core.autocomponent
         {
             if (_WCFClientManager == null || (ACOperationMode != ACOperationModes.Live))
                 return;
+#if !ANDROID
             _WCFServiceManager.MarkACObjectOnChangedPoint(forACComponent);
+#endif
         }
 
         #endregion
@@ -333,8 +341,10 @@ namespace gip.core.autocomponent
                 string xaml = "<ACCommunications>";
                 if (_WCFClientManager != null)
                     xaml += _WCFClientManager.ConnectionDetailXML;
+#if !ANDROID
                 if (_WCFServiceManager != null)
                     xaml += _WCFServiceManager.ConnectionDetailXML;
+#endif
                 xaml += "</ACCommunications>";
                 return xaml;
             }

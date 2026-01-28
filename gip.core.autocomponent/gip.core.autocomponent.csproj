@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>$(DefaultNetCoreTargetFramework)</TargetFramework>
+    <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(DefaultNetCoreTargetFramework)-android</TargetFrameworks>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -181,13 +181,15 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="!$(TargetFramework.Contains('android'))">
     <PackageReference Include="CoreWCF.NetTcp"  />
     <PackageReference Include="CoreWCF.Primitives"  />
 	<PackageReference Include="CoreWCF.ConfigurationManager"  />
 	<PackageReference Include="CoreWCF.Http"  />
 	<PackageReference Include="CoreWCF.WebHttp"  />
-    <PackageReference Condition="'$(UseDotNet10)' == 'False'" Include="Microsoft.AspNetCore"  />
+    <!--<PackageReference Condition="'$(UseDotNet10)' == 'False'" Include="Microsoft.AspNetCore"  />-->
+  </ItemGroup>
+  <ItemGroup>
 	<PackageReference Include="Microsoft.CodeAnalysis"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />

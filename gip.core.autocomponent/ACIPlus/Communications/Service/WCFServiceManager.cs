@@ -12,17 +12,23 @@ using System.Timers;
 using System.Net;
 using System.Threading;
 using gip.core.datamodel;
+#if !ANDROID
 using Microsoft.AspNetCore.Hosting;
 using CoreWCF.IdentityModel.Protocols.WSTrust;
 using Microsoft.AspNetCore;
+#endif
 using System.Diagnostics;
+#if !ANDROID
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+#endif
+#if !ANDROID
 using Microsoft.AspNetCore.Builder;
 using CoreWCF.Configuration;
 using CoreWCF.Description;
 using CoreWCF;
 using CoreWCF.Channels;
+#endif
 using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices.JavaScript;
@@ -32,6 +38,7 @@ namespace gip.core.autocomponent
     [ACClassInfo(Const.PackName_VarioSystem, "en{'WCFServiceManager'}de{'WCFServiceManager'}", Global.ACKinds.TACWCFServiceManager, Global.ACStorableTypes.NotStorable, false, false)]
     public class WCFServiceManager : ACComponent
     {
+#if !ANDROID
         #region private members
         public const int MaxBufferSize = 0x800000; // 8388608; // 2^23 byte
         public const int MaxItemsInObjectGraph = Int32.MaxValue;
@@ -97,7 +104,7 @@ namespace gip.core.autocomponent
             _nameResolutionOn = this.Root.Environment.UserInstance.NameResolutionOn;
 
             // Host generieren
-
+#if !ANDROID
             if (_useHttpConnection)
             {
                 //TODO: WSDualHttpBinding not implemented in WCFCore: https://github.com/dotnet/wcf/issues/4614
@@ -215,6 +222,7 @@ namespace gip.core.autocomponent
 
                 _ASPHost = app;
             }
+#endif
             
 
             return result;
@@ -243,8 +251,10 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread = null;
             }
             _ACPDispatchToProxies = null;
+#if !ANDROID
             _ASPHost.StopAsync();
             _ASPHostStarted = false;
+#endif
 
             if (!base.ACDeInit(deleteACClassTask))
                 return false;
@@ -295,6 +305,7 @@ namespace gip.core.autocomponent
             }
         }
 
+#if !ANDROID
         private IHost _ASPHost = null;
         private bool _ASPHostStarted = false;
         internal IHost ASPHost
@@ -304,6 +315,8 @@ namespace gip.core.autocomponent
                 return _ASPHost;
             }
         }
+#endif
+
 
         public Communications Communications
         {
@@ -451,6 +464,7 @@ namespace gip.core.autocomponent
         {
             if (ACOperationMode != ACOperationModes.Live)
                 return;
+#if !ANDROID
             if (ASPHost != null && !_ASPHostStarted)
             {
                 _ACHostStartThread = new ACThread(StartHost);
@@ -470,6 +484,7 @@ namespace gip.core.autocomponent
                 _ACPDispatchPointsThread.Name = "ACUrl:" + this.GetACUrl() + ";DispatchPoints();";
                 _ACPDispatchPointsThread.Start();
             }
+#endif
             //}
         }
 
@@ -755,11 +770,13 @@ namespace gip.core.autocomponent
             _syncDispatchPoints.ThreadTerminated();
         }
 
+#if !ANDROID
         public void StartHost()
         {
             _ASPHostStarted = true;
             ASPHost.Run();
         }
+#endif
 
         public void ShutdownClients()
         {
@@ -818,5 +835,16 @@ namespace gip.core.autocomponent
             }
         }
 #endregion
+#else
+        public const int MaxBufferSize = 0x800000;
+        public const int MaxItemsInObjectGraph = Int32.MaxValue;
+        public const int MaxStringLength = 1048576;
+        public static TimeSpan ReceiveTimeout { get { return new TimeSpan(6, 0, 0); } }
+
+        public WCFServiceManager(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+            : base(acType, content, parentACObject, parameter, acIdentifier)
+        {
+        }
+#endif
     }
 }

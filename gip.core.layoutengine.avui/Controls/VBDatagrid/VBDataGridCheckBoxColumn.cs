@@ -346,12 +346,12 @@ namespace gip.core.layoutengine.avui
             {
                 try
                 {
-                    var field = this.GetType().BaseType?.GetField("_currentCheckBox", 
+                    var @field = this.GetType().BaseType?.GetField("_currentCheckBox", 
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
-                    if (field != null)
+                    if (@field != null)
                     {
-                        return field.GetValue(this) as VBCheckBox;
+                        return @field.GetValue(this) as VBCheckBox;
                     }
                     
                     return null;
@@ -365,12 +365,12 @@ namespace gip.core.layoutengine.avui
             {
                 try
                 {
-                    var field = this.GetType().BaseType?.GetField("_currentCheckBox", 
+                    var @field = this.GetType().BaseType?.GetField("_currentCheckBox", 
                         System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                     
-                    if (field != null)
+                    if (@field != null)
                     {
-                        field.SetValue(this, value);
+                        @field.SetValue(this, value);
                     }
                 }
                 catch (Exception)

@@ -782,6 +782,7 @@ namespace gip.core.autocomponent
                         return user;
                     return Environment.User;
                 }
+#if !ANDROID
                 string acUrl = threadName.Substring(6);
                 int indexEnd = acUrl.IndexOf(";");
                 if (indexEnd > 0)
@@ -790,6 +791,9 @@ namespace gip.core.autocomponent
                 if (serviceChannel == null)
                     return Environment.User;
                 return serviceChannel.ConnectedUser;
+#else
+                return Environment.User;
+#endif
             }
         }
 

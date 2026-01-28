@@ -12,7 +12,9 @@ using System.Timers;
 using System.Linq;
 using System.Threading;
 using System.ServiceModel;
+#if !ANDROID
 using CoreWCF;
+#endif
 using System.Xml;
 using System.Runtime.Serialization;
 using System.ServiceModel.Channels;

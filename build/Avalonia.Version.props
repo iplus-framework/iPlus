@@ -8,7 +8,9 @@
 
 	<PropertyGroup>
 		<UseAvaloniaFork>False</UseAvaloniaFork>
-		<AvaloniaVersion>11.3.11</AvaloniaVersion>
+		<!-- Specify Avalonia version to use. 11.3.11 are not available for ReactiveUI  -->
+		<!--<AvaloniaVersion>11.3.11</AvaloniaVersion>-->
+		<AvaloniaVersion>11.3.9</AvaloniaVersion>
 
 		<!-- Use forward slashes for cross-platform compatibility -->
 		<AvaloniaRootDir>$(MSBuildThisFileDirectory)../../av_main</AvaloniaRootDir>

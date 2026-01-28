@@ -347,8 +347,8 @@
 
 		<!-- iplus using packages -->
 		<PackageVersion Include="AvalonEdit" Version="6.3.1.120" />
-		<PackageVersion Include="Avalonia.BuildServices" Version="11.3.2" />
-		<PackageVersion Include="Avalonia.Labs.CommandManager" Version="11.3.2" />
+		<PackageVersion Include="Avalonia.BuildServices" Version="11.3.1" />
+		<PackageVersion Include="Avalonia.Labs.CommandManager" Version="11.3.1" />
 		<PackageVersion Include="BarcodeLib" Version="3.1.5" />
 		<PackageVersion Include="BinaryKits.Zpl.Label" Version="3.3.1" />
 		<PackageVersion Include="ClosedXML" Version="0.105.0" />

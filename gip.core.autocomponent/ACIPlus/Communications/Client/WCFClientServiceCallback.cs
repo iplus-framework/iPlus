@@ -14,11 +14,19 @@ using System.Threading;
 using System.Xml;
 using System.Runtime.Serialization;
 using gip.core.datamodel;
+#if !ANDROID
 using CoreWCF;
+#else
+using System.ServiceModel;
+#endif
 
 namespace gip.core.autocomponent
 {
+#if !ANDROID
     [ServiceBehavior(InstanceContextMode = InstanceContextMode.PerSession, ConcurrencyMode = ConcurrencyMode.Multiple)]
+#else
+    [CallbackBehavior(ConcurrencyMode = ConcurrencyMode.Multiple)]
+#endif
     public class WCFClientServiceCallback : IWCFServiceCallback
     {
         private WCFClientChannel _WCFClientChannel = null;

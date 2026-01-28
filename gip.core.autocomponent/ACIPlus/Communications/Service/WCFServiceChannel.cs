@@ -20,6 +20,7 @@ using System.Transactions;
 
 namespace gip.core.autocomponent
 {
+#if !ANDROID
     [ACClassInfo(Const.PackName_VarioSystem, "en{'WCFServiceChannel'}de{'WCFServiceChannel'}", Global.ACKinds.TACWCFServiceChannel, Global.ACStorableTypes.NotStorable, true, false)]
     [ACClassConstructorInfo(
         new object[] 
@@ -798,4 +799,9 @@ namespace gip.core.autocomponent
         }
 #endregion
     }
+#else
+    public class WCFServiceChannel
+    {
+    }
+#endif
 }

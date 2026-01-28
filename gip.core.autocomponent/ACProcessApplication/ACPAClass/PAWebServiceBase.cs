@@ -3,6 +3,10 @@
 ﻿using System;
 using System.Linq;
 using gip.core.datamodel;
+using System.Diagnostics;
+using System.Collections;
+using System.Reflection;
+#if !ANDROID
 using CoreWCF;
 using CoreWCF.Dispatcher;
 using CoreWCF.Channels;
@@ -10,12 +14,10 @@ using CoreWCF.Description;
 using CoreWCF.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore;
-using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Hosting;
-using System.Collections;
-using System.Reflection;
+#endif
 
 namespace gip.core.autocomponent
 {
@@ -32,6 +34,7 @@ namespace gip.core.autocomponent
             _ServicePort = new ACPropertyConfigValue<int>(this, "ServicePort", 0);
         }
 
+
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
         {
             bool result = base.ACInit(startChildMode);
@@ -41,12 +44,15 @@ namespace gip.core.autocomponent
         public override bool ACPostInit()
         {
             var temp = ServicePort;
+#if !ANDROID
             StartService();
+#endif
             return base.ACPostInit();
         }
 
         public override bool ACDeInit(bool deleteACClassTask = false)
         {
+#if !ANDROID
             StopService();
 
             ACCompTypeDictionary serviceTypeDict = null;
@@ -60,6 +66,7 @@ namespace gip.core.autocomponent
             {
                 _ServiceTypeDict = null;
             }
+#endif
 
             bool result = base.ACDeInit(deleteACClassTask);
             return result;
@@ -74,6 +81,7 @@ namespace gip.core.autocomponent
 
         ACThread _ACHostStartThread = null;
 
+#if !ANDROID
         private IHost _SvcHost = null;
         public IHost Host
         {
@@ -82,6 +90,7 @@ namespace gip.core.autocomponent
                 return _SvcHost;
             }
         }
+#endif
 
         //private ServiceHostBase _SvcHost;
         //public ServiceHostBase SvcHost
@@ -199,8 +208,9 @@ namespace gip.core.autocomponent
         /// Override this method and create the ServiceHost.
         /// </summary>
         /// <returns></returns>
+#if !ANDROID
         public abstract IHost CreateService();
-
+#endif
         #endregion
 
 
@@ -266,6 +276,7 @@ namespace gip.core.autocomponent
         [ACMethodInteraction("Watching", "en{'Start Webservice'}de{'Starte Webdienst'}", 200, true)]
         public virtual void StartService()
         {
+#if !ANDROID
             StopService();
             if (!IsEnabledStartService())
                 return;
@@ -291,8 +302,10 @@ namespace gip.core.autocomponent
                     Messages.LogException(GetACUrl(), "StartService()", e.InnerException.Message);
                 StopService();
             }
+#endif
         }
 
+#if !ANDROID
         public void StartHost()
         {
             Host?.Run();
@@ -315,6 +328,7 @@ namespace gip.core.autocomponent
                 }
             }
         }
+#endif
 
         //protected void _SvcHost_Opened(object sender, EventArgs e)
         //{
@@ -352,12 +366,17 @@ namespace gip.core.autocomponent
 
         public virtual bool IsEnabledStartService()
         {
+            #if !ANDROID
             return Host == null;
+            #else
+            return false;
+            #endif
         }
 
         [ACMethodInteraction("Watching", "en{'Stop Webservice'}de{'Stoppe Webdienst'}", 200, true)]
         public virtual void StopService()
         {
+#if !ANDROID
             if (!IsEnabledStopService())
                 return;
 
@@ -388,11 +407,16 @@ namespace gip.core.autocomponent
                 if (e.InnerException != null)
                     Messages.LogException(GetACUrl(), "StopService()", e.InnerException.Message);
             }
+#endif
         }
 
         public virtual bool IsEnabledStopService()
         {
+            #if !ANDROID
             return Host != null;
+            #else
+            return false;
+            #endif
         }
 
         protected virtual void OnServiceHostClosed()
@@ -430,9 +454,9 @@ namespace gip.core.autocomponent
         }
 
         #endregion
-
     }
 
+#if !ANDROID
     public class PAWebServiceBaseErrorHandler : IErrorHandler
     {
         string _ServiceACUrl = null;
@@ -502,5 +526,5 @@ namespace gip.core.autocomponent
         {
         }
     }
-
+#endif
 }

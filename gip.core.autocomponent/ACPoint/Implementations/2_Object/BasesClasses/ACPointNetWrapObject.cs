@@ -192,10 +192,12 @@ namespace gip.core.autocomponent
                         ACPointNetStorableBase<T, ACPointNetWrapObject<T>> storablePoint = Point as ACPointNetStorableBase<T, ACPointNetWrapObject<T>>;
                         if (storablePoint.ParentSubscrObject != null)
                         {
+#if !ANDROID
                             if (storablePoint.ParentSubscrObject.WCFServiceChannel != null)
                             {
                                 storablePoint.ParentSubscrObject.WCFServiceChannel.BroadcastACMessageToClient(WCFMessage.NewACMessage(acUrl, acParameter));
                             }
+#endif
                         }
                     }
 

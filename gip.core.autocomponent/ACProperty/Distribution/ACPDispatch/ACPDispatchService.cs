@@ -11,6 +11,7 @@ namespace gip.core.autocomponent
 {
     public class ACPDispatchService : ACPDispatchBase
     {
+#if !ANDROID
         #region c'tors
         public ACPDispatchService()
             : base()
@@ -360,6 +361,7 @@ namespace gip.core.autocomponent
 
 #endregion
 
+#endif
     }
 
 }
