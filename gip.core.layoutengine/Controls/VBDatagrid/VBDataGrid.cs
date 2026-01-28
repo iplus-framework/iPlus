@@ -60,6 +60,8 @@ namespace gip.core.layoutengine
         /// </summary>
         bool IsReadOnly { get; set; }
 
+        object Header { get; set; }
+
         /// <summary>
         /// Refreshes the IsReadOnly-Property
         /// </summary>
@@ -3112,7 +3114,7 @@ namespace gip.core.layoutengine
                         exportColumn._Type = subType;
                         exportColumn._VBContent = exportColumn._VBContent + "\\" + dcb.DisplayMemberPath;
                     }
-                    dt.Columns.Add(i.ToString() + " " + column.ColACType.ACCaption, exportColumn._Type);
+                    dt.Columns.Add(i.ToString() + " " + column.Header, exportColumn._Type);
                     exportColumns.Add(exportColumn);
                     i++;
                 }
