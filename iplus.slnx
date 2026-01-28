@@ -13,10 +13,6 @@
     <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
     <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
     <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
-    <Project Path="gip.core.sql/gip.core.sql.sqlproj">
-      <Build />
-      <Deploy />
-    </Project>
   </Folder>
   <Folder Name="/Extension/">
     <Project Path="gip.ext.chart/gip.ext.chart.csproj" />
