@@ -88,6 +88,7 @@
     <ProjectReference Include="..\gip.ext.design\project\gip.ext.design.csproj" />
     <ProjectReference Include="..\gip.ext.graphics\gip.ext.graphics.csproj" />
     <ProjectReference Include="..\gip.ext.xamldom\project\gip.ext.xamldom.csproj" />
+		<ProjectReference Include="..\gip.ext.fluent\gip.ext.fluent.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\unpinned.bmp" />

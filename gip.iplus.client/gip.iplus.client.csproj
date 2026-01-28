@@ -1,5 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <SolutionDir Condition="'$(SolutionDir)' == '' OR '$(SolutionDir)' == '*Undefined*'">$(MSBuildProjectDirectory)/../</SolutionDir>
     <TargetFramework>$(UITargetFramework)</TargetFramework>
     <OutputType>WinExe</OutputType>
     <SccProjectName>SAK</SccProjectName>
@@ -138,6 +139,7 @@
         <Exec Command="xcopy &quot;$(SolutionDir)bin\$(Configuration)\$(DefaultNetCoreTargetFramework)\*.*&quot; &quot;$(SolutionDir)bin\$(Configuration)\$(UITargetFramework)\&quot; /Y /I /E /EXCLUDE:$(ProjectDir)\AfterBuildCopyExclude.txt" />
     </Target>
     <Target Name="CopyToNet7Linux" AfterTargets="Build" Condition="'$(OS)' != 'Windows_NT'">
-        <Exec Command="cp -r &quot;$(SolutionDir)bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/.&quot; &quot;$(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/&quot;" />
+      <Exec Command="cp -r -n &quot;$(SolutionDir)bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/.&quot; &quot;$(OutDir)&quot;" />
+      <Exec Command="cp -n &quot;$(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/&quot;*.dll &quot;$(OutDir)&quot;" Condition="'$(RuntimeIdentifier)' != ''" />
     </Target>
 </Project>
