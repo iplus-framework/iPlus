@@ -27,6 +27,7 @@
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen"  />
     <PackageReference Include="ReactiveUI"  />
+    <PackageReference Include="CoreWCF.Primitives" />
   </ItemGroup>
 
   <!-- Use Avalonia Nuget -->
