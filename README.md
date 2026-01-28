@@ -63,7 +63,7 @@ Restore the SQL Server backup file located in the "Database" folder.
   - Modify the ConnectionStrings.config file: Follow the instructions on [gipSoft's documentation site](https://iplus-framework.com/en/documentation/Read/Index/View/b00675a8-718c-4c13-9d6d-5e751397ac5f?chapterID=193d292e-df31-405e-a3e9-f1116846bf86#ItemTextTranslationID_d0551cc7-f767-4790-8ecb-8771836ebac7)
   - Compile the solution an set gip.iplus.client.exe as start project.
   - For building ef-models follow the instructions on [EF core tools](https://learn.microsoft.com/en-us/ef/core/cli/dotnet)
-  - dotnet tool update --global dotnet-ef  (optional version e.g.: --version 10.0.0-preview.6.25358.103)
+  - dotnet tool update --global dotnet-ef
   - **VS Code Linux**   
     You can also compile it with VS Code. If you wan't to do that with Linux, then you need for WPF an WINE installation. Read our [Linux setup guide](https://github.com/iplus-framework/iPlus-Examples/tree/main/Misc/Linux-Setup-Guide).
 
