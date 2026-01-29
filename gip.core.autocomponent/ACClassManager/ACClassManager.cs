@@ -175,40 +175,99 @@ namespace gip.core.autocomponent
                 ACFileItems = new ACFileItemList();
                 var wpfDlls = ACxmlnsResolver.C_AvaloniaAssemblyMapping.Select(c => c.WpfNamespace).ToList();
                 var avaloniaDlls = ACxmlnsResolver.C_AvaloniaAssemblyMapping.Select(c => c.AvaloniaNamespace).ToList();
-                foreach (var pattern in patterns)
+
+                // Check if we're running on Android with embedded assemblies
+                bool isAndroidEmbedded = OperatingSystem.IsAndroid() || !Directory.Exists(MainDir) ||
+                                          !patterns.Any(p => Directory.GetFiles(MainDir, p).Any());
+
+                if (isAndroidEmbedded)
                 {
-                    foreach (var fileName in Directory.GetFiles(MainDir, pattern).Where(c => !c.Contains("unittest")))
+                    // For embedded assemblies in APK: use already loaded assemblies
+                    var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+
+                    foreach (var assembly in loadedAssemblies)
                     {
-                        if (ACFileItems.Where(c => c.Filename == fileName).Any())
-                            continue;
-                        ACFileItem acFileItem = new ACFileItem();
-                        acFileItem.Filename = fileName;
-                        acFileItem.LastManipulationDate = File.GetLastWriteTime(acFileItem.Filename);
-
-                        int posP = fileName.LastIndexOf(".");
-                        string namespace1 = fileName.Substring(0, posP);
-                        int pos2 = namespace1.LastIndexOf("\\");
-
-                        acFileItem.Namespace = namespace1.Substring(pos2 + 1);
-                        if (bUpdateInDB && File.Exists(namespace1 + ".xml"))
+                        try
                         {
-                            acFileItem.XMLHelper = new CodeSummaryReader();
-                            acFileItem.XMLHelper.Open(namespace1 + ".xml");
-                        }
+                            // Skip dynamic assemblies
+                            if (assembly.IsDynamic)
+                                continue;
 
-                        if (acFileItem.Filename.EndsWith("gip.core.datamodel.dll"))
-                        {
-                            ACFileItems.Insert(0, acFileItem);
-                        }
-                        else
-                        {
+                            string assemblyName = assembly.GetName().Name ?? "";
+
+                            // Check if assembly matches any of our patterns
+                            bool matchesPattern = patterns.Any(pattern =>
+                            {
+                                // Convert file pattern to regex-like matching
+                                // e.g., "*.core.*.dll" matches "gip.core.datamodel"
+                                string patternWithoutExtension = pattern.Replace("*.dll", "").Replace("*", "");
+                                string[] patternParts = patternWithoutExtension.Split('.', StringSplitOptions.RemoveEmptyEntries);
+
+                                return patternParts.All(part =>
+                                    assemblyName.Contains(part, StringComparison.OrdinalIgnoreCase));
+                            });
+
+                            if (!matchesPattern)
+                                continue;
+
+                            // Skip test assemblies
+                            if (assemblyName.Contains("unittest", StringComparison.OrdinalIgnoreCase))
+                                continue;
+
                             // Prevent loading incompatible UI assemblies
-                            if (   (Database.Root.IsAvaloniaUI && wpfDlls.Where(c => acFileItem.Filename.Contains(c)).Any())
-                                || (!Database.Root.IsAvaloniaUI && avaloniaDlls.Where(c => acFileItem.Filename.Contains(c)).Any()))
+                            if ((Database.Root.IsAvaloniaUI && wpfDlls.Any(c => assemblyName.Contains(c))) ||
+                                (!Database.Root.IsAvaloniaUI && avaloniaDlls.Any(c => assemblyName.Contains(c))))
                             {
                                 continue;
                             }
-                            ACFileItems.Add(acFileItem);
+
+                            RegisterAssemblyTypes(assembly);
+                        }
+                        catch (Exception ex)
+                        {
+                            if (Database.Root != null && Database.Root.Messages != null)
+                                Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(EmbeddedAssembly)", ex.Message);
+                        }
+                    }
+                }
+                else
+                {
+                    // Original file-based approach for desktop platforms
+                    foreach (var pattern in patterns)
+                    {
+                        foreach (var fileName in Directory.GetFiles(MainDir, pattern).Where(c => !c.Contains("unittest")))
+                        {
+                            if (ACFileItems.Any(c => c.Filename == fileName))
+                                continue;
+
+                            ACFileItem acFileItem = new ACFileItem();
+                            acFileItem.Filename = fileName;
+                            acFileItem.LastManipulationDate = File.GetLastWriteTime(acFileItem.Filename);
+
+                            int posP = fileName.LastIndexOf(".");
+                            string namespace1 = fileName.Substring(0, posP);
+                            int pos2 = namespace1.LastIndexOf("\\");
+
+                            acFileItem.Namespace = namespace1.Substring(pos2 + 1);
+                            if (bUpdateInDB && File.Exists(namespace1 + ".xml"))
+                            {
+                                acFileItem.XMLHelper = new CodeSummaryReader();
+                                acFileItem.XMLHelper.Open(namespace1 + ".xml");
+                            }
+
+                            if (acFileItem.Filename.EndsWith("gip.core.datamodel.dll"))
+                            {
+                                ACFileItems.Insert(0, acFileItem);
+                            }
+                            else
+                            {
+                                if ((Database.Root.IsAvaloniaUI && wpfDlls.Any(c => acFileItem.Filename.Contains(c))) ||
+                                    (!Database.Root.IsAvaloniaUI && avaloniaDlls.Any(c => acFileItem.Filename.Contains(c))))
+                                {
+                                    continue;
+                                }
+                                ACFileItems.Add(acFileItem);
+                            }
                         }
                     }
                 }
@@ -221,46 +280,8 @@ namespace gip.core.autocomponent
                     try
                     {
                         Assembly classAssembly = Assembly.LoadFrom(acFileItem.Filename);
+                        RegisterAssemblyTypes(classAssembly);
 
-                        var classTypeList2 = classAssembly.GetTypes();
-                        foreach (var classType in classTypeList2)
-                        {
-                            var querySerializable = classType.GetCustomAttributes(typeof(ACSerializeableInfo), false);
-                            if (querySerializable.Any())
-                            {
-                                var acSerializeableInfo = querySerializable.First() as ACSerializeableInfo;
-                                if (acSerializeableInfo.TypeList != null)
-                                {
-                                    foreach (var type in acSerializeableInfo.TypeList)
-                                    {
-                                        ACKnownTypes.RegisterUnKnownType(type);
-                                    }
-                                }
-                                else
-                                    ACKnownTypes.RegisterUnKnownType(classType);
-                            }
-
-                            var queryCTors = classType.GetCustomAttributes(typeof(ACInvokeStaticCtor), false);
-                            if (queryCTors.Any())
-                            {
-                                try
-                                {
-                                    // Rufe statischen Konstruktor auf um evtl. einen Eintrag in _StaticExecuteHandlers zu erhalten
-                                    ConstructorInfo constructor = classType.GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
-                                    if (constructor != null)
-                                        constructor.Invoke(null, null);
-                                }
-                                catch (Exception e)
-                                {
-                                    string msg = e.Message;
-                                    if (e.InnerException != null && e.InnerException.Message != null)
-                                        msg += " Inner:" + e.InnerException.Message;
-
-                                    if (Database.Root != null && Database.Root.Messages != null)
-                                        Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects", msg);
-                                }
-                            }
-                        }
                     }
                     catch (ReflectionTypeLoadException rtExc)
                     {
@@ -449,7 +470,69 @@ namespace gip.core.autocomponent
             #endregion end designs update
         }
 
+        private void RegisterAssemblyTypes(Assembly classAssembly)
+        {
+            try
+            {
+                var classTypeList2 = classAssembly.GetTypes();
+                foreach (var classType in classTypeList2)
+                {
+                    var querySerializable = classType.GetCustomAttributes(typeof(ACSerializeableInfo), false);
+                    if (querySerializable.Any())
+                    {
+                        var acSerializeableInfo = querySerializable.First() as ACSerializeableInfo;
+                        if (acSerializeableInfo.TypeList != null)
+                        {
+                            foreach (var type in acSerializeableInfo.TypeList)
+                            {
+                                ACKnownTypes.RegisterUnKnownType(type);
+                            }
+                        }
+                        else
+                            ACKnownTypes.RegisterUnKnownType(classType);
+                    }
 
+                    var queryCTors = classType.GetCustomAttributes(typeof(ACInvokeStaticCtor), false);
+                    if (queryCTors.Any())
+                    {
+                        try
+                        {
+                            // Rufe statischen Konstruktor auf um evtl. einen Eintrag in _StaticExecuteHandlers zu erhalten
+                            ConstructorInfo constructor = classType.GetConstructor(BindingFlags.Static | BindingFlags.NonPublic, null, new Type[0], null);
+                            if (constructor != null)
+                                constructor.Invoke(null, null);
+                        }
+                        catch (Exception e)
+                        {
+                            string msg = e.Message;
+                            if (e.InnerException != null && e.InnerException.Message != null)
+                                msg += " Inner:" + e.InnerException.Message;
+
+                            if (Database.Root != null && Database.Root.Messages != null)
+                                Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects", msg);
+                        }
+                    }
+                }
+            }
+            catch (ReflectionTypeLoadException rtExc)
+            {
+                string msg = rtExc.Message;
+                if (rtExc.InnerException != null && rtExc.InnerException.Message != null)
+                    msg += " Inner:" + rtExc.InnerException.Message;
+
+                if (Database.Root != null && Database.Root.Messages != null)
+                    Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(10)", msg);
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+
+                if (Database.Root != null && Database.Root.Messages != null)
+                    Database.Root.Messages.LogException("ACClassManager", "RegisterAndUpdateACObjects(20)", msg);
+            }
+        }
 
         #region ClassManager
 
