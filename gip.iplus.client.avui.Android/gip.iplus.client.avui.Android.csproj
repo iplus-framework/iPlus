@@ -15,7 +15,8 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|$(DefaultNetCoreTargetFramework)-android|AnyCPU'">
-		<EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+		<_AndroidIsDebuggable>True</_AndroidIsDebuggable>
+		<EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
   <ItemGroup>
