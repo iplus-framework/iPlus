@@ -16,6 +16,7 @@ using gip.core.datamodel;
 using System;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -44,14 +45,14 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._CheckPassword = null;
             this._CheckUser = null;
             this._CheckVBUser = null;
             this._NewPassword = null;
             this._NewPasswordVerify = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public override bool IsPoolable

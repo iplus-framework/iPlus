@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 
@@ -30,12 +31,12 @@ namespace gip.core.manager
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             //ProgramLogWrapperList = null;
             //CurrentProgramLogWrapper = null;
             //ProgramLogWrapperRootList = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -846,7 +847,7 @@ namespace gip.core.manager
             IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             if (routeSelector == null)
             {
-                Messages.Error(this, "Route selector is not installed");
+                Messages.ErrorAsync(this, "Route selector is not installed");
                 return;
             }
 

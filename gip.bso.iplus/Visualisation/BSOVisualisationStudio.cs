@@ -23,6 +23,7 @@ using System.IO;
 using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Input;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -91,7 +92,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             CurrentVisualisation = null;
             this._CurrentDesignItem = null;
@@ -102,7 +103,7 @@ namespace gip.bso.iplus
             this._MessageWorkOrderWFID = null;
             this._SelectedVisualisation = null;
             this._VisualisationList = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -720,7 +721,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentVisualisation.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 
@@ -1069,13 +1070,13 @@ namespace gip.bso.iplus
         /// <param name="WorkOrderWFID">The work order WFID.</param>
         /// <param name="message">The message.</param>
         /// <param name="xmlData">The XML data.</param>
-        public void ReceiveWorkOrderMethodClientRequest(Guid WorkOrderMethodID, int batchNo, Guid WorkOrderWFID, string message, string xmlData)
+        public async void ReceiveWorkOrderMethodClientRequest(Guid WorkOrderMethodID, int batchNo, Guid WorkOrderWFID, string message, string xmlData)
         {
             _MessageWorkOrderMethodID = WorkOrderMethodID;
             _BatchNo = batchNo;
             _MessageWorkOrderWFID = WorkOrderWFID;
 
-            switch (Messages.Question(this, "Message00001", Global.MsgResult.Yes, false, message))
+            switch (await Messages.QuestionAsync(this, "Message00001", Global.MsgResult.Yes, false, message))
             {
                 case Global.MsgResult.Yes:
                     MessageYesOrder();

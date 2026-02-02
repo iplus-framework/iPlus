@@ -14,6 +14,7 @@ using System.Net;
 using System.Threading;
 using System.ServiceModel.Channels;
 using gip.core.datamodel;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -40,9 +41,9 @@ namespace gip.core.autocomponent
             OnPropertyChanged("WCFClientChannelList");
             return true;
         }
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            if (!base.ACDeInit(deleteACClassTask))
+            if (!await base.ACDeInit(deleteACClassTask))
                 return false;
 
             UpdateStatistic();

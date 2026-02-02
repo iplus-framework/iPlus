@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.communication.ISOonTCP;
@@ -94,7 +95,7 @@ namespace gip.core.communication
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (ACOperationMode == ACOperationModes.Live)
             {
@@ -121,7 +122,7 @@ namespace gip.core.communication
                     StopReconnection();
             }
 
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             _syncSend = null;
             _syncPoll = null;

@@ -55,7 +55,7 @@ namespace gip.bso.iplus
 
         BackgroundWorker _backgroundWorker = null;
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_backgroundWorker != null)
             {
@@ -83,7 +83,7 @@ namespace gip.bso.iplus
             this._ACProjectList = null;
             this._SelectedAlarmLogStatistic = null;
             this._AlarmLogStatisticList = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -474,7 +474,7 @@ namespace gip.bso.iplus
                 if (!HasRightsForAcknowledge(component as ACComponent))
                 {
                     // Warning50093: You do not have permission to acknowledge the alarm!
-                    Messages.Warning(this, "Warning50093");
+                    Messages.WarningAsync(this, "Warning50093");
                     return;
                 }
                 MsgList alarmListToAck = new MsgList();
@@ -532,7 +532,7 @@ namespace gip.bso.iplus
             if (refusedAcknowledge)
             {
                 // Warning50094: For some alarms you do not have permission to acknowledge!
-                Messages.Warning(this, "Warning50094");
+                Messages.WarningAsync(this, "Warning50094");
             }
         }
 

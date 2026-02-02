@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using gip.core.media;
 
 namespace gip.bso.iplus
@@ -72,7 +73,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deinitializes this component.
         /// </summary>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _LogLines?.Clear();
             _FilteredLogLines?.Clear();
@@ -82,7 +83,7 @@ namespace gip.bso.iplus
             _SelectedAnalyzer = null;
             _CurrentAnalyzerInstance = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -289,7 +290,7 @@ namespace gip.bso.iplus
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "SelectLogFile", ex);
-                Root.Messages.Error(this, "Error selecting log file: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error selecting log file: " + ex.Message, true);
             }
         }
 
@@ -301,7 +302,7 @@ namespace gip.bso.iplus
         {
             if (!IsEnabledLoadLogFile())
             {
-                Root.Messages.Warning(this, "Please select a valid log file first.", true);
+                Root.Messages.WarningAsync(this, "Please select a valid log file first.", true);
                 return;
             }
             CloseTopDialog();
@@ -324,7 +325,7 @@ namespace gip.bso.iplus
         {
             if (LogLines == null || LogLines.Count == 0)
             {
-                Root.Messages.Warning(this, "Please load a log file first.", true);
+                Root.Messages.WarningAsync(this, "Please load a log file first.", true);
                 return;
             }
 
@@ -378,12 +379,12 @@ namespace gip.bso.iplus
                     FilteredLogLines.Add(line);
                 }
 
-                Root.Messages.Info(this, $"Filter applied. {FilteredLogLines.Count} lines match the criteria.", true);
+                Root.Messages.InfoAsync(this, $"Filter applied. {FilteredLogLines.Count} lines match the criteria.", true);
             }
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "ApplyFilter", ex);
-                Root.Messages.Error(this, "Error applying filter: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error applying filter: " + ex.Message, true);
             }
         }
 
@@ -395,13 +396,13 @@ namespace gip.bso.iplus
         {
             if (SelectedAnalyzer == null)
             {
-                Root.Messages.Warning(this, "Please select an analyzer first.", true);
+                Root.Messages.WarningAsync(this, "Please select an analyzer first.", true);
                 return;
             }
 
             if (FilteredLogLines == null || FilteredLogLines.Count == 0)
             {
-                Root.Messages.Warning(this, "Please load and filter log lines first.", true);
+                Root.Messages.WarningAsync(this, "Please load and filter log lines first.", true);
                 return;
             }
 
@@ -542,7 +543,7 @@ namespace gip.bso.iplus
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "StartAnalysis", ex);
-                Root.Messages.Error(this, "Error starting analysis: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error starting analysis: " + ex.Message, true);
             }
         }
 

@@ -71,7 +71,7 @@ namespace gip.core.layoutengine
                     path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.IO.Path.Combine("VBXMLEditorSchemas", CodeCompletionSchema));
 
                 if (!File.Exists(path))
-                    Database.Root.Messages.Warning(this, "Schema is not exist in " + path, true);
+                    Database.Root.Messages.WarningAsync(this, "Schema is not exist in " + path, true);
                 else
                     _xmlCompletionDataProvider.LoadSchema(path);
             }

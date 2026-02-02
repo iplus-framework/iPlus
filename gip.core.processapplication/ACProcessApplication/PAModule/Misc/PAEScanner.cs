@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.processapplication
 {
@@ -134,7 +135,7 @@ namespace gip.core.processapplication
         }
 
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_Decoder != null)
             {
@@ -148,7 +149,7 @@ namespace gip.core.processapplication
                 ScannerBus.Detach();
                 ScannerBus = null;
             }
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

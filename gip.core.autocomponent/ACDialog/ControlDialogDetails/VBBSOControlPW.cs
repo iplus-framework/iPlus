@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -37,7 +38,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             ParentACComponent.PropertyChanged -= ParentACComponent_PropertyChanged;
 
@@ -74,7 +75,7 @@ namespace gip.core.autocomponent
                 ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
             _VarioConfigManager = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         private const string Const_TabRoutingVBContent = "Routing";
@@ -1128,7 +1129,7 @@ namespace gip.core.autocomponent
             IACVBBSORouteSelector routeSelector = ParentACComponent.ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             if (routeSelector == null)
             {
-                Messages.Error(this, "Route selector is not installed on parent component!!!");
+                Messages.ErrorAsync(this, "Route selector is not installed on parent component!!!");
                 return;
             }
 
@@ -1182,11 +1183,11 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("", "en{'Delete'}de{'Löschen'}", 999, true)]
-        public void DeleteRoute()
+        public async void DeleteRoute()
         {
             if (!IsEnabledDeleteRoute()) return;
 
-            if (Messages.Question(this, "Question50036", Global.MsgResult.No) == Global.MsgResult.Yes)
+            if (await Messages.QuestionAsync(this, "Question50036", Global.MsgResult.No) == Global.MsgResult.Yes)
             {
                 if (RuleValuesList != null)
                     RuleValuesList.Remove(SelectedRuleValue);
@@ -1210,13 +1211,13 @@ namespace gip.core.autocomponent
             IACVBBSORouteSelector routeSelector = ParentACComponent.GetChildComponent("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             if (routeSelector == null)
             {
-                Messages.Error(this, "Error50125");
+                Messages.ErrorAsync(this, "Error50125");
                 return;
             }
 
             if (!(SelectedRuleValue.Value is Route))
             {
-                Messages.Error(this, "Error50126");
+                Messages.ErrorAsync(this, "Error50126");
                 return;
             }
 

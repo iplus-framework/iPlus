@@ -430,7 +430,7 @@ namespace gip.core.autocomponent
         //        }
         //    }
 
-        //    acComponent.Messages.Error(acComponent, "Message00001", message);
+        //    acComponent.Messages.ErrorAsync(acComponent, "Message00001", message);
         //}
     }
 }

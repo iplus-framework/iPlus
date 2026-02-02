@@ -7,6 +7,7 @@ using System.Text;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.manager
 {
@@ -42,7 +43,7 @@ namespace gip.core.manager
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_SelectionManager != null)
             {
@@ -57,7 +58,7 @@ namespace gip.core.manager
             }
 
             _SelectionManager = null;
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             _CurrentDesign = null;
             _CurrentAvailableElement = null;
             _SelectedAvailableElement = null;

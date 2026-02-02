@@ -612,8 +612,6 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        bool firstTimeOpened = true;
-
         /// <summary>
         /// Handles the OnSelectionChanged event.
         /// </summary>

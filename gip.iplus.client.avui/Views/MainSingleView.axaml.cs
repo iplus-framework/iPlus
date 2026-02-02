@@ -18,6 +18,11 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using Avalonia.Diagnostics;
+using MsBox.Avalonia;
+using System.Threading.Tasks;
+using MsBox.Avalonia.Enums;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Models;
 
 namespace gip.iplus.client.avui;
 
@@ -107,7 +112,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
 
     #region Layout
-    VBDesign _RootVBDesign = null;
+    //VBDesign _RootVBDesign = null;
 
     private void InitMainDockManager()
     {
@@ -408,7 +413,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     #region IRootPageWPF
     delegate Global.MsgResult ShowMsgBoxDelegate(Msg msg, eMsgButton msgButton);
-    public Global.MsgResult ShowMsgBox(Msg msg, eMsgButton msgButton)
+    public async Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
         // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
         // Das findet man über den Zugriff auf eine interne Member heraus:
@@ -420,31 +425,60 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         //{
         //    _disableProcessingCount = (int)fieldInfo.GetValue(this.Dispatcher);
         //}
-        if (Dispatcher.UIThread.CheckAccess())
+        //if (Dispatcher.UIThread.CheckAccess())
+        //{
+        //    try
+        //    {
+        //        return ShowMsgBoxInternAsync(msg, msgButton);
+        //    }
+        //    catch (InvalidOperationException /*iopEx*/)
+        //    {
+        //        DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxInternAsync(msg, msgButton), DispatcherPriority.Normal);
+        //        op.Wait();
+        //        return (Global.MsgResult)op.Result;
+        //    }
+        //}
+        //else
         {
-            try
-            {
-                return ShowMsgBoxIntern(msg, msgButton);
-            }
-            catch (InvalidOperationException /*iopEx*/)
-            {
-                DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxIntern(msg, msgButton), DispatcherPriority.Normal);
-                op.Wait();
-                return (Global.MsgResult)op.Result;
-            }
-        }
-        else
-        {
-            DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxIntern(msg, msgButton), DispatcherPriority.Normal);
-            op.Wait();
-            return (Global.MsgResult)op.Result;
+            return await ShowMsgBoxInternAsync(msg, defaultResult, msgButton);
         }
     }
 
-    private Global.MsgResult ShowMsgBoxIntern(Msg msg, eMsgButton msgButton)
+    public Global.MsgResult ShowMsgBox(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
-        VBWindowDialogMsg vbMessagebox = new VBWindowDialogMsg(msg, msgButton, this);
-        return vbMessagebox.ShowMessageBox();
+        // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
+        // Das findet man über den Zugriff auf eine interne Member heraus:
+        //System.Reflection.MemberInfo[] infos = typeof(Dispatcher).GetMember("_disableProcessingCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        //Type typeDispatcher = typeof(Dispatcher);
+        //FieldInfo fieldInfo = typeDispatcher.GetField("_disableProcessingCount", BindingFlags.NonPublic | BindingFlags.Instance);
+        //int _disableProcessingCount = 0;
+        //if (fieldInfo != null)
+        //{
+        //    _disableProcessingCount = (int)fieldInfo.GetValue(this.Dispatcher);
+        //}
+        //if (Dispatcher.UIThread.CheckAccess())
+        //{
+        //    try
+        //    {
+        //        return ShowMsgBoxInternAsync(msg, msgButton);
+        //    }
+        //    catch (InvalidOperationException /*iopEx*/)
+        //    {
+        //        DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxInternAsync(msg, msgButton), DispatcherPriority.Normal);
+        //        op.Wait();
+        //        return (Global.MsgResult)op.Result;
+        //    }
+        //}
+        //else
+        {
+            return Global.MsgResult.OK;
+        }
+    }
+
+    private async Task<Global.MsgResult> ShowMsgBoxInternAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
+    {
+        VBMessageBox msgBox = new VBMessageBox(msg, defaultResult, msgButton);
+        return await msgBox.ShowMessageAsync();
     }
 
     public void StoreSettingsWndPos(object settingsVBDesignWndPos)
@@ -519,7 +553,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         switch (acUrl)
         {
             case Const.CmdShowMsgBox:
-                return ShowMsgBox(acParameter[0] as Msg, (eMsgButton)acParameter[1]);
+                return ShowMsgBoxAsync(acParameter[0] as Msg, (Global.MsgResult)acParameter[1], (eMsgButton)acParameter[2]);
             case Const.CmdStartBusinessobject:
                 if (acParameter.Count() > 1)
                 {
@@ -762,13 +796,13 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     }
     #endregion
 
-    private void WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
+    private async Task WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
     {
         IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null) as IACComponent;
         if (bsoAlarmExplorer != null)
         {
             bsoAlarmExplorer.ACUrlCommand("!ShowAlarmExplorer");
-            bsoAlarmExplorer.Stop();
+            await bsoAlarmExplorer.Stop();
         }
     }
 

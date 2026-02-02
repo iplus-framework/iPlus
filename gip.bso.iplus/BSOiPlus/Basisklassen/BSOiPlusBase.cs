@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
@@ -46,7 +47,7 @@ namespace gip.bso.iplus
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._ACClassMethodControlList = null;
             this._ACClassMethodIconList = null;
@@ -70,7 +71,7 @@ namespace gip.bso.iplus
 
 
             this._VBDesignerWorkflowMethod = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -184,13 +185,13 @@ namespace gip.bso.iplus
         /// Deletes the config AC class method.
         /// </summary>
         [ACMethodInfo("ConfigACClassMethod", "en{'Delete Configuration'}de{'Konfiguration löschen'}", (short)MISort.Delete, true)]
-        public void DeleteConfigACClassMethod()
+        public async void DeleteConfigACClassMethod()
         {
             if (!PreExecute("DeleteConfigACClassMethod")) return;
             Msg msg = CurrentConfigACClassMethod.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                await Messages.MsgAsync(msg);
                 return;
             }
 

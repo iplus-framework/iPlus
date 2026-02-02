@@ -6,6 +6,8 @@ using gip.core.datamodel;
 using System.Diagnostics;
 using System.Collections;
 using System.Reflection;
+using System.Threading.Tasks;
+
 #if !ANDROID
 using CoreWCF;
 using CoreWCF.Dispatcher;
@@ -50,7 +52,7 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
 #if !ANDROID
             StopService();
@@ -68,7 +70,7 @@ namespace gip.core.autocomponent
             }
 #endif
 
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             return result;
         }
         #endregion

@@ -8,6 +8,7 @@ using System.Collections;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -60,11 +61,11 @@ namespace gip.core.datamodel
             ACGroup = parameter[Const.ACGroup] as string;
         }
 
-        override public bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _NavList = null;
             _NavACQueryDefinition = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

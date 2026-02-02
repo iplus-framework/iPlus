@@ -317,7 +317,7 @@ namespace gip.core.layoutengine
             if (ItemTemplate == null)
             {
                 this.Root().Messages.LogDebug("Error00005", "VBFlipView", VBShowColumns + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00005", "VBFlipView", VBShowColumns, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBFlipView", VBShowColumns, VBContent);
                 return;
             }
 

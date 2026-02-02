@@ -9,6 +9,7 @@ using System.Timers;
 using System.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -51,7 +52,7 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_SelectionManager != null)
             {
@@ -67,13 +68,13 @@ namespace gip.core.autocomponent
                 _CurrentACComponent = null;
             }
 
-            ACSaveOrUndoChanges();
+            await ACSaveOrUndoChanges();
             this._CurrentACComponent = null;
 
             ACRoutingService.DetachACRefFromServiceInstance(this, _RoutingService);
             _RoutingService = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 
@@ -597,7 +598,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("Start", "en{'Edit komplex value'}de{'Editiere komplexen Wert'}", 500, true)]
-        public void EditValue()
+        public async void EditValue()
         {
             if (!IsEnabledEditValue())
                 return;
@@ -655,7 +656,7 @@ namespace gip.core.autocomponent
                                 }
                                 catch (Exception ex)
                                 {
-                                    this.Messages.Exception(this, ex.Message, true);
+                                    await this.Messages.ExceptionAsync(this, ex.Message, true);
                                 }
 
                                 routingParameters = new ACRoutingParameters()
@@ -688,7 +689,7 @@ namespace gip.core.autocomponent
                                 if (targets != null)
                                 {
                                     if (targets.Message != null)
-                                        Messages.Msg(targets.Message);
+                                        await Messages.MsgAsync(targets.Message);
                                     else
                                     {
                                         _IsRouteServiceActive = true;
@@ -730,7 +731,7 @@ namespace gip.core.autocomponent
                                 }
                                 catch (Exception ex)
                                 {
-                                    this.Messages.Exception(this, ex.Message, true);
+                                    await this.Messages.ExceptionAsync(this, ex.Message, true);
                                 }
 
                                 if (routeToRelatedInPointOfPM != null)
@@ -751,7 +752,7 @@ namespace gip.core.autocomponent
                             if (sources != null)
                             {
                                 if (sources.Message != null)
-                                    Messages.Msg(sources.Message);
+                                    await Messages.MsgAsync(sources.Message);
                                 else
                                 {
                                     _IsRouteServiceActive = true;

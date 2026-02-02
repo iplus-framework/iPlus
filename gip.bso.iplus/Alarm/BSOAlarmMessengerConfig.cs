@@ -6,6 +6,7 @@ using System.Linq;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -75,7 +76,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="deleteACClassTask">The delete ACClassTask parameter.</param>
         /// <returns>Returns true if deinitialization is successfull, otherwise false.</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_controlDialog != null)
                 _controlDialog.PropertyChanged -= ControlDialog_PropertyChanged;
@@ -97,7 +98,7 @@ namespace gip.bso.iplus
             _SelectedAssignedAlarmSource = null;
             _SelectedExclusionRule = null;
             _InitialAssignedAlarmSourceList = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -922,7 +923,7 @@ namespace gip.bso.iplus
                 }
                 else
                 {
-                    Messages.Info(this, "Can't find a source ACClass.", true);
+                    Messages.InfoAsync(this, "Can't find a source ACClass.", true);
                     return;
                 }
             }
@@ -1094,7 +1095,7 @@ namespace gip.bso.iplus
                 if (sourceComponents == null || !sourceComponents.Any())
                 {
                     //TODO message
-                    Messages.Error(this, "Please select/check at least one source component for alarm!");
+                    Messages.ErrorAsync(this, "Please select/check at least one source component for alarm!");
                     return;
                 }
 
@@ -1142,7 +1143,7 @@ namespace gip.bso.iplus
         /// Saves the alarm distribution configuration.
         /// </summary>
         [ACMethodInfo("", "en{'Save configuration'}de{'Konfiguration speichern'}", 407)]
-        public void SaveConfiguration()
+        public async void SaveConfiguration()
         {
             bool isRebuildNeeded = false;
 
@@ -1179,7 +1180,7 @@ namespace gip.bso.iplus
 
                 Msg msg = configTarget.Database.ACSaveChanges();
                 if (msg != null)
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                 else
                     isRebuildNeeded = true;
             }
@@ -1223,13 +1224,13 @@ namespace gip.bso.iplus
             }
             if (sourceComp == null || sourceACClass == null)
             {
-                Messages.Info(this, "Can't find a source component for the alarm message!", true);
+                Messages.InfoAsync(this, "Can't find a source component for the alarm message!", true);
                 return false;
             }
             return true;
         }
 
-        private bool ValidateAssignMessageOrProperty(ACClassInfoWithItems configTarget, ACClassInfoWithItems configLevel, string alarmSourceID)
+        private async Task<bool> ValidateAssignMessageOrProperty(ACClassInfoWithItems configTarget, ACClassInfoWithItems configLevel, string alarmSourceID)
         {
             IEnumerable<AlarmMessengerConfig> relevantConfigs = AssignedAlarmSourceList.Where(c => c.MsgPropACIdentifier == alarmSourceID);
 
@@ -1239,7 +1240,7 @@ namespace gip.bso.iplus
             AlarmMessengerConfig existConfig = relevantConfigs.FirstOrDefault(c => c.SourceACUrl == configLevel.ValueT.ACUrl && c.ConfigTargetACUrl == configTarget.ValueT.ACUrlComponent);
             if (existConfig != null)
             {
-                Messages.Warning(this, "Warning50031", false, alarmSourceID, existConfig.SourceACUrlComp, existConfig.ConfigTargetACUrlComp);
+                await Messages.WarningAsync(this, "Warning50031", false, alarmSourceID, existConfig.SourceACUrlComp, existConfig.ConfigTargetACUrlComp);
                 return false;
             }
 
@@ -1249,7 +1250,7 @@ namespace gip.bso.iplus
                 {
                     if (CheckBasedOnConfigLevel(configLevel.ValueT, config.SourceACUrl))
                     {
-                        if (Messages.Question(this, "Question50039", Global.MsgResult.No, false, alarmSourceID, config.SourceACUrlComp, config.ConfigTargetACUrlComp) ==
+                        if (await Messages.QuestionAsync(this, "Question50039", Global.MsgResult.No, false, alarmSourceID, config.SourceACUrlComp, config.ConfigTargetACUrlComp) ==
                             Global.MsgResult.Yes)
                             return true;
                         else
@@ -1564,7 +1565,7 @@ namespace gip.bso.iplus
         /// Unsets the alarm distribution configuration from BSOAlarmExplorer.
         /// </summary>
         /// <param name="alarmMsg"></param>
-        public void UnsetAlarmFromDistribution(Msg alarmMsg)
+        public async void UnsetAlarmFromDistribution(Msg alarmMsg)
         {
             ACClass sourceACClass = null;
             IACComponent sourceComp = null;
@@ -1620,7 +1621,7 @@ namespace gip.bso.iplus
                         alarmMessenger.RemoveACConfig(currentConfig);
                         var msg = alarmMessenger.Database.ACSaveChanges();
                         if (msg != null)
-                            Messages.Msg(msg);
+                            await Messages.MsgAsync(msg);
                         else 
                         {
                             _IsAnyConfigRemoved = true;
@@ -1632,11 +1633,11 @@ namespace gip.bso.iplus
                 }
                 RebuildAlarmMessengerCache();
                 if (!_IsAnyConfigRemoved)
-                    Messages.Warning(this, "Warning50032");
+                    await Messages.WarningAsync(this, "Warning50032");
             }
         }
 
-        private void CheckAndRemoveExclusionRules(ACClass ruleSourceClass, string alarmMsgID)
+        private async void CheckAndRemoveExclusionRules(ACClass ruleSourceClass, string alarmMsgID)
         {
             foreach(var configTarget in ConfigurationTargetList)
             {
@@ -1659,7 +1660,7 @@ namespace gip.bso.iplus
                         configTarget.RemoveACConfig(exclusionRule);
                         var msg = configTarget.Database.ACSaveChanges();
                         if (msg != null)
-                            Messages.Msg(msg);
+                            await Messages.MsgAsync(msg);
                     }
                 }
             }
@@ -1670,11 +1671,11 @@ namespace gip.bso.iplus
         /// Saves configuration from alarm explorer dialog.
         /// </summary>
         [ACMethodInfo("", "en{'Save configuration'}de{'Konfiguration speichern'}", 410, true)]
-        public void SaveConfigurationDialog()
+        public async void SaveConfigurationDialog()
         {
             string alarmSourceID = !string.IsNullOrEmpty(_CurrentDialogMsg.TranslID) ? _CurrentDialogMsg.TranslID : _CurrentDialogMsg.ACIdentifier;
             _AssignedAlarmSourceList = null;
-            if (ValidateAssignMessageOrProperty(CurrentConfigTarget, CurrentConfigLevel, alarmSourceID))
+            if (await ValidateAssignMessageOrProperty(CurrentConfigTarget, CurrentConfigLevel, alarmSourceID))
             {
                 var targetComponents = GetCheckedComponents(CurrentConfigTargetComp);
                 if (targetComponents != null && targetComponents.Any())
@@ -1700,7 +1701,7 @@ namespace gip.bso.iplus
                     RebuildAlarmMessengerCache();
                 else
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                 }
             }
             CloseTopDialog();
@@ -1728,7 +1729,7 @@ namespace gip.bso.iplus
         /// Sets the exclusion rule on the source component in the message.
         /// </summary>
         /// <param name="alarmMsg">The alarm message.</param>
-        public void SetExclusionRule(Msg alarmMsg)
+        public async void SetExclusionRule(Msg alarmMsg)
         {
             ACClass sourceACClass = null;
             IACComponent sourceComp = null;
@@ -1738,7 +1739,7 @@ namespace gip.bso.iplus
             ACClass messenger = FindAlarmMessenger(sourceComp, sourceACClass);
             if (messenger == null)
             {
-                Messages.Error(this, "Error: Exclusion rule isn't setted. Can't find a alarm messenger ACClass!", true);
+                await Messages.ErrorAsync(this, "Error: Exclusion rule isn't setted. Can't find a alarm messenger ACClass!", true);
                 return;
             }
 
@@ -1754,7 +1755,7 @@ namespace gip.bso.iplus
                                                     && c.Value != null
                                                     && c.Value.ToString() == alarmMsgID))
             {
-                Messages.Warning(this, "Warning50033");
+                await Messages.WarningAsync(this, "Warning50033");
                 return;
             }
 
@@ -1767,14 +1768,14 @@ namespace gip.bso.iplus
             if (msg == null)
                 RebuildAlarmMessengerCache();
             else
-                Messages.Msg(msg);
+                await Messages.MsgAsync(msg);
         }
 
         /// <summary>
         /// Removes the exclusion rule from the specific component.
         /// </summary>
         /// <param name="alarmMsg">The alarm message parameter.</param>
-        public void RemoveExclusionRule(Msg alarmMsg)
+        public async void RemoveExclusionRule(Msg alarmMsg)
         {
             ACClass sourceACClass = null;
             IACComponent sourceComp = null;
@@ -1784,7 +1785,7 @@ namespace gip.bso.iplus
             ACClass messenger = FindAlarmMessenger(sourceComp, sourceACClass);
             if (messenger == null)
             {
-                Messages.Error(this, "Error: Exclusion rule isn't removed. Can't find a alarm messenger ACClass!", true);
+                await Messages.ErrorAsync(this, "Error: Exclusion rule isn't removed. Can't find a alarm messenger ACClass!", true);
                 return;
             }
 
@@ -1805,12 +1806,12 @@ namespace gip.bso.iplus
                     RebuildAlarmMessengerCache();
                 else
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                 }
             }
             else
             {
-                Messages.Warning(this, "Warning50034");
+                await Messages.WarningAsync(this, "Warning50034");
             }
         }
 

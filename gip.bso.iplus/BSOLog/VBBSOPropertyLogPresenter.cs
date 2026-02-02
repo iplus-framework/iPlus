@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -57,7 +58,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="deleteACClassTask">The deleteACClassTask parameter.</param>
         /// <returns>True if is deinitialization success, otherwise returns false.</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _TreeViewList = null;
             _SelectedItemInTimeline = null;
@@ -77,7 +78,7 @@ namespace gip.bso.iplus
             _AvailableTimelineValues = null;
             _AlarmsSubAlarmsList = null;
 
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);

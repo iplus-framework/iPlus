@@ -6,6 +6,7 @@ using System.Linq;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.reporthandler;
+using System.Threading.Tasks;
 
 namespace gip.core.reporthandlerwpf
 {
@@ -76,7 +77,7 @@ namespace gip.core.reporthandlerwpf
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_VarioConfigManager != null)
                 ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
@@ -92,7 +93,7 @@ namespace gip.core.reporthandlerwpf
             this._ReportACIdentifier = null;
             this._SelectedACClassDesign = null;
             this._SelectedQueryACClass = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -908,7 +909,7 @@ namespace gip.core.reporthandlerwpf
             ACClassDesign parentReport = _ACClassDesignList.FirstOrDefault(c => c.ACIdentifier == ReportACIdentifier && c.ACUsage == ReportType);
             if (parentReport != null && parentReport.ACClass.ACClassID == ((ACClass)this.ParentACComponent.ACType).ACClassID)
             {
-                Messages.Info(this, "Info50019");
+                Messages.InfoAsync(this, "Info50019");
                 return;
             }
 
@@ -1062,11 +1063,11 @@ namespace gip.core.reporthandlerwpf
         #region Löschen
 
         [ACMethodCommand("Report", Const.Delete, (short)MISort.Delete)]
-        public void ReportDelete()
+        public async void ReportDelete()
         {
             if (!IsEnabledReportDelete())
                 return;
-            if (Messages.Question(this, "Question50026", Global.MsgResult.None, false, CurrentACClassDesign.ACIdentifier) == Global.MsgResult.Yes)
+            if (await Messages.QuestionAsync(this, "Question50026", Global.MsgResult.None, false, CurrentACClassDesign.ACIdentifier) == Global.MsgResult.Yes)
             {
                 var ctx = CurrentACClassDesign.GetObjectContext();
                 CurrentACClassDesign.DeleteACObject(ctx, true);
@@ -1089,11 +1090,11 @@ namespace gip.core.reporthandlerwpf
         #region Speichern
 
         [ACMethodCommand("Report", "en{'Save'}de{'Speichern'}", (short)MISort.Save)]
-        public void ReportSave()
+        public async void ReportSave()
         {
             if (!IsEnabledReportSave())
                 return;
-            if (OnSave())
+            if (await OnSave())
                 Database.ContextIPlus.ACSaveChanges();
             if (ParentBSO != null)
                 ParentBSO.CurrentQueryACClassDesign = CurrentACClassDesign;

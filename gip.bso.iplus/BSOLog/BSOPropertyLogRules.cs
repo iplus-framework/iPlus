@@ -5,6 +5,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -47,7 +48,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="deleteACClassTask">The deleteACClassTask parameter.</param>
         /// <returns>True if is deinitialization success, otherwise returns false.</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (PropertyLogService != null)
                 PropertyLogService.Detach();
@@ -55,7 +56,7 @@ namespace gip.bso.iplus
             if (ComponentSelector != null)
                 ComponentSelector.PropertyChanged -= _ComponentSelector_PropertyChanged;
 
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -396,7 +397,7 @@ namespace gip.bso.iplus
             if (PropertyLogService != null)
                 PropertyLogService.ValueT.ACUrlCommand("!RebuildRuleCache");
             else
-                Messages.Error(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
+                Messages.ErrorAsync(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
         }
 
         /// <summary>
@@ -425,7 +426,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="componentClass">The component ACClass.</param>
         [ACMethodInfo("", "", 402)]
-        public void ComponentPropertiesLoggingOn(ACClass componentClass)
+        public async void ComponentPropertiesLoggingOn(ACClass componentClass)
         {
             if (componentClass == null)
                 return;
@@ -437,7 +438,7 @@ namespace gip.bso.iplus
                 if (propLogs.Any(c => componentClass.ACUrlComponent.StartsWith(c.ACClass.ACUrlComponent, StringComparison.Ordinal)))
                 {
                     //Question50042: Logging properties for this component is active by inherited rule in the project hierarchy. Do you still want activate properties logging on this component? 
-                    if (Messages.Question(this, "Question50042", Global.MsgResult.No) == Global.MsgResult.No)
+                    if (await Messages.QuestionAsync(this, "Question50042", Global.MsgResult.No) == Global.MsgResult.No)
                         return;
                 }
 
@@ -447,7 +448,7 @@ namespace gip.bso.iplus
 
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                 }
                 else
                 {
@@ -455,11 +456,11 @@ namespace gip.bso.iplus
                     {
                         PropertyLogService.ValueT.ACUrlCommand("!RebuildRuleCache");
                         //Info50030:The rule for properties logging is succesfully activated.
-                        Messages.Info(this, "Info50030");
+                       await Messages.InfoAsync(this, "Info50030");
                     }
                     else
                     {
-                        Messages.Error(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
+                        await Messages.ErrorAsync(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
                     }
                 }
             }
@@ -500,7 +501,7 @@ namespace gip.bso.iplus
                     var msg = db.ACSaveChanges();
                     if (msg != null)
                     {
-                        Messages.Msg(msg);
+                        Messages.MsgAsync(msg);
                     }
                     else
                     {
@@ -508,11 +509,11 @@ namespace gip.bso.iplus
                         {
                             PropertyLogService.ValueT.ACUrlCommand("!RebuildRuleCache");
                             //Info50030:The rule for properties logging is succesfully activated.
-                            Messages.Info(this, "Info50030");
+                           Messages.InfoAsync(this, "Info50030");
                         }
                         else
                         {
-                            Messages.Error(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
+                            Messages.ErrorAsync(this, "The PropertyLogService is not available! Run rule refresh manually on the property log service.");
                         }
                     }
                 }

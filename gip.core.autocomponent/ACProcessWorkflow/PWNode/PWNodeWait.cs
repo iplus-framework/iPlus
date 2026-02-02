@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -124,7 +125,7 @@ namespace gip.core.autocomponent
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             UnSubscribeToTimerCycle();
             UnsubscribeFromConditionProperty();
@@ -136,7 +137,7 @@ namespace gip.core.autocomponent
                 ApplicationManager.DaylightSavingTimeSwitched -= ApplicationManager_DaylightSavingTimeSwitched;
             if (deleteACClassTask)
                 ResetTimeProperties(true);
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public override bool ACPostInit()

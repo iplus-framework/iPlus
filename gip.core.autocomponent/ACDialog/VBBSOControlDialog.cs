@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 //using gip.core.layoutengine;
 //using System.Windows;
@@ -31,10 +32,10 @@ namespace gip.core.autocomponent
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._Update = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #region BSO->ACMethod
@@ -129,7 +130,7 @@ namespace gip.core.autocomponent
             IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             if (routeSelector == null)
             {
-                Messages.Error(this, "Route selector is not installed");
+                Messages.ErrorAsync(this, "Route selector is not installed");
                 return;
             }
 

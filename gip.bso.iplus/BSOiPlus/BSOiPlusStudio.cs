@@ -26,6 +26,7 @@ using gip.core.autocomponent;
 using gip.core.datamodel.ACContainer;
 using ClosedXML.Excel;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 namespace gip.bso.iplus
 {
     /// <summary>
@@ -86,7 +87,7 @@ namespace gip.bso.iplus
         {
             if (Root != null && !Root.Environment.License.MayUserDevelop)
             {
-                Messages.Warning(this, "Warning50026");
+                Messages.WarningAsync(this, "Warning50026");
                 throw new Exception("No license for development");
             }
 
@@ -161,7 +162,7 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="deleteACClassTask">if set to <c>true</c> [delete AC class task].</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_CurrentACComponent != null)
             {
@@ -246,10 +247,10 @@ namespace gip.bso.iplus
             this._SelectedPointStateInfo = null;
             this._ShowACClass = null;
             this._TranslationList = null;
-            var b = base.ACDeInit(deleteACClassTask);
+            var b = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
-                _AccessPrimary.ACDeInit(false);
+                await _AccessPrimary.ACDeInit(false);
                 _AccessPrimary = null;
             }
             return b;
@@ -1522,12 +1523,12 @@ namespace gip.bso.iplus
         /// Saves this instance.
         /// </summary>
         [ACMethodCommand("ACProject", "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void Save()
+        public async void Save()
         {
             if (Root.Environment.License.MayUserDevelop)
-                OnSave();
+                await OnSave();
             else
-                Messages.Warning(this, "Warning50026");
+                await Messages.WarningAsync(this, "Warning50026");
         }
 
         IList<Guid> _acClassDesignIDList = null;
@@ -1545,7 +1546,7 @@ namespace gip.bso.iplus
             if (result != null)
             {
                 return result;
-                //Global.MsgResult userResult = Messages.Msg(msg, Global.MsgResult.Cancel, eMsgButton.OKCancel);
+                //Global.MsgResult userResult = Messages.MsgAsync(msg, Global.MsgResult.Cancel, eMsgButton.OKCancel);
                 //if (userResult == Global.MsgResult.Cancel)
                 //    return
             }
@@ -1576,20 +1577,19 @@ namespace gip.bso.iplus
             return null;
         }
 
-        protected override void OnPostSave()
+        protected async override void OnPostSave()
         {
             if (ProjectManager.IsEnabledUpdateApplicationbyAppDefinition(CurrentACProject, _acClassList, _moveInfoList))
             {
-                if (Messages.Question(this, "Question00009", Global.MsgResult.Yes, false, CurrentACProject.ACProjectName) == Global.MsgResult.Yes)
+                if (await Messages.QuestionAsync(this, "Question00009", Global.MsgResult.Yes, false, CurrentACProject.ACProjectName) == Global.MsgResult.Yes)
                 {
                     string info = ProjectManager.UpdateApplicationbyAppDefinition(CurrentACProject, _acClassList, _moveInfoList);
                     if (!string.IsNullOrEmpty(info))
                     {
-                        Messages.Warning(this, "Warning00001", false, info);
+                        await Messages.WarningAsync(this, "Warning00001", false, info);
                     }
                 }
             }
-
 
             using (ACMonitor.Lock(Root.Database.ContextIPlus.QueryLock_1X000))
             {
@@ -1599,10 +1599,6 @@ namespace gip.bso.iplus
                     Root.Database.ContextIPlus.Refresh(RefreshMode.StoreWins, acClassDesign1);
                 }
             }
-
-            // Damir to Ivan ???
-            //if (CurrentACClassDesign != null)
-            //    CurrentACClassDesign.OnEntityPropertyChanged("IsDesignCompiled");
 
             base.OnPostSave();
         }
@@ -1638,9 +1634,9 @@ namespace gip.bso.iplus
         /// Loads this instance.
         /// </summary>
         [ACMethodInteraction("ACProject", "en{'Load'}de{'Laden'}", (short)MISort.Load, false, "SelectedACProject", Global.ACKinds.MSMethodPrePost)]
-        public void Load(bool requery = false)
+        public async void Load(bool requery = false)
         {
-            if (SelectedACProject != null && ACSaveOrUndoChanges())
+            if (SelectedACProject != null && await ACSaveOrUndoChanges())
             {
                 if (!PreExecute("Load"))
                     return;
@@ -1727,15 +1723,15 @@ namespace gip.bso.iplus
         /// Deletes this instance.
         /// </summary>
         [ACMethodInteraction("ACProject", Const.Delete, (short)MISort.Delete, true, "CurrentACProject", Global.ACKinds.MSMethodPrePost)]
-        public void Delete()
+        public async void Delete()
         {
-            if (Messages.Question(this, "Question00002", Global.MsgResult.Yes, false, CurrentACProject.ACProjectName) == Global.MsgResult.Yes)
+            if (await Messages.QuestionAsync(this, "Question00002", Global.MsgResult.Yes, false, CurrentACProject.ACProjectName) == Global.MsgResult.Yes)
             {
                 if (!PreExecute("Delete")) return;
                 Msg msg = CurrentACProject.DeleteACObject(Database.ContextIPlus, true);
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                     return;
                 }
                 ACSaveChanges();
@@ -1937,7 +1933,7 @@ namespace gip.bso.iplus
                 {
                     if (IsACClassReferenced(CurrentProjectItem.ValueT))
                     {
-                        Messages.Warning(this, "Can't switch class because there are already references in the derived instances", false, null);
+                        Messages.WarningAsync(this, "Can't switch class because there are already references in the derived instances", false, null);
                         return;
                     }
                 }
@@ -1999,7 +1995,7 @@ namespace gip.bso.iplus
         /// Deletes the AC class.
         /// </summary>
         [ACMethodInteraction("ACClass", "en{'Delete Class'}de{'Klasse löschen'}", (short)MISort.Delete, true, "CurrentProjectItem", Global.ACKinds.MSMethodPrePost)]
-        public void DeleteACClass()
+        public async void DeleteACClass()
         {
             if (CurrentACClass == null)
                 return;
@@ -2012,10 +2008,10 @@ namespace gip.bso.iplus
             ACClassInfoWithItems projectItem = CurrentProjectItem;
             if (projectItem == null) 
                 return;
-            MsgWithDetails msgWithDetails = DeleteACClassInternal(CurrentACClass);
+            MsgWithDetails msgWithDetails = await DeleteACClassInternal(CurrentACClass);
             if (msgWithDetails != null && msgWithDetails.MsgDetailsCount > 0)
             {
-                Messages.Msg(msgWithDetails);
+                await Messages.MsgAsync(msgWithDetails);
                 return;
             }
 
@@ -2036,7 +2032,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        protected MsgWithDetails DeleteACClassInternal(ACClass aCClass)
+        protected async Task<MsgWithDetails> DeleteACClassInternal(ACClass aCClass)
         {
             MsgWithDetails msgWithDetails = new MsgWithDetails();
             Msg msg = null;
@@ -2044,7 +2040,7 @@ namespace gip.bso.iplus
                 return msgWithDetails;
             if (aCClass.CountDesignsRecursive() > 0)
             {
-                if (Global.MsgResult.Yes != Messages.Question(this, "Question00003", Global.MsgResult.Yes, false, aCClass.CountDesignsRecursive().ToString()))
+                if (Global.MsgResult.Yes != await Messages.QuestionAsync(this, "Question00003", Global.MsgResult.Yes, false, aCClass.CountDesignsRecursive().ToString()))
                 {
                     msg = new Msg { ACIdentifier = "Question00003", Message = Root.Environment.TranslateMessage(this, "Question00003", aCClass.CountDesignsRecursive().ToString()), MessageLevel = eMsgLevel.Info };
                     msgWithDetails.AddDetailMessage(msg);
@@ -2060,7 +2056,7 @@ namespace gip.bso.iplus
 
 
         [ACMethodCommand("DeleteFilteredClasses", "en{'Delete filtered classes'}de{'Gefilterte Klassen löschen'}", (short)2000)]
-        public void DeleteFilteredClasses()
+        public async void DeleteFilteredClasses()
         {
             if (CurrentProjectItemRoot == null)
                 return;
@@ -2073,7 +2069,7 @@ namespace gip.bso.iplus
 
             foreach (ACClassInfoWithItems childItem in CurrentProjectItemRoot.Items)
             {
-                MsgWithDetails subMsg = DeleteACClassInternal(childItem.ValueT);
+                MsgWithDetails subMsg = await DeleteACClassInternal(childItem.ValueT);
                 if (subMsg != null && subMsg.MsgDetailsCount > 0)
                 {
                     foreach (Msg msgChild in subMsg.MsgDetails)
@@ -2084,7 +2080,7 @@ namespace gip.bso.iplus
             }
             if (msgWithDetails != null && msgWithDetails.MsgDetailsCount > 0)
             {
-                Messages.Msg(msgWithDetails);
+                await Messages.MsgAsync(msgWithDetails);
                 return;
             }
 
@@ -2144,7 +2140,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("Clone", Const.Ok, 9999, false)]
-        public void CloneDialogOK()
+        public async void CloneDialogOK()
         {
             if (!IsEnabledCloneDialogOK())
                 return;
@@ -2158,7 +2154,7 @@ namespace gip.bso.iplus
                 string message = e.Message;
                 if (e.InnerException != null)
                     message += " " + e.InnerException.Message;
-                Messages.Msg(new Msg(message, this, eMsgLevel.Exception, "BSOiPlusStudio", "CloneDialogOK", 1000));
+                await Messages.MsgAsync(new Msg(message, this, eMsgLevel.Exception, "BSOiPlusStudio", "CloneDialogOK", 1000));
             }
             var project = ProjectManager.LoadACProject(SelectedACProject, ProjectTreePresentationMode, ProjectTreeVisibilityFilter);
             SetCurrentACProject(project);

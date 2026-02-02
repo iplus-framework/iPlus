@@ -8,6 +8,7 @@ using System.Threading;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace gip.core.processapplication
 {
@@ -40,10 +41,10 @@ namespace gip.core.processapplication
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             FaultState.PropertyChanged -= FaultState_PropertyChanged;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

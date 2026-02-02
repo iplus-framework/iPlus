@@ -21,6 +21,7 @@ using System.Runtime.Serialization;
 using System.IO;
 using System.Xml;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
@@ -65,13 +66,13 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._AccessACClass = null;
-            var b = base.ACDeInit(deleteACClassTask);
+            var b = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
-                _AccessPrimary.ACDeInit(false);
+                await _AccessPrimary.ACDeInit(false);
                 _AccessPrimary = null;
             }
             return b;
@@ -266,7 +267,7 @@ namespace gip.bso.iplus
                 VBPresenterMethod vbPresenterMethod = this.ACUrlCommand("VBPresenterMethod(CurrentDesign)") as VBPresenterMethod;
                 if (vbPresenterMethod == null)
                 {
-                    Messages.Error(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterMethod in the group management!", true);
+                    Messages.ErrorAsync(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterMethod in the group management!", true);
                     return;
                 }
                 vbPresenterMethod.Load(value);
@@ -479,9 +480,9 @@ namespace gip.bso.iplus
         /// Saves this instance.
         /// </summary>
         [ACMethodCommand("ACClassMethod", "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void Save()
+        public async void Save()
         {
-            OnSave();
+            await OnSave();
         }
 
         /// <summary>
@@ -628,15 +629,15 @@ namespace gip.bso.iplus
         /// Deletes this instance.
         /// </summary>
         [ACMethodInteraction("ACClassMethod", Const.Delete, (short)MISort.Delete, true, "CurrentACClassMethod", Global.ACKinds.MSMethodPrePost)]
-        public void Delete()
+        public async void Delete()
         {
-            if (Messages.Question(this, "Question00008", Global.MsgResult.Yes, false, CurrentACClassMethod.ACIdentifier) == Global.MsgResult.Yes)
+            if (await Messages.QuestionAsync(this, "Question00008", Global.MsgResult.Yes, false, CurrentACClassMethod.ACIdentifier) == Global.MsgResult.Yes)
             {
                 if (!PreExecute("Delete")) return;
                 Msg msg = CurrentACClassMethod.DeleteACObject(Database.ContextIPlus, false);
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                     return;
                 }
                 ACSaveChanges();
@@ -813,7 +814,7 @@ namespace gip.bso.iplus
             if (_WorkflowTestCallbacks == 1)
             {
                 // Workflow ist nicht vollständig ablauffähig
-                Messages.Error(this, "Error00001");
+                Messages.ErrorAsync(this, "Error00001");
             }
             _WorkflowTestCallbacks = 0;
         }
@@ -966,7 +967,7 @@ namespace gip.bso.iplus
         #region Methods => Validate WF (DB == Presenter)
 
         [ACMethodInteraction("", "", 350, true)]
-        public void ValidateWF()
+        public async void ValidateWF()
         {
             if (!IsEnabledValidateWF())
                 return;
@@ -975,7 +976,7 @@ namespace gip.bso.iplus
 
             Msg msg = (VBPresenterMethod as VBPresenterMethod)?.GetPresenterElements(out presenterElements);
             if (msg != null)
-                Messages.Msg(msg);
+                await Messages.MsgAsync(msg);
 
             if(presenterElements == null)
                 return;
@@ -1023,12 +1024,12 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "en{'Delete database item'}de{'Datenbankelement löschen'}", 351)]
-        public void DeleteDBItem()
+        public async void DeleteDBItem()
         {
             if (!IsEnabledDeleteDBItem())
                 return;
 
-            if (Messages.Question(this, "Question50053", Global.MsgResult.No) != Global.MsgResult.Yes)
+            if (await Messages.QuestionAsync(this, "Question50053", Global.MsgResult.No) != Global.MsgResult.Yes)
                 return;
 
             IACWorkflowNode node = SelectedDBItemToResolve.Value as IACWorkflowNode;
@@ -1041,7 +1042,7 @@ namespace gip.bso.iplus
                     Database.ContextIPlus.ACClassWF.Remove(dbNode);
                     //Msg msg = Database.ACSaveChanges();
                     //if (msg != null)
-                    //    Messages.Msg(msg);
+                    //    Messages.MsgAsync(msg);
                     //else
                     //{
                         var temp = _DBItemsToResolve;
@@ -1063,7 +1064,7 @@ namespace gip.bso.iplus
                         Database.ContextIPlus.ACClassWFEdge.Remove(dbEdge);
                         //Msg msg = Database.ACSaveChanges();
                         //if (msg != null)
-                        //    Messages.Msg(msg);
+                        //    Messages.MsgAsync(msg);
                         //else
                         //{
                             var temp = _DBItemsToResolve;

@@ -14,6 +14,7 @@
 // <summary></summary>
 // ***********************************************************************
 using System;
+using System.Threading.Tasks;
 
 
 namespace gip.core.datamodel
@@ -43,7 +44,7 @@ namespace gip.core.datamodel
 
         /// <summary>When the database context has changed, a dialog is opened that asks the user whether they want to save the changes. If yes then the OnSave()-Method will be invoked. If not then ACUndoChanges() will be invoked. If cancelled then nothing will happen.</summary>
         /// <returns>Fals, if user has cancelled saving or undoing.</returns>
-        bool ACSaveOrUndoChanges();
+        Task<bool> ACSaveOrUndoChanges();
 
 
         /// <summary>

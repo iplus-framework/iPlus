@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 
@@ -30,9 +31,9 @@ namespace gip.core.communication
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             _PLCRAMOfDataBlocks = null;
             _PollPLCOn = false;
             return result;

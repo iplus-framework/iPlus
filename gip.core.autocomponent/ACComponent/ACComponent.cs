@@ -18,6 +18,7 @@ using System.Runtime.InteropServices.ComTypes;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Xml;
 using static gip.core.datamodel.Global;
@@ -107,12 +108,12 @@ namespace gip.core.autocomponent
         /// <param name="parentACObject"></param>
         /// <param name="parameter"></param>
         /// <param name="acIdentifier"></param>
-        public virtual void Reload(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
+        public virtual async void Reload(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
         {
             if (InitState != ACInitState.Initialized)
                 return;
             InitState = ACInitState.Reloading;
-            Stop();
+            await Stop();
             ComponentClass.RefreshCachedMethods();
             Construct(this.ComponentClass, content, parentACObject, parameter, acIdentifier);
             ACInit();
@@ -536,7 +537,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <param name="deleteACClassTask">Should instance be removed from persistable application tree.</param>
         /// <returns><c>true</c> if succeeded, <c>false</c> otherwise</returns>
-        public virtual bool ACDeInit(bool deleteACClassTask = false)
+        public async virtual Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             InitiateDisposingToPool();
 
@@ -873,12 +874,12 @@ namespace gip.core.autocomponent
         /// This should only be done for dynamic instances like Workflow-Classes (Derivation of PWBase)</param>
         /// <returns>True if component was found and stopped successfully</returns>
         [ACMethodInfo("ACComponent", "en{'Stop ACComponent'}de{'Stop ACComponent'}", 9999)]
-        public bool StopComponent(string acIdentifier, bool deleteACClassTask = false)
+        public async Task<bool> StopComponent(string acIdentifier, bool deleteACClassTask = false)
         {
             IACComponent acComponent = GetChildComponent(acIdentifier);
             if (acComponent == null)
                 return false;
-            return StopComponent(acComponent, deleteACClassTask);
+            return await StopComponent(acComponent, deleteACClassTask);
         }
 
         /// <summary>
@@ -890,7 +891,7 @@ namespace gip.core.autocomponent
         /// This should only be done for dynamic instances like Workflow-Classes (Derivation of PWBase)</param>
         /// <returns>True if passed component was stopped successfully</returns>
         [ACMethodInfo("ACComponent", "en{'Stop ACComponent'}de{'Stop ACComponent'}", 9999)]
-        public bool StopComponent(IACComponent acComponent, bool deleteACClassTask = false)
+        public async Task<bool> StopComponent(IACComponent acComponent, bool deleteACClassTask = false)
         {
             ACActivatorThread currentDeInitThread = ACActivator.CurrentDeInitializingThread;
 
@@ -908,14 +909,14 @@ namespace gip.core.autocomponent
             {
                 if (acSubACComponent == null || !(acSubACComponent is ACComponent))
                     continue;
-                if (!((ACComponent)acComponent).StopComponent(acSubACComponent, deleteACClassTask))
+                if (!await ((ACComponent)acComponent).StopComponent(acSubACComponent, deleteACClassTask))
                 {
                     currentDeInitThread.InstanceDepth--;
                     return false;
                 }
             }
 
-            bool succ = acComponent.ACDeInit(deleteACClassTask);
+            bool succ = await acComponent.ACDeInit(deleteACClassTask);
             if (succ)
             {
                 if (acComponent.IsProxy)
@@ -942,11 +943,11 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <returns>True if stop was successfull</returns>
         [ACMethodInfo("ACComponent", "en{'Stop'}de{'Stop'}", 9999)]
-        public virtual bool Stop()
+        public virtual async Task<bool> Stop()
         {
             if (ParentACComponent == null)
                 return false;
-            return ParentACComponent.StopComponent(this);
+            return await ParentACComponent.StopComponent(this);
         }
 
         /// <summary>
@@ -4633,7 +4634,7 @@ namespace gip.core.autocomponent
             Msg msg = Database.ACUndoChanges();
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
             }
             return msg == null;
         }
@@ -4650,7 +4651,7 @@ namespace gip.core.autocomponent
             Msg msg = Database.ACSaveChanges();
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
             }
             return msg == null;
         }

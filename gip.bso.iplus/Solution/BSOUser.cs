@@ -21,6 +21,7 @@ using gip.core.autocomponent;
 using gip.core.manager;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -86,17 +87,17 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="deleteACClassTask">if set to <c>true</c> [delete AC class task].</param>
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _CurrentACRoot = null;
             _SelectedGroup = null;
             _SelectedAssignedUserGroup = null;
             _SelectedACProject = null;
             _SelectedAssignedVBUserACProject = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
-                _AccessPrimary.ACDeInit(false);
+                await _AccessPrimary.ACDeInit(false);
                 _AccessPrimary = null;
             }
             if (done && _BSODatabase != null)
@@ -540,9 +541,9 @@ namespace gip.bso.iplus
         /// zu registrieren
         /// </summary>
         [ACMethodCommand("VBUser", "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void Save()
+        public async void Save()
         {
-            OnSave();
+            await OnSave();
         }
 
         /// <summary>
@@ -623,7 +624,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentUser.DeleteACObject(Db, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
             if (ACSaveChanges())
@@ -692,7 +693,7 @@ namespace gip.bso.iplus
             Msg msg = userGroup.DeleteACObject(Db, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 
@@ -810,14 +811,14 @@ namespace gip.bso.iplus
             Msg msg = VBUserACProject.DeleteACObject(Db, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
         }
 
 
         [ACMethodInteraction("UserClone", "en{'Clone'}de{'Duplizieren'}", (short)MISort.New, true, "SelectedUser", Global.ACKinds.MSMethodPrePost)]
-        public void UserClone()
+        public async Task UserClone()
         {
             if (!IsEnabledUserClone())
                 return;
@@ -948,7 +949,7 @@ namespace gip.bso.iplus
                 SourceBSO = null;
                 TargetBSO = null;
             }
-            Messages.Info(this, "Info50083", false, matchDesign);
+            Messages.InfoAsync(this, "Info50083", false, matchDesign);
         }
 
         public bool IsEnabledReplaceBSO()

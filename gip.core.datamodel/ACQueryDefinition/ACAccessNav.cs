@@ -5,6 +5,7 @@ using System.Linq;
 using gip.core.datamodel;
 using System.Data;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -34,11 +35,11 @@ namespace gip.core.datamodel
         {
         }
 
-        override public bool ACDeInit(bool deleteACClassTask = false)
+        override public async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             Current = null;
             Selected = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 
@@ -204,7 +205,7 @@ namespace gip.core.datamodel
         /// Navigates to the first entry in the NavObjectList-Property.
         /// </summary>
         [ACMethodCommand("Navigation", "en{'Navigate to the first record'}de{'Zum ersten Datensatz navigieren'}", (short)MISort.NavigateFirst)]
-        public void NavigateFirst()
+        public async void NavigateFirst()
         {
             if (ParentBSO == null)
                 return;
@@ -212,7 +213,7 @@ namespace gip.core.datamodel
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentBSO.ACSaveOrUndoChanges())
+                if (!await ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             NavRowCurrent = 0;
@@ -233,7 +234,7 @@ namespace gip.core.datamodel
         /// Navigates to the previous element of the CurrentNavObject
         /// </summary>
         [ACMethodCommand("Navigate to the previous record", "en{'Previous'}de{'Zum vorherigen Datensatz navigieren'}", (short)MISort.NavigatePrev)]
-        public void NavigatePrev()
+        public async void NavigatePrev()
         {
             if (ParentBSO == null)
                 return;
@@ -241,7 +242,7 @@ namespace gip.core.datamodel
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentBSO.ACSaveOrUndoChanges())
+                if (!await ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             if (NavRowCurrent > 0)
@@ -263,7 +264,7 @@ namespace gip.core.datamodel
         /// Navigates to the next entry of the CurrentNavObject
         /// </summary>
         [ACMethodCommand("Navigation", "en{'Navigate to the next record'}de{'Zum nächsten Datensatz navigieren'}", (short)MISort.NavigateNext)]
-        public void NavigateNext()
+        public async void NavigateNext()
         {
             if (ParentBSO == null)
                 return;
@@ -271,7 +272,7 @@ namespace gip.core.datamodel
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentBSO.ACSaveOrUndoChanges())
+                if (!await ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             if (NavRowCurrent - 1 < NavRowCount)
@@ -293,7 +294,7 @@ namespace gip.core.datamodel
         /// Navigates to the last entry in the NavObjectList-Property.
         /// </summary>
         [ACMethodCommand("Navigation", "en{'Navigate to the last record'}de{'Zum letzten Datensatz navigieren'}", (short)MISort.NavigateLast)]
-        public void NavigateLast()
+        public async void NavigateLast()
         {
             if (ParentBSO == null)
                 return;
@@ -301,7 +302,7 @@ namespace gip.core.datamodel
             // damit nicht eine Speicherabfrage kommt wenn Child-BSO's instanziiert werden
             if (AutoSaveOnNavigation)
             {
-                if (!ParentBSO.ACSaveOrUndoChanges())
+                if (!await ParentBSO.ACSaveOrUndoChanges())
                     return;
             }
             if (NavRowCurrent - 1 < NavRowCount)

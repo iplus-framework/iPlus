@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading;
 using System.Net.Mime;
 using SkiaSharp;
+using System.Threading.Tasks;
 
 namespace gip.core.media
 {
@@ -53,14 +54,14 @@ namespace gip.core.media
             return initialized;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_VBMediaController != null)
             {
                 Root?.WPFServices?.VBMediaControllerService?.RemoveMediaControllerProxy(this);
                 _VBMediaController = null;
             }
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             return result;
         }
 

@@ -185,7 +185,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public void Channel_Closing(object sender, EventArgs e)
+        public async void Channel_Closing(object sender, EventArgs e)
         {
             if (WCFServiceManager == null)
                 return;
@@ -207,7 +207,7 @@ namespace gip.core.autocomponent
                     // Falls Channel_Closing aufgerufen im gleichen Thread durch Invoke aus WCFServiceChannel 
                     if (_InInvocation)
                     {
-                        new Thread(() =>
+                        new Thread(async () =>
                         {
                             while (_InInvocation)
                             {
@@ -217,21 +217,21 @@ namespace gip.core.autocomponent
                                     break;
                             }
 
-                            if (WCFServiceManager.StopComponent(_acServiceObject))
+                            if (await WCFServiceManager.StopComponent(_acServiceObject))
                                 _acServiceObject = null;
                         }
                         ).Start();
                     }
                     else
                     {
-                        if (WCFServiceManager.StopComponent(_acServiceObject))
+                        if (await WCFServiceManager.StopComponent(_acServiceObject))
                             _acServiceObject = null;
                     }
                 }
             }
         }
 
-        public void Channel_Closed(object sender, EventArgs e)
+        public async void Channel_Closed(object sender, EventArgs e)
         {
             if (_acServiceObject != null && _ConnectionOn)
             {
@@ -250,7 +250,7 @@ namespace gip.core.autocomponent
                     // Falls Channel_Closing aufgerufen im gleichen Thread durch Invoke aus WCFServiceChannel 
                     if (_InInvocation)
                     {
-                        new Thread(() =>
+                        new Thread(async () =>
                         {
                             while (_InInvocation)
                             {
@@ -260,14 +260,14 @@ namespace gip.core.autocomponent
                                     break;
                             }
 
-                            if (WCFServiceManager.StopComponent(_acServiceObject))
+                            if (await WCFServiceManager.StopComponent(_acServiceObject))
                                 _acServiceObject = null;
                         }
                         ).Start();
                     }
                     else
                     {
-                        if (WCFServiceManager.StopComponent(_acServiceObject))
+                        if (await WCFServiceManager.StopComponent(_acServiceObject))
                             _acServiceObject = null;
                     }
                 }

@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Xml;
 using System.Runtime.Serialization;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -104,9 +105,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool baseResult = base.ACDeInit(deleteACClassTask);
+            bool baseResult = await base.ACDeInit(deleteACClassTask);
             if (!(this is PWProcessFunction))
             {
                 if (baseResult)
@@ -900,11 +901,11 @@ namespace gip.core.autocomponent
             //return false;
         }
 
-        public static bool AskUserReset(IACComponent acComponent)
+        public static async Task<bool> AskUserReset(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
-            return acComponent.Messages.Question(acComponent, "Question50018", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50018", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
 

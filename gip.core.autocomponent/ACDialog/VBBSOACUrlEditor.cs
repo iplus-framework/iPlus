@@ -8,6 +8,7 @@ using gip.core.datamodel;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -28,13 +29,13 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             //this._CurrentACComponentACClass = null;
             //this._CurrentACSignature = null;
             //this._CurrentParameterValue = null;
             //this._CurrentResultValue = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         /// <summary>

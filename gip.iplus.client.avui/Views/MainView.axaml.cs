@@ -10,12 +10,17 @@ using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.wpfservices.avui;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
+using OpenAI.Responses;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.iplus.client.avui;
 
@@ -452,7 +457,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
 
     #region IRootPageWPF
     delegate Global.MsgResult ShowMsgBoxDelegate(Msg msg, eMsgButton msgButton);
-    public Global.MsgResult ShowMsgBox(Msg msg, eMsgButton msgButton)
+    public async Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
         // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
         // Das findet man über den Zugriff auf eine interne Member heraus:
@@ -468,27 +473,27 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
         {
             try
             {
-                return ShowMsgBoxIntern(msg, msgButton);
+                return await ShowMsgBoxInternAsync(msg, defaultResult, msgButton);
             }
             catch (InvalidOperationException /*iopEx*/)
             {
-                DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxIntern(msg, msgButton), DispatcherPriority.Normal);
-                op.Wait();
-                return (Global.MsgResult)op.Result;
+                ////DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxIntern(msg, msgButton), DispatcherPriority.Normal);
+                ////op.Wait();
+                ////return (Global.MsgResult)op.Result;
             }
         }
         else
         {
-            DispatcherOperation<Global.MsgResult> op = Dispatcher.UIThread.InvokeAsync<Global.MsgResult>(() => ShowMsgBoxIntern(msg, msgButton), DispatcherPriority.Normal);
-            op.Wait();
-            return (Global.MsgResult)op.Result;
+            var operation = Dispatcher.UIThread.InvokeAsync<Task<Global.MsgResult>>(async () => await ShowMsgBoxInternAsync(msg, defaultResult, msgButton));
+            return await operation.Result;
         }
+        return await Task.FromResult<Global.MsgResult>(Global.MsgResult.OK);
     }
 
-    private Global.MsgResult ShowMsgBoxIntern(Msg msg, eMsgButton msgButton)
+    private async Task<Global.MsgResult> ShowMsgBoxInternAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
-        VBWindowDialogMsg vbMessagebox = new VBWindowDialogMsg(msg, msgButton, this);
-        return vbMessagebox.ShowMessageBox();
+        VBMessageBox msgBox = new VBMessageBox(msg, defaultResult, msgButton);
+        return await msgBox.ShowMessageAsync();
     }
 
     public void StoreSettingsWndPos(object settingsVBDesignWndPos)
@@ -563,7 +568,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
         switch (acUrl)
         {
             case Const.CmdShowMsgBox:
-                return ShowMsgBox(acParameter[0] as Msg, (eMsgButton)acParameter[1]);
+                return ShowMsgBoxAsync(acParameter[0] as Msg, (Global.MsgResult)acParameter[1], (eMsgButton)acParameter[2]);
             case Const.CmdStartBusinessobject:
                 if (acParameter.Count() > 1)
                 {
@@ -887,13 +892,13 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     }
     #endregion
 
-    private void WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
+    private async void WarningIcon_DoubleTappedAsync(object sender, TappedEventArgs e)
     {
         IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null) as IACComponent;
         if (bsoAlarmExplorer != null)
         {
             bsoAlarmExplorer.ACUrlCommand("!ShowAlarmExplorer");
-            bsoAlarmExplorer.Stop();
+            await bsoAlarmExplorer.Stop();
         }
     }
 

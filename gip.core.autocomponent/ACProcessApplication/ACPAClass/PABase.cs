@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Xml;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -51,11 +52,11 @@ namespace gip.core.autocomponent
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             UnSubscribeToProjectWorkCycle();
             (ACState as IACPropertyNetServer).ValueUpdatedOnReceival -= ACState_PropertyChanged;
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             if (deleteACClassTask)
             {
                 if (TimeInfo.ValueT != null)

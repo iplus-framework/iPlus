@@ -49,7 +49,7 @@ namespace gip.bso.iplus
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_AccessPrimary != null)
                 _AccessPrimary.ACDeInit(true);
@@ -60,7 +60,7 @@ namespace gip.bso.iplus
             _RemoteUserKey = null;
             _LicenseFileDirPath = null;
             _LicenseFilePath = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -466,7 +466,7 @@ namespace gip.bso.iplus
             }
             catch (Exception e)
             {
-                Messages.Warning(this, "Warning50024", false, e.Message);
+                Messages.WarningAsync(this, "Warning50024", false, e.Message);
                 return;
             }
             CloseTopDialog();
@@ -608,12 +608,12 @@ namespace gip.bso.iplus
             {
                 CurrentVBLicense = system;
                 ACSaveChanges();
-                Messages.Info(this, "Info50025");
+                Messages.InfoAsync(this, "Info50025");
                 _IsNewLicense = true;
             }
             else
             {
-                Messages.Warning(this, "Warning50021");
+                Messages.WarningAsync(this, "Warning50021");
             }
         }
 
@@ -679,7 +679,7 @@ namespace gip.bso.iplus
             }
             catch
             {
-                Messages.Warning(this, "Warning50028");
+                Messages.WarningAsync(this, "Warning50028");
             }
         }
 
@@ -703,7 +703,7 @@ namespace gip.bso.iplus
                 string result = SignLicense(data).Result;
                 if (string.IsNullOrEmpty(result))
                 {
-                    Messages.Warning(this, "Warning50028");
+                    Messages.WarningAsync(this, "Warning50028");
                     return;
                 }
                 CurrentSignLicense.SystemCommon1 = ByteExtension.FromByteStringKey(result);

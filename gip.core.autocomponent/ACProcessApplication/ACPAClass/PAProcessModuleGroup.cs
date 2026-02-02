@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -30,9 +31,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #region Points

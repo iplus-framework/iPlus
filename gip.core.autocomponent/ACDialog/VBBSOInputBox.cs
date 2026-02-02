@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent.ACDialog
@@ -17,11 +18,11 @@ namespace gip.core.autocomponent.ACDialog
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._ACValueItemList = null;
             this._CurrentInputDesign = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #region BSO->ACProperty

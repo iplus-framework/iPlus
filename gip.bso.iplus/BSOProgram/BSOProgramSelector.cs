@@ -9,6 +9,7 @@ using ClosedXML.Excel;
 using System.Data;
 using gip.core.media;
 using System.Timers;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -31,14 +32,14 @@ namespace gip.bso.iplus
             return init;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_refreshTimer != null)
                 _refreshTimer.Elapsed -= _refreshTimer_Tick;
             _refreshTimer = null;
             CurrentACProgram = null;
             ArchiveRemainingDays = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 
@@ -183,7 +184,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "en{'Restore program log from archive'}de{'Programmablaufprotokoll-Wiederherstellung aus dem Archiv'}", 402)]
-        public void RestoreArchivedProgramLog()
+        public async void RestoreArchivedProgramLog()
         {
             if (!IsEnabledRestoreArchivedProgramLog())
                 return;
@@ -203,7 +204,7 @@ namespace gip.bso.iplus
 
             string warning = archiveService.ExecuteMethod("RestoreArchivedProgramLogVB", prodOrderProgramNo, prodOrderInsertDate) as string;
             if (!String.IsNullOrEmpty(warning))
-                Messages.Warning(this, warning);
+                await Messages.WarningAsync(this, warning);
 
             _refreshTimer.Start();
             _IsEnabledRestoreArchivedProgramLog = false;
@@ -223,7 +224,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("","en{'Archive program log'}de{'Archiviere Programmablaufprotokoll'}",404)]
-        public void ArchiveProgramLogManual()
+        public async void ArchiveProgramLogManual()
         {
             if (!IsEnabledArchiveProgramLogManual())
                 return;
@@ -240,7 +241,7 @@ namespace gip.bso.iplus
 
             string warning = archiveService.ExecuteMethod("ArchiveProgramLogVBManual", prodOrderProgramNo, prodOrderInsertDate, CurrentACProgram.ProgramNo) as string;
             if (!String.IsNullOrEmpty(warning))
-                Messages.Warning(this, warning);
+                await Messages.WarningAsync(this, warning);
 
             CurrentACProgram = null;
             _refreshTimer.Start();
@@ -271,13 +272,13 @@ namespace gip.bso.iplus
             IACComponent archiveGroup = ACUrlCommand("\\Service\\ProgramLogArchive\\ProgramLogArchiveGroup", null) as IACComponent;
             if (archiveGroup == null)
             {
-                Messages.Warning(this, "Warning50036");
+                Messages.WarningAsync(this, "Warning50036");
                 return null;
             }
 
             if (archiveGroup.IsProxy && archiveGroup.ConnectionState == ACObjectConnectionState.DisConnected)
             {
-                Messages.Warning(this, "Warning50037");
+                Messages.WarningAsync(this, "Warning50037");
                 return null;
             }
 
