@@ -249,12 +249,12 @@ namespace gip.core.manager
                 newEdge = vbWorkflow.CreateNewEdge(Database);
             newEdge.FromWFNode = visualClassFrom;
             newEdge.SourceACClassProperty = sourceACClassProperty;
-            if (visualClassFrom != null)
-                (visualClassFrom as ACClassWF).ACClassWFEdge_SourceACClassWF.Add(newEdge as ACClassWFEdge);
+            //if (visualClassFrom != null)
+            //    (visualClassFrom as ACClassWF).ACClassWFEdge_SourceACClassWF.Add(newEdge as ACClassWFEdge);
             newEdge.ToWFNode = visualClassTo;
             newEdge.TargetACClassProperty = targetACClassProperty;
-            if (visualClassTo != null)
-                (visualClassTo as ACClassWF).ACClassWFEdge_TargetACClassWF.Add(newEdge as ACClassWFEdge);
+            //if (visualClassTo != null)
+            //    (visualClassTo as ACClassWF).ACClassWFEdge_TargetACClassWF.Add(newEdge as ACClassWFEdge);
             newEdge.ConnectionType = connectionType;
             vbWorkflow.AddEdge(newEdge);
             WPFProxy.AddToVisualChangeList(newEdge, ((short)LayoutActionType.InsertEdge), newEdge.SourceACConnector, newEdge.TargetACConnector);
