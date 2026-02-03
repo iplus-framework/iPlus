@@ -146,19 +146,18 @@ namespace gip.core.datamodel
 
             if (this.ACKind == Global.ACKinds.MSWorkflow)
             {
-                foreach (var acClassWF in ACClassWF_ACClassMethod.ToList())
-                {
-                    acClassWF.DeleteACObject(database, false);
-                }
-
                 foreach (var acClassWFEdge in ACClassWFEdge_ACClassMethod.ToList())
                 {
                     acClassWFEdge.SourceACClassProperty = null;
                     acClassWFEdge.TargetACClassProperty = null;
                     acClassWFEdge.DeleteACObject(database, false);
-
                 }
 
+                foreach (var acClassWF in ACClassWF_ACClassMethod.ToList())
+                {
+                    acClassWF.DeleteACObject(database, false);
+                }
+               
                 foreach (var config in this.ACClassMethodConfig_ACClassMethod.ToList())
                     config.DeleteACObject(Database, false);
 

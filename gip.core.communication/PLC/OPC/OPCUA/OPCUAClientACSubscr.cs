@@ -20,9 +20,9 @@ namespace gip.core.communication
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool success = base.ACDeInit(deleteACClassTask);
+            bool success = await base.ACDeInit(deleteACClassTask);
             _UASubscription = null;
             return success;
         }

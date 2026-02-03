@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.ComponentModel;
@@ -42,14 +43,14 @@ namespace gip.core.processapplication
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             StateUL1.PropertyChanged -= StateUL1_PropertyChanged;
             StateUL2.PropertyChanged -= StateUL2_PropertyChanged;
             StateLL1.PropertyChanged -= StateLL1_PropertyChanged;
             StateLL2.PropertyChanged -= StateLL2_PropertyChanged;
             ActualValue.PropertyChanged -= ActualValue_PropertyChanged;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

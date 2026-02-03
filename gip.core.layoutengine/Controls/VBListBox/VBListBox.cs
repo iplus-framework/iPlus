@@ -431,7 +431,7 @@ namespace gip.core.layoutengine
             if (!ContextACObject.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00004", "VBListBox", VBSource + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00004", "VBListBox", VBSource, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00004", "VBListBox", VBSource, VBContent);
                 return;
             }
 
@@ -471,7 +471,7 @@ namespace gip.core.layoutengine
                 && ItemTemplate == null && ItemTemplateSelector == null)
             {
                 this.Root().Messages.LogDebug("Error00005", "VBListBox", VBShowColumns + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00005", "VBListBox", VBShowColumns, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBListBox", VBShowColumns, VBContent);
                 return;
             }
 

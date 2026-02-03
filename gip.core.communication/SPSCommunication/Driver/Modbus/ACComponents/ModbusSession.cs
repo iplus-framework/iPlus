@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.core.communication
 {
@@ -62,7 +63,7 @@ namespace gip.core.communication
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (ACOperationMode == ACOperationModes.Live)
             {
@@ -89,7 +90,7 @@ namespace gip.core.communication
                     StopReconnection();
             }
 
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             _syncSend = null;
             _syncPoll = null;

@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.communication
 {
@@ -44,7 +45,7 @@ namespace gip.core.communication
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             foreach (IACComponent child in this.ACComponentChilds)
             {
@@ -56,7 +57,7 @@ namespace gip.core.communication
             }
             if (!DeInitSession())
                 return false;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

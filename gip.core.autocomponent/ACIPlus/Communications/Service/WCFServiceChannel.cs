@@ -16,6 +16,7 @@ using System.Runtime.Serialization;
 using System.Xml;
 using gip.core.datamodel;
 using System.Transactions;
+using System.Threading.Tasks;
 
 
 namespace gip.core.autocomponent
@@ -100,7 +101,7 @@ namespace gip.core.autocomponent
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             Messages.LogDebug(this.GetACUrl(), "WCFServiceChannel.ACDeInit(1)", ConnectionDetailXML);
 
@@ -152,7 +153,7 @@ namespace gip.core.autocomponent
 
             using (ACMonitor.Lock(serviceManager._20056_ACPLock))
             {
-                acDeinitSucc = base.ACDeInit(deleteACClassTask);
+                acDeinitSucc = await base.ACDeInit(deleteACClassTask);
             }
             return acDeinitSucc;
         }
@@ -507,9 +508,9 @@ namespace gip.core.autocomponent
             if (!invokeSucc && _serviceOfPeer != null && !_serviceOfPeer.ClosingConnection)
             {
                 _serviceOfPeer.ClosingConnection = true;
-                new Thread(() =>
+                new Thread(async () =>
                 {
-                    WCFServiceManager.StopComponent(this);
+                    await WCFServiceManager.StopComponent(this);
                 }
                 ).Start();
             }

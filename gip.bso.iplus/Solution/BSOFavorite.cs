@@ -28,10 +28,10 @@ namespace gip.bso.iplus
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             CloseWindow(this, "AddFavDialog");
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             _CurrentMenuEntry = null;
             _CurrentMenuEntryRoot = null;
             _StartupItems = null;

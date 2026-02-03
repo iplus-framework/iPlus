@@ -8,6 +8,7 @@ using gip.core.datamodel;
 using System.Xml;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 
 
 namespace gip.core.autocomponent
@@ -89,9 +90,9 @@ namespace gip.core.autocomponent
             }
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             _ContentACClassWF = null;
             _PreValueACUrl = null;
 

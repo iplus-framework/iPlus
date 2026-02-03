@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using System.IO;
 using gip.core.media;
@@ -47,9 +48,9 @@ namespace gip.bso.iplus
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -360,7 +361,7 @@ namespace gip.bso.iplus
             Tuple<string,string,string> userInfo = null;
             if(!Root.Environment.License.GetUniqueUserInfo(out userInfo))
             {
-                Messages.Warning(this, "Warning50022");
+                Messages.WarningAsync(this, "Warning50022");
                 return;
             }
 
@@ -424,11 +425,11 @@ namespace gip.bso.iplus
                     RestartText = ComponentClass.GetText("RestartText").ACCaption;
                     OnPropertyChanged("LicensedToText");
                 }
-                Messages.Info(this, "Info50027");
+                Messages.InfoAsync(this, "Info50027");
             }
             else
             {
-                Messages.Warning(this, "Warning50020");
+                Messages.WarningAsync(this, "Warning50020");
             }
         }
 
@@ -482,19 +483,19 @@ namespace gip.bso.iplus
         /// Exports the data for activation.
         /// </summary>
         [ACMethodInfo("", "en{'Export'}de{'Export'}", 408, true)]
-        public void ExportActivationDataDialog()
+        public async void ExportActivationDataDialog()
         {
             string exportData = string.Format("<xml><companyName>{0}</companyName><db>{1}</db><ds>{2}</ds><code>{3}</code></xml>",CompanyName, DatabaseName, DatabaseServerName, 
                                                                                                                                  IdentificationCode);
             try
             {
                 File.WriteAllText(string.Format("{0}\\{1}-activation data.gip", ExportDirPath, CompanyName), exportData);
-                Messages.Info(this, "Info50026");
+                await Messages.InfoAsync(this, "Info50026");
                 CloseTopDialog();
             }
             catch (Exception e)
             {
-                Messages.Warning(this, "Warning50023", false, e.Message);
+                await Messages.WarningAsync(this, "Warning50023", false, e.Message);
             }
         }
 

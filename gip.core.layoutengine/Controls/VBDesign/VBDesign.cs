@@ -304,7 +304,7 @@ namespace gip.core.layoutengine
         /// <summary>
         /// Stops the ACComponent which is started automatically.
         /// </summary>
-        public void StopAutoStartComponent()
+        public async void StopAutoStartComponent()
         {
             if (!(ContextACObject is IACComponent))
                 return;
@@ -314,7 +314,7 @@ namespace gip.core.layoutengine
             // Alle geöffneten Dialoge schließen
             VBLogicalTreeHelper.RemoveAllDialogs(ContextACObject as IACComponent);
 
-            if (!(ContextACObject as IACComponent).Stop())
+            if (!await (ContextACObject as IACComponent).Stop())
                 return;
             // Stop ACObject
             //this.Root().ACUrlCommand(objectUrl.Replace(keyACIdentifier, "~" + keyACIdentifier), null);

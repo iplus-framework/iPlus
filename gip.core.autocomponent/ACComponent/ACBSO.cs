@@ -10,6 +10,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Data;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -81,7 +82,7 @@ namespace gip.core.autocomponent
         }
 
         private IACComponent _TempParentACComponent;
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_ChangeLogBSO != null)
             {
@@ -109,7 +110,7 @@ namespace gip.core.autocomponent
             }
             _TempParentACComponent = ParentACComponent;
 
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             if (InitState == ACInitState.Destructed)
             {
@@ -163,7 +164,7 @@ namespace gip.core.autocomponent
             {
                 if (!_TrialExpired)
                 {
-                    Messages.Warning(this, "Warning50025");
+                    Messages.WarningAsync(this, "Warning50025");
                     lock (_TrialExpiredLock)
                         _TrialExpired = true;
                 }
@@ -503,7 +504,7 @@ namespace gip.core.autocomponent
         /// or
         /// currentSetter must not be null
         /// </exception>
-        public virtual void LoadEntity<TEntity>(bool requery, Func<TEntity> selectedGetter, Func<TEntity> currentGetter, Action<TEntity> currentSetter, IQueryable<TEntity> query) where TEntity : class
+        public async virtual void LoadEntity<TEntity>(bool requery, Func<TEntity> selectedGetter, Func<TEntity> currentGetter, Action<TEntity> currentSetter, IQueryable<TEntity> query) where TEntity : class
         {
             if (selectedGetter == null && currentGetter == null)
                 throw new ArgumentNullException("Both delegates selectedGetter and currentGetter are null");
@@ -518,7 +519,7 @@ namespace gip.core.autocomponent
                         || currentGetter() != selectedGetter())
                    )
                 {
-                    ACSaveOrUndoChanges();
+                    await ACSaveOrUndoChanges();
                     if (requery)
                     {
                         currentSetter(query.AutoMergeOption(Database).FirstOrDefault());
@@ -553,7 +554,7 @@ namespace gip.core.autocomponent
         /// Initiates the saving of the database-context. First NotifyAllPreSave() is called to inform all BSO's that shares this database-context by calling the OnPreSave()-Method. If all BSO's agree the saving then ACSaveChanges() is called. If ACSaveChanges() was successful, then NotifyAllPostSave() is called to inform all BSO's are informed by calling OnPostSave().
         /// </summary>
         /// <returns>True if changes were saved on the database context.</returns>
-        protected virtual bool OnSave()
+        protected async virtual Task<bool> OnSave()
         {
             VerifyLicense();
             VerifyMaxSessions();
@@ -564,10 +565,10 @@ namespace gip.core.autocomponent
             {
                 if (((int)msg.MessageLevel) >= ((int)eMsgLevel.Error))
                 {
-                    msgResult = Messages.Msg(msg);
+                    msgResult = await Messages.MsgAsync(msg);
                     return false;
                 }
-                msgResult = Messages.Msg(msg, Global.MsgResult.No, eMsgButton.YesNo);
+                msgResult = await Messages.MsgAsync(msg, Global.MsgResult.No, eMsgButton.YesNo);
                 if (msgResult == Global.MsgResult.No || msgResult == Global.MsgResult.Cancel)
                     return false;
             }
@@ -587,7 +588,7 @@ namespace gip.core.autocomponent
             MsgWithDetails msg = NotifyAllPreUndoSave();
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return false;
             }
             if (!ACUndoChanges())
@@ -599,21 +600,21 @@ namespace gip.core.autocomponent
 
         /// <summary>When the database context has changed, a dialog is opened that asks the user whether they want to save the changes. If yes then the OnSave()-Method will be invoked to inform all BSO's which uses the same database-context. If not then ACUndoChanges() will be invoked. If cancelled then nothing will happen.</summary>
         /// <returns>Fals, if user has cancelled saving or undoing.</returns>
-        public virtual bool ACSaveOrUndoChanges()
+        public async virtual Task<bool> ACSaveOrUndoChanges()
         {
             if (Database == null)
                 return false;
             if (!Database.IsChanged)
                 return true;
 
-            Global.MsgResult result = Messages.YesNoCancel(this, "Question00005");
+            Global.MsgResult result = await Messages.YesNoCancelAsync(this, "Question00005");
 
             try
             {
                 switch (result)
                 {
                     case Global.MsgResult.Yes:
-                        return OnSave();
+                        return await OnSave();
                     case Global.MsgResult.No:
                         return OnUndoSave();
                     case Global.MsgResult.Cancel:
@@ -811,7 +812,7 @@ namespace gip.core.autocomponent
             if (printDesign == null)
             {
                 // TODO Translate
-                Messages.Error(this, string.Format(@"Report {0} doesn't exist!", designName));
+                Messages.ErrorAsync(this, string.Format(@"Report {0} doesn't exist!", designName));
                 return new Msg();
             }
             msg = PrintDesign(printDesign, printerName, numberOfCopies, false, maxPrintJobsInSpooler: maxPrintJobsInSpooler, preventClone: preventClone);

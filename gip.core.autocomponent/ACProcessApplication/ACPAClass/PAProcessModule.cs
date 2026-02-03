@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -80,7 +81,7 @@ namespace gip.core.autocomponent
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_OrderInfoManager != null)
                 PAShowDlgManagerBase.DetachACRefFromServiceInstance(this, _OrderInfoManager);
@@ -92,7 +93,7 @@ namespace gip.core.autocomponent
 
             AttachedAlarms = null;
 
-            bool init = base.ACDeInit(deleteACClassTask);
+            bool init = await base.ACDeInit(deleteACClassTask);
             return init;
         }
         //public override Global.ACStorableTypes ACStorableType
@@ -685,11 +686,11 @@ namespace gip.core.autocomponent
             //return true;
         }
 
-        public static bool AskUserReset(IACComponent acComponent)
+        public static async Task<bool> AskUserReset(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
-            return acComponent.Messages.Question(acComponent, "Question50037", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50037", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
         [ACMethodInteraction("", "en{'Reset Rservationinfo'}de{'Reset Reservierungsinfo'}", 303, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]

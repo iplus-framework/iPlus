@@ -204,7 +204,7 @@ namespace gip.core.layoutengine
                     counter++;
                     if (counter > 18)
                     {
-                        _aCComponent?.Messages.Msg(new Msg(eMsgLevel.Warning, "The space between nodes is not enough. If is possible, please increase space between nodes!!!"), Global.MsgResult.OK, eMsgButton.OK);
+                        _aCComponent?.Messages.MsgAsync(new Msg(eMsgLevel.Warning, "The space between nodes is not enough. If is possible, please increase space between nodes!!!"), Global.MsgResult.OK, eMsgButton.OK);
                         terminate = true;
                         return null;
                     }

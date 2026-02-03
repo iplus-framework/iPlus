@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.IO.Ports;
 using System.Threading;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 
@@ -51,7 +52,7 @@ namespace gip.core.processapplication
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_PollThread != null)
             {
@@ -62,7 +63,7 @@ namespace gip.core.processapplication
                 _PollThread = null;
             }
             ClosePort();
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #region Methods

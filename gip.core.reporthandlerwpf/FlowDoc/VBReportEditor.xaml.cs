@@ -120,7 +120,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                         Global.ControlModes dcRightControlMode2 = Global.ControlModes.Hidden;
                         if (!ContextACObject.ACUrlBinding(VBReportData, ref dcACTypeInfo2, ref dcSource2, ref dcPath2, ref dcRightControlMode2))
                         {
-                            this.Root().Messages.Error(BSOACComponent, "Error00007", false, "VBReportEditor", VBReportData);
+                            this.Root().Messages.ErrorAsync(BSOACComponent, "Error00007", false, "VBReportEditor", VBReportData);
                             return;
                         }
 
@@ -141,7 +141,7 @@ namespace gip.core.reporthandlerwpf.Flowdoc
                     //    Global.ControlModes dcRightControlMode2 = Global.ControlModes.Hidden;
                     //    if (!ContextACObject.ACUrlBinding(VBRefreshDesigner, ref dcACTypeInfo2, ref dcSource2, ref dcPath2, ref dcRightControlMode2))
                     //    {
-                    //        this.Root().Messages.Error(BSOACComponent, "Error00007", "VBReportEditor", VBDesignerReportData);
+                    //        this.Root().Messages.ErrorAsync(BSOACComponent, "Error00007", "VBReportEditor", VBDesignerReportData);
                     //        return;
                     //    }
 

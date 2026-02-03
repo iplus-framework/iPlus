@@ -14,6 +14,7 @@ using System.Net;
 using gip.core.datamodel;
 using System.Diagnostics;
 using System.Net.NetworkInformation;
+using System.Threading.Tasks;
 
 
 namespace gip.core.autocomponent
@@ -179,11 +180,11 @@ namespace gip.core.autocomponent
 #endif
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _WCFServiceManager = null;
             _WCFClientManager = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

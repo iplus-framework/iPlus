@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -27,9 +28,9 @@ namespace gip.core.autocomponent
             _ACStateMethod = acType.MethodsCached.Where(c => c.ACIdentifier == ACStateConst.SMIdle).First();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             if (InitState == ACInitState.Destructed)
             {
                 _ACStateMethod = null;

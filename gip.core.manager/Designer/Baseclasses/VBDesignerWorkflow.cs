@@ -1,6 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using gip.core.datamodel;
@@ -13,7 +13,7 @@ namespace gip.core.manager
     public abstract class VBDesignerWorkflow : VBDesigner, IACObjectDesign
     {
         #region c´tors
-        public VBDesignerWorkflow(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier="")
+        public VBDesignerWorkflow(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
         }
@@ -159,7 +159,7 @@ namespace gip.core.manager
         #region Drop
         public IACWorkflowNode LayoutAction(IACWorkflowDesignContext acMethodMain, IACInteractiveObject dropObject, double x, double y)
         {
-            
+
             if (!IsEnabledLayoutAction(acMethodMain, dropObject, x, y))
                 return null;
 
@@ -249,12 +249,32 @@ namespace gip.core.manager
                 newEdge = vbWorkflow.CreateNewEdge(Database);
             newEdge.FromWFNode = visualClassFrom;
             newEdge.SourceACClassProperty = sourceACClassProperty;
-            if (visualClassFrom != null)
-                (visualClassFrom as ACClassWF).ACClassWFEdge_SourceACClassWF.Add(newEdge as ACClassWFEdge);
+            if (visualClassFrom != null && visualClassTo is ACClassWF)
+            {
+                if ((visualClassFrom as ACClassWF).ACClassWFEdge_SourceACClassWF.Contains(newEdge as ACClassWFEdge))
+                {
+                    System.Diagnostics.Debug.WriteLine("Contains edge");
+                }
+                else
+                {
+                    System.Diagnostics.Debugger.Break();
+                    (visualClassFrom as ACClassWF).ACClassWFEdge_SourceACClassWF.Add(newEdge as ACClassWFEdge);
+                }
+            }
             newEdge.ToWFNode = visualClassTo;
             newEdge.TargetACClassProperty = targetACClassProperty;
-            if (visualClassTo != null)
-                (visualClassTo as ACClassWF).ACClassWFEdge_TargetACClassWF.Add(newEdge as ACClassWFEdge);
+            if (visualClassTo != null && visualClassTo is ACClassWF)
+            {
+                if ((visualClassTo as ACClassWF).ACClassWFEdge_TargetACClassWF.Contains(newEdge as ACClassWFEdge))
+                {
+                    System.Diagnostics.Debug.WriteLine("Contains edge");
+                }
+                else
+                {
+                    System.Diagnostics.Debugger.Break();
+                    (visualClassTo as ACClassWF).ACClassWFEdge_TargetACClassWF.Add(newEdge as ACClassWFEdge);
+                }
+            }
             newEdge.ConnectionType = connectionType;
             vbWorkflow.AddEdge(newEdge);
             WPFProxy.AddToVisualChangeList(newEdge, ((short)LayoutActionType.InsertEdge), newEdge.SourceACConnector, newEdge.TargetACConnector);

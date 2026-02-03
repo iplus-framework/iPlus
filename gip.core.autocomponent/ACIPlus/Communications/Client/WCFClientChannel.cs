@@ -18,6 +18,7 @@ using System.Transactions;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -155,7 +156,7 @@ namespace gip.core.autocomponent
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             Messages.LogDebug(this.GetACUrl(), "WCFClientChannel.ACDeInit()", ConnectionDetailXML);
 
@@ -236,7 +237,7 @@ namespace gip.core.autocomponent
             _endPoint = null;
             _ConnectionOn = false;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

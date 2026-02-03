@@ -7,6 +7,7 @@ using System.Text;
 using gip.core.datamodel;
 using System.Xml;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -30,11 +31,11 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._SelectedItem = null;
             this._Update = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #region Properties

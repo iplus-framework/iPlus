@@ -29,7 +29,7 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_CurrentACComponent != null)
             {
@@ -52,10 +52,10 @@ namespace gip.core.autocomponent
             _WorkflowNodesShow = false;
 
             if (_AccessOnlineValue != null)
-                _AccessOnlineValue.ACDeInit();
+                await _AccessOnlineValue.ACDeInit();
             _AccessOnlineValue = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

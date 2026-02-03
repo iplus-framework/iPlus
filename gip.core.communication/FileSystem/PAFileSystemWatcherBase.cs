@@ -10,6 +10,7 @@ using gip.core.autocomponent;
 using System.IO;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.core.communication
 {
@@ -150,11 +151,11 @@ namespace gip.core.communication
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             StopWatching();
 
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             if (_WorkCycleThread != null)
             {

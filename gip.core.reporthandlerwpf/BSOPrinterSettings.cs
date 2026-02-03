@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Drawing.Printing;
 using System.Linq;
 using gip.core.reporthandler;
+using System.Threading.Tasks;
 
 namespace gip.core.reporthandlerwpf
 {
@@ -47,7 +48,7 @@ namespace gip.core.reporthandlerwpf
             _PrintManager = ACPrintManager.ACRefToServiceInstance(this);
             if (_PrintManager == null)
             {
-                Messages.Error(this, "ACPrintManager not configured", true);
+                Messages.ErrorAsync(this, "ACPrintManager not configured", true);
                 //throw new Exception("ACPrintManager not configured");
             }
 
@@ -61,9 +62,9 @@ namespace gip.core.reporthandlerwpf
         /// </summary>
         /// <param name="deleteACClassTask">The deleteACClassTask parameter.</param>
         /// <returns>True if is deinitialization success, otherwise returns false.</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (_PrintManager != null)
                 ACPrintManager.DetachACRefFromServiceInstance(this, _PrintManager);
             _PrintManager = null;

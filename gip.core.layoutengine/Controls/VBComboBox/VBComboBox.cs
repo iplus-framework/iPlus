@@ -516,7 +516,7 @@ namespace gip.core.layoutengine
                         if (!BSOACComponent.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
                         {
                             this.Root().Messages.LogDebug("Error00004", "VBComboBox", VBSource + " " + VBContent);
-                            //this.Root().Messages.Error(ContextACObject, "Error00004", "VBComboBox", VBSource, VBContent);
+                            //this.Root().Messages.ErrorAsync(ContextACObject, "Error00004", "VBComboBox", VBSource, VBContent);
                             return;
                         }
                     }
@@ -600,7 +600,7 @@ namespace gip.core.layoutengine
                     if ((vbShowColumns == null || !vbShowColumns.Any()) && (dsACTypeInfo == null || dsACTypeInfo.ObjectType != typeof(string)))
                     {
                         this.Root().Messages.LogDebug("Error00005", "VBComboBox", VBShowColumns + " " + VBContent);
-                        //this.Root().Messages.Error(ContextACObject, "Error00005", "VBComboBox", VBShowColumns, VBContent);
+                        //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBComboBox", VBShowColumns, VBContent);
                         return;
                     }
 

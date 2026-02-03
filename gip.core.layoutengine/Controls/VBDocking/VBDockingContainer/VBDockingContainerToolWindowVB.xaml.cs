@@ -132,7 +132,7 @@ namespace gip.core.layoutengine
             }
         }
 
-        public void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
+        public async void OnTabItemMouseDown(object sender, MouseButtonEventArgs e)
         {
             if ((_VBRibbon != null) && (e.Source is Button))
             {
@@ -156,7 +156,7 @@ namespace gip.core.layoutengine
                 }
                 else if ((button.Name == "PART_CloseButton") && (VBDesignContent != null))
                 {
-                    if (BSOACComponent != null && !BSOACComponent.ACSaveOrUndoChanges())
+                    if (BSOACComponent != null && !await BSOACComponent.ACSaveOrUndoChanges())
                         return;
                     if (VBDockingManager.GetIsCloseableBSORoot(VBDesignContent))
                     {

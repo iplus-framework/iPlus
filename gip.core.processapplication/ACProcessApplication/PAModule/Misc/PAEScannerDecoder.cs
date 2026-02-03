@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using System.IO;
@@ -108,9 +109,9 @@ namespace gip.core.processapplication
         }
 
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         [ACMethodInfo("Function", "en{'AnalyzeScanEvent'}de{'AnalyzeScanEvent'}", 9999)]

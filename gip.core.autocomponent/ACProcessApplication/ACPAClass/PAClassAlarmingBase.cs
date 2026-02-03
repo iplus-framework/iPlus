@@ -10,6 +10,7 @@ using System.Transactions;
 using System.Xml;
 using System.Windows.Input;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -95,9 +96,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

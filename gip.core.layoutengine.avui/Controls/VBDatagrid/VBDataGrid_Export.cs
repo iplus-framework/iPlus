@@ -243,7 +243,7 @@ namespace gip.core.layoutengine.avui
             catch (Exception e)
             {
                 this.Root().Messages.LogException("VBDataGrid", "Export2Excel()", e);
-                this.Root().Messages.Exception(this, e.Message, true);
+                this.Root().Messages.ExceptionAsync(this, e.Message, true);
             }
         }
 

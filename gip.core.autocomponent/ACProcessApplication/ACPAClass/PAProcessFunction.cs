@@ -8,6 +8,7 @@ using gip.core.datamodel;
 using System.ComponentModel;
 using System.Threading;
 using static gip.core.autocomponent.PAProcessFunction;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -98,10 +99,10 @@ namespace gip.core.autocomponent
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             Malfunction.PropertyChanged -= Malfunction_PropertyChanged;
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             CurrentACMethod.ValueT = null;
 
             SetCurrentProgramLog(null, false);  // Beim herunterfahren ist detaching unnötige last deleteACClassTask);
@@ -1789,11 +1790,11 @@ namespace gip.core.autocomponent
                 return PAFuncStateConvBase.IsEnabledTransitionDefault(CurrentACState, ACStateConst.TMAbort, this);
         }
 
-        public static bool AskUserAbort(IACComponent acComponent)
+        public static async Task<bool> AskUserAbort(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
-            return acComponent.Messages.Question(acComponent, "Question50016", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50016", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
         #endregion
 
@@ -1832,11 +1833,11 @@ namespace gip.core.autocomponent
                 return PAFuncStateConvBase.IsEnabledTransitionDefault(CurrentACState, ACStateConst.TMStopp, this);
         }
 
-        public static bool AskUserStopp(IACComponent acComponent)
+        public static async Task<bool> AskUserStopp(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
-            return acComponent.Messages.Question(acComponent, "Question50015", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50015", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
         #endregion
@@ -1890,11 +1891,11 @@ namespace gip.core.autocomponent
                 return PAFuncStateConvBase.IsEnabledTransitionDefault(CurrentACState, ACStateConst.TMReset, this);
         }
 
-        public static bool AskUserReset(IACComponent acComponent)
+        public static async Task<bool> AskUserReset(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
-            return acComponent.Messages.Question(acComponent, "Question50017", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50017", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
 
@@ -1914,9 +1915,9 @@ namespace gip.core.autocomponent
             return CurrentTask != null;
         }
 
-        public static bool AskUserReset2Repeat(IACComponent acComponent)
+        public static async Task<bool> AskUserReset2Repeat(IACComponent acComponent)
         {
-            return AskUserReset(acComponent);
+            return await AskUserReset(acComponent);
         }
 
         #endregion
@@ -1974,7 +1975,7 @@ namespace gip.core.autocomponent
             return false;
         }
 
-        public static bool AskUserSendChangedACMethod(IACComponent acComponent)
+        public static async Task<bool> AskUserSendChangedACMethod(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
@@ -1982,7 +1983,7 @@ namespace gip.core.autocomponent
             if (netProperty == null)
                 return false;
             netProperty.OnMemberChanged();
-            return acComponent.Messages.Question(acComponent, "Question50023", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50023", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
         #endregion
 

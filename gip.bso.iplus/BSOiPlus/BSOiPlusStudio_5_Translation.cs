@@ -744,7 +744,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentFirstACTranslation.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
             PostExecute("Delete");

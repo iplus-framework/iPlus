@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using static gip.core.datamodel.Global;
 
 namespace gip.bso.iplus
@@ -80,7 +81,7 @@ namespace gip.bso.iplus
 
 
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._CurrentExportACProject = null;
             this._CurrentExportFolder = null;
@@ -96,7 +97,7 @@ namespace gip.bso.iplus
                 _ACProjectManager.PropertyChanged -= _ACProjectManager_PropertyChanged;
             _ExportCommand = null;
 
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -720,12 +721,12 @@ namespace gip.bso.iplus
 
         #region Methods
 
-        public bool IsTreeFilterWithoutNameAndGroup()
+        public async Task<bool> IsTreeFilterWithoutNameAndGroup()
         {
             if (ProjectTreePresentationMode.ShowCaptionInTree || ProjectTreePresentationMode.DisplayGroupedTree)
             {
                 string msg = Translator.GetTranslation("en{'Options With Caption and Groupped should be off. Continue?'}de{'Optionen Mit Bezeichnung und Gruppiert sollte aus sein. Weiter?'}");
-                MsgResult result = Root.Messages.Question(this, msg);
+                MsgResult result = await Root.Messages.QuestionAsync(this, msg);
                 if (result == MsgResult.Yes)
                 {
                     _ShowGroup = false;
@@ -744,11 +745,11 @@ namespace gip.bso.iplus
         /// Exports this instance.
         /// </summary>
         [ACMethodInfo("Export", "en{'Export'}de{'Export'}", 401, false, false, true, Global.ACKinds.MSMethodPrePost)]
-        public void Export()
+        public async void Export()
         {
             if (!IsEnabledExport()) return;
             if (BackgroundWorker.IsBusy) return;
-            if (!IsTreeFilterWithoutNameAndGroup()) return;
+            if (!await IsTreeFilterWithoutNameAndGroup()) return;
 
             ClearMessage();
 

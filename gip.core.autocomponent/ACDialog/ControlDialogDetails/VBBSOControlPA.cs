@@ -10,6 +10,7 @@ using System.Threading;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -79,7 +80,7 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_backgroundWorker != null)
             {
@@ -109,7 +110,7 @@ namespace gip.core.autocomponent
                 _StaticComponentToQuery.Detach();
                 _StaticComponentToQuery = null;
             }
-            ACSaveOrUndoChanges();
+            await ACSaveOrUndoChanges();
             this._ACMsgAlarmList = null;
             this._CurrentACComponent = null;
             this._CurrentACMsgAlarm = null;
@@ -127,7 +128,7 @@ namespace gip.core.autocomponent
             this._SelectedOutPointConfig = null;
             this._StaticComponentToQuery = null;
             this._Update = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 
@@ -959,18 +960,18 @@ namespace gip.core.autocomponent
         #region ACProgramLog
 
         [ACMethodInfo("","en{'Show logs'}de{'Protokolle anzeigen'}",999)]
-        public void ShowACProgramLog()
+        public async void ShowACProgramLog()
         {
             if (CurrentACComponent != null && SearchFrom < SearchTo)
             {
                 short searchMode = 0;
                 if ((SearchTo - SearchFrom).TotalDays >= 11)
                 {
-                    Global.MsgResult result = Messages.Question(this, "Warning50010", Global.MsgResult.No );
+                    Global.MsgResult result = await Messages.QuestionAsync(this, "Warning50010", Global.MsgResult.No);
                     if (result == Global.MsgResult.No)
                         return;
                     // If you want to find the last entry, then click YES. If you want to search for the last entry from the current time period, press NO. With CANCEL, the search is carried out in exactly the specified period.
-                    result = Messages.YesNoCancel(this, "Question50105", Global.MsgResult.No);
+                    result = await Messages.YesNoCancelAsync(this, "Question50105", Global.MsgResult.No);
                     if (result == Global.MsgResult.Yes)
                         searchMode = 1;
                     if (result == Global.MsgResult.No)

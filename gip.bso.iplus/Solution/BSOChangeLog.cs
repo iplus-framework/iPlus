@@ -26,13 +26,13 @@ namespace gip.bso.iplus
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _SelectedACClass = null;
             _SelectedACClassProperty = null;
             _SelectedEntityKey = null;
             _SelectedChangeLog = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -280,7 +280,7 @@ namespace gip.bso.iplus
                 }
                 catch (Exception e)
                 {
-                    Messages.Exception(this, e.Message, true);
+                    Messages.ExceptionAsync(this, e.Message, true);
                     EntityKeyList = null;
                     return;
                 }

@@ -33,8 +33,8 @@ namespace gip.core.datamodel.Licensing
         #region c'tors
         public License(VBUser vbUser, Database database)
         {
-            if (_SingleInstance)
-                throw new SystemException("Only one License-Instance can be created!");
+            //if (_SingleInstance)
+            //    throw new SystemException("Only one License-Instance can be created!");
             _SingleInstance = true;
             _VBUser = vbUser;
             _Database = database;

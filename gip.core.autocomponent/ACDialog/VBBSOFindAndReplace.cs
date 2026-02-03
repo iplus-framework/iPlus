@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -26,7 +27,7 @@ namespace gip.core.autocomponent
                 _findAndReplaceHandler = parameter[0].Value as IVBFindAndReplace;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._CurrentEntity = null;
             this._CurrentFindText = null;
@@ -39,7 +40,7 @@ namespace gip.core.autocomponent
             this._ReplaceTextInput = null;
             this._ReplaceTextList = null;
             this._SelectedEntity = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #region Properties

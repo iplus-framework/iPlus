@@ -8,6 +8,7 @@ using System.Text;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using gip.core.datamodel;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -130,9 +131,9 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

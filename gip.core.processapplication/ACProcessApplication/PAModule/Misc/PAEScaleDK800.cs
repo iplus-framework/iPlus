@@ -9,6 +9,7 @@ using System.Runtime.Serialization;
 using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.processapplication
 {
@@ -136,7 +137,7 @@ namespace gip.core.processapplication
         }
 
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if ((ScaleBus != null) && ScaleBus.IsObjLoaded)
             {
@@ -144,7 +145,7 @@ namespace gip.core.processapplication
                 ScaleBus.Detach();
                 ScaleBus = null;
             }
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

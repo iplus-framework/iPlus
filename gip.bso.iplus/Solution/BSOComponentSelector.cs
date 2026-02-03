@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 
@@ -34,7 +35,7 @@ namespace gip.bso.iplus
             return init;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if(_ACProjectManager != null)
                 _ACProjectManager.PropertyChanged -= _ACProjectManager_PropertyChanged;
@@ -42,7 +43,7 @@ namespace gip.bso.iplus
             _CurrentACProject = null;
             _CurrentProjectItemCS = null;
             _CurrentProjectItemRootChangeInfo = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);

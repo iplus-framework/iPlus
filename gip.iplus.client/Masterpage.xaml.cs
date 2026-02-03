@@ -1,27 +1,15 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Shapes;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.IO.IsolatedStorage;
-using System.Xml.Serialization;
-using System.IO;
 using System.ComponentModel;
-using System.Windows.Media.Animation;
-using System.Windows.Markup;
-using System.Threading;
 using gip.core.layoutengine;
 using gip.core.datamodel;
 using gip.core.layoutengine.Helperclasses;
@@ -30,6 +18,7 @@ using Microsoft.Win32;
 using System.Windows.Threading;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace gip.iplus.client
 {
@@ -118,14 +107,14 @@ namespace gip.iplus.client
             //CommandBindings.Add(new CommandBinding(AppCommands.CmdReportPrintDlg, menuItem_Click, menuItem_IsEnabled));
         }
 
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        private async void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             // Save restore bounds for the next time this window is opened
             Properties.Settings.Default.WindowPosition = this.RestoreBounds;
             Properties.Settings.Default.Zoom = (int)this.sldZoom.Value;
             Properties.Settings.Default.Save();
 
-            ACRoot.SRoot.ACDeInit();
+            await ACRoot.SRoot.ACDeInit();
             // Ist notwendig, damit die Anwendung auch wirklich als Prozess beendet wird
             App._GlobalApp.Shutdown();
         }
@@ -517,8 +506,9 @@ namespace gip.iplus.client
 
 
         #region IRootPageWPF
+
         delegate Global.MsgResult ShowMsgBoxDelegate(Msg msg, eMsgButton msgButton);
-        public Global.MsgResult ShowMsgBox(Msg msg, eMsgButton msgButton)
+        public Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
         {
             // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
             // Das findet man über den Zugriff auf eine interne Member heraus:
@@ -534,7 +524,7 @@ namespace gip.iplus.client
             {
                 try
                 {
-                    return ShowMsgBoxIntern(msg, msgButton);
+                    return Task.FromResult<Global.MsgResult>(ShowMsgBoxIntern(msg, msgButton));
                 }
                 catch (InvalidOperationException /*iopEx*/)
                 {
@@ -542,7 +532,7 @@ namespace gip.iplus.client
                     DispatcherOperation op = Dispatcher.BeginInvoke(showDel, DispatcherPriority.Loaded, msg, msgButton);
                     //op.Wait();
                     //return (Global.MsgResult) op.Result;
-                    return Global.MsgResult.None;
+                    return Task.FromResult<Global.MsgResult>(Global.MsgResult.None);
                 }
             }
             else
@@ -551,7 +541,7 @@ namespace gip.iplus.client
                 DispatcherOperation op = Dispatcher.BeginInvoke(showDel, DispatcherPriority.Loaded, msg, msgButton);
                 //op.Wait();
                 //return (Global.MsgResult) op.Result;
-                return Global.MsgResult.None;
+                return Task.FromResult<Global.MsgResult>(Global.MsgResult.None);
             }
         }
 
@@ -645,7 +635,7 @@ namespace gip.iplus.client
             switch (acUrl)
             {
                 case Const.CmdShowMsgBox:
-                    return ShowMsgBox(acParameter[0] as Msg, (eMsgButton)acParameter[1]);
+                    return ShowMsgBoxAsync(acParameter[0] as Msg, (Global.MsgResult)acParameter[1], (eMsgButton)acParameter[2]);
                 case Const.CmdStartBusinessobject:
                     if ( acParameter.Count() > 1)
                     {

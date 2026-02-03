@@ -15,6 +15,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -77,7 +78,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="deleteACClassTask">Should instance be removed from persistable application tree.</param>
         /// <returns><c>true</c> if succeeded, <c>false</c> otherwise</returns>
-        bool ACDeInit(bool deleteACClassTask = false);
+        Task<bool> ACDeInit(bool deleteACClassTask = false);
 
         /// <summary>
         /// Adds a child to this instance

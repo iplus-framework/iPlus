@@ -206,7 +206,7 @@ namespace gip.bso.iplus
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "SelectLogFile", ex);
-                Root.Messages.Error(this, "Error selecting log file: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error selecting log file: " + ex.Message, true);
             }
         }
 

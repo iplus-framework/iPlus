@@ -451,7 +451,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Updates the design.
         /// </summary>
-        void UpdateDesign()
+        private async void UpdateDesign()
         {
             if (CurrentACClassDesign != null)
             {
@@ -464,7 +464,7 @@ namespace gip.bso.iplus
                             string layout = CurrentACClassDesign.XAMLDesign; //.FormatXML() muss nicht aufgerufen werden, weil Editor dies per "XmlWriterSettings.Indent = true" selsbt macht
                             if (layout == null)
                             {
-                                Messages.Error(this, "Error00001");
+                                await Messages.ErrorAsync(this, "Error00001");
                             }
 
                             if (!string.IsNullOrEmpty(layout) && layout != CurrentACClassDesign.XAMLDesign)
@@ -653,7 +653,7 @@ namespace gip.bso.iplus
                 Msg msg = CurrentNewACClassDesign.DeleteACObject(Database.ContextIPlus, true);
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    Messages.MsgAsync(msg);
                     return;
                 }
 
@@ -671,7 +671,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentACClassDesign.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 
@@ -830,7 +830,7 @@ namespace gip.bso.iplus
                 byte[] bamlDesign = null;
                 if (bamlDesign == null)
                 {
-                    Messages.Error(this, "Error50057");
+                    Messages.ErrorAsync(this, "Error50057");
                     return;
                 }
                 CurrentACClassDesign.BAMLDesign = bamlDesign;

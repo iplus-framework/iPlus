@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 
 namespace gip.core.datamodel
@@ -123,7 +124,7 @@ namespace gip.core.datamodel
         /// <param name="msg">The MSG.</param>
         /// <param name="msgButton">The MSG button.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult ShowMsgBox(Msg msg, eMsgButton msgButton);
+        Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton);
 
         /// <summary>
         /// Stores the settings WND pos.

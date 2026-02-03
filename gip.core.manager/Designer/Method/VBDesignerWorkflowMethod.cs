@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace gip.core.manager
 {
@@ -34,14 +35,14 @@ namespace gip.core.manager
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (CurrentPWRootLive != null)
             {
                 CurrentPWRootLive.Detach();
                 CurrentPWRootLive = null;
             }
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -720,8 +721,12 @@ namespace gip.core.manager
 
                 ACClassWF workflowClass = visualTargetEdge.FromWFNode as ACClassWF;
 
-                if (   (parentACClass.ACKind == Global.ACKinds.TPAProcessModuleGroup && parentACClass.ACClass1_ParentACClass != workflowClass.ParentACClass)
-                    || (parentACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup && parentACClass != workflowClass.ParentACClass))
+                if (
+                        parentACClass != null 
+                        &&
+                        ((parentACClass.ACKind == Global.ACKinds.TPAProcessModuleGroup && parentACClass.ACClass1_ParentACClass != workflowClass.ParentACClass)
+                        || (parentACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup && parentACClass != workflowClass.ParentACClass))
+                   )
                     return false;
 
                 if (visualTargetEdge.WFGroup == null || !(visualTargetEdge.WFGroup is ACClassWF))
@@ -1333,14 +1338,14 @@ namespace gip.core.manager
         /// Switches the this designer to design mode and the Designer-Tool (WPF-Control) appears on the gui.
         /// </summary>
         /// <param name="dockingManagerName">Name of the parent docking manager.</param>
-        public override void ShowDesignManager(string dockingManagerName = "")
+        public async override void ShowDesignManager(string dockingManagerName = "")
         {
             ACClassMethod acClassMethod = CurrentDesign as ACClassMethod;
             if (acClassMethod != null)
             {
                 if (ConfigManagerIPlus.IsWorkflowActive(this, acClassMethod, this.Database.ContextIPlus))
                 {
-                    Messages.Info(this, "Info50016");
+                   await Messages.InfoAsync(this, "Info50016");
                 }
             }
 

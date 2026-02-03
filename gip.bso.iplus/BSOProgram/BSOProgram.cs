@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using gip.core.manager;
@@ -79,12 +80,12 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._CurrentNewACProgram = null;
             this._CurrentWorkflowACClass = null;
             this._WorkflowACClassList = null;
-            var b = base.ACDeInit(deleteACClassTask);
+            var b = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
                 _AccessPrimary.ACDeInit(false);
@@ -195,7 +196,7 @@ namespace gip.bso.iplus
                     VBPresenterMethod vbPresenterMethod = this.ACUrlCommand("VBPresenterMethod(CurrentDesign)") as VBPresenterMethod;
                     if (vbPresenterMethod == null)
                     {
-                        Messages.Error(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterMethod in the group management!", true);
+                        Messages.ErrorAsync(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterMethod in the group management!", true);
                         return;
                     }
                     vbPresenterMethod.Load(value);
@@ -411,15 +412,15 @@ namespace gip.bso.iplus
         /// Deletes this instance.
         /// </summary>
         [ACMethodInteraction("ACProgram", Const.Delete, (short)MISort.Delete, true, "CurrentACProgram", Global.ACKinds.MSMethodPrePost)]
-        public void Delete()
+        public async void Delete()
         {
-            if (Messages.Question(this, "Question00002", Global.MsgResult.Yes, false, CurrentACProgram.ToString()) == Global.MsgResult.Yes)
+            if (await Messages.QuestionAsync(this, "Question00002", Global.MsgResult.Yes, false, CurrentACProgram.ToString()) == Global.MsgResult.Yes)
             {
                 if (!PreExecute("Delete")) return;
                 Msg msg = CurrentACProgram.DeleteACObject(Database.ContextIPlus, true);
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                     return;
                 }
                 ACSaveChanges();

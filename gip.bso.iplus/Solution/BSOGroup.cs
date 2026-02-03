@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -59,7 +60,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             //this._ChangedGroupRight = null;
             this._CurrentACProject = null;
@@ -75,7 +76,7 @@ namespace gip.bso.iplus
             this._SelectedRightItemInfoClassDesign = null;
             this._SelectedRightItemInfoClassMethod = null;
             this._SelectedRightItemInfoClassProperty = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
                 _AccessPrimary.ACDeInit(false);
@@ -1085,7 +1086,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentGroup.DeleteACObject(Db, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 

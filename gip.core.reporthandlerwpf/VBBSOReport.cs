@@ -14,6 +14,7 @@ using System.Windows.Documents;
 using System.Windows.Xps;
 using gip.core.reporthandlerwpf.Flowdoc;
 using gip.core.reporthandler;
+using System.Threading.Tasks;
 
 namespace gip.core.reporthandlerwpf
 {
@@ -42,7 +43,7 @@ namespace gip.core.reporthandlerwpf
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             //if (_LL != null)
             //{
@@ -63,7 +64,7 @@ namespace gip.core.reporthandlerwpf
                 ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
             _VarioConfigManager = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         private void ACInitScriptEngineContent()
@@ -1155,13 +1156,13 @@ namespace gip.core.reporthandlerwpf
             if (printServer == null)
             {
                 // Error50473
-                Root.Messages.Error(this, "Error50473", false, acPrintServerACUrl);
+                Root.Messages.ErrorAsync(this, "Error50473", false, acPrintServerACUrl);
                 return;
             }
             if (printServer.ConnectionState == ACObjectConnectionState.DisConnected)
             {
                 // Error50474
-                Root.Messages.Error(this, "Error50474", false, acPrintServerACUrl);
+                Root.Messages.ErrorAsync(this, "Error50474", false, acPrintServerACUrl);
                 return;
             }
 
@@ -1177,7 +1178,7 @@ namespace gip.core.reporthandlerwpf
                         printServer.ACUrlCommand(ACUrlHelper.Delimiter_InvokeMethod + nameof(ACPrintServerBase.Print), parentACBSO.ACType.ACTypeID, acClassDesign.ACIdentifier, pAOrderInfo, copies, reloadReport);
                 }
                 if (parentACBSO == null || pAOrderInfo == null)
-                    Root.Messages.Error(this, "Error50475", false, ParentACComponent.GetACUrl());
+                    Root.Messages.ErrorAsync(this, "Error50475", false, ParentACComponent.GetACUrl());
             }
         }
 

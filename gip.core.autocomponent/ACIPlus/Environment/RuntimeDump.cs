@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -59,7 +60,7 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (Root == gip.core.autocomponent.ACRoot.SRoot && ParentACComponent is Environment)
             {
@@ -68,7 +69,7 @@ namespace gip.core.autocomponent
                 _FileSystemWatcher = null;
             }
 
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             if (_WorkCycleThread != null)
             {

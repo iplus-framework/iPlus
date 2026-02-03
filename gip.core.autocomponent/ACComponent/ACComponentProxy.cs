@@ -10,6 +10,7 @@ using System.Reflection;
 using System.Xml;
 using System.IO;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -53,7 +54,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             using (ACMonitor.Lock(_20015_LockValue))
             {
@@ -70,7 +71,7 @@ namespace gip.core.autocomponent
 #endif
 
             //_InstanceInfo = null;
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             _SubscriptionState = ProxySubscriptionState.Unsubscribed;
             return result;
         }

@@ -8,6 +8,7 @@ using gip.core.datamodel;
 using System.Runtime.Serialization;
 using System.Threading;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -45,7 +46,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_AppManager != null)
             {
@@ -54,7 +55,7 @@ namespace gip.core.autocomponent
                 _AppManager = null;
             }
             (RunSimulation as IACPropertyNetServer).ValueUpdatedOnReceival -= PAClassSimulator_ValueUpdatedOnReceival;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         private ACRef<ApplicationManager> _AppManager = null;
@@ -273,12 +274,12 @@ namespace gip.core.autocomponent
             return !ManualSimulationMode.ValueT;
         }
 
-        public static bool AskUserManualSimulation(IACComponent acComponent)
+        public async static Task<bool> AskUserManualSimulation(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
             // Do you want to switch to simulation mode?
-            return acComponent.Messages.Question(acComponent, "Question50041", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50041", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
 
@@ -297,12 +298,12 @@ namespace gip.core.autocomponent
             return !IsEnabledManualSimulation();
         }
 
-        public static bool AskUserAutoSimulation(IACComponent acComponent)
+        public static async Task<bool> AskUserAutoSimulation(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
             // Do you want to switch to simulation mode?
-            return acComponent.Messages.Question(acComponent, "Question50041", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50041", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
 

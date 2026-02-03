@@ -55,25 +55,25 @@ public partial class VBMessageBox : UserControl
 
     #region Methods => Button Click Events
 
-    private void btnYes_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void btnYes_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _Result = Global.MsgResult.Yes;
         _CloseAction?.Invoke();
     }
 
-    private void btnNo_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void btnNo_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _Result = Global.MsgResult.No;
         _CloseAction?.Invoke();
     }
 
-    private void btnOK_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void btnOK_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _Result = Global.MsgResult.OK;
         _CloseAction?.Invoke();
     }
 
-    private void btnCancel_Click(object? sender, Avalonia.Interactivity.RoutedEventArgs e)
+    private void btnCancel_Click(object sender, Avalonia.Interactivity.RoutedEventArgs e)
     {
         _Result = Global.MsgResult.Cancel;
         _CloseAction?.Invoke();
@@ -189,6 +189,58 @@ public partial class VBMessageBox : UserControl
         return contentControl;
     }
 
+    //public Global.MsgResult ShowMessage()
+    //{
+    //    if (Application.Current != null &&
+    //        Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+    //    {
+    //        return ShowMessageWindow(desktop.MainWindow);
+    //    }
+
+    //    //if (Application.Current != null &&
+    //    //    Application.Current.ApplicationLifetime is ISingleViewApplicationLifetime lifetime)
+    //    //{
+    //    //    return await ShowMessageSingleView(lifetime.MainView as ContentControl);
+    //    //}
+
+    //    return Global.MsgResult.None;
+    //}
+
+    //private Global.MsgResult ShowMessageWindow(Window mainWindow)
+    //{
+    //    Window dialog = new Window();
+    //    dialog.ExtendClientAreaTitleBarHeightHint = -1;
+    //    dialog.ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.NoChrome;
+    //    dialog.ExtendClientAreaToDecorationsHint = true;
+
+    //    dialog.SizeToContent = SizeToContent.WidthAndHeight;
+    //    dialog.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+    //    dialog.PointerPressed += (s, e) => dialog.BeginMoveDrag(e);
+
+    //    dialog.MaxWidth = mainWindow.Width / 2;
+    //    dialog.Content = this;
+
+    //    dialog.Opened += (s, e) =>
+    //    {
+    //        var column = lstDetails.Columns.LastOrDefault();
+    //        if (column != null)
+    //            column.Width = new DataGridLength(dialog.DesiredSize.Width - 60);
+
+    //        SetDefaultResult(_DefaultResult);
+    //    };
+
+    //    var tcs = new TaskCompletionSource<Global.MsgResult>();
+
+    //    this.SetCloseAction(() =>
+    //    {
+    //        tcs.TrySetResult(this.GetButtonResult());
+    //        dialog.Close();
+    //    });
+
+    //    await dialog.ShowDialog(mainWindow);
+    //    return await tcs.Task;
+    //}
+
     public async Task<Global.MsgResult> ShowMessageAsync()
     {
         if (Application.Current != null &&
@@ -224,9 +276,7 @@ public partial class VBMessageBox : UserControl
         {
             var column = lstDetails.Columns.LastOrDefault();
             if (column != null)
-            {
                 column.Width = new DataGridLength(dialog.DesiredSize.Width - 60);
-            }
 
             SetDefaultResult(_DefaultResult);
         };
@@ -254,9 +304,7 @@ public partial class VBMessageBox : UserControl
 
         var column = lstDetails.Columns.LastOrDefault();
         if (column != null)
-        {
             column.Width = new DataGridLength(mainView.DesiredSize.Width - 60);
-        }
 
         var parentContent = mainView.Content;
         var dh = new DialogHost
@@ -275,17 +323,13 @@ public partial class VBMessageBox : UserControl
             Global.MsgResult r = this.GetButtonResult();
 
             if (dh.CurrentSession != null && dh.CurrentSession.IsEnded == false)
-            {
                 DialogHost.Close(dh.Identifier);
-            }
 
             mainView.Content = null;
             dh.Content = null;
             mainView.Content = parentContent;
             if (style != null)
-            {
                 mainView.Styles.Remove(style);
-            }
             tcs.TrySetResult(r);
         });
         DialogHost.Show(this, dh.Identifier);

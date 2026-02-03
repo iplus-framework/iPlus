@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -57,12 +58,12 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _LastCallbackResult = null;
             _InCallback = false;
             _RepeatAfterCompleted = false;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

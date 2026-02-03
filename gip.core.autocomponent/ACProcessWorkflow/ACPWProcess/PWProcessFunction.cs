@@ -7,6 +7,7 @@ using System.Text;
 using gip.core.datamodel;
 using System.Xml;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -142,7 +143,7 @@ namespace gip.core.autocomponent
             base.OnInitFailed(reason);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             RemoveMeFromNewInstances();
 
@@ -153,7 +154,7 @@ namespace gip.core.autocomponent
             }
             var parentProgramLog = _ParentProgramLog;
             _ParentProgramLog = null;
-            bool baseResult = base.ACDeInit(deleteACClassTask);
+            bool baseResult = await base.ACDeInit(deleteACClassTask);
             if (baseResult)
                 PWContentTaskHelper.DeInitContent(this, deleteACClassTask);
             CurrentACMethod.ValueT = null;

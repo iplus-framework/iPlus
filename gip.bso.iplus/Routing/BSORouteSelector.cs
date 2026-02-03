@@ -36,13 +36,13 @@ namespace gip.bso.iplus
 
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             ACRoutingService.DetachACRefFromServiceInstance(this, _RoutingService);
             _RoutingService = null;
             _ComponentTypeFilter = null;
             _ProjectTypeFilter = null;
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             if (result && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -432,7 +432,7 @@ namespace gip.bso.iplus
             var result = ACRoutingService.MemFindSuccessors(SourceComponentsList.FirstOrDefault().ValueT.ACUrlComponent, routingParameters);
 
             if (result.Message != null)
-                Messages.Msg(result.Message);
+                Messages.MsgAsync(result.Message);
             else
             {
                 string resultMsg = "";
@@ -443,7 +443,7 @@ namespace gip.bso.iplus
                     else
                         resultMsg += rResult.LastOrDefault()?.Target.ACUrlComponent + System.Environment.NewLine;
                 }
-                Messages.Info(this, resultMsg, true);
+                Messages.InfoAsync(this, resultMsg, true);
             }
         }
 
@@ -528,7 +528,7 @@ namespace gip.bso.iplus
             {
                 if (RoutingService == null)
                 {
-                    Messages.Error(this, "Routing service is unavailable!", true);
+                    Messages.ErrorAsync(this, "Routing service is unavailable!", true);
                     return;
                 }
 

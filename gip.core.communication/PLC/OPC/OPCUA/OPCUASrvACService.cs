@@ -45,7 +45,7 @@ namespace gip.core.communication
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if(_OPCUAThread != null)
             {
@@ -54,7 +54,7 @@ namespace gip.core.communication
                 _OPCUAThread = null;
             }
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

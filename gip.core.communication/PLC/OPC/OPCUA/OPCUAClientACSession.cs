@@ -60,14 +60,14 @@ namespace gip.core.communication
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if(AppInstance != null && AppInstance.ApplicationConfiguration != null && AppInstance.ApplicationConfiguration.CertificateValidator != null)
             {
                 AppInstance.ApplicationConfiguration.CertificateValidator.CertificateValidation -= CertificateValidator_CertificateValidation;
             }
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
