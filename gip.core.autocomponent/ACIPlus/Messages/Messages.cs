@@ -13,6 +13,8 @@ using System.Diagnostics;
 using System.Net.Mail;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Build.ObjectModelRemoting;
 
 namespace gip.core.autocomponent
 {
@@ -35,9 +37,9 @@ namespace gip.core.autocomponent
             _LogFilePath = Path.GetTempPath();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 
@@ -50,11 +52,10 @@ namespace gip.core.autocomponent
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
         [ACMethodInfo("Message", "en{'Infomessage'}de{'Infomeldung'}", 9999)]
-        public Global.MsgResult Info(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> InfoAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.OK, eMsgLevel.Info, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.OK, eMsgLevel.Info, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
         }
-
 
         /// <summary>Opens a Messagebox with a OK-Button and a Warning-Icon
         /// Usage: "It could indicate a problem that needs to be fixed."</summary>
@@ -67,11 +68,10 @@ namespace gip.core.autocomponent
         /// </param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        public Global.MsgResult Warning(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> WarningAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.OK, eMsgLevel.Warning, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.OK, eMsgLevel.Warning, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
         }
-
 
         /// <summary>Opens a Messagebox with a Yes + No-Button and a Questionmark-Icon.</summary>
         /// <param name="acObject">Reference to a ACComponent that called this method and where the passed acIdentifierOrText should be searched in the class-hierarchy to find the translation.</param>
@@ -81,11 +81,10 @@ namespace gip.core.autocomponent
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
         [ACMethodInfo("Message", "en{'Questionmessage'}de{'Fragemeldung'}", 9999)]
-        public Global.MsgResult Question(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> QuestionAsync(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.YesNo, eMsgLevel.Question, acIdentifierOrText, defaultResult, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.YesNo, eMsgLevel.Question, acIdentifierOrText, defaultResult, ignoreTranslation, parameter);
         }
-
 
         /// <summary>Opens a Messagebox with a Yes + No + Cancel-Button and a Questionmark-Icon.</summary>
         /// <param name="acObject">Reference to a ACComponent that called this method and where the passed acIdentifierOrText should be searched in the class-hierarchy to find the translation.</param>
@@ -94,12 +93,10 @@ namespace gip.core.autocomponent
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        [ACMethodInfo("Message", "en{'Yes/No-Mesage'}de{'Ja/Nein-Meldung'}", 9999)]
-        public Global.MsgResult YesNoCancel(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> YesNoCancelAsync(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.YesNoCancel, eMsgLevel.Question, acIdentifierOrText, defaultResult, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.YesNoCancel, eMsgLevel.Question, acIdentifierOrText, defaultResult, ignoreTranslation, parameter);
         }
-
 
         /// <summary>Opens a Messagebox with a OK-Button and a Error-Icon.
         /// Usage: "An failure occurred that could be successful if you try again."</summary>
@@ -109,11 +106,10 @@ namespace gip.core.autocomponent
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
         [ACMethodInfo("Message", "en{'Failuremessage'}de{'Ausfallmeldung'}", 9999)]
-        public Global.MsgResult Failure(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> FailureAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.OK, eMsgLevel.Failure, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.OK, eMsgLevel.Failure, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
         }
-
 
         /// <summary>Opens a Messagebox with a OK-Button and a Error-Icon.
         /// Usage: There is an error that needs to be fixed.</summary>
@@ -123,11 +119,10 @@ namespace gip.core.autocomponent
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
         [ACMethodInfo("Message", "en{'Errormesage'}de{'Fehlermeldung'}", 9999)]
-        public Global.MsgResult Error(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> ErrorAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.OK, eMsgLevel.Error, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.OK, eMsgLevel.Error, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
         }
-
 
         /// <summary>Opens a Messagebox with a OK-Button and a Exception-Icon.
         /// Usage: "It could indicate a technical problem that may recur and the cause should be investigated."</summary>
@@ -137,18 +132,16 @@ namespace gip.core.autocomponent
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
         [ACMethodInfo("Message", "en{'Exceptionmessage'}de{'Ausnahmemeldung'}", 9999)]
-        public Global.MsgResult Exception(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
+        public Task<Global.MsgResult> ExceptionAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter)
         {
-            return ConvertToMsgAndDisplay(acObject, eMsgButton.OK, eMsgLevel.Exception, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
+            return ConvertToMsgAndDisplayAsync(acObject, eMsgButton.OK, eMsgLevel.Exception, acIdentifierOrText, Global.MsgResult.OK, ignoreTranslation, parameter);
         }
 
-
-        private Global.MsgResult ConvertToMsgAndDisplay(IACObject acObject, eMsgButton msgButton, eMsgLevel msgLevel, string acIdentifierOrText, Global.MsgResult defaultResult, bool ignoreTranslation = false, params object[] parameter)
+        private async Task<Global.MsgResult> ConvertToMsgAndDisplayAsync(IACObject acObject, eMsgButton msgButton, eMsgLevel msgLevel, string acIdentifierOrText, Global.MsgResult defaultResult, bool ignoreTranslation = false, params object[] parameter)
         {
             Msg msg = new Msg { ACIdentifier = acIdentifierOrText, Message = ignoreTranslation ? acIdentifierOrText : Root.Environment.TranslateMessage(acObject, acIdentifierOrText, parameter), MessageLevel = msgLevel };
-            return Msg(msg, defaultResult, msgButton);
+            return await MsgAsync(msg, defaultResult, msgButton);
         }
-
 
         /// <summary>Opens a Messagebox and shows the passed message (Default: With a OK-Button and a Information-Icon.). 
         /// The displayed icon depends on the MessageLevel-Property in msg.</summary>
@@ -157,15 +150,20 @@ namespace gip.core.autocomponent
         /// <param name="msgButton">The MSG button.</param>
         /// <returns>Global.MsgResult.</returns>
         [ACMethodInfo("Message", "en{'Message'}de{'Meldung'}", 9999)]
-        public Global.MsgResult Msg(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK)
+        public async Task<Global.MsgResult> MsgAsync(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK)
         {
             Global.MsgResult msgResult = defaultResult;
             if (Root.RootPageWPF != null && !Root.RootPageWPF.SuppressOpenMessageBoxes)
-                msgResult = Root.RootPageWPF.ShowMsgBox(msg, msgButton);
+                msgResult =  await Root.RootPageWPF.ShowMsgBoxAsync(msg, defaultResult, msgButton);
 
             Messages.LogMessage(msg.MessageLevel, "MsgHandler", msg.ACIdentifier, string.Format("{0}\r\nResult:{1}", msg.Message, msgResult.ToString()));
             return msgResult;
         }
+
+        //public Global.MsgResult Msg(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK)
+        //{
+        //    return Global.MsgResult.OK;
+        //}
 
 
         /// <summary>Opens a Input-Box for one value.</summary>
@@ -770,29 +768,29 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "Info":
-                    result = Info((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
+                case nameof(InfoAsync):
+                    result = InfoAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
                     return true;
-                case "Warning":
-                    result = Warning((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
+                case nameof(WarningAsync):
+                    result = WarningAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
                     return true;
-                case "Question":
-                    result = Question((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Global.MsgResult)acParameter[2] : Global.MsgResult.Yes, acParameter.Count() == 4 ? (Boolean)acParameter[3] : false, (Object[])acParameter[4]);
+                case nameof(QuestionAsync):
+                    result = QuestionAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Global.MsgResult)acParameter[2] : Global.MsgResult.Yes, acParameter.Count() == 4 ? (Boolean)acParameter[3] : false, (Object[])acParameter[4]);
                     return true;
-                case "YesNoCancel":
-                    result = YesNoCancel((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Global.MsgResult)acParameter[2] : Global.MsgResult.Yes, acParameter.Count() == 4 ? (Boolean)acParameter[3] : false, (Object[])acParameter[4]);
+                case nameof(YesNoCancelAsync):
+                    result = YesNoCancelAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Global.MsgResult)acParameter[2] : Global.MsgResult.Yes, acParameter.Count() == 4 ? (Boolean)acParameter[3] : false, (Object[])acParameter[4]);
                     return true;
-                case "Failure":
-                    result = Failure((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
+                case nameof(FailureAsync):
+                    result = FailureAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
                     return true;
-                case "Error":
-                    result = Error((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
+                case nameof(ErrorAsync):
+                    result = ErrorAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
                     return true;
-                case "Exception":
-                    result = Exception((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
+                case nameof(ExceptionAsync):
+                    result = ExceptionAsync((IACObject)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (Boolean)acParameter[2] : false, (Object[])acParameter[3]);
                     return true;
-                case "Msg":
-                    result = Msg((Msg)acParameter[0], acParameter.Count() == 2 ? (Global.MsgResult)acParameter[1] : Global.MsgResult.OK, acParameter.Count() == 3 ? (eMsgButton)acParameter[2] : eMsgButton.OK);
+                case nameof(MsgAsync):
+                    result = MsgAsync((Msg)acParameter[0], acParameter.Count() == 2 ? (Global.MsgResult)acParameter[1] : Global.MsgResult.OK, acParameter.Count() == 3 ? (eMsgButton)acParameter[2] : eMsgButton.OK);
                     return true;
                 case "InputBox":
                     result = InputBox((String)acParameter[0], (String)acParameter[1], acParameter.Count() == 3 ? (String)acParameter[2] : null);

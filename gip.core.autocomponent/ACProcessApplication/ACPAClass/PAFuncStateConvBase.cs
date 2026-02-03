@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -39,13 +40,13 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (ACState != null)
                 (ACState as IACPropertyNetServer).ValueUpdatedOnReceival -= ModelProperty_ValueUpdatedOnReceival;
             ACState = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.core.reporthandler.avui
 {
@@ -45,7 +46,7 @@ namespace gip.core.reporthandler.avui
             _PrintManager = ACPrintManager.ACRefToServiceInstance(this);
             if (_PrintManager == null)
             {
-                Messages.Error(this, "ACPrintManager not configured", true);
+                Messages.ErrorAsync(this, "ACPrintManager not configured", true);
                 //throw new Exception("ACPrintManager not configured");
             }
 
@@ -59,9 +60,9 @@ namespace gip.core.reporthandler.avui
         /// </summary>
         /// <param name="deleteACClassTask">The deleteACClassTask parameter.</param>
         /// <returns>True if is deinitialization success, otherwise returns false.</returns>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (_PrintManager != null)
                 ACPrintManager.DetachACRefFromServiceInstance(this, _PrintManager);
             _PrintManager = null;

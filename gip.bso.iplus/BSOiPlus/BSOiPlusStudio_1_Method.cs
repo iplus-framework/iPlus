@@ -81,7 +81,7 @@ namespace gip.bso.iplus
                     VBPresenterMethod vbPresenterMethod = this.ACUrlCommand("VBPresenterMethod(CurrentDesign)") as VBPresenterMethod;
                     if (vbPresenterMethod == null)
                     {
-                        Messages.Error(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterMethod in the group management!", true);
+                        Messages.ErrorAsync(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterMethod in the group management!", true);
                         return;
                     }
                     vbPresenterMethod.Load(value);
@@ -450,13 +450,13 @@ namespace gip.bso.iplus
             Msg msg = CurrentACClassMethod.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
             _ACClassMethodList = null;
@@ -485,7 +485,7 @@ namespace gip.bso.iplus
 
             if (Type.GetType(CurrentACClass.BaseClassWithASQN.FinalAssemblyQualifiedName) == null)
             {
-                Messages.Error(this, "Error00006");
+                Messages.ErrorAsync(this, "Error00006");
                 return;
             }
             ScriptEngine _ScriptEngine = new ScriptEngine(CurrentACClass);
@@ -515,12 +515,12 @@ namespace gip.bso.iplus
                             error.Column));
                         }
                     }
-                    Messages.Error(this, "Message00001", false, stringBuilder.ToString());
+                    Messages.ErrorAsync(this, "Message00001", false, stringBuilder.ToString());
                 }
             }
             catch (Exception e)
             {
-                Messages.Exception(this, "Exception", true, e.Message + "(" + e.Source + ")");
+                Messages.ExceptionAsync(this, "Exception", true, e.Message + "(" + e.Source + ")");
             }
         }
 

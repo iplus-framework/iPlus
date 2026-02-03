@@ -259,7 +259,6 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles the OnLoaded event.
         /// </summary>
-        /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The event arguments.</param>
         protected override void OnLoaded(RoutedEventArgs e)
         {

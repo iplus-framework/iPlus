@@ -99,10 +99,10 @@ namespace gip.core.autocomponent
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             UnloadConfiguration();
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public const string C_DefaultServiceACIdentifier = "HelpManager";

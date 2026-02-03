@@ -32,6 +32,7 @@ using CoreWCF.Channels;
 using System.Collections;
 using System.Reflection;
 using System.Runtime.InteropServices.JavaScript;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -236,7 +237,7 @@ namespace gip.core.autocomponent
             OnPropertyChanged("WCFServiceChannelList");
             return true;
         }
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_ACPDispatchThread != null)
             {
@@ -252,11 +253,11 @@ namespace gip.core.autocomponent
             }
             _ACPDispatchToProxies = null;
 #if !ANDROID
-            _ASPHost.StopAsync();
+            await _ASPHost.StopAsync();
             _ASPHostStarted = false;
 #endif
 
-            if (!base.ACDeInit(deleteACClassTask))
+            if (!await base.ACDeInit(deleteACClassTask))
                 return false;
             OnPropertyChanged("WCFServiceChannelList");
             return true;

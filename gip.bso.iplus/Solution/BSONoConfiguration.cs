@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 
@@ -58,9 +59,9 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
                 _AccessPrimary.ACDeInit(false);
@@ -277,9 +278,9 @@ namespace gip.bso.iplus
         /// Loads this instance.
         /// </summary>
         [ACMethodInteraction("VBNoConfiguration", "en{'Load'}de{'Laden'}", (short)MISort.Load, false, "SelectedNoConfiguration")]
-        public void Load(bool requery = false)
+        public async void Load(bool requery = false)
         {
-            if (SelectedNoConfiguration != null && ACSaveOrUndoChanges())
+            if (SelectedNoConfiguration != null && await ACSaveOrUndoChanges())
             {
                 CurrentNoConfiguration = (Root.NoManager as ACVBNoManager).LoadNoConfiguration(SelectedNoConfiguration.VBNoConfigurationID, Db);
                 ACState = Const.SMEdit;
@@ -344,7 +345,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentNoConfiguration.DeleteACObject(Db, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 

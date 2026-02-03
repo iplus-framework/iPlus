@@ -8,6 +8,7 @@ using System.Linq;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using gip.core.autocomponent;
 using Microsoft.EntityFrameworkCore;
 
@@ -32,14 +33,14 @@ namespace gip.core.archiver
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_DelegateQueue != null)
             {
                 _DelegateQueue.StopWorkerThread();
                 _DelegateQueue = null;
             }
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
 

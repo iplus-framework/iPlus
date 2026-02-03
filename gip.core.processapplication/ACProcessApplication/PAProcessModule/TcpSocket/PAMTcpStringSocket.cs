@@ -48,7 +48,7 @@ namespace gip.core.processapplication
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (IsClient)
             {
@@ -59,7 +59,7 @@ namespace gip.core.processapplication
                 TCPServerStop();
             }
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

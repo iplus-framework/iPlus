@@ -21,6 +21,7 @@ using gip.core.datamodel;
 using gip.core.manager;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace gip.bso.iplus
 {
@@ -65,7 +66,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._CurrentACTask = null;
             this._CurrentApplicationManager = null;
@@ -84,7 +85,7 @@ namespace gip.bso.iplus
                 _ShutdownEvent = null;
             }
 
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);
@@ -336,7 +337,7 @@ namespace gip.bso.iplus
                 {
                     _presenter = this.ACUrlCommand("VBPresenterTask(CurrentDesign)") as VBPresenterTask;
                     if (_presenter == null && !_PresenterRightsChecked)
-                        Messages.Error(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterTask in the group management!", true);
+                        Messages.ErrorAsync(this, "This user has no rights for viewing workflows. Assign rights for VBPresenterTask in the group management!", true);
                     _PresenterRightsChecked = true;
                 }
                 return _presenter;
@@ -554,14 +555,14 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInteraction("Workflow-Live", "en{'Delete inactive workflow'}de{'Inaktiven Workflow löschen'}", (short)MISort.Delete, true, "SelectedACTask")]
-        public void DeleteWorkflow()
+        public async void DeleteWorkflow()
         {
             if (SelectedACTask == null)
                 return;
             SelectedACTask.ACClassTask_ParentACClassTask.AutoRefresh(SelectedACTask.ACClassTask_ParentACClassTaskReference, SelectedACTask);
             if (!IsEnabledDeleteWorkflow())
                 return;
-            bool? loaded = IsLoadedOnServer(SelectedACTask);
+            bool? loaded = await IsLoadedOnServer(SelectedACTask);
             if (!loaded.HasValue || loaded.Value)
                 return;
 
@@ -569,10 +570,10 @@ namespace gip.bso.iplus
             var msg = DeleteACTasksOfWF(deleteList, SelectedACTask);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                await Messages.MsgAsync(msg);
                 return;
             }
-            if (!OnSave())
+            if (!await OnSave())
                 return;
 
             foreach (var acClassTask in deleteList)
@@ -580,12 +581,12 @@ namespace gip.bso.iplus
                 msg = acClassTask.DeleteACObject(this.Database.ContextIPlus, true);
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                     ACUndoChanges();
                     return;
                 }
             }
-            if (OnSave())
+            if (await OnSave())
                 Search();
         }
 
@@ -617,7 +618,7 @@ namespace gip.bso.iplus
             return SelectedACTask != null;// && !SelectedACTask.ACClassTask_ParentACClassTask.Any();
         }
 
-        public bool? IsLoadedOnServer(ACClassTask acClassTask)
+        public async Task<bool?> IsLoadedOnServer(ACClassTask acClassTask)
         {
             if (acClassTask == null)
                 return null;
@@ -632,7 +633,7 @@ namespace gip.bso.iplus
             if (appManager.ConnectionState == ACObjectConnectionState.DisConnected)
             {
                 Msg childDeleteQuestion = new Msg() { MessageLevel = eMsgLevel.Question, Message = Root.Environment.TranslateMessage(this, "Question50025") };
-                var result = Messages.Msg(childDeleteQuestion, Global.MsgResult.No, eMsgButton.YesNo);
+                var result = await Messages.MsgAsync(childDeleteQuestion, Global.MsgResult.No, eMsgButton.YesNo);
                 if (result == Global.MsgResult.No)
                     return null;
                 return false;
@@ -644,7 +645,7 @@ namespace gip.bso.iplus
             if (childInfo != null)
             {
                 Msg childDeleteQuestion = new Msg() { MessageLevel = eMsgLevel.Question, Message = Root.Environment.TranslateMessage(this, "Warning50009") };
-                Messages.Msg(childDeleteQuestion, Global.MsgResult.OK, eMsgButton.OK);
+                await Messages.MsgAsync(childDeleteQuestion, Global.MsgResult.OK, eMsgButton.OK);
                 return true;
             }
             return false;

@@ -192,7 +192,7 @@ IMPORTANT NOTES:
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_WorkCycleThread != null)
             {
@@ -210,7 +210,7 @@ IMPORTANT NOTES:
                 _McpClients.Clear();
             }
             _ServiceProvider?.Dispose();
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             if (result && _BSODatabase != null)
             {
@@ -838,7 +838,7 @@ IMPORTANT NOTES:
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "OpenDialogSelectImage", ex);
-                Root.Messages.Error(this, "Error selecting Image file: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error selecting Image file: " + ex.Message, true);
             }
         }
 

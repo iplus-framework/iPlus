@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -31,7 +32,7 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (SelectionManager != null)
                 SelectionManager.PropertyChanged -= SelectionManager_PropertyChanged;
@@ -49,7 +50,7 @@ namespace gip.core.autocomponent
                 _CurrentSelection = null;
             }
             //this._Update = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

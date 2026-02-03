@@ -8,6 +8,7 @@ using System.Xml.Linq;
 using System.Collections.ObjectModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.manager
 {
@@ -43,7 +44,7 @@ namespace gip.core.manager
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (ParentACComponent != null)
             {
@@ -60,7 +61,7 @@ namespace gip.core.manager
             _CurrentAvailableText = null;
             _SelectedAvailableText = null;
             _VBDesignControl = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

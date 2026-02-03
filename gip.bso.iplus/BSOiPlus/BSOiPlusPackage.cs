@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.manager;
 using gip.core.autocomponent;
@@ -55,10 +56,10 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._CurrentACClass = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
                 _AccessPrimary.ACDeInit(false);
@@ -272,13 +273,13 @@ namespace gip.bso.iplus
         /// Deletes this instance.
         /// </summary>
         [ACMethodInteraction("ACPackage", Const.Delete, (short)MISort.Delete, true, "CurrentACPackage", Global.ACKinds.MSMethodPrePost)]
-        public void Delete()
+        public async void Delete()
         {
             if (!PreExecute("Delete")) return;
             Msg msg = CurrentACPackage.DeleteACObject(Db, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                await Messages.MsgAsync(msg);
                 return;
             }
 

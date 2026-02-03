@@ -16,6 +16,7 @@
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -444,7 +445,7 @@ namespace gip.core.datamodel
         /// The component will not started any more while iPlus-Service is restarting next time. 
         /// This should only be done for dynamic instances like Workflow-Classes (Derivation of PWBase)</param>
         /// <returns>True if component was found and stopped successfully</returns>
-        bool StopComponent(string acIdentifier, bool deleteACClassTask = false);
+        Task<bool> StopComponent(string acIdentifier, bool deleteACClassTask = false);
 
 
         /// <summary>
@@ -455,14 +456,14 @@ namespace gip.core.datamodel
         /// The component will not started any more while iPlus-Service is restarting next time. 
         /// This should only be done for dynamic instances like Workflow-Classes (Derivation of PWBase)</param>
         /// <returns>True if passed component was stopped successfully</returns>
-        bool StopComponent(IACComponent acComponent, bool deleteACClassTask = false);
+        Task<bool> StopComponent(IACComponent acComponent, bool deleteACClassTask = false);
 
 
         /// <summary>
         /// Stops itself
         /// </summary>
         /// <returns>True if stop was successfull</returns>
-        bool Stop();
+        Task<bool> Stop();
 
 
         /// <summary>

@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 
@@ -36,9 +37,9 @@ namespace gip.core.processapplication
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            if (!base.ACDeInit(deleteACClassTask))
+            if (!await base.ACDeInit(deleteACClassTask))
                 return false;
 
             return true;

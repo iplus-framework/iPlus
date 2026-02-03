@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -37,7 +38,7 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
 
             List<SQLInstanceInfo> tmpList = SQLInstanceInfoList.ToList();
@@ -59,7 +60,7 @@ namespace gip.bso.iplus
             if (ACQueryDatabase != null)
                 ACQueryDatabase.Dispose();
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         private void LoadSelectedPaht(string path)
@@ -544,7 +545,7 @@ namespace gip.bso.iplus
             }
             catch (Exception ec)
             {
-                Messages.Msg(
+                Messages.MsgAsync(
                         new Msg()
                         {
                             MessageLevel = eMsgLevel.Error,

@@ -10,6 +10,7 @@ using System.Runtime.Serialization;
 using gip.core.datamodel;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Runtime.Serialization.Formatters;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -37,9 +38,9 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
             if (_ApplicationQueue != null)
             {
                 _ApplicationQueue.StopWorkerThread();

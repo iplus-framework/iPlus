@@ -4,6 +4,7 @@
 using gip.core.autocomponent;
 using System;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace gip.core.reporthandler
 {
@@ -42,7 +43,7 @@ namespace gip.core.reporthandler
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _DelegateQueue.StopWorkerThread();
             using (ACMonitor.Lock(_20015_LockValue))
@@ -50,7 +51,7 @@ namespace gip.core.reporthandler
                 _DelegateQueue = null;
             }
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public override bool ACPostInit()

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using gip.core.datamodel;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.manager
 {
@@ -31,7 +32,7 @@ namespace gip.core.manager
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (this.VBBSOSelectionManager != null && _SelectionManagerInitialized)
             {
@@ -40,7 +41,7 @@ namespace gip.core.manager
             if (_SelectedRootWFNode != null)
                 _SelectedRootWFNode.PropertyChanged -= _SelectedRootWFNode_PropertyChanged;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

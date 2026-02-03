@@ -49,7 +49,7 @@
         <vb:VBStatusBarItem Padding="5,0,0,0">
           <vb:VBControlSelectionIcon x:Name="EditVBDesignIcon" Click="EditVBDesignIcon_Click" IconType="1"></vb:VBControlSelectionIcon>
         </vb:VBStatusBarItem>
-        <vb:VBStatusBarItem Classes="WarningIconClass" Padding="5,0,0,0" DoubleTapped="WarningIcon_DoubleTapped" x:Name="WarningIcon">
+        <vb:VBStatusBarItem Classes="WarningIconClass" Padding="5,0,0,0" DoubleTapped="WarningIcon_DoubleTappedAsync" x:Name="WarningIcon">
           <Viewbox Width="24" Height="24" Margin="0,2,0,0">
             <Canvas x:Name="Ebene_1" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
               <Path x:Name="Dreieck" Width="24" Height="21.0526" Canvas.Left="-1.84774e-006" Canvas.Top="1.47372" Stretch="Fill" Data="F1 M 12,2.47372L 0.999998,21.5263L 23,21.5263L 12,2.47372 Z " StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round">

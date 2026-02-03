@@ -11,6 +11,7 @@ using System.Threading;
 using System.ComponentModel;
 using System.IO;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -45,14 +46,14 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (ApplicationManager != null)
             {
                 this.ApplicationManager.ProjectWorkCycleR1min -= ApplicationManager_ProjectWorkCycleR1min;
                 EventSubscr.UnSubscribeAllEvents(ApplicationManager);
             }
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public const string ClassName = "PAAlarmMessengerBase";

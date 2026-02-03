@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization;
+using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
 using gip.core.autocomponent;
@@ -41,10 +42,10 @@ namespace gip.core.communication
             return base.ACInit(startChildMode);
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             ObjectToSendCache = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public const string ClassName = "PAExporterBase";

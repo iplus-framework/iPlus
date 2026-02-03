@@ -21,12 +21,12 @@ namespace gip.bso.iplus
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._AccessACProgram = null;
             this._CurrentACProgram = null;
             this._SelectedACProgram = null;
-            bool done = base.ACDeInit(deleteACClassTask);
+            bool done = await base.ACDeInit(deleteACClassTask);
             if (done && _BSODatabase != null)
             {
                 ACObjectContextManager.DisposeAndRemove(_BSODatabase);

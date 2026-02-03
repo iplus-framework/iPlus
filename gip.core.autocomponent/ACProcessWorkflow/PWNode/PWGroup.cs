@@ -8,6 +8,7 @@ using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.Xml;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -93,7 +94,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             using (ACMonitor.Lock(_20015_LockValue))
             {
@@ -105,7 +106,7 @@ namespace gip.core.autocomponent
             }
 
             ClearMyConfiguration();
-            bool result = base.ACDeInit(deleteACClassTask);
+            bool result = await base.ACDeInit(deleteACClassTask);
 
             using (ACMonitor.Lock(_20015_LockValue))
             {

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -50,7 +51,7 @@ namespace gip.core.autocomponent
             return postInit;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (deleteACClassTask)
             {
@@ -59,7 +60,7 @@ namespace gip.core.autocomponent
             _ExecutingACMethod = null;
             _ACMethodSignature = null;
             ClearMyConfiguration();
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public override void Recycle(IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
@@ -224,7 +225,7 @@ namespace gip.core.autocomponent
             return false;
         }
 
-        public static bool AskUserSaveChangedACMethod(IACComponent acComponent)
+        public static async Task<bool> AskUserSaveChangedACMethod(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
@@ -232,7 +233,7 @@ namespace gip.core.autocomponent
             if (netProperty == null)
                 return false;
             netProperty.OnMemberChanged();
-            return acComponent.Messages.Question(acComponent, "Question50081", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50081", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
         protected virtual Msg OnValidateChangedACMethod(ACMethod acMethod)
@@ -455,11 +456,11 @@ namespace gip.core.autocomponent
             return IsEnabledStartInternal();
         }
 
-        public static bool AskUserStart(IACComponent acComponent)
+        public static async Task<bool> AskUserStart(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
-            return acComponent.Messages.Question(acComponent, "Question50038", Global.MsgResult.Yes) == Global.MsgResult.Yes;
+            return await acComponent.Messages.QuestionAsync(acComponent, "Question50038", Global.MsgResult.Yes) == Global.MsgResult.Yes;
         }
 
         [ACMethodInteraction("Process", "en{'Set breakpoint'}de{'Haltepunkt setzen'}", (short)201, true, "", Global.ACKinds.MSMethod, false, Global.ContextMenuCategory.ProcessCommands)]

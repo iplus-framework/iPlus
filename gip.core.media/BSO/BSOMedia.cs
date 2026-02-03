@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace gip.core.media
 {
@@ -85,10 +86,10 @@ namespace gip.core.media
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public async override Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _MediaRootFolder = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         public override Global.ControlModes OnGetControlModes(IVBContent vbControl)
@@ -619,7 +620,7 @@ namespace gip.core.media
                 }
                 else
                 {
-                    Messages.Warning(this, "Warning50068", false, extension, mediaSet.ExtensionQuery);
+                    Messages.WarningAsync(this, "Warning50068", false, extension, mediaSet.ExtensionQuery);
                 }
 
             }
@@ -1058,7 +1059,7 @@ namespace gip.core.media
             }
             catch (Exception ex)
             {
-                Messages.Exception(this, ex.Message);
+                Messages.ExceptionAsync(this, ex.Message);
             }
 
             return new Tuple<string, bool, bool>(BGWorkerMehtod_DeleteFile, success, bGModel.IsDefault);

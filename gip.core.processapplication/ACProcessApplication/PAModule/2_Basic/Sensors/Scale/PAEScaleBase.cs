@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.ComponentModel;
@@ -53,7 +54,7 @@ namespace gip.core.processapplication
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             StateScale.PropertyChanged -= StateScale_PropertyChanged;
             StateTolerance.PropertyChanged -= StateTolerance_PropertyChanged;
@@ -61,7 +62,7 @@ namespace gip.core.processapplication
             StateDosingTime.PropertyChanged -= StateDosingTime_PropertyChanged;
             ActualWeight.PropertyChanged -= ActualWeight_PropertyChanged;
             DesiredWeight.PropertyChanged -= DesiredWeight_PropertyChanged;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

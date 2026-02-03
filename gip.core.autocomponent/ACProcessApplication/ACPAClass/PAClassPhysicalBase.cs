@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -36,10 +37,10 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             OperatingMode.PropertyChanged -= OperatingMode_PropertyChanged;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 
@@ -208,7 +209,7 @@ namespace gip.core.autocomponent
             IACBSO bsoPropLogRules = GetBSOPropertyLogRules(acComponent as ACComponent);
             if (bsoPropLogRules == null)
             {
-                acComponent.Messages.Info(acComponent, "Properties logging is not activated. Access to the BSOPropertyLogRules is denied.");
+                acComponent.Messages.InfoAsync(acComponent, "Properties logging is not activated. Access to the BSOPropertyLogRules is denied.");
                 return;
             }
 
@@ -240,7 +241,7 @@ namespace gip.core.autocomponent
             IACBSO bsoPropLogRules = GetBSOPropertyLogRules(acComponent as ACComponent);
             if (bsoPropLogRules == null)
             {
-                acComponent.Messages.Info(acComponent, "Properties logging is not deactivated. Access to the BSOPropertyLogRules is denied.");
+                acComponent.Messages.InfoAsync(acComponent, "Properties logging is not deactivated. Access to the BSOPropertyLogRules is denied.");
                 return;
             }
 

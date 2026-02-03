@@ -441,7 +441,7 @@ namespace gip.core.layoutengine
             if (!ContextACObject.ACUrlBinding(_ACURLOfPropertyForItemsSource, ref _ItemsSourceACTypeInfo, ref sourceOfBindingForItmSrc, ref pathOfBindingForItmSrc, ref dsRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00004", "VBDataGrid", _ACURLOfPropertyForItemsSource + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00004", "VBDataGrid", _ACURLOfPropertyForItemsSource, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00004", "VBDataGrid", _ACURLOfPropertyForItemsSource, VBContent);
                 return;
             }
 
@@ -652,14 +652,14 @@ namespace gip.core.layoutengine
                 if (!ContextACObject.ACUrlBinding(dataShowColumn.PropertyName, ref dsColACTypeInfo, ref dsColSource, ref dsColPath, ref dsColRightControlMode))
                 {
                     this.Root().Messages.LogDebug("Error00005", "VBDataGrid", dataShowColumn.PropertyName + " " + VBContent);
-                    //this.Root().Messages.Error(ContextACObject, "Error00005", "VBDataGrid", dataShowColumn.PropertyName, VBContent);
+                    //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBDataGrid", dataShowColumn.PropertyName, VBContent);
                     return false;
                 }
             }
             else if (!ItemsSourceACTypeInfo.ACUrlBinding(dataShowColumn.PropertyName, ref dsColACTypeInfo, ref dsColSource, ref dsColPath, ref dsColRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00005", "VBDataGrid", dataShowColumn.PropertyName + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00005", "VBDataGrid", dataShowColumn.PropertyName, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBDataGrid", dataShowColumn.PropertyName, VBContent);
                 return false;
             }
             return true;
@@ -699,7 +699,7 @@ namespace gip.core.layoutengine
             if (vbShowColumns == null)
             {
                 this.Root().Messages.LogDebug("Error00005", "VBDataGrid", VBShowColumns + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00005", "VBDataGrid", VBShowColumns, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBDataGrid", VBShowColumns, VBContent);
                 if (ColumnsSetInXAML == false)
                     AutoGenerateColumns = true;
             }
@@ -3170,7 +3170,7 @@ namespace gip.core.layoutengine
             catch (Exception e)
             {
                 this.Root().Messages.LogException("VBDataGrid", "Export2Excel()", e);
-                this.Root().Messages.Exception(this, e.Message, true);
+                this.Root().Messages.ExceptionAsync(this, e.Message, true);
             }
         }
 

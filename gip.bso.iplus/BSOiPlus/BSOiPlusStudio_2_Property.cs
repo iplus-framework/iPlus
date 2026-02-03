@@ -1053,7 +1053,7 @@ namespace gip.bso.iplus
         /// Deletes the AC class property.
         /// </summary>
         [ACMethodInteraction("ACClassProperty", "en{'Delete Property'}de{'Eigenschaft löschen'}", (short)MISort.Delete, true, "CurrentACClassProperty", Global.ACKinds.MSMethodPrePost)]
-        public void DeleteACClassProperty()
+        public async void DeleteACClassProperty()
         {
             if (!PreExecute("DeleteACClassProperty")) 
                 return;
@@ -1062,7 +1062,7 @@ namespace gip.bso.iplus
                 var taskValueList = CurrentACClassProperty.ACClassTaskValue_ACClassProperty.ToArray();
                 if (taskValueList != null && taskValueList.Any())
                 {
-                    var result = Messages.Question(this, "This Property is already used in a active component. Deleting it can lead to an inconsistent state. Are you sure?", Global.MsgResult.No, true);
+                    var result = await Messages.QuestionAsync(this, "This Property is already used in a active component. Deleting it can lead to an inconsistent state. Are you sure?", Global.MsgResult.No, true);
                     if (result == Global.MsgResult.No)
                         return;
                     foreach (ACClassTaskValue taskValue in CurrentACClassProperty.ACClassTaskValue_ACClassProperty.ToArray())
@@ -1073,7 +1073,7 @@ namespace gip.bso.iplus
                 Msg msg = CurrentACClassProperty.DeleteACObject(Database.ContextIPlus, true);
                 if (msg != null)
                 {
-                    Messages.Msg(msg);
+                    await Messages.MsgAsync(msg);
                     return;
                 }
             }
@@ -1109,7 +1109,7 @@ namespace gip.bso.iplus
             Msg msg = ProjectManager.RemoveACClassPropertyRelation(CurrentACClass, CurrentPropertyRelationTo.ACObject as ACClassPropertyRelation);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
             OnPropertyChanged("PropertyRelationToList");
@@ -1138,7 +1138,7 @@ namespace gip.bso.iplus
             Msg msg = ProjectManager.RemoveACClassPropertyRelation(CurrentACClass, CurrentPropertyRelationFrom.ACObject as ACClassPropertyRelation);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
             OnPropertyChanged("PropertyRelationFromList");
@@ -1242,7 +1242,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentPointStateInfo.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 

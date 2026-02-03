@@ -290,7 +290,7 @@ namespace gip.bso.iplus
             Msg msg = CurrentConfigACClassProperty.DeleteACObject(Database.ContextIPlus, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
 
@@ -360,7 +360,7 @@ namespace gip.bso.iplus
             //Msg msg = CurrentPointConfig.DeleteACObject(Database.ContextIPlus, true);
             //if (msg != null)
             //{
-            //    Messages.Msg(msg);
+            //    Messages.MsgAsync(msg);
             //    return;
             //}
 

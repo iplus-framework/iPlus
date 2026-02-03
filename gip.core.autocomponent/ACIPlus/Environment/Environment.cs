@@ -12,6 +12,7 @@ using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.CompilerServices;
 using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -53,9 +54,9 @@ namespace gip.core.autocomponent
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

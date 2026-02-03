@@ -15,6 +15,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace gip.core.datamodel
@@ -32,7 +33,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Info(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+        //Global.MsgResult Info(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+
+        Task<Global.MsgResult> InfoAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
 
 
         /// <summary>Opens a Messagebox with a OK-Button and a Warning-Icon.
@@ -42,7 +45,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Warning(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+        //Global.MsgResult Warning(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+
+        Task<Global.MsgResult> WarningAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
 
 
         /// <summary>Opens a Messagebox with a Yes + No-Button and a Questionmark-Icon.</summary>
@@ -52,7 +57,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Question(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter);
+        //Global.MsgResult Question(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter);
+
+        Task<Global.MsgResult> QuestionAsync(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter);
 
 
         /// <summary>Opens a Messagebox with a Yes + No + Cancel-Button and a Questionmark-Icon.</summary>
@@ -62,7 +69,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult YesNoCancel(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter);
+        //Global.MsgResult YesNoCancel(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter);
+
+        Task<Global.MsgResult> YesNoCancelAsync(IACObject acObject, string acIdentifierOrText, Global.MsgResult defaultResult = Global.MsgResult.Yes, bool ignoreTranslation = false, params object[] parameter);
 
 
         /// <summary>Opens a Messagebox with a OK-Button and a Error-Icon.
@@ -72,7 +81,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Failure(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+        //Global.MsgResult Failure(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+
+        Task<Global.MsgResult> FailureAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
 
 
         /// <summary>Opens a Messagebox with a OK-Button and a Error-Icon.
@@ -82,8 +93,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Error(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
-
+        //Global.MsgResult Error(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+        
+        Task<Global.MsgResult> ErrorAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
 
         /// <summary>Opens a Messagebox with a OK-Button and a Exception-Icon.
         /// Usage: "It could indicate a technical problem that may recur and the cause should be investigated."</summary>
@@ -92,8 +104,9 @@ namespace gip.core.datamodel
         /// <param name="ignoreTranslation">If true, the passed acIdentifierOrText-Parameter will be treated as a text. (No lookup in the translation-table by the Message-ACIdentifer to retrieve a translated text).</param>
         /// <param name="parameter">Parameterlist that is passed to String.Format()-Method to insert the dynamic values in the placeholders of the translated text.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Exception(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
+        //Global.MsgResult Exception(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
 
+        Task<Global.MsgResult> ExceptionAsync(IACObject acObject, string acIdentifierOrText, bool ignoreTranslation = false, params object[] parameter);
 
         /// <summary>Opens a Messagebox and shows the passed message (Default: With a OK-Button and a Information-Icon.). 
         /// The displayed icon depends on the MessageLevel-Property in msg.</summary>
@@ -101,7 +114,9 @@ namespace gip.core.datamodel
         /// <param name="defaultResult">The default result.</param>
         /// <param name="msgButton">The MSG button.</param>
         /// <returns>Global.MsgResult.</returns>
-        Global.MsgResult Msg(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK);
+        //Global.MsgResult Msg(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK);
+
+        Task<Global.MsgResult> MsgAsync(Msg msg, Global.MsgResult defaultResult = Global.MsgResult.OK, eMsgButton msgButton = eMsgButton.OK);
 
 
         /// <summary>Opens a Input-Box for one value.</summary>

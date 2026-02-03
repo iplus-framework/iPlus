@@ -16,6 +16,7 @@ using gip.core.datamodel;
 using System.Data.SqlClient;
 using System.Collections.Concurrent;
 using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 
 namespace gip.core.autocomponent
 {
@@ -378,7 +379,7 @@ namespace gip.core.autocomponent
             gip.core.autocomponent.Messages.ConsoleClear();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             Environment environment = this.Environment as Environment;
             if (environment != null)
@@ -405,13 +406,13 @@ namespace gip.core.autocomponent
                     continue;
                 if (acSubACComponent == Communications)
                     continue;
-                StopComponent(acSubACComponent);
+                await StopComponent(acSubACComponent);
             }
 
             if (Communications != null)
             {
                 Thread.Sleep(1000);
-                StopComponent(Communications);
+                await StopComponent(Communications);
             }
 
             Database.ACSaveChanges();
@@ -431,7 +432,7 @@ namespace gip.core.autocomponent
                 gip.core.datamodel.Database.GlobalDatabase.Dispose();
             }
 
-            base.ACDeInit(deleteACClassTask);
+            await base.ACDeInit(deleteACClassTask);
 
             ComponentPool.ClearPool();
             _ComponentPool = null;

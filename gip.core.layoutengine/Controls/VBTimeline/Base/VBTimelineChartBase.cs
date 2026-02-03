@@ -86,7 +86,7 @@ namespace gip.core.layoutengine.timeline
             if (!ContextACObject.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00004", "VBGanttChart", VBSource + " " + VBContent);
-                //this.Root().Messages.Error(ContextACObject, "Error00004", "VBComboBox", VBSource, VBContent);
+                //this.Root().Messages.ErrorAsync(ContextACObject, "Error00004", "VBComboBox", VBSource, VBContent);
                 return;
             }
 

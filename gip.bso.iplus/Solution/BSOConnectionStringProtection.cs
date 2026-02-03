@@ -3,6 +3,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Threading.Tasks;
 using gip.core.media;
 
 namespace gip.bso.iplus
@@ -25,10 +26,10 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             AppConfig = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

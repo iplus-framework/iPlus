@@ -50,13 +50,13 @@ To display the logged property changes, please use the VBBSOPropertyLogPresenter
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (this.ApplicationManager != null)
                 this.ApplicationManager.ProjectWorkCycleR1min -= ApplicationManager_ProjectWorkCycleR1min;
             (Root as ACRoot).OnSendPropertyValueEvent -= OnPropertyValueChanged;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion

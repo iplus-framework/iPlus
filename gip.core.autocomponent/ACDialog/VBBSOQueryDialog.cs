@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using gip.core.datamodel;
+using System.Threading.Tasks;
 
 
 namespace gip.core.autocomponent
@@ -42,7 +43,7 @@ namespace gip.core.autocomponent
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             this._ACAccessChangeValue = null;
             this._ACColumnChangeValue = null;
@@ -63,7 +64,7 @@ namespace gip.core.autocomponent
             this._PropertyModeList = null;
             this._QueryInfoList = null;
             this._SelectedAvailableProperty = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         int _EditMode = 0;
@@ -1023,7 +1024,7 @@ namespace gip.core.autocomponent
             Msg msg = CurrentLoadConfiguration.DeleteACObject(database, true);
             if (msg != null)
             {
-                Messages.Msg(msg);
+                Messages.MsgAsync(msg);
                 return;
             }
             database.ACSaveChanges();

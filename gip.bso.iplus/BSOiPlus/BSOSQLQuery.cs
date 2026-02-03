@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Configuration;
 using System.Data;
+using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
@@ -62,14 +63,14 @@ namespace gip.bso.iplus
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_SelectedSQLScript != null)
             {
                 CorrectEmptyScript(_SelectedSQLScript);
             }
             ACSaveChanges();
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
 
@@ -544,7 +545,7 @@ namespace gip.bso.iplus
 
         public void SendMessage(Msg msg)
         {
-            Messages.Msg(msg);
+            Messages.MsgAsync(msg);
             MsgList.Add(msg);
             OnPropertyChanged(nameof(MsgList));
         }

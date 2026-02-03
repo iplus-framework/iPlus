@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.ComponentModel;
@@ -49,7 +50,7 @@ namespace gip.core.processapplication
             return true;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_RefContactor != null)
             {
@@ -72,7 +73,7 @@ namespace gip.core.processapplication
             //if (RunState != null)
             //    (RunState as IACPropertyNetServer).ValueUpdatedOnReceival -= PAEEMotorBase_ValueUpdatedOnReceival;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

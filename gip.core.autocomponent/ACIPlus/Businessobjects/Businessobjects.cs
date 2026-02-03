@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using gip.core.datamodel;
 
 namespace gip.core.autocomponent
@@ -22,9 +23,9 @@ namespace gip.core.autocomponent
         {
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -92,7 +93,7 @@ namespace gip.core.autocomponent
 
         /// <summary>When the database context has changed, a dialog is opened that asks the user whether they want to save the changes. If yes then the OnSave()-Method will be invoked. If not then ACUndoChanges() will be invoked. If cancelled then nothing will happen.</summary>
         /// <returns>Fals, if user has cancelled saving or undoing.</returns>
-        public bool ACSaveOrUndoChanges()
+        public async Task<bool> ACSaveOrUndoChanges()
         {
             return ACSaveChanges();
         }

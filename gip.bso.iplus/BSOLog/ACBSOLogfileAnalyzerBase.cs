@@ -37,12 +37,12 @@ namespace gip.bso.iplus
         /// <summary>
         /// Deinitializes this component.
         /// </summary>
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _LogLines?.Clear();
             _OutputFilePath = null;
 
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -138,19 +138,19 @@ namespace gip.bso.iplus
         {
             if (LogLines == null || LogLines.Count == 0)
             {
-                Root.Messages.Warning(this, "No log lines to analyze.", true);
+                Root.Messages.WarningAsync(this, "No log lines to analyze.", true);
                 return;
             }
 
             try
             {
                 PerformAnalysis(progressCallback);
-                Root.Messages.Info(this, "Analysis completed successfully.", true);
+                Root.Messages.InfoAsync(this, "Analysis completed successfully.", true);
             }
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "StartAnalysis", ex);
-                Root.Messages.Error(this, "Error during analysis: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error during analysis: " + ex.Message, true);
             }
         }
 
@@ -179,7 +179,7 @@ namespace gip.bso.iplus
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "SelectOutputFile", ex);
-                Root.Messages.Error(this, "Error selecting output file: " + ex.Message, true);
+                Root.Messages.ErrorAsync(this, "Error selecting output file: " + ex.Message, true);
             }
         }
 

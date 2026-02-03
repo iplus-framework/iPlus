@@ -6,6 +6,7 @@ using gip.core.datamodel;
 using System.Runtime.Serialization;
 using System.Threading;
 using gip.core.autocomponent;
+using System.Threading.Tasks;
 
 namespace gip.core.communication
 {
@@ -40,11 +41,11 @@ namespace gip.core.communication
             return result;
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _TaskSubscriptionPoint.UnSubscribe();
             _TaskSubscriptionPoint = null;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
         #endregion
 

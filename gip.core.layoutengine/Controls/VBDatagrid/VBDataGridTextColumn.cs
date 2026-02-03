@@ -276,7 +276,7 @@ namespace gip.core.layoutengine
                 if (!dataGrid.ContextACObject.ACUrlBinding(_ACColumnItem.PropertyName, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode))
                 {
                     this.Root().Messages.LogDebug("Error00004", "VBDataGrid", dataGrid.VBSource + " " + VBContent + "-" + dsColACTypeInfo.ACIdentifier);
-                    //this.Root().Messages.Error(dataGrid.ContextACObject, "Error00004", "VBDataGrid", dataGrid.VBSource, VBContent + "-" + dsColACTypeInfo.ACIdentifier);
+                    //this.Root().Messages.ErrorAsync(dataGrid.ContextACObject, "Error00004", "VBDataGrid", dataGrid.VBSource, VBContent + "-" + dsColACTypeInfo.ACIdentifier);
                     return;
                 }
                 RightControlMode = dscRightControlMode;
@@ -411,7 +411,7 @@ namespace gip.core.layoutengine
             if (!dataGrid.ItemsSourceACTypeInfo.ACUrlBinding(propertyNameOfParam, ref dsParamACTypeInfo, ref dsParamSource, ref dsParamPath, ref dsParamRightControlMode))
             {
                 this.Root().Messages.LogDebug("Error00005", "VBDataGrid", propertyNameOfParam + " " + VBContent);
-                //this.Root().Messages.Error(dataGrid.ContextACObject, "Error00005", "VBDataGrid", propertyNameOfParam, VBContent);
+                //this.Root().Messages.ErrorAsync(dataGrid.ContextACObject, "Error00005", "VBDataGrid", propertyNameOfParam, VBContent);
                 return false;
             }
 

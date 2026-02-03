@@ -19,6 +19,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 using System.Transactions;
 
 namespace gip.core.datamodel
@@ -142,7 +143,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <param name="deleteACClassTask">Should instance be removed from persistable application tree.</param>
         /// <returns><c>true</c> if succeeded, <c>false</c> otherwise</returns>
-        virtual public bool ACDeInit(bool deleteACClassTask = false)
+        public virtual async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             _ACType = null;
             _ParentACObject = null;

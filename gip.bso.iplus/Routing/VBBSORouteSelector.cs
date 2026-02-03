@@ -50,11 +50,11 @@ namespace gip.bso.iplus
             return base.ACPostInit();
         }
 
-        public override bool ACDeInit(bool deleteACClassTask = false)
+        public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (SelectionManager != null)
                 SelectionManager.PropertyChanged -= SelectionManager_PropertyChanged;
-            return base.ACDeInit(deleteACClassTask);
+            return await base.ACDeInit(deleteACClassTask);
         }
 
         #endregion
@@ -608,7 +608,7 @@ namespace gip.bso.iplus
 
             if (SourceComponentsList == null || TargetComponentsList == null || !SourceComponentsList.Any() || !TargetComponentsList.Any())
             {
-                Messages.Info(this, "Info50028");
+                Messages.InfoAsync(this, "Info50028");
                 return false;
             }
 
@@ -634,7 +634,7 @@ namespace gip.bso.iplus
 
             if (!AvailableRoutes.Any())
             {
-                Messages.Info(this, "Info50029");
+                Messages.InfoAsync(this, "Info50029");
                 return false;
             }
 
