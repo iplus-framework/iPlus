@@ -125,10 +125,10 @@ namespace gip.core.datamodel
 
         public override MsgWithDetails DeleteACObject(IACEntityObjectContext database, bool withCheck, bool softDelete = false)
         {
-            foreach (var acClassConfig in ACClassConfig_ACClassPropertyRelation.ToList())
-            {
-                acClassConfig.DeleteACObject(database, withCheck, true);
-            }
+            //foreach (var acClassConfig in ACClassConfig_ACClassPropertyRelation.ToList())
+            //{
+            //    acClassConfig.DeleteACObject(database, withCheck, softDelete);
+            //}
 
             return base.DeleteACObject(database, withCheck, softDelete);
         }
