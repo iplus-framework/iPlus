@@ -12,7 +12,7 @@
 		<NetCorePackageVersion>9.0.7</NetCorePackageVersion>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
-		<SkiaSharpVersion>3.119.0</SkiaSharpVersion>
+		<SkiaSharpVersion>3.119.1</SkiaSharpVersion>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\HarfBuzzSharp.props -->
 		<HarfBuzzSharpVersion>8.3.1.1</HarfBuzzSharpVersion>
@@ -236,7 +236,7 @@
 		<PackageVersion Include="JetBrains.dotMemoryUnit" Version="3.2.20220510" />
 
 		<!-- Additional Packages for SVG -->
-		<PackageVersion Include="Nerdbank.GitVersioning" Version="3.3.37" />
+		<PackageVersion Include="Nerdbank.GitVersioning" Version="3.9.50" />
 		<PackageVersion Include="System.Resources.Extensions" Version="5.0.0" />
 		<PackageVersion Include="BenchmarkDotNet" Version="0.13.5" />
 

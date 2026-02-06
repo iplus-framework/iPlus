@@ -287,10 +287,8 @@ build_project() {
     local stderr_file=$(mktemp)
     
     # Execute the build command
-    local exit_code=0
-    if ! dotnet "${dotnet_args[@]}" >"$stdout_file" 2>"$stderr_file"; then
-        exit_code=$?
-    fi
+    dotnet "${dotnet_args[@]}" >"$stdout_file" 2>"$stderr_file"
+    local exit_code=$?
     
     local end_time=$(date +%s.%N)
     local duration=$(echo "$end_time - $start_time" | bc -l)
@@ -580,10 +578,8 @@ for i in "${!SOLUTION_PATHS[@]}"; do
     priority="${SOLUTION_PRIORITIES[$i]}"
     critical="${SOLUTION_CRITICAL[$i]}"
     
-    result_code=0
-    if ! build_project "$project_path" "$project_name" "$CONFIGURATION" "$CLEAN" "$REBUILD" "$PARALLEL" "$MAX_CPU_COUNT" "$priority" "$critical"; then
-        result_code=$?
-    fi
+    build_project "$project_path" "$project_name" "$CONFIGURATION" "$CLEAN" "$REBUILD" "$PARALLEL" "$MAX_CPU_COUNT" "$priority" "$critical"
+    result_code=$?
     
     # Store build results
     BUILD_RESULTS_NAMES+=("$project_name")

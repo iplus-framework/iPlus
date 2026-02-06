@@ -30,7 +30,7 @@ Write-Host "Configuration: $Configuration" -ForegroundColor Yellow
 
 # Define solution files with their relative paths from the base directory
 $SolutionFiles = @(
-	@{ Path = "..\..\av_main\iPlusAvalonia.sln"; Name = "Avalonia Core"; Priority = 1; Critical = $true },
+	@{ Path = "..\..\Avalonia\iPlusAvalonia.sln"; Name = "Avalonia Core"; Priority = 1; Critical = $true },
 	@{ Path = "..\..\AvDialogHost.Avalonia\iPlusAvalonia.sln"; Name = "Dialog Host"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\AvaloniaEdit\iPlusAvalonia.sln"; Name = "Avalonia Edit"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\Avalonia.Dock\iPlusAvalonia.sln"; Name = "Avalonia Dock"; Priority = 1; Critical = $false },
