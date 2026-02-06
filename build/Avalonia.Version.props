@@ -19,6 +19,16 @@
 		<AvaloniaNativeBuildDir>$(AvaloniaRootDir)/src/Avalonia.Native/bin</AvaloniaNativeBuildDir>
 		<AvaloniaMarkupBuildDir>$(AvaloniaRootDir)/src/Markup/Avalonia.Markup.Xaml.Loader/bin</AvaloniaMarkupBuildDir>
 		<AvaloniaSkiaBuildDir>$(AvaloniaRootDir)/src/Skia/Avalonia.Skia/bin</AvaloniaSkiaBuildDir>
+    <!-- For Building Avalonia from source, create symbolic links to the Avalonia source directories with consistent path separators:
+				 WINDOWS CMD:
+				 mklink /D "D:\Devel\iPlusGit\V5\Avalonia\external\XamlX" "D:\Devel\iPlusGit\V5\XamlX"
+				 mklink /D "D:\Devel\iPlusGit\V5\Avalonia\external\Avalonia.Controls.DataGrid" "D:\Devel\iPlusGit\V5\Avalonia.Controls.DataGrid"
+         mklink /D "D:\Devel\iPlusGit\V5\AvSvg.Skia\externals\SVG" "D:\Devel\iPlusGit\V5\SVG"
+         LINUX/MAC TERMINAL:
+         	ln -s /home/user/iPlusGit/V5/XamlX /home/user/iPlusGit/V5/Avalonia/external/XamlX
+         	ln -s /home/user/iPlusGit/V5/Avalonia.Controls.DataGrid /home/user/iPlusGit/V5/Avalonia/external/Avalonia.Controls.DataGrid
+         	ln -s /home/user/iPlusGit/V5/AvSvg.Skia /home/user/iPlusGit/V5/Avalonia/external/AvSvg.Skia
+    -->
 
 		<!-- Other directories with consistent path separators -->
 		<AvaloniaDialogHostIncludeDir>$(MSBuildThisFileDirectory)../../AvDialogHost.Avalonia/DialogHost.Avalonia/bin</AvaloniaDialogHostIncludeDir>
