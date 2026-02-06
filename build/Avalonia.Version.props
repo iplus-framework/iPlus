@@ -7,13 +7,15 @@
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<UseAvaloniaFork>False</UseAvaloniaFork>
+		<UseAvaloniaFork>True</UseAvaloniaFork>
+		<!-- Set to True to use standalone Avalonia.Controls.DataGrid and exclude Avalonia.Diagnostics (which has internal DataGrid) -->
+		<UseStandaloneDataGrid>True</UseStandaloneDataGrid>
 		<!-- Specify Avalonia version to use. 11.3.11 are not available for ReactiveUI  -->
 		<!--<AvaloniaVersion>11.3.11</AvaloniaVersion>-->
 		<AvaloniaVersion>11.3.9</AvaloniaVersion>
 
 		<!-- Use forward slashes for cross-platform compatibility -->
-		<AvaloniaRootDir>$(MSBuildThisFileDirectory)../../av_main</AvaloniaRootDir>
+		<AvaloniaRootDir>$(MSBuildThisFileDirectory)../../Avalonia</AvaloniaRootDir>
 		<AvaloniaNativeBuildDir>$(AvaloniaRootDir)/src/Avalonia.Native/bin</AvaloniaNativeBuildDir>
 		<AvaloniaMarkupBuildDir>$(AvaloniaRootDir)/src/Markup/Avalonia.Markup.Xaml.Loader/bin</AvaloniaMarkupBuildDir>
 		<AvaloniaSkiaBuildDir>$(AvaloniaRootDir)/src/Skia/Avalonia.Skia/bin</AvaloniaSkiaBuildDir>

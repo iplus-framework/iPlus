@@ -227,8 +227,8 @@
 		<!-- Additional Packages for Avalonia Labs -->
 		<PackageVersion Include="coverlet.collector" Version="3.1.2" />
 		<PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.6.1.5" />
-		<PackageVersion Include="Tmds.DBus.Protocol" Version="0.20.0" />
-		<PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.19" />
+		<PackageVersion Include="Tmds.DBus.Protocol" Version="0.21.2" />
+		<PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.21" />
 		<PackageVersion Include="MicroCom.CodeGenerator.Roslyn " Version="0.11.0" />
 		<PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.106" />
 

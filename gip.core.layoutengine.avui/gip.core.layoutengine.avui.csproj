@@ -188,6 +188,7 @@
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaEditInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRoslynPadInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDataGridInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaDialogHostInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMarkdownInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMessageBoxInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaSvgSkiaInclude.props" />

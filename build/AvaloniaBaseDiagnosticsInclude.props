@@ -1,6 +1,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Reference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics">
+    <!-- Only include Avalonia.Diagnostics if NOT using standalone DataGrid (to avoid internal DataGrid conflict) -->
+    <Reference Condition="'$(Configuration)' == 'Debug' AND '$(UseStandaloneDataGrid)' != 'True'" Include="Avalonia.Diagnostics">
       <HintPath>$(AvaloniaRootDir)/src/Avalonia.Diagnostics/bin/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Diagnostics.dll</HintPath>
     </Reference>
   </ItemGroup>

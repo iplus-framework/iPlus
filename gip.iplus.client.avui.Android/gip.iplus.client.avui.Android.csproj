@@ -9,6 +9,7 @@
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
+    <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">AVALONIAFORK</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Avalonia">
     <EnableAvaloniaXamlCompilation>True</EnableAvaloniaXamlCompilation>

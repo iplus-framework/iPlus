@@ -123,7 +123,7 @@ print_color $YELLOW "Configuration: $CONFIGURATION"
 # Define solution files with their relative paths from the base directory
 # Using associative arrays to simulate PowerShell hashtables
 declare -a SOLUTION_PATHS=(
-    "../../av_main/iPlusAvalonia.sln"
+    "../../Avalonia/iPlusAvalonia.sln"
     "../../AvDialogHost.Avalonia/iPlusAvalonia.sln"
     "../../AvaloniaEdit/iPlusAvalonia.sln"
     "../../Avalonia.Dock/iPlusAvalonia.sln"
@@ -294,7 +294,7 @@ build_project() {
     
     local end_time=$(date +%s.%N)
     local duration=$(echo "$end_time - $start_time" | bc -l)
-    duration=$(printf "%.1f" "$duration")
+    duration=$(LC_NUMERIC=C printf "%.1f" "$duration")
 
     # Read the output files
     local standard_output=""
@@ -565,7 +565,7 @@ print_color $WHITE "Clean: $CLEAN"
 print_color $WHITE "Rebuild: $REBUILD"
 print_color $WHITE "Parallel: $PARALLEL"
 
-local cpu_count_text="Auto"
+cpu_count_text="Auto"
 if [[ $MAX_CPU_COUNT -gt 0 ]]; then
     cpu_count_text="$MAX_CPU_COUNT"
 fi
@@ -575,12 +575,12 @@ print_color $WHITE "Continue On Error: $CONTINUE_ON_ERROR"
 
 # Build projects in order
 for i in "${!SOLUTION_PATHS[@]}"; do
-    local project_path="${SOLUTION_PATHS[$i]}"
-    local project_name="${SOLUTION_NAMES[$i]}"
-    local priority="${SOLUTION_PRIORITIES[$i]}"
-    local critical="${SOLUTION_CRITICAL[$i]}"
+    project_path="${SOLUTION_PATHS[$i]}"
+    project_name="${SOLUTION_NAMES[$i]}"
+    priority="${SOLUTION_PRIORITIES[$i]}"
+    critical="${SOLUTION_CRITICAL[$i]}"
     
-    local result_code=0
+    result_code=0
     if ! build_project "$project_path" "$project_name" "$CONFIGURATION" "$CLEAN" "$REBUILD" "$PARALLEL" "$MAX_CPU_COUNT" "$priority" "$critical"; then
         result_code=$?
     fi
@@ -634,7 +634,7 @@ show_build_summary
 # Exit with appropriate code
 if [[ $FAILED_BUILDS -gt 0 ]]; then
     # Check for critical failures
-    local critical_failures=0
+    critical_failures=0
     for i in "${!BUILD_RESULTS_CRITICAL[@]}"; do
         if [[ "${BUILD_RESULTS_SUCCESS[$i]}" == "false" && "${BUILD_RESULTS_CRITICAL[$i]}" == "true" ]]; then
             ((critical_failures++))

@@ -1,0 +1,11 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Avalonia.FreeDesktop">
+      <HintPath>$(AvaloniaRootDir)/src/Avalonia.FreeDesktop/bin/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.FreeDesktop.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Tmds.DBus.Protocol" />
+    <PackageReference Include="Tmds.DBus.SourceGenerator" />
+  </ItemGroup>
+</Project> 

@@ -11,7 +11,11 @@ namespace gip.iplus.client.avui.Android;
     Icon = "@drawable/icon",
     MainLauncher = true,
     ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
+ #if AVALONIAFORK
+public class MainActivity : AvaloniaMainActivity
+ #else   
 public class MainActivity : AvaloniaMainActivity<App>
+#endif
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
     {

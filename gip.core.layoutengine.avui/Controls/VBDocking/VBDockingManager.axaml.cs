@@ -530,8 +530,8 @@ namespace gip.core.layoutengine.avui
                         //MaxWidth = toolMaxWidth,
                         //MaxHeight = toolMaxHeight,
 #if AVALONIAFORK
-                        Width = toolWidth,
-                        Height = toolHeight,
+                        // Width = toolWidth,
+                        // Height = toolHeight,
 #else
                         MinWidth = toolMinWidth,
                         MinHeight = toolMinHeight,
@@ -550,8 +550,8 @@ namespace gip.core.layoutengine.avui
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
 #if AVALONIAFORK
-                        Width = toolWidth,
-                        Height = toolHeight,
+                        // Width = toolWidth,
+                        // Height = toolHeight,
 #else
                         MinWidth = toolMinWidth,
                         MinHeight = toolMinHeight,
@@ -594,8 +594,8 @@ namespace gip.core.layoutengine.avui
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
 #if AVALONIAFORK
-                        Width = toolWidth,
-                        Height = toolHeight,
+                        // Width = toolWidth,
+                        // Height = toolHeight,
 #else
                         MinWidth = toolMinWidth,
                         MinHeight = toolMinHeight,
@@ -654,8 +654,8 @@ namespace gip.core.layoutengine.avui
 #if AVALONIAFORK
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-                        Width = toolWidth,
-                        Height = toolHeight,
+                        // Width = toolWidth,
+                        // Height = toolHeight,
                         MinWidth = toolMinWidth,
                         MinHeight = toolMinHeight,
 #else

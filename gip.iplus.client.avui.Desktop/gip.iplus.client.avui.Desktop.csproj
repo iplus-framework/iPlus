@@ -38,6 +38,7 @@
     <PackageReference Include="Avalonia.Angle.Windows.Natives" />
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseFreeDesktopInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseReactiveInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaRoslynPadInclude.props" />
 
