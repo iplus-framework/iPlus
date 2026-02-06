@@ -1,8 +1,10 @@
 <Project>
 	<PropertyGroup>
 		<UseDotNet10>False</UseDotNet10>
+    <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
 	</PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
+      <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
       <!-- <AndroidSdkDirectory Condition="'$(AndroidSdkDirectory)' == '' and Exists('/usr/lib/android-sdk/')">/usr/lib/android-sdk/</AndroidSdkDirectory>
       <JavaSdkDirectory Condition="'$(JavaSdkDirectory)' == '' and Exists('/usr/lib/jvm/java-21-openjdk-amd64/')">/usr/lib/jvm/java-21-openjdk-amd64/</JavaSdkDirectory> -->
       <AndroidSdkDirectory>$(HOME)/Android/Sdk</AndroidSdkDirectory>
