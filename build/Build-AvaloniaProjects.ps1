@@ -79,7 +79,7 @@ function Get-ProjectTargetFramework {
 	return $null
 }
 
-Build-AvaloniaProjects.ps1
+# Build-AvaloniaProjects.ps1
 # Function to build a solution or project
 function Build-Project {
 	param(
