@@ -35,7 +35,7 @@ namespace gip.core.datamodel.Licensing
         {
             //if (_SingleInstance)
             //    throw new SystemException("Only one License-Instance can be created!");
-            _SingleInstance = true;
+            //_SingleInstance = true;
             _VBUser = vbUser;
             _Database = database;
             Initialize(_Database);
@@ -57,7 +57,7 @@ namespace gip.core.datamodel.Licensing
 
 
         #region Private Fields
-        private static bool _SingleInstance = false;
+        //private static bool _SingleInstance = false;
 
         private string _SystemComm = "";
 

@@ -16,15 +16,13 @@
     <DocumentationFile>
     </DocumentationFile>
     <GenerateSerializationAssemblies>Off</GenerateSerializationAssemblies>
-    <NoWarn>1591</NoWarn>
-    <NoWarn>CS1591</NoWarn>
-    <NoWarn>SYSLIB0006,CS1591,1591</NoWarn>
+    <NoWarn>SYSLIB0006,CS1591,1591,CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DefineConstants>TRACE;NETFRAMEWORK;$(CompilerDefFCoreForkIPlus)</DefineConstants>
     <DocumentationFile>$(SolutionDir)bin\Release\gip.core.datamodel.XML</DocumentationFile>
-    <NoWarn>SYSLIB0006,CS1591,1591</NoWarn>
+    <NoWarn>SYSLIB0006,CS1591,1591,CA1416</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
@@ -222,6 +220,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
+    <PackageReference Include="Portable.BouncyCastle"  />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="ACHelperclasses\EntityFramework\NoConfigurationManager.cs" />
