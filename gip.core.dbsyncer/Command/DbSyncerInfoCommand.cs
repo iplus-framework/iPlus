@@ -154,32 +154,42 @@ namespace gip.core.dbsyncer.Command
         public static void UpdateSqlContent(DbContext db, string sqlContent, ref string prepraredSQL)
         {
             string line = null;
-            List<string> sqlLines = Regex.Split(sqlContent, @"GO\r\n").ToList();
+            // Updated regex to handle both Windows (\r\n) and Linux (\n) line endings
+            List<string> sqlLines = Regex.Split(sqlContent, @"^\s*GO\s*$", RegexOptions.Multiline).ToList();
             foreach (string sql in sqlLines)
             {
-                prepraredSQL = sql;
-                prepraredSQL = prepraredSQL.TrimStart(@"\r\n".ToCharArray());
+                prepraredSQL = sql.Trim(); // Trim to remove any leading/trailing whitespace
+                if (string.IsNullOrEmpty(prepraredSQL)) continue;
+
                 List<string> lines = new List<string>();
                 using (StringReader reader = new StringReader(prepraredSQL))
                 {
                     while ((line = reader.ReadLine()) != null)
                     {
-                        if (!string.IsNullOrEmpty(line) && !line.StartsWith(@"--"))
+                        if (!string.IsNullOrEmpty(line) && !line.StartsWith("--"))
                         {
                             lines.Add(line);
                         }
                     }
                 }
-                prepraredSQL = String.Join(Environment.NewLine, lines);
+
+                prepraredSQL = string.Join(Environment.NewLine, lines);
                 var oldTimeout = db.Database.GetCommandTimeout;
                 db.Database.SetCommandTimeout(60 * 5);
-                if (!string.IsNullOrEmpty(prepraredSQL))
+
+                try
                 {
-                    prepraredSQL = prepraredSQL.Replace("{", "{{");
-                    prepraredSQL = prepraredSQL.Replace("}", "}}");
-                    db.Database.ExecuteSql(FormattableStringFactory.Create(prepraredSQL));
+                    if (!string.IsNullOrEmpty(prepraredSQL))
+                    {
+                        prepraredSQL = prepraredSQL.Replace("{", "{{");
+                        prepraredSQL = prepraredSQL.Replace("}", "}}");
+                        db.Database.ExecuteSql(FormattableStringFactory.Create(prepraredSQL));
+                    }
                 }
-                db.Database.SetCommandTimeout(oldTimeout());
+                finally
+                {
+                    db.Database.SetCommandTimeout(oldTimeout());
+                }
             }
         }
 

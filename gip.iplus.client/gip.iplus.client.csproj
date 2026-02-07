@@ -139,6 +139,9 @@
         <Exec Command="xcopy &quot;$(SolutionDir)bin\$(Configuration)\$(DefaultNetCoreTargetFramework)\*.*&quot; &quot;$(SolutionDir)bin\$(Configuration)\$(UITargetFramework)\&quot; /Y /I /E /EXCLUDE:$(ProjectDir)\AfterBuildCopyExclude.txt" />
     </Target>
     <Target Name="CopyToNet7Linux" AfterTargets="Build" Condition="'$(OS)' != 'Windows_NT'">
+      <!-- <Message Text="DEBUG: OutDir is $(OutDir)" Importance="High" />
+      <Message Text="DEBUG: Source dir is $(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/" Importance="High" />
+      <Message Text="DEBUG: RID is $(RuntimeIdentifier)" Importance="High" /> -->
       <Exec Command="cp -r -n &quot;$(SolutionDir)bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/.&quot; &quot;$(OutDir)&quot;" />
       <Exec Command="cp -n &quot;$(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/&quot;*.dll &quot;$(OutDir)&quot;" Condition="'$(RuntimeIdentifier)' != ''" />
     </Target>
