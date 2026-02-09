@@ -20,6 +20,7 @@ using gip.core.datamodel;
 using gip.core.layoutengine.Helperclasses;
 using System.Transactions;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine
 {
@@ -927,6 +928,18 @@ namespace gip.core.layoutengine
         #region Design
         [ACMethodInfo("", "en{'Modal Dialog'}de{'Modaler Dialog'}", 9999)]
         public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false, 
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            VBDesign vbDesign = new VBDesign();
+            vbDesign.DataContext = forObject;
+            vbDesign.VBContent = "*" + acClassDesignName;
+            VBDockingManager.SetContainer(vbDesign, Global.VBDesignContainer.ModalDialog);
+            VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
+            VBDockingManager.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
+            ShowVBDesign(vbDesign, acCaption);
+        }
+
+        public async Task ShowDialogAsync(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
             VBDesign vbDesign = new VBDesign();

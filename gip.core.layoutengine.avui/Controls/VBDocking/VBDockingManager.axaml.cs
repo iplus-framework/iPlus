@@ -1,5 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
@@ -16,6 +17,7 @@ using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
 { 
@@ -330,6 +332,20 @@ namespace gip.core.layoutengine.avui
             VBDockingManager.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
             List<IDockable> tools2Unpin = new List<IDockable>();
             ShowVBDesign(vbDesign, tools2Unpin, acCaption);
+        }
+
+        [ACMethodInfo("", "en{'Modal Dialog'}de{'Modaler Dialog'}", 9999)]
+        public async Task ShowDialogAsync(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            VBDesign vbDesign = new VBDesign();
+            vbDesign.DataContext = forObject;
+            vbDesign.VBContent = "*" + acClassDesignName;
+            VBDockingManager.SetContainer(vbDesign, Global.VBDesignContainer.ModalDialog);
+            VBDockingManager.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
+            VBDockingManager.SetCloseButtonVisibility(vbDesign, closeButtonVisibility);
+            List<IDockable> tools2Unpin = new List<IDockable>();
+            await ShowVBDesignAsync(vbDesign, tools2Unpin, acCaption);
         }
 
         [ACMethodInfo("", "en{'Show Layout'}de{'Layout'}", 9999)]
@@ -781,6 +797,396 @@ namespace gip.core.layoutengine.avui
                 //else
                 //    vbDialogRoot.Show();
                 //vbDialogRoot.ShowDialog();
+            }
+        }
+
+        private async Task ShowVBDesignAsync(Control uiElement, List<IDockable> tools2Unpin, string acCaption = "")
+        {
+            if (uiElement == null)
+                return;
+            IVBContent uiElementAsDataContent = null;
+            if (uiElement is IVBContent)
+            {
+                uiElementAsDataContent = (uiElement as IVBContent);
+                if (uiElementAsDataContent.ContextACObject == null)
+                {
+                    if (uiElement is Control)
+                    {
+                        if ((uiElement as Control).DataContext == null)
+                            (uiElement as Control).DataContext = this.ContextACObject;
+                    }
+                }
+                if (uiElementAsDataContent.ContextACObject == null)
+                    return;
+            }
+
+            VBDesign uiElementAsDataDesign = uiElement as VBDesign;
+            if (uiElementAsDataDesign != null)
+            {
+                if (string.IsNullOrEmpty(acCaption) && !string.IsNullOrEmpty(uiElementAsDataDesign.CustomizedACCaption))
+                    acCaption = uiElementAsDataDesign.CustomizedACCaption;
+                // Rechteprüfung ob Design geöffnet werden darf
+                if (uiElementAsDataContent != null && uiElementAsDataDesign.ContentACObject != null && uiElementAsDataDesign.ContentACObject is IACType)
+                {
+                    acCaption = uiElementAsDataDesign.ContentACObject.ACCaption;
+                    if (uiElementAsDataContent.ContextACObject is IACComponent)
+                    {
+                        if (((ACClass)uiElementAsDataContent.ContextACObject.ACType).RightManager.GetControlMode(uiElementAsDataDesign.ContentACObject as IACType) != Global.ControlModes.Enabled)
+                            return;
+                    }
+                }
+                if (string.IsNullOrEmpty(acCaption))
+                    acCaption = uiElementAsDataDesign.VBContent;
+                if (string.IsNullOrEmpty(acCaption) && !string.IsNullOrEmpty(uiElementAsDataDesign.AutoStartACComponent))
+                    acCaption = uiElementAsDataDesign.AutoStartACComponent;
+                if (string.IsNullOrEmpty(acCaption) && !string.IsNullOrEmpty(uiElementAsDataDesign.ACIdentifier))
+                    acCaption = uiElementAsDataDesign.ACIdentifier;
+
+            }
+            string title = VBDockingManager.GetWindowTitle(uiElement);
+            if (!string.IsNullOrEmpty(title))
+                acCaption = title;
+
+            Global.VBDesignContainer containerType = VBDockingManager.GetContainer(uiElement);
+            Global.VBDesignDockState dockState = VBDockingManager.GetDockState(uiElement);
+            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(uiElement);
+            Size size = VBDockingManager.GetWindowSize(uiElement);
+            double toolWidth = 400;
+            double toolHeight = 1200;
+            if (size.Width > 0.0001)
+                toolWidth = size.Width;
+            if (size.Height > 0.0001)
+                toolHeight = size.Height;
+            double toolMinWidth = toolWidth * 0.5;
+            double toolMinHeight = toolHeight * 0.5;
+            double toolMaxWidth = toolWidth * 2;
+            double toolMaxHeight = toolHeight * 2;
+
+            PixelRect? pixelRect = null;
+            var topLevel = TopLevel.GetTopLevel(this);
+            if (topLevel != null && topLevel.Screens != null && topLevel.Screens.Primary != null)
+                pixelRect = topLevel.Screens.Primary.Bounds;
+
+#if AVALONIAFORK
+            if (pixelRect.HasValue)
+            {
+                toolMaxWidth = pixelRect.Value.Width * 0.9;
+                toolMaxHeight = pixelRect.Value.Height * 0.9;
+            }
+#else
+            if (pixelRect.HasValue)
+            {
+                if (toolMaxWidth > pixelRect.Value.Width * 0.9)
+                    toolMaxWidth = pixelRect.Value.Width * 0.9;
+                if (toolMaxHeight > pixelRect.Value.Height * 0.9)
+                    toolMaxHeight = pixelRect.Value.Height * 0.9;
+            }
+#endif
+
+            Control content = uiElement;
+            var ribbonVisibility = VBDockingManager.GetRibbonBarVisibility(uiElement);
+            if (ribbonVisibility != Global.ControlModes.Hidden)
+            {
+                VBDockPanel dockPanel = new VBDockPanel();
+                var ribbonControl = new VBRibbonBSODefault();
+                ribbonControl.SetValue(DockPanel.DockProperty, Avalonia.Controls.Dock.Top);
+                if (ribbonVisibility == Global.ControlModes.Collapsed)
+                    ribbonControl.IsVisible = false;
+                else
+                    ribbonControl.IsVisible = true;
+                if (uiElementAsDataDesign != null)
+                {
+                    Binding binding = new Binding
+                    {
+                        Source = uiElementAsDataDesign,
+                        Path = nameof(VBDesign.BSOACComponent),
+                        Mode = BindingMode.OneWay
+                    };
+                    ribbonControl.Bind(VBRibbonBSODefault.BSOACComponentProperty, binding);
+
+                    binding = new Binding
+                    {
+                        Source = uiElementAsDataDesign,
+                        Path = nameof(StyledElement.DataContext),
+                        Mode = BindingMode.OneWay
+                    };
+                    ribbonControl.Bind(StyledElement.DataContextProperty, binding);
+                }
+                uiElement.SetValue(DockPanel.LastChildFillProperty, true);
+                dockPanel.Children.Add(ribbonControl);
+                dockPanel.Children.Add(uiElement);
+                content = dockPanel;
+            }
+
+            ProportionalDock horizontalArea = null;
+            DocumentDock documentDock = null;
+            EnsureDocumentDockStructure(out horizontalArea, out documentDock);
+
+            if (containerType == Global.VBDesignContainer.TabItem
+                && dockState == Global.VBDesignDockState.Tabbed)
+            {
+                DockableBase doc = null;
+                if (isCloseable)
+                {
+                    doc = new Tool
+                    {
+                        Id = "Doc_" + uiElement.GetHashCode().ToString(),
+                        Title = acCaption,
+                        Content = content,
+                        CanClose = isCloseable,
+                        CanFloat = isCloseable,
+                        //MaxWidth = toolMaxWidth,
+                        //MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        // Width = toolWidth,
+                        // Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
+                    };
+                }
+                else
+                {
+                    doc = new Document
+                    {
+                        Id = "Doc_" + uiElement.GetHashCode().ToString(),
+                        Title = acCaption,
+                        Content = content,
+                        CanClose = isCloseable,
+                        CanFloat = isCloseable,
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        // Width = toolWidth,
+                        // Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
+                    };
+                }
+
+                if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
+                {
+                    uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
+                    DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = doc });
+                }
+
+                if (!isCloseable && !_TabStripVisibleStyleIsSet)
+                {
+                    _TabStripVisibleStyleIsSet = true;
+                    DockControl.Styles.Add(new Style(x => x.OfType<DocumentControl>().Template().OfType<DocumentTabStrip>().Name("PART_TabStrip"))
+                    {
+                        Setters =
+                        {
+                            new Setter(Visual.IsVisibleProperty, false)
+                        }
+                    });
+                }
+
+                if (documentDock.VisibleDockables == null)
+                    documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
+                documentDock.VisibleDockables.Add(doc);
+            }
+            else if (containerType == Global.VBDesignContainer.DockableWindow)
+            {
+                Alignment alignment = TranslateAlignment(VBDockingManager.GetDockPosition(uiElement));
+                if (alignment == Alignment.Top || alignment == Alignment.Bottom)
+                {
+                    Tool tool = new Tool
+                    {
+                        Id = "Tool_" + uiElement.GetHashCode().ToString(),
+                        Title = acCaption,
+                        Content = content,
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
+#if AVALONIAFORK
+                        // Width = toolWidth,
+                        // Height = toolHeight,
+#else
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
+                        CanClose = isCloseable
+                    };
+
+                    if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
+                    {
+                        uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
+                        DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = tool });
+                    }
+
+                    //if (this.VBDesignContent is VBDesign)
+                    //    (this.VBDesignContent as VBDesign).OnContextACObjectChanged += new EventHandler(VBDockingContainerBase_OnElementACComponentChanged);
+
+                    ToolDock toolDock = MainLayout.VisibleDockables.OfType<ToolDock>().Where(c => c.Alignment == alignment).FirstOrDefault();
+
+                    if (toolDock == null)
+                    {
+                        toolDock = new ToolDock
+                        {
+                            Id = "ToolDock_" + alignment.ToString(),
+                            Alignment = alignment,
+                            Proportion = 0.25,
+                            VisibleDockables = _Factory.CreateList<IDockable>(tool),
+                        };
+                        toolDock.ActiveDockable = tool;
+                        if (alignment == Alignment.Top)
+                        {
+                            MainLayout.VisibleDockables.Insert(0, new ProportionalDockSplitter());
+                            MainLayout.VisibleDockables.Insert(0, toolDock);
+                        }
+                        else
+                        {
+                            MainLayout.VisibleDockables.Add(new ProportionalDockSplitter());
+                            MainLayout.VisibleDockables.Add(toolDock);
+                        }
+                    }
+                    else
+                    {
+                        toolDock.VisibleDockables.Add(tool);
+                    }
+                    if (dockState == Global.VBDesignDockState.AutoHideButton)
+                        tools2Unpin.Add(tool);
+                }
+                else
+                {
+                    ToolDock toolDock = horizontalArea.VisibleDockables.OfType<ToolDock>().Where(c => c.Alignment == alignment).FirstOrDefault();
+
+                    Tool tool = new Tool
+                    {
+                        Id = "Tool_" + uiElement.GetHashCode().ToString(),
+                        Title = acCaption,
+                        Content = content,
+#if AVALONIAFORK
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
+                        // Width = toolWidth,
+                        // Height = toolHeight,
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#else
+                        MaxWidth = toolMaxWidth,
+                        MaxHeight = toolMaxHeight,
+                        MinWidth = toolMinWidth,
+                        MinHeight = toolMinHeight,
+#endif
+                        CanClose = isCloseable,
+                        CanFloat = isCloseable
+                    };
+
+                    if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
+                    {
+                        uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
+                        DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = tool });
+                    }
+
+                    if (toolDock == null)
+                    {
+                        toolDock = new ToolDock
+                        {
+                            Id = "ToolDock_" + alignment.ToString(),
+                            Alignment = alignment,
+                            Proportion = 0.25,
+                            VisibleDockables = _Factory.CreateList<IDockable>(tool),
+                        };
+                        toolDock.ActiveDockable = tool;
+                        if (alignment == Alignment.Left)
+                        {
+                            horizontalArea.VisibleDockables.Insert(0, new ProportionalDockSplitter());
+                            horizontalArea.VisibleDockables.Insert(0, toolDock);
+                        }
+                        else
+                        {
+                            horizontalArea.VisibleDockables.Add(new ProportionalDockSplitter());
+                            horizontalArea.VisibleDockables.Add(toolDock);
+                        }
+                    }
+                    else
+                    {
+                        toolDock.VisibleDockables.Add(tool);
+                    }
+                    if (dockState == Global.VBDesignDockState.AutoHideButton)
+                        tools2Unpin.Add(tool);
+                }
+
+                //VBDockingContainerToolWindowVB toolWin = new VBDockingContainerToolWindowVB(this, uiElement);
+                //// TODO: ToolWindow wird nicht angezeigt
+                //// ContextACObject ist beim zweiten mal null
+                //if (ContextACObject != null)
+                //{
+                //    SettingsVBDesignWndPos wndPos = this.Root().RootPageWPF.ReStoreSettingsWndPos(toolWin.ACIdentifier) as SettingsVBDesignWndPos;
+                //    if (wndPos != null)
+                //    {
+                //        toolWin.Show(null, wndPos);
+                //    }
+                //    else
+                //        toolWin.Show(null, null);
+                //}
+                //else
+                //    toolWin.Show(null, null);
+            }
+            else if ((uiElementAsDataContent != null) && (containerType == Global.VBDesignContainer.ModalDialog))
+            {
+                VBWindowDialogRoot vbDialogRoot = new VBWindowDialogRoot(uiElementAsDataContent.ContextACObject, uiElement, this);
+                //vbDialogRoot.WindowStyle = System.Windows.WindowStyle.None;
+                if (vbDialogRoot.Owner == null)
+                {
+                    StyledElement dp = this;
+                    while (dp != null)
+                    {
+                        var foundParent = VBLogicalTreeHelper.FindParentObjectInLogicalTree(dp, typeof(Window));
+                        dp = foundParent as StyledElement;
+                        if (dp != null)
+                        {
+                            Window ownerWindow = dp as Window;
+                            if (ownerWindow != null && ownerWindow.IsLoaded)
+                            {
+                                //vbDialogRoot.Owner = ownerWindow;
+                                vbDialogRoot.Show(ownerWindow);
+                                break;
+                            }
+                            var parent = LogicalTreeHelper.GetParent(dp);
+                            dp = parent as StyledElement;
+                        }
+                    }
+                }
+
+                ACClassDesign acClassDesign = null;
+                if (string.IsNullOrEmpty(uiElementAsDataContent.VBContent))
+                {
+                    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+                }
+                else if (uiElementAsDataContent.VBContent[0] == '*')
+                {
+                    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(uiElementAsDataContent.VBContent.Substring(1));
+                }
+                if (acClassDesign == null)
+                    acClassDesign = (uiElementAsDataContent.ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+
+                if (acClassDesign != null)
+                {
+                    vbDialogRoot.Title = string.IsNullOrEmpty(acCaption) ? acClassDesign.ACCaption : acCaption;
+                    if (acClassDesign.VisualHeight > 0)
+                        vbDialogRoot.Height = acClassDesign.VisualHeight;
+                    if (acClassDesign.VisualWidth > 0)
+                        vbDialogRoot.Width = acClassDesign.VisualWidth;
+
+                    if (acClassDesign.VisualHeight > 0 || acClassDesign.VisualWidth > 0)
+                        vbDialogRoot.CanResize = false;
+                }
+                IRoot root = this.Root();
+                if (root != null && root.RootPageWPF != null && root.RootPageWPF.InFullscreen)
+                    vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterScreen;
+                else
+                    vbDialogRoot.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+                DialogStack.Add(vbDialogRoot);
+                
+                if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime classicDesktop)
+                {
+                    await vbDialogRoot.ShowDialog(classicDesktop.MainWindow);
+                }
             }
         }
 

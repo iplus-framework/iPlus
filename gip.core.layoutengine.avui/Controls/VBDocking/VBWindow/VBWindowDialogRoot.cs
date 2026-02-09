@@ -1,16 +1,19 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.ComponentModel;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.core.datamodel;
-using gip.core.layoutengine.avui.VisualControlAnalyser;
-using System.Transactions;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.core.layoutengine.avui.VisualControlAnalyser;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Linq;
+using System.Text;
+using System.Transactions;
 
 namespace gip.core.layoutengine.avui
 {
@@ -31,6 +34,8 @@ namespace gip.core.layoutengine.avui
             this.SizeToContent = SizeToContent.Height;
             this.MaxHeight = Screens.Primary.WorkingArea.Height;
         }
+
+        protected override Type StyleKeyOverride => typeof(VBWindowDialogRoot);
 
         /// <summary>
         /// Creates a new instance of VBWindowDialogRoot.
@@ -89,6 +94,14 @@ namespace gip.core.layoutengine.avui
             _RootPanelDialog = null;
             
             base.DeInitVBControl(bso);
+        }
+
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+
+            var test = e.NameScope.Find<ContentPresenter>("PART_ContentPresenter");
+
         }
 
         /// <summary>
@@ -169,6 +182,7 @@ namespace gip.core.layoutengine.avui
             }
         }
         protected VBDockingManager _DockManager;
+
         #endregion
 
         protected override void OnClosing(WindowClosingEventArgs e)
@@ -276,8 +290,11 @@ namespace gip.core.layoutengine.avui
             _RootPanelDialog.DataContext = null;
             _RootPanelDialog.DataContext = ACComponent;
 
-            PART_tbTitle.Text = Title;
+            if (PART_tbTitle != null)
+                PART_tbTitle.Text = Title;
             this.Content = _RootPanelDialog;
+
+
             _Loaded = true;
 
             //if (VBDockingManagerOldWPF.GetCloseButtonVisibility(_Control) == Global.ControlModes.Enabled)

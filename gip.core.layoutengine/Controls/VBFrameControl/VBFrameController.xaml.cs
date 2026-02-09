@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Navigation;
 using System.Xml.Linq;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine
 {
@@ -394,6 +395,13 @@ namespace gip.core.layoutengine
             VBDesignList.Add(vbDesign);
             VBFrameController.SetRibbonBarVisibility(vbDesign, ribbonVisibility);
             ShowVBDesign(vbDesign, acCaption, false);
+        }
+
+        public async Task ShowDialogAsync(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+
+
         }
 
         [ACMethodInfo("", "en{'Show Window'}de{'Window'}", 9999)]

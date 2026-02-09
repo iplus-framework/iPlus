@@ -1,13 +1,14 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Styling;
+using gip.core.datamodel;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
-using gip.core.datamodel;
-using gip.core.layoutengine.avui.Helperclasses;
-using gip.ext.design.avui;
 
 namespace gip.core.layoutengine.avui
 {

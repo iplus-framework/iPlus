@@ -15,8 +15,8 @@
     <GradientStop Color="#ADADAD" Offset="0"/>
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="1"/>
   </RadialGradientBrush>
-  <SolidColorBrush x:Key="DialogRootCloseButtonBorderBrush" Color="#2D2D2D"/>
-  <SolidColorBrush x:Key="CloseButtonFillBrush" Color="#9D9D9D"/>
+  <SolidColorBrush x:Key="DialogRootCloseButtonBorderBrush" Color="Red"/>
+  <SolidColorBrush x:Key="CloseButtonFillBrush" Color="DarkRed"/>
 
   <RadialGradientBrush x:Key="DialogRootCloseButtonBrushHotStyle">
     <GradientStop Color="{StaticResource ColorAppLight}" Offset="0"/>

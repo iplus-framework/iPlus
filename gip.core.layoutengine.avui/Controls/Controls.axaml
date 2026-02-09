@@ -1,6 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:ClassModifier="Internal">
+        >
   <Styles.Resources>
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
@@ -50,6 +50,8 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolChromeControl.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolControl.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolPinItemControl.axaml" />
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogStyle.axaml"/>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/VBWindow/Themes/DialogRootStyle.axaml"/>
         <!--<ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/ToolPinnedControl.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DockDockControl.axaml" />
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockAvalonia/DocumentContentControl.axaml" />

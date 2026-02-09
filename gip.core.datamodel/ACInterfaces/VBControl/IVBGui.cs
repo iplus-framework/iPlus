@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -26,6 +27,7 @@ namespace gip.core.datamodel
     [ACClassInfo(Const.PackName_VarioSystem, "en{'IVBGui'}de{'IVBGui'}", Global.ACKinds.TACInterface)]
     public interface IVBGui : IACObject
     {
+
         /// <summary>
         /// Shows the dialog.
         /// </summary>
@@ -36,6 +38,18 @@ namespace gip.core.datamodel
         /// <param name="ribbonVisibility">The ribbon visibility.</param>
         /// <param name="closeButtonVisibility">visibility of the close button</param>
         void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled);
+
+        /// <summary>
+        /// Shows the dialog.
+        /// </summary>
+        /// <param name="forObject">For object.</param>
+        /// <param name="acClassDesignName">Name of the ac class design.</param>
+        /// <param name="acCaption">The ac caption.</param>
+        /// <param name="isClosableBSORoot">if set to <c>true</c> [is closable BSO root].</param>
+        /// <param name="ribbonVisibility">The ribbon visibility.</param>
+        /// <param name="closeButtonVisibility">visibility of the close button</param>
+        Task ShowDialogAsync(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled);
 
         /// <summary>

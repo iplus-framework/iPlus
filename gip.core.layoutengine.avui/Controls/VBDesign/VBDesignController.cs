@@ -1,7 +1,12 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Data;
+using Avalonia.Layout;
+using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.Threading;
+using DialogHostAvalonia;
 using DocumentFormat.OpenXml.Bibliography;
 using DynamicData.Kernel;
 using gip.core.datamodel;
@@ -141,8 +146,93 @@ namespace gip.core.layoutengine.avui
 
         public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false, Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
-            var test = MessageBoxManager.GetMessageBoxStandard(new MsBox.Avalonia.Dto.MessageBoxStandardParams());
-            test.ShowAsPopupAsync(this);
+            //TODO: Implement dialog showing
+        }
+
+        public async Task ShowDialogAsync(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false, Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            VBDesign vbDesign = new VBDesign();
+            vbDesign.DataContext = forObject;
+            vbDesign.VBContent = "*" + acClassDesignName;
+
+            DialogHostStyles style = null;
+            if (!this.Styles.OfType<DialogHostStyles>().Any())
+            {
+                style = new DialogHostStyles();
+                this.Styles.Add(style);
+            }
+
+            var parentContent = this.Content;
+
+            var dh = new DialogHost
+            {
+                Identifier = "Dialog" + Guid.NewGuid(),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                HorizontalContentAlignment = HorizontalAlignment.Stretch,
+                VerticalContentAlignment = VerticalAlignment.Stretch,
+            };
+
+            this.Content = null;
+            dh.Content = parentContent;
+
+            // Fullscreen wrapper root (scrim + your content)
+            var fullscreenRoot = new Grid
+            {
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+            };
+            fullscreenRoot.Children.Add(new Border
+            {
+                Background = new SolidColorBrush(Color.FromArgb(0xAA, 0, 0, 0)),
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch
+            });
+            fullscreenRoot.Children.Add(new Border
+            {
+                Background = Brushes.Transparent, // or White, etc.
+                HorizontalAlignment = HorizontalAlignment.Stretch,
+                VerticalAlignment = VerticalAlignment.Stretch,
+                Child = vbDesign
+            });
+
+            // Force wrapper to match host bounds (this is the key)
+            void SyncToHostBounds()
+            {
+                var w = dh.Bounds.Width;
+                var h = dh.Bounds.Height;
+                if (w > 0) fullscreenRoot.Width = w;
+                if (h > 0) fullscreenRoot.Height = h;
+            }
+
+            var boundsSub = dh.GetObservable(Visual.BoundsProperty).Subscribe(_ => SyncToHostBounds());
+            SyncToHostBounds();
+
+            this.Content = dh;
+
+            this.SetCloseAction(() =>
+            {
+                boundsSub.Dispose();
+
+                if (dh.CurrentSession != null && dh.CurrentSession.IsEnded == false)
+                    DialogHost.Close(dh.Identifier);
+
+                this.Content = null;
+                dh.Content = null;
+                this.Content = parentContent;
+
+                if (style != null)
+                    this.Styles.Remove(style);
+            });
+
+            await DialogHost.Show(fullscreenRoot, dh.Identifier);
+        }
+
+        private Action _CloseAction;
+
+        private void SetCloseAction(Action value)
+        {
+            _CloseAction = value;
         }
 
         public void ShowWindow(IACComponent forObject, string acClassDesignName, bool isClosableBSORoot, Global.VBDesignContainer containerType, Global.VBDesignDockState dockState, Global.VBDesignDockPosition dockPosition, Global.ControlModes ribbonVisibility, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
@@ -155,7 +245,7 @@ namespace gip.core.layoutengine.avui
 
         public void CloseTopDialog()
         {
-            throw new NotImplementedException();
+            _CloseAction?.Invoke();
         }
 
         public object ACUrlCommand(string acUrl, params object[] acParameter)

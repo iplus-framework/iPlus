@@ -3967,15 +3967,31 @@ namespace gip.core.autocomponent
         /// <param name="isClosableBSORoot"></param>
         /// <param name="ribbonVisibility"></param>
         /// <param name="closeButtonVisibility"></param>
-        public void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+        public  void ShowDialog(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
             Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
         {
-
             if (GetGUI() != null)
                 GetGUI().ShowDialog(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
 
             else if (GetGUIMobile() != null)
                 GetGUIMobile().ShowDialog(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
+        }
+
+        /// <summary>Opens a modal dialog with the XAML-Layout of the passed design-name.</summary>
+        /// <param name="forObject"></param>
+        /// <param name="acClassDesignName"></param>
+        /// <param name="acCaption"></param>
+        /// <param name="isClosableBSORoot"></param>
+        /// <param name="ribbonVisibility"></param>
+        /// <param name="closeButtonVisibility"></param>
+        public async Task ShowDialogAsync(IACComponent forObject, string acClassDesignName, string acCaption = "", bool isClosableBSORoot = false,
+            Global.ControlModes ribbonVisibility = Global.ControlModes.Hidden, Global.ControlModes closeButtonVisibility = Global.ControlModes.Enabled)
+        {
+            if (GetGUI() != null)
+                await GetGUI().ShowDialogAsync(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
+
+            else if (GetGUIMobile() != null)
+                await GetGUIMobile().ShowDialogAsync(forObject == null ? this : forObject, acClassDesignName, acCaption, isClosableBSORoot, ribbonVisibility, closeButtonVisibility);
         }
 
 
@@ -4306,6 +4322,10 @@ namespace gip.core.autocomponent
         {
             if (Const.IsAvaloniaHotKeyManagerBugPresent && Const.IsBuiltInAppCommand(acMethodName))
                 return new string[] { nameof(InitState) };
+
+            if (acMethodName == nameof(CloseTopDialog))
+                return new string[] { nameof(InitState) };
+
             return null;
         }
         #endregion

@@ -124,6 +124,34 @@
     </Style>
   </ControlTheme>
 
+ <ControlTheme x:Key="ThumbStyle" TargetType="Thumb">
+    <Setter Property="Background" Value="{DynamicResource ScrollBarPanningThumbBackground}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Border Background="{TemplateBinding Background}"
+                  CornerRadius="{TemplateBinding CornerRadius}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="Transitions">
+      <Transitions>
+        <CornerRadiusTransition Property="CornerRadius" Duration="0:0:0.1" />
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1" />
+      </Transitions>
+    </Setter>
+
+    <Style Selector="^:pointerover /template/ Border">
+      <Setter Property="Background" Value="{DynamicResource ScrollBarThumbFillPointerOver}" />
+    </Style>
+    <Style Selector="^:pressed  /template/ Border">
+      <Setter Property="Background" Value="{DynamicResource ScrollBarThumbFillPressed}" />
+    </Style>
+    <Style Selector="^:disabled  /template/ Border">
+      <Setter Property="Background" Value="{DynamicResource ScrollBarThumbFillDisabled}" />
+    </Style>
+  </ControlTheme>
+
   <ControlTemplate x:Key="DialogRootTemplate" TargetType="{x:Type local:VBWindowDialogRoot}">
     <DockPanel>
       <DockPanel.RenderTransform>
@@ -145,9 +173,9 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="5"></RowDefinition>
         </Grid.RowDefinitions>
-        <Thumb x:Name="PART_CornerTopLeftThumb" Grid.Column="0" Opacity="0.01" Cursor="SizeNorthWestSouthEast"/>
-        <Thumb x:Name="PART_TopThumb" Grid.Column="1" Opacity="0.01" Cursor="SizeNorthSouth"/>
-        <Thumb x:Name="PART_CornerTopRightThumb" Grid.Column="2" Opacity="0.01" Cursor="SizeNorthEastSouthWest"/>
+        <Thumb x:Name="PART_CornerTopLeftThumb" Grid.Column="0" Opacity="0.01" Theme="{StaticResource ThumbStyle}" Cursor="TopLeftCorner"/>
+        <Thumb x:Name="PART_TopThumb" Grid.Column="1" Opacity="0.01" Theme="{StaticResource ThumbStyle}" Cursor="SizeNorthSouth"/>
+        <Thumb x:Name="PART_CornerTopRightThumb" Grid.Column="2" Opacity="0.01" Theme="{StaticResource ThumbStyle}" Cursor="TopRightCorner"/>
       </Grid>
       <Grid DockPanel.Dock="Bottom">
         <Grid.ColumnDefinitions>
@@ -158,9 +186,9 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="5"></RowDefinition>
         </Grid.RowDefinitions>
-        <Thumb x:Name="PART_CornerBottomLeftThumb" Grid.Column="0" Opacity="0.01" Cursor="SizeNorthEastSouthWest"/>
-        <Thumb x:Name="PART_BottomThumb" Grid.Column="1" Opacity="0.01" Cursor="SizeNorthSouth"/>
-        <Thumb x:Name="PART_CornerBottomRightThumb" Grid.Column="2" Opacity="0.01" Cursor="SizeNorthWestSouthEast"/>
+        <Thumb x:Name="PART_CornerBottomLeftThumb" Grid.Column="0" Opacity="0.01" Cursor="BottomLeftCorner" Theme="{StaticResource ThumbStyle}" />
+        <Thumb x:Name="PART_BottomThumb" Grid.Column="1" Opacity="0.01" Cursor="SizeNorthSouth" Theme="{StaticResource ThumbStyle}"/>
+        <Thumb x:Name="PART_CornerBottomRightThumb" Grid.Column="2" Opacity="0.01" Cursor="BottomRightCorner" Theme="{StaticResource ThumbStyle}"/>
       </Grid>
       <Thumb x:Name="PART_LeftThumb" DockPanel.Dock="Left" Width="5" Opacity="0.01" Cursor="SizeWestEast"/>
       <Thumb x:Name="PART_RightThumb" DockPanel.Dock="Right" Width="5" Opacity="0.01" Cursor="SizeWestEast"/>
