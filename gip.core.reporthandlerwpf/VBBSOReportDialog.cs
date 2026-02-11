@@ -823,12 +823,12 @@ namespace gip.core.reporthandlerwpf
         #region Dialoge öffnen und schliessen (von Ribbonbar aus)
 
         [ACMethodCommand("Report", "en{'Print'}de{'Drucken'}", (short)MISort.QueryPrintDlg)]
-        public void ReportPrintDlg()
+        public async Task ReportPrintDlg()
         {
             if (!IsEnabledReportPrintDlg())
                 return;
             LoadDefaultReport();
-            ShowDialog(this, "ReportPrintDlg");
+            await ShowDialogAsync(this, "ReportPrintDlg");
         }
 
         [ACMethodInfo("", "en{'Is enabled print'}de{'Is enabled print'}", 9999)]
@@ -841,12 +841,12 @@ namespace gip.core.reporthandlerwpf
 
 
         [ACMethodCommand("Report", "en{'Preview'}de{'Vorschau'}", (short)MISort.QueryPreviewDlg)]
-        public void ReportPreviewDlg()
+        public async Task ReportPreviewDlg()
         {
             if (!IsEnabledReportPreviewDlg())
                 return;
             LoadDefaultReport();
-            ShowDialog(this, "ReportPreviewDlg");
+            await ShowDialogAsync(this, "ReportPreviewDlg");
         }
 
         [ACMethodInfo("", "en{'Is enabled preview'}de{'Is enabled preview'}", 9999)]
@@ -859,7 +859,7 @@ namespace gip.core.reporthandlerwpf
 
 
         [ACMethodCommand("Report", "en{'Design'}de{'Entwurf'}", (short)MISort.QueryDesignDlg)]
-        public void ReportDesignDlg()
+        public async Task ReportDesignDlg()
         {
             LoadDefaultReport();
             if (CurrentACClassDesign == null)
@@ -871,7 +871,7 @@ namespace gip.core.reporthandlerwpf
                     return;
                 }
             }
-            ShowDialog(this, "ReportDesignDlg");
+            await ShowDialogAsync(this, "ReportDesignDlg");
         }
 
         [ACMethodInfo("", "en{'Is enabled design'}de{'Is enabled design'}", 9999)]
@@ -882,12 +882,12 @@ namespace gip.core.reporthandlerwpf
         }
 
         [ACMethodCommand("Report", "en{'New report'}de{'Neuer Bericht'}", (short)MISort.QueryDesignDlg)]
-        public void ReportNewReportDlg()
+        public async Task ReportNewReportDlg()
         {
             ReportType = Global.ACUsages.DUReport;
             IsDesignOfACQuery = false;
             SelectedQueryACClass = null;
-            ShowDialog(this, "ReportNewDlg");
+            await ShowDialogAsync(this, "ReportNewDlg");
         }
 
 

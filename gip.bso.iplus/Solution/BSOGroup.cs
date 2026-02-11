@@ -1127,12 +1127,12 @@ namespace gip.bso.iplus
         /// Assigns all rights.
         /// </summary>
         [ACMethodInteraction("ProjectItem", "en{'Assign all rights'}de{'Alle Rechte zuweisen'}", 100, false, "CurrentProjectItem")]
-        public void AssignAllRights()
+        public async void AssignAllRights()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_AssignAllRights);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledAssignAllRights()
@@ -1162,12 +1162,12 @@ namespace gip.bso.iplus
         /// Unassigns all rights.
         /// </summary>
         [ACMethodInteraction("ProjectItem", "en{'Remove all permissions'}de{'Alle Rechte aufheben'}", 102, false, "CurrentProjectItem")]
-        public void UnassignAllRights()
+        public async void UnassignAllRights()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_UnassignAllRights);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledUnassignAllRights()
@@ -1193,12 +1193,12 @@ namespace gip.bso.iplus
         public const string MN_AssignAllReadonlyRights = "AssignAllReadonlyRights";
 
         [ACMethodInteraction("ProjectItem", "en{'Assign readonly permission to all child elements'}de{'Untergeordnete Elemente nur mit Lesezugriff'}", 103, false, "CurrentProjectItem")]
-        public void AssignAllReadonlyRights()
+        public async void AssignAllReadonlyRights()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_AssignAllReadonlyRights);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledAssignAllReadonlyRights()
@@ -1224,12 +1224,12 @@ namespace gip.bso.iplus
         public const string MN_SelectedMethodRightAssignOnAllChilds = "SelectedMethodRightAssignOnAllChilds";
 
         [ACMethodInteraction("", "en{'Apply permission on children'}de{'Berechtigung bei Unterobjekten setzen'}", 104, true, "SelectedRightItemInfoClassMethod")]
-        public void SelectedMethodRightAssignOnAllChilds()
+        public async void SelectedMethodRightAssignOnAllChilds()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_SelectedMethodRightAssignOnAllChilds);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledSelectedMethodRightAssignOnAllChilds()
@@ -1253,12 +1253,12 @@ namespace gip.bso.iplus
         public const string MN_SelectedPropertyRightAssignOnAllChilds = "SelectedPropertyRightAssignOnAllChilds";
 
         [ACMethodInteraction("", "en{'Apply permission on children'}de{'Berechtigung bei Unterobjekten setzen'}", 105, true, "SelectedRightItemInfoClassProperty")]
-        public void SelectedPropertyRightAssignOnAllChilds()
+        public async void SelectedPropertyRightAssignOnAllChilds()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_SelectedPropertyRightAssignOnAllChilds);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledSelectedPropertyRightAssignOnAllChilds()
@@ -1282,12 +1282,12 @@ namespace gip.bso.iplus
         public const string MN_SelectedMethodRightAssignOnAllItemsInTree = "SelectedMethodRightAssignOnAllItemsInTree";
 
         [ACMethodInteraction("", "en{'Apply permission on all items'}de{'Berechtigung bei allen Objekten setzen'}", 106, true, "SelectedRightItemInfoClassMethod")]
-        public void SelectedMethodRightAssignOnAllItemsInTree()
+        public async void SelectedMethodRightAssignOnAllItemsInTree()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_SelectedMethodRightAssignOnAllItemsInTree);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledSelectedMethodRightAssignOnAllItemsInTree()
@@ -1311,12 +1311,12 @@ namespace gip.bso.iplus
         public const string MN_SelectedPropertyRightAssignOnAllItemsInTree = "SelectedPropertyRightAssignOnAllItemsInTree";
 
         [ACMethodInteraction("", "en{'Apply permission on all items'}de{'Berechtigung bei allen Objekten setzen'}", 107, true, "SelectedRightItemInfoClassProperty")]
-        public void SelectedPropertyRightAssignOnAllItemsInTree()
+        public async void SelectedPropertyRightAssignOnAllItemsInTree()
         {
             if (BackgroundWorker.IsBusy)
                 return;
             BackgroundWorker.RunWorkerAsync(MN_SelectedPropertyRightAssignOnAllItemsInTree);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledSelectedPropertyRightAssignOnAllItemsInTree()
@@ -1721,7 +1721,7 @@ namespace gip.bso.iplus
         #region Clone
 
         [ACMethodInteraction(nameof(GroupClone), "en{'Clone'}de{'Duplizieren'}", (short)MISort.New, true, nameof(SelectedGroup), Global.ACKinds.MSMethodPrePost)]
-        public void GroupClone()
+        public async void GroupClone()
         {
             if (!IsEnabledGroupClone())
             {
@@ -1732,7 +1732,7 @@ namespace gip.bso.iplus
                 return;
             }
             BackgroundWorker.RunWorkerAsync(nameof(DoGroupClone));
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledGroupClone()

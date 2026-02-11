@@ -579,14 +579,14 @@ namespace gip.bso.iplus
         /// News this instance.
         /// </summary>
         [ACMethodInteraction("ACClassMethod", Const.New, (short)MISort.New, true, "SelectedACClassMethod", Global.ACKinds.MSMethodPrePost)]
-        public void New()
+        public async void New()
         {
             if (!PreExecute("New")) return;
 
             CurrentNewACClassMethod = ACClassMethod.NewWorkACClassMethod(Database.ContextIPlus, CurrentACClass);
             Database.ContextIPlus.ACClassMethod.Add(CurrentNewACClassMethod);
 
-            ShowDialog(this, "WorkACClassMethodNew");
+            await ShowDialogAsync(this, "WorkACClassMethodNew");
             PostExecute("New");
         }
 
@@ -672,10 +672,10 @@ namespace gip.bso.iplus
         /// Shows the workflows live list.
         /// </summary>
         [ACMethodCommand("ACProject", "en{'Workflow Live-List'}de{'Workflow Live-Liste'}", 9999, false, Global.ACKinds.MSMethodPrePost)]
-        public void ShowWorkflowsLiveList()
+        public async void ShowWorkflowsLiveList()
         {
             if (!PreExecute("ShowWorkflowsLiveList")) return;
-            ShowDialog(this, "LoadedWorkflowsLive");
+            await ShowDialogAsync(this, "LoadedWorkflowsLive");
 
             PostExecute("ShowWorkflowsLiveList");
         }
@@ -1014,7 +1014,7 @@ namespace gip.bso.iplus
             if(itemsToResolve.Any())
             {
                 DBItemsToResolve = itemsToResolve;
-                ShowDialog(this, "ResolveDBItemsDialog");
+                await ShowDialogAsync(this, "ResolveDBItemsDialog");
             }
         }
 

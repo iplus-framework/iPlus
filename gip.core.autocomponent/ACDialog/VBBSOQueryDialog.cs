@@ -561,7 +561,7 @@ namespace gip.core.autocomponent
         /// <param name="showColumns"></param>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand("Query", "en{'Config'}de{'Konfiguration'}", (short)MISort.QueryPrintDlg)]
-        public bool QueryConfigDlg(ACQueryDefinition acQueryDefinition, bool withQuerySelection, bool showFilter, bool showSort, bool showColumns)
+        public async Task<bool> QueryConfigDlg(ACQueryDefinition acQueryDefinition, bool withQuerySelection, bool showFilter, bool showSort, bool showColumns)
         {
             _EditMode = 0;
             // Die Editierung erfolgt immer auf der übergebenen acQueryDefinition
@@ -611,13 +611,13 @@ namespace gip.core.autocomponent
             // Konfiguration von originaler ACQueryDefinition kopieren
             //CurrentQueryDefinitionRoot.ConfigXML = CurrentQueryDefinitionOrigRoot.ConfigXML;
 
-            ShowDialog(this, "QueryConfigDlg");
-            this.ParentACComponent.StopComponent(this);
+            await ShowDialogAsync(this, "QueryConfigDlg");
+            await this.ParentACComponent.StopComponent(this);
             return Result;
         }
 
         [ACMethodCommand("Query", "en{'Load Configuration'}de{'Konfiguration laden'}", 9999)]
-        public bool QueryLoadDlg(ACQueryDefinition acQueryDefinition)
+        public async Task<bool> QueryLoadDlg(ACQueryDefinition acQueryDefinition)
         {
             CurrentQueryDefinitionOrigRoot = acQueryDefinition;
             if (!LoadConfigrationList.Any())
@@ -625,7 +625,7 @@ namespace gip.core.autocomponent
 
             _EditMode = 1;
             CurrentLoadConfiguration = LoadConfigrationList.First();
-            ShowDialog(this, "QueryLoadDlg");
+            await ShowDialogAsync(this, "QueryLoadDlg");
 
             return Result;
         }
@@ -636,7 +636,7 @@ namespace gip.core.autocomponent
         /// <param name="acQueryDefinition"></param>
         /// <returns>Name (PropertyACUrl) unter dem die Konfiguration gespeichert wurde.</returns>
         [ACMethodCommand("Query", "en{'Save Configuration'}de{'Konfiguration speichern'}", 9999)]
-        public bool QuerySaveDlg(ACQueryDefinition acQueryDefinition)
+        public async Task<bool> QuerySaveDlg(ACQueryDefinition acQueryDefinition)
         {
             CurrentQueryDefinitionOrigRoot = acQueryDefinition;
 
@@ -650,7 +650,7 @@ namespace gip.core.autocomponent
             WithFilter = false;
             _EditMode = 2;
             CurrentConfigSaveMode = ConfigSaveModesList.First();
-            ShowDialog(this, "QuerySaveDlg");
+            await ShowDialogAsync(this, "QuerySaveDlg");
             return Result;
         }
 
@@ -1309,7 +1309,7 @@ namespace gip.core.autocomponent
         private ACClassProperty _ChangeValuePropertyType = null;
 
         [ACMethodCommand("Query", "en{'Change values in column'}de{'Ändere Werte in Spalte'}", 20)]
-        public bool ChangeColumnValues(IAccess acAccess, ACColumnItem acColumn, ACQueryDefinition acQueryDef)
+        public async Task<bool> ChangeColumnValues(IAccess acAccess, ACColumnItem acColumn, ACQueryDefinition acQueryDef)
         {
             _ACColumnChangeValue = acColumn;
             _ACAccessChangeValue = acAccess;
@@ -1318,8 +1318,8 @@ namespace gip.core.autocomponent
                 _ChangeValuePropertyType = _ACQueryDefChangeValue.QueryType.GetProperty(ColumnName);
             else
                 _ChangeValuePropertyType = null;
-            ShowDialog(this, "ChangeColumnValuesDlg");
-            this.ParentACComponent.StopComponent(this);
+            await ShowDialogAsync(this, "ChangeColumnValuesDlg");
+            await this.ParentACComponent.StopComponent(this);
             return Result;
         }
 

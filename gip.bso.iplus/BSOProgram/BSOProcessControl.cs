@@ -402,12 +402,12 @@ namespace gip.bso.iplus
         #region Refresh Tasklist
         protected bool _NeedSearch = false;
         [ACMethodInfo("", "en{'List active workflows'}de{'Aktive Workflows auflisten'}", (short)MISort.Search)]
-        public void Search()
+        public async Task Search()
         {
-            LoadACTaskList(CurrentMode, true);
+            await LoadACTaskList(CurrentMode, true);
         }
 
-        protected virtual bool LoadACTaskList(FilterMode filterMode, bool forceUpdateTaskList)
+        protected virtual async Task<bool> LoadACTaskList(FilterMode filterMode, bool forceUpdateTaskList)
         {
             _NeedSearch = false;
             ACClassTask[] newTaskList = null;
@@ -764,7 +764,7 @@ namespace gip.bso.iplus
 
         #region Cyclic
 
-        private void RunWorkCycle()
+        private async void RunWorkCycle()
         {
             try
             {
@@ -772,12 +772,12 @@ namespace gip.bso.iplus
                 {
                     if (AutoRefresh)
                     {
-                        lock (_RefreshLock)
-                        {
+                        //lock (_RefreshLock)
+                        //{
                             try
                             {
                                 _AutoRefreshActive = true;
-                                bool taskListChanged = LoadACTaskList(CurrentMode, false);
+                                bool taskListChanged = await LoadACTaskList(CurrentMode, false);
                                 if (!taskListChanged && SelectedACTask != null)
                                 {
                                     if (TaskPresenter != null && TaskPresenter.WFRootContext == null)
@@ -798,7 +798,7 @@ namespace gip.bso.iplus
                             {
                                 _AutoRefreshActive = false;
                             }
-                        }
+                        //}
                         //Search();
                         // TODO: Change only SelectedTask when there are new entries
                     }

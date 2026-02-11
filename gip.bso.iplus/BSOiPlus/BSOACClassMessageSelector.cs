@@ -84,7 +84,7 @@ namespace gip.bso.iplus
         #region Methods
 
         [ACMethodInfo("","",9999)]
-        public ACClassMessage SelectMessage(List<ACClassMessage> messagesList, string acCaption = null, string buttonACCaption = null, string dialogHeader = null)
+        public async Task<ACClassMessage> SelectMessage(List<ACClassMessage> messagesList, string acCaption = null, string buttonACCaption = null, string dialogHeader = null)
         {
             ACClassMessageList = messagesList;
             if (acCaption != null)
@@ -93,7 +93,7 @@ namespace gip.bso.iplus
             if (buttonACCaption != null)
                 OkButtonCaption = buttonACCaption;
 
-            ShowDialog(this, "MessagesDialog", dialogHeader);
+            await ShowDialogAsync(this, "MessagesDialog", dialogHeader);
 
             return SelectedACClassMessage;
         }

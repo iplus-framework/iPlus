@@ -835,11 +835,11 @@ namespace gip.bso.iplus
 
 
         [ACMethodCommand("ACClassMethod", "en{'Change instantiation class of root node'}de{'Ändere zu instanziierende Klasse des Wurzelknotens'}", 130)]
-        public void ChangeRootWFClass()
+        public async void ChangeRootWFClass()
         {
             if (!IsEnabledChangeRootWFClass())
                 return;
-            ShowDialog(this, "ChangeRootWFClass");
+            await ShowDialogAsync(this, "ChangeRootWFClass");
         }
 
         public bool IsEnabledChangeRootWFClass()

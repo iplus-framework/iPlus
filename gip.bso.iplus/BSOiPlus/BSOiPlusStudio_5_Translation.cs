@@ -512,11 +512,11 @@ namespace gip.bso.iplus
         /// zu registrieren
         /// </summary>
         [ACMethodInteraction("ACTranslation", "en{'New Text'}de{'Neuer Text'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewText()
+        public async void NewText()
         {
             _NewPrefix = "";
             CurrentNewACIdentifier = "";
-            ShowDialog(this, "NewText");
+            await ShowDialogAsync(this, "NewText");
         }
 
         /// <summary>
@@ -532,11 +532,11 @@ namespace gip.bso.iplus
         /// News the message info.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Info'}de{'Neue Info'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageInfo()
+        public async void NewMessageInfo()
         {
             _NewPrefix = "Info";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -551,11 +551,11 @@ namespace gip.bso.iplus
         /// News the message warning.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Warning'}de{'Neue Warnung'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageWarning()
+        public async void NewMessageWarning()
         {
             _NewPrefix = "Warning";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -571,11 +571,11 @@ namespace gip.bso.iplus
         /// News the message failure.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Failure'}de{'Neue Ausfall'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageFailure()
+        public async void NewMessageFailure()
         {
             _NewPrefix = "Failure";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -591,11 +591,11 @@ namespace gip.bso.iplus
         /// News the message error.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Error'}de{'Neue Fehler'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageError()
+        public async void NewMessageError()
         {
             _NewPrefix = "Error";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -611,11 +611,11 @@ namespace gip.bso.iplus
         /// News the message exception.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Exception'}de{'Neue Ausnahme'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageException()
+        public async void NewMessageException()
         {
             _NewPrefix = "Exception";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -631,11 +631,11 @@ namespace gip.bso.iplus
         /// News the message question.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Question'}de{'Neue Frage'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageQuestion()
+        public async void NewMessageQuestion()
         {
             _NewPrefix = "Question";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -651,11 +651,11 @@ namespace gip.bso.iplus
         /// News the message status.
         /// </summary>
         [ACMethodInteraction("MDTextGroupItem", "en{'New Status'}de{'Neuer Status'}", (short)MISort.New, true, "CurrentACTranslation")]
-        public void NewMessageStatus()
+        public async void NewMessageStatus()
         {
             _NewPrefix = "Status";
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>
@@ -949,7 +949,7 @@ namespace gip.bso.iplus
         /// News the message info.
         /// </summary>
         [ACMethodInteraction(nameof(NewCustomMessage), "en{'New'}de{'Neue'}", (short)MISort.New, true, nameof(CurrentACTranslation))]
-        public void NewCustomMessage()
+        public async void NewCustomMessage()
         {
             if (!IsEnabledNewCustomMessage())
             {
@@ -957,7 +957,7 @@ namespace gip.bso.iplus
             }
             _NewPrefix = CustomMessagePrefix;
             CurrentNewACIdentifier = ACClassMessage.GetUniqueNameIdentifier(Database.ContextIPlus, _NewPrefix, IsSystem);
-            ShowDialog(this, "NewMessage");
+            await ShowDialogAsync(this, "NewMessage");
         }
 
         /// <summary>

@@ -230,13 +230,14 @@ namespace gip.bso.iplus
         /// News the work AC class method.
         /// </summary>
         [ACMethodInteraction("ACClassMethod", "en{'New Workflow'}de{'Neuer Workflow'}", (short)MISort.New, true, "SelectedACClassMethod", Global.ACKinds.MSMethodPrePost)]
-        public void NewWorkACClassMethod()
+        public async void NewWorkACClassMethod()
         {
-            if (!PreExecute("NewWorkACClassMethod")) return;
+            if (!PreExecute("NewWorkACClassMethod")) 
+                return;
 
             CurrentNewACClassMethod = ACClassMethod.NewWorkACClassMethod(Database.ContextIPlus, CurrentACClass);
 
-            ShowDialog(this, "WorkACClassMethodNew");
+            await ShowDialogAsync(this, "WorkACClassMethodNew");
             PostExecute("NewWorkACClassMethod");
         }
 

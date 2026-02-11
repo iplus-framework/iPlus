@@ -880,7 +880,7 @@ namespace gip.bso.iplus
         /// Assigns the message or property.
         /// </summary>
         [ACMethodInfo("", "en{'Assign message or property'}de{'Nachricht oder Eigenschaft zuordnen'}", 402)]
-        public void AssignMsgProp()
+        public async void AssignMsgProp()
         {
             bool ctalLoaded = false;
             if (CurrentACClass != null)
@@ -927,7 +927,7 @@ namespace gip.bso.iplus
                     return;
                 }
             }
-            ShowDialog(this, "ExplorerSelectLevelDialog");
+            await ShowDialogAsync(this, "ExplorerSelectLevelDialog");
         }
 
         /// <summary>
@@ -1531,7 +1531,7 @@ namespace gip.bso.iplus
         /// Sets the alarm distribution configuration from BSOAlarmExplorer.
         /// </summary>
         /// <param name="alarmMsg">The alarmMsg parameter.</param>
-        public void SetAlarmToDistribution(Msg alarmMsg)
+        public async void SetAlarmToDistribution(Msg alarmMsg)
         {
             _CurrentDialogMsg = alarmMsg;
 
@@ -1558,7 +1558,7 @@ namespace gip.bso.iplus
 
             LoadTargetComponents();
 
-            ShowDialog(this, "AlarmExplorerDialog");
+            await ShowDialogAsync(this, "AlarmExplorerDialog");
         }
 
         /// <summary>

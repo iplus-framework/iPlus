@@ -6,6 +6,7 @@ using System.Linq;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace gip.core.manager
 {
@@ -564,12 +565,12 @@ namespace gip.core.manager
 
 
         [ACMethodInteraction("WF", "en{'Switch class'}de{'Klasse austauschen'}", (short)MISort.New, true)]
-        public virtual bool SwitchPWClass()
+        public virtual async Task<bool> SwitchPWClass()
         {
             if (!IsEnabledSwitchPWClass())
                 return false;
             PWClassToSwitch = null;
-            ShowDialog(this, "SwitchACClass");
+            await ShowDialogAsync(this, "SwitchACClass");
             return false;
         }
 

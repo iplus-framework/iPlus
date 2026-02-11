@@ -769,7 +769,7 @@ namespace gip.core.media
         /// Method DeleteImage
         /// </summary>
         [ACMethodInfo("DeleteImage", "en{'Delete'}de{'Lösche'}", 9999, false, false, true)]
-        public void Delete()
+        public async Task Delete()
         {
             if (!IsEnabledDelete())
                 return;
@@ -795,7 +795,7 @@ namespace gip.core.media
                     bGModel.FileNames.Add(item.ThumbPath);
 
                 BackgroundWorker.RunWorkerAsync(bGModel);
-                ShowDialog(this, DesignNameProgressBar);
+                await ShowDialogAsync(this, DesignNameProgressBar);
             }
         }
 

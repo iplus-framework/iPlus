@@ -213,7 +213,7 @@ namespace gip.core.autocomponent
         /// </summary>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand(Const.ACUrlPrefix, "en{'Config'}de{'Konfiguration'}", 9999)]
-        public ACMethod ACUrlEditorDlg(ACClass acComponentACClass, string acUrl, ACValueList acValueList)
+        public async Task<ACMethod> ACUrlEditorDlg(ACClass acComponentACClass, string acUrl, ACValueList acValueList)
         {
             IsValidACUrl = false;
             CurrentACComponentACClass = acComponentACClass;
@@ -227,7 +227,7 @@ namespace gip.core.autocomponent
             if (CurrentACSignature != null)
                 CurrentACSignature.ParameterValueList.UpdateValues(acValueList);
 
-            ShowDialog(this, "ACUrlEditorDlg");
+            await ShowDialogAsync(this, "ACUrlEditorDlg");
             if (Result)
             {
                 CurrentACSignature.ACIdentifier = this.CurrentACUrl;

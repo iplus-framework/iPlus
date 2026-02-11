@@ -152,7 +152,7 @@ namespace gip.core.autocomponent.ACDialog.ControlDialogDetails
         }
 
         [ACMethodInfo("Dialog", "en{'Dialog Select Rules'}de{'Dialog Rule auswählen'}", 9999)]
-        public VBDialogResult ShowDialogSelectRules(List<Msg> msgs, List<ACClassWFRuleTypes> filterRuleTypes, IACConfigStore configStore, string configStoreSelectionURL)
+        public async Task<VBDialogResult> ShowDialogSelectRules(List<Msg> msgs, List<ACClassWFRuleTypes> filterRuleTypes, IACConfigStore configStore, string configStoreSelectionURL)
         {
             DialogResult = new VBDialogResult() { SelectedCommand = eMsgButton.Cancel };
             Msgs = msgs;
@@ -160,7 +160,7 @@ namespace gip.core.autocomponent.ACDialog.ControlDialogDetails
             CurrentConfigStore = configStore;
             ConfigStoreSelection = Root.Businessobjects.ACUrlCommand(configStoreSelectionURL) as IACConfigStoreSelection;
             Load();
-            ShowDialog(this, "DlgSelectRules");
+            await ShowDialogAsync(this, "DlgSelectRules");
             return DialogResult;
         }
 

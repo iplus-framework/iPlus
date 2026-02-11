@@ -347,9 +347,9 @@ namespace gip.bso.iplus
         /// Shows the dialog for the license activation.
         /// </summary>
         [ACMethodInfo("", "en{'Product activation'}de{'Produktaktivierung'}", 401, true)]
-        public void ShowLicenseActivation()
+        public async void ShowLicenseActivation()
         {
-            ShowDialog(this, "LicenceActivation");
+            await ShowDialogAsync(this, "LicenceActivation");
         }
 
         /// <summary>
@@ -474,9 +474,9 @@ namespace gip.bso.iplus
         /// Opens a dialog for exporting activation data.
         /// </summary>
         [ACMethodInfo("", "en{'Export activation data'}de{'Aktivierungsdaten exportieren'}", 407, true)]
-        public void ExportActivationData()
+        public async void ExportActivationData()
         {
-            ShowDialog(this, "ExportDialog");
+            await ShowDialogAsync(this, "ExportDialog");
         }
 
         /// <summary>

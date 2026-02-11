@@ -298,16 +298,16 @@ namespace gip.bso.iplus
         /// Loads the selected log file and parses it.
         /// </summary>
         [ACMethodCommand("", "en{'Load Log File'}de{'Log-Datei laden'}", 402)]
-        public void LoadLogFile()
+        public async void LoadLogFile()
         {
             if (!IsEnabledLoadLogFile())
             {
-                Root.Messages.WarningAsync(this, "Please select a valid log file first.", true);
+                await Root.Messages.WarningAsync(this, "Please select a valid log file first.", true);
                 return;
             }
             CloseTopDialog();
             BackgroundWorker.RunWorkerAsync(nameof(ParseLogFile));
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
 
         }
 
@@ -392,23 +392,23 @@ namespace gip.bso.iplus
         /// Creates and starts the selected analyzer.
         /// </summary>
         [ACMethodCommand("", "en{'Start Analysis'}de{'Analyse starten'}", 404)]
-        public void StartAnalysis()
+        public async void StartAnalysis()
         {
             if (SelectedAnalyzer == null)
             {
-                Root.Messages.WarningAsync(this, "Please select an analyzer first.", true);
+                await Root.Messages.WarningAsync(this, "Please select an analyzer first.", true);
                 return;
             }
 
             if (FilteredLogLines == null || FilteredLogLines.Count == 0)
             {
-                Root.Messages.WarningAsync(this, "Please load and filter log lines first.", true);
+                await Root.Messages.WarningAsync(this, "Please load and filter log lines first.", true);
                 return;
             }
 
             CloseTopDialog();
             BackgroundWorker.RunWorkerAsync(nameof(DoAnalysis));
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         /// <summary>

@@ -897,10 +897,10 @@ namespace gip.core.autocomponent
         /// Opens the dialog for exporting data.
         /// </summary>
         [ACMethodCommand("Query", "en{'Export'}de{'Export'}", (short)MISort.QueryDesignDlg, true)]
-        public virtual void DataExportDialog()
+        public async virtual void DataExportDialog()
         {
             DataExportFilePath = DataExportGenerateFileName();
-            ShowDialog(this, "DataExportDlg");
+            await ShowDialogAsync(this, "DataExportDlg");
         }
 
         public virtual bool IsEnabledDataExportDialog()
@@ -913,13 +913,13 @@ namespace gip.core.autocomponent
         /// Excecutes the Export-Logic when user has confirmed with the OK-Button.
         /// </summary>
         [ACMethodInfo("Query", Const.Ok, (short)MISort.QueryDesignDlg, true)]
-        public virtual void DataExportOk()
+        public async virtual void DataExportOk()
         {
             if (!IsEnabledDataExportOk())
                 return;
             CloseTopDialog();
             BackgroundWorker.RunWorkerAsync("DataExport");
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public virtual bool IsEnabledDataExportOk()
@@ -1299,6 +1299,9 @@ namespace gip.core.autocomponent
                 case Const.CmdNameUndo:
                 case Const.IsEnabledPrefix + Const.CmdNameUndo:
                     return new string[] { nameof(DbChangeCount) };
+
+                case nameof(DataExportOk):
+                    return new string[] { nameof(DataExportFilePath) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }

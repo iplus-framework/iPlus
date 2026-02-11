@@ -216,7 +216,7 @@ namespace gip.core.reporthandler.avui
         }
 
         [ACMethodInfo("Report", "en{'Preview'}de{'Vorschau'}", 9999, false)]
-        public void Preview(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data)
+        public async Task Preview(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data)
         {
             CurrentACClassDesign = acClassDesign;
             CurrentReportData = data;
@@ -224,7 +224,7 @@ namespace gip.core.reporthandler.avui
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                ShowDialog(this, "PreviewFlowDoc");
+                await ShowDialogAsync(this, "PreviewFlowDoc");
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
@@ -232,12 +232,12 @@ namespace gip.core.reporthandler.avui
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                ShowDialog(this, "PreviewFlowDoc");
+                await ShowDialogAsync(this, "PreviewFlowDoc");
             }
         }
 
         [ACMethodInfo("Report", "en{'Design'}de{'Entwurf'}", 9999, false)]
-        public void Design(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data)
+        public async Task Design(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data)
         {
             CurrentACClassDesign = acClassDesign;
             CurrentReportData = data;
@@ -245,7 +245,7 @@ namespace gip.core.reporthandler.avui
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
-                ShowDialog(this, "DesignFlowDoc");
+                await ShowDialogAsync(this, "DesignFlowDoc");
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
             {
@@ -253,7 +253,7 @@ namespace gip.core.reporthandler.avui
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                ShowDialog(this, "DesignFlowDoc");
+                await ShowDialogAsync(this, "DesignFlowDoc");
             }
         }
 
@@ -1104,10 +1104,10 @@ namespace gip.core.reporthandler.avui
         }
 
         [ACMethodInfo("PrintComponent", "en{'Print'}de{'Drucken'}", 9999, false)]
-        public void PrintComponent()
+        public async Task PrintComponent()
         {
             CloseTopDialog();
-            ShowDialog(this, "PrintXMLDoc");
+            await ShowDialogAsync(this, "PrintXMLDoc");
         }
 
         [ACMethodInfo("PrintComponentOk", "en{'Print'}de{'Drucken'}", 9999, false)]

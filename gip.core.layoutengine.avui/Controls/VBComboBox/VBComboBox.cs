@@ -1459,11 +1459,11 @@ namespace gip.core.layoutengine.avui
         /// Filters the content.
         /// </summary>
         [ACMethodInteraction("", "en{'Filter'}de{'Filter'}", 101, false)]
-        public void Filter()
+        public async void Filter()
         {
             if (ACAccess == null)
                 return;
-            if (ACAccess.ShowACQueryDialog())
+            if (await ACAccess.ShowACQueryDialog())
             {
                 NavSearchOnACAccess(true);
             }

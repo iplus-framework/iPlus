@@ -197,18 +197,18 @@ namespace gip.bso.iplus
         /// Shows the info.
         /// </summary>
         [ACMethodInfo("Help", "en{'Info'}de{'Info'}", 401)]
-        public void ShowInfo()
+        public async void ShowInfo()
         {
-            ShowDialog(this, "Info");
+            await ShowDialogAsync(this, "Info");
         }
 
         /// <summary>
         /// Shows the help.
         /// </summary>
         [ACMethodInfo("Help", "en{'Help'}de{'Help'}", 402)]
-        public void ShowHelp()
+        public async void ShowHelp()
         {
-            ShowDialog(this, "Help");
+            await ShowDialogAsync(this, "Help");
         }
 
         /// <summary>

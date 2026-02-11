@@ -250,7 +250,7 @@ namespace gip.core.autocomponent
             return CurrentACState == ACStateEnum.SMRunning;
         }
 
-        public static bool AskUserRepeat(IACComponent acComponent)
+        public static async Task<bool> AskUserRepeat(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
@@ -266,12 +266,14 @@ namespace gip.core.autocomponent
                     childBSO = acComponent.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACBSO;
                 if (childBSO == null)
                     return false;
-                VBDialogResult dlgResult = childBSO.ACUrlCommand("!ShowCheckUserDialog") as VBDialogResult;
+
+                var dlgResultAsync = childBSO.ACUrlCommand("!ShowCheckUserDialog") as Task<VBDialogResult>;
+                VBDialogResult dlgResult = await dlgResultAsync;
                 if (dlgResult != null && dlgResult.SelectedCommand == eMsgButton.OK)
                 {
                     isAllowed = true;
                 }
-                childBSO.Stop();
+                await childBSO.Stop();
             }
             return isAllowed;
         }
@@ -292,7 +294,7 @@ namespace gip.core.autocomponent
             return CurrentACState == ACStateEnum.SMRunning;
         }
 
-        public static bool AskUserComplete(IACComponent acComponent)
+        public static async Task<bool> AskUserComplete(IACComponent acComponent)
         {
             if (acComponent == null)
                 return false;
@@ -308,12 +310,13 @@ namespace gip.core.autocomponent
                     childBSO = acComponent.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACBSO;
                 if (childBSO == null)
                     return false;
-                VBDialogResult dlgResult = childBSO.ACUrlCommand("!ShowCheckUserDialog") as VBDialogResult;
+                var dlgResultAsync = childBSO.ACUrlCommand("!ShowCheckUserDialog") as Task<VBDialogResult>;
+                VBDialogResult dlgResult = await dlgResultAsync;
                 if (dlgResult != null && dlgResult.SelectedCommand == eMsgButton.OK)
                 {
                     isAllowed = true;
                 }
-                childBSO.Stop();
+                await childBSO.Stop();
             }
             return isAllowed;
         }

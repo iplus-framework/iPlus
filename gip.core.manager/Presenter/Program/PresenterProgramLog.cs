@@ -613,10 +613,10 @@ namespace gip.core.manager
         }
 
         [ACMethodInteraction("", "en{'Show Details'}de{'Details anzeigen'}", 900, true, "CurrentProgramLogWrapper")]
-        public void ShowDetails()
+        public async Task ShowDetails()
         {
             CurrentACMethod = ACConvert.XMLToObject<ACMethod>(CurrentProgramLogWrapper.ACProgramLog.XMLConfig, true, Db);
-            ShowDialog(this, "DetailsDialog");
+            await ShowDialogAsync(this, "DetailsDialog");
         }
 
         [ACMethodInfo("", "en{'ShowACProgramLog'}de{'ShowACProgramLog'}",901,false)]
@@ -655,7 +655,7 @@ namespace gip.core.manager
             }
         }
 
-        public void ShowLogFromACProgram(ACProgram currentACProgram, string wfACUrl)
+        public async Task ShowLogFromACProgram(ACProgram currentACProgram, string wfACUrl)
         {
             CurrentACProgram = currentACProgram;
             if (wfACUrl != null)
@@ -689,7 +689,7 @@ namespace gip.core.manager
             }
 #endif
 
-            ShowDialog(this, "PresenterProgramLogDialog");
+            await ShowDialogAsync(this, "PresenterProgramLogDialog");
             //ShowWindow(this,
             //    "PresenterProgramLogDialog", 
             //    true, 
@@ -699,10 +699,10 @@ namespace gip.core.manager
             //    Global.ControlModes.Enabled);
 
             if (this.ParentACComponent != null)
-                this.ParentACComponent.StopComponent(this);
+                await this.ParentACComponent.StopComponent(this);
         }
 
-        public void ShowLogFromVBBSOControlPA(string componentACUrl, DateTime timeFrom, DateTime timeTo, short searchMode = 0)
+        public async Task ShowLogFromVBBSOControlPA(string componentACUrl, DateTime timeFrom, DateTime timeTo, short searchMode = 0)
         {
             _IsFromVBBSOControlPA = true;
             _DisplayOrder = 0;
@@ -727,7 +727,7 @@ namespace gip.core.manager
             CreateProgramLogWrapper(Db.ACProgramLog.Where(c => c.ACUrl.Contains(componentACUrl) && c.StartDate >= timeFrom && c.EndDate < timeTo));
             ProgramLogWrapperList = wrapperList;
             ProgramLogWrapperRootList = ProgramLogWrapperList;
-            ShowDialog(this, "PresenterProgramLogDialog");
+            await ShowDialogAsync(this, "PresenterProgramLogDialog");
             //ShowWindow(this,
             //    "PresenterProgramLogDialog",
             //    true,
@@ -738,7 +738,7 @@ namespace gip.core.manager
             _IsFromVBBSOControlPA = false;
         }
 
-        public void ShowLogFromVBBSOControlPAModule(string componentACUrl, DateTime timeFrom, DateTime timeTo)
+        public async Task ShowLogFromVBBSOControlPAModule(string componentACUrl, DateTime timeFrom, DateTime timeTo)
         {
             _IsFromVBBSOControlPA = true;
             _DisplayOrder = 0;
@@ -826,7 +826,7 @@ namespace gip.core.manager
                     CreateProgramLogWrapper(Db.ACProgramLog.Where(c => processModulesACUrl.Any(x => c.ACUrl.Contains(x) && c.StartDate >= timeFrom && c.EndDate < timeTo && c.XMLConfig.Contains(compClassID))));
                     ProgramLogWrapperList = wrapperList;
                     ProgramLogWrapperRootList = ProgramLogWrapperList;
-                    ShowDialog(this, "PresenterProgramLogDialog", string.Format("{0} ({1})", componentACClass.ACCaption, componentACClass.ACUrlComponent));
+                    await ShowDialogAsync(this, "PresenterProgramLogDialog", string.Format("{0} ({1})", componentACClass.ACCaption, componentACClass.ACUrlComponent));
                 }
             }
             _IsFromVBBSOControlPA = false;

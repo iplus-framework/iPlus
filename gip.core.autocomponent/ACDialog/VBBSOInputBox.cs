@@ -112,7 +112,7 @@ namespace gip.core.autocomponent.ACDialog
         #endregion
 
         [ACMethodInfo("Msg", "en{'Messagebox'}de{'Meldungsfenster'}", 9999)]
-        public object[] ShowInputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null)
+        public async Task<object[]> ShowInputBoxValues(String header, object[] valueList, string[] captionList, string designXML = null)
         {
             _CurrentInputDesign = designXML;
             if (valueList.Count() != captionList.Count())
@@ -124,7 +124,7 @@ namespace gip.core.autocomponent.ACDialog
                 _ACValueItemList.Add(acValueItem);
             }
 
-            ShowDialog(this, "InputBox", header);
+            await ShowDialogAsync(this, "InputBox", header);
             if (_ACValueItemList == null)
                 return null;
             List<object> values = new List<object>();
@@ -136,9 +136,9 @@ namespace gip.core.autocomponent.ACDialog
         }
 
         [ACMethodInfo("Msg", "en{'Messagebox'}de{'Meldungsfenster'}", 9999)]
-        public string ShowInputBox(String header, string value, string designXML = null)
+        public async Task<string> ShowInputBox(String header, string value, string designXML = null)
         {
-            object[] valueList = ShowInputBoxValues(header, new object[] { value }, new string[] { header }, designXML);
+            object[] valueList = await ShowInputBoxValues(header, new object[] { value }, new string[] { header }, designXML);
 
             if (valueList == null)
                 return null;

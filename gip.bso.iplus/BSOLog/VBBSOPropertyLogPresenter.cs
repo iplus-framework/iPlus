@@ -976,12 +976,12 @@ namespace gip.bso.iplus
         /// Shows alarms in the dialog window for the timeline item.
         /// </summary>
         [ACMethodInteraction("", "en{'Show Alarms'}de{'Alarme anzeigen'}", 402, true, "SelectedPropertyLog")]
-        public void ShowAlarms()
+        public async void ShowAlarms()
         {
             if (!IsEnabledShowAlarms())
                 return;
 
-            ShowDialog(this, "Alarms");
+            await ShowDialogAsync(this, "Alarms");
         }
 
         /// <summary>
@@ -994,7 +994,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInteraction("", "en{'Show alarms/subalarms for this component'}de{'Zeigt Alarme/Subalarme für diese Komponente an.'}", 403, true, "SelectedPropertyLog")]
-        public void ShowAllAlarms()
+        public async void ShowAllAlarms()
         {
             if (!IsEnabledShowAllAlarms())
                 return;
@@ -1013,7 +1013,7 @@ namespace gip.bso.iplus
                                         .Where(c =>    (c.ACClass != null && c.ACClass.ACUrlComponent.StartsWith(acUrl)) 
                                                     || (c.ACProgramLog != null && c.ACProgramLog.ACUrl.StartsWith(acUrl)));
 
-            ShowDialog(this, "AlarmsAll");
+            await ShowDialogAsync(this, "AlarmsAll");
         }
 
         public bool IsEnabledShowAllAlarms()
@@ -1023,7 +1023,7 @@ namespace gip.bso.iplus
 
 
         [ACMethodInteraction("", "en{'Show details'}de{'Details anzeigen'}", 403, true, "SelectedPropertyLog")]
-        public void ShowDetails()
+        public async void ShowDetails()
         {
             if (!IsEnabledShowDetails())
                 return;
@@ -1047,7 +1047,7 @@ namespace gip.bso.iplus
 
             OEEReasonList = messages;
 
-            ShowDialog(this, "DetailsDialog");
+            await ShowDialogAsync(this, "DetailsDialog");
 
         }
 
@@ -1061,10 +1061,10 @@ namespace gip.bso.iplus
         /// </summary>
         /// <param name="componentClass">The component class parameter.</param>
         [ACMethodInfo("", "", 404)]
-        public void ShowPropertyLogsDialog(ACClass componentClass)
+        public async void ShowPropertyLogsDialog(ACClass componentClass)
         {
             CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
-            ShowDialog(this, "PropertyLogPresenterDialog");
+            await ShowDialogAsync(this, "PropertyLogPresenterDialog");
             CurrentComponentClass = null;
         }
 
@@ -1075,13 +1075,13 @@ namespace gip.bso.iplus
         /// <param name="from">From</param>
         /// <param name="to">To</param>
         [ACMethodInfo("", "", 404)]
-        public void ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
+        public async void ShowPropertyLogsWithFilterDialog(ACClass componentClass, DateTime from, DateTime to)
         {
             CurrentComponentClass = componentClass.FromIPlusContext<ACClass>(Db);
             FromDate = from;
             ToDate = to;
             ShowLogsOnTimeline();
-            ShowDialog(this, "PropertyLogPresenterDialog");
+            await ShowDialogAsync(this, "PropertyLogPresenterDialog");
             CurrentComponentClass = null;
         }
 

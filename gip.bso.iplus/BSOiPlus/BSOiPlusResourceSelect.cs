@@ -469,11 +469,11 @@ namespace gip.bso.iplus
         /// <param name="path"></param>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand("ResourceDlg", "en{'Resource dialog'}de{'ResourceDialog'}", 408)]
-        public string ResourceDlg(string path)
+        public async Task<string> ResourceDlg(string path)
         {
             LoadSelectedPaht(path);
-            ShowDialog(this, "ResourceDlg");
-            this.ParentACComponent.StopComponent(this);
+            await ShowDialogAsync(this, "ResourceDlg");
+            await this.ParentACComponent.StopComponent(this);
             if (IsFolderMode)
             {
                 path = FolderPath;

@@ -59,10 +59,10 @@ namespace gip.core.autocomponent
 
         #region BSO->ACMethod
         [ACMethodCommand("Report", "en{'Wizard'}de{'Wizard'}", 9999)]
-        public void ShowWizardDlg()
+        public async void ShowWizardDlg()
         {
             CurrendWizardDesign = WizardDesignList.First();
-            ShowDialog(this, "WizardDlg");
+            await ShowDialogAsync(this, "WizardDlg");
         }
 
         [ACMethodCommand("Wizard", "en{'Next'}de{'Nächste'}", (short)MISort.WizardNext)]

@@ -221,7 +221,7 @@ namespace gip.bso.iplus
         /// Source Property: Execute
         /// </summary>
         [ACMethodInfo(nameof(ExecuteSQL), "en{'Execute SQL'}de{'SQL ausführen'}", 999)]
-        public void ExecuteSQL()
+        public async void ExecuteSQL()
         {
             if (!IsEnabledExecuteSQL())
                 return;
@@ -229,7 +229,7 @@ namespace gip.bso.iplus
             OnPropertyChanged(nameof(SQLScriptResult));
 
             BackgroundWorker.RunWorkerAsync(nameof(ExecuteSQL));
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledExecuteSQL()
@@ -242,7 +242,7 @@ namespace gip.bso.iplus
         /// Source Property: ExportToExcel
         /// </summary>
         [ACMethodInfo(nameof(ExportToExcel), "en{'Export to excel file'}de{'In Excel-Datei exportieren'}", 999)]
-        public void ExportToExcel()
+        public async void ExportToExcel()
         {
             if (!IsEnabledExportToExcel())
                 return;
@@ -251,7 +251,7 @@ namespace gip.bso.iplus
             if (!string.IsNullOrEmpty(excelFileName))
             {
                 BackgroundWorker.RunWorkerAsync(nameof(ExportToExcel));
-                ShowDialog(this, DesignNameProgressBar);
+                await ShowDialogAsync(this, DesignNameProgressBar);
             }
         }
 

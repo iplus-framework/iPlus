@@ -416,7 +416,7 @@ namespace gip.core.autocomponent
 
         public const string MN_AckStartClient = "AckStartClient";
         [ACMethodInteractionClient("", "en{'Acknowledge'}de{'Bestätigen'}", 450, false)]
-        public static void AckStartClient(IACComponent acComponent)
+        public static async void AckStartClient(IACComponent acComponent)
         {
             ACComponent _this = acComponent as ACComponent;
             if (!IsEnabledAckStartClient(acComponent))
@@ -433,7 +433,8 @@ namespace gip.core.autocomponent
                     childBSO = acComponent.Root.Businessobjects.StartComponent(bsoName, null, new object[] { }) as ACBSO;
                 if (childBSO == null)
                     return;
-                VBDialogResult dlgResult = childBSO.ACUrlCommand("!ShowCheckUserDialog") as VBDialogResult;
+                var dlgResultAsync = childBSO.ACUrlCommand("!ShowCheckUserDialog") as Task<VBDialogResult>;
+                VBDialogResult dlgResult = await dlgResultAsync;
                 if (dlgResult != null && dlgResult.SelectedCommand == eMsgButton.OK)
                 {
                     string userName = "";
@@ -445,7 +446,7 @@ namespace gip.core.autocomponent
                     else
                         acComponent.ACUrlCommand("!" + nameof(AckStartUserName), userName);
                 }
-                childBSO.Stop();
+                await childBSO.Stop();
             }
             else
                 acComponent.ACUrlCommand("!" + nameof(AckStart));

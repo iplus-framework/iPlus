@@ -370,9 +370,13 @@ namespace gip.core.datamodel
         /// <summary>Opens the a dialog (VBBSOQueryDialog) on the gui for the manipulation of the ACQueryDefinition.</summary>
         /// <returns>True, if OK-Button was clicked</returns>
         [ACMethodInteraction("Query", "en{'Configuration'}de{'Konfiguration'}", 9999, false)]
-        public bool ShowACQueryDialog()
+        public async Task<bool> ShowACQueryDialog()
         {
-            return (bool)this.ParentACObject.ACUrlCommand("VBBSOQueryDialog!QueryConfigDlg", new object[] { NavACQueryDefinition, true, true, true, true });
+            var result = this.ParentACObject.ACUrlCommand("VBBSOQueryDialog!QueryConfigDlg", new object[] { NavACQueryDefinition, true, true, true, true }) as Task<bool>;
+            if (result != null)
+                return await result;
+
+            return false;
         }
 
 

@@ -386,12 +386,12 @@ namespace gip.bso.iplus
         /// Imports this instance.
         /// </summary>
         [ACMethodInfo("Import", "en{'Analyse'}de{'Analysieren'}", 401, false, false, true, Global.ACKinds.MSMethodPrePost)]
-        public void InspectImport()
+        public async void InspectImport()
         {
             if (!IsEnabledInspectImport()) return;
             Cleanup();
             BackgroundWorker.RunWorkerAsync(BackgroundWorker_DoInspectImport);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledInspectImport()
@@ -405,7 +405,7 @@ namespace gip.bso.iplus
         /// Imports this instance.
         /// </summary>
         [ACMethodInfo("Import", "en{'Import'}de{'Import'}", 402, false, false, true, Global.ACKinds.MSMethodPrePost)]
-        public void Import()
+        public async void Import()
         {
             if (!IsEnabledImport()) return;
             msgList = null;
@@ -418,7 +418,7 @@ namespace gip.bso.iplus
             SendMessage(new Msg() { MessageLevel = eMsgLevel.Info, Message = strDoImportProgressMessage });
 
             BackgroundWorker.RunWorkerAsync(BackgroundWorker_DoImport);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         /// <summary>

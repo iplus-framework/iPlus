@@ -18,6 +18,7 @@ using System.Collections;
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -91,7 +92,7 @@ namespace gip.core.datamodel
 
         /// <summary>Opens the a dialog (VBBSOQueryDialog) on the gui for the manipulation of the ACQueryDefinition.</summary>
         /// <returns>True, if OK-Button was clicked</returns>
-        bool ShowACQueryDialog();
+        Task<bool> ShowACQueryDialog();
 
 
         /// <summary>Opens the a dialog (VBBSOQueryDialog) on the gui for chaging the filter values in the ACQueryDefinition.</summary>

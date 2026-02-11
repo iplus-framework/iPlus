@@ -1659,13 +1659,13 @@ namespace gip.bso.iplus
         /// News this instance.
         /// </summary>
         [ACMethodInteraction("ACProject", Const.New, (short)MISort.New, true, "SelectedACProject", Global.ACKinds.MSMethodPrePost)]
-        public void New()
+        public async void New()
         {
             if (!PreExecute("New")) return;
             _NewACProjectAppDefinitionList = null;
             CurrentNewACProject = ProjectManager.NewACProject();
 
-            ShowDialog(this, "ACProjectNew");
+            await ShowDialogAsync(this, "ACProjectNew");
 
             PostExecute("New");
         }
@@ -1765,10 +1765,12 @@ namespace gip.bso.iplus
         /// Shows the project property.
         /// </summary>
         [ACMethodCommand("ACProject", "en{'Project'}de{'Projekt'}", 9999, false, Global.ACKinds.MSMethodPrePost)]
-        public void ShowProjectProperty()
+        public async void ShowProjectProperty()
         {
-            if (!PreExecute("ShowProjectProperty")) return;
-            ShowDialog(this, "ACProjectProperty");
+            if (!PreExecute("ShowProjectProperty")) 
+                return;
+
+            await ShowDialogAsync(this, "ACProjectProperty");
 
             PostExecute("ShowProjectProperty");
         }
@@ -1789,16 +1791,18 @@ namespace gip.bso.iplus
         /// News the AC class.
         /// </summary>
         [ACMethodInteraction("ACClass", "en{'New Class'}de{'Neue Klasse'}", (short)MISort.New, true, "CurrentProjectItem", Global.ACKinds.MSMethodPrePost)]
-        public void NewACClass()
+        public async void NewACClass()
         {
             if (IsEnabledNewACClass())
             {
-                if (!PreExecute("NewACClass")) return;
+                if (!PreExecute(nameof(NewACClass))) 
+                    return;
+
                 _NewSubclass = false;
                 CurrentNewACClass = ProjectManager.NewACClass(CurrentACProject, CurrentProjectItem);
-                ShowDialog(this, "ACClassNew");
+                await ShowDialogAsync(this, "ACClassNew");
 
-                PostExecute("NewACClass");
+                PostExecute(nameof(NewACClass));
             }
         }
 
@@ -1815,14 +1819,14 @@ namespace gip.bso.iplus
         /// News the child AC class.
         /// </summary>
         [ACMethodInteraction("ACClass", "en{'New Subclass'}de{'Neue untergeordnete Klasse'}", (short)MISort.New, true, "CurrentProjectItem", Global.ACKinds.MSMethodPrePost)]
-        public void NewChildACClass()
+        public async void NewChildACClass()
         {
             if (IsEnabledNewChildACClass())
             {
                 if (!PreExecute("NewChildACClass")) return;
                 _NewSubclass = true;
                 CurrentNewACClass = ProjectManager.NewChildACClass(CurrentACProject, CurrentProjectItem);
-                ShowDialog(this, "ACClassNew");
+                await ShowDialogAsync(this, "ACClassNew");
                 PostExecute("NewChildACClass");
             }
         }
@@ -1838,14 +1842,14 @@ namespace gip.bso.iplus
 
 
         [ACMethodInteraction("ACClass", "en{'Switch baseclass'}de{'Basis-Klasse austauschen'}", (short)MISort.New, true, "CurrentProjectItem", Global.ACKinds.MSMethodPrePost)]
-        public void SwitchACClass()
+        public async void SwitchACClass()
         {
             if (IsEnabledSwitchACClass())
             {
                 if (!PreExecute("SwitchACClass"))
                     return;
                 ACClassToSwitch = null;
-                ShowDialog(this, "SwitchACClass");
+                await ShowDialogAsync(this, "SwitchACClass");
                 PostExecute("SwitchACClass");
             }
         }
@@ -2120,12 +2124,12 @@ namespace gip.bso.iplus
         /// Deletes the AC class.
         /// </summary>
         [ACMethodInteraction("ACClass", "en{'Clone Class'}de{'Klasse klonen'}", (short)MISort.New, true, "CurrentProjectItem", Global.ACKinds.MSMethodPrePost)]
-        public void CloneACClass()
+        public async void CloneACClass()
         {
             if (!IsEnabledCloneACClass())
                 return;
             CloneData.ACIdentifier = ProjectManager.CloneGetACIdentifier(CurrentProjectItem.ValueT);
-            ShowDialog(this, "CloneDialog");
+            await ShowDialogAsync(this, "CloneDialog");
         }
 
         /// <summary>
@@ -3219,10 +3223,10 @@ namespace gip.bso.iplus
 
         #region Data Export
 
-        public override void DataExportDialog()
+        public override async void DataExportDialog()
         {
             SelectedDataExportType = null;
-            ShowDialog(this, "VBStudioExportDialog");
+            await ShowDialogAsync(this, "VBStudioExportDialog");
         }
 
 

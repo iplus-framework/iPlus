@@ -429,7 +429,7 @@ namespace gip.bso.iplus
                 SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
 
-            ShowDialog(this, "Mainlayout");
+            ShowDialogAsync(this, "Mainlayout");
         }
 
         public void ShowAvailableRoutes(IEnumerable<Tuple<ACClass, ACClassProperty>> startPoints, IEnumerable<Tuple<ACClass, ACClassProperty>> endPoints, string selectionRuleID = null, object[] selectionRuleParams = null, bool allowProcessModuleInRoute = true)
@@ -463,7 +463,7 @@ namespace gip.bso.iplus
             SelectedStartComponent = StartComponents.FirstOrDefault();
             SelectedEndComponent = EndComponents.FirstOrDefault();
 
-            ShowDialog(this, "Mainlayout");
+            ShowDialogAsync(this, "Mainlayout");
         }
 
         public void EditRoutes(Route route, bool isReadOnly, bool includeReserved, bool includeAllocated)
@@ -564,7 +564,7 @@ namespace gip.bso.iplus
 
         }
 
-        public void ShowRoute(bool isReadOnly = false)
+        public async void ShowRoute(bool isReadOnly = false)
         {
             if (!isReadOnly)
                 InitSelectionManger(Const.SelectionManagerCDesign_ClassName);
@@ -576,9 +576,9 @@ namespace gip.bso.iplus
             _IsInPresenterMode = true;
 
             if (!_IsInEdgeWeightAdjustmentMode)
-                ShowDialog(this, "RoutePresenter");
+                await ShowDialogAsync(this, "RoutePresenter");
             else
-                ShowDialog(this, "EdgeWeightsPresenter");
+                await ShowDialogAsync(this, "EdgeWeightsPresenter");
 
             SelectedRouteMode = tempRouteMode;
 

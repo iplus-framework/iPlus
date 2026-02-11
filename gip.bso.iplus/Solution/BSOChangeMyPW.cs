@@ -160,13 +160,13 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("Dialog", "en{'Check User Dialog'}de{'Dialog Benutzerprüfung'}", 500)]
-        public VBDialogResult ShowCheckUserDialog()
+        public async Task<VBDialogResult> ShowCheckUserDialog()
         {
             if (DialogResult == null)
                 DialogResult = new VBDialogResult();
             DialogResult.SelectedCommand = eMsgButton.Cancel;
-            ShowDialog(this, "CheckUser");
-            this.ParentACComponent.StopComponent(this);
+            await ShowDialogAsync(this, "CheckUser");
+            await this.ParentACComponent.StopComponent(this);
             return DialogResult;
         }
 

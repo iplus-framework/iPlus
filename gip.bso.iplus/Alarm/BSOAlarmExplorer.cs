@@ -448,7 +448,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("","",999)]
-        public void ShowAlarmExplorer()
+        public async void ShowAlarmExplorer()
         {
             if (_backgroundWorker == null)
                 InitializeBackgroundWorker();
@@ -458,7 +458,7 @@ namespace gip.bso.iplus
 
             SubscribeEvents();
 
-            ShowDialog(this, "AlarmLive", "", true);
+            await ShowDialogAsync(this, "AlarmLive", "", true);
 
             _backgroundWorker.CancelAsync();
             UnSubscribeEvents();
@@ -546,7 +546,7 @@ namespace gip.bso.iplus
         #region Methods => Archive
 
         [ACMethodInfo("", "", 999)]
-        public void ShowAlarmArchiveExplorer()
+        public async void ShowAlarmArchiveExplorer()
         {
             if (SearchFrom == DateTime.MinValue)
                 SearchFrom = DateTime.Now.AddDays(-7);
@@ -554,7 +554,7 @@ namespace gip.bso.iplus
             if (SearchTo == DateTime.MinValue)
                 SearchTo = DateTime.Now;
 
-            ShowDialog(this, "AlarmArchive");
+            await ShowDialogAsync(this, "AlarmArchive");
 
             SelectedMessageLevel = null;
             _MsgAlarmLogList = null;

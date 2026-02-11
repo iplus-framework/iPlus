@@ -425,7 +425,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "", 401)]
-        public void ShowChangeLogForClass(Guid acClassID, Guid entityKey)
+        public async void ShowChangeLogForClass(Guid acClassID, Guid entityKey)
         {
             ShowDeletedEntities = false;
 
@@ -441,7 +441,7 @@ namespace gip.bso.iplus
                 {
                     SelectedEntityKey = new ACValueItem(caption, caption, null);
                     SelectedACClassProperty = ACClassPropertyList.FirstOrDefault();
-                    ShowDialog(this, "ClassDialog");
+                    await ShowDialogAsync(this, "ClassDialog");
                 }
             }
         }
@@ -456,7 +456,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "", 403)]
-        public void ShowChangeLogForProperty(Guid entityKey, Guid acClassPropertyID)
+        public async void ShowChangeLogForProperty(Guid entityKey, Guid acClassPropertyID)
         {
             _ShowDeletedEntities = false;
 
@@ -469,7 +469,7 @@ namespace gip.bso.iplus
                 var changeLogs = acClassProperty.ACChangeLog_ACClassProperty.Where(c =>  c.EntityKey == entityKey).OrderByDescending(x => x.ChangeDate).ToList();
                 changeLogs.ForEach(x => x.ChangeLogValue = new ACValue(acClassProperty.ACIdentifier, ACConvert.XMLToObject(acClassProperty.ObjectType, x.XMLValue, true, db)));
                 ChangeLogList = changeLogs;
-                ShowDialog(this, "PropertyDialog");
+                await ShowDialogAsync(this, "PropertyDialog");
             }
         }
 
@@ -483,7 +483,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "", 405)]
-        public void ShowChangeLogForWFConfig(IACConfig[] configs)
+        public async void ShowChangeLogForWFConfig(IACConfig[] configs)
         {
             _ShowDeletedEntities = false;
             _IsShowConfigsInDialog = true;
@@ -495,7 +495,7 @@ namespace gip.bso.iplus
                 SelectedEntityKey = EntityKeyList.FirstOrDefault();
                 SelectedACClassProperty = ACClassPropertyList.FirstOrDefault();
 
-                ShowDialog(this, "ConfigDialog");
+                await ShowDialogAsync(this, "ConfigDialog");
             }
             _IsShowConfigsInDialog = false;
         }
@@ -536,7 +536,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "en{'Refresh change logs'}de{'Änderungsprotokolle aktualisieren'}", 408, true)]
-        public void RefreshChangeLogs()
+        public async void RefreshChangeLogs()
         {
             if (BackgroundWorker.IsBusy)
                 return;
@@ -544,7 +544,7 @@ namespace gip.bso.iplus
             BackgroundWorker.RunWorkerAsync("RefreshChangeLogs");
 
             CurrentProgressInfo.ProgressInfoIsIndeterminate = true;
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
             CurrentProgressInfo.ProgressInfoIsIndeterminate = false;
         }
 

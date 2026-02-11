@@ -416,9 +416,9 @@ namespace gip.bso.iplus
         /// Shows the dialog for import activation data.
         /// </summary>
         [ACMethodInfo("", "en{'Import activation data'}de{'Aktivierungsdaten importieren'}", 501,true)]
-        public void ImportActivationData()
+        public async void ImportActivationData()
         {
-            ShowDialog(this, "ImportDialog");
+            await ShowDialogAsync(this, "ImportDialog");
         }
 
         public bool IsEnabledImportActivationData()
@@ -660,7 +660,7 @@ namespace gip.bso.iplus
         /// Signs the license file with gip private key.
         /// </summary>
         [ACMethodInfo("", "en{'Sign license file'}de{'Lizenzdatei signieren'}", 510, true)]
-        public void SignLicenseFile()
+        public async void SignLicenseFile()
         {
             DataContractSerializer serializer = new DataContractSerializer(typeof(VBSystem));
             VBSystem sys = null;
@@ -675,11 +675,11 @@ namespace gip.bso.iplus
 
                 CurrentSignLicense = sys;
                 BackgroundWorker.RunWorkerAsync("SignLicense");
-                ShowDialog(this, DesignNameProgressBar);
+                await ShowDialogAsync(this, DesignNameProgressBar);
             }
             catch
             {
-                Messages.WarningAsync(this, "Warning50028");
+                await Messages.WarningAsync(this, "Warning50028");
             }
         }
 

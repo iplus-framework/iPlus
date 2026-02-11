@@ -754,7 +754,7 @@ namespace gip.bso.iplus
             ClearMessage();
 
             BackgroundWorker.RunWorkerAsync(BackgroundWorker_Export);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         /// <summary>
@@ -1022,10 +1022,10 @@ namespace gip.bso.iplus
         public string PackageExportUser { get; set; }
 
         [ACMethodInfo("PackageDlg", "en{'Package'}de{'Paket'}", 403, false, false, true, Global.ACKinds.MSMethodPrePost)]
-        public void PackageDlg()
+        public async void PackageDlg()
         {
             if (!IsEnabledPackageDlg()) return;
-            ShowDialog(this, "Package");
+            await ShowDialogAsync(this, "Package");
         }
 
         public bool IsEnabledPackageDlg()
@@ -1034,7 +1034,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("PackageDlgOk", Const.Ok, 404, false, false, true, Global.ACKinds.MSMethodPrePost)]
-        public void PackageDlgOk()
+        public async void PackageDlgOk()
         {
             if (!IsEnabledPackageDlgOk()) return;
             if (BackgroundWorker.IsBusy) return;
@@ -1043,7 +1043,7 @@ namespace gip.bso.iplus
             ClearMessage();
 
             BackgroundWorker.RunWorkerAsync(BackgroundWorker_Package);
-            ShowDialog(this, DesignNameProgressBar);
+            await ShowDialogAsync(this, DesignNameProgressBar);
         }
 
         public bool IsEnabledPackageDlgOk()

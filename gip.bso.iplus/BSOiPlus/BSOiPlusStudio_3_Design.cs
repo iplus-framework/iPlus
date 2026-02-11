@@ -503,13 +503,13 @@ namespace gip.bso.iplus
         /// News the AC class design.
         /// </summary>
         [ACMethodInteraction("ACClassDesign", "en{'New Design'}de{'Neues Design'}", (short)MISort.New, true, "SelectedACClassDesign", Global.ACKinds.MSMethodPrePost)]
-        public void NewACClassDesign()
+        public async void NewACClassDesign()
         {
             if (!PreExecute("NewACClassDesign")) return;
             string secondaryKey = Root.NoManager.GetNewNo(Database, typeof(ACClassDesign), ACClassDesign.NoColumnName, ACClassDesign.FormatNewNo, this);
             CurrentNewACClassDesign = ACClassDesign.NewACObject(Database.ContextIPlus, CurrentACClass, secondaryKey);
             CurrentNewACClassDesign.ACUsage = Global.ACUsages.DULayout;
-            ShowDialog(this, "ACClassDesignNew");
+            await ShowDialogAsync(this, "ACClassDesignNew");
             if (CurrentNewACClassDesign != null)
             {
                 if (CurrentNewACClassDesign.ACUsage >= Global.ACUsages.DULLReport && CurrentNewACClassDesign.ACUsage <= Global.ACUsages.DUReport)

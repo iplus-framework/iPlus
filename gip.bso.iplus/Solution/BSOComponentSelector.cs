@@ -416,7 +416,7 @@ namespace gip.bso.iplus
         #region Methods
 
         [ACMethodInfo("","en{'Show component selector'}de{'Show component selector'}",490)]
-        public ACClass ShowComponentSelector(ACClassInfoWithItems.VisibilityFilters visibilityFilter, string filterProjectACIdentifer, string filterCompACIdentifier)
+        public async Task<ACClass> ShowComponentSelector(ACClassInfoWithItems.VisibilityFilters visibilityFilter, string filterProjectACIdentifer, string filterCompACIdentifier)
         {
             IsSelectButtonVisible = true;
             _VisibilityFilter = visibilityFilter;
@@ -431,7 +431,7 @@ namespace gip.bso.iplus
                 SearchClassText = filterCompACIdentifier;
                 SearchClass();
             }
-            ShowDialog(this, "Mainlayout");
+            await ShowDialogAsync(this, "Mainlayout");
             IsSelectButtonVisible = false;
             if (CurrentProjectItemCS == null)
                 return null;
@@ -496,11 +496,11 @@ namespace gip.bso.iplus
 
 
         [ACMethodInfo("", "en{'Show component selector'}de{'Show component selector'}", 490)]
-        public ACChildInstanceInfo ShowChildInstanceInfo(IEnumerable<ACChildInstanceInfo> childInstanceInfoList)
+        public async Task<ACChildInstanceInfo> ShowChildInstanceInfo(IEnumerable<ACChildInstanceInfo> childInstanceInfoList)
         {
             _UserSelectedChildInstanceInfo = null;
             this.ChildInstanceInfoList = childInstanceInfoList;
-            ShowDialog(this, "ACChildInstanceInfo");
+            await ShowDialogAsync(this, "ACChildInstanceInfo");
             return _UserSelectedChildInstanceInfo;
         }
 

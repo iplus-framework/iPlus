@@ -625,7 +625,7 @@ namespace gip.core.autocomponent
                         if (   (!receive && !deliver)
                             || (receive && deliver))
                         {
-                            ShowDialog(this, "SourceOrTarget");
+                            await ShowDialogAsync(this, "SourceOrTarget");
                             receive = _CurrentSourceOrTarget != null ? _CurrentSourceOrTarget.Value.ToString() == "Source" : false;
                             deliver = !receive ? true : false;
                         }
@@ -766,7 +766,7 @@ namespace gip.core.autocomponent
                         }
                     }
                 }
-                ShowDialog(this, "EditComplexValueDialog");
+                await ShowDialogAsync(this, "EditComplexValueDialog");
             }
             else if (SelectedACMethodParam.Value == null)
             {

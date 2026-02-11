@@ -346,10 +346,10 @@ namespace gip.bso.iplus
         #region Excel export => ACMethods
 
         [ACMethodInfo("", "en{'Export to excel'}de{'Exportieren nach Excel'}", 410,true)]
-        public void ExportToExcel()
+        public async void ExportToExcel()
         {
             _ExcelFileName = "";
-            ShowDialog(this, "ExcelExportDialog");
+            await ShowDialogAsync(this, "ExcelExportDialog");
         }
 
         public bool IsEnabledExportToExcel()

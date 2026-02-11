@@ -898,7 +898,6 @@ namespace gip.bso.iplus
 
 
         [ACMethodInfo("CleanUserDesign", "en{'Clean user designs'}de{'Klar Benutzerdesigns'}", 999)]
-
         public void CleanUserDesign()
         {
             if (!IsEnabledCleanUserDesign())
@@ -959,6 +958,18 @@ namespace gip.bso.iplus
 
 
         #endregion
+
+        [ACMethodInfo("","",9999)]
+        public async Task TestMethod()
+        {
+            await ShowDialogAsync(this, "TestDialog");
+
+            var test2 = "test";
+        }
+        public bool IsEnabledTestMethod()
+        {
+            return true;
+        }
 
         #endregion
 
@@ -1071,6 +1082,7 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledUnassignAllACProject):
                     return new string[] { nameof(CurrentUserInstance), nameof(SelectedAssignedVBUserACProject) };
                 case nameof(UserClone):
+                case nameof(TestMethod):
                     return new string[] { nameof(SelectedUser) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);

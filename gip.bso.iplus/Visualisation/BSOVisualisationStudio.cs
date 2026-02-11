@@ -652,14 +652,14 @@ namespace gip.bso.iplus
         /// News this instance.
         /// </summary>
         [ACMethodInteraction("Visualisation", Const.New, (short)MISort.New, true, "SelectedVisualisation", Global.ACKinds.MSMethodPrePost)]
-        public void New()
+        public async void New()
         {
             if (!PreExecute("New")) return;
             if (ComponentClass == null)
                 return;
             CurrentNewVisualisation = _ACProjectManager.NewVisualisation(ComponentClass);
 
-            ShowDialog(this, "VisualisationNew");
+            await ShowDialogAsync(this, "VisualisationNew");
 
             PostExecute("New");
         }
@@ -742,9 +742,9 @@ namespace gip.bso.iplus
 
 
         [ACMethodCommand("Visualisation", "en{'Search'}de{'Suchen'}", (short)MISort.Search)]
-        public void Search()
+        public async void Search()
         {
-            ShowDialog(this, "SearchDialog");
+            await ShowDialogAsync(this, "SearchDialog");
         }
 
 

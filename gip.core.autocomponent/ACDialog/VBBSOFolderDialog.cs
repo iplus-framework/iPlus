@@ -67,7 +67,7 @@ namespace gip.core.autocomponent
         /// <param name="folderPath"></param>
         /// <returns>true wenn Dialog mit "OK" geschlossen wird</returns>
         [ACMethodCommand("FolderPath", "en{'Folderdialog'}de{'Verzeichnisdialog'}", 9999)]
-        public string FolderDlg(string folderPath)
+        public async Task<string> FolderDlg(string folderPath)
         {
             if (string.IsNullOrEmpty(folderPath))
             {
@@ -77,8 +77,8 @@ namespace gip.core.autocomponent
             {
                 CurrentFolderPath = folderPath;
             }
-            ShowDialog(this, "FolderPathDlg");
-            this.ParentACComponent.StopComponent(this);
+            await ShowDialogAsync(this, "FolderPathDlg");
+            await this.ParentACComponent.StopComponent(this);
             return CurrentFolderPath;
         }
 
