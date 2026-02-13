@@ -48,6 +48,8 @@ namespace gip.core.layoutengine.avui
         {
         }
 
+        protected override Type StyleKeyOverride => typeof(VBConnectionState);
+
         /// <summary>
         /// Creates a new instance of VBConnectionState.
         /// </summary>
