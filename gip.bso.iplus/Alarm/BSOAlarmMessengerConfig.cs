@@ -923,7 +923,7 @@ namespace gip.bso.iplus
                 }
                 else
                 {
-                    Messages.InfoAsync(this, "Can't find a source ACClass.", true);
+                    await Messages.InfoAsync(this, "Can't find a source ACClass.", true);
                     return;
                 }
             }

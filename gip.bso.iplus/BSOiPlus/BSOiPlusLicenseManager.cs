@@ -52,7 +52,7 @@ namespace gip.bso.iplus
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
             if (_AccessPrimary != null)
-                _AccessPrimary.ACDeInit(true);
+                await _AccessPrimary.ACDeInit(true);
             _AccessPrimary = null;
             _SelectedAssignedPackage = null;
             _SelectedAvailablePackage = null;
@@ -332,9 +332,9 @@ namespace gip.bso.iplus
         /// Saves this instance (CurrentVBLicense).
         /// </summary>
         [ACMethodCommand(VBLicense.ClassName, "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void Save()
+        public async Task Save()
         {
-            OnSave();
+            await OnSave();
         }
 
         /// <summary>
@@ -846,88 +846,88 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"Save":
-                    Save();
+                case nameof(Save):
+                    _= Save();
                     return true;
-                case"IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case"UndoSave":
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case"IsEnabledUndoSave":
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case"New":
+                case nameof(New):
                     New();
                     return true;
-                case"IsEnabledNew":
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case"Delete":
+                case nameof(Delete):
                     Delete();
                     return true;
-                case"Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case"ImportActivationData":
+                case nameof(ImportActivationData):
                     ImportActivationData();
                     return true;
-                case"IsEnabledImportActivationData":
+                case nameof(IsEnabledImportActivationData):
                     result = IsEnabledImportActivationData();
                     return true;
-                case"BrowseActivationDataFile":
+                case nameof(BrowseActivationDataFile):
                     BrowseActivationDataFile();
                     return true;
-                case"ImportDataDialog":
+                case nameof(ImportDataDialog):
                     ImportDataDialog();
                     return true;
-                case"AssignAllPackages":
+                case nameof(AssignAllPackages):
                     AssignAllPackages();
                     return true;
-                case"IsEnabledAssignAllPackages":
+                case nameof(IsEnabledAssignAllPackages):
                     result = IsEnabledAssignAllPackages();
                     return true;
-                case"AssignSelectedPackage":
+                case nameof(AssignSelectedPackage):
                     AssignSelectedPackage();
                     return true;
-                case"IsEnabledAssignSelectedPackage":
+                case nameof(IsEnabledAssignSelectedPackage):
                     result = IsEnabledAssignSelectedPackage();
                     return true;
-                case"RemoveAllPackages":
+                case nameof(RemoveAllPackages):
                     RemoveAllPackages();
                     return true;
-                case"IsEnabledRemoveAllPackages":
+                case nameof(IsEnabledRemoveAllPackages):
                     result = IsEnabledRemoveAllPackages();
                     return true;
-                case"RemoveSelectedPackage":
+                case nameof(RemoveSelectedPackage):
                     RemoveSelectedPackage();
                     return true;
-                case"IsEnabledRemoveSelectedPackage":
+                case nameof(IsEnabledRemoveSelectedPackage):
                     result = IsEnabledRemoveSelectedPackage();
                     return true;
-                case"GenerateLicenseFile":
+                case nameof(GenerateLicenseFile):
                     GenerateLicenseFile();
                     return true;
-                case"IsEnabledGenerateLicenseFile":
+                case nameof(IsEnabledGenerateLicenseFile):
                     result = IsEnabledGenerateLicenseFile();
                     return true;
-                case"BrowseLicenseDir":
+                case nameof(BrowseLicenseDir):
                     BrowseLicenseDir();
                     return true;
-                case"SignLicenseFile":
+                case nameof(SignLicenseFile):
                     SignLicenseFile();
                     return true;
-                case"IsEnabledSignLicenseFile":
+                case nameof(IsEnabledSignLicenseFile):
                     result = IsEnabledSignLicenseFile();
                     return true;
-                case"BrowseLicenseFile":
+                case nameof(BrowseLicenseFile):
                     BrowseLicenseFile();
                     return true;
-                case"GenerateRemoteUserKey":
+                case nameof(GenerateRemoteUserKey):
                     GenerateRemoteUserKey();
                     return true;
-                case"IsEnabledGenerateRemoteUserKey":
+                case nameof(IsEnabledGenerateRemoteUserKey):
                     result = IsEnabledGenerateRemoteUserKey();
                     return true;
             }
