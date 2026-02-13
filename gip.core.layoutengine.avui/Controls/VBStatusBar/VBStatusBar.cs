@@ -23,9 +23,9 @@ namespace gip.core.layoutengine.avui
 
         static StatusBar()
         {
-            ItemsPanelTemplate template = new ItemsPanelTemplate() { Content = new DockPanel() };
+            //ItemsPanelTemplate template = new ItemsPanelTemplate() { Content = new StackPanel() { Orientation = Avalonia.Layout.Orientation.Horizontal } };
             //template.Build();
-            ItemsPanelProperty.OverrideMetadata(typeof(StatusBar), new StyledPropertyMetadata<ITemplate<Panel>>(template));
+            //ItemsPanelProperty.OverrideMetadata(typeof(StatusBar), new StyledPropertyMetadata<ITemplate<Panel>>(template));
         }
 
         #endregion
@@ -129,5 +129,8 @@ namespace gip.core.layoutengine.avui
         public VBStatusBar() : base()
         {
         }
+
+        protected override Type StyleKeyOverride => typeof(VBStatusBar);
+
     }
 }

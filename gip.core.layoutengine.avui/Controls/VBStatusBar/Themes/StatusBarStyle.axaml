@@ -6,11 +6,16 @@
     <ControlTheme x:Key="{x:Type local:VBStatusBar}" TargetType="{x:Type local:VBStatusBar}">
         <Setter Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
         <Setter Property="Background" Value="{StaticResource AppDark}"/>
+        <Setter Property="ItemsPanel">
+            <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal"/>
+            </ItemsPanelTemplate>
+        </Setter>
         <Setter Property="Template">
             <Setter.Value>
-                <ControlTemplate>
+                <ControlTemplate TargetType="{x:Type local:VBStatusBar}" >
                     <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                        <ItemsPresenter />
+                        <ItemsPresenter ItemsPanel="{TemplateBinding ItemsPanel}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>

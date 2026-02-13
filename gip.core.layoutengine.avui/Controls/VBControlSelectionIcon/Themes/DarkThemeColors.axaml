@@ -6,4 +6,7 @@
   <SolidColorBrush x:Key="FreezeScreenStrokePath" Color="#FFFFFFFF"/>
   <SolidColorBrush x:Key="FreezeScreenPathFill" Color="#FFFF0000"/>
 
+  <SolidColorBrush x:Key="StrokePath" Color="#FFFFFFFF"/>
+  <SolidColorBrush x:Key="PathFill" Color="#FFFF0000"/>
+
 </ResourceDictionary>

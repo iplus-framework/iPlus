@@ -32,5 +32,6 @@ namespace gip.core.layoutengine.avui
         {
         }
 
+        protected override Type StyleKeyOverride => typeof(VBStatusBarItem);
     }
 }

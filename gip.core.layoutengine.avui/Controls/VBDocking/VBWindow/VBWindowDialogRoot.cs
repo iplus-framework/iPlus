@@ -99,9 +99,6 @@ namespace gip.core.layoutengine.avui
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
-
-            var test = e.NameScope.Find<ContentPresenter>("PART_ContentPresenter");
-
         }
 
         /// <summary>
