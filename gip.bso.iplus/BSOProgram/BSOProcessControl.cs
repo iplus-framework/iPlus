@@ -156,7 +156,7 @@ namespace gip.bso.iplus
                 if (changed)
                 {
                     CurrentMode = FilterMode.ByProgram;
-                    Search();
+                    _= Search();
                 }
             }
         }
@@ -199,7 +199,7 @@ namespace gip.bso.iplus
                     _CurrentApplicationManager = value;
                     OnPropertyChanged("CurrentApplicationManager");
                     CurrentMode = FilterMode.ByApplication;
-                    Search();
+                    _= Search();
                 }
             }
         }
@@ -385,7 +385,7 @@ namespace gip.bso.iplus
                 else
                     CurrentApplicationManager = null;
                 if (_NeedSearch)
-                    Search();
+                    _= Search();
             }
             else if (page == "SearchByProgram")
             {
@@ -393,7 +393,7 @@ namespace gip.bso.iplus
                 CurrentProgramType = ProgramTypeList.FirstOrDefault();
                 CurrentMode = FilterMode.ByProgram;
                 if (_NeedSearch)
-                    Search();
+                    _= Search();
             }
             PostExecute("OnActivate");
         }
@@ -555,7 +555,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInteraction("Workflow-Live", "en{'Delete inactive workflow'}de{'Inaktiven Workflow löschen'}", (short)MISort.Delete, true, "SelectedACTask")]
-        public async void DeleteWorkflow()
+        public async Task DeleteWorkflow()
         {
             if (SelectedACTask == null)
                 return;
@@ -587,7 +587,7 @@ namespace gip.bso.iplus
                 }
             }
             if (await OnSave())
-                Search();
+                await Search();
         }
 
         protected virtual MsgWithDetails DeleteACTasksOfWF(List<ACClassTask> deleteList, ACClassTask acClassTask)
@@ -651,7 +651,7 @@ namespace gip.bso.iplus
             return false;
         }
 
-        public void SwitchToViewOnAlarm(Msg msgAlarm)
+        public async void SwitchToViewOnAlarm(Msg msgAlarm)
         {
             if (msgAlarm == null || msgAlarm.SourceComponent == null || VBBSOSelectionManager == null)
                 return;
@@ -674,13 +674,13 @@ namespace gip.bso.iplus
                 if (switchToAppManager == null)
                     return;
                 CurrentApplicationManager = switchToAppManager;
-                LoadACTaskList(FilterMode.ByApplication, false);
+                await LoadACTaskList(FilterMode.ByApplication, false);
             }
 
             if (SelectedACTask == null
                 || SelectedACTask.ACIdentifier != acUrlHelperWFRoot.ACUrlPart)
             {
-                LoadACTaskList(FilterMode.ByApplication, false);
+                await LoadACTaskList(FilterMode.ByApplication, false);
                 if (TaskPresenter != null)
                     TaskPresenter.MsgForSwitchingView = msgAlarm;
                 if (!SelectACTaskAndShowWF(acUrlHelperWFRoot.ACUrlPart))
@@ -822,22 +822,22 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"OnActivate":
+                case nameof(OnActivate):
                     OnActivate((String)acParameter[0]);
                     return true;
-                case"Search":
-                    Search();
+                case nameof(Search):
+                    _= Search();
                     return true;
-                case"ShowWorkflow":
+                case nameof(ShowWorkflow):
                     ShowWorkflow();
                     return true;
-                case"IsEnabledShowWorkflow":
+                case nameof(IsEnabledShowWorkflow):
                     result = IsEnabledShowWorkflow();
                     return true;
-                case"DeleteWorkflow":
-                    DeleteWorkflow();
+                case nameof(DeleteWorkflow):
+                    _= DeleteWorkflow();
                     return true;
-                case"IsEnabledDeleteWorkflow":
+                case nameof(IsEnabledDeleteWorkflow):
                     result = IsEnabledDeleteWorkflow();
                     return true;
             }

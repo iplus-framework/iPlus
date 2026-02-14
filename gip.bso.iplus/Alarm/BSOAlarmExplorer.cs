@@ -67,7 +67,7 @@ namespace gip.bso.iplus
 
             UnSubscribeEvents();
 
-            ACSaveOrUndoChanges();
+            await ACSaveOrUndoChanges();
             this._ACMsgAlarmList = null;
             this._CurrentACMsgAlarm = null;
             this._EventSubscr = null;

@@ -88,7 +88,7 @@ namespace gip.bso.iplus
             var b = await base.ACDeInit(deleteACClassTask);
             if (_AccessPrimary != null)
             {
-                _AccessPrimary.ACDeInit(false);
+                await _AccessPrimary.ACDeInit(false);
                 _AccessPrimary = null;
             }
             return b;
@@ -322,9 +322,9 @@ namespace gip.bso.iplus
         /// Saves this instance.
         /// </summary>
         [ACMethodCommand("ACProgram", "en{'Save'}de{'Speichern'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void Save()
+        public async Task Save()
         {
-            OnSave();
+            await OnSave();
         }
 
         /// <summary>
@@ -358,7 +358,7 @@ namespace gip.bso.iplus
         /// News this instance.
         /// </summary>
         [ACMethodInteraction("ACProgram", Const.New, (short)MISort.New, true, "SelectedACProgram", Global.ACKinds.MSMethodPrePost)]
-        public void New()
+        public async Task New()
         {
             if (!PreExecute("New")) return;
 
@@ -367,7 +367,7 @@ namespace gip.bso.iplus
             //            CloseTopDialog();
 
             ACComponent a = ACUrlCommand("BSOProgramWizard") as ACComponent;
-            this.StopComponent(a);
+            await this.StopComponent(a);
             return;
 
             //CurrentNewACProgram = ACProgram.NewACObject(Database.ContextIPlus, null);
@@ -505,40 +505,40 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"Save":
-                    Save();
+                case nameof(Save):
+                    _= Save();
                     return true;
-                case"IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case"UndoSave":
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case"IsEnabledUndoSave":
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case"New":
-                    New();
+                case nameof(New):
+                    _= New();
                     return true;
-                case"IsEnabledNew":
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case"Delete":
+                case nameof(Delete):
                     Delete();
                     return true;
-                case"IsEnabledDelete":
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case"Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case"NewACProgramOK":
+                case nameof(NewACProgramOK):
                     NewACProgramOK();
                     return true;
-                case"IsEnabledNewACProgramOK":
+                case nameof(IsEnabledNewACProgramOK):
                     result = IsEnabledNewACProgramOK();
                     return true;
-                case"NewACProgramCancel":
+                case nameof(NewACProgramCancel):
                     NewACProgramCancel();
                     return true;
             }

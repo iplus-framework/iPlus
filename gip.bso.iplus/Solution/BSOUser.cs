@@ -22,6 +22,8 @@ using gip.core.manager;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace gip.bso.iplus
 {
@@ -962,7 +964,9 @@ namespace gip.bso.iplus
         [ACMethodInfo("","",9999)]
         public async Task TestMethod()
         {
-            await ShowDialogAsync(this, "TestDialog");
+            //await ShowDialogAsync(this, "TestDialog");
+
+            var test = await Messages.QuestionAsync(this, "Do you want to execute the test method?", Global.MsgResult.Yes, true);
 
             var test2 = "test";
         }
@@ -1035,7 +1039,7 @@ namespace gip.bso.iplus
                     UnassignACProject();
                     return true;
                 case nameof(UserClone):
-                    UserClone();
+                    _= UserClone();
                     return true;
                 case nameof(IsEnabledUnassignACProject):
                     result = IsEnabledUnassignACProject();
@@ -1051,6 +1055,9 @@ namespace gip.bso.iplus
                     return true;
                 case nameof(IsEnabledUnassignAllACProject):
                     result = IsEnabledUnassignAllACProject();
+                    return true;
+                case nameof(TestMethod):
+                    _= TestMethod();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
