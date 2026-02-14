@@ -1,7 +1,7 @@
 <ResourceDictionary
-   xmlns="https://github.com/avaloniaui"
-   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
 
     <StreamGeometry x:Key="TreeArrow">M0,0 L0,8 L8,0 z</StreamGeometry>
@@ -12,35 +12,50 @@
         <Setter Property="Height" Value="20"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Border Background="Transparent" Height="22" Padding="5,7,5,5" Width="20">
-                    <Path x:Name="ExpandPath" Data="{StaticResource TreeArrow}" Fill="Transparent" Stroke="#FF989898">
-                        <Path.RenderTransform>
-                            <RotateTransform Angle="135" CenterY="3" CenterX="3"/>
-                        </Path.RenderTransform>
-                    </Path>
+                <Border Background="Transparent" Height="20" Padding="0,0,0,0" Width="20">
+                    <LayoutTransformControl x:Name="Transform" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="-2,0,0,0">
+                        <Path x:Name="ExpandPath"
+                              Data="{StaticResource TreeArrow}"
+                              Fill="Transparent"
+                              Stroke="#FF989898"
+                              StrokeThickness="1"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center">
+                        </Path>
+                        <LayoutTransformControl.LayoutTransform>
+                            <RotateTransform Angle="135" />
+                        </LayoutTransformControl.LayoutTransform>
+                    </LayoutTransformControl>
                 </Border>
             </ControlTemplate>
         </Setter>
-        
-        <!-- Checked state -->
-        <Style Selector="^:checked /template/ Path#ExpandPath">
-            <Setter Property="RenderTransform">
-                <RotateTransform Angle="180" CenterY="3" CenterX="3"/>
+
+        <!-- Checked state - rotated -->
+        <Style Selector="^:checked /template/ LayoutTransformControl#Transform">
+            <Setter Property="LayoutTransform">
+                <RotateTransform Angle="180" />
             </Setter>
+            <Setter Property="Margin" Value="0,0,0,0"></Setter>
         </Style>
-        
+
+        <!-- Default unchecked state (not hovered) - make visible with Fill -->
+        <!-- <Style Selector="^:not(:pointerover):not(:checked) /template/ Path#ExpandPath">
+            <Setter Property="Stroke" Value="#FF989898"/>
+            <Setter Property="Fill" Value="Transparent"/>
+        </Style> -->
+
         <!-- Mouse over and checked -->
         <Style Selector="^:pointerover:checked /template/ Path#ExpandPath">
             <Setter Property="Stroke" Value="#FFFF0000"/>
             <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
         </Style>
-        
+
         <!-- Mouse over and not checked -->
         <Style Selector="^:pointerover:not(:checked) /template/ Path#ExpandPath">
             <Setter Property="Stroke" Value="#FFFF0000"/>
             <Setter Property="Fill" Value="{StaticResource TreeArrowFocusFill}"/>
         </Style>
-        
+
         <!-- Not mouse over and checked -->
         <Style Selector="^:not(:pointerover):checked /template/ Path#ExpandPath">
             <Setter Property="Stroke" Value="#FFFFFFFF"/>
@@ -55,46 +70,44 @@
         <Setter Property="Foreground" Value="White"/>
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition MinWidth="19" Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <ToggleButton x:Name="Expander" 
-                                ClickMode="Press" 
-                                IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}" 
-                                Theme="{StaticResource ExpandCollapseToggleStyle}"/>
-                    <Border x:Name="Bd" 
-                            BorderBrush="{TemplateBinding BorderBrush}" 
-                            BorderThickness="{TemplateBinding BorderThickness}" 
-                            Background="{TemplateBinding Background}" 
-                            Grid.Column="1" 
+                <StackPanel>
+                    <Border x:Name="Bd"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            Background="{TemplateBinding Background}"
                             CornerRadius="4"
-                            Padding="{TemplateBinding Padding}">
-                        <ContentPresenter x:Name="PART_HeaderPresenter" 
-                                        Content="{TemplateBinding Header}" 
-                                        Margin="6,0,6,0" />
+                            Focusable="True"
+                            TemplatedControl.IsTemplateFocusTarget="True">
+                        <Grid x:Name="PART_Header"
+                              Margin="{Binding Level, RelativeSource={RelativeSource TemplatedParent}, Converter={x:Static local:TreeViewItemLevelToMarginConverter.Instance}, ConverterParameter=16}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="19" Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <ToggleButton x:Name="Expander"
+                                          Grid.Column="0"
+                                          ClickMode="Press"
+                                          IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
+                                          Theme="{StaticResource ExpandCollapseToggleStyle}"/>
+                            <ContentPresenter x:Name="PART_HeaderPresenter"
+                                              Grid.Column="1"
+                                              Content="{TemplateBinding Header}"
+                                              Padding="{TemplateBinding Padding}"
+                                              Margin="6,0,6,0" />
+                        </Grid>
                     </Border>
-                    <ItemsPresenter x:Name="PART_ItemsPresenter" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1"/>
-                </Grid>
+                    <ItemsPresenter x:Name="PART_ItemsPresenter"
+                                    IsVisible="{TemplateBinding IsExpanded}"
+                                    ItemsPanel="{TemplateBinding ItemsPanel}" />
+                </StackPanel>
             </ControlTemplate>
         </Setter>
-        
-        <!-- IsExpanded = false -->
-        <Style Selector="^:not(:expanded) /template/ ItemsPresenter#PART_ItemsPresenter">
-            <Setter Property="IsVisible" Value="False"/>
-        </Style>
-        
+
         <!-- HasItems = false (empty) -->
         <Style Selector="^:empty /template/ ToggleButton#Expander">
             <Setter Property="IsVisible" Value="False"/>
         </Style>
-        
+
         <!-- IsSelected = true -->
         <Style Selector="^:selected /template/ Border#Bd">
             <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionFill}"/>
@@ -104,28 +117,28 @@
             <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
             <Setter Property="FontWeight" Value="Bold"/>
         </Style>
-        
+
         <!-- IsSelected = true and IsSelectionActive = false TODO Avalonia with pseudo class-->
         <!--<Style Selector="^:selected:not(:focus-within) /template/ Border#Bd">
-            <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionNotActiveFill}"/>
-            <Setter Property="BorderBrush" Value="#FF0000"/>
+        <Setter Property="Background" Value="{StaticResource TreeViewItemSelectionNotActiveFill}"/>
+        <Setter Property="BorderBrush" Value="#FF0000"/>
         </Style>
         <Style Selector="^:selected:not(:focus-within)">
-            <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
+        <Setter Property="Foreground" Value="{StaticResource TreeViewItemSelectionFg}"/>
         </Style>-->
-        
+
         <!-- IsEnabled = false -->
         <Style Selector="^:disabled">
             <Setter Property="Foreground" Value="Gray"/>
         </Style>
-        
+
         <!-- VirtualizingStackPanel.IsVirtualizing = true -->
         <!--<Style Selector="^[(VirtualizingStackPanel.IsVirtualizing)=True]">
-            <Setter Property="ItemsPanel">
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel/>
-                </ItemsPanelTemplate>
-            </Setter>
+        <Setter Property="ItemsPanel">
+        <ItemsPanelTemplate>
+        <VirtualizingStackPanel/>
+        </ItemsPanelTemplate>
+        </Setter>
         </Style>-->
     </ControlTheme>
 </ResourceDictionary>

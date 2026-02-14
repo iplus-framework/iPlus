@@ -2,35 +2,22 @@
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    x:ClassModifier="internal">
-	<SolidColorBrush x:Key="TreeViewBgEnabled" Color="#FF1A1A1A"/>
-	<SolidColorBrush x:Key="TreeViewFgEnabled" Color="#FFFFFFFF"/>
-	<SolidColorBrush x:Key="TreeViewFgEnabledFocus" Color="#FFFFFFFF"/>
-	<RadialGradientBrush x:Key="TreeViewBorderEnabled" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%">
-		<GradientStop Color="#FFC5C5C6" Offset="0.208"/>
-		<GradientStop Color="#FF666666" Offset="0.548"/>
-		<GradientStop Color="Black" Offset="1"/>
-	</RadialGradientBrush>
-	<SolidColorBrush x:Key="TreeViewBgDisabled" Color="{StaticResource ColorAppDark}"/>
-	<SolidColorBrush x:Key="TreeViewFgDisabled" Color="Silver"/>
-	<RadialGradientBrush x:Key="TreeViewBorderDisabled" Center="80%,80%" RadiusX="100%" GradientOrigin="70%,80%" RadiusY="80%">
-		<GradientStop Color="#FFC5C5C6" Offset="0.208"/>
-		<GradientStop Color="#FF666666" Offset="0.548"/>
-		<GradientStop Color="Black" Offset="1"/>
-	</RadialGradientBrush>
-	<SolidColorBrush x:Key="TreeViewBgRequired" Color="#FF1A1A1A"/>
-	<SolidColorBrush x:Key="TreeViewFgRequired" Color="#FFFFFFFF"/>
-	<SolidColorBrush x:Key="TreeViewFgRequiredFocus" Color="Yellow"/>
-	<RadialGradientBrush x:Key="TreeViewBorderRequired" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%">
-		<GradientStop Color="#FFFFEA00" Offset="0.116"/>
-		<GradientStop Color="#FFD1D261" Offset="0.3"/>
-		<GradientStop Color="Black" Offset="1"/>
-	</RadialGradientBrush>
-	<SolidColorBrush x:Key="TreeViewBgWrong" Color="#FF1A1A1A"/>
-	<SolidColorBrush x:Key="TreeViewFgWrong" Color="#FFFFFFFF"/>
-	<SolidColorBrush x:Key="TreeViewFgWrongFocus" Color="#FFFF0000"/>
-	<RadialGradientBrush x:Key="TreeViewBorderWrong" Center="85%,90%" RadiusX="90%" GradientOrigin="80%,80%" RadiusY="80%">
-		<GradientStop Color="#FFFF0004" Offset="0.1116"/>
-		<GradientStop Color="#FFE43D3D" Offset="0.3"/>
-		<GradientStop Color="#FF020101" Offset="1"/>
-	</RadialGradientBrush>
+    <RadialGradientBrush x:Key="TreeArrowFocusFill" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
+        <GradientStop Color="#FFE99393" Offset="0.228"/>
+        <GradientStop Color="#FFFF0018" Offset="1"/>
+    </RadialGradientBrush>
+    <RadialGradientBrush x:Key="TreeArrowCheckedFill" Center="50%,50%" RadiusX="100%" GradientOrigin="50%,50%" RadiusY="100%">
+        <GradientStop Color="#FF505050"/>
+        <GradientStop Color="White" Offset="0.732"/>
+    </RadialGradientBrush>
+    <LinearGradientBrush x:Key="TreeViewItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FF825555" Offset="1"/>
+    </LinearGradientBrush>
+    <LinearGradientBrush x:Key="TreeViewItemSelectionNotActiveFill" EndPoint="0%,100%" StartPoint="0%,0%">
+        <GradientStop Color="#FF828282" Offset="0"/>
+        <GradientStop Color="#FF825555" Offset="1"/>
+    </LinearGradientBrush>
+    <SolidColorBrush x:Key="TreeViewItemSelectionFg" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="TreeViewItemFg" Color="#FFFFFFFF"/>
 </ResourceDictionary>

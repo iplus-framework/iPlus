@@ -123,24 +123,17 @@
 
 
 	<!--  Theme Colors -->
-
 	<Color x:Key="ForegroundColor">#FFFFFFFF</Color>
 	<Color x:Key="DisabledForegroundColor">#FF7F7F7F</Color>
-
-
+	<SolidColorBrush x:Key="DisabledForegroundBrush" Color="{StaticResource DisabledForegroundColor}" />
 
 
 	<Color x:Key="WindowBackgroundColor">#FF373737</Color>
-
-
-
 
 	<Color x:Key="ToolTipBackgroundColor0">#FFBBBBBB</Color>
 	<Color x:Key="ToolTipBackgroundColor1">#FFA89D9C</Color>
 
 	<Color x:Key="ToolTipBorderBrushColor">#FF202020</Color>
-
-
 
 
 	<Color x:Key="ButtonIdleBackgroundColor0">#FF3E3E3E</Color>
@@ -244,6 +237,7 @@
 
 	<Color x:Key="RadioButtonHoverCircleFillColor0">#FFFFFF74</Color>
 	<Color x:Key="RadioButtonHoverCircleFillColor1">#FFF2A311</Color>
+	
 
 
 	<Color x:Key="RadioButtonPressedCircleFillColor0">#FFFCD995</Color>
@@ -272,25 +266,29 @@
 
 
 	<Color x:Key="TextBoxHoverBackgroundColor">#FF5D5D5D</Color>
+	<SolidColorBrush x:Key="TextBoxHoverBackgroundBrush" Color="{StaticResource TextBoxHoverBackgroundColor}" />
 
 	<Color x:Key="TextBoxHoverBorderBrushColor0">#FF291700</Color>
 	<Color x:Key="TextBoxHoverBorderBrushColor1">#FF663900</Color>
-
+	<SolidColorBrush x:Key="TextBoxHoverBorderBrush" Color="{StaticResource TextBoxHoverBorderBrushColor0}" />
 
 	<Color x:Key="TextBoxFocusBackgroundColor">#FF5D5D5D</Color>
-
+	<SolidColorBrush x:Key="TextBoxFocusBackgroundBrush" Color="{StaticResource TextBoxFocusBackgroundColor}" />
+	
 	<Color x:Key="TextBoxFocusBorderBrushColor0">#FF291700</Color>
 	<Color x:Key="TextBoxFocusBorderBrushColor1">#FF663900</Color>
-
+	<SolidColorBrush x:Key="TextBoxFocusBorderBrush" Color="{StaticResource TextBoxFocusBorderBrushColor0}" />
 
 	<Color x:Key="TextBoxDisabledBackgroundColor">#FF797979</Color>
+	<SolidColorBrush x:Key="TextBoxDisabledBackgroundBrush" Color="{StaticResource TextBoxDisabledBackgroundColor}" />
 
 	<Color x:Key="TextBoxDisabledBorderBrushColor">#FF565656</Color>
+	<SolidColorBrush x:Key="TextBoxDisabledBorderBrush" Color="{StaticResource TextBoxDisabledBorderBrushColor}" />
 
 
 	<Color x:Key="TextBoxErrorBorderBrushColor0">#FF000051</Color>
 	<Color x:Key="TextBoxErrorBorderBrushColor1">#FF000080</Color>
-
+	<SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="{StaticResource TextBoxErrorBorderBrushColor0}" />
 
 
 

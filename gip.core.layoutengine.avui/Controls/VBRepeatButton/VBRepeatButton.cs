@@ -96,8 +96,8 @@ namespace gip.core.layoutengine.avui
                 {
                     if (VBContentMethodInfo != null || menuItem != null)
                     {
-                        // Wurde ein VBRepeatButton per Datatemplate erzeugt, dann weiß man nicht zu welchem Datenobjekt (z.B. ausgewähltes Item in der Listbox)
-                        // der Button gehört. Durch ein Binding vom Datenobjekt zum CommandParameter (CommandParameter={Binding }), wird der Wert im Commandparameter gesetzt.
+                        // Wurde ein VBRepeatButton per Datatemplate erzeugt, dann weiï¿½ man nicht zu welchem Datenobjekt (z.B. ausgewï¿½hltes Item in der Listbox)
+                        // der Button gehï¿½rt. Durch ein Binding vom Datenobjekt zum CommandParameter (CommandParameter={Binding }), wird der Wert im Commandparameter gesetzt.
                         // Damit nun per ACUrlCommand dieser Parameter mit gegeben werden kann wird der Wert in die ValueList eingetragen.
                         if (CommandParameter != null)
                         {
@@ -530,6 +530,8 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
+                if (string.IsNullOrEmpty(VBContent))
+                    return null;
                 int pos = VBContent.IndexOf('!');
                 if (pos == 0)
                     return VBContent.Substring(1);
@@ -564,7 +566,7 @@ namespace gip.core.layoutengine.avui
         /// Determines is cyclic execution enabled or disabled.The value (integer) in this property determines the interval of cyclic execution in miliseconds.   
         /// </summary>
         /// <summary xml:lang="de">
-        /// Bestimmt, ob die zyklische Ausführung aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausführung in Millisekunden.
+        /// Bestimmt, ob die zyklische Ausfï¿½hrung aktiviert oder deaktiviert ist. Der Wert (Integer) in dieser Eigenschaft bestimmt das Intervall der zyklischen Ausfï¿½hrung in Millisekunden.
         /// </summary>
         [Category("VBControl")]
         public int CanExecuteCyclic
@@ -584,7 +586,7 @@ namespace gip.core.layoutengine.avui
         /// Determines is context menu disabled or enabled.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Ermittelt ist das Kontextmenü deaktiviert oder aktiviert
+        /// Ermittelt ist das Kontextmenï¿½ deaktiviert oder aktiviert
         /// </summary>
         [Category("VBControl")]
         [ACPropertyInfo(9999)]
@@ -601,7 +603,7 @@ namespace gip.core.layoutengine.avui
         public void UpdateControlMode()
         {
             IACComponent elementACComponent = ContextACObject as IACComponent;
-            // Bei Datatemplates ist Button an IACObjects gebunden, die keine ControlModes handeln können
+            // Bei Datatemplates ist Button an IACObjects gebunden, die keine ControlModes handeln kï¿½nnen
             if (elementACComponent == null)
                 elementACComponent = BSOACComponent;
             if (elementACComponent == null)

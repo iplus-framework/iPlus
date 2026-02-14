@@ -70,6 +70,9 @@
 	<Color x:Key="ColorCtrlFrmEnabled">#FF000000</Color>
 	<SolidColorBrush x:Key="CtrlFrmEnabled" Color="{StaticResource ColorCtrlFrmEnabled}" />
 
+	<Color x:Key="ColorCtrlFrmWrong">#FF325F7D</Color>
+	<SolidColorBrush x:Key="CtrlFrmWrong" Color="{StaticResource ColorCtrlFrmWrong}" />
+
 	<Color x:Key="ColorCtrlFrmRequired">#FFFF0000</Color>
 	<SolidColorBrush x:Key="CtrlFrmRequired" Color="{StaticResource ColorCtrlFrmRequired}" />
 
@@ -90,14 +93,6 @@
 
 	<Color x:Key="TabItemSelectedBorderColor">#FF929292</Color>
 	<SolidColorBrush x:Key="TabItemSelectedBorderBrush" Color="{StaticResource TabItemSelectedBorderColor}"/>
-
-	<!--<LinearGradientBrush x:Key="ComboBoxItemSelectionFill" EndPoint="0%,100%" StartPoint="0%,0%">
-	<GradientStop Color="#4CFF6565" Offset="0"/>
-	<GradientStop Color="#7FFF0018" Offset="1"/>
-	</LinearGradientBrush>
-	<Border x:Key="ComboBoxSelectedItemTemplate" CornerRadius="2" Background="{StaticResource ComboBoxItemSelectionFill}" BorderBrush="#FF0000">
-	<StackPanel x:Name="ComboBoxSelectedItemPanel" Orientation="Horizontal"></StackPanel>
-	</Border>-->
 
 	<DrawingBrush x:Key="ConverterErrorBrush" TileMode="Tile">
 		<DrawingBrush.Drawing>
@@ -126,13 +121,14 @@
 		</DrawingBrush.Drawing>
 	</DrawingBrush>
 
+
 	<!--  Colors -->
 	<Color x:Key="ForegroundColor">#FF000000</Color>
 	<Color x:Key="DisabledForegroundColor">#FF7F7F7F</Color>
+	<SolidColorBrush x:Key="DisabledForegroundBrush" Color="{StaticResource DisabledForegroundColor}" />
 
 
 	<Color x:Key="WindowBackgroundColor">#FFFCFCFC</Color>
-
 
 	<Color x:Key="ToolTipBackgroundColor0">#FFFFFFFF</Color>
 	<Color x:Key="ToolTipBackgroundColor1">#FFF0E5E4</Color>
@@ -243,6 +239,7 @@
 	<Color x:Key="RadioButtonHoverCircleFillColor1">#FFF2A311</Color>
 
 
+
 	<Color x:Key="RadioButtonPressedCircleFillColor0">#FFFCD995</Color>
 	<Color x:Key="RadioButtonPressedCircleFillColor1">#FF845609</Color>
 
@@ -269,25 +266,29 @@
 
 
 	<Color x:Key="TextBoxHoverBackgroundColor">#FFFFFFFF</Color>
+	<SolidColorBrush x:Key="TextBoxHoverBackgroundBrush" Color="{StaticResource TextBoxHoverBackgroundColor}" />
 
 	<Color x:Key="TextBoxHoverBorderBrushColor0">#FFB17F3C</Color>
 	<Color x:Key="TextBoxHoverBorderBrushColor1">#FFFFB856</Color>
-
+	<SolidColorBrush x:Key="TextBoxHoverBorderBrush" Color="{StaticResource TextBoxHoverBorderBrushColor0}" />
 
 	<Color x:Key="TextBoxFocusBackgroundColor">#FFFFFFFF</Color>
+	<SolidColorBrush x:Key="TextBoxFocusBackgroundBrush" Color="{StaticResource TextBoxFocusBackgroundColor}" />
 
 	<Color x:Key="TextBoxFocusBorderBrushColor0">#FF8B622C</Color>
 	<Color x:Key="TextBoxFocusBorderBrushColor1">#FFE5A449</Color>
-
+	<SolidColorBrush x:Key="TextBoxFocusBorderBrush" Color="{StaticResource TextBoxFocusBorderBrushColor0}" />
 
 	<Color x:Key="TextBoxDisabledBackgroundColor">#FFE9E9E9</Color>
+	<SolidColorBrush x:Key="TextBoxDisabledBackgroundBrush" Color="{StaticResource TextBoxDisabledBackgroundColor}" />
 
 	<Color x:Key="TextBoxDisabledBorderBrushColor">#FFB5B2AD</Color>
+	<SolidColorBrush x:Key="TextBoxDisabledBorderBrush" Color="{StaticResource TextBoxDisabledorderBrushColor}" />
 
 
 	<Color x:Key="TextBoxErrorBorderBrushColor0">#FF3B3BAF</Color>
 	<Color x:Key="TextBoxErrorBorderBrushColor1">#FF5656FF</Color>
-
+	<SolidColorBrush x:Key="TextBoxErrorBorderBrush" Color="{StaticResource TextBoxErrorBorderBrushColor0}" />
 
 
 

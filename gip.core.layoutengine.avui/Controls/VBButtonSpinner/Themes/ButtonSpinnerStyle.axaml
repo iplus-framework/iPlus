@@ -4,8 +4,8 @@
                     xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
 
-  <StreamGeometry x:Key="ButtonSpinnerIncreaseButtonIcon">M 0 4 L 3.5 0 L 7 4</StreamGeometry>
-  <StreamGeometry x:Key="ButtonSpinnerDecreaseButtonIcon">M 0 0 L 3.5 4 L 7 0</StreamGeometry>
+  <StreamGeometry x:Key="ButtonSpinnerIncreaseButtonIcon">M 0,3 C0,3 0,4 0,4 0,4 3,4 3,4 3,4 3,3 3,3 3,3 4,3 4,3 4,3 4,4 4,4 4,4 7,4 7,4 7,4 7,3 7,3 7,3 6,3 6,3 6,3 6,2 6,2 6,2 5,2 5,2 5,2 5,1 5,1 5,1 4,1 4,1 4,1 4,0 4,0 4,0 3,0 3,0 3,0 3,1 3,1 3,1 2,1 2,1 2,1 2,2 2,2 2,2 1,2 1,2 1,2 1,3 1,3 1,3 0,3 0,3 z</StreamGeometry>
+  <StreamGeometry x:Key="ButtonSpinnerDecreaseButtonIcon">M 0,1 C0,1 0,0 0,0 0,0 3,0 3,0 3,0 3,1 3,1 3,1 4,1 4,1 4,1 4,0 4,0 4,0 7,0 7,0 7,0 7,1 7,1 7,1 6,1 6,1 6,1 6,2 6,2 6,2 5,2 5,2 5,2 5,3 5,3 5,3 4,3 4,3 4,3 4,4 4,4 4,4 3,4 3,4 3,4 3,3 3,3 3,3 2,3 2,3 2,3 2,2 2,2 2,2 1,2 1,2 1,2 1,1 1,1 1,1 0,1 0,1 z</StreamGeometry>
 
   <conv:MarginMultiplierConverter x:Key="SpinnerBodyBorderThicknessFilter_Left" Indent="1"
                                   Left="True"
@@ -29,7 +29,7 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderBrush" Value="Transparent" />
     <Setter Property="BorderThickness" Value="1" />
-    <Setter Property="Padding" Value="3" />
+    <Setter Property="Padding" Value="0" />
     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
     <Setter Property="VerticalContentAlignment" Value="Center" />
     <!--<Setter Property="CornerRadius" Value="{StaticResource ControlCornerRadius}" />-->
@@ -44,14 +44,22 @@
                         IsVisible="{TemplateBinding ShowButtonSpinner}">
               <local:VBRepeatButton x:Name="PART_IncreaseButton"
                           IsTabStop="{TemplateBinding IsTabStop}"
-                          VerticalAlignment="Stretch">
-                <PathIcon Data="{StaticResource ButtonSpinnerIncreaseButtonIcon}" />
+                          VerticalAlignment="Stretch"
+                          Width="20"
+                          Height="12">
+                <Grid Width="7" Height="4" x:Name="arrowGlyphUp" VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <Path Width="7" Height="4" Data="M 0,3 C0,3 0,4 0,4 0,4 3,4 3,4 3,4 3,3 3,3 3,3 4,3 4,3 4,3 4,4 4,4 4,4 7,4 7,4 7,4 7,3 7,3 7,3 6,3 6,3 6,3 6,2 6,2 6,2 5,2 5,2 5,2 5,1 5,1 5,1 4,1 4,1 4,1 4,0 4,0 4,0 3,0 3,0 3,0 3,1 3,1 3,1 2,1 2,1 2,1 2,2 2,2 2,2 1,2 1,2 1,2 1,3 1,3 1,3 0,3 0,3 z" Fill="{StaticResource DateTimePickerFillArrowGlyph}" />
+                </Grid>
               </local:VBRepeatButton>
 
               <local:VBRepeatButton x:Name="PART_DecreaseButton"
                           IsTabStop="{TemplateBinding IsTabStop}"
-                          VerticalAlignment="Stretch">
-                <PathIcon Data="{StaticResource ButtonSpinnerDecreaseButtonIcon}" />
+                          VerticalAlignment="Stretch"
+                          Width="20"
+                          Height="12">
+                <Grid Width="7" Height="4" x:Name="arrowGlyphDown" VerticalAlignment="Center" HorizontalAlignment="Center">
+                  <Path Width="7" Height="4" Data="M 0,1 C0,1 0,0 0,0 0,0 3,0 3,0 3,0 3,1 3,1 3,1 4,1 4,1 4,1 4,0 4,0 4,0 7,0 7,0 7,0 7,1 7,1 7,1 6,1 6,1 6,1 6,2 6,2 6,2 5,2 5,2 5,2 5,3 5,3 5,3 4,3 4,3 4,3 4,4 4,4 4,4 3,4 3,4 3,4 3,3 3,3 3,3 2,3 2,3 2,3 2,2 2,2 2,2 1,2 1,2 1,2 1,1 1,1 1,1 0,1 0,1 z" Fill="{StaticResource DateTimePickerFillArrowGlyph}"/>
+                </Grid>
               </local:VBRepeatButton>
             </UniformGrid>
 
@@ -117,12 +125,12 @@
     <!-- Disabled State -->
     <Style Selector="^:disabled">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="Background" Value="{StaticResource TextBoxDisabledBackground}" />
+        <Setter Property="Background" Value="{StaticResource TextBoxDisabledBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource TextBoxDisabledBorderBrush}" />
       </Style>
 
       <Style Selector="^ /template/ TextPresenter#PART_TextPresenter">
-        <Setter Property="TextBlock.Foreground" Value="{StaticResource DisabledForeground}" />
+        <Setter Property="TextBlock.Foreground" Value="{StaticResource DisabledForegroundBrush}" />
       </Style>
     </Style>
 
@@ -130,14 +138,14 @@
     <Style Selector="^:pointerover">
       <Style Selector="^ /template/ Border#BgElement">
         <Setter Property="BorderBrush" Value="{StaticResource TextBoxHoverBorderBrush}"/>
-        <Setter Property="Background" Value="{StaticResource TextBoxHoverBackground}" />
+        <Setter Property="Background" Value="{StaticResource TextBoxHoverBackgroundBrush}" />
       </Style>
     </Style>
 
     <!-- Focused State -->
     <Style Selector="^:focus">
       <Style Selector="^ /template/ Border#BgElement">
-        <Setter Property="Background" Value="{StaticResource TextBoxFocusBackground}" />
+        <Setter Property="Background" Value="{StaticResource TextBoxFocusBackgroundBrush}" />
         <Setter Property="BorderBrush" Value="{StaticResource TextBoxFocusBorderBrush}" />
       </Style>
     </Style>

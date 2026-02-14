@@ -38,7 +38,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         /// <param name="parentACElement">The parent ACElement.</param>
         /// <param name="acComponent">The acComponent parameter.</param>
-        public VBTreeViewItem(IACInteractiveObject parentACElement, IACObject acComponent)
+        public VBTreeViewItem(IACInteractiveObject parentACElement, IACObject acComponent) : this()
         {
             _ParentACElement = parentACElement;
             ContextACObject = acComponent;
