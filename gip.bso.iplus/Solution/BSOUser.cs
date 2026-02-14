@@ -14,16 +14,11 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Data;
 using gip.core.datamodel;
 using gip.core.autocomponent;
-using gip.core.manager;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace gip.bso.iplus
 {
@@ -965,10 +960,8 @@ namespace gip.bso.iplus
         public async Task TestMethod()
         {
             //await ShowDialogAsync(this, "TestDialog");
-
             var test = await Messages.QuestionAsync(this, "Do you want to execute the test method?", Global.MsgResult.Yes, true);
-
-            var test2 = "test";
+            //var test2 = "test";
         }
         public bool IsEnabledTestMethod()
         {
