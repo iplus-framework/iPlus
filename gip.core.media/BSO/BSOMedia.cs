@@ -952,7 +952,7 @@ namespace gip.core.media
                     Add();
                     return true;
                 case nameof(Delete):
-                    Delete();
+                    _= Delete();
                     return true;
                 case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();

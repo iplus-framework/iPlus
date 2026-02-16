@@ -2331,7 +2331,7 @@ namespace gip.core.autocomponent
                         case ACUrlHelper.UrlTypes.QueryType:
                             return null;
                         default:
-                            StopComponent(acUrlHelper.ACUrlPart);
+                            _= StopComponent(acUrlHelper.ACUrlPart);
                             return null;
                     }
                 case ACUrlHelper.UrlKeys.InvokeMethod:
@@ -5295,7 +5295,7 @@ namespace gip.core.autocomponent
                     if (cloneInstantiated)
                         reportData.StopACComponents();
 
-                    StopComponent(acReportComp);
+                    _= StopComponent(acReportComp);
 
                     if (msg != null)
                         return msg;

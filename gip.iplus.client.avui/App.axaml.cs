@@ -90,7 +90,7 @@ public partial class App : Application
             finally
             {
                 if (ACRoot.SRoot != null)
-                    ACRoot.SRoot.ACDeInit();
+                    _= ACRoot.SRoot.ACDeInit();
                 // Ist notwendig, damit die Anwendung auch wirklich als Prozess beendet wird
                 if (App._GlobalApp.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
                     desktop.Shutdown();

@@ -96,7 +96,7 @@ namespace gip.core.autocomponent
                 {
                     if (!manager.ReferencePoint.HasStrongReferences)
                     {
-                        manager.Stop();
+                        _= manager.Stop();
                     }
                 }
             }

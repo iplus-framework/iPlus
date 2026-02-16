@@ -209,7 +209,7 @@ namespace gip.core.reporthandler.avui
             }
             else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
             {
-                DoPrintComponent(acClassDesign, withDialog, copies, ReloadOnServer);
+                _= DoPrintComponent(acClassDesign, withDialog, copies, ReloadOnServer);
             }
 
             return null;
@@ -1124,10 +1124,10 @@ namespace gip.core.reporthandler.avui
             return SelectedPrintServer != null;
         }
 
-        private void DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies, bool reloadReport)
+        private async Task DoPrintComponent(ACClassDesign acClassDesign, bool withDialog, int copies, bool reloadReport)
         {
             if (withDialog)
-                PrintComponent();
+                await PrintComponent();
             else
             {
                 string acPrintServerACUrl = PrintServerList.Where(c => c.IsDefault).Select(c => c.PrinterACUrl).FirstOrDefault();
@@ -1536,10 +1536,10 @@ namespace gip.core.reporthandler.avui
                     Print((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3], acParameter.Count() == 5 ? (Int32)acParameter[4] : 1);
                     return true;
                 case nameof(Preview):
-                    Preview((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
+                    _= Preview((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
                     return true;
                 case nameof(Design):
-                    Design((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
+                    _= Design((ACClassDesign)acParameter[0], (Boolean)acParameter[1], (String)acParameter[2], (ReportData)acParameter[3]);
                     return true;
                 case nameof(FlowDialogCancel):
                     FlowDialogCancel();

@@ -892,7 +892,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     }
     #endregion
 
-    private async void WarningIcon_DoubleTappedAsync(object sender, TappedEventArgs e)
+    private async void WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
     {
         IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null) as IACComponent;
         if (bsoAlarmExplorer != null)

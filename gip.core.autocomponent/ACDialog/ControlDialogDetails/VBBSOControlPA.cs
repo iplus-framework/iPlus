@@ -880,7 +880,7 @@ namespace gip.core.autocomponent
 
         IEnumerable<object> queryACClassConfig;
         [ACMethodInfo("ParamC", "en{'Mass update'}de{'Massenaktualisierung'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void MassUpdateInPoint()
+        public async Task MassUpdateInPoint()
         {
             queryACClassConfig = null;
 
@@ -892,7 +892,7 @@ namespace gip.core.autocomponent
                     .Select(k => k.n).Cast<ACClassConfig>().Select(u => u.Value);
             }
             if (queryACClassConfig != null && tempConfigList != null)
-                MassUpdate(queryACClassConfig, tempConfigList);
+                await MassUpdate(queryACClassConfig, tempConfigList);
         }
 
         public bool IsEnabledMassUpdateInPoint()
@@ -904,7 +904,7 @@ namespace gip.core.autocomponent
         }
 
         [ACMethodInfo("ParamC", "en{'Mass update'}de{'Massenaktualisierung'}", (short)MISort.Save, false, Global.ACKinds.MSMethodPrePost)]
-        public void MassUpdateOutPoint()
+        public async Task MassUpdateOutPoint()
         {
             queryACClassConfig = null;
 
@@ -916,7 +916,7 @@ namespace gip.core.autocomponent
                     .Select(k => k.n).Cast<ACClassConfig>().Select(u => u.Value);
             }
             if (queryACClassConfig != null && tempConfigOutPointList != null)
-                MassUpdate(queryACClassConfig, tempConfigOutPointList);
+                await MassUpdate(queryACClassConfig, tempConfigOutPointList);
         }
 
         public bool IsEnabledMassUpdateOutPoint()
@@ -927,7 +927,7 @@ namespace gip.core.autocomponent
                 return false;
         }
 
-        public void MassUpdate(IEnumerable<object> queryACClassConfig, ObservableCollection<ACValue> tempList)
+        public async Task MassUpdate(IEnumerable<object> queryACClassConfig, ObservableCollection<ACValue> tempList)
         {
 
             using (ACMonitor.Lock(Database.QueryLock_1X000))
@@ -949,7 +949,7 @@ namespace gip.core.autocomponent
                     }
                 }
             }
-            OnSave();
+            await OnSave();
             tempConfigList = null;
             tempConfigOutPointList = null;
         }
@@ -960,7 +960,7 @@ namespace gip.core.autocomponent
         #region ACProgramLog
 
         [ACMethodInfo("","en{'Show logs'}de{'Protokolle anzeigen'}",999)]
-        public async void ShowACProgramLog()
+        public async Task ShowACProgramLog()
         {
             if (CurrentACComponent != null && SearchFrom < SearchTo)
             {
@@ -990,7 +990,7 @@ namespace gip.core.autocomponent
                     param.Add(new ACValue("SearchTo", SearchTo));
                     param.Add(new ACValue("SearchMode", searchMode));
                     param.Add(new ACValue("IsForProcessModule", isProcessModule));
-                    service.ShowProgramLogViewer(this as IACComponent, param);
+                    await service.ShowProgramLogViewer(this as IACComponent, param);
                 }
             }
 
@@ -1016,13 +1016,13 @@ namespace gip.core.autocomponent
                     SaveConfig();
                     return true;
                 case "MassUpdateInPoint":
-                    MassUpdateInPoint();
+                    _= MassUpdateInPoint();
                     return true;
                 case "MassUpdateOutPoint":
-                    MassUpdateOutPoint();
+                    _= MassUpdateOutPoint();
                     return true;
                 case "ShowACProgramLog":
-                    ShowACProgramLog();
+                    _= ShowACProgramLog();
                     return true;
                 case "AcknowledgeCurrent":
                     AcknowledgeCurrent();

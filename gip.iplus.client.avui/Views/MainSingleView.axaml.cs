@@ -815,7 +815,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     {
     }
 
-    private void BackButton_Click(object? sender, RoutedEventArgs e)
+    private void BackButton_Click(object sender, RoutedEventArgs e)
     {
         MainContentControl.CloseDesign();
 

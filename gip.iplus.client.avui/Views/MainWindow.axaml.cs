@@ -47,7 +47,7 @@ public partial class MainWindow : Window
             return;
         }
         _ShutdownInProgress = true;
-        ACRoot.SRoot.ACDeInit();
+        _= ACRoot.SRoot.ACDeInit();
         App._GlobalApp.ShutdownApplication();
     }
 

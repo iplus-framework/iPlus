@@ -177,7 +177,7 @@ namespace gip.core.autocomponent
         internal override void FinalizeComponent()
         {
             UnSubscribeAtServer(false, true);
-            Stop();
+            _= Stop();
         }
 
         /// <summary>

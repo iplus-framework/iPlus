@@ -56,7 +56,7 @@ namespace gip.core.wpfservices.avui
                         VBPresenter vbPresenter = vbDesigner.ParentACComponent as VBPresenter;
                         PWOfflineNode parentPWNode = vbPresenter.ACUrlCommand(change.ACUrl) as PWOfflineNode;
                         if (parentPWNode != null)
-                            parentPWNode.ParentACComponent.StopComponent(parentPWNode);
+                            _= parentPWNode.ParentACComponent.StopComponent(parentPWNode);
 
                         changedItems.Add(designItem);
                         ModelTools.DeleteComponents(changedItems);

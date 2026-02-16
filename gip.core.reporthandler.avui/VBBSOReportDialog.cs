@@ -712,25 +712,25 @@ namespace gip.core.reporthandler.avui
             switch (acMethodName)
             {
                 case nameof(ReportPrintDlg):
-                    ReportPrintDlg();
+                    _= ReportPrintDlg();
                     return true;
                 case nameof(IsEnabledReportPrintDlg):
                     result = IsEnabledReportPrintDlg();
                     return true;
                 case nameof(ReportPreviewDlg):
-                    ReportPreviewDlg();
+                    _= ReportPreviewDlg();
                     return true;
                 case nameof(IsEnabledReportPreviewDlg):
                     result = IsEnabledReportPreviewDlg();
                     return true;
                 case nameof(ReportDesignDlg):
-                    ReportDesignDlg();
+                    _= ReportDesignDlg();
                     return true;
                 case nameof(IsEnabledReportDesignDlg):
                     result = IsEnabledReportDesignDlg();
                     return true;
                 case nameof(ReportNewReportDlg):
-                    ReportNewReportDlg();
+                    _= ReportNewReportDlg();
                     return true;
                 case nameof(ReportCancel):
                     ReportCancel();
@@ -757,28 +757,28 @@ namespace gip.core.reporthandler.avui
                     result = IsEnabledReportSave();
                     return true;
                 case nameof(ReportPrint):
-                    ReportPrint();
+                    _= ReportPrint();
                     return true;
                 case nameof(IsEnabledReportPrint):
                     result = IsEnabledReportPrint();
                     return true;
                 case nameof(ReportPreview):
-                    ReportPreview();
+                    _= ReportPreview();
                     return true;
                 case nameof(IsEnabledReportPreview):
                     result = IsEnabledReportPreview();
                     return true;
                 case nameof(ReportDesign):
-                    ReportDesign();
+                    _= ReportDesign();
                     return true;
                 case nameof(IsEnabledReportDesign):
                     result = IsEnabledReportDesign();
                     return true;
                 case nameof(ReportPrintSilent):
-                    ReportPrintSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
+                    _= ReportPrintSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
                     return true;
                 case nameof(ReportPreviewSilent):
-                    ReportPreviewSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
+                    _= ReportPreviewSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
                     return true;
                 case nameof(ReportModifyQuery):
                     ReportModifyQuery();
@@ -864,7 +864,7 @@ namespace gip.core.reporthandler.avui
             LoadDefaultReport();
             if (CurrentACClassDesign == null)
             {
-                ReportNewReportDlg();
+                await ReportNewReportDlg();
                 if (CurrentACClassDesign == null)
                 {
                     CloseTopDialog();
@@ -1119,19 +1119,19 @@ namespace gip.core.reporthandler.avui
         #region Drucken
 
         [ACMethodInfo("Report", "en{'Print direct'}de{'Direkter Druck'}", (short)MISort.QueryPrintSilent)]
-        public void ReportPrintSilent(ACClassDesign ACClassDesign, Global.CurrentOrList currentOrList, string printerName)
+        public async Task ReportPrintSilent(ACClassDesign ACClassDesign, Global.CurrentOrList currentOrList, string printerName)
         {
             LoadDefaultReport();
             WithDialog = false;
             CurrentACClassDesign = ACClassDesign;
             CurrentCurrentOrList = currentOrList;
             PrinterName = printerName; // Beispiel: "HP Universal Printing PCL 6";
-            ReportPrint();
+            await ReportPrint();
         }
 
 
         [ACMethodCommand("Report", "en{'Print'}de{'Drucken'}", (short)MISort.QueryPrint)]
-        public void ReportPrint()
+        public async Task ReportPrint()
         {
             if (!IsEnabledReportPrint())
                 return;
@@ -1155,7 +1155,7 @@ namespace gip.core.reporthandler.avui
                 if (cloneInstantiated)
                     reportData.StopACComponents();
 
-                StopComponent(acReportQuery);
+                await StopComponent(acReportQuery);
             }
             catch (Exception e)
             {
@@ -1173,19 +1173,19 @@ namespace gip.core.reporthandler.avui
         #region Druckvorschau
 
         [ACMethodInfo("Report", "en{'Preview Direct'}de{'Direkte Vorschau'}", (short)MISort.QueryPreviewSilent)]
-        public void ReportPreviewSilent(ACClassDesign ACClassDesign, Global.CurrentOrList currentOrList, string printerName)
+        public async Task ReportPreviewSilent(ACClassDesign ACClassDesign, Global.CurrentOrList currentOrList, string printerName)
         {
             LoadDefaultReport();
             WithDialog = false;
             CurrentACClassDesign = ACClassDesign;
             CurrentCurrentOrList = currentOrList;
             PrinterName = printerName; // Beispiel: "HP Universal Printing PCL 6";
-            ReportPreview();
+            await ReportPreview();
         }
 
 
         [ACMethodCommand("Report", "en{'Preview'}de{'Vorschau'}", (short)MISort.QueryPreview)]
-        public void ReportPreview()
+        public async Task ReportPreview()
         {
             if (CurrentACClassDesign == null)
                 return;
@@ -1202,12 +1202,11 @@ namespace gip.core.reporthandler.avui
                 if (reportData == null)
                     return;
 
-                acReportQuery.Preview(CurrentACClassDesign, WithDialog, PrinterName, reportData);
+                await acReportQuery.Preview(CurrentACClassDesign, WithDialog, PrinterName, reportData);
 
                 if (cloneInstantiated)
                     reportData.StopACComponents();
-                StopComponent(acReportQuery);
-
+                await StopComponent(acReportQuery);
             }
             catch (Exception e)
             {
@@ -1224,7 +1223,7 @@ namespace gip.core.reporthandler.avui
         #region Entwerfen
 
         [ACMethodCommand("Report", "en{'Design'}de{'Entwurf'}", (short)MISort.QueryDesign)]
-        public void ReportDesign()
+        public async Task ReportDesign()
         {
             if (CurrentACClassDesign == null)
                 return;
@@ -1244,12 +1243,12 @@ namespace gip.core.reporthandler.avui
             if (reportData == null || currentACClassDesign == null)
                 return;
 
-            acReportQuery.Design(currentACClassDesign, WithDialog, PrinterName, reportData);
+            await acReportQuery.Design(currentACClassDesign, WithDialog, PrinterName, reportData);
 
             if (cloneInstantiated)
                 reportData.StopACComponents();
 
-            StopComponent(acReportQuery);
+            await StopComponent(acReportQuery);
 
             ReportSave();
         }

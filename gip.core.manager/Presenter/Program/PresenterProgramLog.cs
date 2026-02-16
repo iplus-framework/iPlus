@@ -620,7 +620,7 @@ namespace gip.core.manager
         }
 
         [ACMethodInfo("", "en{'ShowACProgramLog'}de{'ShowACProgramLog'}",901,false)]
-        public void ShowACProgramLog(ACValueList param)
+        public async Task ShowACProgramLog(ACValueList param)
         {
             ACValue isForProcessModule = param.FirstOrDefault(c => c.ACIdentifier == "IsForProcessModule");
             if (isForProcessModule == null || isForProcessModule.ParamAsBoolean)
@@ -629,9 +629,9 @@ namespace gip.core.manager
                 {
                     ACProgram acprogram = param.FirstOrDefault(c => c.ObjectType == typeof(ACProgram)).Value as ACProgram;
                     if (param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value != null)
-                        ShowLogFromACProgram(acprogram, param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value.ToString());
+                        await ShowLogFromACProgram(acprogram, param.FirstOrDefault(c => c.ACIdentifier == "WorkflowACUrl").Value.ToString());
                     else
-                        ShowLogFromACProgram(acprogram, null);
+                        await ShowLogFromACProgram(acprogram, null);
                 }
                 else
                 {
@@ -641,7 +641,7 @@ namespace gip.core.manager
                     short searchMode = (short)param.FirstOrDefault(c => c.ACIdentifier == "SearchMode")?.Value;
                     //param.Add(new ACValue("FindFirst", findFirst));
                     if (componentACUrl != null)
-                        ShowLogFromVBBSOControlPA(componentACUrl, from, to, searchMode);
+                        await ShowLogFromVBBSOControlPA(componentACUrl, from, to, searchMode);
                 }
             }
             else
@@ -651,7 +651,7 @@ namespace gip.core.manager
                 DateTime to = DateTime.Parse(param.FirstOrDefault(c => c.ACIdentifier == "SearchTo").Value.ToString());
 
                 if (componentACUrl != null)
-                    ShowLogFromVBBSOControlPAModule(componentACUrl, from, to);
+                    await ShowLogFromVBBSOControlPAModule(componentACUrl, from, to);
             }
         }
 
@@ -834,7 +834,7 @@ namespace gip.core.manager
 
 
         [ACMethodInfo("", "en{'Show complex value'}de{'Komplexen Wert anzeigen'}", 9999)]
-        public void ShowComplexValue()
+        public async Task ShowComplexValue()
         {
             ACValue selParam = SelectedACMethodParam;
             if (selParam == null || selParam.Value == null)
@@ -847,7 +847,7 @@ namespace gip.core.manager
             IACVBBSORouteSelector routeSelector = ACUrlCommand("VBBSORouteSelector_Child") as IACVBBSORouteSelector;
             if (routeSelector == null)
             {
-                Messages.ErrorAsync(this, "Route selector is not installed");
+                await Messages.ErrorAsync(this, "Route selector is not installed");
                 return;
             }
 
@@ -856,7 +856,7 @@ namespace gip.core.manager
 
             ACComponent comp = routeSelector as ACComponent;
             if (comp != null)
-                comp.Stop();
+                await comp.Stop();
         }
 
         public bool IsEnabledShowComplexValue()
@@ -984,11 +984,11 @@ namespace gip.core.manager
             result = null;
             switch (acMethodName)
             {
-                case"ShowDetails":
-                    ShowDetails();
+                case nameof(ShowDetails):
+                    _= ShowDetails();
                     return true;
-                case"ShowACProgramLog":
-                    ShowACProgramLog((ACValueList)acParameter[0]);
+                case nameof(ShowACProgramLog):
+                    _= ShowACProgramLog((ACValueList)acParameter[0]);
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

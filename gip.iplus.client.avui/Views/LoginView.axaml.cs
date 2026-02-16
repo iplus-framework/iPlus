@@ -304,7 +304,7 @@ public partial class LoginView : UserControl
         DatabasePassword.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
     }
 
-    private void Image_DoubleTapped(object? sender, TappedEventArgs e)
+    private void Image_DoubleTapped(object sender, TappedEventArgs e)
     {
         if (ProgressGrid.IsVisible)
             return;
@@ -315,7 +315,7 @@ public partial class LoginView : UserControl
         LoginGrid.IsVisible = !SettingsGrid.IsVisible;
     }
 
-    private void ButtonSave_Click(object? sender, RoutedEventArgs e)
+    private void ButtonSave_Click(object sender, RoutedEventArgs e)
     {
         ACValueItem dbSourceVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseSource)).FirstOrDefault();
         if (dbSourceVal == null)
@@ -364,7 +364,7 @@ public partial class LoginView : UserControl
         CommandLineHelper.SaveSettings();
     }
 
-    private void ButtonSave_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    private void ButtonSave_PointerReleased(object sender, PointerReleasedEventArgs e)
     {
     }
 

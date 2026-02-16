@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Threading.Tasks;
 namespace gip.core.autocomponent
 {
     [ACClassInfo(Const.PackName_VarioSystem, "en{'PAShowDlgManagerBase'}de{'PAShowDlgManagerBase'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, false, false)]
@@ -107,7 +108,7 @@ namespace gip.core.autocomponent
 
         public abstract bool IsEnabledShowDialogOrder(IACComponent caller);
 
-        public virtual void ShowProgramLogViewer(IACComponent caller, ACValueList param)
+        public virtual async Task ShowProgramLogViewer(IACComponent caller, ACValueList param)
         {
             if (caller == null)
                 return;
@@ -120,11 +121,11 @@ namespace gip.core.autocomponent
             if (bso == null)
                 return;
             bso.ACUrlCommand("!ShowACProgramLog", param);
-            bso.Stop();
+            await bso.Stop();
             return;
         }
 
-        public virtual void ShowPropertyLogViewer(IACComponent caller)
+        public virtual async Task ShowPropertyLogViewer(IACComponent caller)
         {
             if (caller == null)
                 return;
@@ -138,10 +139,10 @@ namespace gip.core.autocomponent
             if (bso == null)
                 return;
             bso.ExecuteMethod("ShowPropertyLogsDialog", caller.ComponentClass);
-            bso.Stop();
+            await bso.Stop();
         }
 
-        public virtual void ShowPropertyLogViewer(IACComponent caller, ACClass selectedItem, DateTime from, DateTime to)
+        public virtual async Task ShowPropertyLogViewer(IACComponent caller, ACClass selectedItem, DateTime from, DateTime to)
         {
             if (caller == null || selectedItem == null)
                 return;
@@ -155,14 +156,14 @@ namespace gip.core.autocomponent
             if (bso == null)
                 return;
             bso.ExecuteMethod("ShowPropertyLogsWithFilterDialog", selectedItem, from, to);
-            bso.Stop();
+            await bso.Stop();
         }
 
         public abstract string BuildAndSetOrderInfo(PAProcessModule pm);
 
         public abstract string BuildOrderInfo(PWBase pw);
 
-        public virtual object ShowACClassMessageDialog(IACComponent caller, List<ACClassMessage> messagesList, string acCaption = null, string buttonACCaption = null, string dialogHeader = null)
+        public virtual async Task<object> ShowACClassMessageDialog(IACComponent caller, List<ACClassMessage> messagesList, string acCaption = null, string buttonACCaption = null, string dialogHeader = null)
         {
             if (caller == null)
                 return null;
@@ -175,7 +176,7 @@ namespace gip.core.autocomponent
             if (bso == null)
                 return null;
             object result = bso.ACUrlCommand("!SelectMessage", new object[] { messagesList, acCaption, buttonACCaption, dialogHeader });
-            bso.Stop();
+            await bso.Stop();
             return result;
         }
 
