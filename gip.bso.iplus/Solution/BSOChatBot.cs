@@ -809,13 +809,13 @@ IMPORTANT NOTES:
         }
 
         [ACMethodCommand("MCP", "en{'Add file image'}de{'Bilddatei hinzufügen'}", 116, Description = "Opens a File-Dialog and adds a image to the ImagePaths List")]
-        public void OpenDialogSelectImage()
+        public async Task OpenDialogSelectImage()
         {
             try
             {
 
                 ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-                string filePath = mediaController.OpenFileDialog(
+                string filePath = await mediaController.OpenFileDialog(
                     false,
                     "",
                     false,

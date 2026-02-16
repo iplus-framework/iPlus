@@ -383,10 +383,10 @@ namespace gip.bso.iplus
         /// Opens file dialog to select a license file.
         /// </summary>
         [ACMethodInfo("", "en{'...'}de{'...'}", 403, true)]
-        public void BrowseLicenceFile()
+        public async Task BrowseLicenceFile()
         {
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            LicenceFilePath = mediaController.OpenFileDialog(false, LicenceFilePath, true) ?? LicenceFilePath;
+            LicenceFilePath = await mediaController.OpenFileDialog(false, LicenceFilePath, true) ?? LicenceFilePath;
         }
 
         /// <summary>
@@ -503,11 +503,11 @@ namespace gip.bso.iplus
         /// Opens a file dialog to select a folder where activation data will be exported.
         /// </summary>
         [ACMethodInfo("", "en{'...'}de{'...'}", 409, true)]
-        public void BrowseExportActivationDataDir()
+        public async Task BrowseExportActivationDataDir()
         {
             string intialPaht = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            ExportDirPath = mediaController.OpenFileDialog(true, intialPaht, true) ?? ExportDirPath;
+            ExportDirPath = await mediaController.OpenFileDialog(true, intialPaht, true) ?? ExportDirPath;
         }
 
         /// <summary>Called inside the GetControlModes-Method to get the Global.ControlModes from derivations.

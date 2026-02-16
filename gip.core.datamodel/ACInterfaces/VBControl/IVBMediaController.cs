@@ -11,8 +11,8 @@ namespace gip.core.datamodel
 {
     public interface IVBMediaControllerProxy
     {
-        string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null);
-        string SaveFileDialog(string initialDirectory, string defaultExtension = null);
+        Task<string> OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null);
+        Task<string> SaveFileDialog(string initialDirectory, string defaultExtension = null);
         byte[] ResizeImage(string fileName, int maxWidth, int maxHeight, string quality = "Medium");
         SKBitmap CreateLicenseImage(VBLicense CurrentVBLicense);
     }

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading.Tasks;
 
 namespace gip.core.wpfservices.avui
@@ -144,13 +145,14 @@ namespace gip.core.wpfservices.avui
         }
 
 
-        public string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
+        public async Task<string> OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
         {
             TopLevel topLevel = GetTopLevel(null);
             if (topLevel == null || topLevel.StorageProvider == null)
                 return null;
             IStorageProvider provider = topLevel.StorageProvider;
-            return Dispatcher.UIThread.InvokeAsync<string>(() => OpenFileDialog(provider, isFolderPicker, initialDirectory, useExisting, defaultExtension, filters)).GetAwaiter().GetResult();
+            
+            return await OpenFileDialog(provider, isFolderPicker, initialDirectory, useExisting, defaultExtension, filters);
         }
 
         private static TopLevel GetTopLevel(Control control)
@@ -191,12 +193,13 @@ namespace gip.core.wpfservices.avui
                     SuggestedStartLocation = startingLocation
                 });
 
-                if (folders.Count > 0)
+                if (folders.Any())
                 {
-                    var folder = folders.First();
-                    bool exists = Directory.Exists(folder.Path.ToString());
+                    var folder = folders.FirstOrDefault();
+                    string path = folder.TryGetLocalPath();
+                    bool exists = Directory.Exists(path);
                     if (!useExisting || exists)
-                        return folder.Path.ToString();
+                        return path;
                 }
             }
             else
@@ -236,7 +239,7 @@ namespace gip.core.wpfservices.avui
         }
 
 
-        public string SaveFileDialog(string initialDirectory, string defaultExtension = null)
+        public async Task<string> SaveFileDialog(string initialDirectory, string defaultExtension = null)
         {
             Application app = Database.Root.RootPageWPF.WPFApplication as Application;
             if (app == null || app.ApplicationLifetime == null)
@@ -245,7 +248,7 @@ namespace gip.core.wpfservices.avui
             if (topLevel == null || topLevel.StorageProvider == null)
                 return null;
             IStorageProvider provider = topLevel.StorageProvider;
-            return Dispatcher.UIThread.InvokeAsync<string>(() => SaveFileDialog(provider, initialDirectory, defaultExtension)).GetAwaiter().GetResult();
+            return await SaveFileDialog(provider, initialDirectory, defaultExtension);
         }
 
         public static async Task<string> SaveFileDialog(IStorageProvider provider, string initialDirectory, string defaultExtension = null)

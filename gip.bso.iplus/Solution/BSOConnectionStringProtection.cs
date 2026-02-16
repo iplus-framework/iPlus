@@ -95,10 +95,10 @@ namespace gip.bso.iplus
         /// Shows the dialog to select the app.config file. 
         /// </summary>
         [ACMethodInfo("ConnectionString", "en{'...'}de{'...'}", 401, false, false, true)]
-        public void SelectConfigFile()
+        public async Task SelectConfigFile()
         {
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            string configPath = mediaController.OpenFileDialog(false, AppDomain.CurrentDomain.BaseDirectory, true, ".config", new Dictionary<string, string>() { { "Config file", ".config" } });
+            string configPath = await mediaController.OpenFileDialog(false, AppDomain.CurrentDomain.BaseDirectory, true, ".config", new Dictionary<string, string>() { { "Config file", ".config" } });
             if (configPath != null && configPath.ToLower().Contains(".config"))
             {
                 ExeConfigurationFileMap fileMap = new ExeConfigurationFileMap();

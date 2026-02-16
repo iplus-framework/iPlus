@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.core.wpfservices
 {
@@ -140,7 +141,7 @@ namespace gip.core.wpfservices
         }
 
 
-        public string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
+        public async Task<string> OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
         {
             string path = null;
             using (var dialog = new CommonOpenFileDialog())
@@ -201,7 +202,7 @@ namespace gip.core.wpfservices
 
         }
 
-        public string SaveFileDialog(string initialDirectory, string defaultExtension = null)
+        public async Task<string> SaveFileDialog(string initialDirectory, string defaultExtension = null)
         {
             CommonSaveFileDialog dlg = new CommonSaveFileDialog();
             if (!String.IsNullOrEmpty(initialDirectory))

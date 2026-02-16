@@ -455,10 +455,10 @@ namespace gip.bso.iplus
 
 
         [ACMethodInfo("Import", "en{'...'}de{'...'}", 407, false, false, true)]
-        public void ImportFolder()
+        public async Task ImportFolder()
         {
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            FolderPath = mediaController.OpenFileDialog(true, FolderPath, true) ?? FolderPath;
+            FolderPath = await mediaController.OpenFileDialog(true, FolderPath, true) ?? FolderPath;
         }
 
         #endregion

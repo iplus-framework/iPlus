@@ -179,12 +179,12 @@ namespace gip.bso.iplus
         }
 
         [ACMethodCommand("MCP", "en{'Read MCP-Config from file'}de{'MCP-Konfiguration von Datei lesen'}", 106)]
-        public void ReadMCPServerConfigFromFile()
+        public async Task ReadMCPServerConfigFromFile()
         {
             try
             {
                 ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-                string filePath = mediaController.OpenFileDialog(
+                string filePath = await mediaController.OpenFileDialog(
                     false,
                     "",
                     false,

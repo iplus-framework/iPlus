@@ -562,11 +562,11 @@ namespace gip.core.media
         /// Exports the folder.
         /// </summary>
         [ACMethodInfo("SetFilePath", "en{'...'}de{'...'}", 9999, false, false, true)]
-        public void SetFilePath()
+        public async Task SetFilePath()
         {
             if (!IsEnabledSetFilePath())
                 return;
-            string filePath = MediaController.OpenFileDialog(false, SelectedMediaItemPresentation.EditFilePath, true);
+            string filePath = await MediaController.OpenFileDialog(false, SelectedMediaItemPresentation.EditFilePath, true);
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 SelectedMediaItemPresentation.EditFilePath = filePath;
@@ -584,11 +584,11 @@ namespace gip.core.media
         /// Exports the folder.
         /// </summary>
         [ACMethodInfo("SetFileThumbPath", "en{'...'}de{'...'}", 9999, false, false, true)]
-        public void SetFileThumbPath()
+        public async Task SetFileThumbPath()
         {
             if (!IsEnabledSetFileThumbPath())
                 return;
-            string filePath = MediaController.OpenFileDialog(false, SelectedMediaItemPresentation.EditFilePath, true);
+            string filePath = await MediaController.OpenFileDialog(false, SelectedMediaItemPresentation.EditFilePath, true);
             if (!string.IsNullOrEmpty(filePath) && File.Exists(filePath))
             {
                 SelectedMediaItemPresentation.EditThumbPath = filePath;
@@ -833,11 +833,11 @@ namespace gip.core.media
                 return searchItem.Value.Key;
             return null;
         }
-        private void DownloadFile(string filePath)
+        private async Task DownloadFile(string filePath)
         {
             if (File.Exists(filePath))
             {
-                string newFilePath = MediaController.OpenFileDialog(false, filePath, false);
+                string newFilePath = await MediaController.OpenFileDialog(false, filePath, false);
                 if (!string.IsNullOrEmpty(newFilePath))
                 {
                     File.Copy(filePath, newFilePath);

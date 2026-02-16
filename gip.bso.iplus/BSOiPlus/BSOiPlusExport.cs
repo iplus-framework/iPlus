@@ -770,10 +770,10 @@ namespace gip.bso.iplus
         /// Exports the folder.
         /// </summary>
         [ACMethodInfo("Export", "en{'...'}de{'...'}", 402, false, false, true)]
-        public void ExportFolder()
+        public async Task ExportFolder()
         {
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            CurrentExportFolder = mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
+            CurrentExportFolder = await mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
         }
 
         public bool IsEnabledExportFolder()

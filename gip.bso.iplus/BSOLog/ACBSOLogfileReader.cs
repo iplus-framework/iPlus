@@ -264,12 +264,12 @@ namespace gip.bso.iplus
         /// Opens a file dialog to select a log file.
         /// </summary>
         [ACMethodCommand("", "en{'Select Log File'}de{'Log-Datei auswählen'}", 401)]
-        public void SelectLogFile()
+        public async Task SelectLogFile()
         {
             try
             {
                 ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-                string filePath = mediaController.OpenFileDialog(
+                string filePath = await mediaController.OpenFileDialog(
                     false,
                     SelectedLogFile,
                     false,

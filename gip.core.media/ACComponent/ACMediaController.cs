@@ -574,9 +574,9 @@ namespace gip.core.media
 
         #region Methods -> OpenFileDialog
 
-        public string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
+        public async Task<string> OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
         {
-            return VBMediaController.OpenFileDialog(isFolderPicker, initialDirectory, useExisting, defaultExtension, filters);
+            return await VBMediaController.OpenFileDialog(isFolderPicker, initialDirectory, useExisting, defaultExtension, filters);
         }
 
         #endregion

@@ -1562,10 +1562,10 @@ namespace gip.bso.iplus
         /// Exports the folder.
         /// </summary>
         [ACMethodInfo("Export", "en{'...'}de{'...'}", 402, false, false, true)]
-        public void ExportFolder()
+        public async Task ExportFolder()
         {
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            CurrentExportFolder = mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
+            CurrentExportFolder = await mediaController.OpenFileDialog(true, CurrentExportFolder, true) ?? CurrentExportFolder;
         }
 
         [ACMethodInfo("ExportTranslations", "en{'Export selected only'}de{'Exportiere nur Auswahl'}", (short)MISort.Search, false, false, true, Global.ACKinds.MSMethodPrePost)]
@@ -1633,12 +1633,12 @@ namespace gip.bso.iplus
         /// Imports the folder.
         /// </summary>
         [ACMethodInfo("Import", "en{'...'}de{'...'}", 406, false, false, true)]
-        public void ImportSource()
+        public async Task ImportSource()
         {
             if (!IsEnabledImportSource())
                 return;
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            ImportSourcePath = mediaController.OpenFileDialog(false, ImportSourcePath, true) ?? ImportSourcePath;
+            ImportSourcePath = await mediaController.OpenFileDialog(false, ImportSourcePath, true) ?? ImportSourcePath;
         }
 
         public bool IsEnabledImportSource()

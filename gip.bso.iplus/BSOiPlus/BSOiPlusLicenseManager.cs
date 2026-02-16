@@ -432,11 +432,11 @@ namespace gip.bso.iplus
         /// Opens the dialog to select the activation data file.
         /// </summary>
         [ACMethodInfo("","en{'...'}de{'...'}",502,true)]
-        public void BrowseActivationDataFile()
+        public async Task BrowseActivationDataFile()
         {
             string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            ActivationDataPath = mediaController.OpenFileDialog(false, initialDir, true) ?? ActivationDataPath;
+            ActivationDataPath = await mediaController.OpenFileDialog(false, initialDir, true) ?? ActivationDataPath;
         }
 
         /// <summary>
@@ -628,11 +628,11 @@ namespace gip.bso.iplus
         /// Opens the dialog to select the directory in which the license file will be saved.
         /// </summary>
         [ACMethodInfo("","en{'...'}de{'...'}",509)]
-        public void BrowseLicenseDir()
+        public async Task BrowseLicenseDir()
         {
             string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            LicenseFileDirPath = mediaController.OpenFileDialog(true, initialDir, true) ?? LicenseFileDirPath;
+            LicenseFileDirPath = await mediaController.OpenFileDialog(true, initialDir, true) ?? LicenseFileDirPath;
         }
 
         private string CreatePackagesString(IEnumerable<string> packageItems)
@@ -746,11 +746,11 @@ namespace gip.bso.iplus
         /// Opens the dialog to select the license file for signing with gip private key.
         /// </summary>
         [ACMethodInfo("", "en{'...'}de{'...'}", 511)]
-        public void BrowseLicenseFile()
+        public async Task BrowseLicenseFile()
         {
             string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            LicenseFilePath = mediaController.OpenFileDialog(false, initialDir, true) ?? LicenseFilePath;
+            LicenseFilePath = await mediaController.OpenFileDialog(false, initialDir, true) ?? LicenseFilePath;
         }
 
         #endregion

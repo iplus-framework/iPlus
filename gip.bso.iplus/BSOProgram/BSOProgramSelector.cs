@@ -386,11 +386,11 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "en{'...'}de{'...'}", 413, true)]
-        public void Browse()
+        public async Task Browse()
         {
             string initialDir = System.Environment.GetFolderPath(System.Environment.SpecialFolder.Desktop);
             ACMediaController mediaController = ACMediaController.GetServiceInstance(this);
-            ExcelFilePath = mediaController.OpenFileDialog(true, initialDir, true) ?? ExcelFilePath;
+            ExcelFilePath = await mediaController.OpenFileDialog(true, initialDir, true) ?? ExcelFilePath;
         }
         
         public bool IsEnabledBrowse()
