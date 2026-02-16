@@ -146,14 +146,30 @@ namespace gip.core.wpfservices.avui
 
         public string OpenFileDialog(bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
         {
-            Application app = Database.Root.RootPageWPF.WPFApplication as Application;
-            if (app == null || app.ApplicationLifetime == null)
-                return null;
-            TopLevel topLevel = app.ApplicationLifetime as TopLevel;
+            TopLevel topLevel = GetTopLevel(null);
             if (topLevel == null || topLevel.StorageProvider == null)
                 return null;
             IStorageProvider provider = topLevel.StorageProvider;
             return Dispatcher.UIThread.InvokeAsync<string>(() => OpenFileDialog(provider, isFolderPicker, initialDirectory, useExisting, defaultExtension, filters)).GetAwaiter().GetResult();
+        }
+
+        private static TopLevel GetTopLevel(Control control)
+        {
+            Application app = Database.Root.RootPageWPF.WPFApplication as Application;
+            if (app == null || app.ApplicationLifetime == null)
+                return null;
+            // If possible, use devtools main window.
+            TopLevel devToolsTopLevel = null;
+            if (app?.ApplicationLifetime is Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                devToolsTopLevel = desktop.Windows.FirstOrDefault(w => w is Avalonia.Controls.Window);
+            }
+            if (devToolsTopLevel != null)
+                return devToolsTopLevel;
+            if (control != null)
+                return TopLevel.GetTopLevel(control);
+
+            return null;
         }
 
         public static async Task<string> OpenFileDialog(IStorageProvider provider, bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
