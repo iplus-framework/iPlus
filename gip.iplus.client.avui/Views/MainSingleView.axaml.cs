@@ -23,6 +23,7 @@ using System.Threading.Tasks;
 using MsBox.Avalonia.Enums;
 using MsBox.Avalonia.Dto;
 using MsBox.Avalonia.Models;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace gip.iplus.client.avui;
 
@@ -815,10 +816,14 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     {
     }
 
-    private void BackButton_Click(object sender, RoutedEventArgs e)
+    public void BackButton_Click(object sender, RoutedEventArgs e)
     {
         MainContentControl.CloseDesign();
+    }
 
+    public bool CanClose
+    {
+        get => MainContentControl.IsMainDesignActive;
     }
 
     #region IFocusChangeListener
