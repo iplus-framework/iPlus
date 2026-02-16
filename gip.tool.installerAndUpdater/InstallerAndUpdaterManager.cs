@@ -61,7 +61,7 @@ namespace gip.tool.installerAndUpdater
             installationPath = "";
             iPlusVersion = "";
             string gipInstallPath = System.Environment.ExpandEnvironmentVariables("%LocalAppData%\\gipInstall");
-            string gipFileInstallPath = gipInstallPath + "\\install.gip";
+            string gipFileInstallPath = Path.Combine(gipInstallPath, "install.gip");
             if (!File.Exists(gipFileInstallPath))
                 return false;
 
@@ -120,7 +120,7 @@ namespace gip.tool.installerAndUpdater
                     _mainWindow.ReportCurrentOperation(5);
                     string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
                     CreateShortcut(iPlusVersion, System.Environment.GetFolderPath(System.Environment.SpecialFolder.CommonDesktopDirectory), 
-                                   installationPath, string.Format("\\gip.{0}.client.exe", ver.ToLower()));
+                                   installationPath, Path.Combine(installationPath, string.Format("gip.{0}.client.exe", ver.ToLower())));
                     int i = 0;
                     while (i != 100)
                         currentOperationProgress.Report(i++);
@@ -178,13 +178,13 @@ namespace gip.tool.installerAndUpdater
             if(versionList != null)
                 AppVersion = versionList.FirstOrDefault(c => c.PublishDateTime.Equals(versionList.Max(x => x.PublishDateTime)));
 
-            if (File.Exists(installationPath + "\\versionList.xml"))
-                File.Delete(installationPath + "\\versionList.xml");
+            if (File.Exists(Path.Combine(installationPath, "versionList.xml")))
+                File.Delete(Path.Combine(installationPath, "versionList.xml"));
 
             try
             {
                 serializer = new DataContractSerializer(typeof(gip.tool.publish.Version));
-                using (FileStream fs = new FileStream(installationPath + "\\version.xml", FileMode.Create))
+                using (FileStream fs = new FileStream(Path.Combine(installationPath, "version.xml"), FileMode.Create))
                 {
                     serializer.WriteObject(fs, AppVersion);
                 }
@@ -203,11 +203,11 @@ namespace gip.tool.installerAndUpdater
         public async Task DownloadApp(string installationPath, string iPlusVersion, IProgress<double> progress, CancellationToken cancelToken )
         {
             _mainWindow.ReportCurrentOperation(1);
-            string downloadMehtodName = "Serve";
+            string downloadMethodName = "Serve";
             string appDownloadUrl = LoginManager.RemoteServer + string.Format(@"/en/{0}/{1}{2}?name={3}\\{4}",LoginManager.ControllerName, 
-                                                                              downloadMehtodName, iPlusVersion, AppVersion.SvnRevision, AppVersion.ApplicationFileName);
+                                                                              downloadMethodName, iPlusVersion, AppVersion.SvnRevision, AppVersion.ApplicationFileName);
            
-            using (var client = new HttpClientDownloadWithProgress(appDownloadUrl, installationPath + "\\" + AppVersion.ApplicationFileName))
+            using (var client = new HttpClientDownloadWithProgress(appDownloadUrl, Path.Combine(installationPath, AppVersion.ApplicationFileName)))
             {
                    client.ProgressChanged += (totalFileSize, totalBytesDownloaded, progressPercentage) => 
                    {
@@ -232,8 +232,8 @@ namespace gip.tool.installerAndUpdater
             if (!Directory.Exists(gipInstallPath))
                 Directory.CreateDirectory(gipInstallPath);
 
-            string gipFileInstallPath = gipInstallPath + "\\fileList.xml";
-            string fileListPath = installationPath + "\\fileList.xml";
+            string gipFileInstallPath = Path.Combine(gipInstallPath, "fileList.xml");
+            string fileListPath = Path.Combine(installationPath, "fileList.xml");
             if (File.Exists(fileListPath))
             {
                 File.Copy(fileListPath, gipFileInstallPath, true);
@@ -248,7 +248,7 @@ namespace gip.tool.installerAndUpdater
             string dbDownloadUrl = LoginManager.RemoteServer + string.Format(@"/en/{0}/{1}{2}?name={3}\\{4}", LoginManager.ControllerName, downloadMehtodName, 
                                                                              iPlusVersion, AppVersion.SvnRevision, AppVersion.DatabaseFileName);
 
-            using (var client = new HttpClientDownloadWithProgress(dbDownloadUrl, installationPath + "\\" + AppVersion.DatabaseFileName))
+            using (var client = new HttpClientDownloadWithProgress(dbDownloadUrl, Path.Combine(installationPath, AppVersion.DatabaseFileName)))
             {
                 client.ProgressChanged += (totalFileSize, totalBytesDownloaded, progressPercentage) =>
                 {
@@ -270,7 +270,7 @@ namespace gip.tool.installerAndUpdater
             string downloadMehtodName = "Serve";
             string appDownloadUrl = LoginManager.RemoteServer + string.Format(@"/en/{0}/{1}{2}?name=version.xml", LoginManager.ControllerName, downloadMehtodName, iPlusVersion);
 
-            using (var client = new HttpClientDownloadWithProgress(appDownloadUrl, installationPath + "\\version.xml"))
+            using (var client = new HttpClientDownloadWithProgress(appDownloadUrl, Path.Combine(installationPath, "version.xml")))
             {
                 await client.StartDownload();
             }
@@ -278,7 +278,7 @@ namespace gip.tool.installerAndUpdater
 
         private void UnpackFile(string installationPath, string fileName, CancellationToken cancelToken)
         {
-            using (VBZipFile archive = new VBZipFile(installationPath + "\\" + fileName, cancelToken))
+            using (VBZipFile archive = new VBZipFile(Path.Combine(installationPath, fileName), cancelToken))
             {
                 archive.ExtractProgress += archive_ExtractProgress;
                 try
@@ -290,8 +290,9 @@ namespace gip.tool.installerAndUpdater
                     _mainWindow.ReportCurrentOperation(10);
                 }
             }
-            if (File.Exists(installationPath + "\\" + fileName))
-                File.Delete(installationPath + "\\" + fileName);
+            string filePath = Path.Combine(installationPath, fileName);
+            if (File.Exists(filePath))
+                File.Delete(filePath);
         }
 
         void archive_ExtractProgress(object sender, ExtractProgressEventArgs e)
@@ -324,7 +325,7 @@ namespace gip.tool.installerAndUpdater
         public static void SaveCredentials(string installationPath, string iPlusVersion)
         {
             string xml = string.Format("<xml><user>{0}</user><pass>{1}</pass></xml>", LoginManager.Username, LoginManager.Password);
-            string fileName = installationPath + "\\userInfo.gip";
+            string fileName = Path.Combine(installationPath, "userInfo.gip");
 
             byte[] encodedFileName = new UTF8Encoding().GetBytes(fileName);
             byte[] hash;
@@ -345,7 +346,7 @@ namespace gip.tool.installerAndUpdater
             rl.IWshShortcut shortcut = (rl.IWshShortcut)shell.CreateShortcut(shortcutLocation);
             shortcut.Description = "iPlus shortcut";
             //shortcut.IconLocation = @"c:\myicon.ico";           
-            shortcut.TargetPath = installationPath + targetFileLocation;
+            shortcut.TargetPath = Path.Combine(installationPath, targetFileLocation)            ;
             shortcut.WorkingDirectory = installationPath;
             shortcut.Save();
         }
@@ -355,14 +356,14 @@ namespace gip.tool.installerAndUpdater
             _mainWindow.ReportCurrentOperation(0);
             if(!Directory.Exists(installationPath))
             {
-                string[] parts = installationPath.Split(new char[]{'\\'});
+                string[] parts = installationPath.Split(new char[]{Path.DirectorySeparatorChar});
                 string tempPath = "";
                 foreach(string part in parts)
                 {
-                    if (string.IsNullOrEmpty(tempPath))
+                    if (string.IsNullOrEmpty(tempPath))     
                         tempPath = part;
                     else
-                        tempPath += "\\" + part;
+                        tempPath = Path.Combine(tempPath, part);
                     if (!Directory.Exists(tempPath))
                         Directory.CreateDirectory(tempPath);
                 }
@@ -415,7 +416,7 @@ namespace gip.tool.installerAndUpdater
             }
             catch(SqlException sqlEx)
             {
-                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\excCheckUser.txt", sqlEx.Message);
+                File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "excCheckUser.txt"), sqlEx.Message);
                 if(sqlEx.Number == 229)
                     returnState = SqlConfigurationState.UserNotSysAdmin;
                 else
@@ -423,7 +424,7 @@ namespace gip.tool.installerAndUpdater
             }
             catch(Exception e)
             {
-                File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "\\excCheckUser.txt", e.Message);
+                File.WriteAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "excCheckUser.txt"), e.Message);
                 returnState = SqlConfigurationState.NoConnection;
             }
             connectionInfo.ConnectionState = returnState;
@@ -458,9 +459,9 @@ namespace gip.tool.installerAndUpdater
                     return CancelDBConfigOperation(conn);
 
                 if (string.IsNullOrEmpty(dbBackupFileName))
-                    dbBackupFileName = string.Format("{0}\\{1}", installationFolder, AppVersion.DatabaseFileName.Replace("zip", "bak"));
+                    dbBackupFileName = Path.Combine(installationFolder, AppVersion.DatabaseFileName.Replace("zip", "bak"));
 
-                string script = File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + @"\DatabaseConfiguration\DatabaseRestore.sql");
+                string script = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DatabaseConfiguration", "DatabaseRestore.sql"));
                 script = script.Replace("-location-", dbBackupFileName);
                 string dbName = string.Format("{0}V4demo", iPlusVersion);
                 script = script.Replace("-databaseName-", dbName);
@@ -572,7 +573,7 @@ namespace gip.tool.installerAndUpdater
                 if (cancelToken.IsCancellationRequested)
                     return CancelDBConfigOperation(conn);
 
-                string dbScriptPath = string.Format("{0}\\{1}", installationFolder, AppVersion.DatabaseFileName.Replace("zip", "sql"));
+                string dbScriptPath = Path.Combine(installationFolder, AppVersion.DatabaseFileName.Replace("zip", "sql"));
                 string script = File.ReadAllText(dbScriptPath);
                 int branchesCount = script.Split(new string[]{"GO"}, StringSplitOptions.None).Count();
                 script = script.Replace("-dbName-", dbName);
@@ -681,16 +682,16 @@ namespace gip.tool.installerAndUpdater
             ManagementObjectCollection collection = searcher.Get();
             string username = (string)collection.Cast<ManagementBaseObject>().First()["UserName"];
 
-            if(username != System.Environment.UserDomainName+"\\"+System.Environment.UserName)
+            if (username != System.Environment.UserDomainName+"\\"+System.Environment.UserName)
             {
                 try
                 {
-                    string script = File.ReadAllText(string.Format("{0}\\DatabaseConfiguration\\AddLogin.sql", AppDomain.CurrentDomain.BaseDirectory));
+                    string script = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DatabaseConfiguration", "AddLogin.sql"));
                     script = script.Replace("-databaseName-", conn.Database);
                     script = script.Replace("-username-", username);
                     Stream stream = new MemoryStream(Encoding.UTF8.GetBytes(script));
 
-                    string scriptAddUser = File.ReadAllText(string.Format("{0}\\DatabaseConfiguration\\AddUser.sql", AppDomain.CurrentDomain.BaseDirectory));
+                    string scriptAddUser = File.ReadAllText(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DatabaseConfiguration", "AddUser.sql"));
                     scriptAddUser = scriptAddUser.Replace("-databaseName-", databaseName);
                     scriptAddUser = scriptAddUser.Replace("-username-", username);
                     Stream streamAddUser = new MemoryStream(Encoding.UTF8.GetBytes(scriptAddUser));
@@ -731,8 +732,8 @@ namespace gip.tool.installerAndUpdater
         {
             string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
 
-            string configPath = string.Format("{0}\\gip.{1}.client.exe.config",path, ver.ToLower());
-            string exePath = string.Format("{0}\\gip.{1}.client.exe", path, ver.ToLower());
+            string configPath = Path.Combine(path, $"gip.{ver.ToLower()}.client.exe.config");
+            string exePath = Path.Combine(path, $"gip.{ver.ToLower()}.client.exe");
 
             if (File.Exists(configPath))
             {
@@ -786,7 +787,7 @@ namespace gip.tool.installerAndUpdater
                 }
                 configuration.Save();
 
-                string connStringPath = string.Format("{0}\\ConnectionStrings.config",path);
+                string connStringPath = Path.Combine(path, "ConnectionStrings.config");
                 if(File.Exists(connStringPath))
                 {
                     try
@@ -882,7 +883,7 @@ namespace gip.tool.installerAndUpdater
 
         public static string RestoreCredentials(string installationPath)
         {
-            string fileName = installationPath + "\\userInfo.gip";
+            string fileName = Path.Combine(installationPath, "userInfo.gip");
             if (!File.Exists(fileName))
                 return "";
             string encXml = File.ReadAllText(fileName);
@@ -899,8 +900,8 @@ namespace gip.tool.installerAndUpdater
         internal async Task CheckUpdateVersion(string installationPath, string iPlusVersion)
         {
             Thread.Sleep(1000);
-            string versionFileName = installationPath + "\\version.xml";
-            string versionListFileName = installationPath + "\\versionList.xml";
+            string versionFileName = Path.Combine(installationPath, "version.xml");
+            string versionListFileName = Path.Combine(installationPath, "versionList.xml");
 
             if (!Directory.Exists(installationPath) || !File.Exists(versionFileName))
                 return;
@@ -927,7 +928,7 @@ namespace gip.tool.installerAndUpdater
             }
 
             serializer = new DataContractSerializer(typeof(List<gip.tool.publish.Version>));
-            if(!File.Exists(installationPath + "\\versionList.xml"))
+            if(!File.Exists(Path.Combine(installationPath, "versionList.xml")))
                 return;
 
             try
@@ -989,9 +990,9 @@ namespace gip.tool.installerAndUpdater
         public string GenerateUpdateBackupPath(string installationFolder)
         {
             string backupPath = "";
-            int last = installationFolder.LastIndexOf("\\");
+            int last = installationFolder.LastIndexOf(Path.DirectorySeparatorChar);
             if (last > 0)
-                backupPath = installationFolder.Substring(0, last) + "\\rollback";
+                backupPath = installationFolder.Substring(0, last) + Path.DirectorySeparatorChar + "rollback";
             return backupPath;
         }
 
@@ -1012,7 +1013,7 @@ namespace gip.tool.installerAndUpdater
             try
             {
                 string ver = iPlusVersion == IPlusMES ? "mes" : iPlusVersion;
-                config = sc.ConfigurationManager.OpenExeConfiguration(string.Format("{0}\\gip.{1}.client.exe", _mainWindow.InstallationFolder, ver.ToLower()));
+                config = sc.ConfigurationManager.OpenExeConfiguration(Path.Combine(_mainWindow.InstallationFolder, $"gip.{ver.ToLower()}.client.exe"));
             }
             catch (Exception e)
             {
@@ -1138,39 +1139,39 @@ namespace gip.tool.installerAndUpdater
             string appConfigPath = string.Format("gip.{0}.client.exe.config", ver.ToLower());
             string connectionStringsPath = "ConnectionStrings.config";
 
-            if (File.Exists(rollbackPath + "\\" + appConfigPath))
-                File.Copy(rollbackPath + "\\" + appConfigPath, installationPath + "\\" + appConfigPath, true);
+            if (File.Exists(Path.Combine(rollbackPath, appConfigPath)))
+                File.Copy(Path.Combine(rollbackPath, appConfigPath), Path.Combine(installationPath, appConfigPath), true);
 
-            if(File.Exists(rollbackPath + "\\" + connectionStringsPath))
-                File.Copy(rollbackPath + "\\" + connectionStringsPath, installationPath + "\\" + connectionStringsPath, true);
+            if(File.Exists(Path.Combine(rollbackPath, connectionStringsPath)))
+                File.Copy(Path.Combine(rollbackPath, connectionStringsPath), Path.Combine(installationPath, connectionStringsPath), true);
         }
 
         private void CopyUserFilesRecursive(string installatioPath, string rollbackPath)
         {
-            IEnumerable<string> installFiles = Directory.EnumerateFiles(installatioPath).Select(c => c.Split('\\').LastOrDefault());
-            IEnumerable<string> rollbackFiles = Directory.EnumerateFiles(rollbackPath).Select(c => c.Split('\\').LastOrDefault());
+            IEnumerable<string> installFiles = Directory.EnumerateFiles(installatioPath).Select(c => c.Split(Path.DirectorySeparatorChar).LastOrDefault());
+            IEnumerable<string> rollbackFiles = Directory.EnumerateFiles(rollbackPath).Select(c => c.Split(Path.DirectorySeparatorChar).LastOrDefault());
             IEnumerable<string> diff = rollbackFiles.Except(installFiles);
             foreach (string item in diff)
             {
-                string rollbackFile = rollbackPath + "\\" + item;
-                string installFile = installatioPath + "\\" + item;
+                string rollbackFile = Path.Combine(rollbackPath, item);
+                string installFile = Path.Combine(installatioPath, item);
                 File.Copy(rollbackFile, installFile, true);
             }
 
-            IEnumerable<string> rollbackDir = Directory.EnumerateDirectories(rollbackPath).Select(x => x.Split('\\').LastOrDefault()).ToArray().Where(c => c != "VBControlScripts" && c != "DbScripts");
+            IEnumerable<string> rollbackDir = Directory.EnumerateDirectories(rollbackPath).Select(x => x.Split(Path.DirectorySeparatorChar).LastOrDefault()).ToArray().Where(c => c != "VBControlScripts" && c != "DbScripts");
 
             foreach (string dir in rollbackDir)
             {
-                if (!Directory.Exists(installatioPath + "\\" + dir))
-                    Directory.CreateDirectory(installatioPath + "\\" + dir);
-                CopyUserFilesRecursive(installatioPath + "\\" + dir, rollbackPath + "\\" + dir);
+                if (!Directory.Exists(Path.Combine(installatioPath, dir)))
+                    Directory.CreateDirectory(Path.Combine(installatioPath, dir));
+                CopyUserFilesRecursive(Path.Combine(installatioPath, dir), Path.Combine(rollbackPath, dir));
             }
         }
 
         public void SetNewVersion(string installationPath)
         {
             AppVersion = AppVersionList.FirstOrDefault(c => c.PublishDateTime == AppVersionList.Max(x => x.PublishDateTime));
-            string versionPath = installationPath + "\\version.xml";
+            string versionPath = Path.Combine(installationPath, "version.xml");
             using(FileStream fs = new FileStream(versionPath, FileMode.Create))
             {
                 DataContractSerializer serializer = new DataContractSerializer(typeof(gip.tool.publish.Version));
@@ -1181,8 +1182,8 @@ namespace gip.tool.installerAndUpdater
         public void DeleteRollbackOldVersion(string installationPath)
         {
             string installFolder = GenerateUpdateBackupPath(installationPath);
-            if (Directory.Exists(installFolder + "Old"))
-                Directory.Delete(installFolder + "Old", true);
+            if (Directory.Exists(Path.Combine(installFolder, "Old")))
+                Directory.Delete(Path.Combine(installFolder, "Old"), true);
         }
 
         public void DeleteRollbackVersion(string installationPath)
@@ -1203,16 +1204,16 @@ namespace gip.tool.installerAndUpdater
                 return RollbackType.Disabled;
 
             ReadRollbackVersion(installationPath);
-            //string dbFileName = string.Format("{0}\\{1}", rollbackPath, AppVersion.DatabaseFileName);
+            //string dbFileName = Path.Combine(rollbackPath, AppVersion.DatabaseFileName);
             //if (File.Exists(dbFileName))
-            //    return RollbackType.EnabledAutomatic;
+            //    return RollbackType.EnabledAutomatic; 
 
             return RollbackType.EnabledManual;
         }
 
         public void ReadRollbackVersion(string installationPath)
         {
-            string rollbackVersionPath = GenerateUpdateBackupPath(installationPath) + "\\version.xml";
+            string rollbackVersionPath = Path.Combine(GenerateUpdateBackupPath(installationPath), "version.xml");
             if(AppVersion == null)
             {
                 DataContractSerializer serializer = new DataContractSerializer(typeof(gip.tool.publish.Version));
@@ -1265,7 +1266,7 @@ namespace gip.tool.installerAndUpdater
             try
             {
                 DataContractSerializer serializer = new DataContractSerializer(typeof(gip.tool.publish.Version));
-                using (FileStream fs = new FileStream(installationPath + "\\version.xml", FileMode.Create))
+                using (FileStream fs = new FileStream(Path.Combine(installationPath, "version.xml"), FileMode.Create))
                 {
                     serializer.WriteObject(fs, appVersion);
                 }

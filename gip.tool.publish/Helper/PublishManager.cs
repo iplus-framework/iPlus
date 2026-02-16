@@ -113,7 +113,7 @@ namespace gip.tool.publish
                 ClearPasswords(currentUserdata.BinFolderPath, passToClear);
 
             progress.Report("3) Archiving bin folder...");
-            ZipBinFolder(AppDomain.CurrentDomain.BaseDirectory+"\\"+currentUserdata.ApplicationFileName, currentUserdata.BinFolderPath);
+            ZipBinFolder(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, currentUserdata.ApplicationFileName), currentUserdata.BinFolderPath);
 
             progress.Report("4) Archiving database sql script...");
             ZipDatabaseScript(currentUserdata.SqlScriptFilePath);
@@ -128,15 +128,16 @@ namespace gip.tool.publish
 
         private async Task<DownloadVersionState> DownloadVersion(UserData userData)
         {
-            if (File.Exists(AppDomain.CurrentDomain.BaseDirectory + "\\version.xml"))
-                File.Delete(AppDomain.CurrentDomain.BaseDirectory + "\\version.xml");
+            string versionFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "version.xml");
+            if (File.Exists(versionFilePath))
+                File.Delete(versionFilePath);
 
             bool fileExistOnFtp = true;
             using (FtpClient client = new FtpClient(userData.FtpServerHost, userData.FtpUserName, userData.FtpPassword))
             {
-                fileExistOnFtp = await client.FileExistsAsync(string.Format("{0}\\{1}\\version.xml", userData.FtpPublishPath, userData.UserDataName));
+                fileExistOnFtp = await client.FileExistsAsync(Path.Combine(userData.FtpPublishPath, userData.UserDataName, "version.xml"));
                 if(fileExistOnFtp)
-                    await client.DownloadFileAsync(AppDomain.CurrentDomain.BaseDirectory+"\\version.xml", string.Format("{0}\\{1}\\version.xml",userData.FtpPublishPath, userData.UserDataName));
+                    await client.DownloadFileAsync(versionFilePath, Path.Combine(userData.FtpPublishPath, userData.UserDataName, "version.xml"));
             }
             DataContractSerializer serializer = new DataContractSerializer(typeof(List<Version>));
                     
@@ -144,7 +145,7 @@ namespace gip.tool.publish
             {
                 try
                 {
-                    using (FileStream fs = new FileStream(AppDomain.CurrentDomain.BaseDirectory + "\\version.xml", FileMode.Open))
+                    using (FileStream fs = new FileStream(versionFilePath, FileMode.Open))
                     {
                         try
                         {
@@ -178,7 +179,7 @@ namespace gip.tool.publish
                 PublishDateTime = DateTime.Now
             });
 
-            using (FileStream fs = new FileStream(AppDomain.CurrentDomain.BaseDirectory + "\\version.xml", FileMode.Create))
+            using (FileStream fs = new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "version.xml"), FileMode.Create))
             {
                 serializer.WriteObject(fs, VersionList);
             }
@@ -192,20 +193,20 @@ namespace gip.tool.publish
         {
             using (FtpClient client = new FtpClient(userData.FtpServerHost, userData.FtpUserName, userData.FtpPassword))
             {
-                await client.CreateDirectoryAsync(string.Format("{0}\\{1}\\{2}", userData.FtpPublishPath, userData.UserDataName, "deploy"));
+                await client.CreateDirectoryAsync(Path.Combine(userData.FtpPublishPath, userData.UserDataName, "deploy"));
             }
         }
 
         private async Task UploadToServer(UserData userData, IProgress<string> progress)
         {
-            string folderPath = string.Format("{0}\\{1}\\{2}", userData.FtpPublishPath, userData.UserDataName, "deploy");
+            string folderPath = Path.Combine(userData.FtpPublishPath, userData.UserDataName, "deploy");
 
             using (FtpClient client = new FtpClient(userData.FtpServerHost, userData.FtpUserName, userData.FtpPassword))
             {
                 client.ReadTimeout = 60000;
                 client.Connect();
                 progress.Report("6) Uploading "+ userData.ApplicationFileName+" file...");
-                await client.UploadFileAsync(string.Format("{0}\\{1}", AppDomain.CurrentDomain.BaseDirectory, userData.ApplicationFileName), folderPath + "\\" + userData.ApplicationFileName,
+                await client.UploadFileAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, userData.ApplicationFileName), Path.Combine(folderPath, userData.ApplicationFileName),
                                                 FtpExists.Overwrite, true, FtpVerify.Throw);
             }
             using (FtpClient client = new FtpClient(userData.FtpServerHost, userData.FtpUserName, userData.FtpPassword))
@@ -219,7 +220,7 @@ namespace gip.tool.publish
                 progress.Report("7) Uploading "+userData.DatabaseFileName+" file...");
                 try
                 {
-                    client.UploadFile(userData.SqlScriptFilePath.Replace("sql","zip"), folderPath + "\\" + userData.DatabaseFileName, FtpExists.Overwrite,
+                    client.UploadFile(userData.SqlScriptFilePath.Replace("sql","zip"),  Path.Combine(folderPath, userData.DatabaseFileName), FtpExists.Overwrite,
                                       true, FtpVerify.Retry);
                 }
                 catch (Exception e)
@@ -242,13 +243,13 @@ namespace gip.tool.publish
 
                     VersionList.FirstOrDefault(c => c.SvnRevision == "-rev-").SvnRevision = revision.ToString();
 
-                    using (FileStream fs = new FileStream(AppDomain.CurrentDomain.BaseDirectory + "\\version.xml", FileMode.Create))
+                    using (FileStream fs = new FileStream(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "version.xml"), FileMode.Create))
                     {
                         DataContractSerializer serializer = new DataContractSerializer(typeof(List<Version>));
                         serializer.WriteObject(fs, VersionList);
                     }
 
-                    string newFolderPath = string.Format("{0}\\{1}\\{2}", userData.FtpPublishPath, userData.UserDataName, revision.ToString());
+                    string newFolderPath = Path.Combine(userData.FtpPublishPath, userData.UserDataName, revision.ToString());
                     await client.MoveDirectoryAsync(folderPath, newFolderPath);
                 }
                 else
@@ -258,7 +259,7 @@ namespace gip.tool.publish
                 }
 
                 progress.Report("9) Uploading version.xml file...");
-                await client.UploadFileAsync(AppDomain.CurrentDomain.BaseDirectory + "version.xml", userData.FtpPublishPath + "\\" + userData.UserDataName+"\\version.xml");
+                await client.UploadFileAsync(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "version.xml"), Path.Combine(userData.FtpPublishPath, userData.UserDataName, "version.xml"));
             }
             progress.Report("10) Publishing is completed.");
         }
@@ -362,7 +363,7 @@ namespace gip.tool.publish
             }
             else if (versionControl == 1)
             {
-                string svnDeployFilePath = string.Format("{0}\\{1}Deploy.txt", serverPath, iPlusVersion);
+                string svnDeployFilePath = Path.Combine(serverPath, iPlusVersion + "Deploy.txt");
                 SvnCommitResult commitResult;
                 using (SvnClient svn = new SvnClient())
                 {
@@ -406,7 +407,7 @@ namespace gip.tool.publish
                         client.Connect();
                         Version version = VersionList.FirstOrDefault(c => c.PublishDateTime == VersionList.Min(x => x.PublishDateTime));
                         string folderName = version.SvnRevision;
-                        string folderPath = string.Format("{0}\\{1}\\{2}", userData.FtpPublishPath, userData.UserDataName, folderName);
+                        string folderPath = Path.Combine(userData.FtpPublishPath, userData.UserDataName, folderName);
                         await client.DeleteDirectoryAsync(folderPath);
                         VersionList.Remove(version);
                     }

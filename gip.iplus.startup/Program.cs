@@ -167,7 +167,7 @@ namespace gip.iplus.startup
             foreach (string sourcefilePath in fileListSourcePath)
             {
                 string fileName = Path.GetFileName(sourcefilePath);
-                string destFilePath = localInstallPath + "\\" + fileName;
+                string destFilePath = Path.Combine(localInstallPath, fileName);
                 if (fileName == C_iPlusExeName || fileName == C_iPlusMESExeName || fileName == C_iPlusVBExeName)
                     pathIPlus = destFilePath;
                 bool copyFile = !File.Exists(destFilePath);
@@ -195,7 +195,7 @@ namespace gip.iplus.startup
                 foreach (string localFilePath in fileListLocalPath)
                 {
                     string fileName = Path.GetFileName(localFilePath);
-                    string sourceFilePath = sourceInstallPath + "\\" + fileName;
+                    string sourceFilePath = Path.Combine(sourceInstallPath, fileName);
                     if (!File.Exists(sourceFilePath))
                         File.Delete(localFilePath);
                 }

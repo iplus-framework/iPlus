@@ -27,8 +27,8 @@ namespace gip.core.autocomponent
 
         public override ACFSItem Dir(IACEntityObjectContext db, ACFSItemContainer container, string path, bool recursive, bool withFiles = false)
         {
-            int pos = path.LastIndexOf("\\");
-            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, Path.GetDirectoryName(path), ResourceTypeEnum.Folder, "\\Root\\" + path);
+            int pos = path.LastIndexOf(Path.DirectorySeparatorChar);
+            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, Path.GetDirectoryName(path), ResourceTypeEnum.Folder, Path.Combine(Path.DirectorySeparatorChar + "Root", path));
             var directoriesEnumeration = Directory.EnumerateDirectories(path);
 
 
@@ -51,7 +51,7 @@ namespace gip.core.autocomponent
                         try
                         {
                             XElement xDoc = XElement.Parse(File.ReadAllText(file));
-                            serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
+                            serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, Path.Combine(Path.DirectorySeparatorChar + "Resources", file));
                           
                             if(Worker != null)
                             {
@@ -80,7 +80,7 @@ namespace gip.core.autocomponent
 
             foreach (var folder in directoriesEnumeration)
             {
-                pos = folder.LastIndexOf("\\");
+                pos = folder.LastIndexOf(Path.DirectorySeparatorChar);
                 string folderName = folder.Substring(pos + 1);
                 if (folderName.StartsWith(ACProject.ClassName))
                 {

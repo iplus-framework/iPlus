@@ -43,7 +43,7 @@ namespace gip.core.datamodel
         public string ExportProject(ACEntitySerializer aCEntitySerializer, ACProject aCProject,
             ACQueryDefinition qryACProject, ACClassInfoWithItems exportProjectItemRoot, string rootFolder)
         {
-            string folderPath = rootFolder + "\\" + aCProject.ACIdentifier;
+            string folderPath = Path.Combine(rootFolder, aCProject.ACIdentifier);
             if (!CheckOrCreateDirectory(folderPath))
                 return "";
 
@@ -52,7 +52,7 @@ namespace gip.core.datamodel
 
             if (exportProjectItemRoot.IsChecked)
             {
-                WriteAllText(folderPath + "\\" + aCProject.ACIdentifier + Const.ACQueryExportFileType, xmlACProject, aCProject.GetACUrl());
+                WriteAllText(Path.Combine(folderPath, aCProject.ACIdentifier + Const.ACQueryExportFileType), xmlACProject, aCProject.GetACUrl());
             }
 
             return folderPath;
@@ -78,7 +78,7 @@ namespace gip.core.datamodel
         public void DoPackage(string rootFolder, string subExportFolderName)
         {
             var arhiveDir = Path.Combine(rootFolder, subExportFolderName);
-            string destinationArchiveName = rootFolder + @"\" + subExportFolderName + ".zip";
+            string destinationArchiveName = Path.Combine(rootFolder, subExportFolderName + ".zip");
             ZipFile.CreateFromDirectory(arhiveDir, destinationArchiveName, CompressionLevel.Optimal, true, Encoding.UTF8);
             Directory.Delete(arhiveDir, true);
         }
@@ -108,9 +108,9 @@ namespace gip.core.datamodel
             }
 
             if (projectItem.Value == null)
-                folderPath += "\\" + projectItem.ACIdentifier;
+                folderPath = Path.Combine(folderPath, projectItem.ACIdentifier);
             else
-                folderPath += "\\" + projectItem.ValueT.ACIdentifier;
+                folderPath = Path.Combine(folderPath, projectItem.ValueT.ACIdentifier);
 
             if (projectItem.IsChecked && projectItem.ValueT != null)
             {
@@ -156,7 +156,7 @@ namespace gip.core.datamodel
                 XElement element = aCEntitySerializer.SerializeACObject(aCClass, qryACClass, folderPath, false);
                 string xmlACClass = element != null ? element.ToString() : "";
 
-                WriteAllText(folderPath + "\\" + ACClass.ClassName + Const.ACQueryExportFileType, xmlACClass, aCClass.GetACUrl());
+                WriteAllText(Path.Combine(folderPath, ACClass.ClassName + Const.ACQueryExportFileType), xmlACClass, aCClass.GetACUrl());
             }
             if (IsExportACClassProperty)
             {
@@ -242,7 +242,7 @@ namespace gip.core.datamodel
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassProperty, folderPath, true);
             string xmlACClassProperty = element != null ? element.ToString() : "";
 
-            string propertyPath = folderPath + "\\" + ACClassProperty.ClassName + Const.ACQueryExportFileType;
+            string propertyPath = Path.Combine(folderPath, ACClassProperty.ClassName + Const.ACQueryExportFileType);
             if (string.IsNullOrEmpty(xmlACClassProperty))
             {
                 if (IsPathValid(propertyPath) && File.Exists(propertyPath))
@@ -274,7 +274,7 @@ namespace gip.core.datamodel
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassMethod, folderPath, true);
             string xmlACClassMethod = element != null ? element.ToString() : "";
 
-            string methodPath = folderPath + "\\" + ACClassMethod.ClassName + Const.ACQueryExportFileType;
+            string methodPath = Path.Combine(folderPath, ACClassMethod.ClassName + Const.ACQueryExportFileType);
             if (string.IsNullOrEmpty(xmlACClassMethod))
             {
                 if (IsPathValid(methodPath) && File.Exists(methodPath))
@@ -302,7 +302,7 @@ namespace gip.core.datamodel
                 string xmlACClassMethod2 = xmlACClassMethod2Element != null ? xmlACClassMethod2Element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassMethod2))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassMethod.ClassName + "_" + (acClassMethod as ACClassMethod).ACIdentifier + Const.ACQueryExportFileType, xmlACClassMethod2, (acClassMethod as IACObject).GetACUrl());
+                    WriteAllText(Path.Combine(folderPath, ACClassMethod.ClassName + "_" + (acClassMethod as ACClassMethod).ACIdentifier + Const.ACQueryExportFileType), xmlACClassMethod2, (acClassMethod as IACObject).GetACUrl());
                 }
             }
 
@@ -316,7 +316,7 @@ namespace gip.core.datamodel
                 string xmlACClassMethod3 = xmlACClassMethod3Element != null ? xmlACClassMethod3Element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassMethod3))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassMethod.ClassName + "_" + (acClassMethod as ACClassMethod).ACIdentifier + Const.ACQueryExportFileType, xmlACClassMethod3, (acClassMethod as IACObject).GetACUrl());
+                    WriteAllText(Path.Combine(folderPath, ACClassMethod.ClassName + "_" + (acClassMethod as ACClassMethod).ACIdentifier + Const.ACQueryExportFileType), xmlACClassMethod3, (acClassMethod as IACObject).GetACUrl());
                 }
             }
 
@@ -346,7 +346,7 @@ namespace gip.core.datamodel
                 string xmlACClassDesign = element != null ? element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassDesign))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
+                    WriteAllText(Path.Combine(folderPath, ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType), xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
                 }
             }
             return true;
@@ -374,7 +374,7 @@ namespace gip.core.datamodel
                 string xmlACClassText = element != null ? element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassText))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassText.ClassName + "_" + (acClassText as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassText, (acClassText as IACObject).GetACUrl());
+                    WriteAllText(Path.Combine(folderPath, ACClassText.ClassName + "_" + (acClassText as IACObject).ACIdentifier + Const.ACQueryExportFileType), xmlACClassText, (acClassText as IACObject).GetACUrl());
                 }
             }
 
@@ -403,7 +403,7 @@ namespace gip.core.datamodel
                 string xmlACClassMessage = element != null ? element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassMessage))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassMessage.ClassName + "_" + (acClassMessage as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassMessage, (acClassMessage as IACObject).GetACUrl());
+                    WriteAllText(Path.Combine(folderPath, ACClassMessage.ClassName + "_" + (acClassMessage as IACObject).ACIdentifier + Const.ACQueryExportFileType), xmlACClassMessage, (acClassMessage as IACObject).GetACUrl());
                 }
             }
 
@@ -423,7 +423,7 @@ namespace gip.core.datamodel
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassComposition, folderPath, true);
             string xmlACClassConfig = element != null ? element.ToString() : "";
 
-            string configPaht = folderPath + "\\" + ACClassConfig.ClassName + Const.ACQueryExportFileType;
+            string configPaht = Path.Combine(folderPath, ACClassConfig.ClassName + Const.ACQueryExportFileType);
             if (string.IsNullOrEmpty(xmlACClassConfig))
             {
                 if (IsPathValid(configPaht) && File.Exists(configPaht))
@@ -451,7 +451,7 @@ namespace gip.core.datamodel
             System.Xml.Linq.XElement element = aCEntitySerializer.Serialize(acClass, qryACClassPropertyRelation, folderPath, true);
             string xmlACClassPropertyRelation = element != null ? element.ToString() : "";
 
-            string propertyRelationPath = folderPath + "\\" + ACClassPropertyRelation.ClassName + Const.ACQueryExportFileType;
+            string propertyRelationPath = Path.Combine(folderPath, ACClassPropertyRelation.ClassName + Const.ACQueryExportFileType);
             if (string.IsNullOrEmpty(xmlACClassPropertyRelation))
             {
                 if (File.Exists(propertyRelationPath))

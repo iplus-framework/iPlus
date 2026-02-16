@@ -26,11 +26,10 @@ namespace gip.core.autocomponent
         public override ACFSItem Dir(IACEntityObjectContext db, ACFSItemContainer container, string path, bool recursive, bool withFiles = false)
         {
 
-            int pos = path.LastIndexOf("\\");
-            string taskName = string.Format(@"ResourcesXML.Dir(""{0}"")", path.Substring(pos + 1));
+            string taskName = string.Format(@"ResourcesXML.Dir(""{0}"")", Path.GetFileName(path));
             if (VBProgress != null)
                 VBProgress.AddSubTask(taskName, 0, 1);
-            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, path.Substring(pos + 1), ResourceTypeEnum.XML, "\\XML\\" + path);
+            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, Path.GetFileName(path), ResourceTypeEnum.XML, Path.Combine(Path.DirectorySeparatorChar + "XML", path));
 
             ACEntitySerializer serializer = new ACEntitySerializer();
             // serializer.VBProgress = this.VBProgress;

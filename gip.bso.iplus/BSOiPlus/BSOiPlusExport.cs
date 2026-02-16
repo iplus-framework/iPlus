@@ -964,8 +964,8 @@ namespace gip.bso.iplus
                 {
                     try
                     {
-                        if (Directory.Exists(CurrentExportFolder + "\\" + CurrentExportACProject.ACIdentifier))
-                            Directory.Delete(CurrentExportFolder + "\\" + CurrentExportACProject.ACIdentifier, true);
+                        if (Directory.Exists(Path.Combine(CurrentExportFolder, CurrentExportACProject.ACIdentifier)))
+                            Directory.Delete(Path.Combine(CurrentExportFolder, CurrentExportACProject.ACIdentifier), true);
                     }
                     catch (Exception ex)
                     {
@@ -1261,7 +1261,7 @@ namespace gip.bso.iplus
                     result = IsEnabledExport();
                     return true;
                 case nameof(ExportFolder):
-                    ExportFolder();
+                    _ = ExportFolder();
                     return true;
                 case nameof(IsEnabledExportFolder):
                     result = IsEnabledExportFolder();

@@ -1,6 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System.IO;
+using System.IO;
 using System.Xml.Linq;
 
 namespace gip.core.datamodel
@@ -26,8 +26,8 @@ namespace gip.core.datamodel
                 string xmlACClassDesign = element != null ? element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassDesign))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
-                    File.WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + ".xml", xmlDesign);
+                    WriteAllText(Path.Combine(folderPath, ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType), xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
+                    File.WriteAllText(Path.Combine(folderPath, ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + ".xml"), xmlDesign);
                 }
 
                 xmlDesign = dbDesign.XMLDesign2;
@@ -36,8 +36,8 @@ namespace gip.core.datamodel
                 xmlACClassDesign = element != null ? element.ToString() : "";
                 if (!string.IsNullOrEmpty(xmlACClassDesign))
                 {
-                    WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType, xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
-                    File.WriteAllText(folderPath + "\\" + ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + ".axaml", xmlDesign);
+                    WriteAllText(Path.Combine(folderPath, ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + Const.ACQueryExportFileType), xmlACClassDesign, (acClassDesign as IACObject).GetACUrl());
+                    File.WriteAllText(Path.Combine(folderPath, ACClassDesign.ClassName + "_" + (acClassDesign as IACObject).ACIdentifier + ".axaml"), xmlDesign);
                 }
             }
             return true;

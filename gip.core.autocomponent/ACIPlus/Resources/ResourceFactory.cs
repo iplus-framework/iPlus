@@ -1,12 +1,8 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using gip.core.datamodel;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using gip.core.datamodel;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace gip.core.autocomponent
 {
@@ -17,7 +13,7 @@ namespace gip.core.autocomponent
             IResources resource = null;
             if(path != null)
             {
-                if(path.Contains("|"))
+                if (path.Contains("|"))
                 {
                     resource = new ResourcesSQL();
                 }   
@@ -31,8 +27,7 @@ namespace gip.core.autocomponent
                     resource = new ResourcesXML();
                 }
                     
-                int pos = path.LastIndexOf("\\");
-                string folderName = path.Substring(pos + 1);
+                string folderName = Path.GetFileName(path);
                 if (resource == null && (folderName.Contains(ACProject.ClassName) || folderName.EndsWith(Const.ACQueryExportFileType)))
                     resource = new Resources();
             }

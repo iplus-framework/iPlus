@@ -28,10 +28,9 @@ namespace gip.core.autocomponent
 
         public override ACFSItem Dir(IACEntityObjectContext db, ACFSItemContainer container, string path, bool recursive, bool withFiles = true)
         {
-            int pos = path.LastIndexOf("\\");
-            string zipName = path.Substring(pos + 1);
+            string zipName = Path.GetFileName(path);
             string taskName = string.Format(@"ResourceZip.Dir(""{0}"")", zipName);
-            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, zipName, ResourceTypeEnum.Zip, "\\ZIP\\" + path);
+            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, zipName, ResourceTypeEnum.Zip, Path.Combine(Path.DirectorySeparatorChar + "ZIP", path));
 
             using (ZipArchive zip = ZipFile.OpenRead(path))
             {
@@ -42,23 +41,24 @@ namespace gip.core.autocomponent
 
                 foreach (ZipArchiveEntry item in zip.Entries.OrderBy(x => x.FullName))
                 {
-                    if (string.IsNullOrEmpty(item.Name) || !item.Name.EndsWith(Const.ACQueryExportFileType)) continue;
+                    if (string.IsNullOrEmpty(item.Name) || !item.Name.EndsWith(Const.ACQueryExportFileType)) 
+                        continue;
 
                     string fileContent = new string(
-                                    (GetStreamReader(path + "\\" + item.FullName, Encoding.UTF8)
+                                    (GetStreamReader(path + Path.DirectorySeparatorChar + item.FullName, Encoding.UTF8)
                                      .ReadToEnd())
                                      .ToArray());
 
                     string fullName = item.FullName;
-                    fullName = fullName.Replace('/', '\\');
-                    int lastIndex = fullName.LastIndexOf('\\');
+                    fullName = fullName.Replace('/', Path.DirectorySeparatorChar);
+                    int lastIndex = fullName.LastIndexOf(Path.DirectorySeparatorChar);
                     string subPath = fullName.Substring(0, lastIndex);
                     ACFSItem folderRootFSFolderItem = rootACObjectItem.GetChildFolderItem(this, subPath, true);
 
                     try
                     {
                         XElement xDoc = XElement.Parse(fileContent);
-                        serializer.DeserializeXML(this, db, folderRootFSFolderItem, xDoc, null, "\\Resources\\" + path + @"\" + item.FullName);
+                        serializer.DeserializeXML(this, db, folderRootFSFolderItem, xDoc, null, Path.Combine(Path.DirectorySeparatorChar + "Resources", path, item.FullName));
                         if (Worker != null && serializer.MsgList.Any())
                         {
                             foreach(Msg msg in serializer.MsgList)

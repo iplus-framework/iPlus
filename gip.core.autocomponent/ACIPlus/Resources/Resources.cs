@@ -44,8 +44,8 @@ namespace gip.core.autocomponent
         {
             if (string.IsNullOrEmpty(initialPath))
                 initialPath = path;
-            int pos = path.LastIndexOf("\\");
-            string folderName = path.Substring(pos + 1);
+
+            string folderName = Path.GetFileName(path);
             string taskName = string.Format(@"Resources.Dir(""{0}"")", folderName);
 
             var directoriesEnumeration = Directory.EnumerateDirectories(path);
@@ -55,7 +55,7 @@ namespace gip.core.autocomponent
             if (VBProgress != null)
                 VBProgress.AddSubTask(taskName, 0, totalItemsForProcess);
 
-            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, folderName, ResourceTypeEnum.Folder, "\\Resources\\" + path);
+            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, folderName, ResourceTypeEnum.Folder, Path.Combine(Path.DirectorySeparatorChar + "Resources", path));
             int index = 0;
 
             if (withFiles)
@@ -67,7 +67,7 @@ namespace gip.core.autocomponent
                     try
                     {
                         XElement xDoc = XElement.Parse(File.ReadAllText(file));
-                        serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, "\\Resources\\" + file);
+                        serializer.DeserializeXML(this, db, rootACObjectItem, xDoc, null, Path.Combine(Path.DirectorySeparatorChar + "Resources", file));
                         if (Worker != null)
                         {
                             foreach (Msg msg in serializer.MsgList)
@@ -261,9 +261,8 @@ namespace gip.core.autocomponent
         {
             try
             {
-                int pos = filename.LastIndexOf("\\");
+                int pos = filename.LastIndexOf(Path.DirectorySeparatorChar);
                 int pos2 = filename.Substring(pos).LastIndexOf(".");
-
                 if (pos2 != -1)
                 {
                     filename = filename.Substring(0, pos);

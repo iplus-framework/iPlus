@@ -10,6 +10,7 @@ using System.Data;
 using gip.core.media;
 using System.Timers;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace gip.bso.iplus
 {
@@ -412,7 +413,7 @@ namespace gip.bso.iplus
             ACProgramLog rootLog = CurrentACProgram.ACProgramLog_ACProgram.FirstOrDefault(c => c.ParentACProgramLogID == null);
             BackgroundWorker.ProgressInfo.TotalProgress.ProgressRangeTo = CurrentACProgram.ACProgramLog_ACProgram.Count*2;
             AddLogs(table, rootLog, ref lastParamCol);
-            Export(ExcelFilePath+"\\"+ExcelFileName, table);
+            Export(Path.Combine(ExcelFilePath, ExcelFileName), table);
             _IsExportActive = false;
         }
 

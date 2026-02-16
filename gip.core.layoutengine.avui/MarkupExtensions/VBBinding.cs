@@ -108,6 +108,25 @@ namespace gip.core.layoutengine.avui
                 return _dcRightControlMode;
             }
         }
+
+        public object ProvideValue(IServiceProvider provider)
+        {
+            if (provider == null)
+                return this;
+
+            IProvideValueTarget service = (IProvideValueTarget)provider.GetService(typeof(IProvideValueTarget));
+            if (service == null)
+                return this;
+
+            AvaloniaObject target = service.TargetObject as AvaloniaObject;
+            AvaloniaProperty dp = service.TargetProperty as AvaloniaProperty;
+            
+            if (target == null || dp == null)
+                return this;
+
+            target.Bind(dp, this);
+            return target.GetValue(dp);
+        }
     }
 
     //[MarkupExtensionReturnType(typeof(object))]

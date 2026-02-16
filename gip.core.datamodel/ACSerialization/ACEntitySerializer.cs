@@ -24,6 +24,7 @@ using gip.core.datamodel;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.IO;
 
 namespace gip.core.datamodel
 {
@@ -142,7 +143,7 @@ namespace gip.core.datamodel
                         ACClassDesign acClassDesign = acObject as ACClassDesign;
                         acClassDesign.DownloadReportFile(folderPath);
 
-                        xElement.Add(new XElement(pi.Name, "\\Resources\\#" + folderPath + "\\" + acClassDesign.ReportFileName));
+                        xElement.Add(new XElement(pi.Name, "\\Resources\\#" + folderPath + Path.DirectorySeparatorChar  + acClassDesign.ReportFileName));
                     }
                 }
                 else if (value is IACObject)
@@ -314,7 +315,7 @@ namespace gip.core.datamodel
                 VBProgress.AddSubTask(taskName, 0, 1);
             if (mainType.Name == "List`1")
             {
-                string listFileName = path.Substring(path.LastIndexOf("\\"));
+                string listFileName = Path.GetFileName(path);
                 ACFSItem acFsListItem = new ACFSItem(resource, acFSItemParent.Container, null, listFileName, ResourceTypeEnum.List, path);
                 acFSItemParent.Add(acFsListItem);
                 Type acObjectType = mainType.GetGenericArguments()[0];
