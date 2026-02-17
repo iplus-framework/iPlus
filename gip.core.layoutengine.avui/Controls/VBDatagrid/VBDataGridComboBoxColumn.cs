@@ -639,7 +639,8 @@ namespace gip.core.layoutengine.avui
 
         private void ApplyColumnProperties(VBComboBox comboBox)
         {
-            comboBox.Bind(VBComboBox.SelectedItemProperty, SelectedItemBinding);
+            if (SelectedItemBinding != null)
+                comboBox.Bind(VBComboBox.SelectedItemProperty, SelectedItemBinding);
             comboBox.SetValue(VBComboBox.SelectedValueBindingProperty, SelectedValueBinding);
             comboBox.SetValue(TextSearch.TextProperty, TextBinding);
             DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.SelectedValueBindingProperty, SelectedValueBindingProperty);

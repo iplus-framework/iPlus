@@ -1264,7 +1264,11 @@ namespace gip.core.datamodel
             ("</Style.Setters>", "</ControlTheme.Setters>"),
             ("</Style>", "</ControlTheme>"),
             ("ToolTip=", "ToolTip.Tip="),
-            ("DataGrid.Columns", "vb:VBDataGrid.Columns")
+            ("DataGrid.Columns", "vb:VBDataGrid.Columns"),
+            ("AllowDrop=", "DragDrop.AllowDrop="),
+            ("<Style", "<ControlTheme"),
+            ("</Style", "</ControlTheme"),    
+            (" Style=", " Theme="),    
         };
 
         #endregion

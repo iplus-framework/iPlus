@@ -215,7 +215,7 @@ namespace gip.core.layoutengine.avui
                 ACColumnItem = new ACColumnItem(VBContent);
             VBCheckBox checkBox = GenerateCheckBox(false, cell);
             checkBox.Name = "CellTextBox";
-            if (_cellCheckBoxDefaultTheme.Value is { } theme)
+            if (_cellCheckBoxDefaultTheme != null && _cellCheckBoxDefaultTheme.Value is { } theme)
             {
                 checkBox.Theme = theme;
             }
