@@ -45,7 +45,11 @@ namespace gip.core.autocomponent
             if (string.IsNullOrEmpty(initialPath))
                 initialPath = path;
 
-            string folderName = Path.GetFileName(path);
+            // Normalize to forward slashes (works on Windows, Linux, and Wine)
+            string normalizedPath = path.Replace('\\', '/').TrimEnd('/');
+            int pos = normalizedPath.LastIndexOf('/');
+            string folderName = pos >= 0 ? normalizedPath.Substring(pos + 1) : normalizedPath;
+
             string taskName = string.Format(@"Resources.Dir(""{0}"")", folderName);
 
             var directoriesEnumeration = Directory.EnumerateDirectories(path);

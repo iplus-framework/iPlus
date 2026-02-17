@@ -7,6 +7,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.IO;
 
 namespace gip.core.ControlScriptSync
 {
@@ -25,7 +26,7 @@ namespace gip.core.ControlScriptSync
 
         public bool Sync(IRoot root, IACEntityObjectContext db)
         {
-            string rootFolder = System.AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+            string rootFolder = System.AppDomain.CurrentDomain.BaseDirectory.TrimEnd(Path.DirectorySeparatorChar);
             ConnectionSettings connectionSettings = new ConnectionSettings();
             return Sync(root, db, rootFolder, connectionSettings.DefaultConnectionString);
         }

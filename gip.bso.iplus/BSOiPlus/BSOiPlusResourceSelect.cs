@@ -564,47 +564,71 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"FolderMode":
+                case nameof(FolderMode):
                     FolderMode();
                     return true;
-                case"SQLMode":
+                case nameof(SQLMode):
                     SQLMode();
                     return true;
-                case"CmdSQLInstanceInfoAdd":
+                case nameof(CmdSQLInstanceInfoAdd):
                     CmdSQLInstanceInfoAdd();
                     return true;
-                case"CmdSQLInstanceInfoDelete":
+                case nameof(CmdSQLInstanceInfoDelete):
                     CmdSQLInstanceInfoDelete();
                     return true;
-                case"IsEnabledCmdSQLInstanceInfoDelete":
+                case nameof(IsEnabledCmdSQLInstanceInfoDelete):
                     result = IsEnabledCmdSQLInstanceInfoDelete();
                     return true;
-                case"CmdFilterACQuery":
+                case nameof(CmdFilterACQuery):
                     CmdFilterACQuery();
                     return true;
-                case"IsEnabledCmdFilterACQuery":
+                case nameof(IsEnabledCmdFilterACQuery):
                     result = IsEnabledCmdFilterACQuery();
                     return true;
-                case"ShowACQueryDialog":
+                case nameof(ShowACQueryDialog):
                     result = ShowACQueryDialog();
                     return true;
-                case"IsEnabledShowACQueryDialog":
+                case nameof(IsEnabledShowACQueryDialog):
                     result = IsEnabledShowACQueryDialog();
                     return true;
-                case"ImportFolder":
+                case nameof(ImportFolder):
                     ImportFolder();
                     return true;
-                case"ResourceDlg":
+                case nameof(ResourceDlg):
                     result = ResourceDlg((String)acParameter[0]);
                     return true;
-                case"OK":
+                case nameof(OK):
                     OK();
                     return true;
-                case"Cancel":
+                case nameof(Cancel):
                     Cancel();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(CmdSQLInstanceInfoDelete):
+                case nameof(IsEnabledCmdSQLInstanceInfoDelete):
+                    return new string[] { nameof(SelectedSQLInstanceInfo) };
+                case nameof(CmdFilterACQuery):
+                case nameof(IsEnabledCmdFilterACQuery):
+                    return new string[] { nameof(ACQueryDatabase) };                
+                case nameof(ShowACQueryDialog):
+                case nameof(IsEnabledShowACQueryDialog):
+                    return new string[] { nameof(SelectedSQLACQueryDef) };                
+                case nameof(FolderMode):
+                case nameof(SQLMode):
+                case nameof(OK):
+                case nameof(Cancel):
+                case nameof(CmdSQLInstanceInfoAdd):
+                case nameof(ImportFolder):
+                    return new string[] { nameof(InitState)};
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

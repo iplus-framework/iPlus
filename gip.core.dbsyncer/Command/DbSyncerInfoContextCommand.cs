@@ -103,7 +103,7 @@ namespace gip.core.dbsyncer.Command
             List<DirectoryInfo> subDirs = dirInfo.GetDirectories().ToList();
             foreach (DirectoryInfo subDirInfo in subDirs)
             {
-                string infoFile = subDirInfo.FullName + @"\info.xml";
+                string infoFile = Path.Combine(subDirInfo.FullName, "info.xml");
                 FileStream st = new FileStream(infoFile, FileMode.Open);
                 XmlSerializer xmlSerializer = new XmlSerializer(typeof(gip.core.dbsyncer.model.DbSyncerInfoContext));
                 gip.core.dbsyncer.model.DbSyncerInfoContext contextInfo = (gip.core.dbsyncer.model.DbSyncerInfoContext)xmlSerializer.Deserialize(st);

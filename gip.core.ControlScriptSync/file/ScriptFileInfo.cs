@@ -80,7 +80,7 @@ namespace gip.core.ControlScriptSync.file
             {
                 DeleteFolder();
             }
-            ZipFile.ExtractToDirectory(FolderContainer + @"\" + FileName, System.IO.Path.GetTempPath());
+            ZipFile.ExtractToDirectory(Path.Combine(FolderContainer, FileName), System.IO.Path.GetTempPath());
         }
 
         public void DeleteFolder()

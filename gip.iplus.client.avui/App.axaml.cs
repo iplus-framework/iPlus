@@ -227,8 +227,8 @@ public partial class App : Application
 
 
     /// <summary>
-    /// Lädt die VarioiplusLogin- und Window1-Klasse und stellt die Interaktionslogik
-    /// für das UI der VarioiplusLogin-Klasse.
+    /// Lï¿½dt die VarioiplusLogin- und Window1-Klasse und stellt die Interaktionslogik
+    /// fï¿½r das UI der VarioiplusLogin-Klasse.
     /// </summary>
     /// <param name="varioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
     /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
@@ -268,6 +268,7 @@ public partial class App : Application
                     _LoginWindow.DisplayLogin(true, errorMsg);
                     _LoginWindow.WaitOnLoginResult();
                     errorMsg = "";
+                    registerACObjects = _AppSettings.CtrlPressed;
                     _LoginWindow.DisplayLogin(false, errorMsg);
                 }
                 else if (_LoginView != null)

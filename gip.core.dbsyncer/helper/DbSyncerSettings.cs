@@ -115,9 +115,9 @@ namespace gip.core.dbsyncer.helper
             string contextPath = "";
             if (!string.IsNullOrEmpty(context))
             {
-                contextPath = context + @"\";
+                contextPath = context + Path.DirectorySeparatorChar;
             }
-            return rootFolder.TrimEnd('\\') +  @"\" + contextPath;
+            return Path.Combine(rootFolder.TrimEnd(Path.DirectorySeparatorChar), contextPath);
         }
 
         /// <summary>

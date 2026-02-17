@@ -12,6 +12,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Markup;
 using System.Xml.Linq;
 
 namespace gip.bso.iplus
@@ -535,10 +536,12 @@ namespace gip.bso.iplus
         /// Imports the folder.
         /// </summary>
         [ACMethodInfo("Import", "en{'...'}de{'...'}", 406, false, false, true)]
-        public void ImportSource()
+        public async Task ImportSource()
         {
-            if (!IsEnabledImportSource()) return;
-            ImportSourcePath = (string)Root.Businessobjects.ACUrlCommand("BSOiPlusResourceSelect!ResourceDlg", new object[] { ImportSourcePath });
+            if (!IsEnabledImportSource()) 
+                return;
+            var task = Root.Businessobjects.ACUrlCommand("BSOiPlusResourceSelect!ResourceDlg", new object[] { ImportSourcePath }) as Task<string>;
+            ImportSourcePath = await task;
         }
 
         public bool IsEnabledImportSource()
@@ -603,7 +606,7 @@ namespace gip.bso.iplus
                     };
 
                     ACFSItem rootACFSItem = rootResources.Dir(Database, rootContainer, ImportSourcePath, true);
-                    rootContainer.Stack.Where(x => x.ResourceType == ResourceTypeEnum.IACObject).ToList().ForEach(x => x.IsVisible = false);
+                    //rootContainer.Stack.Where(x => x.ResourceType == ResourceTypeEnum.IACObject).ToList().ForEach(x => x.IsVisible = false);
                     rootACFSItem.ShowFirst();
 
                     MsgWithDetails importMsgs = new MsgWithDetails();
@@ -867,44 +870,64 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "InspectImport":
+                case nameof(InspectImport):
                     InspectImport();
                     return true;
-                case "Import":
+                case nameof(Import):
                     Import();
                     return true;
-                case "IsEnabledImport":
+                case nameof(IsEnabledImport):
                     result = IsEnabledImport();
                     return true;
-                case "ImportFile":
+                case nameof(ImportFile):
                     ImportFile();
                     return true;
-                case "IsEnabledImportFile":
+                case nameof(IsEnabledImportFile):
                     result = IsEnabledImportFile();
                     return true;
-                case "ImportSaveFile":
+                case nameof(ImportSaveFile):
                     ImportSaveFile();
                     return true;
-                case "IsEnabledImportSaveFile":
+                case nameof(IsEnabledImportSaveFile):
                     result = IsEnabledImportSaveFile();
                     return true;
-                case "ImportSaveFileUndo":
+                case nameof(ImportSaveFileUndo):
                     ImportSaveFileUndo();
                     return true;
-                case "IsEnabledImportSaveFileUndo":
+                case nameof(IsEnabledImportSaveFileUndo):
                     result = IsEnabledImportSaveFileUndo();
                     return true;
-                case "ImportSource":
+                case nameof(ImportSource):
                     ImportSource();
                     return true;
-                case "IsEnabledImportSource":
+                case nameof(IsEnabledImportSource):
                     result = IsEnabledImportSource();
                     return true;
-                case "OnACItemExpand":
+                case nameof(OnACItemExpand):
                     OnACItemExpand((ACFSItem)acParameter[0]);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Import):
+                case nameof(IsEnabledImport):
+                    return new string[] { nameof(CurrentImportItemRoot) };
+                case nameof(ImportFile):
+                case nameof(IsEnabledImportFile):
+                case nameof(ImportSaveFile):
+                case nameof(IsEnabledImportSaveFile):
+                    return new string[] { nameof(CurrentImportFileXML) };                
+                case nameof(InspectImport):
+                case nameof(ImportSource):
+                case nameof(IsEnabledImportSource):
+                    return new string[] { nameof(InitState)};
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

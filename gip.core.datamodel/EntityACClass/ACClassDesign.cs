@@ -1188,7 +1188,7 @@ namespace gip.core.datamodel
 
         [NotMapped]
         private bool _StoreDesignInXML2;
-        [ACPropertyInfo(14, "IsDesignCompiled", "en{'Edit Avalonia Design'}de{'Avalonia Design ändern'}", "", false)]
+        [ACPropertyInfo(10000, "IsDesignCompiled", "en{'Edit Avalonia Design'}de{'Avalonia Design ändern'}", "", false, IsPersistable = false)]
         [NotMapped]
         public bool StoreDesignInXML2
         {
@@ -1206,6 +1206,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [ACPropertyInfo(10000, "XAMLDesign", "en{'XAML Design'}de{'XAML Design'}", "", false, IsPersistable = false)]
         [NotMapped]
         public string XAMLDesign
         {

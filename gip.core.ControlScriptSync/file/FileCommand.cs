@@ -37,7 +37,7 @@ namespace gip.core.ControlScriptSync.file
         string SqlScriptLocation = @"VBControlScripts";
         public string GetScriptFolderPath()
         {
-            return RootFolder + @"\" + SqlScriptLocation;
+            return Path.Combine(RootFolder, SqlScriptLocation);
         }
 
 

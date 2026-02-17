@@ -27,8 +27,12 @@ namespace gip.core.autocomponent
 
         public override ACFSItem Dir(IACEntityObjectContext db, ACFSItemContainer container, string path, bool recursive, bool withFiles = false)
         {
-            int pos = path.LastIndexOf(Path.DirectorySeparatorChar);
-            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, Path.GetDirectoryName(path), ResourceTypeEnum.Folder, Path.Combine(Path.DirectorySeparatorChar + "Root", path));
+            // Normalize to forward slashes (works on Windows, Linux, and Wine)
+            string normalizedPath = path.Replace('\\', '/').TrimEnd('/');
+            int pos = normalizedPath.LastIndexOf('/');
+            string caption = pos >= 0 ? normalizedPath.Substring(pos + 1) : normalizedPath;
+
+            ACFSItem rootACObjectItem = new ACFSItem(this, container, null, caption, ResourceTypeEnum.Folder, Path.Combine(Path.DirectorySeparatorChar + "Root", path));
             var directoriesEnumeration = Directory.EnumerateDirectories(path);
 
 

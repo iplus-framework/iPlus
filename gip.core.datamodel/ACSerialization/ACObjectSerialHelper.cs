@@ -167,11 +167,12 @@ namespace gip.core.datamodel
         public static bool PropertyForIgnore(PropertyInfo pi)
         {
             return
-                !  pi.CanWrite
+                !pi.CanWrite
                 || pi.PropertyType == _TypeGuid1
                 || pi.PropertyType == _TypeGuid2
                 || !(pi.PropertyType.IsValueType || pi.PropertyType == _TypeString || (_TypeIACObject.IsAssignableFrom(pi.PropertyType) && !_TypeContext.IsAssignableFrom(pi.PropertyType)))
-                ;
+                || (pi.GetCustomAttribute<System.ComponentModel.DataAnnotations.Schema.NotMappedAttribute>() != null
+                    && pi.GetCustomAttribute<ACPropertyBase>()?.SortIndex >= 10000);
         }
 
 #endregion
