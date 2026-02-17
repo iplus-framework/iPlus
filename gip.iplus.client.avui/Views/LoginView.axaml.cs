@@ -51,6 +51,8 @@ public partial class LoginView : UserControl
 
     private Settings UserSettings => DataContext as Settings;
 
+    public event EventHandler LoginCancelled;
+
     #region Properties => Login
 
     private string _Keyword = "";
@@ -256,38 +258,10 @@ public partial class LoginView : UserControl
 
     private void ButtonCancel_Click(object sender, RoutedEventArgs e)
     {
-        //this.Close();
-
-        // Unload-EreignisHandler mit Ereignis=null aufrufen
-        // um Abbruch zu signalisieren
-        //this.Login_Unloaded(this, null);
+        if (LoginCancelled != null)
+            LoginCancelled.Invoke(this, new EventArgs());
 
         Monitor.Exit(_WaitOnOkClick);
-    }
-
-    private void ButtonLogin_PointerReleased(object sender, PointerReleasedEventArgs e)
-    {
-        //if (e.InitialPressMouseButton == MouseButton.Right && e.KeyModifiers == KeyModifiers.Control)
-        //{
-        //    if (labelTouchScreen.IsVisible)
-        //    {
-        //        label3.IsVisible = true;
-        //        TextboxKey.IsVisible = true;
-        //        labelTouchScreen.IsVisible = false;
-        //        CheckTouchScreen.IsVisible = false;
-        //    }
-        //    else
-        //    {
-        //        label3.IsVisible = false;
-        //        TextboxKey.IsVisible = false;
-        //        labelTouchScreen.IsVisible = true;
-        //        CheckTouchScreen.IsVisible = true;
-        //    }
-        //    //_Keyword = License.GenerateRemoteLoginCode();
-        //    TextboxKey.Text = _Keyword;
-        //    e.Handled = true;
-        //    return;
-        //}
     }
 
     #endregion
@@ -362,10 +336,9 @@ public partial class LoginView : UserControl
         }
 
         CommandLineHelper.SaveSettings();
-    }
 
-    private void ButtonSave_PointerReleased(object sender, PointerReleasedEventArgs e)
-    {
+        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
+        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
     }
 
     #endregion

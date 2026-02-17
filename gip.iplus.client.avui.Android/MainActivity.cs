@@ -28,7 +28,16 @@ public class MainActivity : AvaloniaMainActivity<App>
     protected override void OnCreate(Bundle? savedInstanceState)
     {
         base.OnCreate(savedInstanceState);
-        BackRequested += MainActivity_BackRequested;    
+        BackRequested += MainActivity_BackRequested;
+        
+        if (this.Content != null && this.Content is LoginView loginView) 
+        {
+            loginView.LoginCancelled += (s, e) =>
+            {
+                FinishAffinity();
+                Java.Lang.JavaSystem.Exit(0);
+            };
+        }
     }
 
     protected override void Dispose(bool disposing)
