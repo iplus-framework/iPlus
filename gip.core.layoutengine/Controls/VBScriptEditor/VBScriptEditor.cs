@@ -139,7 +139,7 @@ namespace gip.core.layoutengine
             _VBContentPropertyInfo = dcACTypeInfo;
             RightControlMode = dcRightControlMode;
 
-            // VBContent muß im XAML gestetzt sein
+            // VBContent muß im XAML gestettet sein
             System.Diagnostics.Debug.Assert(VBContent != "");
 
             if (Visibility == Visibility.Visible)
@@ -258,7 +258,7 @@ namespace gip.core.layoutengine
                     }
                     try
                     {
-                        if(_roslynHost != null)
+                        if (_roslynHost != null)
                             _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script).Result;
                     }
                     catch (Exception e)
