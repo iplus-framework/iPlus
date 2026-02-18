@@ -1,22 +1,28 @@
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Platform;
+using Avalonia.Controls.Primitives;
+using Avalonia.Data;
+using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
+using gip.core.layoutengine.avui.Helperclasses;
+using gip.iplus.client.avui.Views;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using MsBox.Avalonia.Enums;
+using ReactiveUI;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using System;
-using Avalonia.Input;
-using System.Collections.Generic;
-using MsBox.Avalonia.Enums;
-using Avalonia.ReactiveUI;
-using ReactiveUI;
-using gip.iplus.client.avui.Views;
-using Avalonia.Data;
 
 namespace gip.iplus.client.avui;
 
@@ -52,6 +58,10 @@ public partial class LoginView : UserControl
     private Settings UserSettings => DataContext as Settings;
 
     public event EventHandler LoginCancelled;
+
+    private TopLevel _topLevel;
+    private IInsetsManager _insetsManager;
+    private IInputPane _inputPane;
 
     #region Properties => Login
 
@@ -130,6 +140,63 @@ public partial class LoginView : UserControl
         Monitor.Enter(_WaitOnOkClick);
         DoLoginAction();
         base.OnLoaded(e);
+
+        // Get TopLevel after the view is loaded (not in constructor!)
+        _topLevel = TopLevel.GetTopLevel(this);
+
+        if (_topLevel is not null)
+        {
+            _insetsManager = _topLevel.InsetsManager;
+            _inputPane = _topLevel.InputPane;
+
+            // Subscribe to keyboard state changes
+            if (_inputPane is not null)
+            {
+                _inputPane.StateChanged += InputPane_StateChanged;
+            }
+        }
+    }
+
+    private void InputPane_StateChanged(object? sender, InputPaneStateEventArgs e)
+    {
+        if (_inputPane is not null &&
+            _insetsManager is not null)
+        {
+            var safeArea = _insetsManager.SafeAreaPadding;
+            var occludedArea = _inputPane.OccludedRect;
+
+            // Combine safe area with keyboard height
+            this.Padding = new Thickness(
+                safeArea.Left,
+                safeArea.Top,
+                safeArea.Right,
+                occludedArea.Height + safeArea.Bottom
+            );
+
+            Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
+            if (focusedElement != null)
+            {
+                try
+                {
+                    PixelPoint position = focusedElement.PointToScreen(new Point(0, focusedElement.Bounds.Height));
+                    scrollViewer.Offset = new Vector(0, position.Y - (_topLevel.Bounds.Height - occludedArea.Height));
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
+    }
+
+    protected override Size ArrangeOverride(Size finalSize)
+    {
+        return base.ArrangeOverride(finalSize);
+    }
+
+    protected override void ArrangeCore(Rect finalRect)
+    {
+        base.ArrangeCore(finalRect);
     }
 
     protected override void OnUnloaded(RoutedEventArgs e)

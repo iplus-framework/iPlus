@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:gip.iplus.client.avui"
              mc:Ignorable="d" 
              x:Class="gip.iplus.client.avui.MainSingleView">
-	<Panel x:Name="MainDockPanel">
+	<ScrollViewer x:Name="MainScrollViewer">
         <SplitView x:Name="MainSplitView"
                    DisplayMode="Overlay"
                    IsPaneOpen="False"
@@ -64,6 +64,6 @@
                 </Grid>
             </SplitView.Content>
          </SplitView>
-	</Panel>
+	</ScrollViewer>
 
 </UserControl>
