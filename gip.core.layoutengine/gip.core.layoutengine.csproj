@@ -165,11 +165,11 @@
     <PackageReference Include="System.ServiceModel.Duplex"  />
     <PackageReference Include="System.ServiceModel.NetTcp"  />
     <PackageReference Include="System.ServiceModel.Federation"  />
-   	<PackageReference Include="System.Composition.TypedParts" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.AttributedModel" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.Convention" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.Hosting" VersionOverride="$(SystemCompositionVersion)" />
-    <PackageReference Include="System.Composition.Runtime" VersionOverride="$(SystemCompositionVersion)" />	  
+   	<PackageReference Include="System.Composition.TypedParts" />
+    <PackageReference Include="System.Composition.AttributedModel" />
+    <PackageReference Include="System.Composition.Convention" />
+    <PackageReference Include="System.Composition.Hosting" />
+    <PackageReference Include="System.Composition.Runtime" />	  
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />

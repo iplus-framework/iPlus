@@ -1,1 +1,6 @@
 ConnectionStrings.config
+System.Composition.AttributedModel.dll
+System.Composition.Convention.dll
+System.Composition.Hosting.dll
+System.Composition.Runtime.dll
+System.Composition.TypedParts.dll

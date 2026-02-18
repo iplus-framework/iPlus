@@ -142,7 +142,8 @@
       <!-- <Message Text="DEBUG: OutDir is $(OutDir)" Importance="High" />
       <Message Text="DEBUG: Source dir is $(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/" Importance="High" />
       <Message Text="DEBUG: RID is $(RuntimeIdentifier)" Importance="High" /> -->
-      <Exec Command="cp -r -n &quot;$(SolutionDir)bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/.&quot; &quot;$(OutDir)&quot;" />
+      <!-- Copy with exclusions using find and grep -->
+      <Exec Command="cd &quot;$(SolutionDir)bin/$(Configuration)/$(DefaultNetCoreTargetFramework)&quot; &amp;&amp; find . -type f ! -name 'System.Composition.*.dll' -exec cp -n --parents {} &quot;$(OutDir)&quot; \;" />
       <Exec Command="cp -n &quot;$(SolutionDir)bin/$(Configuration)/$(UITargetFramework)/&quot;*.dll &quot;$(OutDir)&quot;" Condition="'$(RuntimeIdentifier)' != ''" />
     </Target>
 </Project>
