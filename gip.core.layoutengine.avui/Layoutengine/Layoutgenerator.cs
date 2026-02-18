@@ -74,11 +74,7 @@ namespace gip.core.layoutengine.avui
                 }
                 catch (XmlException e)
                 {
-                    AsyncMessageBox.BeginMessageBoxAsync(
-                        e.Message,
-                        "XAML Error",
-                        ButtonEnum.Ok,
-                        Icon.Error);
+                    Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
                     return null;
                 }
             //}
@@ -113,11 +109,7 @@ namespace gip.core.layoutengine.avui
                 }
                 catch (XmlException e)
                 {
-                    AsyncMessageBox.BeginMessageBoxAsync(
-                        e.Message,
-                        "XAML Error",
-                        ButtonEnum.Ok,
-                        Icon.Error);
+                    Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
                     return null;
                 }
             //}
@@ -149,11 +141,7 @@ namespace gip.core.layoutengine.avui
                 }
                 catch (XmlException e)
                 {
-                    AsyncMessageBox.BeginMessageBoxAsync(
-                        e.Message,
-                        "XAML Error",
-                        ButtonEnum.Ok,
-                        Icon.Error);
+                    Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
                     return null;
                 }
             //}
@@ -273,11 +261,9 @@ namespace gip.core.layoutengine.avui
                     }
                     errorMessage = string.Format("Error loading XAML:{0}BSO:{1}{2}XAMLLayout:{3}{4}Error:{5}",
                         Environment.NewLine, bso != null ? bso.ACIdentifier : "", Environment.NewLine, layoutName, Environment.NewLine, errorMessage);
-                    AsyncMessageBox.BeginMessageBoxAsync(
-                        errorMessage,
-                        "XAML Error",
-                        ButtonEnum.Ok,
-                        Icon.Error);
+
+                    Root.Environment.Messages.ExceptionAsync(Root, errorMessage, true);
+
                     return null;
                 }
             //}
@@ -330,11 +316,7 @@ namespace gip.core.layoutengine.avui
                 }
                 catch (Exception e)
                 {
-                    AsyncMessageBox.BeginMessageBoxAsync(
-                        e.Message,
-                        "XAML Error",
-                        ButtonEnum.Ok,
-                        Icon.Error);
+                    Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
                     return null;
                 }
             }
