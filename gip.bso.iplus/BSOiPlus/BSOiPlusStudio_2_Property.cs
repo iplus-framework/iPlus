@@ -116,7 +116,7 @@ namespace gip.bso.iplus
 
                     _ACClassPropertyControlList = null;
                     _ACClassPropertyIconList = null;
-                    if (value == null)
+                    if (value == null || _CurrentACClassProperty == null)
                     {
                         _CurrentACClassPropertyControl = null;
                         _CurrentACClassPropertyIcon = null;

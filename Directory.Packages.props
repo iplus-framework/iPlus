@@ -85,6 +85,7 @@
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Features" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="$(CodeAnalysisVersion)" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.Features" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.Scripting.Common" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />
@@ -383,6 +384,7 @@
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Features" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="$(CodeAnalysisVersion)" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.Features" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.Scripting.Common" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="$(CodeAnalysisVersion)" />
 		<PackageVersion Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="$(CodeAnalysisVersion)" />

@@ -115,8 +115,9 @@
                         MinWidth="{TemplateBinding MinWidth}" 
                         MaxWidth="{TemplateBinding MaxWidth}"
                         HorizontalAlignment="Stretch" 
-                        VerticalAlignment="Stretch">
-                        <ContentPresenter />
+                        VerticalAlignment="Stretch"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}">
                     </local:VBRadioButton>
                 </Border>
             </ControlTemplate>

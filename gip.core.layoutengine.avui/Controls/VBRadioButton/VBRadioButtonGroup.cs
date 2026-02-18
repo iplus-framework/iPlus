@@ -131,6 +131,7 @@ namespace gip.core.layoutengine.avui
         {
             VBRadioButtonGroupItem vbItem = new VBRadioButtonGroupItem();
             vbItem.PushButtonStyle = this.PushButtonStyle;
+            //vbItem.DataTemplates.Add(this.ItemTemplate);
             
             // Check if ItemsMinWidth is locally set
             if (this.IsSet(VBRadioButtonGroup.ItemsMinWidthProperty))
@@ -494,7 +495,17 @@ namespace gip.core.layoutengine.avui
             }
             
             if (ItemTemplate == null)
-                DisplayMemberBinding = new Binding(dsColPath);
+            {
+                // Create an ItemTemplate that uses the DisplayMemberBinding
+                //DisplayMemberBinding = new Binding(dsColPath);
+                var template = new FuncDataTemplate<object>((value, namescope) =>
+                {
+                    var textBlock = new TextBlock();
+                    textBlock.Bind(TextBlock.TextProperty, new Binding(dsColPath));
+                    return textBlock;
+                });
+                ItemTemplate = template;
+            }
 
             if (dcACTypeInfo.ObjectType.IsEnum)
             {

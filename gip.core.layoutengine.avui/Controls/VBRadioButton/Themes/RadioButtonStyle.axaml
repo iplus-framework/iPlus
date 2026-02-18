@@ -35,7 +35,9 @@
             <ContentPresenter Grid.Column="2" 
                             HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
                             Margin="{TemplateBinding Padding}" 
-                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"/>
         </Grid>
     </ControlTemplate>
     
@@ -50,7 +52,9 @@
                       Fill="{StaticResource RadioButtonPressNormalBg}"
                       RadiusY="3" RadiusX="3"/>
             <Border x:Name="BorderFocus" Margin="3,3,3,3" BorderThickness="1" CornerRadius="4">
-                <ContentPresenter x:Name="ContentPresenter"/>
+                <ContentPresenter x:Name="ContentPresenter" 
+                    Content="{TemplateBinding Content}" 
+                    ContentTemplate="{TemplateBinding ContentTemplate}"/>
             </Border>
         </Grid>
     </ControlTemplate>
