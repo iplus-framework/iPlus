@@ -35,6 +35,11 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
+        /// Override StyleKeyOverride to use VBTextEditor' own ControlTheme instead of TextEditor' theme
+        /// </summary>
+        protected override Type StyleKeyOverride => typeof(VBTextEditor);
+
+        /// <summary>
         /// Handles the OnInitialized event.
         /// </summary>
         protected override void OnInitialized()

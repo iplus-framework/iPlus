@@ -3,8 +3,10 @@
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">4.12.0</CodeAnalysisVersion>
-		<RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion>
+		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
+		<RoslynVersion>4.12.1</RoslynVersion>
 		<DotNetExtensionsVersion>9.0.0</DotNetExtensionsVersion>
+		<SystemCompositionVersion>9.0.1</SystemCompositionVersion>
 		<NuGetVersion>6.14.0</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
 
@@ -45,8 +47,8 @@
 		<PackageVersion Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 
 		<!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
-		<PackageVersion Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
-		<PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
+		<PackageVersion Include="RoslynPad.Editor.Avalonia" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersion)" />
 		<PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
 		<PackageVersion Include="MessageBox.Avalonia" Version="3.2.0" />
 		<PackageVersion Include="Markdown.Avalonia" Version="11.0.2" />
@@ -121,14 +123,14 @@
 		<PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageVersion Include="QuickGraphCore" Version="1.0.0" />
 		
-		<PackageVersion Include="RoslynPad.Editor.Windows" Version="4.12.1" />
-		<PackageVersion Include="RoslynPad.Roslyn" Version="4.12.1" />
-		<PackageVersion Include="RoslynPad.Roslyn.Windows" Version="4.12.1" />
-	    <PackageVersion Include="System.Composition.TypedParts" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.AttributedModel" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.Convention" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.Hosting" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.Runtime" Version="9.0.1" />
+		<PackageVersion Include="RoslynPad.Editor.Windows" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn.Windows" Version="$(RoslynVersion)" />
+	    <PackageVersion Include="System.Composition.TypedParts" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.AttributedModel" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.Convention" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.Hosting" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.Runtime" Version="$(SystemCompositionVersion)" />
 
 		<PackageVersion Include="ReactiveUI" Version="20.1.1" />
 		<PackageVersion Include="SciChart" Version="8.9.0.28760" />
@@ -189,9 +191,9 @@
 		<PackageVersion Include="System.Linq.Async" Version="6.0.1" />
 		<PackageVersion Include="System.Reactive.Core" Version="6.0.1" />
 		<PackageVersion Include="System.Reactive.Linq" Version="6.0.1" />
-		<PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="System.Reflection.Metadata" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="System.Composition" Version="$(DotNetExtensionsVersion)" />
+		<PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Reflection.Metadata" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="Xunit.StaFact" Version="2.1.7" />
 		<PackageVersion Include="xunit.v3" Version="2.0.2" />
 
@@ -302,8 +304,10 @@
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</CodeAnalysisVersion>
-		<RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion>
+		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
+		<RoslynVersion>4.12.1</RoslynVersion>
 		<DotNetExtensionsVersion>10.0.2</DotNetExtensionsVersion>
+		<SystemCompositionVersion>10.0.2</SystemCompositionVersion>
 		<NuGetVersion>7.0.1</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
 
@@ -344,8 +348,8 @@
 		<PackageVersion Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 
 		<!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
-		<PackageVersion Include="RoslynPad.Editor.Avalonia" Version="4.12.1" />
-		<PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="4.12.1" />
+		<PackageVersion Include="RoslynPad.Editor.Avalonia" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersion)" />
 		<PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
 		<PackageVersion Include="MessageBox.Avalonia" Version="3.3.1.1" />
 		<PackageVersion Include="Markdown.Avalonia" Version="11.0.3-a1" />
@@ -418,14 +422,14 @@
 		<PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageVersion Include="QuickGraphCore" Version="1.0.0" />
 		
-		<PackageVersion Include="RoslynPad.Editor.Windows" Version="4.12.1" />
-		<PackageVersion Include="RoslynPad.Roslyn" Version="4.12.1" />
-		<PackageVersion Include="RoslynPad.Roslyn.Windows" Version="4.12.1" />
-		<PackageVersion Include="System.Composition.TypedParts" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.AttributedModel" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.Convention" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.Hosting" Version="9.0.1" />
-		<PackageVersion Include="System.Composition.Runtime" Version="9.0.1" />
+		<PackageVersion Include="RoslynPad.Editor.Windows" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn" Version="$(RoslynVersion)" />
+		<PackageVersion Include="RoslynPad.Roslyn.Windows" Version="$(RoslynVersion)" />
+		<PackageVersion Include="System.Composition.TypedParts" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.AttributedModel" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.Convention" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.Hosting" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition.Runtime" Version="$(SystemCompositionVersion)" />
 		
 		<PackageVersion Include="ReactiveUI" Version="22.3.1" />
 		<PackageVersion Include="SciChart" Version="8.11.0.28985" />
@@ -485,9 +489,9 @@
 		<PackageVersion Include="System.Linq.Async" Version="7.0.0" />
 		<PackageVersion Include="System.Reactive.Core" Version="6.1.0" />
 		<PackageVersion Include="System.Reactive.Linq" Version="6.1.0" />
-		<PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="System.Reflection.Metadata" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="System.Composition" Version="$(DotNetExtensionsVersion)" />
+		<PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Reflection.Metadata" Version="$(SystemCompositionVersion)" />
+		<PackageVersion Include="System.Composition" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="Xunit.StaFact" Version="3.0.13" />
 		<PackageVersion Include="xunit.v3" Version="3.2.2" />
 

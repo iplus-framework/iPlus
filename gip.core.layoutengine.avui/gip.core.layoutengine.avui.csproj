@@ -184,6 +184,11 @@
     <PackageReference Include="System.ServiceModel.NetTcp" />
     <PackageReference Include="System.ServiceModel.Federation" />
     <PackageReference Include="HtmlAgilityPack" />
+   	<PackageReference Include="System.Composition.TypedParts" VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.AttributedModel" VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.Convention" VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.Hosting" VersionOverride="$(SystemCompositionVersion)" />
+    <PackageReference Include="System.Composition.Runtime" VersionOverride="$(SystemCompositionVersion)" />	  
   </ItemGroup>
   
   <!-- Use Avalonia Nuget -->

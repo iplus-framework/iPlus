@@ -3,6 +3,40 @@
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-  <ControlTheme x:Key="{x:Type local:VBScriptEditor}" BasedOn="{StaticResource {x:Type local:VBTextEditor}}" TargetType="{x:Type local:VBScriptEditor}">
+  <ControlTheme x:Key="{x:Type local:VBScriptEditor}" TargetType="{x:Type local:VBScriptEditor}">
+    <Setter Property="FontFamily" Value="Consolas"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="Foreground" Value="{StaticResource TextEditorFgEnabled}"/>
+    <Setter Property="Background" Value="{StaticResource TextEditorBgEnabled}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource TextEditorBorderEnabled}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type local:VBScriptEditor}">
+          <Border x:Name="Border" 
+                  CornerRadius="3"
+                  BorderBrush="{TemplateBinding BorderBrush}" 
+                  BorderThickness="{TemplateBinding BorderThickness}" 
+                  Background="{TemplateBinding Background}" 
+                  ClipToBounds="True">
+            <ScrollViewer
+              Focusable="False"
+              Name="PART_ScrollViewer"
+              VerticalScrollBarVisibility="Auto"
+              HorizontalScrollBarVisibility="Auto"
+              VerticalContentAlignment="Top"
+              HorizontalContentAlignment="Left"
+              Background="{TemplateBinding Background}"
+              Padding="{TemplateBinding Padding}"
+              Margin="2" />
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+
+    <!-- WordWrap = True style -->
+    <Style Selector="^[WordWrap=True] /template/ ScrollViewer#PART_ScrollViewer">
+      <Setter Property="HorizontalScrollBarVisibility" Value="Disabled" />
+    </Style>
   </ControlTheme>
 </ResourceDictionary>

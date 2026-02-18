@@ -19,6 +19,11 @@ namespace gip.core.layoutengine.avui
             Caret.PositionChanged += Caret_PositionChanged;
         }
 
+        /// <summary>
+        /// Override StyleKeyOverride to use VBTextArea' own ControlTheme instead of TextArea' theme
+        /// </summary>
+        protected override Type StyleKeyOverride => typeof(VBTextArea);
+
         private void Caret_PositionChanged(object sender, EventArgs e)
         {
             if (statusBarItemCaretLineInfo != null)

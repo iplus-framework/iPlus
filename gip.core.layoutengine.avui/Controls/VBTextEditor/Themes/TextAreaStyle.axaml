@@ -1,9 +1,10 @@
 ﻿<ResourceDictionary
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+   xmlns:editing="using:AvaloniaEdit.Editing"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-  <ControlTheme x:Key="{x:Type local:VBTextArea}" TargetType="{x:Type local:VBTextArea}">
+  <ControlTheme x:Key="TextAreaStyle" TargetType="editing:TextArea">
         <Setter Property="SelectionBrush" Value="{StaticResource TextAreaSelectionBg}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -47,5 +48,11 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
-    </ControlTheme>
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type editing:TextArea}" TargetType="editing:TextArea" BasedOn="{StaticResource TextAreaStyle}"> 
+  </ControlTheme>
+
+  <ControlTheme x:Key="{x:Type local:VBTextArea}" TargetType="{x:Type local:VBTextArea}" BasedOn="{StaticResource TextAreaStyle}">
+  </ControlTheme>
 </ResourceDictionary>

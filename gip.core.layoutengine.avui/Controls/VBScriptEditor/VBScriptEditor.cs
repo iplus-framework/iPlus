@@ -23,6 +23,7 @@ using AvaloniaEdit;
 using Avalonia;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls;
 
 namespace gip.core.layoutengine.avui
 {
@@ -36,6 +37,12 @@ namespace gip.core.layoutengine.avui
         {
             
         }
+
+        /// <summary>
+        /// Override StyleKeyOverride to use VBScriptEditor's own ControlTheme
+        /// Note: RoslynCodeEditor uses built-in TextArea, not VBTextArea
+        /// </summary>
+        protected override Type StyleKeyOverride => typeof(VBScriptEditor);
 
         #endregion
 
@@ -76,10 +83,14 @@ namespace gip.core.layoutengine.avui
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
         {
             base.OnApplyTemplate(e);
+            // RoslynCodeEditor uses built-in TextArea, set it as ScrollViewer content
+            ScrollViewer scollViewer = e.NameScope.Find<ScrollViewer>("PART_ScrollViewer");
+            if (scollViewer != null)
+                scollViewer.Content = TextArea;
             InitVBControl();
         }
 
-        protected virtual void InitVBControl()
+        protected virtual async void InitVBControl()
         {
             if (_Loaded || (ContextACObject == null))
                 return;
@@ -139,8 +150,10 @@ namespace gip.core.layoutengine.avui
                     }
 
                     _roslynAssembly = new List<Assembly>();
-                    _roslynAssembly.Add(Assembly.Load("RoslynPad.Roslyn.Windows"));
-                    _roslynAssembly.Add(Assembly.Load("RoslynPad.Editor.Windows"));
+                    // Don't add RoslynPad.Roslyn - it's already included in RoslynHost.DefaultCompositionAssemblies!
+                    // But DO add the platform-specific Avalonia assemblies:
+                    _roslynAssembly.Add(Assembly.Load("RoslynPad.Roslyn.Avalonia"));
+                    _roslynAssembly.Add(Assembly.Load("RoslynPad.Editor.Avalonia"));
 
                     if (ControlManager.WpfTheme == eWpfTheme.Dark)
                         _classificationHighlightColors = new ClassificationHighlightColorsGip();
@@ -151,16 +164,16 @@ namespace gip.core.layoutengine.avui
                         this.VBText = "";
 
                     string dotNetPath = System.Runtime.InteropServices.RuntimeEnvironment.GetRuntimeDirectory();
-                    string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
-                    if (!Directory.Exists(wpfPath))
-                        wpfPath = null;
+                    // string wpfPath = dotNetPath.Replace("Microsoft.NETCore.App", "Microsoft.WindowsDesktop.App");
+                    // if (!Directory.Exists(wpfPath))
+                    //     wpfPath = null;
                     string exePath =  Database.Root.Environment.Rootpath;
 
                     var references = new List<MetadataReference>();
                     references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.dll"));
-                    if (wpfPath != null)
-                        references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
-                    references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
+                    // if (wpfPath != null)
+                    //     references.Add(MetadataReference.CreateFromFile(wpfPath + "PresentationCore.dll"));
+                    //references.Add(MetadataReference.CreateFromFile(dotNetPath + "WindowsBase.dll"));
                     references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Core.dll"));
                     references.Add(MetadataReference.CreateFromFile(dotNetPath + "System.Data.dll"));
                     references.Add(MetadataReference.CreateFromFile(exePath + "Microsoft.EntityFrameworkCore.dll"));
@@ -186,7 +199,7 @@ namespace gip.core.layoutengine.avui
 
                     try
                     {
-                        _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(references));
+                        _roslynHost = new CustomRoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(references));
                     }
                     catch (Exception e)
                     {
@@ -199,7 +212,7 @@ namespace gip.core.layoutengine.avui
                         }
                         try
                         {
-                            _roslynHost = new RoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(references));
+                            _roslynHost = new CustomRoslynHost(_roslynAssembly, RoslynHostReferences.NamespaceDefault.With(references));
                         }
                         catch (Exception ec)
                         {
@@ -214,8 +227,8 @@ namespace gip.core.layoutengine.avui
                     }
                     try
                     {
-                        if(_roslynHost != null)
-                            _docId = this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script).Result;
+                        if (_roslynHost != null)
+                            _docId = await this.InitializeAsync(_roslynHost, _classificationHighlightColors, AppContext.BaseDirectory, this.VBText, SourceCodeKind.Script);
                     }
                     catch (Exception e)
                     {
@@ -1035,5 +1048,19 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
+    }
+
+    /// <summary>
+    /// Custom RoslynHost - currently just a simple wrapper.
+    /// Note: RoslynPad.Roslyn assembly (which contains QuickInfoProvider) is already included
+    /// by default in RoslynHost.DefaultCompositionAssemblies, so no override needed.
+    /// </summary>
+    internal class CustomRoslynHost : RoslynHost
+    {
+        public CustomRoslynHost(IEnumerable<Assembly> additionalAssemblies,
+                                RoslynHostReferences references)
+            : base(additionalAssemblies, references)
+        {
+        }
     }
 }
