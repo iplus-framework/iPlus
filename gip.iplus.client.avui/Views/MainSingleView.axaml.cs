@@ -1,6 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Controls.Platform;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
+using Avalonia.Diagnostics;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -11,19 +15,17 @@ using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.wpfservices.avui;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Dto;
+using MsBox.Avalonia.Enums;
+using MsBox.Avalonia.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
-using Avalonia.Diagnostics;
-using MsBox.Avalonia;
 using System.Threading.Tasks;
-using MsBox.Avalonia.Enums;
-using MsBox.Avalonia.Dto;
-using MsBox.Avalonia.Models;
-using Avalonia.Controls.ApplicationLifetimes;
 
 namespace gip.iplus.client.avui;
 
@@ -34,6 +36,10 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         InitializeComponent();
         InitConnectionInfo();
     }
+
+    private TopLevel _topLevel;
+    private IInsetsManager _insetsManager;
+    private IInputPane _inputPane;
 
     #region eventhandling
     ACMenuItem mainMenu;
@@ -73,10 +79,57 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
         this.DataContext = ACRoot.SRoot.Businessobjects;
 
-        this.Content = MainDockPanel;
+        this.Content = MainScrollViewer;
 
         InitMainDockManager();
         base.OnLoaded(e);
+
+        // Get TopLevel after the view is loaded (not in constructor!)
+        _topLevel = TopLevel.GetTopLevel(this);
+
+        if (_topLevel is not null)
+        {
+            _insetsManager = _topLevel.InsetsManager;
+            _inputPane = _topLevel.InputPane;
+
+            // Subscribe to keyboard state changes
+            if (_inputPane is not null)
+            {
+                _inputPane.StateChanged += InputPane_StateChanged;
+            }
+        }
+    }
+
+    private void InputPane_StateChanged(object? sender, InputPaneStateEventArgs e)
+    {
+        if (_inputPane is not null &&
+            _insetsManager is not null)
+        {
+            var safeArea = _insetsManager.SafeAreaPadding;
+            var occludedArea = _inputPane.OccludedRect;
+
+            // Combine safe area with keyboard height
+            this.Padding = new Thickness(
+                safeArea.Left,
+                safeArea.Top,
+                safeArea.Right,
+                occludedArea.Height + safeArea.Bottom
+            );
+
+            Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
+            if (focusedElement != null)
+            {
+                try
+                {
+                    PixelPoint position = focusedElement.PointToScreen(new Point(0, focusedElement.Bounds.Height));
+                    MainScrollViewer.Offset = new Vector(0, position.Y - (_topLevel.Bounds.Height - occludedArea.Height));
+                }
+                catch (Exception)
+                {
+
+                }
+            }
+        }
     }
 
     public void CloseWindowFromThread()
@@ -232,7 +285,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     public void StartBusinessobjectByACCommand(ACCommand acCommand)
     {
-        if (MainDockPanel == null)
+        if (MainScrollViewer == null)
             return;
 
         if (MainSplitView.IsPaneOpen)

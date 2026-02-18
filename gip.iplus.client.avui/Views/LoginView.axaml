@@ -2,14 +2,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vb="http://www.iplus-framework.com/axaml"
              mc:Ignorable="d"              
 			 x:Class="gip.iplus.client.avui.LoginView">
   <ThemeVariantScope RequestedThemeVariant="Dark">
-  <Grid Background="#FF333333">
-    <Grid.RowDefinitions>
-      <RowDefinition></RowDefinition>
-	  <RowDefinition></RowDefinition>
-    </Grid.RowDefinitions>
+  <ScrollViewer Name="scrollViewer"   >
+      <Grid Background="#FF333333">
+  <Grid.RowDefinitions>
+    <RowDefinition Height="Auto"></RowDefinition>
+    <RowDefinition Height="Auto"></RowDefinition>
+  </Grid.RowDefinitions>
 
     <Border>
       <Border.Background>
@@ -62,7 +64,7 @@
       </Grid>
       <Grid x:Name="LoginGrid" IsVisible="true">
         <Grid.RowDefinitions>
-          <RowDefinition Height="200"></RowDefinition>
+          <RowDefinition Height="Auto"></RowDefinition>
           <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -119,13 +121,13 @@
           </Grid.RowDefinitions>
           <Border Grid.ColumnSpan="5" Grid.RowSpan="3"  CornerRadius="4" BorderThickness="1"></Border>
 
-          <Button Grid.Row="1" Grid.Column="1" Name="ButtonLogin" IsDefault="True" Click="ButtonLogin_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Login</Button>
+          <Button Grid.Row="1" Grid.Column="1" Name="ButtonLogin" Click="ButtonLogin_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Login</Button>
           <Button Grid.Row="1" Grid.Column="3" Name="ButtonCancel" Click="ButtonCancel_Click" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Cancel</Button>
         </Grid>
       </Grid>
       <Grid x:Name="SettingsGrid" IsVisible="False">
         <Grid.RowDefinitions>
-          <RowDefinition Height="200"></RowDefinition>
+          <RowDefinition Height="Auto"></RowDefinition>
           <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
 
@@ -166,17 +168,14 @@
           <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="7" Grid.Column="1" Name="DatabaseUser" />
 
           <TextBlock VerticalAlignment="Bottom" Grid.Row="8" Grid.Column="1"  Name="DatabasePasswordCaption">Database password</TextBlock>
-          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*"/>
+          <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*" />
 
           <Button Grid.Row="11" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Save</Button>
 
         </Grid>
-
-
-          
-
       </Grid>
     </StackPanel>
   </Grid>
+</ScrollViewer>
   </ThemeVariantScope>
 </UserControl>
