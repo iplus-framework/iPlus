@@ -81,7 +81,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
         this.Content = MainScrollViewer;
 
-        InitMainDockManager();
+        InitAlarms();
         base.OnLoaded(e);
 
         // Get TopLevel after the view is loaded (not in constructor!)
@@ -139,6 +139,19 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         //    Dispatcher.UIThread.Post(() => mainWindow.Close());
     }
 
+    protected override void OnUnloaded(RoutedEventArgs e)
+    {
+        if (_inputPane != null)
+        {
+            _inputPane.StateChanged -= InputPane_StateChanged;
+            _inputPane = null;
+        }
+
+        _insetsManager = null;
+        _topLevel = null;
+
+        base.OnUnloaded(e);
+    }
 
     #endregion
 
@@ -168,83 +181,63 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     #region Layout
     //VBDesign _RootVBDesign = null;
 
-    private void InitMainDockManager()
+    private void InitAlarms()
     {
-        //if (_RootVBDesign != null)
-        //    return;
-        ////_MainTransformControl.AddHandler(Gestures.PinchEvent, OnPinchGesture);
-        //if (ACRoot.SRoot.Businessobjects != null)
-        //{
-        //    ACClassDesign acClassDesign = ACRoot.SRoot.Businessobjects.GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
-        //    if (acClassDesign != null)
-        //    {
-        //        _RootVBDesign = new VBDesign();
-        //        _RootVBDesign.VBContent = "*" + acClassDesign.ACIdentifier;
-        //        _RootVBDesign.DataContext = ACRoot.SRoot.Businessobjects;
-        //    }
-        //    //acClassDesign = ACRoot.SRoot.Businessobjects.GetDesign("AppResourceDict");
-        //    //if (acClassDesign != null)
-        //    //{
-        //    //    ResourceDictionary resDict = Layoutgenerator.LoadResource(acClassDesign.XAMLDesign, ACRoot.SRoot.Businessobjects, null);
-        //    //    if (resDict != null)
-        //    //    {
-        //    //        resDict.Add("TouchScreenMode", ControlManager.TouchScreenMode);
-        //    //        App._GlobalApp.Resources.MergedDictionaries.Add(resDict);
-        //    //    }
-        //    //}
-        //}
-        //if (_RootVBDesign == null)
-        //{
-        //    _RootVBDesign = new VBDesign();
-        //    _RootVBDesign.DataContext = ACRoot.SRoot.Businessobjects;
-        //}
-        //_RootVBDesign.Margin = new Thickness(0, 0, -5, 0);
-        //_RootVBDesign.Loaded += RootVBDesign_Loaded;
-        //MainContentControl.Content = _RootVBDesign;
+        foreach (ACComponent childComp in ACRoot.SRoot.ACComponentChilds)
+        {
+            if (childComp is ApplicationManagerProxy || childComp is ACComponentManager)
+            {
+                IACPropertyNetBase alarmProperty = childComp.GetPropertyNet("HasAlarms") as IACPropertyNetBase;
+                if (alarmProperty != null)
+                    alarmProperty.PropertyChanged += alarmProperty_PropertyChanged;
+                alarmProperty = childComp.GetPropertyNet("AlarmsAsText") as IACPropertyNetBase;
+                if (alarmProperty != null)
+                    alarmProperty.PropertyChanged += alarmProperty_PropertyChanged;
+
+            }
+        }
+        RefreshWarningIcon();
     }
 
-    //void alarmProperty_PropertyChanged(object sender, PropertyChangedEventArgs e)
-    //{
-    //    RefreshWarningIcon();
-    //}
+    void alarmProperty_PropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+        RefreshWarningIcon();
+    }
 
-    //void RefreshWarningIcon()
-    //{
-    //    if (!this.WarningIcon.CheckAccess())
-    //    {
-    //        Dispatcher.UIThread.Invoke(new Action(RefreshWarningIcon), DispatcherPriority.Send);
-    //        return;
-    //    }
+    void RefreshWarningIcon()
+    {
+        if (!this.WarningIcon.CheckAccess())
+        {
+            Dispatcher.UIThread.Invoke(new Action(RefreshWarningIcon), DispatcherPriority.Send);
+            return;
+        }
 
-    //    bool hasAlarms = false;
-    //    StringBuilder alarmInfo = new StringBuilder();
-    //    foreach (ACComponent childComp in ACRoot.SRoot.ACComponentChilds)
-    //    {
-    //        if (childComp is ApplicationManagerProxy || childComp is ACComponentManager)
-    //        {
-    //            IACPropertyNetBase alarmProperty = childComp.GetPropertyNet("HasAlarms") as IACPropertyNetBase;
-    //            IACPropertyNetBase alarmText = childComp.GetPropertyNet("AlarmsAsText") as IACPropertyNetBase;
-    //            if (alarmProperty != null && alarmText != null)
-    //            {
-    //                if ((bool)alarmProperty.Value)
-    //                {
-    //                    hasAlarms = true;
-    //                    alarmInfo.AppendLine(String.Format("{0}: {1}", childComp.ACCaption, alarmText.Value as string));
-    //                }
-    //            }
-    //        }
-    //    }
-    //    if (hasAlarms)
-    //    {
-    //        WarningIcon.IsVisible = true;
-    //        ToolTip.SetTip(WarningIcon, alarmInfo.ToString());
-    //    }
-    //    else
-    //    {
-    //        WarningIcon.IsVisible = false;
-    //        ToolTip.SetTip(WarningIcon, null);
-    //    }
-    //}
+        bool hasAlarms = false;
+        foreach (ACComponent childComp in ACRoot.SRoot.ACComponentChilds)
+        {
+            if (childComp is ApplicationManagerProxy || childComp is ACComponentManager)
+            {
+                IACPropertyNetBase alarmProperty = childComp.GetPropertyNet("HasAlarms") as IACPropertyNetBase;
+                IACPropertyNetBase alarmText = childComp.GetPropertyNet("AlarmsAsText") as IACPropertyNetBase;
+                if (alarmProperty != null && alarmText != null)
+                {
+                    if ((bool)alarmProperty.Value)
+                    {
+                        hasAlarms = true;
+                        break;
+                    }
+                }
+            }
+        }
+        if (hasAlarms)
+        {
+            WarningIcon.IsVisible = true;
+        }
+        else
+        {
+            WarningIcon.IsVisible = false;
+        }
+    }
 
 
     IACComponent _CurrentACComponent = null;
@@ -388,39 +381,21 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     private void InitConnectionInfo()
     {
-        //Communications wcfManager = ACRoot.SRoot.GetChildComponent("Communications") as Communications;
-        //if (wcfManager == null)
-        //    return;
-        //if (wcfManager.WCFClientManager != null)
-        //{
-        //    Binding bindingClientIcon = new Binding();
-        //    bindingClientIcon.Source = wcfManager.WCFClientManager;
-        //    bindingClientIcon.Path = nameof(WCFClientManager.ConnectionQuality);
-        //    ClientConnIcon.Bind(VBConnectionState.ConnectionQualityProperty, bindingClientIcon);
+        Communications wcfManager = ACRoot.SRoot.GetChildComponent("Communications") as Communications;
+        if (wcfManager == null)
+            return;
+        if (wcfManager.WCFClientManager != null)
+        {
+            Binding bindingClientIcon = new Binding();
+            bindingClientIcon.Source = wcfManager.WCFClientManager;
+            bindingClientIcon.Path = nameof(WCFClientManager.ConnectionQuality);
+            ClientConnIcon.Bind(VBConnectionState.ConnectionQualityProperty, bindingClientIcon);
 
-        //    Binding bindingClientText = new Binding();
-        //    bindingClientText.Source = wcfManager.WCFClientManager;
-        //    bindingClientText.Path = nameof(WCFClientManager.ConnectionShortInfo);
-        //    ClientConnText.Bind(VBTextBlock.TextProperty, bindingClientText);
-        //}
-
-        //if (wcfManager.WCFServiceManager != null)
-        //{
-        //    Binding bindingServerIcon = new Binding();
-        //    bindingServerIcon.Source = wcfManager.WCFServiceManager;
-        //    bindingServerIcon.Path = nameof(WCFServiceManager.ConnectionQuality);
-        //    ServerConnIcon.Bind(VBConnectionState.ConnectionQualityProperty, bindingServerIcon);
-
-        //    Binding bindingServerText = new Binding();
-        //    bindingServerText.Source = wcfManager.WCFServiceManager;
-        //    bindingServerText.Path = nameof(WCFServiceManager.ConnectionShortInfo);
-        //    ServerConnText.Bind(VBTextBlock.TextProperty, bindingServerText);
-        //}
-        //else
-        //{
-        //    ServerConnIcon.IsVisible = false;
-        //    ServerConnText.IsVisible = false;
-        //}
+            Binding bindingClientText = new Binding();
+            bindingClientText.Source = wcfManager.WCFClientManager;
+            bindingClientText.Path = nameof(WCFClientManager.ConnectionShortInfo);
+            ClientConnText.Bind(VBTextBlock.TextProperty, bindingClientText);
+        }
     }
 
 
@@ -443,24 +418,6 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     //        ACComponent channelManager = (ACComponent)ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFClientManager");
     //        //if (channelManager != null)
     //        //    DockingManager.ShowDialog(channelManager, "ConnectionInfo", "", false);
-    //    }
-    //}
-
-    //private void ServerConnIcon_DoubleTapped(object sender, TappedEventArgs e)
-    //{
-    //    if (e.KeyModifiers == KeyModifiers.Control)
-    //    {
-    //        WCFServiceManager serviceHost = ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFServiceManager") as WCFServiceManager;
-    //        if (serviceHost != null)
-    //            serviceHost.ShutdownClients();
-    //    }
-    //    else
-    //    {
-    //        //if (DockingManager == null)
-    //        //    return;
-    //        ACComponent serviceHost = (ACComponent)ACRoot.SRoot.ACUrlCommand("?\\Communications\\WCFServiceManager");
-    //        //if (serviceHost != null)
-    //        //    DockingManager.ShowDialog(serviceHost, "ConnectionInfo", "", false);
     //    }
     //}
 

@@ -144,13 +144,13 @@ public partial class LoginView : UserControl
         // Get TopLevel after the view is loaded (not in constructor!)
         _topLevel = TopLevel.GetTopLevel(this);
 
-        if (_topLevel is not null)
+        if (_topLevel != null)
         {
             _insetsManager = _topLevel.InsetsManager;
             _inputPane = _topLevel.InputPane;
 
             // Subscribe to keyboard state changes
-            if (_inputPane is not null)
+            if (_inputPane != null)
             {
                 _inputPane.StateChanged += InputPane_StateChanged;
             }
@@ -207,6 +207,17 @@ public partial class LoginView : UserControl
             (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged -= _Messages_CollectionChanged;
         }
         selTheme.ItemsSource = null;
+
+        if (_inputPane != null)
+        {
+            _inputPane.StateChanged -= InputPane_StateChanged;
+            _inputPane = null;
+        }
+
+        _insetsManager = null;
+        _topLevel = null;
+
+
         base.OnUnloaded(e);
     }
 

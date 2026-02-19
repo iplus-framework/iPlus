@@ -9,7 +9,7 @@
   <UserControl.Styles>
     <Style Selector="vb|VBStatusBarItem.WarningIconClass">
       <Style.Animations>
-        <Animation Duration="0:0:3">
+        <Animation Duration="0:0:3" IterationCount="Infinite">
         <KeyFrame Cue="0%">
           <Setter Property="Opacity" Value="0.0"/>
         </KeyFrame>
