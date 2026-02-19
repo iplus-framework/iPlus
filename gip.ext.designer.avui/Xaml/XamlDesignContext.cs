@@ -104,7 +104,8 @@ namespace gip.ext.designer.avui.Xaml
 			_parserSettings = parserSettings;
             _doc = XamlParser.Parse(xamlReader, parserSettings);
 
-            loadSettings.ReportErrors(xamlErrorService);
+			if (_doc == null)
+            	loadSettings?.ReportErrors(xamlErrorService);
 
             if (_doc == null)
             {

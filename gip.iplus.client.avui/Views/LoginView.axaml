@@ -18,7 +18,7 @@
         <LinearGradientBrush Opacity="1" SpreadMethod="Pad" StartPoint="50%,0%" EndPoint="50%,100%">
           <GradientStop Color="#FF000004" Offset="0" />
           <GradientStop Color="#FF000020" Offset="0.3" />
-          <GradientStop Color="#FF000030" Offset="1" />
+          <GradientStop Color="#FF000030" Offset="1"  />
         </LinearGradientBrush>
       </Border.Background>
     </Border>

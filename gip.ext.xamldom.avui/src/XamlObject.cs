@@ -579,27 +579,37 @@ namespace gip.ext.xamldom.avui
                     return p;
             }
 
-            // Replace this line:
-            // IReadOnlyList<AvaloniaProperty> propertyDescriptors = AvaloniaPropertyRegistry.GetRegistered(instance.GetType());
-
-            // With this line:
-            //IReadOnlyList<AvaloniaProperty> propertyDescriptors = AvaloniaPropertyRegistry.Instance.GetRegistered(instance.GetType());
-            //PropertyDescriptor propertyInfo = propertyDescriptors[propertyName];
             var propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(instance as AvaloniaObject, propertyName);
-            XamlProperty newProperty;
-
-            //if (propertyInfo == null)
-            //{
-            //    propertyDescriptors = TypeDescriptor.GetProperties(this.elementType);
-            //    propertyInfo = propertyDescriptors[propertyName];
-            //}
+            XamlProperty newProperty = null;
             if (propertyInfo != null)
             {
-                newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo));
+                newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo, elementType));
             }
-            else
+
+            if (newProperty == null)
             {
-                EventDescriptorCollection events = TypeDescriptor.GetEvents(instance);
+                PropertyDescriptorCollection propertiesDescr = null;
+                if (Instance != null)
+                    propertiesDescr = TypeDescriptor.GetProperties(Instance);
+                else
+                {
+                    if (elementType != null)
+                        propertiesDescr = TypeDescriptor.GetProperties(elementType);
+                }
+                if (propertiesDescr != null)
+                {
+                    PropertyDescriptor propertyInfo2 = propertiesDescr[propertyName];
+                    if (propertyInfo2 != null)
+                    {
+                        newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo2, elementType));
+                    }
+                }
+            }
+
+            if (newProperty == null)
+            {
+
+                EventDescriptorCollection events = TypeDescriptor.GetEvents(Instance);
                 EventDescriptor eventInfo = events[propertyName];
 
                 if (eventInfo == null)

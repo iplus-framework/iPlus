@@ -154,13 +154,11 @@ namespace gip.core.layoutengine.avui
             {
                 if ((SelectionMode == DataGridSelectionMode.Extended) && !VBContentPropertyInfo.IsEnumerable)
                 {
-                    if (!this.IsSet(SelectionModeProperty))
-                        SelectionMode = DataGridSelectionMode.Single;
+                    SelectionMode = DataGridSelectionMode.Single;
                 }
                 else if ((SelectionMode == DataGridSelectionMode.Single) && VBContentPropertyInfo.IsEnumerable)
                 {
-                    if (!this.IsSet(SelectionModeProperty))
-                        SelectionMode = DataGridSelectionMode.Extended;
+                    SelectionMode = DataGridSelectionMode.Extended;
                 }
             }
 

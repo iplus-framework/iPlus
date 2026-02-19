@@ -10,6 +10,8 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Styling;
 using gip.ext.design.avui;
+using Avalonia.Platform;
+using Avalonia.Media.Imaging;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -25,12 +27,13 @@ namespace gip.ext.designer.avui.Controls
 		{
 			try 
 			{
-				var a = Assembly.GetExecutingAssembly();
-				var m = new ResourceManager(a.GetName().Name + ".g", a);
-				using (Stream s = m.GetStream(path.ToLowerInvariant())) {
-					// In AvaloniaUI, we need to create custom cursors differently
-					// For now, return a standard cursor as placeholder
-					return new Cursor(StandardCursorType.Hand);
+				using (Stream s = AssetLoader.Open(new Uri("avares://gip.ext.designer.avui/" + path))) 
+				{
+					// Create a Bitmap from the stream
+					var bitmap = new Bitmap(s);
+
+					// Create a Cursor from the Bitmap
+					return new Cursor(bitmap, PixelPoint.Origin);
 				}
 			}
 			catch

@@ -1,5 +1,6 @@
 using System;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using ICSharpCode.AvalonEdit.CodeCompletion;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Editing;
@@ -12,6 +13,38 @@ namespace gip.core.layoutengine.CodeCompletion
     /// </summary>
     public class XmlCompletionData : ICompletionData
     {
+        private static ImageSource _imageField;
+        private static ImageSource _imageEvent;
+        private static ImageSource _imageProperty;
+        private static ImageSource _imageMethod;
+        private static ImageSource _imageClass;
+        private static ImageSource _imageInterface;
+        private static ImageSource _imageEnum;
+        private static ImageSource _imageParameter;
+
+        static XmlCompletionData()
+        {
+            try
+            {
+                string baseImageUri = "pack://application:,,,/gip.core.layoutengine;component/Images/Dark/";
+                if (ControlManager.WpfTheme == eWpfTheme.Aero)
+                    baseImageUri = "pack://application:,,,/gip.core.layoutengine;component/Images/Light/";
+                
+                _imageField = new BitmapImage(new Uri(baseImageUri + "symbol-field.png"));
+                _imageEvent = new BitmapImage(new Uri(baseImageUri + "symbol-event.png"));
+                _imageProperty = new BitmapImage(new Uri(baseImageUri + "symbol-property.png"));
+                _imageMethod = new BitmapImage(new Uri(baseImageUri + "symbol-method.png"));
+                _imageClass = new BitmapImage(new Uri(baseImageUri + "symbol-class.png"));
+                _imageInterface = new BitmapImage(new Uri(baseImageUri + "symbol-interface.png"));
+                _imageEnum = new BitmapImage(new Uri(baseImageUri + "symbol-enum.png"));
+                _imageParameter = new BitmapImage(new Uri(baseImageUri + "symbol-parameter.png"));
+            }
+            catch
+            {
+                // Images not available, continue without icons
+            }
+        }
+
         string text;
         DataType dataType = DataType.XmlElement;
         string description = String.Empty;
@@ -28,6 +61,14 @@ namespace gip.core.layoutengine.CodeCompletion
             Snippet = 5,
             Comment = 6,
             Other = 7,
+            Property = 8,
+            Event = 9,
+            Field = 10,
+            Method = 11,
+            Class = 12,
+            Interface = 13,
+            Enum = 14,
+            AttachedProperty = 15
         }
 
         /// <summary>
@@ -70,6 +111,49 @@ namespace gip.core.layoutengine.CodeCompletion
             this.Text = text;
             this.description = description;
             this.dataType = dataType;
+            this.Image = GetImageForDataType(dataType);
+        }
+
+        /// <summary>
+        /// Gets the appropriate image for the given data type.
+        /// </summary>
+        /// <param name="type">The data type.</param>
+        /// <returns>The image for the data type.</returns>
+        private static ImageSource GetImageForDataType(DataType type)
+        {
+            switch (type)
+            {
+                case DataType.Class:
+                    return _imageClass;
+                
+                case DataType.Property:
+                case DataType.AttachedProperty:
+                case DataType.XmlAttribute:
+                    return _imageProperty;
+                
+                case DataType.Event:
+                    return _imageEvent;
+                
+                case DataType.Field:
+                    return _imageField;
+                
+                case DataType.Method:
+                    return _imageMethod;
+                
+                case DataType.Interface:
+                    return _imageInterface;
+                
+                case DataType.Enum:
+                case DataType.XmlAttributeValue:
+                    return _imageEnum;
+                
+                case DataType.XmlElement:
+                    return _imageParameter;
+                
+                default:
+                    return _imageParameter;
+
+            }
         }
 
         /// <summary>

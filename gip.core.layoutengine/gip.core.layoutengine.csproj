@@ -126,6 +126,9 @@
   <ItemGroup>
     <Resource Include="Images\false.png" />
     <Resource Include="Images\true.png" />
+    <!-- https://github.com/microsoft/vscode-icons,  CC-BY-4.0, MIT -->
+    <Resource Include="Images\Dark\*.png" />
+    <Resource Include="Images\Light\*.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\gipTick.png" />

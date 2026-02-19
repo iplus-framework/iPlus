@@ -97,8 +97,8 @@ namespace gip.ext.designer.Xaml
 			parserSettings.CreateInstanceCallback = this.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory;
 			parserSettings.ServiceProvider = this.Services;
 			_doc = XamlParser.Parse(xamlReader, parserSettings);
-			if (_doc==null)
-				loadSettings.ReportErrors(xamlErrorService);
+			if (_doc == null)
+				loadSettings?.ReportErrors(xamlErrorService);
 			
 			_rootItem = _componentService.RegisterXamlComponentRecursive(_doc.RootElement);
 			

@@ -8,6 +8,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.Metadata;
 
@@ -123,15 +125,15 @@ namespace gip.ext.xamldom.avui
             return null;
         }
 
-        private Type GetTypeInNamespaceMapping(XamlNamespace ns, string localName, bool onlyWPF = false)
+        private Type GetTypeInNamespaceMapping(XamlNamespace ns, string localName, bool onlyAvalonia = false)
         {
             foreach (AssemblyNamespaceMapping mapping in ns.ClrNamespaces)
             {
-                if (onlyWPF)
+                if (onlyAvalonia)
                 {
-                    // WindowsBase, PresentationCore, PresentationFramework
-                    if ((typeof(MarkupExtension).Assembly != mapping.Assembly)
+                    if ((typeof(Control).Assembly != mapping.Assembly)
                         && (typeof(IAddChild).Assembly != mapping.Assembly)
+                        && (typeof(Binding).Assembly != mapping.Assembly)
                         && (typeof(AvaloniaXamlLoader).Assembly != mapping.Assembly)
                         && (typeof(AvaloniaRuntimeXamlLoader).Assembly != mapping.Assembly))
                         continue;
@@ -494,10 +496,10 @@ namespace gip.ext.xamldom.avui
         /// <summary>
         /// Creates a new XamlTypeFinder where the WPF namespaces are registered.
         /// </summary>
-        public static XamlTypeFinder CreateWpfTypeFinder()
+        public static XamlTypeFinder CreateAvaloniaTypeFinder()
         {
-            //return WpfTypeFinder.Instance.Clone();
-            return WpfTypeFinder.Instance;
+            //return AvaloniaTypeFinder.Instance.Clone();
+            return AvaloniaTypeFinder.Instance;
         }
 
         /// <summary>
@@ -508,18 +510,18 @@ namespace gip.ext.xamldom.avui
             return uri;
         }
 
-        static class WpfTypeFinder
+        static class AvaloniaTypeFinder
         {
             internal static readonly XamlTypeFinder Instance;
 
             [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Performance", "CA1810:InitializeReferenceTypeStaticFieldsInline",
                                                              Justification = "We're using an explicit constructor to get it's lazy-loading semantics.")]
-            static WpfTypeFinder()
+            static AvaloniaTypeFinder()
             {
                 Instance = new XamlTypeFinder();
-                //Instance.RegisterAssembly(typeof(Point).Assembly); // Avalonia.Base
-                Instance.RegisterAssembly(typeof(MarkupExtension).Assembly); // Avalonia.Markup.Xaml
+                Instance.RegisterAssembly(typeof(Control).Assembly); // Avalonia.Controls
                 Instance.RegisterAssembly(typeof(IAddChild).Assembly); // Avalonia.Base
+                Instance.RegisterAssembly(typeof(Binding).Assembly); // Avalonia.Markup.dll
                 Instance.RegisterAssembly(typeof(AvaloniaXamlLoader).Assembly); // Avalonia.Markup.Xaml.dll
                 Instance.RegisterAssembly(typeof(AvaloniaRuntimeXamlLoader).Assembly); // Avalonia.Markup.Xaml.Loader.dll
                 Instance.RegisterAssembly(typeof(Type).Assembly); // mscorelib

@@ -16,7 +16,7 @@ namespace gip.ext.xamldom.avui
 	public sealed class XamlParserSettings
 	{
 		CreateInstanceCallback _createInstanceCallback = Activator.CreateInstance;
-		XamlTypeFinder _typeFinder = XamlTypeFinder.CreateWpfTypeFinder();
+		XamlTypeFinder _typeFinder = XamlTypeFinder.CreateAvaloniaTypeFinder();
 		IServiceProvider _serviceProvider = DummyServiceProvider.Instance;
         string _currentProjectAssemblyName;
 

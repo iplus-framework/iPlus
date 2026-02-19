@@ -59,21 +59,34 @@ namespace gip.core.layoutengine
         /// <param name="e">The event arguments.</param>
         protected override void OnInitialized(EventArgs e)
         {
-            if (!string.IsNullOrEmpty(CodeCompletionSchema))
+            // Initialize completion provider
+            if (UseReflectionBasedCompletion)
             {
+                // Use reflection-based completion
+                _completionProvider = new ReflectionBasedXmlCompletionProvider();
+            }
+            else if (!string.IsNullOrEmpty(CodeCompletionSchema))
+            {
+                // Use schema-based completion
                 _xmlCompletionDataProvider = new XmlCompletionDataProvider();
                 string path = "";
 
                 if (CodeCompletionSchema.Contains("VBXMLEditorSchemas"))
                     path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, CodeCompletionSchema);
-
                 else
                     path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, System.IO.Path.Combine("VBXMLEditorSchemas", CodeCompletionSchema));
 
                 if (!File.Exists(path))
-                    Database.Root.Messages.WarningAsync(this, "Schema is not exist in " + path, true);
+                    Database.Root.Messages.WarningAsync(this, "Schema not found in " + path, true);
                 else
                     _xmlCompletionDataProvider.LoadSchema(path);
+
+                _completionProvider = _xmlCompletionDataProvider;
+            }
+            else
+            {
+                // Default to reflection-based if no schema specified
+                _completionProvider = new ReflectionBasedXmlCompletionProvider();
             }
 
             // XML-Highlighting
@@ -132,12 +145,14 @@ namespace gip.core.layoutengine
         #region Properties
 
         private XmlCompletionDataProvider _xmlCompletionDataProvider;
+        private ICompletionDataProvider _completionProvider;
 
         private string _CodeCompletionSchema = "";
         /// <summary>
         /// Gets or sets the code completion schema. Here you can set which code completion schema editor will use. 
         /// Available code completion schemas is in VBXMLEditorSchemas directory that is located in binary directory. 
         /// Also in VBXMLEditorSchemas directory you can add your custom code completion schemas.
+        /// If empty, reflection-based completion will be used instead.
         /// </summary>
         [Category("VBControl")]
         public string CodeCompletionSchema
@@ -152,6 +167,26 @@ namespace gip.core.layoutengine
             }
         }
 
+        private bool _UseReflectionBasedCompletion = true;
+        /// <summary>
+        /// Gets or sets whether to use reflection-based code completion instead of XSD schemas.
+        /// When true, types and properties are discovered at runtime from loaded assemblies.
+        /// When false, uses XSD schema-based completion (requires CodeCompletionSchema to be set).
+        /// Default is true.
+        /// </summary>
+        [Category("VBControl")]
+        public bool UseReflectionBasedCompletion
+        {
+            get
+            {
+                return _UseReflectionBasedCompletion;
+            }
+            set
+            {
+                _UseReflectionBasedCompletion = value;
+            }
+        }
+
         #endregion
 
         #region Methods
@@ -160,7 +195,7 @@ namespace gip.core.layoutengine
 
         protected override void ucAvalonTextEditor_TextArea_TextEntered(object sender, TextCompositionEventArgs e)
         {
-            if (_xmlCompletionDataProvider != null && _xmlCompletionDataProvider.IsSchemaLoaded)
+            if (_completionProvider != null)
             {
                 int _CurrCaretIndex = TextArea.Caret.Offset;
                 char ch = e.Text.FirstOrDefault();
@@ -245,7 +280,7 @@ namespace gip.core.layoutengine
         {
             try
             {
-                var result = _xmlCompletionDataProvider.GenerateCompletionData("", this.TextArea, ch);
+                var result = _completionProvider.GenerateCompletionData("", this.TextArea, ch);
                 if (result != null && result.Any())
                 {
                     completionWindow = new CompletionWindow(TextArea);
@@ -286,7 +321,7 @@ namespace gip.core.layoutengine
                 return;
 
             string prefix = text.ToString().Substring(0, text.ToString().IndexOf(':'));
-            ICompletionData[] result = _xmlCompletionDataProvider.GenerateCompletionData(prefix, TextArea, ':');
+            ICompletionData[] result = _completionProvider.GenerateCompletionData(prefix, TextArea, ':');
 
             if (result != null && result.Any())
             {

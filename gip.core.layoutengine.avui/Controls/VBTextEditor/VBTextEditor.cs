@@ -291,22 +291,28 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private bool _OnTargetUpdated = false;
+        private bool _IsUpdatingTarget = false;
+        private bool _IsUpatingSource = false;
 
         // Wird aufgerufen, wenn Text im Texteditor verändert wurde
         protected void ucAvalonTextEditor_ContentChanged(object sender, EventArgs e)
         {
             // Falls Inhalt geändert durch Zuweisung aus BSO
-            if (_OnTargetUpdated == true)
-            {
-                _OnTargetUpdated = false;
+            if (_IsUpdatingTarget == true || _IsUpatingSource == true)
                 return;
-            }
 
             if (_isOneWayBindingVBTextDP)
                 return;
 
-            this.VBText = Text;
+            _IsUpatingSource = true;
+            try
+            {            
+                this.VBText = Text;
+            }
+            finally
+            {
+                _IsUpatingSource = false;
+            }
             //ACObject.ValueChanged(VBContent);
         }
 
@@ -606,10 +612,17 @@ namespace gip.core.layoutengine.avui
             else if (change.Property == VBTextProperty)
             {
                 // Update Text when VBText changes
-                if (!_OnTargetUpdated)
+                if (!_IsUpdatingTarget && !_IsUpatingSource)
                 {
-                    _OnTargetUpdated = true;
-                    Text = this.VBText;
+                    _IsUpdatingTarget = true;
+                    try
+                    {
+                        this.Text = change.NewValue as string;
+                    }
+                    finally
+                    {
+                        _IsUpdatingTarget = false;
+                    }
                 }
             }
         }

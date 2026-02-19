@@ -689,35 +689,60 @@ namespace gip.ext.xamldom.avui
             var properties = elementType.GetProperties();
             foreach (var property in properties)
             {
-                var contentAttrs = property.GetCustomAttributes(typeof(TemplateContentAttribute), true) as TemplateContentAttribute[];
+                var contentAttrs = property.GetCustomAttributes(typeof(ContentAttribute), true) as ContentAttribute[];
                 if (contentAttrs != null && contentAttrs.Length > 0)
                 {
-                    return FindProperty(null, elementType, property.Name);
+                    return FindProperty(null, elementType, property.PropertyType, property.Name);
+                }
+                var templateContentAttrs = property.GetCustomAttributes(typeof(TemplateContentAttribute), true) as TemplateContentAttribute[];
+                if (templateContentAttrs != null && templateContentAttrs.Length > 0)
+                {
+                    return FindProperty(null, elementType, property.PropertyType, property.Name);
                 }
             }
-
-            //foreach (ContentPropertyAttribute cpa in elementType.GetCustomAttributes(typeof(ContentPropertyAttribute), true))
-            //{
-            //    return FindProperty(null, elementType, cpa.Name);
-            //}
             return null;
         }
 
-        internal static XamlPropertyInfo FindProperty(object elementInstance, Type propertyType, string propertyName)
+        internal static XamlPropertyInfo FindProperty(object elementInstance, Type elementType, Type propertyType, string propertyName)
         {
-            var propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(elementInstance as AvaloniaObject, propertyName);
+            AvaloniaProperty propertyInfo = null;
+            if (elementInstance != null && elementInstance is AvaloniaObject avaloniaObject)
+                propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(avaloniaObject, propertyName);
+            else if (elementType != null && typeof(AvaloniaObject).IsAssignableFrom(elementType))
+                propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(elementType, propertyName);
             if (propertyInfo != null)
             {
-                return new XamlNormalPropertyInfo(propertyInfo);
+                return new XamlNormalPropertyInfo(propertyInfo, elementType);
             }
+
+            if (propertyType == null)
+                propertyType = elementType;
+
+            XamlPropertyInfo pi = TryFindAttachedProperty(propertyType, propertyName);
+            if (pi != null)
+            {
+                return pi;
+            }
+
+            PropertyDescriptorCollection propertiesDescr = null;
+            if (elementInstance != null)
+                propertiesDescr = TypeDescriptor.GetProperties(elementInstance);
             else
             {
-                XamlPropertyInfo pi = TryFindAttachedProperty(propertyType, propertyName);
-                if (pi != null)
+                if (elementType != null)
+                    propertiesDescr = TypeDescriptor.GetProperties(elementType);
+                if (propertiesDescr == null || propertiesDescr.Count == 0)
+                    propertiesDescr = TypeDescriptor.GetProperties(propertyType);
+            }
+            if (propertiesDescr != null)
+            {
+                PropertyDescriptor propertyInfo2 = propertiesDescr[propertyName];
+                if (propertyInfo2 != null)
                 {
-                    return pi;
+                    return new XamlNormalPropertyInfo(propertyInfo2, elementType);
                 }
             }
+
             EventDescriptorCollection events;
             if (elementInstance != null)
             {
@@ -742,7 +767,7 @@ namespace gip.ext.xamldom.avui
             if (getMethod != null && setMethod != null)
             {
                 FieldInfo field = elementType.GetField(propertyName + "Property", BindingFlags.Public | BindingFlags.Static);
-                if (field != null && field.FieldType == typeof(AvaloniaProperty))
+                if (field != null && typeof(AvaloniaProperty).IsAssignableFrom(field.FieldType))
                 {
                     return new XamlDependencyPropertyInfo((AvaloniaProperty)field.GetValue(null), true, propertyName + "Property");
                 }
@@ -753,7 +778,7 @@ namespace gip.ext.xamldom.avui
         internal static XamlPropertyInfo TryFindAttachedEvent(Type elementType, string propertyName)
         {
             FieldInfo fieldEvent = elementType.GetField(propertyName + "Event", BindingFlags.Public | BindingFlags.Static);
-            if (fieldEvent != null && fieldEvent.FieldType == typeof(RoutedEvent))
+            if (fieldEvent != null && typeof(RoutedEvent).IsAssignableFrom(fieldEvent.FieldType))
             {
                 return new XamlEventPropertyInfo(TypeDescriptor.GetEvents(elementType)[propertyName]);
             }
@@ -790,7 +815,7 @@ namespace gip.ext.xamldom.avui
             }
             else
             {
-                return FindProperty(elementInstance, elementType, attribute.LocalName);
+                return FindProperty(elementInstance, elementType, null, attribute.LocalName);
             }
         }
 
@@ -860,7 +885,7 @@ namespace gip.ext.xamldom.avui
                 XamlPropertyInfo propertyInfo = null;
                 try
                 {
-                    propertyInfo = FindProperty(elementInstance, propertyType, propertyName);
+                    propertyInfo = FindProperty(elementInstance, elementType, propertyType, propertyName);
                 }
                 catch (Exception)
                 { }
@@ -870,7 +895,7 @@ namespace gip.ext.xamldom.avui
 
             if (elementType == propertyType || elementType.IsAssignableFrom(propertyType) || propertyType.IsAssignableFrom(elementType))
             {
-                return FindProperty(elementInstance, propertyType, propertyName);
+                return FindProperty(elementInstance, elementType, propertyType, propertyName);
             }
             else
             {
@@ -1155,9 +1180,21 @@ namespace gip.ext.xamldom.avui
                 var uri = scope.OwnerDocument.TypeFinder.ConvertUriToLocalUri(new Uri(valueText, UriKind.RelativeOrAbsolute));
                 return targetProperty.TypeConverter.ConvertFromString(scope.OwnerDocument.GetTypeDescriptorContext(scope), CultureInfo.InvariantCulture, uri.ToString());
             }
-            return targetProperty.TypeConverter.ConvertFromString(
-                scope.OwnerDocument.GetTypeDescriptorContext(scope),
-                CultureInfo.InvariantCulture, valueText);
+            else if (targetProperty.TypeConverter != null)
+            {
+                return targetProperty.TypeConverter.ConvertFromString(
+                    scope.OwnerDocument.GetTypeDescriptorContext(scope),
+                    CultureInfo.InvariantCulture, valueText);
+            }
+            else
+            {
+                // Try to call Parse() method on the target type, if it exists
+                if (TryInvokeParseMethod(valueText, targetProperty.ReturnType, out var result))
+                {
+                    return result;
+                }
+            }
+            return null;
         }
 
         internal static object CreateObjectFromAttributeText(string valueText, Type targetType, XamlObject scope)
@@ -1168,6 +1205,68 @@ namespace gip.ext.xamldom.avui
 
             return converter.ConvertFromInvariantString(
                 scope.OwnerDocument.GetTypeDescriptorContext(scope), valueText);
+        }
+
+        /// <summary>
+        /// Tries to invoke a static Parse method on the target type using reflection.
+        /// </summary>
+        /// <param name="valueText">The string value to parse.</param>
+        /// <param name="targetType">The type that should have a Parse method.</param>
+        /// <param name="result">The parsed result if successful.</param>
+        /// <returns>True if the Parse method was found and invoked successfully; otherwise false.</returns>
+        private static bool TryInvokeParseMethod(string valueText, Type targetType, out object result)
+        {
+            result = null;
+            
+            if (string.IsNullOrEmpty(valueText) || targetType == null)
+                return false;
+
+            try
+            {
+                var parseMethod = GetParseMethod(targetType, out var hasFormatProvider);
+                
+                if (parseMethod != null)
+                {
+                    result = parseMethod.Invoke(null,
+                        hasFormatProvider
+                            ? new object[] { valueText, CultureInfo.InvariantCulture }
+                            : new object[] { valueText });
+                    return true;
+                }
+            }
+            catch
+            {
+                // Parse method failed, return false
+            }
+            
+            return false;
+        }
+
+        /// <summary>
+        /// Gets the Parse method from the target type using reflection.
+        /// Looks for Parse(string, IFormatProvider) first, then falls back to Parse(string).
+        /// </summary>
+        /// <param name="type">The type to search for a Parse method.</param>
+        /// <param name="hasFormatProvider">Indicates whether the found method has an IFormatProvider parameter.</param>
+        /// <returns>The MethodInfo for the Parse method, or null if not found.</returns>
+        private static MethodInfo GetParseMethod(Type type, out bool hasFormatProvider)
+        {
+            const BindingFlags publicStatic = BindingFlags.Public | BindingFlags.Static;
+            var stringFormatProviderParameters = new[] { typeof(string), typeof(IFormatProvider) };
+            var stringParameter = new[] { typeof(string) };
+
+            // Try to find Parse(string, IFormatProvider) first
+            var method = type.GetMethod("Parse", publicStatic, null, stringFormatProviderParameters, null);
+            
+            if (method != null)
+            {
+                hasFormatProvider = true;
+                return method;
+            }
+
+            // Fall back to Parse(string)
+            hasFormatProvider = false;
+            return type.GetMethod("Parse", publicStatic, null, stringParameter, null);
         }
 
         /// <summary>

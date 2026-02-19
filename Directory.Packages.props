@@ -1,8 +1,9 @@
 <Project>
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<DefaultCodeAnalysisVersion>4.12.0</DefaultCodeAnalysisVersion>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
-		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">4.12.0</CodeAnalysisVersion>
+		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">$(DefaultCodeAnalysisVersion)</CodeAnalysisVersion>
 		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
 		<RoslynVersion>4.12.1</RoslynVersion>
 		<DotNetExtensionsVersion>9.0.0</DotNetExtensionsVersion>
@@ -27,7 +28,7 @@
 		<SkiaSharpNativeAssetsLinuxNoDependenciesVersion>$(SkiaSharpVersion)</SkiaSharpNativeAssetsLinuxNoDependenciesVersion>
 	</PropertyGroup>
 
-	<ItemGroup Condition="'$(UseDotNet10)' == 'False'">
+    <ItemGroup Condition="'$(UseDotNet10)' == 'False'">
 		<!-- Avalonia packages - only include when NOT using fork -->
 		<PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersion)" />

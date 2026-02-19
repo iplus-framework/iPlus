@@ -9,6 +9,7 @@ using System.Globalization;
 using System.Reflection;
 using Avalonia;
 using Avalonia.Markup.Xaml;
+using Avalonia.SourceGenerator;
 
 namespace gip.ext.xamldom.avui
 {
@@ -143,73 +144,186 @@ namespace gip.ext.xamldom.avui
     internal sealed class XamlNormalPropertyInfo : XamlPropertyInfo
     {
         PropertyDescriptor _propertyDescriptor;
-        AvaloniaProperty dependencyProperty;
+        AvaloniaProperty _avaloniaProperty;
+        Type _elementType;
 
-        public XamlNormalPropertyInfo(AvaloniaProperty propertyDescriptor)
+        public XamlNormalPropertyInfo(AvaloniaProperty avaloniaProperty, Type elementType)
         {
-            dependencyProperty = propertyDescriptor;
-            //var dpd = AvaloniaPropertyDescriptor.FromProperty(propertyDescriptor);
-            //if (dpd != null)
-            //{
-            //    dependencyProperty = dpd.DependencyProperty;
-            //}
+            _avaloniaProperty = avaloniaProperty;
+            _elementType = elementType;   
+        }
+
+        public XamlNormalPropertyInfo(PropertyDescriptor propertyDescriptor, Type elementType)
+        {
+            _propertyDescriptor = propertyDescriptor;
+            _elementType = elementType;   
         }
 
         public override AvaloniaProperty DependencyProperty
         {
             get
             {
-                return dependencyProperty;
+                return _avaloniaProperty;
             }
         }
 
         public override object GetValue(object instance)
         {
-            return _propertyDescriptor.GetValue(instance);
+            if (instance is AvaloniaObject avaloniaObject && _avaloniaProperty != null)
+            {
+                return avaloniaObject.GetValue(_avaloniaProperty);
+            }
+            else if (_propertyDescriptor != null)
+            {
+                return _propertyDescriptor.GetValue(instance);
+            }
+            throw new InvalidOperationException("Instance is not an AvaloniaObject or DependencyProperty is null.");
         }
 
         public override void SetValue(object instance, object value)
         {
-            //if (instance is AvaloniaObject)
-            //{
-            //    if ((instance as AvaloniaObject).IsSealed)
-            //        return;
-            //}
-            _propertyDescriptor.SetValue(instance, value);
+            if (instance is AvaloniaObject avaloniaObject && _avaloniaProperty != null)
+            {
+                avaloniaObject.SetValue(_avaloniaProperty, value);
+                return;
+            }
+            else if (_propertyDescriptor != null)
+            {
+                _propertyDescriptor.SetValue(instance, value);
+                return;
+            }
+            throw new InvalidOperationException("Instance is not an AvaloniaObject or DependencyProperty is null.");            
         }
 
         public override void ResetValue(object instance)
         {
-            try
+            if (instance is AvaloniaObject avaloniaObject && _avaloniaProperty != null)
+            {
+                avaloniaObject.ClearValue(_avaloniaProperty);
+                return;
+            }
+            else if (_propertyDescriptor != null)
             {
                 _propertyDescriptor.ResetValue(instance);
+                return;
             }
-            catch (Exception)
-            {
-                //For Example "UndoRedoSimpleBinding" will raise a exception here => look if it has Side Effects if we generally catch here?
-            }
+            throw new InvalidOperationException("Instance is not an AvaloniaObject or DependencyProperty is null.");       
         }
 
         public override Type ReturnType
         {
-            get { return _propertyDescriptor.PropertyType; }
+            get { return _avaloniaProperty != null ? _avaloniaProperty.PropertyType : _propertyDescriptor.PropertyType; }
         }
 
         public override Type TargetType
         {
-            get { return _propertyDescriptor.ComponentType; }
+            get { return _avaloniaProperty != null ? _avaloniaProperty.OwnerType : _propertyDescriptor.ComponentType; }
         }
 
-        public override string Category
+        public override string Category 
         {
-            get { return _propertyDescriptor.Category; }
+            get 
+            {
+                if (_propertyDescriptor != null)
+                {
+                    return _propertyDescriptor.Category;
+                }
+                if (_elementType != null)
+                {
+                    var categoryAttribute = GetCustomAttribute<CategoryAttribute>(_elementType);
+                    if (categoryAttribute != null)
+                    {
+                        return categoryAttribute.Category;
+                    }
+                }
+                return ""; 
+            }
         }
 
+        internal static T GetCustomAttribute<T>(Type type) where T : Attribute
+        {
+            var attributes = type.GetCustomAttributes(typeof(T), true);
+            if (attributes != null &&attributes.Length > 0)
+            {
+                return (T)attributes[0];
+            }
+            return null;
+        }
+
+        internal static Type GetTypeFromName(string typeName, Type componentType)
+        {
+            if (string.IsNullOrEmpty(typeName))
+            {
+                return null;
+            }
+
+            //  try the generic method.
+            Type typeFromGetType = Type.GetType(typeName);
+
+            // If we didn't get a type from the generic method, or if the assembly we found the type
+            // in is the same as our Component's assembly, use or Component's assembly instead. This is
+            // because the CLR may have cached an older version if the assembly's version number didn't change
+            Type typeFromComponent = null;
+            if (componentType != null)
+            {
+                if ((typeFromGetType == null) ||
+                    (componentType.Assembly.FullName!.Equals(typeFromGetType.Assembly.FullName)))
+                {
+                    int comma = typeName.IndexOf(',');
+
+                    if (comma != -1)
+                        typeName = typeName.Substring(0, comma);
+
+                    typeFromComponent = componentType.Assembly.GetType(typeName);
+                }
+            }
+
+            return typeFromComponent ?? typeFromGetType;
+        }
+
+        internal static object CreateInstance(Type type, Type propertyType)
+        {
+            Type[] typeArgs = new Type[] { typeof(Type) };
+            ConstructorInfo ctor = type.GetConstructor(typeArgs);
+            if (ctor != null)
+            {
+                return TypeDescriptor.CreateInstance(null, type, typeArgs, new object[] { propertyType });
+            }
+
+            return TypeDescriptor.CreateInstance(null, type, null, null);
+        }
+
+        private bool _TypeConverterInitialized;
+        private TypeConverter _TypeConverter;
         public override TypeConverter TypeConverter
         {
             get
             {
-                return GetCustomTypeConverter(_propertyDescriptor.PropertyType) ?? _propertyDescriptor.Converter;
+                if (_TypeConverterInitialized)
+                    return _TypeConverter;                    
+                _TypeConverterInitialized = true;
+                if (_propertyDescriptor != null)
+                    _TypeConverter = GetCustomTypeConverter(_propertyDescriptor.PropertyType) ?? _propertyDescriptor.Converter;
+                if (_TypeConverter != null)
+                    return _TypeConverter;
+                _TypeConverter = GetCustomTypeConverter(_avaloniaProperty.PropertyType);
+                if (_TypeConverter != null)
+                    return _TypeConverter;
+                TypeConverterAttribute attr = GetCustomAttribute<TypeConverterAttribute>(_avaloniaProperty.PropertyType);
+                if (attr != null)
+                {
+                    if (attr.ConverterTypeName != null && attr.ConverterTypeName.Length > 0)
+                    {
+                        Type converterType = GetTypeFromName(attr.ConverterTypeName, _avaloniaProperty.PropertyType);
+                        if (converterType != null && typeof(TypeConverter).IsAssignableFrom(converterType))
+                        {
+                            _TypeConverter = (TypeConverter)CreateInstance(converterType, _avaloniaProperty.PropertyType);
+                        }
+                    }
+
+                    _TypeConverter ??= TypeDescriptor.GetConverter(_avaloniaProperty.PropertyType);
+                }
+                return _TypeConverter;
             }
         }
 
@@ -217,13 +331,20 @@ namespace gip.ext.xamldom.avui
         {
             get
             {
-                return _propertyDescriptor.ComponentType.FullName + "." + _propertyDescriptor.Name;
+                if (_propertyDescriptor != null)
+                    return _propertyDescriptor.ComponentType.FullName + "." + _propertyDescriptor.Name;
+                return _avaloniaProperty.OwnerType.FullName + "." + _avaloniaProperty.Name;
             }
         }
 
         public override string Name
         {
-            get { return _propertyDescriptor.Name; }
+            get 
+            {
+                if (_propertyDescriptor != null)
+                    return _propertyDescriptor.Name; 
+                return _avaloniaProperty.Name; 
+            }
         }
 
         public override bool IsAttached
@@ -235,7 +356,9 @@ namespace gip.ext.xamldom.avui
         {
             get
             {
-                return CollectionSupport.IsCollectionType(_propertyDescriptor.PropertyType);
+                if (_propertyDescriptor != null)
+                    return CollectionSupport.IsCollectionType(_propertyDescriptor.PropertyType);
+                return CollectionSupport.IsCollectionType(_avaloniaProperty.PropertyType);
             }
         }
 
@@ -243,10 +366,20 @@ namespace gip.ext.xamldom.avui
         {
             get
             {
-                var a = _propertyDescriptor.Attributes[typeof(EditorBrowsableAttribute)] as EditorBrowsableAttribute;
-                if (a != null)
+                EditorBrowsableAttribute attr = null;
+                if (_propertyDescriptor != null)
                 {
-                    return a.State == EditorBrowsableState.Advanced;
+                    attr = (EditorBrowsableAttribute)_propertyDescriptor.Attributes[typeof(EditorBrowsableAttribute)];
+                    if (attr != null)
+                    {
+                        return attr.State == EditorBrowsableState.Advanced;
+                    }
+                    return false;
+                }
+                attr = GetCustomAttribute<EditorBrowsableAttribute>(_avaloniaProperty.PropertyType);
+                if (attr != null)
+                {
+                    return attr.State == EditorBrowsableState.Advanced;
                 }
                 return false;
             }

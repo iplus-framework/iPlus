@@ -132,7 +132,7 @@ namespace gip.ext.xamldom.avui
                 XamlPropertyInfo info = null;
                 try
                 {
-                    info = XamlParser.FindProperty(null, elementType, propertyName);
+                    info = XamlParser.FindProperty(null, elementType, null, propertyName);
                 }
                 catch (Exception)
                 {

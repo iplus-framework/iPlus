@@ -1,4 +1,6 @@
 using Avalonia.Media;
+using Avalonia.Media.Imaging;
+using Avalonia.Platform;
 using AvaloniaEdit.CodeCompletion;
 using AvaloniaEdit.Document;
 using AvaloniaEdit.Editing;
@@ -12,6 +14,37 @@ namespace gip.core.layoutengine.avui.CodeCompletion
     /// </summary>
     public class XmlCompletionData : ICompletionData
     {
+        private static IImage _imageField;
+        private static IImage _imageEvent;
+        private static IImage _imageProperty;
+        private static IImage _imageMethod;
+        private static IImage _imageClass;
+        private static IImage _imageInterface;
+        private static IImage _imageEnum;
+        private static IImage _imageParameter;
+        static XmlCompletionData()
+        {
+            try
+            {
+                string baseImageUri = "avares://gip.core.layoutengine.avui/Images/Dark/";
+                if (ControlManager.WpfTheme == eWpfTheme.Light)
+                    baseImageUri = "avares://gip.core.layoutengine.avui/Images/Light/";
+                
+                _imageField = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-field.png")));
+                _imageEvent = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-event.png")));
+                _imageProperty = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-property.png")));
+                _imageMethod = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-method.png")));
+                _imageClass = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-class.png")));
+                _imageInterface = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-interface.png")));
+                _imageEnum = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-enum.png")));
+                _imageParameter = new Bitmap(AssetLoader.Open(new Uri(baseImageUri + "symbol-parameter.png")));
+            }
+            catch
+            {
+                // Images not available, continue without icons
+            }
+        }
+
         string text;
         DataType dataType = DataType.XmlElement;
         string description = String.Empty;
@@ -28,6 +61,14 @@ namespace gip.core.layoutengine.avui.CodeCompletion
             Snippet = 5,
             Comment = 6,
             Other = 7,
+            Property = 8,
+            Event = 9,
+            Field = 10,
+            Method = 11,
+            Class = 12,
+            Interface = 13,
+            Enum = 14,
+            AttachedProperty = 15
         }
 
         /// <summary>
@@ -70,6 +111,48 @@ namespace gip.core.layoutengine.avui.CodeCompletion
             this.Text = text;
             this.description = description;
             this.dataType = dataType;
+            this.Image = GetImageForDataType(dataType);
+        }
+
+        /// <summary>
+        /// Gets the appropriate image for the given data type.
+        /// </summary>
+        /// <param name="type">The data type.</param>
+        /// <returns>The image for the data type.</returns>
+        private static IImage GetImageForDataType(DataType type)
+        {
+            switch (type)
+            {
+                case DataType.Class:
+                    return _imageClass;
+                
+                case DataType.Property:
+                case DataType.AttachedProperty:
+                case DataType.XmlAttribute:
+                    return _imageProperty;
+                
+                case DataType.Event:
+                    return _imageEvent;
+                
+                case DataType.Field:
+                    return _imageField;
+                
+                case DataType.Method:
+                    return _imageMethod;
+                
+                case DataType.Interface:
+                    return _imageInterface;
+                
+                case DataType.Enum:
+                case DataType.XmlAttributeValue:
+                    return _imageEnum;
+                
+                case DataType.XmlElement:
+                    return _imageParameter;
+                
+                default:
+                    return _imageParameter;
+            }
         }
 
         /// <summary>
@@ -171,7 +254,7 @@ namespace gip.core.layoutengine.avui.CodeCompletion
             set;
         }
 
-        IImage ICompletionData.Image => throw new NotImplementedException();
+        IImage ICompletionData.Image => Image;
 
         /// <summary>
         /// The insert action.

@@ -4,8 +4,8 @@
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
   <ControlTheme x:Key="{x:Type local:VBScriptEditor}" TargetType="{x:Type local:VBScriptEditor}">
-    <Setter Property="FontFamily" Value="Consolas"/>
-    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="FontFamily" Value="Monospace"/>
+    <Setter Property="FontSize" Value="14"/>
     <Setter Property="Foreground" Value="{StaticResource TextEditorFgEnabled}"/>
     <Setter Property="Background" Value="{StaticResource TextEditorBgEnabled}"/>
     <Setter Property="BorderBrush" Value="{StaticResource TextEditorBorderEnabled}"/>

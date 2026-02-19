@@ -98,6 +98,9 @@
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Images\pinned.bmp" />
+    <!-- https://github.com/microsoft/vscode-icons,  CC-BY-4.0, MIT -->
+    <AvaloniaResource Include="Images\Dark\**"/>
+    <AvaloniaResource Include="Images\Light\**"/>
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Controls\VBDocking\icons\DockBottom.PNG" />

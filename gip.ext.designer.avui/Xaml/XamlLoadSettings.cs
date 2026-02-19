@@ -18,7 +18,7 @@ namespace gip.ext.designer.avui.Xaml
 		public readonly ICollection<Assembly> DesignerAssemblies = new List<Assembly>();
 		public readonly List<Action<XamlDesignContext>> CustomServiceRegisterFunctions = new List<Action<XamlDesignContext>>();
 		public Action<XamlErrorService> ReportErrors;
-		XamlTypeFinder typeFinder = XamlTypeFinder.CreateWpfTypeFinder();
+		XamlTypeFinder typeFinder = XamlTypeFinder.CreateAvaloniaTypeFinder();
 		
 		public XamlTypeFinder TypeFinder {
 			get { return typeFinder; }
