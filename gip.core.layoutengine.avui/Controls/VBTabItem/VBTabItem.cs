@@ -138,9 +138,7 @@ namespace gip.core.layoutengine.avui
                             var binding = new Binding
                             {
                                 Source = dcSource,
-                                Path = dcPath,
-                                Mode = BindingMode.OneWay,
-                                Converter = ConverterVisibilityBool.Current
+                                Path = dcPath
                             };
                             this.Bind(IsVisibleProperty, binding);
                         }

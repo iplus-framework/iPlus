@@ -12,6 +12,7 @@ using System.Text;
 using System.Xml;
 using System.Reflection;
 using Avalonia.Markup.Xaml;
+using Avalonia.Data;
 
 namespace gip.ext.xamldom.avui
 {
@@ -264,8 +265,9 @@ namespace gip.ext.xamldom.avui
 			if (extensionType == null) 
                 extensionType = typeResolver.Resolve(typeName);
             if (extensionType == null 
-                || !( typeof(MarkupExtension).IsAssignableFrom(extensionType) || 
-                      typeof(Avalonia.Data.Converters.IValueConverter).IsAssignableFrom(extensionType)))
+                || !(    typeof(MarkupExtension).IsAssignableFrom(extensionType)
+                      || typeof(Avalonia.Data.Converters.IValueConverter).IsAssignableFrom(extensionType)
+					  || typeof(Binding).IsAssignableFrom(extensionType)))
             {
 				throw new XamlMarkupExtensionParseException("Unknown markup extension " + typeName + "Extension");
 			}

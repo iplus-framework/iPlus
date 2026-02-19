@@ -1182,17 +1182,29 @@ namespace gip.ext.xamldom.avui
             }
             else if (targetProperty.TypeConverter != null)
             {
-                return targetProperty.TypeConverter.ConvertFromString(
-                    scope.OwnerDocument.GetTypeDescriptorContext(scope),
-                    CultureInfo.InvariantCulture, valueText);
-            }
-            else
-            {
-                // Try to call Parse() method on the target type, if it exists
-                if (TryInvokeParseMethod(valueText, targetProperty.ReturnType, out var result))
+                if (typeof(System.ComponentModel.TypeConverter) == targetProperty.TypeConverter.GetType())
                 {
-                    return result;
+                    // Try to call Parse() method on the target type, if it exists
+                    if (TryInvokeParseMethod(valueText, targetProperty.ReturnType, out var result))
+                    {
+                        return result;
+                    }
                 }
+                try
+                {
+                    return targetProperty.TypeConverter.ConvertFromString(
+                        scope.OwnerDocument.GetTypeDescriptorContext(scope),
+                        CultureInfo.InvariantCulture, valueText);
+                }
+                catch (Exception)
+                {
+                    // If conversion fails, we will try to call Parse() method on the target type, if it exists
+                }
+            }
+            // Try to call Parse() method on the target type, if it exists
+            if (TryInvokeParseMethod(valueText, targetProperty.ReturnType, out var result2))
+            {
+                return result2;
             }
             return null;
         }
