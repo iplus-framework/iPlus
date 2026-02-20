@@ -1378,7 +1378,12 @@ In business objects, ACQueryDefinitions are stateful because each business objec
             if (forEntitySQL)
             {
                 if (joinExpressions.JoinCount > 0)
-                    filter = joinExpressions.JoinExpressions.ToString() + " WHERE " + filter;
+                {
+                    if (!string.IsNullOrEmpty(filter))
+                        filter = joinExpressions.JoinExpressions.ToString() + " WHERE " + filter;
+                    else
+                        filter = joinExpressions.JoinExpressions.ToString();
+                }
                 else if (!string.IsNullOrEmpty(filter))
                     filter = " WHERE " + filter;
             }

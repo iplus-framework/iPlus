@@ -284,7 +284,7 @@ namespace gip.core.autocomponent
         {
             PAShowDlgManagerBase service = PAShowDlgManagerBase.GetServiceInstance(acComponent.Root as ACComponent);
             if (service != null)
-                service.ShowPropertyLogViewer(acComponent);
+                _= service.ShowPropertyLogViewer(acComponent);
         }
 
         public static bool IsEnabledShowPropertyLogsDialog(IACComponent acComponent)

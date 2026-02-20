@@ -1064,6 +1064,9 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledLoad):
                 case nameof(Delete):
                 case nameof(IsEnabledDelete):
+                case nameof(UserClone):
+                case nameof(TestMethod):
+                case nameof(Save):
                     return new string[] { nameof(CurrentUser), nameof(SelectedUser) };
                 case nameof(AssignGroup):
                 case nameof(IsEnabledAssignGroup):
@@ -1081,9 +1084,7 @@ namespace gip.bso.iplus
                 case nameof(UnassignAllACProject):
                 case nameof(IsEnabledUnassignAllACProject):
                     return new string[] { nameof(CurrentUserInstance), nameof(SelectedAssignedVBUserACProject) };
-                case nameof(UserClone):
-                case nameof(TestMethod):
-                    return new string[] { nameof(SelectedUser) };
+
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }

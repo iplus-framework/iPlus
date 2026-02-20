@@ -653,11 +653,11 @@ namespace gip.core.media
         /// Method DownloadImage
         /// </summary>
         [ACMethodInfo("DownloadImage", "en{'Download'}de{'Herunterladen'}", 9999, false, false, true)]
-        public void DownloadItem()
+        public async Task DownloadItem()
         {
             if (!IsEnabledDownloadItem())
                 return;
-            DownloadFile(SelectedMediaItemPresentation.FilePath);
+            await DownloadFile(SelectedMediaItemPresentation.FilePath);
         }
         public bool IsEnabledDownloadItem()
         {
@@ -913,13 +913,13 @@ namespace gip.core.media
             switch (acMethodName)
             {
                 case nameof(SetFilePath):
-                    SetFilePath();
+                    _= SetFilePath();
                     return true;
                 case nameof(IsEnabledSetFilePath):
                     result = IsEnabledSetFilePath();
                     return true;
                 case nameof(SetFileThumbPath):
-                    SetFileThumbPath();
+                    _= SetFileThumbPath();
                     return true;
                 case nameof(IsEnabledSetFileThumbPath):
                     result = IsEnabledSetFileThumbPath();
@@ -931,7 +931,7 @@ namespace gip.core.media
                     result = IsEnabledUploadFile();
                     return true;
                 case nameof(DownloadItem):
-                    DownloadItem();
+                    _= DownloadItem();
                     return true;
                 case nameof(IsEnabledDownloadItem):
                     result = IsEnabledDownloadItem();

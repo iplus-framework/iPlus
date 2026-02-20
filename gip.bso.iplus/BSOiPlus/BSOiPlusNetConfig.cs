@@ -95,7 +95,7 @@ namespace gip.bso.iplus
                     ACQueryDefinition navACQueryDefinition = Root.Queries.CreateQueryByClass(null, PrimaryNavigationquery(), ACType.ACIdentifier);
                     _AccessPrimary = navACQueryDefinition.NewAccessNav<VBUserInstance>("UserInstance", this);
                     _AccessPrimary.NavSearchExecuting += _AccessPrimary_NavSearchExecuting;
-                    (Database as Database).VBUserInstance.Where(c => c.VBUser.VBUserACProject_VBUser.Where(d => d.IsServer).Any());
+                    //(Database as Database).VBUserInstance.Where(c => c.VBUser.VBUserACProject_VBUser.Where(d => d.IsServer).Any());
                 }
                 return _AccessPrimary;
             }
@@ -106,7 +106,7 @@ namespace gip.bso.iplus
             //Replaced ObjectQuery with IQueryable
             IQueryable<VBUserInstance> query = result as IQueryable<VBUserInstance>;
             if (query != null)
-                result = query.Where(c => c.VBUser.VBUserACProject_VBUser.Where(d => d.IsServer).Any());
+                result = query.Where(c => c.VBUser.VBUserACProject_VBUser.Any(x => x.IsServer));
             return result;
         }
 

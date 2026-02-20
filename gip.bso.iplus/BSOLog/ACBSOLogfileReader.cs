@@ -290,7 +290,7 @@ namespace gip.bso.iplus
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "SelectLogFile", ex);
-                Root.Messages.ErrorAsync(this, "Error selecting log file: " + ex.Message, true);
+                await Root.Messages.ErrorAsync(this, "Error selecting log file: " + ex.Message, true);
             }
         }
 
@@ -624,7 +624,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(SelectLogFile):
-                    SelectLogFile();
+                    _= SelectLogFile();
                     return true;
                 case nameof(LoadLogFile):
                     LoadLogFile();
