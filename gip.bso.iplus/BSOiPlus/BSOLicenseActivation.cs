@@ -464,10 +464,10 @@ namespace gip.bso.iplus
         /// Closes the license activation dialog.
         /// </summary>
         [ACMethodInfo("", "en{'Close'}de{'Schließen'}", 406, true)]
-        public void CloseDialog()
+        public async Task CloseDialog()
         {
             CloseTopDialog();
-            StopComponent(this);
+            await StopComponent(this);
         }
 
         /// <summary>
@@ -562,38 +562,38 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"ShowLicenseActivation":
+                case nameof(ShowLicenseActivation):
                     ShowLicenseActivation();
                     return true;
-                case"GetActivationData":
+                case nameof(GetActivationData):
                     GetActivationData();
                     return true;
-                case"IsEnabledGetActivationData":
+                case nameof(IsEnabledGetActivationData):
                     result = IsEnabledGetActivationData();
                     return true;
-                case"BrowseLicenceFile":
-                    BrowseLicenceFile();
+                case nameof(BrowseLicenceFile):
+                    _= BrowseLicenceFile();
                     return true;
-                case"ActivateProduct":
+                case nameof(ActivateProduct):
                     ActivateProduct();
                     return true;
-                case"IsEnabledActivateProduct":
+                case nameof(IsEnabledActivateProduct):
                     result = IsEnabledActivateProduct();
                     return true;
-                case"AddNewLicense":
+                case nameof(AddNewLicense):
                     AddNewLicense();
                     return true;
-                case"CloseDialog":
-                    CloseDialog();
+                case nameof(CloseDialog):
+                    _= CloseDialog();
                     return true;
-                case"ExportActivationData":
+                case nameof(ExportActivationData):
                     ExportActivationData();
                     return true;
-                case"ExportActivationDataDialog":
+                case nameof(ExportActivationDataDialog):
                     ExportActivationDataDialog();
                     return true;
-                case"BrowseExportActivationDataDir":
-                    BrowseExportActivationDataDir();
+                case nameof(BrowseExportActivationDataDir):
+                    _= BrowseExportActivationDataDir();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

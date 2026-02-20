@@ -877,7 +877,7 @@ namespace gip.bso.iplus
                     result = IsEnabledImportActivationData();
                     return true;
                 case nameof(BrowseActivationDataFile):
-                    BrowseActivationDataFile();
+                    _= BrowseActivationDataFile();
                     return true;
                 case nameof(ImportDataDialog):
                     ImportDataDialog();
@@ -913,7 +913,7 @@ namespace gip.bso.iplus
                     result = IsEnabledGenerateLicenseFile();
                     return true;
                 case nameof(BrowseLicenseDir):
-                    BrowseLicenseDir();
+                    _= BrowseLicenseDir();
                     return true;
                 case nameof(SignLicenseFile):
                     SignLicenseFile();
@@ -922,7 +922,7 @@ namespace gip.bso.iplus
                     result = IsEnabledSignLicenseFile();
                     return true;
                 case nameof(BrowseLicenseFile):
-                    BrowseLicenseFile();
+                    _= BrowseLicenseFile();
                     return true;
                 case nameof(GenerateRemoteUserKey):
                     GenerateRemoteUserKey();

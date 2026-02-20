@@ -838,7 +838,7 @@ IMPORTANT NOTES:
             catch (Exception ex)
             {
                 Messages.LogException(this.GetACUrl(), "OpenDialogSelectImage", ex);
-                Root.Messages.ErrorAsync(this, "Error selecting Image file: " + ex.Message, true);
+                await Root.Messages.ErrorAsync(this, "Error selecting Image file: " + ex.Message, true);
             }
         }
 
@@ -986,7 +986,7 @@ IMPORTANT NOTES:
                     result = IsEnabledSelectChatClientSettingsByModelName();
                     return true;
                 case nameof(ReadMCPServerConfigFromFile):
-                    ReadMCPServerConfigFromFile();
+                    _= ReadMCPServerConfigFromFile();
                     return true;
                 case nameof(StopAgent):
                     StopAgent();
@@ -1011,7 +1011,7 @@ IMPORTANT NOTES:
                     }
                     break;
                 case nameof(OpenDialogSelectImage):
-                    OpenDialogSelectImage();
+                    _ = OpenDialogSelectImage();
                     return true;
                 case nameof(ClearImagePathList):
                     ClearImagePathList();

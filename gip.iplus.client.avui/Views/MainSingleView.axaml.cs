@@ -229,14 +229,8 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
                 }
             }
         }
-        if (hasAlarms)
-        {
-            WarningIcon.IsVisible = true;
-        }
-        else
-        {
-            WarningIcon.IsVisible = false;
-        }
+
+        WarningIcon.IsVisible = hasAlarms;
     }
 
 

@@ -592,7 +592,7 @@ namespace gip.bso.iplus
                     result = IsEnabledShowACQueryDialog();
                     return true;
                 case nameof(ImportFolder):
-                    ImportFolder();
+                    _= ImportFolder();
                     return true;
                 case nameof(ResourceDlg):
                     result = ResourceDlg((String)acParameter[0]);

@@ -165,7 +165,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodInfo("", "en{'Show program log'}de{'Programmablaufprotokoll anzeigen'}", 401, false)]
-        public void ShowACProgramLog()
+        public async Task ShowACProgramLog()
         {
             if (ProgramProvider is ACBSO)
             {
@@ -173,7 +173,7 @@ namespace gip.bso.iplus
                 ACValueList param = new ACValueList();
                 param.Add(new ACValue(CurrentACProgram.ACIdentifier, typeof(ACProgram), CurrentACProgram));
                 param.Add(new ACValue("WorkflowACUrl", ProgramProvider.WorkflowACUrl));
-                service.ShowProgramLogViewer(ProgramProvider as IACComponent, param);
+                await service.ShowProgramLogViewer(ProgramProvider as IACComponent, param);
             }
         }
 
@@ -618,46 +618,46 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case"ShowACProgramLog":
-                    ShowACProgramLog();
+                case nameof(ShowACProgramLog):
+                    _= ShowACProgramLog();
                     return true;
-                case"IsEnabledShowACProgramLog":
+                case nameof(IsEnabledShowACProgramLog):
                     result = IsEnabledShowACProgramLog();
                     return true;
-                case "RestoreArchivedProgramLog":
+                case nameof(RestoreArchivedProgramLog):
                     RestoreArchivedProgramLog();
                     return true;
-                case "IsEnabledRestoreArchivedProgramLog":
+                case nameof(IsEnabledRestoreArchivedProgramLog):
                     result = IsEnabledRestoreArchivedProgramLog();
                     return true;
-                case"RefreshProgram":
+                case nameof(RefreshProgram):
                     RefreshProgram();
                     return true;
-                case "ArchiveProgramLogManual":
+                case nameof(ArchiveProgramLogManual):
                     ArchiveProgramLogManual();
                     return true;
-                case "IsEnabledArchiveProgramLogManual":
+                case nameof(IsEnabledArchiveProgramLogManual):
                     result = IsEnabledArchiveProgramLogManual();
                     return true;
-                case"ExportToExcel":
+                case nameof(ExportToExcel):
                     ExportToExcel();
                     return true;
-                case"IsEnabledExportToExcel":
+                case nameof(IsEnabledExportToExcel):
                     result = IsEnabledExportToExcel();
                     return true;
-                case"DlgExport":
+                case nameof(DlgExport):
                     DlgExport();
                     return true;
-                case"IsEnabledDlgExport":
+                case nameof(IsEnabledDlgExport):
                     result = IsEnabledDlgExport();
                     return true;
-                case"DlgCancel":
+                case nameof(DlgCancel):
                     DlgCancel();
                     return true;
-                case"Browse":
-                    Browse();
+                case nameof(Browse):
+                    _= Browse();
                     return true;
-                case"IsEnabledBrowse":
+                case nameof(IsEnabledBrowse):
                     result = IsEnabledBrowse();
                     return true;
             }
