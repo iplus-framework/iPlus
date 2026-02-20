@@ -1,9 +1,11 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Markup.Xaml.Templates;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
@@ -59,7 +61,23 @@ namespace gip.core.layoutengine.avui
 
         protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
         {
-            return new VBTreeViewItem();
+            // When using TreeDataTemplate, containers are created automatically
+            // We need to initialize them with parent and context like in CreateNewTreeItem
+            VBTreeViewItem container = new VBTreeViewItem(this, ContextACObject);
+            
+            // Set up the item for TreeDataTemplate
+            if (this.ItemTemplate != null && item is IACObject acObject)
+            {
+                container.ContentACObject = acObject;
+                container.HeaderTemplate = this.ItemTemplate;
+                container.Header = acObject;
+                container.DataContext = acObject;
+                
+                // Prepare for TreeDataTemplate handling
+                container.PrepareItemContainerForParent(this);
+            }
+            
+            return container;
         }
 
         protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)
@@ -186,6 +204,113 @@ namespace gip.core.layoutengine.avui
                 Bind(VBTreeView.ACCompInitStateProperty, binding);
             }
 
+            // Create default TreeDataTemplate if ItemTemplate is not set
+            // This ensures proper MVVM pattern with model objects in Items
+            if (ItemTemplate == null && !string.IsNullOrEmpty(VBShowColumns) && !string.IsNullOrEmpty(VBChilds))
+            {
+                CreateDefaultTreeDataTemplate();
+            }
+
+        }
+
+        /// <summary>
+        /// Creates a default TreeDataTemplate when ItemTemplate is not explicitly set in XAML.
+        /// This ensures the VBTreeView uses Avalonia's standard MVVM pattern where Items contain model objects.
+        /// </summary>
+        private void CreateDefaultTreeDataTemplate()
+        {
+            // Create a TreeDataTemplate using FuncDataTemplate
+            var template = new FuncTreeDataTemplate<IACObject>(
+                // Template for rendering each item
+                (item, namescope) =>
+                {
+                    bool showCheckbox = false;
+                    IVBDataCheckbox treeEntry = item as IVBDataCheckbox;
+                    if (treeEntry != null)
+                    {
+                        showCheckbox = !string.IsNullOrEmpty(treeEntry.DataContentCheckBox);
+                    }
+
+                    string[] dataPath = VBShowColumns.Split('.');
+                    string propertyPath = dataPath.Last();
+
+                    if (!showCheckbox)
+                    {
+                        VBTextBlock tb = new VBTextBlock();
+                        Binding binding = new Binding(propertyPath);
+                        binding.Mode = BindingMode.OneWay;
+                        tb.Bind(VBTextBlock.TextProperty, binding);
+                        return tb;
+                    }
+                    else
+                    {
+                        Grid g = new Grid();
+                        g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(30), MinWidth = 30 });
+                        g.ColumnDefinitions.Add(new ColumnDefinition());
+
+                        VBCheckBox cb = new VBCheckBox();
+                        cb.Width = 30;
+                        cb.MinWidth = 30;
+                        Binding bindingCheckbox = new Binding(treeEntry.DataContentCheckBox);
+                        bindingCheckbox.Mode = BindingMode.TwoWay;
+                        cb.Bind(VBCheckBox.IsCheckedProperty, bindingCheckbox);
+
+                        Binding bindingEnabled = new Binding(nameof(VBCheckBox.IsEnabled));
+                        bindingEnabled.Mode = BindingMode.OneWay;
+                        cb.Bind(VBCheckBox.IsEnabledProperty, bindingEnabled);
+                        
+                        cb.SetValue(Grid.ColumnProperty, 0);
+                        cb.Click += cb_Click;
+
+                        VBTextBlock tb = new VBTextBlock();
+                        tb.SetValue(Grid.ColumnProperty, 1);
+                        Binding binding = new Binding(propertyPath);
+                        binding.Mode = BindingMode.OneWay;
+                        tb.Bind(VBTextBlock.TextProperty, binding);
+
+                        g.Children.Add(cb);
+                        g.Children.Add(tb);
+
+                        return g;
+                    }
+                },
+                // Items selector: get children from VBChilds property
+                item =>
+                {
+                    if (item == null || string.IsNullOrEmpty(VBChilds))
+                        return null;
+
+                    object actItem = item;
+                    string[] dataPath = VBChilds.Split('.');
+
+                    // Traverse the path except the last property
+                    for (int i = 0; i < dataPath.Length - 1; i++)
+                    {
+                        string path = dataPath[i];
+                        var prop = actItem.GetType().GetProperty(path);
+                        if (prop == null)
+                            return null;
+                        actItem = prop.GetValue(actItem, null);
+                        if (actItem == null)
+                            return null;
+                    }
+
+                    var lastProp = actItem.GetType().GetProperty(dataPath.Last());
+                    if (lastProp == null)
+                        return null;
+                    var children = lastProp.GetValue(actItem, null);
+                    return children as IEnumerable;
+                }
+            );
+
+            // // Wrap with TreeDataTemplate to enable hierarchical children
+            // var treeTemplate = new TreeDataTemplate
+            // {
+            //     Content = template,
+            //     ItemsSource = new Binding(VBChilds) // Binding to get children
+            // };
+
+            ItemTemplate = template;
         }
 
         protected override void OnLoaded(RoutedEventArgs e)
@@ -294,12 +419,12 @@ namespace gip.core.layoutengine.avui
             {
                 if (SelectedItem != null)
                 {
-                    VBTreeViewItem vbTreeViewItem = SelectedItem as VBTreeViewItem;
-                    if (vbTreeViewItem == null)
+                    IACObject modelObject = SelectedItem as IACObject;
+                    if (modelObject == null)
                         return;
-                    if (TreeValue != vbTreeViewItem)
+                    if (TreeValue != modelObject)
                     {
-                        TreeValue = vbTreeViewItem;
+                        TreeValue = modelObject;
                     }
                 }
             }
@@ -315,26 +440,28 @@ namespace gip.core.layoutengine.avui
                 {
                     case Const.CmdDeleteData:
                         {
-                            VBTreeViewItem treeItem = (VBTreeViewItem)SelectedItem;
-                            if (treeItem != null)
+                            // SelectedItem is now a model object
+                            IACObject selectedModel = SelectedItem as IACObject;
+                            if (selectedModel != null)
                             {
-                                if (treeItem.Parent is TreeView) // Root-Item
+                                var container = ContainerFromItem(selectedModel) as VBTreeViewItem;
+                                if (container != null)
                                 {
-                                    TreeView treeView = (TreeView)treeItem.Parent;
-                                    treeView.Items.Remove(treeItem);
-                                }
-                                else
-                                {
-                                    VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
-                                    if (parentTreeItem != null)
+                                    if (container.Parent is TreeView treeView) // Root-Item
                                     {
-                                        if (treeItem.Parent is VBTreeViewItem)
+                                        treeView.Items.Remove(selectedModel);
+                                    }
+                                    else if (container.Parent is VBTreeViewItem parentContainer)
+                                    {
+                                        // Get parent model object
+                                        var parentModel = parentContainer.ContentACObject;
+                                        
+                                        if (parentModel is IACContainerWithItems containerWithItems && 
+                                            selectedModel is IACContainerWithItems)
                                         {
-                                            VBTreeViewItem parentVBTreeViewItem = treeItem.Parent as VBTreeViewItem;
-                                            if (parentVBTreeViewItem.ContentACObject is IACContainerWithItems)
-                                                ((IACContainerWithItems)parentVBTreeViewItem.ContentACObject).Remove(treeItem.ContentACObject as IACContainerWithItems);
+                                            containerWithItems.Remove(selectedModel as IACContainerWithItems);
                                         }
-                                        parentTreeItem.Items.Remove(treeItem);
+                                        parentContainer.Items.Remove(selectedModel);
                                     }
                                 }
                             }
@@ -342,32 +469,25 @@ namespace gip.core.layoutengine.avui
                         break;
                     case Const.CmdNewData:
                         {
-                            VBTreeViewItem treeItem = (VBTreeViewItem)SelectedItem;
-                            if (treeItem != null)
+                            IACObject selectedModel = SelectedItem as IACObject;
+                            if (selectedModel != null && ChangeInfo.ChangedObject is IACObject newModel)
                             {
-                                if (treeItem.Parent is TreeView) // Root-Item
+                                var container = ContainerFromItem(selectedModel) as VBTreeViewItem;
+                                if (container != null)
                                 {
-                                    TreeView treeView = (TreeView)treeItem.Parent;
-                                    if (ChangeInfo.ChangedObject != null)
+                                    if (container.Parent is TreeView treeView) // Root-Item
                                     {
-                                        VBTreeViewItem newTreeItem = CreateNewTreeItem(ChangeInfo.ChangedObject);
-                                        treeView.Items.Add(newTreeItem);
-                                        newTreeItem.IsSelected = true;
-                                        newTreeItem.BringIntoView();
+                                        treeView.Items.Add(newModel);
+                                        SelectedItem = newModel;
+                                        var newContainer = ContainerFromItem(newModel) as TreeViewItem;
+                                        newContainer?.BringIntoView();
                                     }
-                                }
-                                else
-                                {
-                                    VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
-                                    if (parentTreeItem != null)
+                                    else if (container.Parent is VBTreeViewItem parentContainer)
                                     {
-                                        if (ChangeInfo.ChangedObject != null)
-                                        {
-                                            VBTreeViewItem newTreeItem = CreateNewTreeItem(ChangeInfo.ChangedObject);
-                                            parentTreeItem.Items.Add(newTreeItem);
-                                            newTreeItem.IsSelected = true;
-                                            newTreeItem.BringIntoView();
-                                        }
+                                        parentContainer.Items.Add(newModel);
+                                        SelectedItem = newModel;
+                                        var newContainer = ContainerFromItem(newModel) as TreeViewItem;
+                                        newContainer?.BringIntoView();
                                     }
                                 }
                             }
@@ -375,26 +495,20 @@ namespace gip.core.layoutengine.avui
                         break;
                     case Const.CmdInsertData:
                         {
-                            VBTreeViewItem treeItem = (VBTreeViewItem)SelectedItem;
-                            if (treeItem != null && treeItem.Parent is VBTreeViewItem)
+                            IACObject selectedModel = SelectedItem as IACObject;
+                            if (selectedModel != null && ChangeInfo.ChangedObject is IACObject newModel)
                             {
-                                VBTreeViewItem parentTreeItem = (VBTreeViewItem)treeItem.Parent;
-                                if (parentTreeItem != null)
+                                var container = ContainerFromItem(selectedModel) as VBTreeViewItem;
+                                if (container != null && container.Parent is VBTreeViewItem parentContainer)
                                 {
-                                    // Suche der Position zum einfügen
-                                    for (int i = 0; i < parentTreeItem.Items.Count; i++)
+                                    // Find the index of the selected item in parent's Items
+                                    int index = parentContainer.Items.IndexOf(selectedModel);
+                                    if (index >= 0)
                                     {
-                                        if (parentTreeItem.Items[i] == treeItem)
-                                        {
-                                            if (ChangeInfo.ChangedObject != null)
-                                            {
-                                                VBTreeViewItem newTreeItem = CreateNewTreeItem(ChangeInfo.ChangedObject);
-                                                parentTreeItem.Items.Insert(i, newTreeItem);
-                                                newTreeItem.IsSelected = true;
-                                                newTreeItem.BringIntoView();
-                                            }
-                                            break;
-                                        }
+                                        parentContainer.Items.Insert(index, newModel);
+                                        SelectedItem = newModel;
+                                        var newContainer = ContainerFromItem(newModel) as TreeViewItem;
+                                        newContainer?.BringIntoView();
                                     }
                                 }
                             }
@@ -402,59 +516,63 @@ namespace gip.core.layoutengine.avui
                         break;
                     case Const.CmdAddChildData:
                         {
-                            VBTreeViewItem treeItem = null;
+                            IACObject targetModel = null;
                             if (ChangeInfo.ParentObject != null)
                             {
-                                treeItem = (VBTreeViewItem)FindItem(Items, ChangeInfo.ParentObject);
+                                targetModel = FindItem(Items, ChangeInfo.ParentObject);
                             }
                             else
                             {
-                                treeItem = (VBTreeViewItem)SelectedItem;
+                                targetModel = SelectedItem as IACObject;
                             }
-                            if (treeItem != null)
+                            
+                            if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
                             {
-                                if (ChangeInfo.ChangedObject != null)
+                                var container = ContainerFromItem(targetModel) as VBTreeViewItem;
+                                if (container != null)
                                 {
-                                    VBTreeViewItem newTreeItem = FillChilds(treeItem.Items, ChangeInfo.ChangedObject, 1);
-                                    if (newTreeItem != null)
-                                    {
-                                        newTreeItem.IsSelected = true;
-                                        newTreeItem.BringIntoView();
-                                    }
+                                    AddModelItem(container.Items, newModel);
+                                    SelectedItem = newModel;
+                                    var newContainer = ContainerFromItem(newModel) as TreeViewItem;
+                                    newContainer?.BringIntoView();
                                 }
                             }
                         }
                         break;
                     case Const.CmdAddChildNoExpand:
                         {
-                            VBTreeViewItem treeItem = null;
+                            IACObject targetModel = null;
                             if (ChangeInfo.ParentObject != null)
-                                treeItem = (VBTreeViewItem)FindItem(Items, ChangeInfo.ParentObject);
+                                targetModel = FindItem(Items, ChangeInfo.ParentObject);
                             else
-                                treeItem = (VBTreeViewItem)SelectedItem;
+                                targetModel = SelectedItem as IACObject;
 
-                            if (treeItem != null)
-                                if (ChangeInfo.ChangedObject != null)
+                            if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
+                            {
+                                var container = ContainerFromItem(targetModel) as VBTreeViewItem;
+                                if (container != null)
                                 {
-                                    VBTreeViewItem newTreeItem = FillChilds(treeItem.Items, ChangeInfo.ChangedObject, 1);
+                                    AddModelItem(container.Items, newModel);
                                 }
+                            }
                         }
                         break;
                     case Const.CmdUpdateAllData:
                         {
-                            VBTreeViewItem treeItem = null;
-                            if (ChangeInfo.ChangedObject != null)
+                            IACObject targetModel = null;
+                            if (ChangeInfo.ChangedObject is IACObject changedModel)
                             {
-                                treeItem = (VBTreeViewItem)FindItem(Items, ChangeInfo.ChangedObject);
+                                targetModel = FindItem(Items, changedModel);
                             }
                             else
                             {
-                                treeItem = (VBTreeViewItem)SelectedItem;
+                                targetModel = SelectedItem as IACObject;
                             }
-                            if (treeItem != null)
+                            if (targetModel != null)
                             {
-                                treeItem.IsSelected = true;
-                                treeItem.BringIntoView();
+                                SelectedItem = targetModel;
+                                var container = ContainerFromItem(targetModel) as TreeViewItem;
+                                container?.BringIntoView();
                             }
                         }
                         break;
@@ -525,9 +643,14 @@ namespace gip.core.layoutengine.avui
         {
             VBTreeViewItem newTreeItem = new VBTreeViewItem(this, ContextACObject);
             newTreeItem.ContentACObject = acObject;
-            if (this.TreeItemTemplate != null)
+            if (this.ItemTemplate != null)
             {
+                // Set HeaderTemplate BEFORE Header so the ContentPresenter knows how to render it
+                newTreeItem.HeaderTemplate = this.ItemTemplate;
+                newTreeItem.Header = acObject;
+                // Also set DataContext for template bindings
                 newTreeItem.DataContext = acObject;
+                // PrepareItemContainer will be called later to set up TreeDataTemplate ItemsSource binding
                 return newTreeItem;
             }
 
@@ -665,22 +788,31 @@ namespace gip.core.layoutengine.avui
 
         private void checkChilds(VBTreeViewItem vbtvi, bool isChecked)
         {
-            foreach (VBTreeViewItem tvi in vbtvi.Items)
+            // vbtvi.Items now contains model objects, not VBTreeViewItem instances
+            foreach (var item in vbtvi.Items)
             {
-                checkChilds(tvi, isChecked);
-
-                if (tvi.ContentACObject is IVBDataCheckbox)
+                if (item is IACObject childModel)
                 {
-                    string dataContentCheckBox = ((IVBDataCheckbox)tvi.ContentACObject).DataContentCheckBox;
-                    if (!string.IsNullOrEmpty(dataContentCheckBox))
+                    // Get the container for this child model
+                    var childContainer = vbtvi.ContainerFromItem(item) as VBTreeViewItem;
+                    if (childContainer != null)
                     {
-                        Type t = tvi.ContentACObject.GetType();
-                        if (t != null)
+                        checkChilds(childContainer, isChecked);
+                    }
+
+                    if (childModel is IVBDataCheckbox checkboxItem)
+                    {
+                        string dataContentCheckBox = checkboxItem.DataContentCheckBox;
+                        if (!string.IsNullOrEmpty(dataContentCheckBox))
                         {
-                            PropertyInfo pi = t.GetProperty(dataContentCheckBox);
-                            if (pi != null)
+                            Type t = childModel.GetType();
+                            if (t != null)
                             {
-                                pi.SetValue(tvi.ContentACObject, isChecked, null);
+                                PropertyInfo pi = t.GetProperty(dataContentCheckBox);
+                                if (pi != null)
+                                {
+                                    pi.SetValue(childModel, isChecked, null);
+                                }
                             }
                         }
                     }
@@ -928,18 +1060,15 @@ namespace gip.core.layoutengine.avui
                     var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
                     foreach (var item in sorted)
                     {
-
                         _isRoot = CheckBoxLevel > 0;
-                        FillChilds(Items, item, 0);
+                        AddModelItem(Items, item);
                     }
                 }
                 else
                 {
-                    List<SortItem> sortItems = new List<SortItem>();
-
                     foreach (var item in listValues)
                     {
-                        FillChilds(Items, item as IACObject, 1);
+                        AddModelItem(Items, item as IACObject);
                     }
                 }
             }
@@ -947,34 +1076,73 @@ namespace gip.core.layoutengine.avui
             {
                 // Es gibt einen Rootknoten
                 _isRoot = CheckBoxLevel > 0;
-                FillChilds(Items, root as IACObject, 0);
+                AddModelItem(Items, root as IACObject);
             }
             if (Items.Count > 0)
             {
-                VBTreeViewItem treeItem = null;
+                IACObject itemToSelect = null;
                 if (saveACObject != null)
                 {
-                    treeItem = FindVBTreeViewItemByContent(Items, saveACObject);
+                    itemToSelect = FindItem(Items, saveACObject);
                 }
-                if (treeItem == null)
-                    treeItem = (VBTreeViewItem)Items[0];
-                treeItem.IsSelected = true;
-                treeItem.BringIntoView();
+                if (itemToSelect == null)
+                    itemToSelect = Items[0] as IACObject;
+                    
+                if (itemToSelect != null)
+                {
+                    SelectedItem = itemToSelect;
+                    // Scroll into view using the container
+                    var container = ContainerFromItem(itemToSelect) as TreeViewItem;
+                    container?.BringIntoView();
+                }
             }
         }
 
-        private VBTreeViewItem FillChilds(ItemCollection itemColletion, IACObject dataObject, int level)
+        /// <summary>
+        /// Adds a model object to the Items collection.
+        /// With TreeDataTemplate, Avalonia automatically creates containers and manages children.
+        /// </summary>
+        private void AddModelItem(ItemCollection itemCollection, IACObject dataObject)
         {
             IVBIsVisible isVisibleItem = dataObject as IVBIsVisible;
             if (isVisibleItem != null && !isVisibleItem.IsVisible)
-                return null;
-            VBTreeViewItem newTreeItem = CreateNewTreeItem(dataObject);
+                return;
+                
+            // Simply add the model object - Avalonia will create the VBTreeViewItem container
+            // and populate children via the TreeDataTemplate's ItemsSelector
+            itemCollection.Add(dataObject);
+        }
+
+        /// <summary>
+        /// Legacy method retained for compatibility with FillChildsOnItemExpand.
+        /// Adds model objects and their children to the tree when ItemTemplate is not set.
+        /// </summary>
+        private void FillChildsLegacy(ItemCollection itemCollection, IACObject dataObject, int level)
+        {
+            IVBIsVisible isVisibleItem = dataObject as IVBIsVisible;
+            if (isVisibleItem != null && !isVisibleItem.IsVisible)
+                return;
+
+            // Add the model object directly
+            itemCollection.Add(dataObject);
+            
+            // Get the container that Avalonia created for this item
+            var container = ContainerFromItem(dataObject) as VBTreeViewItem;
+            if (container == null)
+                return;
+                
             if (level < ExpandLevel)
             {
-                newTreeItem.IsExpanded = true;
+                container.IsExpanded = true;
             }
-            itemColletion.Add(newTreeItem);
 
+            // When using ItemTemplate (TreeDataTemplate), children are populated automatically
+            if (this.ItemTemplate != null)
+            {
+                return;
+            }
+
+            // For legacy mode without ItemTemplate, manually populate children
             object actItem = dataObject;
             string[] dataPath = VBChilds.Split('.');
 
@@ -988,10 +1156,8 @@ namespace gip.core.layoutengine.avui
             Type t1 = actItem.GetType();
             PropertyInfo pi = t1.GetProperty(dataPath.Last());
             Object o2 = pi.GetValue(actItem, null);
-            if (o2 is IEnumerable)
+            if (o2 is IEnumerable && container != null)
             {
-                // TODO: Sortierung der Elemente
-                // Es gibt keinen Rootknoten
                 var listValues = o2 as IEnumerable;
                 if (!string.IsNullOrEmpty(SortOrder))
                 {
@@ -1005,23 +1171,20 @@ namespace gip.core.layoutengine.avui
                     var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
                     foreach (var item in sorted)
                     {
-                        FillChilds(newTreeItem.Items, item, level + 1);
+                        FillChildsLegacy(container.Items, item, level + 1);
                     }
                 }
                 else
                 {
-                    List<SortItem> sortItems = new List<SortItem>();
-
                     foreach (var item in listValues)
                     {
-                        FillChilds(newTreeItem.Items, item as IACObject, level + 1);
+                        FillChildsLegacy(container.Items, item as IACObject, level + 1);
                     }
                 }
             }
-            return newTreeItem;
         }
 
-        internal VBTreeViewItem FillChildsOnItemExpand(VBTreeViewItem expandedItem)
+        internal void FillChildsOnItemExpand(VBTreeViewItem expandedItem)
         {
             expandedItem.IsExpanded = true;
             object actItem = expandedItem.ContentACObject;
@@ -1054,51 +1217,16 @@ namespace gip.core.layoutengine.avui
                     var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
                     foreach (var item in sorted)
                     {
-                        FillChilds(expandedItem.Items, item, 1);
+                        FillChildsLegacy(expandedItem.Items, item, 1);
                     }
                 }
                 else
                 {
-                    List<SortItem> sortItems = new List<SortItem>();
-
                     foreach (var item in listValues)
                     {
-                        FillChilds(expandedItem.Items, item as IACObject, 1);
+                        FillChildsLegacy(expandedItem.Items, item as IACObject, 1);
                     }
                 }
-            }
-            return expandedItem;
-        }
-
-        /// <summary>
-        /// Sucht das VBTreeViewItem in dem das acObject gefunden wird
-        /// </summary>
-        /// <param name="itemColletion"></param>
-        /// <param name="acObject"></param>
-        /// <returns></returns>
-        private VBTreeViewItem FindVBTreeViewItemByContent(ItemCollection itemColletion, IACObject acObject)
-        {
-            if (acObject is IACContainerWithItems)
-            {
-                foreach (var item in itemColletion)
-                {
-                    VBTreeViewItem vbTreeViewItem = item as VBTreeViewItem;
-                    if (vbTreeViewItem.ContentACObject is IACContainerWithItems)
-                    {
-                        if ((acObject as IACContainerWithItems).Value == (vbTreeViewItem.ContentACObject as IACContainerWithItems).Value)
-                        {
-                            return vbTreeViewItem;
-                        }
-                    }
-                    var result = FindVBTreeViewItemByContent(vbTreeViewItem.Items, acObject);
-                    if (result != null)
-                        return result;
-                }
-                return null;
-            }
-            else
-            {
-                return null;
             }
         }
 
@@ -1115,7 +1243,7 @@ namespace gip.core.layoutengine.avui
                 if (thumb != null && thumb.TemplatedParent != null && thumb.TemplatedParent is ScrollBar)
                     return;
 
-                VBTreeViewItem vbTreeViewItem = SelectedItem as VBTreeViewItem;
+                VBTreeViewItem vbTreeViewItem = SelectedTreeViewItemContainer;
                 if (vbTreeViewItem != null)
                 {
                     UpdateValue(true);
@@ -1141,42 +1269,64 @@ namespace gip.core.layoutengine.avui
                 return;
             if (TreeValue != null)
             {
-                if (always || ContextACObject.ACUrlCommand(VBContent, null) != TreeValue.ContentACObject)
+                if (always || ContextACObject.ACUrlCommand(VBContent, null) != TreeValue)
                 {
-                    ContextACObject.ACUrlCommand(VBContent, TreeValue.ContentACObject);
+                    ContextACObject.ACUrlCommand(VBContent, TreeValue);
                 }
             }
-            else
+            else if (SelectedItem is IACObject selectedModel)
             {
-                VBTreeViewItem value = (VBTreeViewItem)SelectedItem;
-                if (always || ContextACObject.ACUrlCommand(VBContent, null) != value.ContentACObject)
+                if (always || ContextACObject.ACUrlCommand(VBContent, null) != selectedModel)
                 {
-                    ContextACObject.ACUrlCommand(VBContent, value.ContentACObject);
+                    ContextACObject.ACUrlCommand(VBContent, selectedModel);
                 }
             }
         }
 
         /// <summary>
-        /// Finds the tree view item in the collection.
+        /// Finds the model object in the Items collection.
         /// </summary>
         /// <param name="itemCollection">The items collection.</param>
-        /// <param name="acObject">The acObject.</param>
-        /// <returns>TreeViewItem if it was found, otherwise false.</returns>
-        public TreeViewItem FindItem(ItemCollection itemCollection, IACObject acObject)
+        /// <param name="acObject">The acObject to find.</param>
+        /// <returns>The model object if found, otherwise null.</returns>
+        public IACObject FindItem(ItemCollection itemCollection, IACObject acObject)
         {
             foreach (var item in itemCollection)
             {
-                VBTreeViewItem vbTreeViewItem = item as VBTreeViewItem;
-
-                if (vbTreeViewItem.ContentACObject == acObject)
-                    return vbTreeViewItem;
-                TreeViewItem treeViewItem = FindItem(vbTreeViewItem.Items, acObject);
-                if (treeViewItem != null)
-                    return treeViewItem;
+                // Items now contain model objects (IACObject), not VBTreeViewItem
+                if (item is IACObject modelObject)
+                {
+                    if (modelObject == acObject)
+                        return modelObject;
+                        
+                    // For hierarchical items, get the children using VBChilds property
+                    var container = ContainerFromItem(item);
+                    if (container is TreeViewItem treeItem)
+                    {
+                        IACObject found = FindItem(treeItem.Items, acObject);
+                        if (found != null)
+                            return found;
+                    }
+                }
             }
             return null;
         }
 
+        /// <summary>
+        /// Gets the container (VBTreeViewItem) for the currently selected model object.
+        /// </summary>
+        protected VBTreeViewItem SelectedTreeViewItemContainer
+        {
+            get
+            {
+                if (SelectedItem == null)
+                    return null;
+                    
+                // SelectedItem is now a model object, get its container
+                var container = ContainerFromItem(SelectedItem);
+                return container as VBTreeViewItem;
+            }
+        }
 
         #region DragAndDrop
         /// <summary>

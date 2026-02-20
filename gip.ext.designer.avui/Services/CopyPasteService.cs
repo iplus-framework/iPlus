@@ -7,7 +7,7 @@ using System.Windows;
 using Avalonia.Controls;
 using System.Threading.Tasks;
 
-namespace WpfDesign.Designer.Services
+namespace gip.ext.designer.avui.Services
 {
 	public class CopyPasteService : ICopyPasteService
 	{

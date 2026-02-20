@@ -1269,6 +1269,10 @@ namespace gip.core.datamodel
             ("<Style", "<ControlTheme"),
             ("</Style", "</ControlTheme"),    
             (" Style=", " Theme="),    
+            (".TreeItemTemplate", ".ItemTemplate"),
+            ("VirtualizingStackPanel.IsVirtualizing=\"True\"", "" ),
+            ("EnableRowVirtualization=\"True\"", "" ),
+            ("VirtualizingStackPanel.VirtualizationMode=\"TRecyclinge\"", "" )
         };
 
         #endregion

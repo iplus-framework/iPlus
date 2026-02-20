@@ -68,6 +68,7 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
         <Setter Property="BorderThickness" Value="1,1,1,1"/>
         <Setter Property="Padding" Value="1,0,0,0"/>
         <Setter Property="Foreground" Value="White"/>
+        <Setter Property="HorizontalAlignment" Value= "Left"/>
         <Setter Property="Template">
             <ControlTemplate>
                 <StackPanel>
@@ -88,10 +89,14 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
                                           Grid.Column="0"
                                           ClickMode="Press"
                                           IsChecked="{TemplateBinding IsExpanded, Mode=TwoWay}"
-                                          Theme="{StaticResource ExpandCollapseToggleStyle}"/>
+                                          Theme="{StaticResource ExpandCollapseToggleStyle}"
+                                          VerticalAlignment="Top"/>
                             <ContentPresenter x:Name="PART_HeaderPresenter"
                                               Grid.Column="1"
                                               Content="{TemplateBinding Header}"
+                                              ContentTemplate="{TemplateBinding HeaderTemplate}"
+                                              HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                                              VerticalAlignment="{TemplateBinding VerticalAlignment}"
                                               Padding="{TemplateBinding Padding}"
                                               Margin="6,0,6,0" />
                         </Grid>

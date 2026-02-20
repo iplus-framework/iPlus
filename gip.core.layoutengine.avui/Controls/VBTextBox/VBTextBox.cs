@@ -102,7 +102,8 @@ namespace gip.core.layoutengine.avui
             {
                 binding = new Binding
                 {
-                    Path = VBContent
+                    Path = VBContent,
+                    UpdateSourceTrigger = TransferOnLostFocus ? UpdateSourceTrigger.LostFocus : UpdateSourceTrigger.Default
                 };
                 this.Bind(TextBox.TextProperty, binding);
                 UpdateControlMode();
@@ -168,7 +169,8 @@ namespace gip.core.layoutengine.avui
                 {
                     Source = dcSource,
                     Path = dcPath,
-                    Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay
+                    Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay,
+                    UpdateSourceTrigger = TransferOnLostFocus ? UpdateSourceTrigger.LostFocus : UpdateSourceTrigger.Default
                 };
                 
                 if (!String.IsNullOrEmpty(VBValidation))
@@ -490,38 +492,21 @@ namespace gip.core.layoutengine.avui
         }
         #endregion
 
-        #region Mask-Handling
-        #region IncludePrompt
+        #region TransferOnLostFocus
 
-        public static readonly StyledProperty<bool> IncludePromptProperty = 
-            AvaloniaProperty.Register<VBTextBox, bool>(nameof(IncludePrompt), false);
+        public static readonly StyledProperty<bool> TransferOnLostFocusProperty = 
+            AvaloniaProperty.Register<VBTextBox, bool>(nameof(TransferOnLostFocus), true);
         [Category("VBControl")]
         [Bindable(true)]
         [ACPropertyInfo(9999)]
-        public bool IncludePrompt
+        public bool TransferOnLostFocus
         {
-            get { return GetValue(IncludePromptProperty); }
-            set { SetValue(IncludePromptProperty, value); }
-        }
-
-        #endregion //IncludePrompt
-
-        #region IncludeLiterals
-
-        public static readonly StyledProperty<bool> IncludeLiteralsProperty = 
-            AvaloniaProperty.Register<VBTextBox, bool>(nameof(IncludeLiterals), true);
-        [Category("VBControl")]
-        [Bindable(true)]
-        [ACPropertyInfo(9999)]
-        public bool IncludeLiterals
-        {
-            get { return GetValue(IncludeLiteralsProperty); }
-            set { SetValue(IncludeLiteralsProperty, value); }
+            get { return GetValue(TransferOnLostFocusProperty); }
+            set { SetValue(TransferOnLostFocusProperty, value); }
         }
 
 
-        #endregion //IncludeLiterals
-        #endregion
+        #endregion //TransferOnLostFocus
 
         #region Mask
         /// <summary>

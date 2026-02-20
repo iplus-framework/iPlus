@@ -57,9 +57,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <AvaloniaResource Include="Images\Tag.png" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
     <ProjectReference Include="..\gip.ext.design.avui\gip.ext.design.avui.csproj" />
     <ProjectReference Include="..\gip.ext.graphics.avui\gip.ext.graphics.avui.csproj" />
@@ -97,15 +94,7 @@
     <AvaloniaXaml Remove="Controls\ColorPicker.axaml" />
   </ItemGroup>  
   <ItemGroup>
-    <AvaloniaResource Include="Images\Class.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="Images\PanToolCursor.cur" />
-    <AvaloniaResource Include="Images\PanToolCursorMouseDown.cur" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="Images\ZoomIn.png" />
-    <AvaloniaResource Include="Images\ZoomOut.png" />
+    <AvaloniaResource Include="Images\**"/>
   </ItemGroup>
   <ItemGroup>
     <CodeAnalysisDictionary Include="Configuration\CodeAnalysisDictionary.xml" />
@@ -114,12 +103,6 @@
     <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="Images\CursorEditNode.cur" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaResource Include="Images\CursorInsertPoint.cur" />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">

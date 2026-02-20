@@ -23967,8 +23967,7 @@
           <xs:element name="VBTextBox.WidthContentMax" type="dDoubleContainer" />
           <xs:element name="VBTextBox.WidthPadding" type="dGridLengthContainer" />
           <xs:element name="VBTextBox.TextAlignmentCaption" />
-          <xs:element name="VBTextBox.IncludePrompt" />
-          <xs:element name="VBTextBox.IncludeLiterals" />
+          <xs:element name="VBTextBox.TransferOnLostFocus" />
           <xs:element name="VBTextBox.Mask" />
           <xs:element name="VBTextBox.StringFormat" />
           <xs:element name="VBTextBox.ACCaption" />
@@ -24098,8 +24097,7 @@
           </xs:annotation>
         </xs:attribute>
         <xs:attribute name="TextAlignmentCaption" type="vb:enumTextAlignment" />
-        <xs:attribute name="IncludePrompt" type="frlrfSystemBooleanClassTopic" />
-        <xs:attribute name="IncludeLiterals" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="TransferOnLostFocus" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="Mask" />
         <xs:attribute name="StringFormat">
           <xs:annotation>
@@ -24277,8 +24275,7 @@
           <xs:element name="VBTextBox2.WidthContentMax" type="dDoubleContainer" />
           <xs:element name="VBTextBox2.WidthPadding" type="dGridLengthContainer" />
           <xs:element name="VBTextBox2.TextAlignmentCaption" />
-          <xs:element name="VBTextBox2.IncludePrompt" />
-          <xs:element name="VBTextBox2.IncludeLiterals" />
+          <xs:element name="VBTextBox2.TransferOnLostFocus" />
           <xs:element name="VBTextBox2.Mask" />
           <xs:element name="VBTextBox2.StringFormat" />
           <xs:element name="VBTextBox2.ACCaption" />
@@ -24414,8 +24411,7 @@
         <xs:attribute name="WidthContentMax" />
         <xs:attribute name="WidthPadding" />
         <xs:attribute name="TextAlignmentCaption" type="vb:enumTextAlignment" />
-        <xs:attribute name="IncludePrompt" type="frlrfSystemBooleanClassTopic" />
-        <xs:attribute name="IncludeLiterals" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="TransferOnLostFocus" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="Mask" />
         <xs:attribute name="StringFormat" />
         <xs:attribute name="ACCaption" />
@@ -24547,8 +24543,7 @@
           <xs:element name="VBTextBox3.WidthContentMax" type="dDoubleContainer" />
           <xs:element name="VBTextBox3.WidthPadding" type="dGridLengthContainer" />
           <xs:element name="VBTextBox3.TextAlignmentCaption" />
-          <xs:element name="VBTextBox3.IncludePrompt" />
-          <xs:element name="VBTextBox3.IncludeLiterals" />
+          <xs:element name="VBTextBox3.TransferOnLostFocus" />
           <xs:element name="VBTextBox3.Mask" />
           <xs:element name="VBTextBox3.StringFormat" />
           <xs:element name="VBTextBox3.ACCaption" />
@@ -24687,8 +24682,7 @@
         <xs:attribute name="WidthContentMax" />
         <xs:attribute name="WidthPadding" />
         <xs:attribute name="TextAlignmentCaption" type="vb:enumTextAlignment" />
-        <xs:attribute name="IncludePrompt" type="frlrfSystemBooleanClassTopic" />
-        <xs:attribute name="IncludeLiterals" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="TransferOnLostFocus" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="Mask" />
         <xs:attribute name="StringFormat" />
         <xs:attribute name="ACCaption" />
@@ -31016,8 +31010,7 @@
           <xs:element name="VBTextBoxEditor.WidthContentMax" type="dDoubleContainer" />
           <xs:element name="VBTextBoxEditor.WidthPadding" type="dGridLengthContainer" />
           <xs:element name="VBTextBoxEditor.TextAlignmentCaption" />
-          <xs:element name="VBTextBoxEditor.IncludePrompt" />
-          <xs:element name="VBTextBoxEditor.IncludeLiterals" />
+          <xs:element name="VBTextBoxEditor.TransferOnLostFocus" />
           <xs:element name="VBTextBoxEditor.Mask" />
           <xs:element name="VBTextBoxEditor.StringFormat" />
           <xs:element name="VBTextBoxEditor.ACCaption" />
@@ -31131,8 +31124,7 @@
         <xs:attribute name="WidthContentMax" />
         <xs:attribute name="WidthPadding" />
         <xs:attribute name="TextAlignmentCaption" type="vb:enumTextAlignment" />
-        <xs:attribute name="IncludePrompt" type="frlrfSystemBooleanClassTopic" />
-        <xs:attribute name="IncludeLiterals" type="frlrfSystemBooleanClassTopic" />
+        <xs:attribute name="TransferOnLostFocus" type="frlrfSystemBooleanClassTopic" />
         <xs:attribute name="Mask" />
         <xs:attribute name="StringFormat" />
         <xs:attribute name="ACCaption" />

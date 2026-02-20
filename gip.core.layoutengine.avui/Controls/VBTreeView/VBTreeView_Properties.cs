@@ -99,22 +99,6 @@ namespace gip.core.layoutengine.avui
         }
 
         /// <summary>
-        /// Represents the styled property for TreeItemTemplate.
-        /// </summary>
-        public static readonly StyledProperty<IDataTemplate> TreeItemTemplateProperty =
-            AvaloniaProperty.Register<VBTreeView, IDataTemplate>(nameof(TreeItemTemplate));
-
-        /// <summary>
-        /// Gets or sets the data template for tree items in this control. 
-        /// </summary>
-        [Category("VBControl")]
-        public IDataTemplate TreeItemTemplate
-        {
-            get => GetValue(TreeItemTemplateProperty);
-            set => SetValue(TreeItemTemplateProperty, value);
-        }
-
-        /// <summary>
         /// Represents the styled property for DisableContextMenu.
         /// </summary>
         public static readonly StyledProperty<bool> DisableContextMenuProperty = 
@@ -535,13 +519,13 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Represents the styled property for the TreeValue.
         /// </summary>
-        public static readonly StyledProperty<VBTreeViewItem> TreeValueProperty =
-            AvaloniaProperty.Register<VBTreeView, VBTreeViewItem>(nameof(TreeValue));
+        public static readonly StyledProperty<IACObject> TreeValueProperty =
+            AvaloniaProperty.Register<VBTreeView, IACObject>(nameof(TreeValue));
 
         /// <summary>
-        /// Gets or sets the TreeValue.
+        /// Gets or sets the TreeValue (the selected model object).
         /// </summary>
-        public VBTreeViewItem TreeValue
+        public IACObject TreeValue
         {
             get => GetValue(TreeValueProperty);
             set => SetValue(TreeValueProperty, value);

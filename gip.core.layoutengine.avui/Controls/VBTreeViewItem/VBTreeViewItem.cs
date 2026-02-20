@@ -9,10 +9,12 @@ using System.Transactions;
 using Avalonia.Controls;
 using Avalonia;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Templates;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Data;
 using Avalonia.Interactivity;
 using Avalonia.Input;
+using Avalonia.LogicalTree;
 
 namespace gip.core.layoutengine.avui
 {
@@ -139,7 +141,7 @@ namespace gip.core.layoutengine.avui
 
             if (treeView != null)
             {
-                if (treeView.TreeItemTemplate != null)
+                if (treeView.ItemTemplate != null)
                 {
                     VBStaticResourceExtension.DataTemplateContext = this.DataContext;
                     try
@@ -199,7 +201,9 @@ namespace gip.core.layoutengine.avui
             VBTreeView vbTreeView = ((VBTreeView)ParentACElement);
             if (vbTreeView == null)
                 return;
-            if (ContentACObject != null && vbTreeView.TreeItemTemplate is DataTemplate && ContentACObject is IVBDataCheckbox && ((IVBDataCheckbox)ContentACObject).DataContentCheckBox == "IsChecked")
+            if (ContentACObject != null 
+            && vbTreeView.ItemTemplate is DataTemplate
+            && ContentACObject is IVBDataCheckbox && ((IVBDataCheckbox)ContentACObject).DataContentCheckBox == "IsChecked")
             {
                 VBCheckBox vbCheckBox = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(this, "VBCheckBox") as VBCheckBox;
                 if (vbCheckBox != null)
@@ -491,6 +495,31 @@ namespace gip.core.layoutengine.avui
         /// Determines is tree filled or not.
         /// </summary>
         public bool IsTreeFilled = false;
+
+        /// <summary>
+        /// Prepares the item container for display with the specified parent ItemsControl.
+        /// This is needed to properly set up TreeDataTemplate handling.
+        /// </summary>
+        /// <param name="parent">The parent ItemsControl (usually VBTreeView)</param>
+        public void PrepareItemContainerForParent(ItemsControl parent)
+        {
+            var item = Header;
+            if (item == null)
+                return;
+
+            // HeaderTemplate should already be set in CreateNewTreeItem
+            var headerTemplate = HeaderTemplate;
+            if (headerTemplate == null)
+                return;
+
+            // If it's a TreeDataTemplate, set up the ItemsSource binding for child items
+            if (headerTemplate is ITreeDataTemplate treeTemplate &&
+                treeTemplate.Match(item) &&
+                treeTemplate.ItemsSelector(item) is { } itemsBinding)
+            {
+                BindingOperations.Apply(this, ItemsSourceProperty, itemsBinding);
+            }
+        }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {

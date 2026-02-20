@@ -87,9 +87,9 @@ namespace gip.core.layoutengine.avui
 
                 ACClassDesign acClassDesign = null;
 
-                Type typeImageSource = typeof(Bitmap);
+                Type typeImageSource = typeof(IImage);
                 Type typeImageStream = typeof(Stream);
-                Type typeBrush = typeof(Brush);
+                Type typeBrush = typeof(IBrush);
                 bool needBitmap = typeImageSource.IsAssignableFrom(targetType);
                 bool needBrush = typeBrush.IsAssignableFrom(targetType);
                 bool needStream = typeImageStream.IsAssignableFrom(targetType);
@@ -128,7 +128,7 @@ namespace gip.core.layoutengine.avui
 
                         Control fwElement = targetProvider.TargetObject as Control;
                         object dtCntxt = DataTemplateContext;
-                        if (fwElement.DataContext != null)
+                        if (dtCntxt == null && fwElement.DataContext != null)
                             dtCntxt = fwElement.DataContext;
                         if (dtCntxt == null)
                             dtCntxt = Layoutgenerator.CurrentACComponent;

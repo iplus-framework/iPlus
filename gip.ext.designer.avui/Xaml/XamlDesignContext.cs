@@ -7,13 +7,10 @@ using System.Reflection;
 using System.Xml;
 using gip.ext.xamldom.avui;
 using gip.ext.designer.avui.Services;
-using gip.ext.designer.avui.Extensions;
-using gip.ext.design.avui.Extensions;
 using gip.ext.design.avui.PropertyGrid;
-using System.Threading;
-using System.Globalization;
 using gip.ext.design.avui;
 using gip.ext.designer.avui.PropertyGrid.Editors;
+using gip.ext.designer.avui.OutlineView;
 
 namespace gip.ext.designer.avui.Xaml
 {
@@ -56,10 +53,14 @@ namespace gip.ext.designer.avui.Xaml
 				throw new ArgumentNullException("loadSettings");
 			
 			this.Services.AddService(typeof(ISelectionService), new DefaultSelectionService());
+			this.Services.AddService(typeof(IComponentPropertyService), new ComponentPropertyService());	
             this.Services.AddService(typeof(IDrawingService), new DefaultDrawingService());
             this.Services.AddService(typeof(IToolService), new DefaultToolService(this));
 			this.Services.AddService(typeof(UndoService), new UndoService());
+			this.Services.AddService(typeof(ICopyPasteService), new CopyPasteService());
 			this.Services.AddService(typeof(IErrorService), new DefaultErrorService(this));
+			this.Services.AddService(typeof(IOutlineNodeService), new OutlineNode.OutlineNodeService());
+			this.Services.AddService(typeof(IOutlineNodeNameService), new OutlineNodeNameService());
 			this.Services.AddService(typeof(ViewService), new DefaultViewService(this));
 			this.Services.AddService(typeof(OptionService), new OptionService());
 

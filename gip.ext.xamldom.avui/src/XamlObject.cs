@@ -211,8 +211,13 @@ namespace gip.ext.xamldom.avui
             var properties = elementType.GetProperties();
             foreach (var property in properties)
             {
-                var contentAttrs = property.GetCustomAttributes(typeof(TemplateContentAttribute), true) as TemplateContentAttribute[];
+                var contentAttrs = property.GetCustomAttributes(typeof(ContentAttribute), true) as ContentAttribute[];
                 if (contentAttrs != null && contentAttrs.Length > 0)
+                {
+                    return property.Name;
+                }
+                var templateContentAttrs = property.GetCustomAttributes(typeof(TemplateContentAttribute), true) as TemplateContentAttribute[];
+                if (templateContentAttrs != null && templateContentAttrs.Length > 0)
                 {
                     return property.Name;
                 }
