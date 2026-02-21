@@ -20,7 +20,7 @@ namespace gip.core.layoutengine.avui
     public class CodeCompletionXsdGenerator
     {
         internal static string xsNs = "http://www.w3.org/2001/XMLSchema";
-        public static XmlQualifiedName vbNs = new XmlQualifiedName("http://www.iplus-framework.com/xaml", "vb");
+        public static XmlQualifiedName vbNs = new XmlQualifiedName("http://www.iplus-framework.com/axaml", "vb");
         public static XmlQualifiedName msNs = new XmlQualifiedName(ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace,"");
         public static string baseDir = "";
         internal static string vbSchemaPath = @"\gip.core.layoutengine.avui\VBXMLEditorSchemas\VBSchema.xsd";

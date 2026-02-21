@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.RegularExpressions;
 
 namespace gip.core.datamodel
 {
@@ -132,10 +133,39 @@ namespace gip.core.datamodel
                     {
                         avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
                     }
+                    
+                    // Apply regex and string replacements
                     foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
                     {
-                        avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
+                        if (tuple.IsRegex)
+                        {
+                            avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", tuple.WpfPattern, tuple.AvaloniaReplacement, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                        }
+                        else
+                        {
+                            avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfPattern, tuple.AvaloniaReplacement);
+                        }
                     }
+                    
+                    // Handle xmlns removal: split at first root element close, process child content only
+                    // This preserves xmlns on root element but removes from child elements
+                    if (!string.IsNullOrEmpty(avaloniaXAML))
+                    {
+                        // Find the end of the first root element tag (after all xmlns declarations)
+                        // Pattern matches up to first real element tag (not XML declarations like <?xml...?>)
+                        var rootEndMatch = Regex.Match(avaloniaXAML, @"^([\s\S]*?<[a-zA-Z][\w:]*[^>]*?>)([\s\S]*)$");
+                        if (rootEndMatch.Success)
+                        {
+                            string rootPart = rootEndMatch.Groups[1].Value;
+                            string childContent = rootEndMatch.Groups[2].Value;
+                            
+                            // Remove all xmlns declarations from child content only
+                            childContent = Regex.Replace(childContent, @"\s+xmlns:?\w*=""[^""]*""", "", RegexOptions.IgnoreCase);
+                            
+                            avaloniaXAML = rootPart + childContent;
+                        }
+                    }
+                    
                     return avaloniaXAML;
                 }
                 else
@@ -147,9 +177,13 @@ namespace gip.core.datamodel
                             continue;
                         avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
                     }
+                    // Note: Reverse conversion (Avalonia to WPF) does not support regex patterns
                     foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
                     {
-                        avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
+                        if (!tuple.IsRegex)
+                        {
+                            avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaReplacement, tuple.WpfPattern);
+                        }
                     }
                     return avaloniaXAML;
                 }

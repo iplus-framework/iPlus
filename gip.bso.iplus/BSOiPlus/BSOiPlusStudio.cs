@@ -4162,6 +4162,238 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                // ACProject operations
+                case nameof(Save):
+                case nameof(IsEnabledSave):
+                case nameof(UndoSave):
+                case nameof(IsEnabledUndoSave):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentACClass) };
+
+                case nameof(Load):
+                case nameof(IsEnabledLoad):
+                    return new string[] { nameof(SelectedACProject), nameof(CurrentACProject) };
+
+                case nameof(New):
+                case nameof(IsEnabledNew):
+                    return new string[] { }; // Checks Database.IsChanged
+
+                case nameof(NewACProjectOK):
+                case nameof(IsEnabledNewACProjectOK):
+                    return new string[] { nameof(CurrentNewACProject) };
+
+                case nameof(Delete):
+                case nameof(IsEnabledDelete):
+                case nameof(ShowProjectProperty):
+                case nameof(IsEnabledShowProjectProperty):
+                    return new string[] { nameof(CurrentACProject) };
+
+                // ACClass operations
+                case nameof(NewACClass):
+                case nameof(IsEnabledNewACClass):
+                case nameof(NewChildACClass):
+                case nameof(IsEnabledNewChildACClass):
+                case nameof(SwitchACClass):
+                case nameof(IsEnabledSwitchACClass):
+                case nameof(MoveUpInTree):
+                case nameof(IsEnabledMoveUpInTree):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentProjectItem) };
+
+                case nameof(NewACClassOK):
+                case nameof(IsEnabledNewACClassOK):
+                    return new string[] { nameof(CurrentNewACClass) };
+
+                case nameof(SwitchACClassOK):
+                case nameof(IsEnabledSwitchACClassOK):
+                    return new string[] { nameof(ACClassToSwitch), nameof(CurrentProjectItem) };
+
+                case nameof(DeleteACClass):
+                case nameof(IsEnabledDeleteACClass):
+                case nameof(DropACClass):
+                case nameof(IsEnabledDropACClass):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentProjectItem), nameof(CurrentACClass) };
+
+                case nameof(DeleteFilteredClasses):
+                case nameof(IsEnabledDeleteFilteredClasses):
+                    return new string[] { nameof(CurrentProjectItemRoot), nameof(SearchClassText) };
+
+                case nameof(CloneACClass):
+                case nameof(IsEnabledCloneACClass):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentProjectItem), nameof(CurrentACClass) };
+
+                case nameof(CloneDialogOK):
+                case nameof(IsEnabledCloneDialogOK):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentProjectItem), nameof(CurrentACClass), nameof(CloneData) };
+
+                case nameof(StartBSO):
+                case nameof(IsEnabledStartBSO):
+                    return new string[] { nameof(CurrentACClass) };
+
+                case nameof(StartInstance):
+                case nameof(IsEnabledStartInstance):
+                case nameof(StopInstance):
+                case nameof(IsEnabledStopInstance):
+                case nameof(ReloadInstance):
+                case nameof(IsEnabledReloadInstance):
+                    return new string[] { nameof(CurrentProjectItem) };
+
+                case nameof(ModifyACClass):
+                    return new string[] { nameof(SelectedACClassHierarchy) };
+
+                // ACClassMethod operations
+                case nameof(LoadACClassMethod):
+                case nameof(IsEnabledLoadACClassMethod):
+                    return new string[] { nameof(SelectedACClassMethod) };
+
+                case nameof(NewWorkACClassMethod):
+                case nameof(IsEnabledNewWorkACClassMethod):
+                case nameof(NewScriptACClassMethod):
+                case nameof(IsEnabledNewScriptACClassMethod):
+                case nameof(NewScriptClientACClassMethod):
+                case nameof(IsEnabledNewScriptClientACClassMethod):
+                case nameof(GenerateExecuteHandler):
+                    return new string[] { nameof(CurrentACClass) };
+
+                case nameof(NewPreACClassMethod):
+                case nameof(IsEnabledNewPreACClassMethod):
+                case nameof(NewPostACClassMethod):
+                case nameof(IsEnabledNewPostACClassMethod):
+                case nameof(DeleteACClassMethod):
+                case nameof(IsEnabledDeleteACClassMethod):
+                case nameof(CompileACClassMethod):
+                case nameof(IsEnabledCompileACClassMethod):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentACClassMethod) };
+
+                case nameof(NewOnSetPropertyACClassMethod):
+                case nameof(IsEnabledNewOnSetPropertyACClassMethod):
+                case nameof(NewOnSetPropertyNetACClassMethod):
+                case nameof(IsEnabledNewOnSetPropertyNetACClassMethod):
+                case nameof(NewOnSetPointACClassMethod):
+                case nameof(IsEnabledNewOnSetPointACClassMethod):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentACClassProperty) };
+
+                // ACClassProperty operations
+                case nameof(NewACClassProperty):
+                case nameof(IsEnabledNewACClassProperty):
+                case nameof(DropPBACClassProperty):
+                    return new string[] { nameof(CurrentACClass) };
+
+                case nameof(DeleteACClassProperty):
+                case nameof(IsEnabledDeleteACClassProperty):
+                case nameof(RemovePropertyBinding):
+                case nameof(IsEnabledRemovePropertyBinding):
+                case nameof(NewPointStateInfo):
+                case nameof(IsEnabledNewPointStateInfo):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentACClassProperty) };
+
+                case nameof(RemovePropertyRelationTo):
+                case nameof(IsEnabledRemovePropertyRelationTo):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentPropertyRelationTo) };
+
+                case nameof(RemovePropertyRelationFrom):
+                case nameof(IsEnabledRemovePropertyRelationFrom):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentPropertyRelationFrom) };
+
+                case nameof(DeletePointStateInfo):
+                case nameof(IsEnabledDeletePointStateInfo):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentACClassProperty), nameof(CurrentPointStateInfo) };
+
+                // ACClassDesign operations
+                case nameof(LoadACClassDesign):
+                case nameof(IsEnabledLoadACClassDesign):
+                    return new string[] { nameof(SelectedACClassDesign) };
+
+                case nameof(NewACClassDesign):
+                case nameof(IsEnabledNewACClassDesign):
+                    return new string[] { nameof(CurrentACClass) };
+
+                case nameof(NewACClassDesignOK):
+                case nameof(IsEnabledNewACClassDesignOK):
+                case nameof(NewACClassDesignCancel):
+                    return new string[] { nameof(CurrentNewACClassDesign) };
+
+                case nameof(DeleteACClassDesign):
+                case nameof(IsEnabledDeleteACClassDesign):
+                case nameof(NewMenuEntry):
+                case nameof(IsEnabledNewMenuEntry):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(CurrentACClass) };
+
+                case nameof(DuplicateDesign):
+                case nameof(IsEnabledDuplicateDesign):
+                case nameof(ImportBitmap):
+                case nameof(IsEnabledImportBitmap):
+                case nameof(GenerateIcon):
+                case nameof(IsEnabledGenerateIcon):
+                case nameof(CompileACClassDesign):
+                case nameof(IsEnabledCompileACClassDesign):
+                    return new string[] { nameof(CurrentACClassDesign) };
+
+                case nameof(DeleteMenuEntry):
+                case nameof(IsEnabledDeleteMenuEntry):
+                case nameof(InsertMenuEntry):
+                case nameof(IsEnabledInsertMenuEntry):
+                case nameof(NewChildMenuEntry):
+                case nameof(IsEnabledNewChildMenuEntry):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(CurrentSelectedMenuEntry) };
+
+                // Config operations
+                case nameof(NewConfigACClassProperty):
+                case nameof(IsEnabledNewConfigACClassProperty):
+                case nameof(NewPointConfig):
+                case nameof(IsEnabledNewPointConfig):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentConfigPointACClassProperty) };
+
+                case nameof(DeleteConfigACClassProperty):
+                case nameof(IsEnabledDeleteConfigACClassProperty):
+                    return new string[] { nameof(CurrentConfigACClassProperty) };
+
+                case nameof(DeletePointConfig):
+                case nameof(IsEnabledDeletePointConfig):
+                    return new string[] { nameof(CurrentACClass), nameof(CurrentPointConfig), nameof(CurrentConfigPointACClassProperty) };
+
+                // Translation operations
+                case nameof(NewText):
+                case nameof(IsEnabledNewText):
+                    return new string[] { nameof(ShowTextACClassText) };
+
+                case nameof(NewMessageInfo):
+                case nameof(IsEnabledNewMessageInfo):
+                case nameof(NewMessageWarning):
+                case nameof(IsEnabledNewMessageWarning):
+                case nameof(NewMessageFailure):
+                case nameof(IsEnabledNewMessageFailure):
+                case nameof(NewMessageError):
+                case nameof(IsEnabledNewMessageError):
+                case nameof(NewMessageException):
+                case nameof(IsEnabledNewMessageException):
+                case nameof(NewMessageQuestion):
+                case nameof(IsEnabledNewMessageQuestion):
+                case nameof(NewMessageStatus):
+                case nameof(IsEnabledNewMessageStatus):
+                    return new string[] { nameof(ShowTextACClassMessage) };
+
+                case nameof(NewOK):
+                case nameof(IsEnabledNewOK):
+                    return new string[] { nameof(CurrentNewACIdentifier), nameof(CurrentNewMessage) };
+
+                case nameof(DeleteACTranslation):
+                case nameof(IsEnabledDeleteACTranslation):
+                    return new string[] { nameof(CurrentACTranslation) };
+
+                case nameof(NewCustomMessage):
+                case nameof(IsEnabledNewCustomMessage):
+                    return new string[] { nameof(CustomMessagePrefix) };
+
+                case nameof(ShowClassLibrary):
+                case nameof(IsEnabledShowClassLibrary):
+                     return new string[] { nameof(CurrentACProject) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
 

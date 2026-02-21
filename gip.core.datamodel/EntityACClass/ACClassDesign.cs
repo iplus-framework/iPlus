@@ -24,6 +24,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using SkiaSharp;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 
 namespace gip.core.datamodel
 {
@@ -1223,10 +1224,39 @@ namespace gip.core.datamodel
                         {
                             avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
                         }
+                        
+                        // Apply regex and string replacements
                         foreach (var tuple in C_AvaloniaFindAndReplace)
                         {
-                            avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
+                            if (tuple.IsRegex)
+                            {
+                                avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", tuple.WpfPattern, tuple.AvaloniaReplacement, RegexOptions.Singleline | RegexOptions.IgnoreCase);
+                            }
+                            else
+                            {
+                                avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfPattern, tuple.AvaloniaReplacement);
+                            }
                         }
+                        
+                        // Handle xmlns removal: split at first root element close, process child content only
+                        // This preserves xmlns on root element but removes from child elements
+                        if (!string.IsNullOrEmpty(avaloniaXAML))
+                        {
+                            // Find the end of the first root element tag (after all xmlns declarations)
+                            // Pattern matches up to first real element tag (not XML declarations like <?xml...?>)
+                            var rootEndMatch = Regex.Match(avaloniaXAML, @"^([\s\S]*?<[a-zA-Z][\w:]*[^>]*?>)([\s\S]*)$");
+                            if (rootEndMatch.Success)
+                            {
+                                string rootPart = rootEndMatch.Groups[1].Value;
+                                string childContent = rootEndMatch.Groups[2].Value;
+                                
+                                // Remove all xmlns declarations from child content only
+                                childContent = Regex.Replace(childContent, @"\s+xmlns:?\w*=""[^""]*""", "", RegexOptions.IgnoreCase);
+                                
+                                avaloniaXAML = rootPart + childContent;
+                            }
+                        }
+                        
                         return avaloniaXAML;
                     }
                 }
@@ -1257,22 +1287,45 @@ namespace gip.core.datamodel
             base.OnPropertyChanged(propertyName);
         }
 
-        public static readonly (string WpfNamespace, string AvaloniaNamespace)[] C_AvaloniaFindAndReplace = new[]
+        public static readonly (string WpfPattern, string AvaloniaReplacement, bool IsRegex)[] C_AvaloniaFindAndReplace = new[]
         {
-            ("<Style ", "<ControlTheme "),
-            ("<Style.Setters>", "<ControlTheme.Setters>"),
-            ("</Style.Setters>", "</ControlTheme.Setters>"),
-            ("</Style>", "</ControlTheme>"),
-            ("ToolTip=", "ToolTip.Tip="),
-            ("DataGrid.Columns", "vb:VBDataGrid.Columns"),
-            ("AllowDrop=", "DragDrop.AllowDrop="),
-            ("<Style", "<ControlTheme"),
-            ("</Style", "</ControlTheme"),    
-            (" Style=", " Theme="),    
-            (".TreeItemTemplate", ".ItemTemplate"),
-            ("VirtualizingStackPanel.IsVirtualizing=\"True\"", "" ),
-            ("EnableRowVirtualization=\"True\"", "" ),
-            ("VirtualizingStackPanel.VirtualizationMode=\"TRecyclinge\"", "" )
+            // Simple string replacements (fast, non-regex)
+            ("<Style ", "<ControlTheme ", false),
+            ("<Style.Setters>", "<ControlTheme.Setters>", false),
+            ("</Style.Setters>", "</ControlTheme.Setters>", false),
+            ("</Style>", "</ControlTheme>", false),
+            ("ToolTip=", "ToolTip.Tip=", false),
+            ("DataGrid.Columns", "vb:VBDataGrid.Columns", false),
+            ("AllowDrop=", "DragDrop.AllowDrop=", false),
+            ("<Style", "<ControlTheme", false),
+            ("</Style", "</ControlTheme", false),    
+            (" Style=", " Theme=", false),    
+            (".TreeItemTemplate", ".ItemTemplate", false),
+            ("VirtualizingStackPanel.IsVirtualizing=\"True\"", "", false),
+            ("EnableRowVirtualization=\"True\"", "", false),
+            ("VirtualizingStackPanel.VirtualizationMode=\"TRecyclinge\"", "", false),
+            
+            // Regex-based patterns for complex multi-line replacements
+            (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
+            (@"<vb:VBTreeView\.ItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
+            (@"<TreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
+            (@"<TreeView\.ItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
+            (@"</DataTemplate>\s*</vb:VBTreeView\.TreeItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
+            (@"</DataTemplate>\s*</vb:VBTreeView\.ItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
+            (@"</DataTemplate>\s*</TreeView\.TreeItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
+            (@"</DataTemplate>\s*</TreeView\.ItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
+            
+            // Convert Image with VBStaticResource to VBDynamicImage (with ResourceKey parameter)
+            (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s+ResourceKey=([^,}]+)[^}]*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1VBContent=""$2""$3$4", true),
+            // Convert Image with VBStaticResource to VBDynamicImage (with positional ResourceKey)
+            (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s+([^,}]+)\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1VBContent=""$2""$3$4", true),
+            // Convert Image with VBStaticResource to VBDynamicImage (no ResourceKey - keep VBContent if already present)
+            (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1$2$3", true),
+            
+            // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
+            
+            // Remove namespace prefix from attributes (e.g., vb:VBContent= becomes VBContent=), but preserve xmlns declarations
+            (@"(\s+)(?!xmlns:)[\w]+:([\w]+)(=)", @"$1$2$3", true)
         };
 
         #endregion

@@ -26,25 +26,30 @@ namespace gip.core.layoutengine.avui
             //      <TextBox x:Name="TBAusgabe">HalliHallo</TextBox>
             //  </StackPanel>
 
+            string xmlDeclaration = "";
+            string xamlContent = xmlLayout;
+            
             // Falls <?xml ....> Deklaration
             int posXmlDekl = xmlLayout.IndexOf("<?xml");
             if (posXmlDekl >= 0)
             {
                 // Finde nächste öffnende Klammer
-                posXmlDekl = xmlLayout.IndexOf("<", posXmlDekl + 1);
-                if (posXmlDekl >= 0)
+                int posNextTag = xmlLayout.IndexOf("<", posXmlDekl + 1);
+                if (posNextTag >= 0)
                 {
-                    xmlLayout = xmlLayout.Substring(posXmlDekl);
+                    // Preserve the XML declaration
+                    xmlDeclaration = xmlLayout.Substring(0, posNextTag);
+                    xamlContent = xmlLayout.Substring(posNextTag);
                 }
             }
 
-            int pos1 = xmlLayout.IndexOf(">");
+            int pos1 = xamlContent.IndexOf(">");
             string part1 = "";
             string part2 = "";
             if (pos1 > 0)
             {
-                part1 = xmlLayout.Substring(0, pos1);
-                part2 = xmlLayout.Substring(pos1);
+                part1 = xamlContent.Substring(0, pos1);
+                part2 = xamlContent.Substring(pos1);
             }
             // Falls keine Namespace-Deklaration im Root-Element vorhanden, dann füge ein
             if (part1.IndexOf("xmlns") < 0)
@@ -54,8 +59,8 @@ namespace gip.core.layoutengine.avui
                     part1 += " " + nameSpace;
                 }
             }
-            part1 += part2;
-            return part1;
+            
+            return xmlDeclaration + part1 + part2;
         }
 
         static public ResourceDictionary LoadResource(string xmlLayout, IACObject dataContext, IACBSO bso)
@@ -69,7 +74,7 @@ namespace gip.core.layoutengine.avui
 
                 try
                 {
-                    ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(xmlLayout);
+                    ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
                     return sp;
                 }
                 catch (XmlException e)
@@ -104,7 +109,7 @@ namespace gip.core.layoutengine.avui
 
                 try
                 {
-                    Visual sp = (Visual)AvaloniaRuntimeXamlLoader.Load(xmlLayout);
+                    Visual sp = (Visual)AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
                     return sp;
                 }
                 catch (XmlException e)
@@ -136,7 +141,7 @@ namespace gip.core.layoutengine.avui
 
                 try
                 {
-                    AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(xmlLayout);
+                    AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
                     return sp;
                 }
                 catch (XmlException e)
@@ -246,7 +251,7 @@ namespace gip.core.layoutengine.avui
             //        return null;
                 try
                 {
-                    return AvaloniaRuntimeXamlLoader.Load(xmlLayout);
+                    return AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
                 }
                 catch (Exception e)
                 {

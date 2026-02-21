@@ -2632,7 +2632,7 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return "*.core.*.dll,*.bso.*.dll,*.solution.*.dll,*.variobatch.*.dll,*.mes.*.dll,*.package.*.dll,*.iplus.*.dll,*.iplusmes.*.dll,*Wpf.dll,gip.ext.graphics.dll,*datamodel.dll";
+                return "*.core.*.dll,*.bso.*.dll,*.solution.*.dll,*.variobatch.*.dll,*.mes.*.dll,*.package.*.dll,*.iplus.*.dll,*.iplusmes.*.dll,*Wpf.dll,gip.ext.graphics.dll,gip.ext.graphics.avui.dll,*datamodel.dll";
             }
         }
 

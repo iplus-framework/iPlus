@@ -1,9 +1,10 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using gip.core.datamodel;
 
 namespace gip.core.autocomponent
 {
@@ -12,7 +13,10 @@ namespace gip.core.autocomponent
         #region DockingManager
         static public string DockingManagerBegin(string name, string attributes)
         {
-            return "<vb:VBDockingManager xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:vbs=\"http://www.iplus-framework.com/shapes/xaml\" xmlns:vb=\"http://www.iplus-framework.com/xaml\" xmlns:vbr=\"http://www.iplus-framework.com/report/xaml\" xmlns:vbv=\"http://www.iplus-framework.com/visual/xaml\" x:Name=\"" + name + "\" " + attributes + ">";
+            if (Database.Root.IsAvaloniaUI)
+                return "<vb:VBDockingManager xmlns=\"https://github.com/avaloniaui\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:vbs=\"http://www.iplus-framework.com/shapes/axaml\" xmlns:vb=\"http://www.iplus-framework.com/axaml\" xmlns:vbr=\"http://www.iplus-framework.com/report/axaml\" xmlns:vbv=\"http://www.iplus-framework.com/visual/axaml\" x:Name=\"" + name + "\" " + attributes + ">";
+            else
+                return "<vb:VBDockingManager xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" xmlns:x=\"http://schemas.microsoft.com/winfx/2006/xaml\" xmlns:vbs=\"http://www.iplus-framework.com/shapes/xaml\" xmlns:vb=\"http://www.iplus-framework.com/xaml\" xmlns:vbr=\"http://www.iplus-framework.com/report/xaml\" xmlns:vbv=\"http://www.iplus-framework.com/visual/xaml\" x:Name=\"" + name + "\" " + attributes + ">";
         }
 
         static public string DockingManagerEnd()

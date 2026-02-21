@@ -1074,54 +1074,93 @@ namespace gip.bso.iplus
 
         #region Execute-Helper-Handlers
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                // ConfigACClassMethod operations
+                case nameof(NewConfigACClassMethod):
+                case nameof(IsEnabledNewConfigACClassMethod):
+                    return new string[] { nameof(CurrentACClassMethod) };
+
+                case nameof(DeleteConfigACClassMethod):
+                case nameof(IsEnabledDeleteConfigACClassMethod):
+                    return new string[] { nameof(CurrentConfigACClassMethod) };
+
+                // NewWorkACClassMethod operations
+                case nameof(NewWorkACClassMethodOK):
+                case nameof(IsEnabledNewWorkACClassMethodOK):
+                    return new string[] { nameof(CurrentNewACClassMethod), nameof(CurrentNewWFRootACClass), nameof(CurrentNewInvokingACClass) };
+
+                // ChangeRootWFClass operations
+                case nameof(ChangeRootWFClass):
+                case nameof(IsEnabledChangeRootWFClass):
+                    return new string[] { nameof(CurrentACClassMethod) };
+
+                case nameof(ChangeRootWFClassOK):
+                case nameof(IsEnabledChangeRootWFClassOK):
+                    return new string[] { nameof(CurrentACClassMethod), nameof(CurrentNewWFRootACClass) };
+
+                // Detail workflow operations
+                case nameof(ShowDetail):
+                case nameof(IsEnabledShowDetail):
+                    return new string[] { }; // Depends on VBDesignerWorkflowMethod internal state
+
+                case nameof(HideDetail):
+                case nameof(IsEnabledHideDetail):
+                    return new string[] { }; // Depends on VBPresenterMethod internal state
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;
             switch (acMethodName)
             {
-                case "NewConfigACClassMethod":
+                case nameof(NewConfigACClassMethod):
                     NewConfigACClassMethod();
                     return true;
-                case "IsEnabledNewConfigACClassMethod":
+                case nameof(IsEnabledNewConfigACClassMethod):
                     result = IsEnabledNewConfigACClassMethod();
                     return true;
-                case "DeleteConfigACClassMethod":
+                case nameof(DeleteConfigACClassMethod):
                     DeleteConfigACClassMethod();
                     return true;
-                case "IsEnabledDeleteConfigACClassMethod":
+                case nameof(IsEnabledDeleteConfigACClassMethod):
                     result = IsEnabledDeleteConfigACClassMethod();
                     return true;
-                case "NewWorkACClassMethodOK":
+                case nameof(NewWorkACClassMethodOK):
                     NewWorkACClassMethodOK();
                     return true;
-                case "IsEnabledNewWorkACClassMethodOK":
+                case nameof(IsEnabledNewWorkACClassMethodOK):
                     result = IsEnabledNewWorkACClassMethodOK();
                     return true;
-                case "NewWorkACClassMethodCancel":
+                case nameof(NewWorkACClassMethodCancel):
                     NewWorkACClassMethodCancel();
                     return true;
-                case "ChangeRootWFClass":
+                case nameof(ChangeRootWFClass):
                     ChangeRootWFClass();
                     return true;
-                case "IsEnabledChangeRootWFClass":
+                case nameof(IsEnabledChangeRootWFClass):
                     result = IsEnabledChangeRootWFClass();
                     return true;
-                case "ChangeRootWFClassOK":
+                case nameof(ChangeRootWFClassOK):
                     ChangeRootWFClassOK();
                     return true;
-                case "IsEnabledChangeRootWFClassOK":
+                case nameof(IsEnabledChangeRootWFClassOK):
                     result = IsEnabledChangeRootWFClassOK();
                     return true;
-                case "ShowDetail":
+                case nameof(ShowDetail):
                     ShowDetail();
                     return true;
-                case "IsEnabledShowDetail":
+                case nameof(IsEnabledShowDetail):
                     result = IsEnabledShowDetail();
                     return true;
-                case "HideDetail":
+                case nameof(HideDetail):
                     HideDetail();
                     return true;
-                case "IsEnabledHideDetail":
+                case nameof(IsEnabledHideDetail):
                     result = IsEnabledHideDetail();
                     return true;
             }
