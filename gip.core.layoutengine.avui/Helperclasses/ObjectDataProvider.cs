@@ -16,7 +16,7 @@ using System.Threading;
 
 namespace gip.core.layoutengine.avui
 {
-    public class ObjectDataProvider : DataSourceProvider
+    public class ObjectDataProvider : DataSourceProvider, IEnumerable
     {
         //------------------------------------------------------
         //
@@ -551,6 +551,30 @@ namespace gip.core.layoutengine.avui
         }
 
         #endregion Private Types
+
+        //------------------------------------------------------
+        //
+        //  IEnumerable Implementation
+        //
+        //------------------------------------------------------
+
+        #region IEnumerable Implementation
+
+        /// <summary>
+        /// Returns an enumerator for the Data property if it implements IEnumerable.
+        /// This allows ObjectDataProvider to be used directly with ItemsControls in Avalonia.
+        /// </summary>
+        public IEnumerator GetEnumerator()
+        {
+            if (Data is IEnumerable enumerable)
+            {
+                return enumerable.GetEnumerator();
+            }
+            // If Data is not IEnumerable, return an empty enumerator
+            return System.Linq.Enumerable.Empty<object>().GetEnumerator();
+        }
+
+        #endregion IEnumerable Implementation
 
         //------------------------------------------------------
         //

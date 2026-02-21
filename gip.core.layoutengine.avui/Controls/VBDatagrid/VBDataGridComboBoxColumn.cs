@@ -558,6 +558,7 @@ namespace gip.core.layoutengine.avui
             odp.MethodName = dscPath.Substring(1);  // "!" bei Methodenname entfernen
             Binding bindingSource = new Binding();
             bindingSource.Source = odp;
+            bindingSource.Path = nameof(odp.Data); // In Avalonia, we need to explicitly bind to the Data property
             this.Bind(ItemsSourceProperty, bindingSource);
 
             RefreshReadOnlyProperty();
