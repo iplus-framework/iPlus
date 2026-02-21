@@ -1,0 +1,31 @@
+<Solution>
+  <Folder Name="/1. Clientlayer/">
+    <Project Path="gip.iplus.console/gip.iplus.console.csproj" />
+    <Project Path="gip.iplus.service/gip.iplus.service.csproj" />
+    <Project Path="gip.iplus.startup/gip.iplus.startup.csproj" />
+  </Folder>
+  <Folder Name="/2. Businesslayer/">
+    <Project Path="gip.bso.iplus/gip.bso.iplus.csproj" />
+  </Folder>
+  <Folder Name="/3. Datalayer/">
+    <Project Path="gip.core.ControlScriptSync/gip.core.ControlScriptSync.csproj" />
+    <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
+    <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
+    <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+  </Folder>
+  <Folder Name="/Extension/" />
+  <Folder Name="/Framework/">
+    <Project Path="gip.core.archiver/gip.core.archiver.csproj" />
+    <Project Path="gip.core.autocomponent.shared/gip.core.autocomponent.shared.shproj" />
+    <Project Path="gip.core.autocomponent/gip.core.autocomponent.csproj" />
+    <Project Path="gip.core.communication/gip.core.communication.csproj" />
+    <Project Path="gip.core.crypto/gip.core.crypto.csproj" />
+    <Project Path="gip.core.manager/gip.core.manager.csproj" />
+    <Project Path="gip.core.media/gip.core.media.csproj" />
+    <Project Path="gip.core.processapplication.shared/gip.core.processapplication.shared.shproj" />
+    <Project Path="gip.core.processapplication/gip.core.processapplication.csproj" />
+    <Project Path="gip.core.reporthandler/gip.core.reporthandler.csproj" />
+    <Project Path="gip.core.webservices.shared/gip.core.webservices.shared.shproj" />
+    <Project Path="gip.core.webservices/gip.core.webservices.csproj" />
+  </Folder>
+</Solution>

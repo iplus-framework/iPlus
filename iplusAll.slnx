@@ -1,0 +1,66 @@
+<Solution>
+  <Folder Name="/1. Clientlayer/">
+    <Project Path="gip.iplus.client/gip.iplus.client.csproj" />
+    <Project Path="gip.iplus.console/gip.iplus.console.csproj" />
+    <Project Path="gip.iplus.service/gip.iplus.service.csproj" />
+    <Project Path="gip.iplus.startup/gip.iplus.startup.csproj" />
+  </Folder>
+  <Folder Name="/2. Businesslayer/">
+    <Project Path="gip.bso.iplus/gip.bso.iplus.csproj" />
+  </Folder>
+  <Folder Name="/3. Datalayer/">
+    <Project Path="gip.core.ControlScriptSync/gip.core.ControlScriptSync.csproj" />
+    <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
+    <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
+    <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+    <Project Path="gip.core.sql/gip.core.sql.sqlproj">
+      <Build />
+      <Deploy />
+    </Project>
+  </Folder>
+  <Folder Name="/Extension/">
+    <Project Path="gip.ext.chart/gip.ext.chart.csproj" />
+    <Project Path="gip.ext.design/project/gip.ext.design.csproj" />
+    <Project Path="gip.ext.designer/project/gip.ext.designer.csproj" />
+    <Project Path="gip.ext.fluent/gip.ext.fluent.csproj" />
+    <Project Path="gip.ext.graphics/gip.ext.graphics.csproj" />
+    <Project Path="gip.ext.widgets/project/gip.ext.widgets.csproj" />
+    <Project Path="gip.ext.xamldom/project/gip.ext.xamldom.csproj" />
+  </Folder>
+  <Folder Name="/Framework/">
+    <Project Path="gip.core.archiver/gip.core.archiver.csproj" />
+    <Project Path="gip.core.autocomponent.shared/gip.core.autocomponent.shared.shproj" />
+    <Project Path="gip.core.autocomponent/gip.core.autocomponent.csproj" />
+    <Project Path="gip.core.communication/gip.core.communication.csproj" />
+    <Project Path="gip.core.layoutengine/gip.core.layoutengine.csproj" />
+    <Project Path="gip.core.manager/gip.core.manager.csproj" />
+    <Project Path="gip.core.media/gip.core.media.csproj" />
+    <Project Path="gip.core.processapplication.shared/gip.core.processapplication.shared.shproj" />
+    <Project Path="gip.core.processapplication/gip.core.processapplication.csproj" />
+    <Project Path="gip.core.reporthandler/gip.core.reporthandler.csproj" />
+    <Project Path="gip.core.reporthandlerwpf/gip.core.reporthandlerwpf.csproj" />
+    <Project Path="gip.core.scichart/gip.core.scichart.csproj" />
+    <Project Path="gip.core.visualcontrols/gip.core.visualcontrols.csproj" />
+    <Project Path="gip.core.webservices.shared/gip.core.webservices.shared.shproj" />
+    <Project Path="gip.core.webservices/gip.core.webservices.csproj" />
+    <Project Path="gip.core.wpfservices/gip.core.wpfservices.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="DBSyncerUpdate.unit.test/DBSyncerUpdate.unit.test.csproj" />
+    <Project Path="gip.tool.devLicense/gip.tool.devLicense.csproj" />
+    <Project Path="gip.tool.devLicenseProvider/gip.tool.devLicenseProvider.csproj" />
+    <Project Path="gip.tool.entitywizzard/gip.tool.entitywizzard.csproj" />
+    <Project Path="gip.tool.installerAndUpdater/gip.tool.installerAndUpdater.csproj" />
+    <Project Path="gip.tool.publish/gip.tool.publish.csproj" />
+  </Folder>
+  <Folder Name="/TwinCAT/">
+    <Project Path="gip.bso.tcStudio/gip.bso.tcStudio.csproj">
+      <BuildType Project="?" />
+      <Platform Project="?" />
+      <Build Project="false" />
+    </Project>
+    <Project Path="gip.core.tcAgent/gip.core.tcAgent.csproj" />
+    <Project Path="gip.core.tcClient/gip.core.tcClient.csproj" />
+    <Project Path="gip.core.tcShared/gip.core.tcShared.csproj" />
+  </Folder>
+</Solution>

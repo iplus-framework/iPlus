@@ -45,37 +45,37 @@
     <!--<PackageReference Include="HarfBuzzSharp.NativeAssets.macOS" />-->
     <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" />
   </ItemGroup>
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseReactiveInclude.props" />
-  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaMessageBoxInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaBaseReactiveInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaMessageBoxInclude.props" />
 
   <ItemGroup>
-    <ProjectReference Include="..\gip.bso.iplus\gip.bso.iplus.csproj" />
-    <ProjectReference Include="..\gip.core.archiver\gip.core.archiver.csproj" />
-    <ProjectReference Include="..\gip.core.autocomponent\gip.core.autocomponent.csproj" />
-    <ProjectReference Include="..\gip.core.communication\gip.core.communication.csproj" />
-    <ProjectReference Include="..\gip.core.ControlScriptSync\gip.core.ControlScriptSync.csproj" />
-    <ProjectReference Include="..\gip.core.crypto\gip.core.crypto.csproj" />
-    <ProjectReference Include="..\gip.core.datamodel\gip.core.datamodel.csproj" />
-    <ProjectReference Include="..\gip.core.dbsyncer\gip.core.dbsyncer.csproj" />
-    <ProjectReference Include="..\gip.core.layoutengine.avui\gip.core.layoutengine.avui.csproj">
+    <ProjectReference Include="../gip.bso.iplus/gip.bso.iplus.csproj" />
+    <ProjectReference Include="../gip.core.archiver/gip.core.archiver.csproj" />
+    <ProjectReference Include="../gip.core.autocomponent/gip.core.autocomponent.csproj" />
+    <ProjectReference Include="../gip.core.communication/gip.core.communication.csproj" />
+    <ProjectReference Include="../gip.core.ControlScriptSync/gip.core.ControlScriptSync.csproj" />
+    <ProjectReference Include="../gip.core.crypto/gip.core.crypto.csproj" />
+    <ProjectReference Include="../gip.core.datamodel/gip.core.datamodel.csproj" />
+    <ProjectReference Include="../gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+    <ProjectReference Include="../gip.core.layoutengine.avui/gip.core.layoutengine.avui.csproj">
       <ExcludeAssets>SkiaSharp.NativeAssets.Linux</ExcludeAssets>
     </ProjectReference>
-    <ProjectReference Include="..\gip.core.manager\gip.core.manager.csproj" />
-    <ProjectReference Include="..\gip.core.processapplication\gip.core.processapplication.csproj" />
-    <ProjectReference Include="..\gip.core.reporthandler.avui\gip.core.reporthandler.avui.csproj" />
-    <ProjectReference Include="..\gip.core.visualcontrols.avui\gip.core.visualcontrols.avui.csproj" />
-    <ProjectReference Include="..\gip.core.wpfservices.avui\gip.core.wpfservices.avui.csproj" />
-    <ProjectReference Include="..\gip.ext.xamldom.avui\gip.ext.xamldom.avui.csproj" />
+    <ProjectReference Include="../gip.core.manager/gip.core.manager.csproj" />
+    <ProjectReference Include="../gip.core.processapplication/gip.core.processapplication.csproj" />
+    <ProjectReference Include="../gip.core.reporthandler.avui/gip.core.reporthandler.avui.csproj" />
+    <ProjectReference Include="../gip.core.visualcontrols.avui/gip.core.visualcontrols.avui.csproj" />
+    <ProjectReference Include="../gip.core.wpfservices.avui/gip.core.wpfservices.avui.csproj" />
+    <ProjectReference Include="../gip.ext.xamldom.avui/gip.ext.xamldom.avui.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Update="Views\LoginView.axaml.cs">
+    <Compile Update="Views/LoginView.axaml.cs">
       <DependentUpon>LoginView.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\LoginWindow.axaml.cs">
+    <Compile Update="Views/LoginWindow.axaml.cs">
       <DependentUpon>LoginWindow.axaml</DependentUpon>
     </Compile>
-    <Compile Update="Views\MainSingleView.axaml.cs">
+    <Compile Update="Views/MainSingleView.axaml.cs">
       <DependentUpon>MainSingleView.axaml</DependentUpon>
     </Compile>
   </ItemGroup>

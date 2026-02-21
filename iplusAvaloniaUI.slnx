@@ -1,0 +1,86 @@
+<Solution>
+  <Folder Name="/1. Clientlayer/">
+    <Project Path="gip.iplus.client.avui.Android/gip.iplus.client.avui.Android.csproj">
+      <Deploy Solution="Debug|*" />
+    </Project>
+    <Project Path="gip.iplus.client.avui.Browser/gip.iplus.client.avui.Browser.csproj" />
+    <Project Path="gip.iplus.client.avui.Desktop/gip.iplus.client.avui.Desktop.csproj" />
+    <Project Path="gip.iplus.client.avui.iOS/gip.iplus.client.avui.iOS.csproj" />
+    <Project Path="gip.iplus.client.avui/gip.iplus.client.avui.csproj" />
+    <Project Path="gip.iplus.console/gip.iplus.console.csproj" />
+    <Project Path="gip.iplus.service/gip.iplus.service.csproj" />
+  </Folder>
+  <Folder Name="/2. Businesslayer/">
+    <Project Path="gip.bso.iplus/gip.bso.iplus.csproj" />
+    <Project Path="gip.iplus.startup/gip.iplus.startup.csproj" />
+  </Folder>
+  <Folder Name="/3. Datalayer/">
+    <Project Path="gip.core.ControlScriptSync/gip.core.ControlScriptSync.csproj" />
+    <Project Path="gip.core.datamodel.shared/gip.core.datamodel.shared.shproj" />
+    <Project Path="gip.core.datamodel/gip.core.datamodel.csproj" />
+    <Project Path="gip.core.dbsyncer/gip.core.dbsyncer.csproj" />
+  </Folder>
+  <Folder Name="/Extension/">
+    <Project Path="gip.ext.design.avui/gip.ext.design.avui.csproj" />
+    <Project Path="gip.ext.designer.avui/gip.ext.designer.avui.csproj" />
+    <Project Path="gip.ext.graphics.avui/gip.ext.graphics.avui.csproj" />
+    <Project Path="gip.ext.xamldom.avui/gip.ext.xamldom.avui.csproj" />
+  </Folder>
+  <Folder Name="/Framework/">
+    <Project Path="gip.core.archiver/gip.core.archiver.csproj" />
+    <Project Path="gip.core.autocomponent.shared/gip.core.autocomponent.shared.shproj" />
+    <Project Path="gip.core.autocomponent/gip.core.autocomponent.csproj" />
+    <Project Path="gip.core.communication/gip.core.communication.csproj" />
+    <Project Path="gip.core.crypto/gip.core.crypto.csproj" />
+    <Project Path="gip.core.layoutengine.avui/gip.core.layoutengine.avui.csproj" />
+    <Project Path="gip.core.manager/gip.core.manager.csproj" />
+    <Project Path="gip.core.media/gip.core.media.csproj" />
+    <Project Path="gip.core.processapplication.shared/gip.core.processapplication.shared.shproj" />
+    <Project Path="gip.core.processapplication/gip.core.processapplication.csproj" />
+    <Project Path="gip.core.reporthandler.avui/gip.core.reporthandler.avui.csproj" />
+    <Project Path="gip.core.reporthandler/gip.core.reporthandler.csproj" />
+    <Project Path="gip.core.visualcontrols.avui/gip.core.visualcontrols.avui.csproj" />
+    <Project Path="gip.core.webservices.shared/gip.core.webservices.shared.shproj" />
+    <Project Path="gip.core.webservices/gip.core.webservices.csproj" />
+    <Project Path="gip.core.wpfservices.avui/gip.core.wpfservices.avui.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".mcp.json" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+  <Folder Name="/Solution Items/build/">
+    <File Path="build/Avalonia.Build.props" />
+    <File Path="build/Avalonia.Version.props" />
+    <File Path="build/AvaloniaBaseAndroidInclude.props" />
+    <File Path="build/AvaloniaBaseBrowserInclude.props" />
+    <File Path="build/AvaloniaBaseBuildServicesInclude.props" />
+    <File Path="build/AvaloniaBaseColorPickerInclude.props" />
+    <File Path="build/AvaloniaBaseCompileInclude.props" />
+    <File Path="build/AvaloniaBaseDesktopInclude.props" />
+    <File Path="build/AvaloniaBaseDiagnosticsInclude.props" />
+    <File Path="build/AvaloniaBaseFluentInclude.props" />
+    <File Path="build/AvaloniaBaseHeadlessInclude.props" />
+    <File Path="build/AvaloniaBaseInclude.props" />
+    <File Path="build/AvaloniaBaseIOSInclude.props" />
+    <File Path="build/AvaloniaBaseMarkupInclude.props" />
+    <File Path="build/AvaloniaBaseReactiveInclude.props" />
+    <File Path="build/AvaloniaBaseSkiaInclude.props" />
+    <File Path="build/AvaloniaBehavioursInclude.props" />
+    <File Path="build/AvaloniaCommandManagerInclude.props" />
+    <File Path="build/AvaloniaDataGridInclude.props" />
+    <File Path="build/AvaloniaDialogHostInclude.props" />
+    <File Path="build/AvaloniaDockInclude.props" />
+    <File Path="build/AvaloniaEditInclude.props" />
+    <File Path="build/AvaloniaInclude.props" />
+    <File Path="build/AvaloniaMarkdownInclude.props" />
+    <File Path="build/AvaloniaMessageBoxInclude.props" />
+    <File Path="build/AvaloniaOxyPlotInclude.props" />
+    <File Path="build/AvaloniaRichTextBoxInclude.props" />
+    <File Path="build/AvaloniaRoslynPadInclude.props" />
+    <File Path="build/AvaloniaSvgSkiaInclude.props" />
+    <File Path="build/Build-Avalonia.bat" />
+    <File Path="build/Build-AvaloniaProjects.ps1" />
+    <File Path="build/EntityFramework.Build.props" />
+  </Folder>
+</Solution>
