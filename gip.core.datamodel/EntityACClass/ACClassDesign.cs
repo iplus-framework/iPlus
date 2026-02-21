@@ -1253,9 +1253,61 @@ namespace gip.core.datamodel
                                 // Remove all xmlns declarations from child content only
                                 childContent = Regex.Replace(childContent, @"\s+xmlns:?\w*=""[^""]*""", "", RegexOptions.IgnoreCase);
                                 
+                                // Remove attributes' namespace prefix if it matches the root element prefix (e.g. vb: in <vb:VBButton vb:VBContent="...">)
+                                // We skip "x:" and "xmlns:" to ensure standard XAML features are preserved
+                                var nameMatch = Regex.Match(rootPart, @"<([a-zA-Z][\w.]*):[a-zA-Z][\w.]*");
+                                if (nameMatch.Success)
+                                {
+                                    string rootPrefix = nameMatch.Groups[1].Value;
+                                    if (!string.Equals(rootPrefix, "x", StringComparison.OrdinalIgnoreCase) && 
+                                        !string.Equals(rootPrefix, "xmlns", StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        // Pattern matches the prefix only if the attribute name does NOT contain a dot
+                                        // This ensures simple attributes like vb:VBContent become VBContent,
+                                        // but attached properties like vb:VBDockingManager.IsCloseableBSORoot are preserved.
+                                        string prefixAttrPattern = @"(\s+)" + Regex.Escape(rootPrefix) + @":([\w]+)(=)";
+                                        rootPart = Regex.Replace(rootPart, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
+                                        childContent = Regex.Replace(childContent, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
+                                    }
+                                }
+
                                 avaloniaXAML = rootPart + childContent;
                             }
                         }
+
+                        // Convert decimal CenterX/Y to percentage (e.g., 0.669 -> 67)
+                        // This handles the conversion from WPF's 0.0-1.0 coordinate system to Avalonia's percentage-based values where required
+                        avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", @"\b(Center[XY])=""0\.(\d+)""", m =>
+                        {
+                            string attr = m.Groups[1].Value;
+                            string decimals = m.Groups[2].Value;
+                            if (double.TryParse("0." + decimals, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double val))
+                            {
+                                int percent = (int)Math.Round(val * 100);
+                                return $"{attr}=\"{percent}\"";
+                            }
+                            return m.Value;
+                        }, RegexOptions.IgnoreCase);
+
+                        // Convert decimal StartPoint/EndPoint to percentage (e.g., 0.46,1.0 -> 46%,100%)
+                        // This handles the conversion of relative points in brushes to percentage-based strings required for Avalonia
+                        avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", @"\b(StartPoint|EndPoint)=""([^""]+)""", m =>
+                        {
+                            string attr = m.Groups[1].Value;
+                            string points = m.Groups[2].Value;
+                            var coords = points.Split(',');
+                            if (coords.Length == 2)
+                            {
+                                if (double.TryParse(coords[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double x) &&
+                                    double.TryParse(coords[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double y))
+                                {
+                                    int px = (int)Math.Round(x * 100);
+                                    int py = (int)Math.Round(y * 100);
+                                    return $"{attr}=\"{px}%,{py}%\"";
+                                }
+                            }
+                            return m.Value;
+                        }, RegexOptions.IgnoreCase);
                         
                         return avaloniaXAML;
                     }
@@ -1304,7 +1356,14 @@ namespace gip.core.datamodel
             ("VirtualizingStackPanel.IsVirtualizing=\"True\"", "", false),
             ("EnableRowVirtualization=\"True\"", "", false),
             ("VirtualizingStackPanel.VirtualizationMode=\"TRecyclinge\"", "", false),
-            
+            (" Key=\"", " x:Key=\"", false),
+            (" RelativeTransform=\"Identity\"", "", false),
+            (" ColorInterpolationMode=\"SRgbLinearInterpolation\"", "", false),
+            (" MappingMode=\"RelativeToBoundingBox\"", "", false),
+            ("LinearGradientBrush.RelativeTransform", "LinearGradientBrush.Transform", false),
+            ("Property=\"X2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"1,0\"", false),
+            ("Property=\"Y2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"0,1\"", false),
+                        
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
             (@"<vb:VBTreeView\.ItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
@@ -1315,6 +1374,10 @@ namespace gip.core.datamodel
             (@"</DataTemplate>\s*</TreeView\.TreeItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
             (@"</DataTemplate>\s*</TreeView\.ItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
             
+            // Remove CenterX and CenterY from SkewTransform
+            (@"<SkewTransform\s+([^>]*?)CenterX=""[^""]*""\s*", @"<SkewTransform $1", true),
+            (@"<SkewTransform\s+([^>]*?)CenterY=""[^""]*""\s*", @"<SkewTransform $1", true),
+
             // Convert Image with VBStaticResource to VBDynamicImage (with ResourceKey parameter)
             (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s+ResourceKey=([^,}]+)[^}]*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1VBContent=""$2""$3$4", true),
             // Convert Image with VBStaticResource to VBDynamicImage (with positional ResourceKey)
@@ -1323,9 +1386,6 @@ namespace gip.core.datamodel
             (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1$2$3", true),
             
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
-            
-            // Remove namespace prefix from attributes (e.g., vb:VBContent= becomes VBContent=), but preserve xmlns declarations
-            (@"(\s+)(?!xmlns:)[\w]+:([\w]+)(=)", @"$1$2$3", true)
         };
 
         #endregion
