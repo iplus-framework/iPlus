@@ -400,38 +400,52 @@ namespace gip.core.layoutengine.avui
                 }
             }
 
+            bool hasUserSpecificDesign = false;
             if (ContentACObject != null)
             {
-                xaml = ContentACObject.XAMLDesign;
-                if (!String.IsNullOrEmpty(xaml))
+                // Check if ContentACObject is ACClassDesign and if user has a customized design
+                if (ContextACObject != null && ContentACObject is ACClassDesign)
                 {
-                    if (ContextACObject != null && ContentACObject is ACClassDesign)
+                    ACClassDesign = ContentACObject as ACClassDesign;
+                    var query = ACClassDesign.VBUserACClassDesign_ACClassDesign.Where(c => c.VBUserID == this.Root().Environment.User.VBUserID && c.ACClassDesign != null);
+                    if (query.Any())
                     {
-                        ACClassDesign = ContentACObject as ACClassDesign;
-                        var query = ACClassDesign.VBUserACClassDesign_ACClassDesign.Where(c => c.VBUserID == this.Root().Environment.User.VBUserID && c.ACClassDesign != null);
-                        if (query.Any())
+                        VBUserACClassDesign userDesign = query.First();
+                        if (!String.IsNullOrEmpty(userDesign.XAMLDesign))
                         {
-                            VBUserACClassDesign userDesign = query.First();
-                            if (!String.IsNullOrEmpty(userDesign.XAMLDesign))
-                                xaml = userDesign.XAMLDesign;
+                            xaml = userDesign.XAMLDesign;  // User-specific XAML
+                            hasUserSpecificDesign = true;
                         }
                     }
+                }
+                else
+                {
+                    // For non-ACClassDesign objects (like VBUserACClassDesign directly), get XAML
+                    xaml = ContentACObject.XAMLDesign;
                 }
             }
 
             Content = null;
             Visual uiElement = null;
-            if (string.IsNullOrEmpty(xaml))
+            
+            if (ACClassDesign != null && !hasUserSpecificDesign)
             {
+                // Use ACClassDesign overload for base designs - this handles BAML, conversion, and caching to XMLDesign2
+                uiElement = Layoutgenerator.LoadLayout(ACClassDesign, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
+            }
+            else if (!string.IsNullOrEmpty(xaml))
+            {
+                // Load user-specific or non-ACClassDesign XAML directly (no caching to ACClassDesign.XMLDesign2)
+                uiElement = Layoutgenerator.LoadLayout(xaml, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
+            }
+            else
+            {
+                // No design available - show placeholder
                 ContentControl contentControl = new ContentControl();
                 parentObj.TryFindResource("IconDesignStyleGip", out object resource);
                 contentControl.Theme = (ControlTheme)resource;
                 uiElement = contentControl;
             }
-            else if (ACClassDesign != null && ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)
-                uiElement = Layoutgenerator.LoadLayout(ACClassDesign, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
-            else
-                uiElement = Layoutgenerator.LoadLayout(xaml, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
 
             Content = uiElement;
             if (DesignModeAllways)

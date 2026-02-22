@@ -128,130 +128,28 @@ namespace gip.core.datamodel
             {
                 if (Database.Root.IsAvaloniaUI)
                 {
-                    string avaloniaXAML = XMLDesign;
-                    foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
-                    {
-                        avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfNamespace, tuple.AvaloniaNamespace);
-                    }
-                    
-                    // Apply regex and string replacements
-                    foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
-                    {
-                        if (tuple.IsRegex)
-                        {
-                            avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", tuple.WpfPattern, tuple.AvaloniaReplacement, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                        }
-                        else
-                        {
-                            avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfPattern, tuple.AvaloniaReplacement);
-                        }
-                    }
-                    
-                       // Apply regex and string replacements
-                        foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
-                        {
-                            if (tuple.IsRegex)
-                            {
-                                avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", tuple.WpfPattern, tuple.AvaloniaReplacement, RegexOptions.Singleline | RegexOptions.IgnoreCase);
-                            }
-                            else
-                            {
-                                avaloniaXAML = avaloniaXAML?.Replace(tuple.WpfPattern, tuple.AvaloniaReplacement);
-                            }
-                        }
-                        
-                        // Handle xmlns removal: split at first root element close, process child content only
-                        // This preserves xmlns on root element but removes from child elements
-                        if (!string.IsNullOrEmpty(avaloniaXAML))
-                        {
-                            // Find the end of the first root element tag (after all xmlns declarations)
-                            // Pattern matches up to first real element tag (not XML declarations like <?xml...?>)
-                            var rootEndMatch = Regex.Match(avaloniaXAML, @"^([\s\S]*?<[a-zA-Z][\w:]*[^>]*?>)([\s\S]*)$");
-                            if (rootEndMatch.Success)
-                            {
-                                string rootPart = rootEndMatch.Groups[1].Value;
-                                string childContent = rootEndMatch.Groups[2].Value;
-                                
-                                // Remove all xmlns declarations from child content only
-                                childContent = Regex.Replace(childContent, @"\s+xmlns:?\w*=""[^""]*""", "", RegexOptions.IgnoreCase);
-                                
-                                // Remove attributes' namespace prefix if it matches the root element prefix (e.g. vb: in <vb:VBButton vb:VBContent="...">)
-                                // We skip "x:" and "xmlns:" to ensure standard XAML features are preserved
-                                var nameMatch = Regex.Match(rootPart, @"<([a-zA-Z][\w.]*):[a-zA-Z][\w.]*");
-                                if (nameMatch.Success)
-                                {
-                                    string rootPrefix = nameMatch.Groups[1].Value;
-                                    if (!string.Equals(rootPrefix, "x", StringComparison.OrdinalIgnoreCase) && 
-                                        !string.Equals(rootPrefix, "xmlns", StringComparison.OrdinalIgnoreCase))
-                                    {
-                                        // Pattern matches the prefix only if the attribute name does NOT contain a dot
-                                        // This ensures simple attributes like vb:VBContent become VBContent,
-                                        // but attached properties like vb:VBDockingManager.IsCloseableBSORoot are preserved.
-                                        string prefixAttrPattern = @"(\s+)" + Regex.Escape(rootPrefix) + @":([\w]+)(=)";
-                                        rootPart = Regex.Replace(rootPart, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
-                                        childContent = Regex.Replace(childContent, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
-                                    }
-                                }
-
-                                avaloniaXAML = rootPart + childContent;
-                            }
-                        }
-
-                        // Convert decimal CenterX/Y to percentage (e.g., 0.669 -> 67)
-                        // This handles the conversion from WPF's 0.0-1.0 coordinate system to Avalonia's percentage-based values where required
-                        avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", @"\b(Center[XY])=""0\.(\d+)""", m =>
-                        {
-                            string attr = m.Groups[1].Value;
-                            string decimals = m.Groups[2].Value;
-                            if (double.TryParse("0." + decimals, System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double val))
-                            {
-                                int percent = (int)Math.Round(val * 100);
-                                return $"{attr}=\"{percent}\"";
-                            }
-                            return m.Value;
-                        }, RegexOptions.IgnoreCase);
-
-                        // Convert decimal StartPoint/EndPoint to percentage (e.g., 0.46,1.0 -> 46%,100%)
-                        // This handles the conversion of relative points in brushes to percentage-based strings required for Avalonia
-                        avaloniaXAML = Regex.Replace(avaloniaXAML ?? "", @"\b(StartPoint|EndPoint)=""([^""]+)""", m =>
-                        {
-                            string attr = m.Groups[1].Value;
-                            string points = m.Groups[2].Value;
-                            var coords = points.Split(',');
-                            if (coords.Length == 2)
-                            {
-                                if (double.TryParse(coords[0], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double x) &&
-                                    double.TryParse(coords[1], System.Globalization.NumberStyles.Any, System.Globalization.CultureInfo.InvariantCulture, out double y))
-                                {
-                                    int px = (int)Math.Round(x * 100);
-                                    int py = (int)Math.Round(y * 100);
-                                    return $"{attr}=\"{px}%,{py}%\"";
-                                }
-                            }
-                            return m.Value;
-                        }, RegexOptions.IgnoreCase);
-
-                    
-                    return avaloniaXAML;
+                    // Use unified conversion method from ACClassDesign
+                    return ACClassDesign.ConvertWpfToAvaloniaXaml(XMLDesign);
                 }
                 else
                 {
-                    string avaloniaXAML = XMLDesign;
+                    // Reverse conversion for WPF mode (Avalonia to WPF)
+                    string wpfXAML = XMLDesign;
                     foreach (var tuple in ACxmlnsResolver.C_AvaloniaNamespaceMapping)
                     {
                         if (tuple.WpfNamespace.StartsWith("clr-namespace"))
                             continue;
-                        avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
+                        wpfXAML = wpfXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
                     }
                     // Note: Reverse conversion (Avalonia to WPF) does not support regex patterns
                     foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
                     {
                         if (!tuple.IsRegex)
                         {
-                            avaloniaXAML = avaloniaXAML?.Replace(tuple.AvaloniaReplacement, tuple.WpfPattern);
+                            wpfXAML = wpfXAML?.Replace(tuple.AvaloniaReplacement, tuple.WpfPattern);
                         }
                     }
-                    return avaloniaXAML;
+                    return wpfXAML;
                 }
             }
             set

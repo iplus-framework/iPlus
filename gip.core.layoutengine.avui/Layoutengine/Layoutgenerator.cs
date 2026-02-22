@@ -225,7 +225,41 @@ namespace gip.core.layoutengine.avui
             }
             else
             {
-                return LoadXAML(acClassDesign.XAMLDesign, dataContext, bso, layoutName) as Visual;
+                string xamlToLoad = acClassDesign.XAMLDesign;
+                object result = LoadXAML(xamlToLoad, dataContext, bso, layoutName);
+                
+                // Cache the converted XAML to XMLDesign2 if conversion was successful
+                // Only cache if we're in Avalonia mode and XMLDesign2 is empty (not already cached)
+                if (result != null && acClassDesign != null && 
+                    dataContext != null && dataContext is IACComponent)
+                {
+                    var rootComponent = (dataContext as IACComponent).Root;
+                    if (rootComponent != null && rootComponent.IsAvaloniaUI && 
+                        string.IsNullOrEmpty(acClassDesign.XMLDesign2) && 
+                        !string.IsNullOrEmpty(acClassDesign.XMLDesign))
+                    {
+                        try
+                        {
+                            // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
+                            acClassDesign.XMLDesign2 = xamlToLoad;
+                            if (acClassDesign.Context != null)
+                            {
+                                // Save changes to the database if context is available
+                                var msgWithDetails = acClassDesign.Context.ACSaveChanges();
+                                if (msgWithDetails != null)
+                                {
+                                    Root.Messages.LogMessageMsg(msgWithDetails);
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // Ignore caching errors, the conversion still worked
+                        }
+                    }
+                }
+                
+                return result as Visual;
             }
         }
 
