@@ -350,6 +350,8 @@ public partial class iPlusV5Context : DbContext
                 .IsRequired()
                 .HasColumnType("text");
             entity.Property(e => e.XMLDesign2).HasColumnType("text");
+            entity.Property(e => e.XMLDesign2UpdateDate).HasColumnType("datetime");
+            entity.Property(e => e.XMLDesignUpdateDate).HasColumnType("datetime");
 
            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassDesign_ACClass)
                 .HasForeignKey(d => d.ACClassID)
