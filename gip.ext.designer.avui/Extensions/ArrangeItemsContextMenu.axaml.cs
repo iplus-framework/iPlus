@@ -23,11 +23,6 @@ namespace gip.ext.designer.avui.Extensions
 			this.designItem = designItem;
 			InitializeComponent();
         }
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 		
 		void Click_ArrangeLeft(object sender, RoutedEventArgs e)
 		{

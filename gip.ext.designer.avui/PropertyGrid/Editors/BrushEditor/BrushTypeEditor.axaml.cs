@@ -23,11 +23,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
             InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
             base.OnPointerReleased(e);

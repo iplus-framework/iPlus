@@ -1066,7 +1066,6 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledDelete):
                 case nameof(UserClone):
                 case nameof(TestMethod):
-                case nameof(Save):
                     return new string[] { nameof(CurrentUser), nameof(SelectedUser) };
                 case nameof(AssignGroup):
                 case nameof(IsEnabledAssignGroup):

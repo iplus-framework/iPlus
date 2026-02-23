@@ -31,11 +31,6 @@ namespace gip.ext.designer.avui.Controls
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         public GridUnitSelector(GridRailAdorner rail) : this()
         {
             this.rail = rail;

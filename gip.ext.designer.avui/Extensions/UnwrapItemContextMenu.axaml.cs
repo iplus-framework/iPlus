@@ -24,11 +24,6 @@ namespace gip.ext.designer.avui.Extensions
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         void Click_Unwrap(object sender, RoutedEventArgs e)
 		{
 			ModelTools.UnwrapItemsFromContainer(this.designItem.Services.Selection.PrimarySelection);

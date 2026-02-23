@@ -28,11 +28,6 @@ namespace gip.ext.designer.avui.Editors
 			// For specialized resource loading, we'll use the standard pattern and let VersionedAssemblyResourceDictionary handle it
 			this.InitializeComponent();
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 		
 		void open_Click(object sender, RoutedEventArgs e)
 		{

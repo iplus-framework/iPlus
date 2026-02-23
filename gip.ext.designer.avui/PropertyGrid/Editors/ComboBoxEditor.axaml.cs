@@ -28,12 +28,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 			InitializeComponent();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-			_comboBox = this.FindControl<ComboBox>("PART_ComboBox");
-		}
-
 		/// <summary>
 		/// Gets the inner ComboBox control.
 		/// </summary>
@@ -43,6 +37,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
 		{
 			base.OnApplyTemplate(e);
+			_comboBox = this.FindControl<ComboBox>("PART_ComboBox");
 			
 			// The ComboBox will handle its own template application
 			// We don't need to set FontWeight on popup here as it's typically handled by styles

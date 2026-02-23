@@ -1296,8 +1296,8 @@ namespace gip.core.autocomponent
             {
                 case Const.CmdNameSave:
                 case Const.IsEnabledPrefix + Const.CmdNameSave:
-                case Const.CmdNameUndo:
-                case Const.IsEnabledPrefix + Const.CmdNameUndo:
+                case Const.CmdNameUndoSave:
+                case Const.IsEnabledPrefix + Const.CmdNameUndoSave:
                     return new string[] { nameof(DbChangeCount) };
 
                 case nameof(DataExportOk):

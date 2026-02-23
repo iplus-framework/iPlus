@@ -48,10 +48,5 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 				Color = solidBrush.Color;
 			}
 		}
-
-        //private void InitializeComponent()
-        //{
-        //    AvaloniaXamlLoader.Load(this);
-        //}
     }
 }

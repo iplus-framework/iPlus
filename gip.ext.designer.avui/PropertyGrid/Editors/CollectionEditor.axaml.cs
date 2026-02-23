@@ -45,11 +45,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             InitializeComponent();
             InitializeControls();
         }
-
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
         
         private void InitializeControls()
         {

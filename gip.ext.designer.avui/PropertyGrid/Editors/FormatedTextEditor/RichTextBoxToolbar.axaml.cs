@@ -28,11 +28,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.FormatedTextEditor
 			InitializeCommands();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		private void LoadFontFamilies()
 		{
 			try

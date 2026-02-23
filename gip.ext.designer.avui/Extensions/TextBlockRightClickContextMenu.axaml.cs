@@ -25,10 +25,6 @@ namespace gip.ext.designer.avui.Extensions
 			InitializeComponent();
         }
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 
 		void Click_EditFormatedText(object sender, RoutedEventArgs e)
 		{

@@ -189,7 +189,11 @@ namespace gip.ext.designer.avui
             _PreviewHandlerAdded = true;
             if (context.RootItem != null)
             {
-                _sceneContainer.Child = context.RootItem.View;
+                var errorService = context.Services.GetService<XamlErrorService>();
+                if (errorService != null && errorService.Errors.Count > 0)
+                    _sceneContainer.Child = null;
+                else
+                    _sceneContainer.Child = context.RootItem.View;
             }
 
             context.Services.RunWhenAvailable<UndoService>(

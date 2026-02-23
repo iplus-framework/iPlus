@@ -29,11 +29,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			});
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		public BrushEditor BrushEditor { get; private set; }
 
 		class HeightConverter : IValueConverter

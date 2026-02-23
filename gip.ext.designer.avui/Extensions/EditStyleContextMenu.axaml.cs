@@ -30,11 +30,6 @@ namespace gip.ext.designer.avui.Extensions
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         void Click_EditStyle(object sender, RoutedEventArgs e)
 		{
 			var cg = designItem.OpenGroup("Edit Style");

@@ -20,11 +20,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 			DataContextChanged += NumberEditor_DataContextChanged;
 		}
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         public PropertyNode PropertyNode
 		{
 			get { return DataContext as PropertyNode; }

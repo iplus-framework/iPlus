@@ -24,9 +24,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
             this.KeyDown += OnKeyDown;
         }
 
-        private void InitializeComponent()
+        protected override void OnInitialized()
         {
-            AvaloniaXamlLoader.Load(this);
+            base.OnInitialized();
             _brushEditorView = this.FindControl<BrushEditorView>("BrushEditorView");
         }
 

@@ -25,9 +25,5 @@ namespace gip.ext.designer.avui.Extensions
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
     }
 }
