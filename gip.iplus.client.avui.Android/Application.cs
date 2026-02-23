@@ -16,7 +16,7 @@ namespace gip.iplus.client.avui.Android
 
         protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
         {
-            return base.CustomizeAppBuilder(builder);
+            return base.CustomizeAppBuilder(builder).WithInterFont();
                 //  .AfterSetup(_ =>
                 //  {
                 //      Pages.EmbedSample.Implementation = new EmbedSampleAndroid();
