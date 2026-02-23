@@ -46,7 +46,7 @@ namespace gip.core.dbsyncer.helper
                     defaultConnectionString = setting.ConnectionString;
                     if (!string.IsNullOrEmpty(defaultConnectionString))
                     {
-                        defaultConnectionString = defaultConnectionString.Replace(Environment.NewLine, "").Replace("        ", "");
+                        defaultConnectionString = defaultConnectionString.Replace("\r", "").Replace("\n", "").Replace("        ", "");
                         defaultConnectionString = DbSyncerSettings.ConnectionStringRemoveEntityPart(defaultConnectionString);
                     }
                 }
@@ -125,7 +125,7 @@ namespace gip.core.dbsyncer.helper
         public static string ConnectionStringRemoveEntityPart(string connString)
         {
             string rawConnString = "";
-            Match match = Regex.Match(connString, regexConnectionStringExtract, RegexOptions.IgnoreCase);
+            Match match = Regex.Match(connString, regexConnectionStringExtract, RegexOptions.IgnoreCase | RegexOptions.Singleline);
             if(match.Success && match.Groups.Count > 2)
             {
                 rawConnString = match.Groups[2].Value;

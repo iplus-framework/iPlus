@@ -90,7 +90,7 @@ namespace gip.core.dbsyncer.model
         /// <returns></returns>
         public string FilePath()
         {
-            return RootFolder + @"\" + FileName;
+            return Path.Combine(RootFolder, FileName);
         }
 
         /// <summary>
