@@ -124,6 +124,8 @@
           <Property Name="UpdateDate" Type="datetime" Nullable="false" />
           <Property Name="BAMLDesign" Type="varbinary(max)" />
           <Property Name="BAMLDate" Type="datetime" />
+          <Property Name="XMLDesignUpdateDate" Type="datetime" />
+          <Property Name="XMLDesign2UpdateDate" Type="datetime" />
         </EntityType>
         <EntityType Name="ACClassMessage">
           <Key>
@@ -807,7 +809,7 @@
           <Property Name="SessionCount" Type="int" Nullable="false" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'IPlusMESV4demo.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'SchaefersLE.dbo.VBSystemColumns' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBSystemColumns">
           <Key>
             <PropertyRef Name="tablename" />
@@ -820,7 +822,7 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBSystemColumns' does not have 
           <Property Name="columnnullable" Type="int" />
         </EntityType>
         <!--Errors Found During Generation:
-warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
+warning 6002: The table/view 'SchaefersLE.dbo.VBTranslationView' does not have a primary key defined. The key has been inferred and the definition was created as a read-only table/view.-->
         <EntityType Name="VBTranslationView">
           <Key>
             <PropertyRef Name="ACProjectName" />
@@ -2536,7 +2538,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           </FunctionImport>
           <EntitySet Name="ACAssembly" EntityType="VarioiplusV3_devModel.ACAssembly" />
           <EntitySet Name="ACClassConfig" EntityType="VarioiplusV3_devModel.ACClassConfig" />
-          <EntitySet Name="ACClassDesign" EntityType="VarioiplusV3_devModel.ACClassDesign" />
           <EntitySet Name="ACClassMessage" EntityType="VarioiplusV3_devModel.ACClassMessage" />
           <EntitySet Name="ACClassMethodConfig" EntityType="VarioiplusV3_devModel.ACClassMethodConfig" />
           <EntitySet Name="ACClassTask" EntityType="VarioiplusV3_devModel.ACClassTask" />
@@ -2567,18 +2568,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <AssociationSet Name="FK_ACClassConfig_ParentACClassConfigID" Association="VarioiplusV3_devModel.FK_ACClassConfig_ParentACClassConfigID">
             <End Role="ACClassConfig" EntitySet="ACClassConfig" />
             <End Role="ACClassConfig1" EntitySet="ACClassConfig" />
-          </AssociationSet>
-          <AssociationSet Name="FK_VBGroupRight_ACClassDesignID" Association="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID">
-            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
-            <End Role="VBGroupRight" EntitySet="VBGroupRight" />
-          </AssociationSet>
-          <AssociationSet Name="FK_VBUser_MenuACClassDesignID" Association="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID">
-            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
-            <End Role="VBUser" EntitySet="VBUser" />
-          </AssociationSet>
-          <AssociationSet Name="FK_VBUserACClassDesign_ACClassDesignID" Association="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID">
-            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
-            <End Role="VBUserACClassDesign" EntitySet="VBUserACClassDesign" />
           </AssociationSet>
           <AssociationSet Name="FK_ACClassMethodConfig_ACClassWFID" Association="VarioiplusV3_devModel.FK_ACClassMethodConfig_ACClassWFID">
             <End Role="ACClassWF" EntitySet="ACClassWF" />
@@ -2765,14 +2754,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <AssociationSet Name="FK_ACClassConfig_ValueTypeACClassID" Association="VarioiplusV3_devModel.FK_ACClassConfig_ValueTypeACClassID">
             <End Role="ACClass" EntitySet="ACClass" />
             <End Role="ACClassConfig" EntitySet="ACClassConfig" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassDesign_ACClassID" Association="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID">
-            <End Role="ACClass" EntitySet="ACClass" />
-            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
-          </AssociationSet>
-          <AssociationSet Name="FK_ACClassDesign_ValueTypeACClassID" Association="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID">
-            <End Role="ACClass" EntitySet="ACClass" />
-            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
           </AssociationSet>
           <AssociationSet Name="FK_ACClassMessage_ACClassID" Association="VarioiplusV3_devModel.FK_ACClassMessage_ACClassID">
             <End Role="ACClass" EntitySet="ACClass" />
@@ -2967,7 +2948,28 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
             <End Role="ACPropertyLog" EntitySet="ACPropertyLog" />
             <End Role="ACProgramLogPropertyLog" EntitySet="ACProgramLogPropertyLog" />
           </AssociationSet>
-        </EntityContainer>
+          <EntitySet Name="ACClassDesign" EntityType="VarioiplusV3_devModel.ACClassDesign" />
+          <AssociationSet Name="FK_ACClassDesign_ACClassID" Association="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID">
+            <End Role="ACClass" EntitySet="ACClass" />
+            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
+          </AssociationSet>
+          <AssociationSet Name="FK_ACClassDesign_ValueTypeACClassID" Association="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID">
+            <End Role="ACClass" EntitySet="ACClass" />
+            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VBGroupRight_ACClassDesignID" Association="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID">
+            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
+            <End Role="VBGroupRight" EntitySet="VBGroupRight" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VBUser_MenuACClassDesignID" Association="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID">
+            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
+            <End Role="VBUser" EntitySet="VBUser" />
+          </AssociationSet>
+          <AssociationSet Name="FK_VBUserACClassDesign_ACClassDesignID" Association="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID">
+            <End Role="ACClassDesign" EntitySet="ACClassDesign" />
+            <End Role="VBUserACClassDesign" EntitySet="VBUserACClassDesign" />
+          </AssociationSet>
+          </EntityContainer>
         <EntityType Name="ACAssembly">
           <Key>
             <PropertyRef Name="ACAssemblyID" />
@@ -3007,44 +3009,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassConfig_ACClassID" FromRole="ACClassConfig" ToRole="ACClass" />
           <NavigationProperty Name="ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassConfig_ValueTypeACClassID" FromRole="ACClassConfig" ToRole="ACClass" />
           <NavigationProperty Name="ACClassPropertyRelation" Relationship="VarioiplusV3_devModel.FK_ACClassConfig_ACClassPropertyRelationID" FromRole="ACClassConfig" ToRole="ACClassPropertyRelation" />
-        </EntityType>
-        <EntityType Name="ACClassDesign">
-          <Key>
-            <PropertyRef Name="ACClassDesignID" />
-          </Key>
-          <Property Name="ACClassDesignID" Type="Guid" Nullable="false" />
-          <Property Name="ACClassID" Type="Guid" Nullable="false" />
-          <Property Name="ACIdentifier" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
-          <Property Name="ACIdentifierKey" Type="Int32" />
-          <Property Name="ACCaptionTranslation" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="ACGroup" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
-          <Property Name="XMLDesign" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="DesignBinary" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="DesignNo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="ValueTypeACClassID" Type="Guid" />
-          <Property Name="ACKindIndex" Type="Int16" Nullable="false" />
-          <Property Name="ACUsageIndex" Type="Int16" Nullable="false" />
-          <Property Name="SortIndex" Type="Int16" Nullable="false" />
-          <Property Name="IsRightmanagement" Type="Boolean" Nullable="false" />
-          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="IsDefault" Type="Boolean" Nullable="false" />
-          <Property Name="IsResourceStyle" Type="Boolean" Nullable="false" />
-          <Property Name="VisualHeight" Type="Double" Nullable="false" />
-          <Property Name="VisualWidth" Type="Double" Nullable="false" />
-          <Property Name="XMLConfig" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
-          <Property Name="BranchNo" Type="Int32" Nullable="false" />
-          <Property Name="DesignerMaxRecursion" Type="Int16" />
-          <Property Name="InsertName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
-          <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
-          <Property Name="BAMLDesign" Type="Binary" MaxLength="Max" FixedLength="false" />
-          <Property Name="BAMLDate" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="VBGroupRight_ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID" FromRole="ACClassDesign" ToRole="VBGroupRight" />
-          <NavigationProperty Name="VBUser_MenuACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID" FromRole="ACClassDesign" ToRole="VBUser" />
-          <NavigationProperty Name="VBUserACClassDesign_ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID" FromRole="ACClassDesign" ToRole="VBUserACClassDesign" />
-          <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID" FromRole="ACClassDesign" ToRole="ACClass" />
-          <NavigationProperty Name="ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID" FromRole="ACClassDesign" ToRole="ACClass" />
         </EntityType>
         <EntityType Name="ACClassMessage">
           <Key>
@@ -3416,11 +3380,11 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <Property Name="ACClassMethodID" Type="Guid" />
           <Property Name="ACClassDesignID" Type="Guid" />
           <Property Name="ControlModeIndex" Type="Int16" Nullable="false" />
-          <NavigationProperty Name="ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID" FromRole="VBGroupRight" ToRole="ACClassDesign" />
           <NavigationProperty Name="VBGroup" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_VBGroupID" FromRole="VBGroupRight" ToRole="VBGroup" />
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassPropertyID" FromRole="VBGroupRight" ToRole="ACClassProperty" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassID" FromRole="VBGroupRight" ToRole="ACClass" />
           <NavigationProperty Name="ACClassMethod" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassMethodID" FromRole="VBGroupRight" ToRole="ACClassMethod" />
+          <NavigationProperty Name="ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID" FromRole="VBGroupRight" ToRole="ACClassDesign" />
         </EntityType>
         <EntityType Name="VBLanguage">
           <Key>
@@ -3514,7 +3478,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="MenuACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID" FromRole="VBUser" ToRole="ACClassDesign" />
           <NavigationProperty Name="ACClassTaskValue_VBUser" Relationship="VarioiplusV3_devModel.FK_ACClassTaskValue_VBUserID" FromRole="VBUser" ToRole="ACClassTaskValue" />
           <NavigationProperty Name="VBLanguage" Relationship="VarioiplusV3_devModel.FK_VBUser_MDLanguageID" FromRole="VBUser" ToRole="VBLanguage" />
           <NavigationProperty Name="VBUserACClassDesign_VBUser" Relationship="VarioiplusV3_devModel.FK_VBUserACClassDesign_VBUserID" FromRole="VBUser" ToRole="VBUserACClassDesign" />
@@ -3522,6 +3485,7 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <NavigationProperty Name="VBUserGroup_VBUser" Relationship="VarioiplusV3_devModel.FK_VBUserGroup_VBUserID" FromRole="VBUser" ToRole="VBUserGroup" />
           <NavigationProperty Name="VBUserInstance_VBUser" Relationship="VarioiplusV3_devModel.FK_VBUserInstance_VBUserID" FromRole="VBUser" ToRole="VBUserInstance" />
           <NavigationProperty Name="ACChangeLog_VBUser" Relationship="VarioiplusV3_devModel.FK_ACChangeLog_VBUser" FromRole="VBUser" ToRole="ACChangeLog" />
+          <NavigationProperty Name="ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID" FromRole="VBUser" ToRole="ACClassDesign" />
         </EntityType>
         <EntityType Name="VBUserACClassDesign">
           <Key>
@@ -3536,8 +3500,8 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
           <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
-          <NavigationProperty Name="ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID" FromRole="VBUserACClassDesign" ToRole="ACClassDesign" />
           <NavigationProperty Name="VBUser" Relationship="VarioiplusV3_devModel.FK_VBUserACClassDesign_VBUserID" FromRole="VBUserACClassDesign" ToRole="VBUser" />
+          <NavigationProperty Name="ACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID" FromRole="VBUserACClassDesign" ToRole="ACClassDesign" />
         </EntityType>
         <EntityType Name="VBUserACProject">
           <Key>
@@ -3620,44 +3584,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
             </Principal>
             <Dependent Role="ACClassConfig1">
               <PropertyRef Name="ParentACClassConfigID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_VBGroupRight_ACClassDesignID">
-          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.VBGroupRight" Role="VBGroupRight" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassDesign">
-              <PropertyRef Name="ACClassDesignID" />
-            </Principal>
-            <Dependent Role="VBGroupRight">
-              <PropertyRef Name="ACClassDesignID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_VBUser_MenuACClassDesignID">
-          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.VBUser" Role="VBUser" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassDesign">
-              <PropertyRef Name="ACClassDesignID" />
-            </Principal>
-            <Dependent Role="VBUser">
-              <PropertyRef Name="MenuACClassDesignID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_VBUserACClassDesign_ACClassDesignID">
-          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="0..1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="VarioiplusV3_devModel.VBUserACClassDesign" Role="VBUserACClassDesign" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClassDesign">
-              <PropertyRef Name="ACClassDesignID" />
-            </Principal>
-            <Dependent Role="VBUserACClassDesign">
-              <PropertyRef Name="ACClassDesignID" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
@@ -4255,8 +4181,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <NavigationProperty Name="ACClass1_PWMethodACClass" Relationship="VarioiplusV3_devModel.FK_ACClass_PWMethodACClassID" FromRole="ACClass1" ToRole="ACClass" />
           <NavigationProperty Name="ACClassConfig_ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassConfig_ACClassID" FromRole="ACClass" ToRole="ACClassConfig" />
           <NavigationProperty Name="ACClassConfig_ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassConfig_ValueTypeACClassID" FromRole="ACClass" ToRole="ACClassConfig" />
-          <NavigationProperty Name="ACClassDesign_ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID" FromRole="ACClass" ToRole="ACClassDesign" />
-          <NavigationProperty Name="ACClassDesign_ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID" FromRole="ACClass" ToRole="ACClassDesign" />
           <NavigationProperty Name="ACClassMessage_ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMessage_ACClassID" FromRole="ACClass" ToRole="ACClassMessage" />
           <NavigationProperty Name="ACClassMethodConfig_ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethodConfig_ValueTypeACClassID" FromRole="ACClass" ToRole="ACClassMethodConfig" />
           <NavigationProperty Name="ACClassMethodConfig_VBiACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethodConfig_VBiACClassID" FromRole="ACClass" ToRole="ACClassMethodConfig" />
@@ -4284,7 +4208,9 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <NavigationProperty Name="ACClassMethod_ValueTypeACClass" Relationship="VarioiplusV3_devModel.FK_ACClassMethod_ValueTypeACClassID" FromRole="ACClass" ToRole="ACClassMethod" />
           <NavigationProperty Name="ACClassPropertyRelation_SourceACClass" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_SourceACClassID" FromRole="ACClass" ToRole="ACClassPropertyRelation" />
           <NavigationProperty Name="ACClassPropertyRelation_TargetACClass" Relationship="VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassID" FromRole="ACClass" ToRole="ACClassPropertyRelation" />
-        </EntityType>
+          <NavigationProperty Name="ACClassDesign" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID" FromRole="ACClass" ToRole="ACClassDesign" />
+          <NavigationProperty Name="ACClassDesign1" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID" FromRole="ACClass" ToRole="ACClassDesign" />
+          </EntityType>
         <Association Name="FK_ACChangeLog_ACClass">
           <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1" />
           <End Type="VarioiplusV3_devModel.ACChangeLog" Role="ACChangeLog" Multiplicity="*" />
@@ -4393,32 +4319,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
               <PropertyRef Name="ACClassID" />
             </Principal>
             <Dependent Role="ACClassConfig">
-              <PropertyRef Name="ValueTypeACClassID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassDesign_ACClassID">
-          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1">
-            <OnDelete Action="Cascade" />
-          </End>
-          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClass">
-              <PropertyRef Name="ACClassID" />
-            </Principal>
-            <Dependent Role="ACClassDesign">
-              <PropertyRef Name="ACClassID" />
-            </Dependent>
-          </ReferentialConstraint>
-        </Association>
-        <Association Name="FK_ACClassDesign_ValueTypeACClassID">
-          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="0..1" />
-          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="*" />
-          <ReferentialConstraint>
-            <Principal Role="ACClass">
-              <PropertyRef Name="ACClassID" />
-            </Principal>
-            <Dependent Role="ACClassDesign">
               <PropertyRef Name="ValueTypeACClassID" />
             </Dependent>
           </ReferentialConstraint>
@@ -4700,7 +4600,7 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
           <Property Name="ACClassMessageID" Type="Guid" />
           <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClass" FromRole="ACPropertyLog" ToRole="ACClass" />
           <NavigationProperty Name="ACClassProperty" Relationship="VarioiplusV3_devModel.FK_ACPropertyLog_ACClassProperty" FromRole="ACPropertyLog" ToRole="ACClassProperty" />
-          <NavigationProperty Name="ACProgramLogPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACPropertyLog" ToRole="ACProgramLogPropertyLog" />
+          <NavigationProperty Name="ACProgramLogPropertyLog_ACPropertyLog" Relationship="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" FromRole="ACPropertyLog" ToRole="ACProgramLogPropertyLog" />
         </EntityType>
         <EntityType Name="ACPropertyLogRule">
           <Key>
@@ -5188,7 +5088,111 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
+        <EntityType Name="ACClassDesign">
+          <Key>
+            <PropertyRef Name="ACClassDesignID" />
+          </Key>
+          <Property Name="ACClassDesignID" Type="Guid" Nullable="false" />
+          <Property Name="ACClassID" Type="Guid" Nullable="false" />
+          <Property Name="ACIdentifier" Type="String" Nullable="false" MaxLength="80" FixedLength="false" Unicode="false" />
+          <Property Name="ACIdentifierKey" Type="Int32" />
+          <Property Name="ACCaptionTranslation" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="ACGroup" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="XMLDesign" Type="String" Nullable="false" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="DesignBinary" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="DesignNo" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ValueTypeACClassID" Type="Guid" />
+          <Property Name="ACKindIndex" Type="Int16" Nullable="false" />
+          <Property Name="ACUsageIndex" Type="Int16" Nullable="false" />
+          <Property Name="SortIndex" Type="Int16" Nullable="false" />
+          <Property Name="IsRightmanagement" Type="Boolean" Nullable="false" />
+          <Property Name="Comment" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="IsDefault" Type="Boolean" Nullable="false" />
+          <Property Name="IsResourceStyle" Type="Boolean" Nullable="false" />
+          <Property Name="VisualHeight" Type="Double" Nullable="false" />
+          <Property Name="VisualWidth" Type="Double" Nullable="false" />
+          <Property Name="XMLConfig" Type="String" MaxLength="Max" FixedLength="false" Unicode="false" />
+          <Property Name="BranchNo" Type="Int32" Nullable="false" />
+          <Property Name="DesignerMaxRecursion" Type="Int16" />
+          <Property Name="InsertName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="InsertDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="UpdateName" Type="String" Nullable="false" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="UpdateDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="BAMLDesign" Type="Binary" MaxLength="Max" FixedLength="false" />
+          <Property Name="BAMLDate" Type="DateTime" Precision="3" />
+          <Property Name="XMLDesignUpdateDate" Type="DateTime" Precision="3" />
+          <Property Name="XMLDesign2UpdateDate" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="ACClass" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID" FromRole="ACClassDesign" ToRole="ACClass" />
+          <NavigationProperty Name="ACClass1" Relationship="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID" FromRole="ACClassDesign" ToRole="ACClass" />
+          <NavigationProperty Name="VBGroupRight" Relationship="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID" FromRole="ACClassDesign" ToRole="VBGroupRight" />
+          <NavigationProperty Name="VBUser" Relationship="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID" FromRole="ACClassDesign" ToRole="VBUser" />
+          <NavigationProperty Name="VBUserACClassDesign" Relationship="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID" FromRole="ACClassDesign" ToRole="VBUserACClassDesign" />
+        </EntityType>
+        <Association Name="FK_ACClassDesign_ACClassID">
+          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClass">
+              <PropertyRef Name="ACClassID" />
+            </Principal>
+            <Dependent Role="ACClassDesign">
+              <PropertyRef Name="ACClassID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_ACClassDesign_ValueTypeACClassID">
+          <End Type="VarioiplusV3_devModel.ACClass" Role="ACClass" Multiplicity="0..1" />
+          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClass">
+              <PropertyRef Name="ACClassID" />
+            </Principal>
+            <Dependent Role="ACClassDesign">
+              <PropertyRef Name="ValueTypeACClassID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VBGroupRight_ACClassDesignID">
+          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="0..1" />
+          <End Type="VarioiplusV3_devModel.VBGroupRight" Role="VBGroupRight" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassDesign">
+              <PropertyRef Name="ACClassDesignID" />
+            </Principal>
+            <Dependent Role="VBGroupRight">
+              <PropertyRef Name="ACClassDesignID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VBUser_MenuACClassDesignID">
+          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="0..1" />
+          <End Type="VarioiplusV3_devModel.VBUser" Role="VBUser" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassDesign">
+              <PropertyRef Name="ACClassDesignID" />
+            </Principal>
+            <Dependent Role="VBUser">
+              <PropertyRef Name="MenuACClassDesignID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_VBUserACClassDesign_ACClassDesignID">
+          <End Type="VarioiplusV3_devModel.ACClassDesign" Role="ACClassDesign" Multiplicity="0..1">
+            <OnDelete Action="Cascade" />
+          </End>
+          <End Type="VarioiplusV3_devModel.VBUserACClassDesign" Role="VBUserACClassDesign" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="ACClassDesign">
+              <PropertyRef Name="ACClassDesignID" />
+            </Principal>
+            <Dependent Role="VBUserACClassDesign">
+              <PropertyRef Name="ACClassDesignID" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -5230,40 +5234,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
                 <ScalarProperty Name="ACClassPropertyRelationID" ColumnName="ACClassPropertyRelationID" />
                 <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
                 <ScalarProperty Name="ACClassConfigID" ColumnName="ACClassConfigID" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="ACClassDesign">
-            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassDesign">
-              <MappingFragment StoreEntitySet="ACClassDesign">
-                <ScalarProperty Name="BAMLDate" ColumnName="BAMLDate" />
-                <ScalarProperty Name="BAMLDesign" ColumnName="BAMLDesign" />
-                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
-                <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
-                <ScalarProperty Name="InsertDate" ColumnName="InsertDate" />
-                <ScalarProperty Name="InsertName" ColumnName="InsertName" />
-                <ScalarProperty Name="DesignerMaxRecursion" ColumnName="DesignerMaxRecursion" />
-                <ScalarProperty Name="BranchNo" ColumnName="BranchNo" />
-                <ScalarProperty Name="XMLConfig" ColumnName="XMLConfig" />
-                <ScalarProperty Name="VisualWidth" ColumnName="VisualWidth" />
-                <ScalarProperty Name="VisualHeight" ColumnName="VisualHeight" />
-                <ScalarProperty Name="IsResourceStyle" ColumnName="IsResourceStyle" />
-                <ScalarProperty Name="IsDefault" ColumnName="IsDefault" />
-                <ScalarProperty Name="Comment" ColumnName="Comment" />
-                <ScalarProperty Name="IsRightmanagement" ColumnName="IsRightmanagement" />
-                <ScalarProperty Name="SortIndex" ColumnName="SortIndex" />
-                <ScalarProperty Name="ACUsageIndex" ColumnName="ACUsageIndex" />
-                <ScalarProperty Name="ACKindIndex" ColumnName="ACKindIndex" />
-                <ScalarProperty Name="ValueTypeACClassID" ColumnName="ValueTypeACClassID" />
-                <ScalarProperty Name="DesignNo" ColumnName="DesignNo" />
-                <ScalarProperty Name="DesignBinary" ColumnName="DesignBinary" />
-                <ScalarProperty Name="XMLDesign" ColumnName="XMLDesign" />
-                <ScalarProperty Name="ACGroup" ColumnName="ACGroup" />
-                <ScalarProperty Name="ACCaptionTranslation" ColumnName="ACCaptionTranslation" />
-                <ScalarProperty Name="ACIdentifierKey" ColumnName="ACIdentifierKey" />
-                <ScalarProperty Name="ACIdentifier" ColumnName="ACIdentifier" />
-                <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
-                <ScalarProperty Name="ACClassDesignID" ColumnName="ACClassDesignID" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -6066,6 +6036,42 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="ACClassDesign">
+            <EntityTypeMapping TypeName="VarioiplusV3_devModel.ACClassDesign">
+              <MappingFragment StoreEntitySet="ACClassDesign">
+                <ScalarProperty Name="XMLDesign2UpdateDate" ColumnName="XMLDesign2UpdateDate" />
+                <ScalarProperty Name="XMLDesignUpdateDate" ColumnName="XMLDesignUpdateDate" />
+                <ScalarProperty Name="BAMLDate" ColumnName="BAMLDate" />
+                <ScalarProperty Name="BAMLDesign" ColumnName="BAMLDesign" />
+                <ScalarProperty Name="UpdateDate" ColumnName="UpdateDate" />
+                <ScalarProperty Name="UpdateName" ColumnName="UpdateName" />
+                <ScalarProperty Name="InsertDate" ColumnName="InsertDate" />
+                <ScalarProperty Name="InsertName" ColumnName="InsertName" />
+                <ScalarProperty Name="DesignerMaxRecursion" ColumnName="DesignerMaxRecursion" />
+                <ScalarProperty Name="BranchNo" ColumnName="BranchNo" />
+                <ScalarProperty Name="XMLConfig" ColumnName="XMLConfig" />
+                <ScalarProperty Name="VisualWidth" ColumnName="VisualWidth" />
+                <ScalarProperty Name="VisualHeight" ColumnName="VisualHeight" />
+                <ScalarProperty Name="IsResourceStyle" ColumnName="IsResourceStyle" />
+                <ScalarProperty Name="IsDefault" ColumnName="IsDefault" />
+                <ScalarProperty Name="Comment" ColumnName="Comment" />
+                <ScalarProperty Name="IsRightmanagement" ColumnName="IsRightmanagement" />
+                <ScalarProperty Name="SortIndex" ColumnName="SortIndex" />
+                <ScalarProperty Name="ACUsageIndex" ColumnName="ACUsageIndex" />
+                <ScalarProperty Name="ACKindIndex" ColumnName="ACKindIndex" />
+                <ScalarProperty Name="ValueTypeACClassID" ColumnName="ValueTypeACClassID" />
+                <ScalarProperty Name="DesignNo" ColumnName="DesignNo" />
+                <ScalarProperty Name="DesignBinary" ColumnName="DesignBinary" />
+                <ScalarProperty Name="XMLDesign" ColumnName="XMLDesign" />
+                <ScalarProperty Name="ACGroup" ColumnName="ACGroup" />
+                <ScalarProperty Name="ACCaptionTranslation" ColumnName="ACCaptionTranslation" />
+                <ScalarProperty Name="ACIdentifierKey" ColumnName="ACIdentifierKey" />
+                <ScalarProperty Name="ACIdentifier" ColumnName="ACIdentifier" />
+                <ScalarProperty Name="ACClassID" ColumnName="ACClassID" />
+                <ScalarProperty Name="ACClassDesignID" ColumnName="ACClassDesignID" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
         </EntityContainerMapping>
       </Mapping>
     </edmx:Mappings>
@@ -6091,7 +6097,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
       <Diagram DiagramId="411e36b365864815ab7fce1c892f1680" Name="Diagram1" ZoomLevel="75">
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACAssembly" Width="1.5" PointX="0.75" PointY="0.75" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassConfig" Width="1.5" PointX="8.25" PointY="56.25" />
-        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassDesign" Width="1.5" PointX="5.25" PointY="72.125" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassMessage" Width="1.5" PointX="5.25" PointY="37" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassMethodConfig" Width="1.5" PointX="10.5" PointY="56.75" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassTask" Width="1.5" PointX="12.75" PointY="57.5" />
@@ -6120,9 +6125,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
         <EntityTypeShape EntityType="VarioiplusV3_devModel.VBUserInstance" Width="1.5" PointX="9.75" PointY="91.5" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.VBSystemColumns" Width="1.5" PointX="2.75" PointY="5.75" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassConfig_ParentACClassConfigID" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassMethodConfig_ACClassWFID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassMethodConfig_ParentACClassMethodConfigID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassTask_ACProgramID" />
@@ -6170,8 +6172,6 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClass_PWMethodACClassID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassConfig_ACClassID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassConfig_ValueTypeACClassID" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID" />
-        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassMessage_ACClassID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassMethodConfig_ValueTypeACClassID" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassMethodConfig_VBiACClassID" />
@@ -6227,7 +6227,13 @@ warning 6002: The table/view 'IPlusMESV4demo.dbo.VBTranslationView' does not hav
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassRouteUsageGroup_ACClassRouteUsage" />
         <EntityTypeShape EntityType="VarioiplusV3_devModel.ACProgramLogPropertyLog" Width="1.5" PointX="17" PointY="43.875" />
         <AssociationConnector Association="VarioiplusV3_devModel.FK_ACProgramLogPropertyLog_ACPropertyLogID" />
-      </Diagram>
+        <EntityTypeShape EntityType="VarioiplusV3_devModel.ACClassDesign" Width="1.5" PointX="14.75" PointY="15.625" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassDesign_ACClassID" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID" />
+        <AssociationConnector Association="VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID" />
+        </Diagram>
     </Diagrams>
   </Designer>
 </edmx:Edmx>

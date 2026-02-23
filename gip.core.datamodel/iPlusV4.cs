@@ -21,9 +21,6 @@ using gip.core.datamodel;
 #region EDM Relationship Metadata
 
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassConfig_ParentACClassConfigID", "ACClassConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassConfig), "ACClassConfig1", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassConfig), true)]
-[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_ACClassDesignID", "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassDesign), "VBGroupRight", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBGroupRight), true)]
-[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBUser_MenuACClassDesignID", "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassDesign), "VBUser", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBUser), true)]
-[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassDesign), "VBUserACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBUserACClassDesign), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassMethodConfig_ACClassWFID", "ACClassWF", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassWF), "ACClassMethodConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassMethodConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassMethodConfig_ParentACClassMethodConfigID", "ACClassMethodConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassMethodConfig), "ACClassMethodConfig1", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassMethodConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassTask_ACProgramID", "ACProgram", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACProgram), "ACClassTask", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassTask), true)]
@@ -67,8 +64,6 @@ using gip.core.datamodel;
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClass_PWMethodACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClass), "ACClass1", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClass), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassConfig_ACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClass), "ACClassConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassConfig_ValueTypeACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClass), "ACClassConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassConfig), true)]
-[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClass), "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassDesign), true)]
-[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ValueTypeACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClass), "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassDesign), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassMessage_ACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClass), "ACClassMessage", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassMessage), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassMethodConfig_ValueTypeACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClass), "ACClassMethodConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassMethodConfig), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassMethodConfig_VBiACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClass), "ACClassMethodConfig", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassMethodConfig), true)]
@@ -115,6 +110,11 @@ using gip.core.datamodel;
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsagePos_ACClassRouteUsage", "ACClassRouteUsage", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClassRouteUsage), "ACClassRouteUsagePos", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassRouteUsagePos), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassRouteUsageGroup_ACClassRouteUsage", "ACClassRouteUsage", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClassRouteUsage), "ACClassRouteUsageGroup", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassRouteUsageGroup), true)]
 [assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACProgramLogPropertyLog_ACPropertyLogID", "ACPropertyLog", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACPropertyLog), "ACProgramLogPropertyLog", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACProgramLogPropertyLog), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.One, typeof(gip.core.datamodel.ACClass), "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassDesign), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ValueTypeACClassID", "ACClass", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClass), "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.ACClassDesign), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_ACClassDesignID", "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassDesign), "VBGroupRight", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBGroupRight), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBUser_MenuACClassDesignID", "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassDesign), "VBUser", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBUser), true)]
+[assembly: EdmRelationshipAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.ZeroOrOne, typeof(gip.core.datamodel.ACClassDesign), "VBUserACClassDesign", System.Data.Metadata.Edm.RelationshipMultiplicity.Many, typeof(gip.core.datamodel.VBUserACClassDesign), true)]
 
 #endregion
 
@@ -197,22 +197,6 @@ namespace gip.core.datamodel
             }
         }
         private ObjectSet<ACClassConfig> _ACClassConfig;
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        public ObjectSet<ACClassDesign> ACClassDesign
-        {
-            get
-            {
-                if ((_ACClassDesign == null))
-                {
-                    _ACClassDesign = base.CreateObjectSet<ACClassDesign>("ACClassDesign");
-                }
-                return _ACClassDesign;
-            }
-        }
-        private ObjectSet<ACClassDesign> _ACClassDesign;
     
         /// <summary>
         /// 
@@ -853,6 +837,22 @@ namespace gip.core.datamodel
             }
         }
         private ObjectSet<ACProgramLogPropertyLog> _ACProgramLogPropertyLog;
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        public ObjectSet<ACClassDesign> ACClassDesign
+        {
+            get
+            {
+                if ((_ACClassDesign == null))
+                {
+                    _ACClassDesign = base.CreateObjectSet<ACClassDesign>("ACClassDesign");
+                }
+                return _ACClassDesign;
+            }
+        }
+        private ObjectSet<ACClassDesign> _ACClassDesign;
 
         #endregion
 
@@ -872,14 +872,6 @@ namespace gip.core.datamodel
         public void AddToACClassConfig(ACClassConfig aCClassConfig)
         {
             base.AddObject("ACClassConfig", aCClassConfig);
-        }
-    
-        /// <summary>
-        /// Deprecated Method for adding a new object to the ACClassDesign EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
-        /// </summary>
-        public void AddToACClassDesign(ACClassDesign aCClassDesign)
-        {
-            base.AddObject("ACClassDesign", aCClassDesign);
         }
     
         /// <summary>
@@ -1200,6 +1192,14 @@ namespace gip.core.datamodel
         public void AddToACProgramLogPropertyLog(ACProgramLogPropertyLog aCProgramLogPropertyLog)
         {
             base.AddObject("ACProgramLogPropertyLog", aCProgramLogPropertyLog);
+        }
+    
+        /// <summary>
+        /// Deprecated Method for adding a new object to the ACClassDesign EntitySet. Consider using the .Add method of the associated ObjectSet&lt;T&gt; property instead.
+        /// </summary>
+        public void AddToACClassDesign(ACClassDesign aCClassDesign)
+        {
+            base.AddObject("ACClassDesign", aCClassDesign);
         }
 
         #endregion
@@ -3428,50 +3428,6 @@ namespace gip.core.datamodel
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ACClassID", "ACClassDesign")]
-        public EntityCollection<ACClassDesign> ACClassDesign_ACClass
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ACClassID", "ACClassDesign");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ACClassID", "ACClassDesign", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ValueTypeACClassID", "ACClassDesign")]
-        public EntityCollection<ACClassDesign> ACClassDesign_ValueTypeACClass
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID", "ACClassDesign");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID", "ACClassDesign", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassMessage_ACClassID", "ACClassMessage")]
         public EntityCollection<ACClassMessage> ACClassMessage_ACClass
         {
@@ -4034,6 +3990,50 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassPropertyRelation>("VarioiplusV3_devModel.FK_ACClassPropertyRelation_TargetACClassID", "ACClassPropertyRelation", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ACClassID", "ACClassDesign")]
+        public EntityCollection<ACClassDesign> ACClassDesign_ACClass
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ACClassID", "ACClassDesign");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ACClassID", "ACClassDesign", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassDesign_ValueTypeACClassID", "ACClassDesign")]
+        public EntityCollection<ACClassDesign> ACClassDesign_ValueTypeACClass
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID", "ACClassDesign");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACClassDesign>("VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID", "ACClassDesign", value);
                 }
             }
         }
@@ -5377,76 +5377,58 @@ namespace gip.core.datamodel
         private Nullable<global::System.DateTime> _BAMLDate;
         partial void OnBAMLDateChanging(Nullable<global::System.DateTime> value);
         partial void OnBAMLDateChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public  Nullable<global::System.DateTime> XMLDesignUpdateDate
+        {
+            get
+            {
+                return _XMLDesignUpdateDate;
+            }
+            set
+            {
+                OnXMLDesignUpdateDateChanging(value);
+                ReportPropertyChanging("XMLDesignUpdateDate");
+                _XMLDesignUpdateDate = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("XMLDesignUpdateDate");
+                OnXMLDesignUpdateDateChanged();
+            }
+        }
+        private Nullable<global::System.DateTime> _XMLDesignUpdateDate;
+        partial void OnXMLDesignUpdateDateChanging(Nullable<global::System.DateTime> value);
+        partial void OnXMLDesignUpdateDateChanged();
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [EdmScalarPropertyAttribute(EntityKeyProperty=false, IsNullable=true)]
+        [DataMemberAttribute()]
+        public  Nullable<global::System.DateTime> XMLDesign2UpdateDate
+        {
+            get
+            {
+                return _XMLDesign2UpdateDate;
+            }
+            set
+            {
+                OnXMLDesign2UpdateDateChanging(value);
+                ReportPropertyChanging("XMLDesign2UpdateDate");
+                _XMLDesign2UpdateDate = StructuralObject.SetValidValue(value);
+                ReportPropertyChanged("XMLDesign2UpdateDate");
+                OnXMLDesign2UpdateDateChanged();
+            }
+        }
+        private Nullable<global::System.DateTime> _XMLDesign2UpdateDate;
+        partial void OnXMLDesign2UpdateDateChanging(Nullable<global::System.DateTime> value);
+        partial void OnXMLDesign2UpdateDateChanged();
 
         #endregion
 
         #region Navigation Properties
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_ACClassDesignID", "VBGroupRight")]
-        public EntityCollection<VBGroupRight> VBGroupRight_ACClassDesign
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<VBGroupRight>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "VBGroupRight");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<VBGroupRight>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "VBGroupRight", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUser_MenuACClassDesignID", "VBUser")]
-        public EntityCollection<VBUser> VBUser_MenuACClassDesign
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<VBUser>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "VBUser");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<VBUser>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "VBUser", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_ACClassDesignID", "VBUserACClassDesign")]
-        public EntityCollection<VBUserACClassDesign> VBUserACClassDesign_ACClassDesign
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<VBUserACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "VBUserACClassDesign");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<VBUserACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "VBUserACClassDesign", value);
-                }
-            }
-        }
     
         /// <summary>
         /// 
@@ -5520,6 +5502,72 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClass>("VarioiplusV3_devModel.FK_ACClassDesign_ValueTypeACClassID", "ACClass", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_ACClassDesignID", "VBGroupRight")]
+        public EntityCollection<VBGroupRight> VBGroupRight_ACClassDesign
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<VBGroupRight>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "VBGroupRight");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<VBGroupRight>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "VBGroupRight", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUser_MenuACClassDesignID", "VBUser")]
+        public EntityCollection<VBUser> VBUser_MenuACClassDesign
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<VBUser>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "VBUser");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<VBUser>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "VBUser", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_ACClassDesignID", "VBUserACClassDesign")]
+        public EntityCollection<VBUserACClassDesign> VBUserACClassDesign_ACClassDesign
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedCollection<VBUserACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "VBUserACClassDesign");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<VBUserACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "VBUserACClassDesign", value);
                 }
             }
         }
@@ -19697,44 +19745,6 @@ namespace gip.core.datamodel
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_ACClassDesignID", "ACClassDesign")]
-        public ACClassDesign ACClassDesign
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign").Value;
-            }
-            set
-            {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign").Value = value;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
-        public EntityReference<ACClassDesign> ACClassDesignReference
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_VBGroupID", "VBGroup")]
         public VBGroup VBGroup
         {
@@ -19877,6 +19887,44 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassMethod>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassMethodID", "ACClassMethod", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBGroupRight_ACClassDesignID", "ACClassDesign")]
+        public ACClassDesign ACClassDesign
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign").Value = value;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<ACClassDesign> ACClassDesignReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBGroupRight_ACClassDesignID", "ACClassDesign", value);
                 }
             }
         }
@@ -22204,44 +22252,6 @@ namespace gip.core.datamodel
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUser_MenuACClassDesignID", "ACClassDesign")]
-        public ACClassDesign MenuACClassDesign
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign").Value;
-            }
-            set
-            {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign").Value = value;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
-        public EntityReference<ACClassDesign> MenuACClassDesignReference
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_ACClassTaskValue_VBUserID", "ACClassTaskValue")]
         public EntityCollection<ACClassTaskValue> ACClassTaskValue_VBUser
         {
@@ -22402,6 +22412,44 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedCollection<ACChangeLog>("VarioiplusV3_devModel.FK_ACChangeLog_VBUser", "ACChangeLog", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUser_MenuACClassDesignID", "ACClassDesign")]
+        public ACClassDesign MenuACClassDesign
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign").Value = value;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<ACClassDesign> MenuACClassDesignReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUser_MenuACClassDesignID", "ACClassDesign", value);
                 }
             }
         }
@@ -22673,44 +22721,6 @@ namespace gip.core.datamodel
         [XmlIgnoreAttribute()]
         [SoapIgnoreAttribute()]
         [DataMemberAttribute()]
-        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign")]
-        public ACClassDesign ACClassDesign
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign").Value;
-            }
-            set
-            {
-                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign").Value = value;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        [BrowsableAttribute(false)]
-        [DataMemberAttribute()]
-        public EntityReference<ACClassDesign> ACClassDesignReference
-        {
-            get
-            {
-                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign");
-            }
-            set
-            {
-                if ((value != null))
-                {
-                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign", value);
-                }
-            }
-        }
-    
-        /// <summary>
-        /// 
-        /// </summary>
-        [XmlIgnoreAttribute()]
-        [SoapIgnoreAttribute()]
-        [DataMemberAttribute()]
         [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_VBUserID", "VBUser")]
         public VBUser VBUser
         {
@@ -22739,6 +22749,44 @@ namespace gip.core.datamodel
                 if ((value != null))
                 {
                     ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<VBUser>("VarioiplusV3_devModel.FK_VBUserACClassDesign_VBUserID", "VBUser", value);
+                }
+            }
+        }
+    
+        /// <summary>
+        /// 
+        /// </summary>
+        [XmlIgnoreAttribute()]
+        [SoapIgnoreAttribute()]
+        [DataMemberAttribute()]
+        [EdmRelationshipNavigationPropertyAttribute("VarioiplusV3_devModel", "FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign")]
+        public ACClassDesign ACClassDesign
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign").Value;
+            }
+            set
+            {
+                ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign").Value = value;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        [BrowsableAttribute(false)]
+        [DataMemberAttribute()]
+        public EntityReference<ACClassDesign> ACClassDesignReference
+        {
+            get
+            {
+                return ((IEntityWithRelationships)this).RelationshipManager.GetRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign");
+            }
+            set
+            {
+                if ((value != null))
+                {
+                    ((IEntityWithRelationships)this).RelationshipManager.InitializeRelatedReference<ACClassDesign>("VarioiplusV3_devModel.FK_VBUserACClassDesign_ACClassDesignID", "ACClassDesign", value);
                 }
             }
         }
