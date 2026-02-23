@@ -9,6 +9,7 @@ using CoreWCF.IdentityModel.Tokens;
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
+using gip.ext.designer.avui.Controls;
 using gip.iplus.client.avui.Views;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using ReactiveUI;
@@ -114,6 +115,8 @@ public partial class App : Application
 
         IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;
 
+        
+
         if (desktop != null)
         {
             // Create the AutoSuspendHelper.
@@ -128,6 +131,7 @@ public partial class App : Application
             // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
             DisableAvaloniaDataAnnotationValidation();
 
+            
 
             // Show splash screen window
             _LoginWindow = new LoginWindow(
@@ -165,6 +169,8 @@ public partial class App : Application
             ISingleViewApplicationLifetime singleViewPlatform = ApplicationLifetime as ISingleViewApplicationLifetime;
             if (singleViewPlatform != null)
             {
+                UserControl rootControl = new UserControl();
+
                 // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
                 // More info: https://docs.avaloniaui.net/docs/guides/development-guides/data-validation#manage-validationplugins
                 DisableAvaloniaDataAnnotationValidation();
@@ -183,10 +189,15 @@ public partial class App : Application
                         // If login was successful, show main window
                         if (ACRoot.SRoot != null)
                         {
-                            singleViewPlatform.MainView = null;
                             MainSingleView singleView = new MainSingleView();
-                            singleViewPlatform.MainView = singleView;
+                            singleView.DataContext = ACRoot.SRoot.Businessobjects;
                             ACRoot.SRoot.RootPageWPF = singleView;
+
+                            rootControl.Content= singleView;
+
+                            // Assign to MainView
+                            //singleViewPlatform.MainView = singleView;
+
                         }
                     }
                 }
@@ -196,7 +207,8 @@ public partial class App : Application
                 _LoginView.DataContext = _AppSettings;
 
 
-                singleViewPlatform.MainView = _LoginView;
+                rootControl.Content = _LoginView;
+                singleViewPlatform.MainView = rootControl;
             }
         }
 

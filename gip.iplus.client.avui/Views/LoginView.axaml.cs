@@ -189,16 +189,6 @@ public partial class LoginView : UserControl
         }
     }
 
-    protected override Size ArrangeOverride(Size finalSize)
-    {
-        return base.ArrangeOverride(finalSize);
-    }
-
-    protected override void ArrangeCore(Rect finalRect)
-    {
-        base.ArrangeCore(finalRect);
-    }
-
     protected override void OnUnloaded(RoutedEventArgs e)
     {
         if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)

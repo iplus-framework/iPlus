@@ -1,1 +1,0 @@
-delete from ACClass where ACIdentifier in ('BSOFilePath' ,'BSOPathDialog');

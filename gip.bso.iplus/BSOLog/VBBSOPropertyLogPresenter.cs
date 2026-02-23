@@ -198,6 +198,21 @@ namespace gip.bso.iplus
             }
         }
 
+        private bool _ShowAlarmsInTimeline;
+        /// <summary>
+        /// Gets or sets a value indicating whether alarms should be shown.
+        /// </summary>
+        [ACPropertyInfo(411, "", "en{'Show Alarms'}de{'Alarme anzeigen'}")]
+        public bool ShowAlarmsInTimeline
+        {
+            get => _ShowAlarmsInTimeline; 
+            set
+            {
+                _ShowAlarmsInTimeline = value;
+                OnPropertyChanged();
+            }
+        }
+
         #endregion
 
         #region Properties => TimelineView
@@ -733,7 +748,7 @@ namespace gip.bso.iplus
                 if (groupedByProp.Count() > 1)
                 {
                     IEnumerable<ACPropertyLogModel> compactModels = DetermineCompactModelView(groupedByProp, groupedItem.Key, Db, logModelClass);
-                    IEnumerable<ACPropertyLogModel> hostModels = ACPropertyLogModel.SetupCompactModel(logModelClass, compactModels, groupedItem.Key, out displayOrder);
+                    IEnumerable<ACPropertyLogModel> hostModels = ACPropertyLogModel.SetupCompactModel(logModelClass, compactModels, groupedItem.Key, ShowAlarmsInTimeline, out displayOrder);
                     if (hostModels.Any())
                         propertyLogs.AddRange(hostModels);
                     propertyLogs.AddRange(compactModels);
@@ -767,13 +782,15 @@ namespace gip.bso.iplus
                             logModelClass.AddItem(propLog);
                             propLog.ParentACObject = logModelClass;
 
-                            var alarms = propLog.DeterminePropertyLogAlarms(groupedItem.Key);
-                            if (alarms != null && alarms.Any())
+                            if (ShowAlarmsInTimeline)
                             {
-                                propertyLogs.AddRange(alarms);
-                                logModelClass.AddItems(alarms);
+                                var alarms = propLog.DeterminePropertyLogAlarms(groupedItem.Key);
+                                if (alarms != null && alarms.Any())
+                                {
+                                    propertyLogs.AddRange(alarms);
+                                    logModelClass.AddItems(alarms);
+                                }
                             }
-
                             propertyLogs.Add(propLog);
                         }
 
@@ -858,11 +875,14 @@ namespace gip.bso.iplus
                         logModelProp.AddItem(propLog);
                         propLog.ParentACObject = logModelProp;
 
-                        var alarms = propLog.DeterminePropertyLogAlarms(groupedItem.Key);
-                        if (alarms != null && alarms.Any())
+                        if (ShowAlarmsInTimeline)
                         {
-                            propertyLogs.AddRange(alarms);
-                            logModelProp.AddItems(alarms);
+                            var alarms = propLog.DeterminePropertyLogAlarms(groupedItem.Key);
+                            if (alarms != null && alarms.Any())
+                            {
+                                propertyLogs.AddRange(alarms);
+                                logModelProp.AddItems(alarms);
+                            }
                         }
 
                         propertyLogs.Add(propLog);
@@ -2138,12 +2158,7 @@ namespace gip.bso.iplus
         /// <summary>
         /// Setups the compact propertylog model.
         /// </summary>
-        /// <param name="classModel">The classModel parameter.</param>
-        /// <param name="compactModels">The compactModels parameter.</param>
-        /// <param name="componentClass">The componentClass parameter.</param>
-        /// <param name="displayOrder">The displayOrder parameter.</param>
-        /// <returns>List of a Compact models.</returns>
-        public static IEnumerable<ACPropertyLogModel> SetupCompactModel(ACPropertyLogModel classModel, IEnumerable<ACPropertyLogModel> compactModels, ACClass componentClass, out int displayOrder)
+        public static IEnumerable<ACPropertyLogModel> SetupCompactModel(ACPropertyLogModel classModel, IEnumerable<ACPropertyLogModel> compactModels, ACClass componentClass, bool showAlarmsInTimeline, out int displayOrder)
         {
             List<ACPropertyLogModel> result = new List<ACPropertyLogModel>();
 
@@ -2162,11 +2177,14 @@ namespace gip.bso.iplus
                     {
                         cm.DisplayOrder = classModel.DisplayOrder;
                         cm.ParentACObject = classModel;
-                        var alarms = cm.DeterminePropertyLogAlarms(componentClass);
-                        if (alarms != null && alarms.Any())
+                        if (showAlarmsInTimeline)
                         {
-                            result.AddRange(alarms);
-                            classModel.AddItems(alarms);
+                            var alarms = cm.DeterminePropertyLogAlarms(componentClass);
+                            if (alarms != null && alarms.Any())
+                            {
+                                result.AddRange(alarms);
+                                classModel.AddItems(alarms);
+                            }
                         }
                     }
                     classModel.AddItems(groupedModel);
@@ -2187,11 +2205,14 @@ namespace gip.bso.iplus
                     {
                         cm.DisplayOrder = displayOrder;
                         cm.ParentACObject = hostModel;
-                        var alarms = cm.DeterminePropertyLogAlarms(componentClass);
-                        if (alarms != null && alarms.Any())
+                        if (showAlarmsInTimeline)
                         {
-                            result.AddRange(alarms);
-                            classModel.AddItems(alarms);
+                            var alarms = cm.DeterminePropertyLogAlarms(componentClass);
+                            if (alarms != null && alarms.Any())
+                            {
+                                result.AddRange(alarms);
+                                classModel.AddItems(alarms);
+                            }
                         }
                     }
                     hostModel.AddItems(groupedModel);

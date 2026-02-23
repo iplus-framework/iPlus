@@ -38,7 +38,7 @@ $SolutionFiles = @(
 	@{ Path = "..\..\Avalonia.Labs\iPlusAvalonia.sln"; Name = "Avalonia Labs"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\SVG\Source\iPlusAvalonia.sln"; Name = "SVG"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\Avalonia.Controls.DataGrid\iPlusAvalonia.sln"; Name = "DataGrid Controls"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\Avalonia.Xaml.Behaviors\iPlusAvalonia.sln"; Name = "XAML Behaviors"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\Xaml.Behaviors\iPlusAvalonia.sln"; Name = "XAML Behaviors"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\AvSvg.Skia\iPlusAvalonia.sln"; Name = "SVG Skia"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\AvRichTextBox\iPlusAvalonia.sln"; Name = "Rich Text Box"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\AvMarkdown.Avalonia\iPlusAvalonia.sln"; Name = "Markdown Avalonia"; Priority = 1; Critical = $false },

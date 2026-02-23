@@ -54,17 +54,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="VBControlScripts\2022-11-19 17-06_dlisak.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="VBControlScripts\2023-01-14 13-39_dlisak.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Include="VBControlScripts\2024-04-10 08-39_dlisak.zip">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="OPCUAClient.Config.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -76,6 +65,7 @@
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Core"  />
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Security.Certificates"  />
     <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua.Server"  />
+    <Folder Include="VBControlScripts\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="readme.md">

@@ -6,7 +6,7 @@
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">$(DefaultCodeAnalysisVersion)</CodeAnalysisVersion>
 		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
 		<RoslynVersion>4.12.1</RoslynVersion>
-		<DotNetExtensionsVersion>9.0.0</DotNetExtensionsVersion>
+		<DotNetExtensionsVersion>9.0.1</DotNetExtensionsVersion>
 		<SystemCompositionVersion>9.0.1</SystemCompositionVersion>
 		<NuGetVersion>6.14.0</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
