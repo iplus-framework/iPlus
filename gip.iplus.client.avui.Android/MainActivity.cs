@@ -4,6 +4,7 @@ using Android.OS;
 using Android.Views;
 using Avalonia;
 using Avalonia.Android;
+using Avalonia.Controls;
 using System;
 
 namespace gip.iplus.client.avui.Android;
@@ -32,13 +33,19 @@ public class MainActivity : AvaloniaMainActivity<App>
         base.OnCreate(savedInstanceState);
         BackRequested += MainActivity_BackRequested;
         
-        if (this.Content != null && this.Content is LoginView loginView) 
+        if (this.Content != null && this.Content is UserControl) 
         {
-            loginView.LoginCancelled += (s, e) =>
+            UserControl rootControl = (UserControl)this.Content;
+            LoginView? loginView = rootControl.Content as LoginView;
+
+            if (loginView != null)
             {
-                FinishAffinity();
-                Java.Lang.JavaSystem.Exit(0);
-            };
+                loginView.LoginCancelled += (s, e) =>
+                {
+                    FinishAffinity();
+                    Java.Lang.JavaSystem.Exit(0);
+                };
+            }
         }
     }
 
@@ -52,18 +59,22 @@ public class MainActivity : AvaloniaMainActivity<App>
     {
         e.Handled = true;
 
-        if (this.Content != null && this.Content is MainSingleView)
+        if (this.Content != null && this.Content is UserControl)
         {
-            MainSingleView mainSingleView = (MainSingleView)this.Content;
+            UserControl rootControl = (UserControl)this.Content;
+            MainSingleView? mainSingleView = rootControl.Content as MainSingleView;
 
-            if (mainSingleView.CanClose)
+            if (mainSingleView != null)
             {
-                FinishAffinity();
-                Java.Lang.JavaSystem.Exit(0);
-                return;
-            }
+                if (mainSingleView.CanClose)
+                {
+                    FinishAffinity();
+                    Java.Lang.JavaSystem.Exit(0);
+                    return;
+                }
 
-            mainSingleView.BackButton_Click(sender, new Avalonia.Interactivity.RoutedEventArgs());
+                mainSingleView.BackButton_Click(sender, new Avalonia.Interactivity.RoutedEventArgs());
+            }
         }
     }
 }

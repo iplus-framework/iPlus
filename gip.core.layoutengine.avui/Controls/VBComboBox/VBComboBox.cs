@@ -293,6 +293,10 @@ namespace gip.core.layoutengine.avui
             if (DisableContextMenu)
                 ContextFlyout = null;
 
+            var root = Database.Root;
+            if (root != null)
+                IsSingleViewApp = root.IsSingleViewApp;
+
             if (String.IsNullOrEmpty(VBContent))
                 return;
 
@@ -1526,5 +1530,18 @@ namespace gip.core.layoutengine.avui
             return this.ReflectACUrlTypeInfo(acUrl, ref acUrlTypeInfo);
         }
         #endregion
+
+        public static readonly StyledProperty<bool> IsSingleViewAppProperty =
+            AvaloniaProperty.Register<VBComboBox, bool>(nameof(IsSingleViewApp), defaultValue: false);
+
+        /// <summary>
+        /// Gets or sets whether the application is running in single view mode.
+        /// </summary>
+        [Category("VBControl")]
+        public bool IsSingleViewApp
+        {
+            get { return GetValue(IsSingleViewAppProperty); }
+            set { SetValue(IsSingleViewAppProperty, value); }
+        }
     }
 }
