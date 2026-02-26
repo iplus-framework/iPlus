@@ -41,6 +41,26 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     private IInsetsManager _insetsManager;
     private IInputPane _inputPane;
 
+    /// <summary>
+    /// Represents the dependency property for IsSingleViewApp.
+    /// </summary>
+    public static readonly AttachedProperty<bool> IsSingleViewAppProperty =
+        ContentPropertyHandler.IsSingleViewAppProperty.AddOwner<MainSingleView>();
+    /// <summary>
+    /// Determines if the application is a single view app.
+    /// </summary>
+    /// <summary xml:lang="de">
+    /// Ermittelt, ob die Anwendung eine Single-View-App ist.
+    /// </summary>
+    [Category("VBControl")]
+    [ACPropertyInfo(9999)]
+    public bool IsSingleViewApp
+    {
+        get { return GetValue(IsSingleViewAppProperty); }
+        set { SetValue(IsSingleViewAppProperty, value); }
+    }
+
+
     #region eventhandling
     ACMenuItem mainMenu;
     protected override void OnLoaded(RoutedEventArgs e)
@@ -98,6 +118,13 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
                 _inputPane.StateChanged += InputPane_StateChanged;
             }
         }
+
+        ACValueItemList settings = CommandLineHelper.Settings;
+        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(LoginView.SingleViewEnabled)).FirstOrDefault()?.Value as bool?;
+        if (singleViewEnabled.HasValue)
+            IsSingleViewApp = singleViewEnabled.Value;
+        else
+            IsSingleViewApp = Database.Root.IsSingleViewApp;
     }
 
     private void InputPane_StateChanged(object? sender, InputPaneStateEventArgs e)
@@ -108,12 +135,14 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             var safeArea = _insetsManager.SafeAreaPadding;
             var occludedArea = _inputPane.OccludedRect;
 
+            double topPadding = this.Padding.Top;
+
             // Combine safe area with keyboard height
             this.Padding = new Thickness(
                 safeArea.Left,
-                safeArea.Top,
+                topPadding,
                 safeArea.Right,
-                occludedArea.Height + safeArea.Bottom
+                occludedArea.Height
             );
 
             Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;

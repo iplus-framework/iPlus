@@ -84,10 +84,6 @@ namespace gip.core.layoutengine.avui
             if (_Initialized || DataContext == null)
                 return;
 
-            var root = Database.Root;
-            if (root != null)
-                IsSingleViewApp = root.IsSingleViewApp;
-
             if (DisableContextMenu)
                 ContextFlyout = null;
 
@@ -510,6 +506,25 @@ namespace gip.core.layoutengine.avui
             set { SetValue(TransferOnLostFocusProperty, value); }
         }
 
+
+        /// <summary>
+        /// Represents the dependency property for IsSingleViewApp.
+        /// </summary>
+        public static readonly AttachedProperty<bool> IsSingleViewAppProperty =
+            ContentPropertyHandler.IsSingleViewAppProperty.AddOwner<VBTextBox>();
+        /// <summary>
+        /// Determines if the application is a single view app.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Ermittelt, ob die Anwendung eine Single-View-App ist.
+        /// </summary>
+        [Category("VBControl")]
+        [ACPropertyInfo(9999)]
+        public bool IsSingleViewApp
+        {
+            get { return GetValue(IsSingleViewAppProperty); }
+            set { SetValue(IsSingleViewAppProperty, value); }
+        }
 
         #endregion //TransferOnLostFocus
 
@@ -1429,19 +1444,5 @@ namespace gip.core.layoutengine.avui
         }
 
         #endregion
-
-
-        public static readonly StyledProperty<bool> IsSingleViewAppProperty =
-            AvaloniaProperty.Register<VBTextBox, bool>(nameof(IsSingleViewApp), defaultValue: false);
-
-        /// <summary>
-        /// Gets or sets whether the application is running in single view mode.
-        /// </summary>
-        [Category("VBControl")]
-        public bool IsSingleViewApp
-        {
-            get { return GetValue(IsSingleViewAppProperty); }
-            set { SetValue(IsSingleViewAppProperty, value); }
-        }
     }
 }

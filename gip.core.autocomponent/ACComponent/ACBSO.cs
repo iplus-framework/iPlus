@@ -77,7 +77,10 @@ namespace gip.core.autocomponent
         public override bool ACPostInit()
         {
             if (this.Database != null && this.Database.ChangeTracker != null)
+            {
                 this.Database.ChangeTracker.StateChanged += ChangeTracker_StateChanged;
+                this.Database.ChangeTracker.Tracked += ChangeTracker_Tracked;
+            }
             return base.ACPostInit();
         }
 
@@ -93,7 +96,10 @@ namespace gip.core.autocomponent
             {
 
                 if (this.Database != null && this.Database.ChangeTracker != null)
+                {
                     this.Database.ChangeTracker.StateChanged -= ChangeTracker_StateChanged;
+                    this.Database.ChangeTracker.Tracked -= ChangeTracker_Tracked;
+                }
             }
             catch (ObjectDisposedException ex)
             {
@@ -129,6 +135,11 @@ namespace gip.core.autocomponent
         }
 
         private void ChangeTracker_StateChanged(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityStateChangedEventArgs e)
+        {
+            DbChangeCount++;
+        }
+
+        private void ChangeTracker_Tracked(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityTrackedEventArgs e)
         {
             DbChangeCount++;
         }

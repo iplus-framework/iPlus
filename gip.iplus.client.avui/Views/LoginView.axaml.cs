@@ -344,6 +344,22 @@ public partial class LoginView : UserControl
         DatabaseName.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseName)).FirstOrDefault()?.Value as string;
         DatabaseUser.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault()?.Value as string;
         DatabasePassword.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
+        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(SingleViewEnabled)).FirstOrDefault()?.Value as bool?;
+        if (singleViewEnabled.HasValue)
+            SingleViewEnabled.IsChecked = singleViewEnabled.Value;
+        else
+            SingleViewEnabled.IsChecked = true;
+    }
+
+    private void SwitchSettingsView()
+    {
+        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
+        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
+
+        if (SettingsGrid.IsVisible)
+            iPlusLogo.Height = 150;
+        else
+            iPlusLogo.Height = Double.NaN;
     }
 
     private void Image_DoubleTapped(object sender, TappedEventArgs e)
@@ -353,8 +369,7 @@ public partial class LoginView : UserControl
 
         LoadSettings();
 
-        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
-        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
+        SwitchSettingsView();
     }
 
     private void ButtonSave_Click(object sender, RoutedEventArgs e)
@@ -403,10 +418,21 @@ public partial class LoginView : UserControl
             dbPasswordVal.Value = DatabasePassword.Text;
         }
 
+        ACValueItem singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(SingleViewEnabled)).FirstOrDefault();
+        if (singleViewVal == null)
+        {
+            SingleViewEnabled.IsChecked = true;
+            singleViewVal = new ACValueItem(nameof(SingleViewEnabled), SingleViewEnabled.IsChecked, null);
+            CommandLineHelper.Settings.Add(singleViewVal);
+        }
+        else
+        {
+            singleViewVal.Value = SingleViewEnabled.IsChecked;
+        }
+
         CommandLineHelper.SaveSettings();
 
-        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
-        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
+        SwitchSettingsView();
     }
 
     #endregion
