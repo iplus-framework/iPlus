@@ -20,7 +20,7 @@
       </Style.Animations>
     </Style>
   </UserControl.Styles>
-	<ScrollViewer x:Name="MainScrollViewer">
+	<ScrollViewer x:Name="MainScrollViewer" VerticalScrollBarVisibility="Disabled">
         <SplitView x:Name="MainSplitView"
                    DisplayMode="Overlay"
                    IsPaneOpen="False"

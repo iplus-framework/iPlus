@@ -23,7 +23,7 @@
       </Border.Background>
     </Border>
 	  
-	  <Image x:Name="iPlusLogo" Classes="iPlusLogoClass" Source="/Assets/Login.png" DoubleTapped="Image_DoubleTapped">
+	  <Image Height="400" x:Name="iPlusLogo" Classes="iPlusLogoClass" Source="/Assets/Login.png" DoubleTapped="Image_DoubleTapped">
 
     </Image>
    

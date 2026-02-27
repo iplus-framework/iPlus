@@ -145,17 +145,21 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
                 occludedArea.Height
             );
 
+            if (occludedArea.Height > 0)
+                MainScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            else
+                MainScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
+
             Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
             if (focusedElement != null)
             {
                 try
                 {
                     PixelPoint position = focusedElement.PointToScreen(new Point(0, focusedElement.Bounds.Height));
-                    MainScrollViewer.Offset = new Vector(0, position.Y - (_topLevel.Bounds.Height - occludedArea.Height));
+                    MainScrollViewer.Offset = new Vector(0, position.Y - _topLevel.Bounds.Height);
                 }
                 catch (Exception)
                 {
-
                 }
             }
         }

@@ -165,12 +165,13 @@ public partial class LoginView : UserControl
             var safeArea = _insetsManager.SafeAreaPadding;
             var occludedArea = _inputPane.OccludedRect;
 
+            double topPadding = this.Padding.Top;
             // Combine safe area with keyboard height
             this.Padding = new Thickness(
                 safeArea.Left,
-                safeArea.Top,
+                topPadding,
                 safeArea.Right,
-                occludedArea.Height + safeArea.Bottom
+                occludedArea.Height
             );
 
             Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
@@ -179,7 +180,7 @@ public partial class LoginView : UserControl
                 try
                 {
                     PixelPoint position = focusedElement.PointToScreen(new Point(0, focusedElement.Bounds.Height));
-                    scrollViewer.Offset = new Vector(0, position.Y - (_topLevel.Bounds.Height - occludedArea.Height));
+                    scrollViewer.Offset = new Vector(0, position.Y - _topLevel.Bounds.Height);
                 }
                 catch (Exception)
                 {
@@ -359,7 +360,7 @@ public partial class LoginView : UserControl
         if (SettingsGrid.IsVisible)
             iPlusLogo.Height = 150;
         else
-            iPlusLogo.Height = Double.NaN;
+            iPlusLogo.Height = 400;
     }
 
     private void Image_DoubleTapped(object sender, TappedEventArgs e)

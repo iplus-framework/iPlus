@@ -14,7 +14,8 @@ namespace gip.iplus.client.avui.Android;
     Theme = "@style/MyTheme.NoActionBar",
     Icon = "@drawable/icon",
     MainLauncher = true,
-    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode)]
+    ConfigurationChanges = ConfigChanges.Orientation | ConfigChanges.ScreenSize | ConfigChanges.UiMode,
+    WindowSoftInputMode = SoftInput.AdjustResize)]
  #if AVALONIAFORK
 public class MainActivity : AvaloniaMainActivity
  #else   
