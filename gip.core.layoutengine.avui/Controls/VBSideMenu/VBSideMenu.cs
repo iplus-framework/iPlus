@@ -113,24 +113,24 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
-        {
-            base.OnDetachedFromLogicalTree(e);
+        //protected override void OnDetachedFromLogicalTree(LogicalTreeAttachmentEventArgs e)
+        //{
+        //    base.OnDetachedFromLogicalTree(e);
 
-            if (_backButton != null)
-            {
-                _backButton.Click -= OnBackClick;
-            }
+        //    //if (_backButton != null)
+        //    //{
+        //    //    _backButton.Click -= OnBackClick;
+        //    //}
 
-            foreach (var item in Items)
-            {
-                VBSideMenuItem menuItem = item as VBSideMenuItem;
-                if (menuItem != null)
-                {
-                    menuItem.DeInitVBControl();
-                }
-            }
-        }
+        //    //foreach (var item in Items)
+        //    //{
+        //    //    VBSideMenuItem menuItem = item as VBSideMenuItem;
+        //    //    if (menuItem != null)
+        //    //    {
+        //    //        menuItem.DeInitVBControl();
+        //    //    }
+        //    //}
+        //}
 
         #endregion
     }

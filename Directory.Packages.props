@@ -165,6 +165,7 @@
 		<PackageVersion Include="TimeStampClient" Version="1.2.0" />
 		<PackageVersion Include="WindowsAPICodePack" Version="8.0.6" />
 		<PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.17" />
+		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.2.0.3"  />
 		<PackageVersion Include="Xaml.Behaviors" Version="11.3.6.6" />
 		<!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
 		<PackageVersion Include="System.Text.Json" Version="9.0.9" />

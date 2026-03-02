@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen"  />
+	
     <PackageReference Include="ReactiveUI"  />
     <PackageReference Include="CoreWCF.Primitives" />
   </ItemGroup>
@@ -42,6 +43,7 @@
   <!-- Use Avalonia Fork -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
     <PackageReference Include="Xamarin.AndroidX.AppCompat"  />
+	<PackageReference Include="Xamarin.AndroidX.Window" />
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseAndroidInclude.props" />
