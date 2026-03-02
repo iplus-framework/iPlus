@@ -647,7 +647,7 @@ namespace gip.bso.iplus
         public void Search()
         {
             AccessPrimary.NavSearch(Db, Db.RecommendedMergeOption);
-            OnPropertyChanged("UserList");
+            OnPropertyChanged(nameof(UserList));
         }
 
         /// <summary>
