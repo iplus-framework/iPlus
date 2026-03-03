@@ -58,6 +58,7 @@ public partial class LoginView : UserControl
     private Settings UserSettings => DataContext as Settings;
 
     public event EventHandler LoginCancelled;
+    public event EventHandler LoginStarted;
 
     private TopLevel _topLevel;
     private IInsetsManager _insetsManager;
@@ -311,6 +312,8 @@ public partial class LoginView : UserControl
     /// <param name="e"></param>
     private void ButtonLogin_Click(object sender, RoutedEventArgs e)
     {
+        LoginStarted?.Invoke(this, new EventArgs());
+
         //_WpfTheme = (eWpfTheme)System.Enum.Parse(typeof(eWpfTheme), selTheme.SelectedValue.ToString());
         _User = TextboxUser.Text;
         _Password = TextboxPassword.Text;
