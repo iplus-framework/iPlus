@@ -145,6 +145,7 @@
 		<PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
+		<PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.3" />
 		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
 		<PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />	
 		<PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
@@ -445,6 +446,7 @@
 		<PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
+		<PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.0" />
 		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.0" />
 		<PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
