@@ -44,7 +44,7 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnDragEnter event.
         /// </summary>
         /// <param name="e">The DragEvent arguments.</param>
-        protected void OnDragEnter(DragEventArgs e)
+        protected void OnDragEnter(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
             {
@@ -62,7 +62,7 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnDragLeave event.
         /// </summary>
         /// <param name="e">The DragEvents arguments.</param>
-        protected void OnDragLeave(DragEventArgs e)
+        protected void OnDragLeave(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
             {
@@ -76,7 +76,7 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnDragOver event.
         /// </summary>
         /// <param name="e">The DragEvent arguments.</param>
-        protected void OnDragOver(DragEventArgs e)
+        protected void OnDragOver(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
             {
@@ -90,7 +90,7 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnDrop event.
         /// </summary>
         /// <param name="e">The DragEvent arguments.</param>
-        protected void OnDrop(DragEventArgs e)
+        protected void OnDrop(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
             {

@@ -436,150 +436,171 @@ namespace gip.core.layoutengine.avui
             }
             else if (change.Property == ChangeInfoProperty)
             {
-                switch (ChangeInfo.ChangeCmd)
+                // Decouple from the property change event because modifying Items/ItemCollection
+                // while a binding sync or UI event is in progress can throw InvalidOperationException
+                // in Avalonia if the collection is in ItemsSource mode.
+                // DispatcherPriority.Background is used to ensure it runs after UI processing is complete.
+                Avalonia.Threading.Dispatcher.UIThread.Post(() =>
                 {
-                    case Const.CmdDeleteData:
-                        {
-                            // SelectedItem is now a model object
-                            IACObject selectedModel = SelectedItem as IACObject;
-                            if (selectedModel != null)
-                            {
-                                var container = ContainerFromItem(selectedModel) as VBTreeViewItem;
-                                if (container != null)
-                                {
-                                    if (container.Parent is TreeView treeView) // Root-Item
-                                    {
-                                        treeView.Items.Remove(selectedModel);
-                                    }
-                                    else if (container.Parent is VBTreeViewItem parentContainer)
-                                    {
-                                        // Get parent model object
-                                        var parentModel = parentContainer.ContentACObject;
-                                        
-                                        if (parentModel is IACContainerWithItems containerWithItems && 
-                                            selectedModel is IACContainerWithItems)
-                                        {
-                                            containerWithItems.Remove(selectedModel as IACContainerWithItems);
-                                        }
-                                        parentContainer.Items.Remove(selectedModel);
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdNewData:
-                        {
-                            IACObject selectedModel = SelectedItem as IACObject;
-                            if (selectedModel != null && ChangeInfo.ChangedObject is IACObject newModel)
-                            {
-                                var container = ContainerFromItem(selectedModel) as VBTreeViewItem;
-                                if (container != null)
-                                {
-                                    if (container.Parent is TreeView treeView) // Root-Item
-                                    {
-                                        treeView.Items.Add(newModel);
-                                        SelectedItem = newModel;
-                                        var newContainer = ContainerFromItem(newModel) as TreeViewItem;
-                                        newContainer?.BringIntoView();
-                                    }
-                                    else if (container.Parent is VBTreeViewItem parentContainer)
-                                    {
-                                        parentContainer.Items.Add(newModel);
-                                        SelectedItem = newModel;
-                                        var newContainer = ContainerFromItem(newModel) as TreeViewItem;
-                                        newContainer?.BringIntoView();
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdInsertData:
-                        {
-                            IACObject selectedModel = SelectedItem as IACObject;
-                            if (selectedModel != null && ChangeInfo.ChangedObject is IACObject newModel)
-                            {
-                                var container = ContainerFromItem(selectedModel) as VBTreeViewItem;
-                                if (container != null && container.Parent is VBTreeViewItem parentContainer)
-                                {
-                                    // Find the index of the selected item in parent's Items
-                                    int index = parentContainer.Items.IndexOf(selectedModel);
-                                    if (index >= 0)
-                                    {
-                                        parentContainer.Items.Insert(index, newModel);
-                                        SelectedItem = newModel;
-                                        var newContainer = ContainerFromItem(newModel) as TreeViewItem;
-                                        newContainer?.BringIntoView();
-                                    }
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdAddChildData:
-                        {
-                            IACObject targetModel = null;
-                            if (ChangeInfo.ParentObject != null)
-                            {
-                                targetModel = FindItem(Items, ChangeInfo.ParentObject);
-                            }
-                            else
-                            {
-                                targetModel = SelectedItem as IACObject;
-                            }
-                            
-                            if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
-                            {
-                                var container = ContainerFromItem(targetModel) as VBTreeViewItem;
-                                if (container != null)
-                                {
-                                    AddModelItem(container.Items, newModel);
-                                    SelectedItem = newModel;
-                                    var newContainer = ContainerFromItem(newModel) as TreeViewItem;
-                                    newContainer?.BringIntoView();
-                                }
-                            }
-                        }
-                        break;
-                    case Const.CmdAddChildNoExpand:
-                        {
-                            IACObject targetModel = null;
-                            if (ChangeInfo.ParentObject != null)
-                                targetModel = FindItem(Items, ChangeInfo.ParentObject);
-                            else
-                                targetModel = SelectedItem as IACObject;
+                    if (ChangeInfo == null)
+                        return;
 
-                            if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
+                    switch (ChangeInfo.ChangeCmd)
+                    {
+                        case Const.CmdDeleteData:
                             {
-                                var container = ContainerFromItem(targetModel) as VBTreeViewItem;
-                                if (container != null)
+                                // SelectedItem is now a model object
+                                IACObject selectedModel = SelectedItem as IACObject;
+                                if (selectedModel != null)
                                 {
-                                    AddModelItem(container.Items, newModel);
+                                    var container = TreeContainerFromItem(selectedModel) as VBTreeViewItem;
+                                    if (container != null)
+                                    {
+                                        if (container.Parent is TreeView treeView) // Root-Item
+                                        {
+                                            if (!treeView.Items.IsReadOnly)
+                                                treeView.Items.Remove(selectedModel);
+                                        }
+                                        else if (container.Parent is VBTreeViewItem parentContainer)
+                                        {
+                                            // Get parent model object
+                                            var parentModel = parentContainer.ContentACObject;
+
+                                            if (parentModel is IACContainerWithItems containerWithItems &&
+                                                selectedModel is IACContainerWithItems)
+                                            {
+                                                containerWithItems.Remove(selectedModel as IACContainerWithItems);
+                                            }
+                                            if (!parentContainer.Items.IsReadOnly)
+                                                parentContainer.Items.Remove(selectedModel);
+                                        }
+                                    }
                                 }
                             }
-                        }
-                        break;
-                    case Const.CmdUpdateAllData:
-                        {
-                            IACObject targetModel = null;
-                            if (ChangeInfo.ChangedObject is IACObject changedModel)
+                            break;
+                        case Const.CmdNewData:
                             {
-                                targetModel = FindItem(Items, changedModel);
+                                IACObject selectedModel = SelectedItem as IACObject;
+                                if (selectedModel != null && ChangeInfo.ChangedObject is IACObject newModel)
+                                {
+                                    var container = TreeContainerFromItem(selectedModel) as VBTreeViewItem;
+                                    if (container != null)
+                                    {
+                                        if (container.Parent is TreeView treeView) // Root-Item
+                                        {
+                                            if (!treeView.Items.IsReadOnly)
+                                            {
+                                                treeView.Items.Add(newModel);
+                                                SelectedItem = newModel;
+                                                var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
+                                                newContainer?.BringIntoView();
+                                            }
+                                        }
+                                        else if (container.Parent is VBTreeViewItem parentContainer)
+                                        {
+                                            if (!parentContainer.Items.IsReadOnly)
+                                            {
+                                                parentContainer.Items.Add(newModel);
+                                                SelectedItem = newModel;
+                                                var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
+                                                newContainer?.BringIntoView();
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            else
+                            break;
+                        case Const.CmdInsertData:
                             {
-                                targetModel = SelectedItem as IACObject;
+                                IACObject selectedModel = SelectedItem as IACObject;
+                                if (selectedModel != null && ChangeInfo.ChangedObject is IACObject newModel)
+                                {
+                                    var container = TreeContainerFromItem(selectedModel) as VBTreeViewItem;
+                                    if (container != null && container.Parent is VBTreeViewItem parentContainer)
+                                    {
+                                        if (!parentContainer.Items.IsReadOnly)
+                                        {
+                                            // Find the index of the selected item in parent's Items
+                                            int index = parentContainer.Items.IndexOf(selectedModel);
+                                            if (index >= 0)
+                                            {
+                                                parentContainer.Items.Insert(index, newModel);
+                                                SelectedItem = newModel;
+                                                var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
+                                                newContainer?.BringIntoView();
+                                            }
+                                        }
+                                    }
+                                }
                             }
-                            if (targetModel != null)
+                            break;
+                        case Const.CmdAddChildData:
                             {
-                                SelectedItem = targetModel;
-                                var container = ContainerFromItem(targetModel) as TreeViewItem;
-                                container?.BringIntoView();
+                                IACObject targetModel = null;
+                                if (ChangeInfo.ParentObject != null)
+                                {
+                                    targetModel = FindItem(Items, ChangeInfo.ParentObject);
+                                }
+                                else
+                                {
+                                    targetModel = SelectedItem as IACObject;
+                                }
+
+                                if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
+                                {
+                                    var container = TreeContainerFromItem(targetModel) as VBTreeViewItem;
+                                    if (container != null)
+                                    {
+                                        AddModelItem(container.Items, newModel);
+                                        SelectedItem = newModel;
+                                        var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
+                                        newContainer?.BringIntoView();
+                                    }
+                                }
                             }
-                        }
-                        break;
-                    default:
-                        FillTree();
-                        break;
-                }
+                            break;
+                        case Const.CmdAddChildNoExpand:
+                            {
+                                IACObject targetModel = null;
+                                if (ChangeInfo.ParentObject != null)
+                                    targetModel = FindItem(Items, ChangeInfo.ParentObject);
+                                else
+                                    targetModel = SelectedItem as IACObject;
+
+                                if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
+                                {
+                                    var container = TreeContainerFromItem(targetModel) as VBTreeViewItem;
+                                    if (container != null)
+                                    {
+                                        AddModelItem(container.Items, newModel);
+                                    }
+                                }
+                            }
+                            break;
+                        case Const.CmdUpdateAllData:
+                            {
+                                IACObject targetModel = null;
+                                if (ChangeInfo.ChangedObject is IACObject changedModel)
+                                {
+                                    targetModel = FindItem(Items, changedModel);
+                                }
+                                else
+                                {
+                                    targetModel = SelectedItem as IACObject;
+                                }
+                                if (targetModel != null)
+                                {
+                                    SelectedItem = targetModel;
+                                    var container = TreeContainerFromItem(targetModel) as TreeViewItem;
+                                    container?.BringIntoView();
+                                }
+                            }
+                            break;
+                        default:
+                            FillTree();
+                            break;
+                    }
+                }, Avalonia.Threading.DispatcherPriority.Background);
             }
         }
 
@@ -794,7 +815,7 @@ namespace gip.core.layoutengine.avui
                 if (item is IACObject childModel)
                 {
                     // Get the container for this child model
-                    var childContainer = vbtvi.ContainerFromItem(item) as VBTreeViewItem;
+                    var childContainer = this.TreeContainerFromItem(item) as VBTreeViewItem;
                     if (childContainer != null)
                     {
                         checkChilds(childContainer, isChecked);
@@ -1037,65 +1058,71 @@ namespace gip.core.layoutengine.avui
 
         private void FillTree(object root)
         {
-            Items.Clear();
-            if (root == null)
-                return;
-            IACObject saveACObject = null;
-            if (ContextACObject != null)
-                saveACObject = ContextACObject.ACUrlCommand(VBContent, null) as IACObject;
-            if (root is IEnumerable)
+            // Avalonia's ItemCollection throws an exception if cleared/modified while a UI event (like Drop) is in progress.
+            // Using Post ensures the UI update happens after the current event and protects against the InvalidOperationException.
+            // DispatcherPriority.Background is used to ensure it runs after UI processing is complete.
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
-                // Es gibt keinen Rootknoten
-                var listValues = root as IEnumerable;
-
-                if (!string.IsNullOrEmpty(SortOrder))
+                Items.Clear();
+                if (root == null)
+                    return;
+                IACObject saveACObject = null;
+                if (ContextACObject != null)
+                    saveACObject = ContextACObject.ACUrlCommand(VBContent, null) as IACObject;
+                if (root is IEnumerable)
                 {
-                    List<SortItem> sortItems = new List<SortItem>();
+                    // Es gibt keinen Rootknoten
+                    var listValues = root as IEnumerable;
 
-                    foreach (var dataClass in listValues)
+                    if (!string.IsNullOrEmpty(SortOrder))
                     {
-                        sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
+                        List<SortItem> sortItems = new List<SortItem>();
+
+                        foreach (var dataClass in listValues)
+                        {
+                            sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
+                        }
+
+                        var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
+                        foreach (var item in sorted)
+                        {
+                            _isRoot = CheckBoxLevel > 0;
+                            AddModelItem(Items, item);
+                        }
                     }
-
-                    var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
-                    foreach (var item in sorted)
+                    else
                     {
-                        _isRoot = CheckBoxLevel > 0;
-                        AddModelItem(Items, item);
+                        foreach (var item in listValues)
+                        {
+                            AddModelItem(Items, item as IACObject);
+                        }
                     }
                 }
                 else
                 {
-                    foreach (var item in listValues)
+                    // Es gibt einen Rootknoten
+                    _isRoot = CheckBoxLevel > 0;
+                    AddModelItem(Items, root as IACObject);
+                }
+                if (Items.Count > 0)
+                {
+                    IACObject itemToSelect = null;
+                    if (saveACObject != null)
                     {
-                        AddModelItem(Items, item as IACObject);
+                        itemToSelect = FindItem(Items, saveACObject);
+                    }
+                    if (itemToSelect == null)
+                        itemToSelect = Items[0] as IACObject;
+
+                    if (itemToSelect != null)
+                    {
+                        SelectedItem = itemToSelect;
+                        // Scroll into view using the container
+                        var container = TreeContainerFromItem(itemToSelect) as TreeViewItem;
+                        container?.BringIntoView();
                     }
                 }
-            }
-            else
-            {
-                // Es gibt einen Rootknoten
-                _isRoot = CheckBoxLevel > 0;
-                AddModelItem(Items, root as IACObject);
-            }
-            if (Items.Count > 0)
-            {
-                IACObject itemToSelect = null;
-                if (saveACObject != null)
-                {
-                    itemToSelect = FindItem(Items, saveACObject);
-                }
-                if (itemToSelect == null)
-                    itemToSelect = Items[0] as IACObject;
-                    
-                if (itemToSelect != null)
-                {
-                    SelectedItem = itemToSelect;
-                    // Scroll into view using the container
-                    var container = ContainerFromItem(itemToSelect) as TreeViewItem;
-                    container?.BringIntoView();
-                }
-            }
+            }, Avalonia.Threading.DispatcherPriority.Background);
         }
 
         /// <summary>
@@ -1106,6 +1133,12 @@ namespace gip.core.layoutengine.avui
         {
             IVBIsVisible isVisibleItem = dataObject as IVBIsVisible;
             if (isVisibleItem != null && !isVisibleItem.IsVisible)
+                return;
+                
+            // When TreeDataTemplate is active, the Items collection is in ItemsSource mode (IsReadOnly=true)
+            // and managed by Avalonia's binding system. We must not manually add items in this case.
+            // The TreeDataTemplate's ItemsSelector will automatically update the tree when the model changes.
+            if (itemCollection.IsReadOnly)
                 return;
                 
             // Simply add the model object - Avalonia will create the VBTreeViewItem container
@@ -1300,7 +1333,7 @@ namespace gip.core.layoutengine.avui
                         return modelObject;
                         
                     // For hierarchical items, get the children using VBChilds property
-                    var container = ContainerFromItem(item);
+                    var container = TreeContainerFromItem(item);
                     if (container is TreeViewItem treeItem)
                     {
                         IACObject found = FindItem(treeItem.Items, acObject);
@@ -1323,7 +1356,7 @@ namespace gip.core.layoutengine.avui
                     return null;
                     
                 // SelectedItem is now a model object, get its container
-                var container = ContainerFromItem(SelectedItem);
+                var container = TreeContainerFromItem(SelectedItem);
                 return container as VBTreeViewItem;
             }
         }
@@ -1332,8 +1365,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles the OnDragEnter event.
         /// </summary>
+        /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The event arguments.</param>
-        protected void OnDragEnter(DragEventArgs e)
+        protected void OnDragEnter(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
@@ -1343,8 +1377,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles the OnDragLeave event.
         /// </summary>
+        /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The event arguments.</param>
-        protected void OnDragLeave(DragEventArgs e)
+        protected void OnDragLeave(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
@@ -1354,8 +1389,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles the OnDragOver event.
         /// </summary>
+        /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The event arguments.</param>
-        protected void OnDragOver(DragEventArgs e)
+        protected void OnDragOver(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
@@ -1365,8 +1401,9 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Handles the OnDrop event.
         /// </summary>
+        /// <param name="sender">The sender parameter.</param>
         /// <param name="e">The event arguments.</param>
-        protected void OnDrop(DragEventArgs e)
+        protected void OnDrop(object sender, DragEventArgs e)
         {
             if (this.GetVBDesign().IsDesignerActive)
                 return;
@@ -1524,26 +1561,31 @@ namespace gip.core.layoutengine.avui
 
             if (e.KeyModifiers == KeyModifiers.Shift && DragEnabled == DragMode.EnabledMove)
                 elementActionType = Global.ElementActionType.Move;
-            switch (elementActionType)
+
+            // Avalonia raises an exception if we modify the collection (via ACAction -> AddModelItem) 
+            // inside the Drag-and-Drop event because the ItemsSource is still being used for UI hit testing/internal updates.
+            // Using Dispatcher.UIThread.Post ensures the update happens after the current event loop.
+            // DispatcherPriority.Background is used to ensure it runs after UI processing is complete.
+            Avalonia.Threading.Dispatcher.UIThread.Post(() =>
             {
-                case Global.ElementActionType.Move: // Vorhandene Elemente verschieben
-                    {
-                        ACActionArgs actionArgs = new ACActionArgs(dropObject, 0, 0, Global.ElementActionType.Move);
-                        ACAction(actionArgs);
-                        e.Handled = true;
-                    }
-                    return;
-                case Global.ElementActionType.Drop: // Neue Elemente einfügen
-                    {
-                        ACActionArgs actionArgs = new ACActionArgs(dropObject, 0, 0, Global.ElementActionType.Drop);
-                        ACAction(actionArgs);
-                        e.Handled = true;
-                    }
-                    return;
-                default:
-                    e.DragEffects = DragDropEffects.None;
-                    return;
-            }
+                switch (elementActionType)
+                {
+                    case Global.ElementActionType.Move: // Vorhandene Elemente verschieben
+                        {
+                            ACActionArgs actionArgs = new ACActionArgs(dropObject, 0, 0, Global.ElementActionType.Move);
+                            ACAction(actionArgs);
+                        }
+                        break;
+                    case Global.ElementActionType.Drop: // Neue Elemente einfügen
+                        {
+                            ACActionArgs actionArgs = new ACActionArgs(dropObject, 0, 0, Global.ElementActionType.Drop);
+                            ACAction(actionArgs);
+                        }
+                        break;
+                }
+            }, Avalonia.Threading.DispatcherPriority.Background);
+
+            e.Handled = true;
         }
 
         private VBTreeViewItem GetNearestContainer(Control element)
