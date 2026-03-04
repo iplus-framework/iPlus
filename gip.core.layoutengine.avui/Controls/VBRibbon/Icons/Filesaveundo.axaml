@@ -77,8 +77,8 @@
                               Data="F1 M 7,20L 17,20"/>
                         <Path x:Name="Path_86" Width="22.9392" Height="16.9051" Canvas.Left="0.151059" Canvas.Top="4.36815" Stretch="Fill" 
                               StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}"
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" 
                               Data="F1 M 16.4781,20.7732C 17.4647,16.5192 18.4512,12.2653 17.1108,10.6632C 15.7704,9.06112 12.1032,10.111 8.43594,11.1608L 9.33666,14.3072L 0.651059,11.6874L 6.63449,4.86815L 7.08485,6.44131L 7.53521,8.01448C 12.0174,6.73133 16.4996,5.44819 19.0088,7.28302C 21.518,9.11784 22.0541,14.0707 22.5902,19.0235L 16.4781,20.7732 Z "/>
                     </Canvas>
                 </Viewbox>

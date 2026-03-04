@@ -18,12 +18,12 @@
                             </Ellipse.Fill>
                         </Ellipse>
                         <Path Width="2" Height="8" Canvas.Left="11" Canvas.Top="3" Stretch="Fill" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" 
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" 
                               Data="F1 M 12,4L 12,10"/>
                         <Path Width="4.53381" Height="4.53381" Canvas.Left="11.4662" Canvas.Top="9.99996" Stretch="Fill" StrokeThickness="2" StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}"
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}"
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" 
                               Data="F1 M 12.4662,11L 15,13.5338"/>
                         <Ellipse Width="2" Height="2" Canvas.Left="5" Canvas.Top="9" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" StrokeThickness="1">
                             <Ellipse.Fill>

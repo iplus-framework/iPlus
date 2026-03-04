@@ -28,7 +28,7 @@ namespace gip.core.layoutengine.avui
 
         public Uri IconResourceDictUri
         {
-            get { return new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/" + _IconName + ".xaml", UriKind.Relative); }
+            get { return new Uri("avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/" + _IconName + ".axaml"); }
         }
 
 

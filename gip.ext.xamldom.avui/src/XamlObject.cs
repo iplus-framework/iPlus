@@ -584,11 +584,15 @@ namespace gip.ext.xamldom.avui
                     return p;
             }
 
-            var propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(instance as AvaloniaObject, propertyName);
+            AvaloniaObject avObj = Instance as AvaloniaObject;
             XamlProperty newProperty = null;
-            if (propertyInfo != null)
+            if (avObj != null)
             {
-                newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo, elementType));
+                var propertyInfo = AvaloniaPropertyRegistry.Instance.FindRegistered(avObj, propertyName);
+                if (propertyInfo != null)
+                {
+                    newProperty = new XamlProperty(this, new XamlNormalPropertyInfo(propertyInfo, elementType));
+                }
             }
 
             if (newProperty == null)
@@ -613,16 +617,13 @@ namespace gip.ext.xamldom.avui
 
             if (newProperty == null)
             {
-
                 EventDescriptorCollection events = TypeDescriptor.GetEvents(Instance);
                 EventDescriptor eventInfo = events[propertyName];
-
                 if (eventInfo == null)
                 {
                     events = TypeDescriptor.GetEvents(this.elementType);
                     eventInfo = events[propertyName];
                 }
-
                 if (eventInfo != null)
                 {
                     newProperty = new XamlProperty(this, new XamlEventPropertyInfo(eventInfo));

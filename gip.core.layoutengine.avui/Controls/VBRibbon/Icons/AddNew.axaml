@@ -48,8 +48,8 @@
                               Stroke="#FF000000" StrokeThickness="1" 
                               Data="F1 M 4.02083,11.2708L 14.0208,11.2708"/>
                         <Path x:Name="Path_Add" Width="15" Height="15" Canvas.Left="8.5" Canvas.Top="0.499998" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" StrokeThickness="1"
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" 
                               Data="F1 M 14.25,0.999998L 17.75,0.999998L 17.75,6.25L 23,6.25L 23,9.75L 17.75,9.75L 17.75,15L 14.25,15L 14.25,9.75L 9,9.75L 9,6.25L 14.25,6.25L 14.25,0.999998 Z "/>
                     </Canvas>
                 </Viewbox>

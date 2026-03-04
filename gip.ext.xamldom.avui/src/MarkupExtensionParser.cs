@@ -288,8 +288,17 @@ namespace gip.ext.xamldom.avui
 				}
 			}
 
-			// Find the constructor with positionalArgs.Count arguments
-			var ctors = extensionType.GetConstructors().Where(c => c.GetParameters().Length == positionalArgs.Count).ToList();
+			// Find the constructor with positionalArgs.Count arguments (considering optional parameters)
+			var ctors = extensionType.GetConstructors()
+				.Where(c => {
+					var parameters = c.GetParameters();
+					int requiredParams = parameters.Count(p => !p.IsOptional);
+					int totalParams = parameters.Length;
+					return positionalArgs.Count >= requiredParams && positionalArgs.Count <= totalParams;
+				})
+				.OrderBy(c => c.GetParameters().Length) // Prefer constructor with fewer parameters
+				.ToList();
+
 			if (ctors.Count < 1)
 				throw new XamlMarkupExtensionParseException("No constructor for " + 
 					extensionType.FullName + " found that takes " + positionalArgs.Count + " arguments");
@@ -304,8 +313,9 @@ namespace gip.ext.xamldom.avui
 			List<PropertyInfo> map = new List<PropertyInfo>();
 
 			if (mappingToProperties) {
-				foreach (var param in ctor.GetParameters()) {
-					var prop = extensionType.GetProperty(param.Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+				var ctorParams = ctor.GetParameters();
+				for (int i = 0; i < positionalArgs.Count; i++) {
+					var prop = extensionType.GetProperty(ctorParams[i].Name, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
 					if (prop == null) {
 						mappingToProperties = false;
 						break;
@@ -320,9 +330,13 @@ namespace gip.ext.xamldom.avui
 			} else {
 				var ctorParamsInfo = ctor.GetParameters();
 				var ctorParams = new object[ctorParamsInfo.Length];
-				for (int i = 0; i < ctorParams.Length; i++) {
+				for (int i = 0; i < positionalArgs.Count; i++) {
 					var paramType = ctorParamsInfo[i].ParameterType;
 					ctorParams[i] = XamlParser.CreateObjectFromAttributeText(positionalArgs[i], paramType, parent);
+				}
+				// Fill remaining optional parameters with their default values
+				for (int i = positionalArgs.Count; i < ctorParamsInfo.Length; i++) {
+					ctorParams[i] = ctorParamsInfo[i].DefaultValue;
 				}
 				instance = ctor.Invoke(ctorParams);
 				//TODO

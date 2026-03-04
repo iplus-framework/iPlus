@@ -8,12 +8,12 @@
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_31" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path x:Name="Post" Width="15" Height="9" Canvas.Left="7.5" Canvas.Top="13.5" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" StrokeThickness="1"
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" 
                               Data="M 22,14L 8,14L 8,17.5556L 22,22L 22,14 Z " />
                         <Path x:Name="Pre" Width="9" Height="15" Canvas.Left="1.5" Canvas.Top="1.5" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
-                              Fill="{StaticResource RibbonButtonNormalContentFill}"
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" StrokeThickness="1"
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}"
                               Data="M 2,2L 2,16L 5.55556,16L 10,2L 2,2 Z " />
                         <Viewbox x:Name="Arrow_32" Width="16.3364" Height="15.1944" Canvas.Left="5.16358" Canvas.Top="2">
                             <Canvas Width="16.3364" Height="15.1944">

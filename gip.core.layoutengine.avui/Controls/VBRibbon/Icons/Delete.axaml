@@ -9,7 +9,7 @@
           <Canvas x:Name="Ebene_1_87" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
             <Path x:Name="TrashBack" Width="15" Height="17.0205" Canvas.Left="4.5" Canvas.Top="5.9022" Stretch="Fill" StrokeJoin="Round"
                   Stroke="#FF000000" StrokeThickness="1"
-                  Fill="{StaticResource RibbonButtonNormalContentFill}"
+                  Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}"
                   Data="F1 M 5,8.43232L 7,22.4227C 8.66667,22.1118 10.3333,21.8009 12,21.8009C 13.6667,21.8009 15.3333,22.1118 17,22.4227L 19,7.56665C 16.6667,6.92252 14.3333,6.27838 12,6.42266C 9.66667,6.56693 7.33333,7.49962 5,8.43232 Z "/>
             <Path x:Name="TrashFront" Width="15" Height="17" Canvas.Left="4.5" Canvas.Top="7" Stretch="Fill" StrokeJoin="Round"
                   Stroke="#FF000000" StrokeThickness="1"

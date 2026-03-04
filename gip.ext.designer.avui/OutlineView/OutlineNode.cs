@@ -82,7 +82,7 @@ namespace gip.ext.designer.avui.OutlineView
                                                                value ? SelectionTypes.Add : SelectionTypes.Remove);
                         RaisePropertyChanged("IsSelected");
                     }
-                    if (value)
+                    if (value && SelectionService != null)
                     {
                         SelectionService.TemporarySelectionFromTreeView = DesignItem;
                     }
@@ -107,18 +107,22 @@ namespace gip.ext.designer.avui.OutlineView
         {
             get
             {
-                if (DesignItem.View is IVBContent && !string.IsNullOrEmpty( (DesignItem.View as IVBContent).VBContent))
+                if (DesignItem != null)
                 {
-                    return DesignItem.ComponentType.Name + " \"" + (DesignItem.View as IVBContent).VBContent + "\""; ;
-                }
-                else
-                {
-                    if (string.IsNullOrEmpty(DesignItem.Name))
+                    if (DesignItem.View is IVBContent && !string.IsNullOrEmpty( (DesignItem.View as IVBContent).VBContent))
                     {
-                        return DesignItem.ComponentType.Name;
+                        return DesignItem.ComponentType.Name + " \"" + (DesignItem.View as IVBContent).VBContent + "\""; ;
                     }
-                    return DesignItem.ComponentType.Name + " (" + DesignItem.Name + ")";
+                    else
+                    {
+                        if (string.IsNullOrEmpty(DesignItem.Name))
+                        {
+                            return DesignItem.ComponentType.Name;
+                        }
+                        return DesignItem.ComponentType.Name + " (" + DesignItem.Name + ")";
+                    }
                 }
+                return base.Name;
             }
         }
 

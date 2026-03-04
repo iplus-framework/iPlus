@@ -376,9 +376,11 @@ namespace gip.core.layoutengine.avui
             RemoveHandler(DragDrop.DragOverEvent, OnDragOver);
             RemoveHandler(DragDrop.DropEvent, OnDrop);
             RemoveHandler(DragDrop.DragLeaveEvent, OnDragLeave);
-            foreach (TreeViewItem item in Items)
+            foreach (var item in Items)
             {
-                DeInitVBTreeViewItem(item);
+                TreeViewItem tv = TreeContainerFromItem(item) as TreeViewItem;
+                if (tv != null)
+                    DeInitVBTreeViewItem(tv);
             }
 
             this.ClearAllBindings();
@@ -636,9 +638,11 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            foreach (TreeViewItem item2 in item.Items)
+            foreach (var item2 in item.Items)
             {
-                DeInitVBTreeViewItem(item2);
+                 TreeViewItem tv = TreeContainerFromItem(item2) as TreeViewItem;
+                 if (tv != null)
+                    DeInitVBTreeViewItem(tv);
             }
 
         }

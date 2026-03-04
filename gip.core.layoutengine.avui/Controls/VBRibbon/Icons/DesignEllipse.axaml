@@ -9,9 +9,8 @@
           <Canvas x:Name="Ebene_1_17" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
             <Ellipse x:Name="Ellipse" Width="20" Height="14" Canvas.Left="2" Canvas.Top="5" Stretch="Fill"
                      StrokeThickness="2" StrokeJoin="Round"
-                     Stroke="{StaticResource RibbonButtonNormalContentStroke}"
-                     Fill="{StaticResource RibbonButtonNormalContentFill}"
-                                 />
+                     Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}"
+                     Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" />
             <Viewbox x:Name="Group_18" Width="11.1421" Height="18.0967" Canvas.Left="8.75" Canvas.Top="2.15333">
               <Canvas Width="11.1421" Height="18.0967">
                 <Path x:Name="Path_19" Width="2.50033" Height="2.50035" Canvas.Left="8.49978" Canvas.Top="0.142" Stretch="Fill" StrokeThickness="0.5" StrokeJoin="Round" Stroke="#FF000000" Fill="#FFFF0000" Data="M 10.2499,0.526142L 10.2499,0.526142C 10.7282,0.802284 10.8921,1.41388 10.616,1.89217L 10.616,1.89218C 10.3398,2.37047 9.72824,2.53435 9.24995,2.2582L 9.24995,2.2582C 8.77166,1.98206 8.60778,1.37047 8.88392,0.892179L 8.88393,0.892166C 9.16007,0.413874 9.77165,0.25 10.2499,0.526142 Z "/>
