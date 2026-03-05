@@ -1,6 +1,6 @@
 <Project>
 	<PropertyGroup>
-		<UseDotNet10>False</UseDotNet10>
+		<UseDotNet10>True</UseDotNet10>
     <SolutionDir Condition="'$(SolutionDir)' == ''">$(MSBuildThisFileDirectory)</SolutionDir>
 	</PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">

@@ -9,7 +9,7 @@
     https://github.com/iplus-framework/efcore/tree/ef_main_iPlus
     Don't compile the test projects of entity framework. Only the projects in the src-driectory are needed.
     -->
-	<UseEFCoreForkIPlus>False</UseEFCoreForkIPlus>
+	<UseEFCoreForkIPlus>True</UseEFCoreForkIPlus>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
@@ -17,9 +17,10 @@
 		<DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
 		<UITargetFramework>net9.0-windows7.0</UITargetFramework>
 		<EFCoreBuildFramework>net8.0</EFCoreBuildFramework>
-		<EFCoreRootDir>$(MSBuildThisFileDirectory)../../../ef_90_iPlus</EFCoreRootDir>
-		<EFCoreIncludeDir>$(EFCoreRootDir)/artifacts\bin</EFCoreIncludeDir>
-		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir>
+		<!-- <EFCoreRootDir>$(MSBuildThisFileDirectory)../../../ef_90_iPlus</EFCoreRootDir> -->
+		<EFCoreRootDir>$(MSBuildThisFileDirectory)../../packages/ef_90_iPlus</EFCoreRootDir>
+		<!-- <EFCoreIncludeDir>$(EFCoreRootDir)/artifacts\bin</EFCoreIncludeDir>
+		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir> -->
 		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR</CompilerDefFCoreForkIPlus>
 		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'"></CompilerDefFCoreForkIPlus>
 	</PropertyGroup>
@@ -30,9 +31,10 @@
 		<UITargetFramework>net10.0-windows</UITargetFramework>
 		<NetCorePackageVersion>10.0.0</NetCorePackageVersion>
 		<EFCoreBuildFramework>net10.0</EFCoreBuildFramework>
-		<EFCoreRootDir>../../../ef_main_iPlus</EFCoreRootDir>
-		<EFCoreIncludeDir>$(EFCoreRootDir)/artifacts/bin</EFCoreIncludeDir>
-		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir>
+		<!-- <EFCoreRootDir>../../../ef_main_iPlus</EFCoreRootDir> -->
+		<EFCoreRootDir>$(MSBuildThisFileDirectory)../../packages/ef_main_iPlus</EFCoreRootDir>
+		<!-- <EFCoreIncludeDir>$(EFCoreRootDir)/artifacts/bin</EFCoreIncludeDir>
+		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir> -->
 		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR;NET10</CompilerDefFCoreForkIPlus>
 		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'">NET10</CompilerDefFCoreForkIPlus>
 	</PropertyGroup>

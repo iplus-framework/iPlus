@@ -13,6 +13,8 @@
 
 		<!-- For Entity Framework -->
 		<NetCorePackageVersion>9.0.7</NetCorePackageVersion>
+		<EFCorePackageVersion>9.0.7</EFCorePackageVersion>
+		<EFCorePackageVersionFork>9.0.7</EFCorePackageVersionFork>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
 		<SkiaSharpVersion>3.119.1</SkiaSharpVersion>
@@ -29,7 +31,13 @@
 	</PropertyGroup>
 
     <ItemGroup Condition="'$(UseDotNet10)' == 'False'">
-		<!-- Avalonia packages - only include when NOT using fork -->
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Abstractions" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Design" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.SqlServer" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Proxies" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Tools" Version="$(EFCorePackageVersionFork)" />
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersionFork)"/>
 		<PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
@@ -96,13 +104,13 @@
 		<PackageVersion Include="Microsoft.Data.SqlClient" Version="6.1.0" />
 		<PackageVersion Include="Microsoft.Database.Collections.Generic" Version="2.0.4" />
 		<PackageVersion Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(NetCorePackageVersion)" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(NetCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Design" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EFCorePackageVersion)" />
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersion)"/>
 		<PackageVersion Include="Microsoft.Extensions.AI" Version="9.7.1" />
 		<PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="9.7.1-preview.1.25365.4" />
 		<PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="$(NetCorePackageVersion)" />
@@ -141,7 +149,7 @@
 		<PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
-		<PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="3$(SkiaSharpVersion)" />
+		<PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
@@ -257,7 +265,7 @@
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux.NoDependencies" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Win32" Version="$(HarfBuzzSharpVersion)" />
-		<PackageVersion Include="HarfBuzzSharp.NativeAssets.macOS" Version="3$(HarfBuzzSharpVersion)" />
+		<PackageVersion Include="HarfBuzzSharp.NativeAssets.macOS" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Android" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="System.Memory" Version="4.6.3" />
@@ -297,14 +305,10 @@
 
 	</ItemGroup>
 
-
-
-
-
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
-		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</CodeAnalysisVersion>
+		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">4.14.0</CodeAnalysisVersion>
 		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
 		<RoslynVersion>4.12.1</RoslynVersion>
 		<DotNetExtensionsVersion>10.0.2</DotNetExtensionsVersion>
@@ -313,7 +317,9 @@
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
 
 		<!-- For Entity Framework -->
-		<NetCorePackageVersion>10.0.2</NetCorePackageVersion>
+		<NetCorePackageVersion>10.0.0</NetCorePackageVersion>
+		<EFCorePackageVersion>10.0.0-dev</EFCorePackageVersion>
+		<EFCorePackageVersionFork>10.0.0-dev</EFCorePackageVersionFork>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
 		<SkiaSharpVersion>3.119.1</SkiaSharpVersion>
@@ -329,8 +335,15 @@
 		<SkiaSharpNativeAssetsLinuxNoDependenciesVersion>$(SkiaSharpVersion)</SkiaSharpNativeAssetsLinuxNoDependenciesVersion>
 	</PropertyGroup>
 
-	<ItemGroup Condition="'$(UseDotNet10)'  == 'True'">
-		<!-- Avalonia packages - only include when NOT using fork -->
+	<ItemGroup Condition=" '$(UseDotNet10)' == 'True'">
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Abstractions" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Design" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.SqlServer" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Proxies" Version="$(EFCorePackageVersionFork)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Tools" Version="$(EFCorePackageVersionFork)" />
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersionFork)"/>
+		
 		<PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
@@ -397,13 +410,13 @@
 		<PackageVersion Include="Microsoft.Data.SqlClient" Version="7.0.0-preview3.25342.7" />
 		<PackageVersion Include="Microsoft.Database.Collections.Generic" Version="3.2.0" />
 		<PackageVersion Include="Microsoft.DotNet.UpgradeAssistant.Extensions.Default.Analyzers" Version="0.4.346202" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(NetCorePackageVersion)"/>
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="$(NetCorePackageVersion)" />
-		<PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="$(NetCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Abstractions" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Design" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.SqlServer" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Proxies" Version="$(EFCorePackageVersion)"/>
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Tools" Version="$(EFCorePackageVersion)" />
+		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'False'" Include="Microsoft.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersion)"/>
 		<PackageVersion Include="Microsoft.Extensions.AI" Version="10.2.0" />
 		<PackageVersion Include="Microsoft.Extensions.AI.OpenAI" Version="10.2.0-preview.1.26063.2" />
 		<PackageVersion Include="Microsoft.Extensions.Hosting.Systemd" Version="$(NetCorePackageVersion)" />
@@ -440,7 +453,7 @@
 		<PackageVersion Include="SkiaSharp.NativeAssets.Linux" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Win32" Version="$(SkiaSharpVersion)" />
-		<PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="3$(SkiaSharpVersion)" />
+		<PackageVersion Include="SkiaSharp.NativeAssets.macOS" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
@@ -450,6 +463,7 @@
 		<PackageVersion Include="System.Data.DataSetExtensions" Version="4.6.0-preview3.19128.7" />
 		<PackageVersion Include="System.Data.SqlClient" Version="4.9.0" />
 		<PackageVersion Include="System.Drawing.Common" Version="$(NetCorePackageVersion)" />
+		<PackageVersion Include="System.IO.Ports" Version="$(NetCorePackageVersion)" />
 		<PackageVersion Include="System.IO.Compression" Version="4.3.0" />
 		<PackageVersion Include="System.Management" Version="$(NetCorePackageVersion)" />
 		<PackageVersion Include="System.Net.Http" Version="4.3.4" />
@@ -555,7 +569,7 @@
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Linux.NoDependencies" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Win32" Version="$(HarfBuzzSharpVersion)" />
-		<PackageVersion Include="HarfBuzzSharp.NativeAssets.macOS" Version="3$(HarfBuzzSharpVersion)" />
+		<PackageVersion Include="HarfBuzzSharp.NativeAssets.macOS" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.Android" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="HarfBuzzSharp.NativeAssets.WebAssembly" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="System.Memory" Version="4.6.3" />

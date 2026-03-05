@@ -39,10 +39,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+  </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'True'">
-    <Reference Include="Microsoft.EntityFrameworkCore">
-      <HintPath>$(EFCoreIncludeDir)\EFCore\$(Configuration)\$(EFCoreBuildFramework)\Microsoft.EntityFrameworkCore.dll</HintPath>
-    </Reference>
+    <PackageReference Include="iPlus.EntityFrameworkCore" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="System.IO.Ports"  />
