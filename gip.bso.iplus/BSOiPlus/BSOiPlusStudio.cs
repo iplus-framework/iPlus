@@ -4167,11 +4167,21 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 // ACProject operations
-                case nameof(Save):
-                case nameof(IsEnabledSave):
-                case nameof(UndoSave):
-                case nameof(IsEnabledUndoSave):
-                    return new string[] { nameof(CurrentACProject), nameof(CurrentACClass) };
+                // case nameof(Save):
+                // case nameof(IsEnabledSave):
+                // case nameof(UndoSave):
+                // case nameof(IsEnabledUndoSave):
+                //     return new string[] { "Database.IsChanged",
+                //     nameof(CurrentACProject), 
+                //     nameof(CurrentACClass), 
+                //     nameof(CurrentACClassDesign),  
+                //     nameof(CurrentACClassMethod), 
+                //     nameof(CurrentACClassProperty), 
+                //     nameof(CurrentPropertyRelationTo),
+                //     nameof(CurrentPropertyRelationFrom),
+                //     nameof(CurrentConfigACClassProperty),
+                //     nameof(CurrentACTranslation),
+                //     nameof(CurrentNewMessage) };
 
                 case nameof(Load):
                 case nameof(IsEnabledLoad):

@@ -60,7 +60,7 @@ namespace gip.core.layoutengine.avui
                         CustomControlStyleInfo CustomControlStyleInfo = (from o in styleInfoList where o.wpfTheme == ControlManager.WpfTheme select o).FirstOrDefault();
                         if (CustomControlStyleInfo != null)
                         {
-                            ResourceInclude dict = new ResourceInclude(new Uri(CustomControlStyleInfo.styleUri, UriKind.Relative));
+                            ResourceInclude dict = new ResourceInclude(serviceProvider) { Source = new Uri(CustomControlStyleInfo.styleUri, UriKind.RelativeOrAbsolute) };
                             object res;
                             if (!dict.TryGetResource(CustomControlStyleInfo.styleName, null, out res))
                                 return null;
@@ -103,7 +103,7 @@ namespace gip.core.layoutengine.avui
                         {
                             try
                             {
-                                ResourceInclude dict = new ResourceInclude(AssemblyResource);
+                                ResourceInclude dict = new ResourceInclude(serviceProvider) { Source = AssemblyResource };
                                 object resource;
                                 if (!dict.TryGetResource(AssemblyResourceKey, null, out resource))
                                     return null;
@@ -162,7 +162,7 @@ namespace gip.core.layoutengine.avui
                                 {
                                     DesignManagerToolItem iconProvider = dataContext as DesignManagerToolItem;
 
-                                    ResourceInclude dict = new ResourceInclude(iconProvider.IconResourceDictUri);
+                                    ResourceInclude dict = new ResourceInclude(serviceProvider) { Source = iconProvider.IconResourceDictUri };
                                     object resource;
                                     if (!dict.TryGetResource(iconProvider.ResourceKey, null, out resource))
                                         return null;

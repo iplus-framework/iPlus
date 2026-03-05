@@ -25,11 +25,6 @@ namespace gip.ext.designer.avui.Extensions
             InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         void Click_WrapInViewbox(object sender, RoutedEventArgs e)
 		{
 			ModelTools.WrapItemsNewContainer(this.designItem.Services.Selection.SelectedItems, typeof(Viewbox));

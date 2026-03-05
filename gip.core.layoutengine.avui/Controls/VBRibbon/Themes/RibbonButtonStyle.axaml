@@ -1,105 +1,30 @@
 <ResourceDictionary
-   xmlns="https://github.com/avaloniaui"
-   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:localRibbon="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
-   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:localRibbon="clr-namespace:gip.core.layoutengine.avui.AvaloniaRibbon"
+xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
-  <!-- VBRibbonButton ControlTheme -->
-  <ControlTheme x:Key="RibbonButtonTheme" TargetType="local:VBRibbonButton">
-    <Setter Property="HorizontalContentAlignment" Value="Center"/>
-    <Setter Property="VerticalContentAlignment" Value="Center"/>
-    <Setter Property="Padding" Value="1"/>
-    <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonNormalContentStroke}"/>
-    <Setter Property="ContentFill" Value="{StaticResource RibbonButtonNormalContentFill}"/>
-    <Setter Property="Template">
-      <ControlTemplate>
-        <Viewbox HorizontalAlignment="Center"
-                 VerticalAlignment="Center"
-                 Stretch="Uniform"
-                 Height="{TemplateBinding Height}"
-                 Width="{TemplateBinding Width}">
-          <Canvas Width="32" Height="32">
-            <Path x:Name="BdButtonBack"
-                  Width="30" Height="30"
-                  Canvas.Left="0" Canvas.Top="0"
-                  Stretch="Fill"
-                  Stroke="{StaticResource {StaticResource RibbonButtonDisabledBg}}"
-                  Fill="{StaticResource {StaticResource RibbonButtonDisabledBg}}"
-                  Data="F1 M 6.49999,0.499966L 24.5,0.499966C 27.8137,0.499966 30.5,3.18627 30.5,6.49996L 30.5,24.4991C 30.5,27.8128 27.8137,30.4991 24.5,30.4991L 6.49999,30.4991C 3.1863,30.4991 0.499999,27.8128 0.499999,24.4991L 0.499999,6.49996C 0.499999,3.18627 3.1863,0.499966 6.49999,0.499966 Z " StrokeThickness="1" StrokeJoin="Round">
-            </Path>
-            <Path x:Name="BdButtonFront"
-                  Width="30" Height="30"
-                  Canvas.Left="0" Canvas.Top="0"
-                  Stretch="Fill"
-                  Stroke="{StaticResource {StaticResource RibbonButtonNormalBg}}"
-                  Fill="{StaticResource {StaticResource RibbonButtonNormalBg}}"
-                  Data="F1 M 6.00002,-5.72205e-006L 24,-5.72205e-006C 27.3137,-5.72205e-006 30,2.68629 30,5.99999L 30,23.9991C 30,27.3128 27.3137,29.9991 24,29.9991L 6.00002,29.9991C 2.6863,29.9991 -3.63623e-007,27.3128 -3.63623e-007,23.9991L -3.63623e-007,5.99999C -3.63623e-007,2.68629 2.6863,-5.72205e-006 6.00002,-5.72205e-006 Z " StrokeThickness="0" StrokeJoin="Round">
-            </Path>
-            <ContentPresenter x:Name="PART_ContentPresenter" Width="24" Height="24"
-                              Canvas.Left="3" Canvas.Top="3"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"
-                              RecognizesAccessKey="True"/>
-          </Canvas>
-        </Viewbox>
-      </ControlTemplate>
-    </Setter>
-
-    <!-- Mouse Over State -->
-    <Style Selector="^:pointerover /template/ Path#BdButtonFront">
-      <Setter Property="Stroke" Value="{StaticResource RibbonButtonFocusBg}" />
-      <Setter Property="Fill" Value="{StaticResource RibbonButtonFocusBg}" />
-    </Style>
-    <Style Selector="^:pointerover">
-      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonFocusContentStroke}"/>
-      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonFocusContentFill}"/>
-    </Style>
-
-    <!-- Pressed State -->
-    <Style Selector="^:pressed /template/ Path#BdButtonFront">
-      <Setter Property="Stroke" Value="{StaticResource RibbonButtonPressedBg}" />
-      <Setter Property="Fill" Value="{StaticResource RibbonButtonPressedBg}" />
-      <Setter Property="Canvas.Left" Value="1"/>
-      <Setter Property="Canvas.Top" Value="1"/>
-    </Style>
-    <Style Selector="^:pressed /template/ ContentPresenter#ContentPresenter">
-      <Setter Property="Canvas.Left" Value="4"/>
-      <Setter Property="Canvas.Top" Value="4"/>
-    </Style>
-    <Style Selector="^:pressed">
-      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonPressedContentStroke}"/>
-      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonPressedContentFill}"/>
-    </Style>
-
-    <!-- Disabled State -->
-    <Style Selector="^:disabled /template/ Path#BdButtonFront">
-      <Setter Property="IsVisible" Value="False" />
-    </Style>
-    <Style Selector="^:disabled">
-      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonDisabledContentStroke}"/>
-      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonDisabledContentFill}"/>
-    </Style>
-  </ControlTheme>
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceInclude Source="/Controls/VBRibbon/AvaloniaRibbon/Themes/SizeResources.axaml" />
+  </ResourceDictionary.MergedDictionaries>
 
   <ControlTheme x:Key="{x:Type local:VBRibbonButton}" TargetType="{x:Type local:VBRibbonButton}">
     <Setter Property="BorderThickness" Value="{StaticResource ThemeBorderThickness}" />
     <Setter Property="Foreground" Value="{StaticResource SystemControlHighlightAltBaseHighBrush}" />
+    <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonNormalContentStroke}"/>
+    <Setter Property="ContentFill" Value="{StaticResource RibbonButtonNormalContentFill}"/>
     <Setter Property="Template">
       <ControlTemplate>
         <DataValidationErrors>
-          <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonDisabledBg}" BorderBrush="{StaticResource RibbonButtonDisabledBg}"
+          <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
                   Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                   BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
-                  Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
-                  BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-              <DockPanel>
-                <ContentPresenter Content="{TemplateBinding Icon}" DockPanel.Dock="Left" Width="16"
-                                  Height="16" />
-                <ContentPresenter Classes="MediumContentPresenter" Content="{TemplateBinding Content}"
-                                  Margin="3,0,0,0" />
-              </DockPanel>
-            </Border>
+            <DockPanel>
+              <ContentPresenter Content="{TemplateBinding Icon}" DockPanel.Dock="Left" Width="16"
+                                Height="16" />
+              <ContentPresenter Classes="MediumContentPresenter" Content="{TemplateBinding Content}" FontSize="9"
+                                Margin="3,0,0,0" />
+            </DockPanel>
           </Border>
         </DataValidationErrors>
       </ControlTemplate>
@@ -114,16 +39,28 @@
       </ControlTemplate>
     </Setter>
     <Style Selector="^:pointerover /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Background" Value="{StaticResource ButtonBackgroundPointerOver}" />
-      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushPointerOver}" />
+      <Setter Property="Background" Value="{StaticResource RibbonButtonFocusBg}" />
+      <Setter Property="BorderBrush" Value="{StaticResource RibbonButtonFocusBg}" />
+    </Style>
+    <Style Selector="^:pointerover">
+      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonFocusContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonFocusContentFill}"/>
     </Style>
     <Style Selector="^:pressed /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Background" Value="{StaticResource ButtonBackgroundDisabled}" />
-      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushDisabled}" />
+      <Setter Property="Background" Value="{StaticResource RibbonButtonPressedBg}" />
+      <Setter Property="BorderBrush" Value="{StaticResource RibbonButtonPressedBg}" />
+    </Style>
+    <Style Selector="^:pressed">
+      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonPressedContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonPressedContentFill}"/>
     </Style>
     <Style Selector="^:disabled /template/ Border.RibbonButtonBackgroundBorder">
-      <Setter Property="Background" Value="White"/>
-      <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushDisabled}"/>
+      <Setter Property="Background" Value="{StaticResource RibbonButtonDisabledBg}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource RibbonButtonDisabledBg}"/>
+    </Style>    
+    <Style Selector="^:disabled">
+      <Setter Property="ContentStroke" Value="{StaticResource RibbonButtonDisabledContentStroke}"/>
+      <Setter Property="ContentFill" Value="{StaticResource RibbonButtonDisabledContentFill}"/>
     </Style>
     <Style Selector="^local|VBRibbonButton:not(local|VBRibbonButton[Size=Large])">
       <Setter Property="Padding" Value="3" />
@@ -136,20 +73,16 @@
       <Setter Property="Template">
         <ControlTemplate>
           <DataValidationErrors>
-            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonDisabledBg}" BorderBrush="{StaticResource RibbonButtonDisabledBg}"
-                    Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
-                    BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-              <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
                     Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                     BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
               <DockPanel VerticalAlignment="Stretch">
                 <ContentPresenter Content="{TemplateBinding LargeIcon}" DockPanel.Dock="Top"
                                   Width="32"
                                   Height="32" Foreground="{TemplateBinding Foreground}" />
-                <ContentPresenter Content="{TemplateBinding Content}" Margin="0,3,0,0"
-                                  VerticalAlignment="Stretch" Foreground="Red" />
+                <ContentPresenter Content="{TemplateBinding Content}" Margin="0,3,0,0" FontSize="9"
+                                  VerticalAlignment="Stretch" HorizontalContentAlignment="Center" Foreground="{TemplateBinding Foreground}" />
               </DockPanel>
-              </Border>
             </Border>
           </DataValidationErrors>
 
@@ -174,17 +107,13 @@
       <Setter Property="Template">
         <ControlTemplate>
           <DataValidationErrors>
-            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonDisabledBg}" BorderBrush="{StaticResource RibbonButtonDisabledBg}"
-                    Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
-                    BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
-              <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
+            <Border Classes="RibbonButtonBackgroundBorder" Background="{StaticResource RibbonButtonNormalBg}" BorderBrush="{StaticResource RibbonButtonNormalBg}"
                     Padding="{TemplateBinding Padding}" CornerRadius="{StaticResource ControlCornerRadius}"
                     BorderThickness="{TemplateBinding BorderThickness}" Margin="2,2,2,2">
               <ContentPresenter Foreground="{TemplateBinding Foreground}"
                                 Content="{TemplateBinding Icon}"
                                 Width="16" Height="16" />
-                </Border>
-              </Border>
+            </Border>
           </DataValidationErrors>
 
         </ControlTemplate>

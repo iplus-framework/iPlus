@@ -8,7 +8,7 @@
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
-    <RuntimeIdentifiers>android-x64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>android-arm64;android-x64</RuntimeIdentifiers>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <AndroidEnableProfiledAot>false</AndroidEnableProfiledAot>
     <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">AVALONIAFORK</DefineConstants>
@@ -19,7 +19,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|$(DefaultNetCoreTargetFramework)-android|AnyCPU'">
 		<_AndroidIsDebuggable>True</_AndroidIsDebuggable>
-		<EmbedAssembliesIntoApk>True</EmbedAssembliesIntoApk>
+		<EmbedAssembliesIntoApk>False</EmbedAssembliesIntoApk>
 	</PropertyGroup>
 
   <ItemGroup>
@@ -30,6 +30,7 @@
 
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen"  />
+	
     <PackageReference Include="ReactiveUI"  />
     <PackageReference Include="CoreWCF.Primitives" />
   </ItemGroup>
@@ -42,6 +43,7 @@
   <!-- Use Avalonia Fork -->
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'True'">
     <PackageReference Include="Xamarin.AndroidX.AppCompat"  />
+	<PackageReference Include="Xamarin.AndroidX.Window" />
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaBaseAndroidInclude.props" />

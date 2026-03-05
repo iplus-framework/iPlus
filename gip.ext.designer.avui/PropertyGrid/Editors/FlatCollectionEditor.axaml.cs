@@ -50,11 +50,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
 			this.WindowStartupLocation = WindowStartupLocation.CenterScreen;
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		private void InitializeControls()
 		{
 			_listBox = this.FindControl<ListBox>("ListBox");

@@ -8,15 +8,16 @@
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_16" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Rectangle x:Name="Point2" Width="6" Height="6" Canvas.Left="1" Canvas.Top="1" Stretch="Fill" StrokeThickness="2" StrokeLineCap="Square" Stroke="#FF686868"
-                                   Fill="{StaticResource RibbonButtonNormalContentFill}">
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" >
                         </Rectangle>
                         <Rectangle x:Name="Point1" Width="6" Height="6" Canvas.Left="17" Canvas.Top="17" Stretch="Fill" StrokeThickness="2" StrokeLineCap="Square" Stroke="#FF686868"
-                                   Fill="{StaticResource RibbonButtonNormalContentFill}">
+                                   Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}">
                         </Rectangle>
                         <Path x:Name="Line" Width="18" Height="14" Canvas.Left="3" Canvas.Top="5" Stretch="Fill" StrokeThickness="2" 
                               StrokeLineCap="Round" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" 
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}"
                               Data="M 4,6L 4,12L 20,12L 20,18"/>
+                              <!--Stroke="{StaticResource RibbonButtonNormalContentStroke}"     -->
                     </Canvas>
                 </Viewbox>
             </ControlTemplate>

@@ -22,11 +22,6 @@ namespace gip.ext.designer.avui.Controls
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         Type currentEnumType;
 
         public static readonly StyledProperty<object> ValueProperty =
@@ -48,13 +43,13 @@ namespace gip.ext.designer.avui.Controls
             set { SetValue(ContainerProperty, value); }
         }
 
-        public static readonly StyledProperty<Style> ButtonStyleProperty =
-            AvaloniaProperty.Register<EnumBar, Style>("ButtonStyle");
+        public static readonly StyledProperty<ControlTheme> ButtonThemeProperty =
+            AvaloniaProperty.Register<EnumBar, ControlTheme>(nameof(ButtonTheme));
 
-        public Style ButtonStyle
+        public ControlTheme ButtonTheme
         {
-            get { return GetValue(ButtonStyleProperty); }
-            set { SetValue(ButtonStyleProperty, value); }
+            get { return GetValue(ButtonThemeProperty); }
+            set { SetValue(ButtonThemeProperty, value); }
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
@@ -78,9 +73,9 @@ namespace gip.ext.designer.avui.Controls
                             b.Value = v;
                             string enumName = Enum.GetName(type, v);
                             b.Content = enumName;
-                            if (ButtonStyle != null)
+                            if (ButtonTheme != null)
                             {
-                                b.Styles.Add(ButtonStyle);
+                                b.Theme = ButtonTheme;
                             }
                             b.PointerPressed += button_PointerPressed;
                             uxPanel.Children.Add(b);

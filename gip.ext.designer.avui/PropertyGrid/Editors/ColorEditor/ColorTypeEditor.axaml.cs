@@ -30,11 +30,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.ColorEditor
             this.InitializeComponent();
         }
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
-
 		protected override void OnPointerReleased(PointerReleasedEventArgs e)
 		{
 			ShowColorEditor();

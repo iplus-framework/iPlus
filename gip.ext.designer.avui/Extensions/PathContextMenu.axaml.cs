@@ -27,11 +27,6 @@ namespace gip.ext.designer.avui.Extensions
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         void Click_ConvertToFigures(object sender, RoutedEventArgs e)
         {
             var path = this.designItem.Component as Path;

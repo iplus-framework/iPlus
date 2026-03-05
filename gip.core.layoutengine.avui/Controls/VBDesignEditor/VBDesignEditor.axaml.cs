@@ -14,6 +14,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Xml;
 
 namespace gip.core.layoutengine.avui
@@ -93,7 +94,7 @@ namespace gip.core.layoutengine.avui
         }
 
         protected bool _Loaded = false;
-        protected override void OnLoaded(RoutedEventArgs e)
+        protected override async void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
             if (_SelectionManager != null && _SelectionManager.ReferencePoint != null)
@@ -280,7 +281,7 @@ namespace gip.core.layoutengine.avui
 
             DesignSurface.OnDeleteItem += DesignSurface_OnDeleteItem;
 
-            RefreshViewFromXAML();
+            await RefreshViewFromXAML();
         }
 
 
@@ -291,18 +292,18 @@ namespace gip.core.layoutengine.avui
                     ModelTools.DeleteComponents(DesignContext.Services.Selection.SelectedItems);
         }
 
-        public void OnTargetUpdatedOfBinding(Object sender, AvaloniaPropertyChangedEventArgs args)
+        public async Task OnTargetUpdatedOfBinding(Object sender, AvaloniaPropertyChangedEventArgs args)
         {
             if (args.Property == VBDesignEditor.XMLTextProperty)
             {
-                RefreshDesignEditor();
+                await RefreshDesignEditor();
             }
             else if (args.Property == VBDesignEditor.DesignerDataContextProperty)
             {
             }
             else if (args.Property == VBDesignEditor.RefreshDesignerProperty)
             {
-                RefreshDesignEditor();
+                await RefreshDesignEditor();
             }
         }
 
@@ -321,7 +322,7 @@ namespace gip.core.layoutengine.avui
         //}
 
         object _LastActiveTab = null;
-        void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        async void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
             {
@@ -330,7 +331,7 @@ namespace gip.core.layoutengine.avui
                     return;
                 if (vbTabitemAdded == DesignTab)
                 {
-                    RefreshViewFromXAML();
+                    await RefreshViewFromXAML();
                 }
                 else
                 {
@@ -515,11 +516,11 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        public void RefreshDesignEditor()
+        public async Task RefreshDesignEditor()
         {
             VBTabItem vbTabitemAdded = this.ucTabControl.SelectedItem as VBTabItem;
             if (vbTabitemAdded == DesignTab)
-                RefreshViewFromXAML();
+                await RefreshViewFromXAML();
 
             VBDesign vbDesign = this.GetVBDesign();
             ACClassDesign acClassDesign = null;
@@ -571,7 +572,7 @@ namespace gip.core.layoutengine.avui
 
 
         private string _LastLoadedXAMLInView;
-        public void RefreshViewFromXAML()
+        public async Task RefreshViewFromXAML()
         {
             if (String.IsNullOrEmpty(this.XMLText) || !IsLoaded)
                 return;
@@ -584,6 +585,7 @@ namespace gip.core.layoutengine.avui
             string newXMLText = Layoutgenerator.CheckOrUpdateNamespaceInLayout(this.XMLText);
             if ((_LastLoadedXAMLInView == newXMLText) && (DesignSurface.DataContext == newContext))
                 return;
+            string errorMessage = null;
             using (StringReader sr = new StringReader(Layoutgenerator.CheckOrUpdateNamespaceInLayout(newXMLText)))
             using (XmlTextReader r = new XmlTextReader(sr))
             {
@@ -645,13 +647,9 @@ namespace gip.core.layoutengine.avui
                     }
                     Layoutgenerator.CurrentDataContext = DesignSurface.DataContext as IACObject;
                     DesignSurface.LoadDesigner(r, settings);
-
-                    //DesignSurface.ContextMenuOpening += (sender, e) => MenuService.ShowContextMenu(e.OriginalSource as UIElement, designer, "/AddIns/WpfDesign/Designer/ContextMenu");
-
-                    /*if (outline != null && designer.DesignContext != null && designer.DesignContext.RootItem != null)
-                    {
-                        outline.Root = OutlineNode.Create(designer.DesignContext.RootItem);
-                    }*/
+                    var errorService = DesignSurface.DesignContext?.Services.GetService<XamlErrorService>();
+                    if (errorService != null && errorService.Errors.Count > 0)
+                        errorMessage = string.Join(Environment.NewLine, errorService.Errors.Select(err => err.ToString()));
 
                     if (PropertyGridView != null)
                         PropertyGridView.PropertyGrid.SelectedItems = null;
@@ -676,6 +674,10 @@ namespace gip.core.layoutengine.avui
 
                     //this.UserContent = new WpfDocumentError();
                 }
+            }
+            if (!string.IsNullOrEmpty(errorMessage) && datamodel.Database.Root != null)
+            {
+                await datamodel.Database.Root.Environment.Messages.ErrorAsync(datamodel.Database.Root, errorMessage, true);
             }
         }
 
@@ -869,7 +871,7 @@ namespace gip.core.layoutengine.avui
             set { SetValue(ACCompInitStateProperty, value); }
         }
 
-        protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
+        protected override async void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
             base.OnPropertyChanged(change);
             VBDesignEditor thisControl = this;
@@ -886,15 +888,15 @@ namespace gip.core.layoutengine.avui
             }
             else if (change.Property == XMLTextProperty)
             {
-                OnTargetUpdatedOfBinding(change.Sender, change);
+                await OnTargetUpdatedOfBinding(change.Sender, change);
             }
             else if (change.Property == DesignerDataContextProperty)
             {
-                OnTargetUpdatedOfBinding(change.Sender, change);
+                await OnTargetUpdatedOfBinding(change.Sender, change);
             }
             else if (change.Property == RefreshDesignerProperty)
             {
-                OnTargetUpdatedOfBinding(change.Sender, change);
+                await OnTargetUpdatedOfBinding(change.Sender, change);
             }
         }
 

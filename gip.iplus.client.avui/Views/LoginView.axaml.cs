@@ -58,6 +58,7 @@ public partial class LoginView : UserControl
     private Settings UserSettings => DataContext as Settings;
 
     public event EventHandler LoginCancelled;
+    public event EventHandler LoginStarted;
 
     private TopLevel _topLevel;
     private IInsetsManager _insetsManager;
@@ -165,12 +166,13 @@ public partial class LoginView : UserControl
             var safeArea = _insetsManager.SafeAreaPadding;
             var occludedArea = _inputPane.OccludedRect;
 
+            double topPadding = this.Padding.Top;
             // Combine safe area with keyboard height
             this.Padding = new Thickness(
                 safeArea.Left,
-                safeArea.Top,
+                topPadding,
                 safeArea.Right,
-                occludedArea.Height + safeArea.Bottom
+                occludedArea.Height
             );
 
             Control focusedElement = _topLevel.FocusManager?.GetFocusedElement() as Control;
@@ -179,7 +181,7 @@ public partial class LoginView : UserControl
                 try
                 {
                     PixelPoint position = focusedElement.PointToScreen(new Point(0, focusedElement.Bounds.Height));
-                    scrollViewer.Offset = new Vector(0, position.Y - (_topLevel.Bounds.Height - occludedArea.Height));
+                    scrollViewer.Offset = new Vector(0, position.Y - _topLevel.Bounds.Height);
                 }
                 catch (Exception)
                 {
@@ -310,6 +312,8 @@ public partial class LoginView : UserControl
     /// <param name="e"></param>
     private void ButtonLogin_Click(object sender, RoutedEventArgs e)
     {
+        LoginStarted?.Invoke(this, new EventArgs());
+
         //_WpfTheme = (eWpfTheme)System.Enum.Parse(typeof(eWpfTheme), selTheme.SelectedValue.ToString());
         _User = TextboxUser.Text;
         _Password = TextboxPassword.Text;
@@ -344,6 +348,22 @@ public partial class LoginView : UserControl
         DatabaseName.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseName)).FirstOrDefault()?.Value as string;
         DatabaseUser.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabaseUser)).FirstOrDefault()?.Value as string;
         DatabasePassword.Text = settings.Where(c => c.ACCaptionTranslation == nameof(DatabasePassword)).FirstOrDefault()?.Value as string;
+        bool? singleViewEnabled = settings.Where(c => c.ACCaptionTranslation == nameof(SingleViewEnabled)).FirstOrDefault()?.Value as bool?;
+        if (singleViewEnabled.HasValue)
+            SingleViewEnabled.IsChecked = singleViewEnabled.Value;
+        else
+            SingleViewEnabled.IsChecked = true;
+    }
+
+    private void SwitchSettingsView()
+    {
+        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
+        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
+
+        if (SettingsGrid.IsVisible)
+            iPlusLogo.Height = 150;
+        else
+            iPlusLogo.Height = 400;
     }
 
     private void Image_DoubleTapped(object sender, TappedEventArgs e)
@@ -353,8 +373,7 @@ public partial class LoginView : UserControl
 
         LoadSettings();
 
-        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
-        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
+        SwitchSettingsView();
     }
 
     private void ButtonSave_Click(object sender, RoutedEventArgs e)
@@ -403,10 +422,21 @@ public partial class LoginView : UserControl
             dbPasswordVal.Value = DatabasePassword.Text;
         }
 
+        ACValueItem singleViewVal = CommandLineHelper.Settings.Where(c => c.ACCaptionTranslation == nameof(SingleViewEnabled)).FirstOrDefault();
+        if (singleViewVal == null)
+        {
+            SingleViewEnabled.IsChecked = true;
+            singleViewVal = new ACValueItem(nameof(SingleViewEnabled), SingleViewEnabled.IsChecked, null);
+            CommandLineHelper.Settings.Add(singleViewVal);
+        }
+        else
+        {
+            singleViewVal.Value = SingleViewEnabled.IsChecked;
+        }
+
         CommandLineHelper.SaveSettings();
 
-        SettingsGrid.IsVisible = !SettingsGrid.IsVisible;
-        LoginGrid.IsVisible = !SettingsGrid.IsVisible;
+        SwitchSettingsView();
     }
 
     #endregion

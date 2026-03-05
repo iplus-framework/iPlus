@@ -58,6 +58,8 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
+                if (_ACComponent == null && ParentACElement != null)
+                    _ACComponent = ParentACElement.ContextACObject;
                 return _ACComponent;
             }
             set
@@ -87,6 +89,8 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
+                if (_ACObject == null)
+                    _ACObject = Header as IACObject;
                 return _ACObject;
             }
             set
@@ -104,8 +108,8 @@ namespace gip.core.layoutengine.avui
             get
             {
                 List<IACObject> acContentList = new List<IACObject>();
-                acContentList.Add(_ACObject);
-
+                if (ContentACObject != null)
+                    acContentList.Add(ContentACObject);
                 return acContentList;
             }
         }
@@ -202,8 +206,8 @@ namespace gip.core.layoutengine.avui
             if (vbTreeView == null)
                 return;
             if (ContentACObject != null 
-            && vbTreeView.ItemTemplate is DataTemplate
-            && ContentACObject is IVBDataCheckbox && ((IVBDataCheckbox)ContentACObject).DataContentCheckBox == "IsChecked")
+                && vbTreeView.ItemTemplate is DataTemplate
+                && ContentACObject is IVBDataCheckbox && ((IVBDataCheckbox)ContentACObject).DataContentCheckBox == "IsChecked")
             {
                 VBCheckBox vbCheckBox = VBVisualTreeHelper.FindObjectInLogicalAndVisualTree(this, "VBCheckBox") as VBCheckBox;
                 if (vbCheckBox != null)
@@ -274,6 +278,9 @@ namespace gip.core.layoutengine.avui
         {
             get
             {
+                if (_ParentACElement != null)
+                    return _ParentACElement;
+                _ParentACElement = this.FindLogicalAncestorOfType<VBTreeView>();
                 return _ParentACElement;
             }
         }
@@ -292,7 +299,9 @@ namespace gip.core.layoutengine.avui
             get
             {
                 VBTreeView vbTreeView = ParentACElement as VBTreeView;
-                return vbTreeView.VBContent;
+                if (vbTreeView != null)
+                    return vbTreeView.VBContent;
+                return null;
             }
             set
             {
@@ -487,7 +496,9 @@ namespace gip.core.layoutengine.avui
             if (vbCheckBox != null)
             {
                 vbCheckBox.ClearAllBindings();
-                vbCheckBox.Click -= ((VBTreeView)ParentACElement).cb_Click;
+                VBTreeView treeView = FindParentTreeView(this) as VBTreeView;
+                if (treeView != null)
+                    vbCheckBox.Click -= treeView.cb_Click;
             }
         }
 

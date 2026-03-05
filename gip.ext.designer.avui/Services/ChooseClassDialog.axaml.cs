@@ -35,11 +35,6 @@ namespace gip.ext.designer.avui.Services
 			if (uxOk != null)
 				uxOk.Click += delegate { Ok(); };
 		}
-
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 		
 		protected override void OnKeyDown(KeyEventArgs e)
 		{

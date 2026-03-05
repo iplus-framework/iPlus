@@ -153,6 +153,7 @@ namespace gip.core.datamodel
         /// </summary>
         /// <value><c>true</c> if initialized; otherwise, <c>false</c>.</value>
         bool Initialized { get; }
+        event EventHandler InitializedEvent;
 
         /// <summary>
         /// Instance for dumping the applicationtree and writing some performance logs

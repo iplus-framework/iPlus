@@ -153,6 +153,7 @@
 		<PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
+		<PackageVersion Include="Swashbuckle.AspNetCore" Version="9.0.3" />
 		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="9.0.3" />
 		<PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />	
 		<PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />
@@ -173,6 +174,7 @@
 		<PackageVersion Include="TimeStampClient" Version="1.2.0" />
 		<PackageVersion Include="WindowsAPICodePack" Version="8.0.6" />
 		<PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.17" />
+		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.2.0.3"  />
 		<PackageVersion Include="Xaml.Behaviors" Version="11.3.6.6" />
 		<!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
 		<PackageVersion Include="System.Text.Json" Version="9.0.9" />
@@ -457,6 +459,7 @@
 		<PackageVersion Include="SkiaSharp.NativeAssets.Android" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.NativeAssets.WebAssembly" Version="$(SkiaSharpVersion)" />
 		<PackageVersion Include="SkiaSharp.HarfBuzz" Version="$(SkiaSharpVersion)" />
+		<PackageVersion Include="Swashbuckle.AspNetCore" Version="10.1.0" />
 		<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.0" />
 		<PackageVersion Include="System.ComponentModel.Annotations" Version="5.0.0" />
 		<PackageVersion Include="System.Configuration.ConfigurationManager" Version="$(NetCorePackageVersion)" />

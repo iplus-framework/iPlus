@@ -8,18 +8,18 @@
                 <Viewbox Stretch="Uniform">
                     <Canvas x:Name="Ebene_1_9" Width="24" Height="24" Canvas.Left="0" Canvas.Top="0">
                         <Path x:Name="Top" Width="17" Height="9" Canvas.Left="3.49999" Canvas.Top="0.500002" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1" Data="M 3.99999,9L 20,9L 20,5.44445L 3.99999,1L 3.99999,9 Z "
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" />
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" StrokeThickness="1" Data="M 3.99999,9L 20,9L 20,5.44445L 3.99999,1L 3.99999,9 Z "
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" />
                         <Path x:Name="Bottom" Width="17" Height="9" Canvas.Left="3.49999" Canvas.Top="14.5" Stretch="Fill" StrokeJoin="Round" 
-                              Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1" Data="M 3.99999,15L 20,15L 20,18.5556L 3.99999,23L 3.99999,15 Z "
-                              Fill="{StaticResource RibbonButtonNormalContentFill}" />
+                              Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" StrokeThickness="1" Data="M 3.99999,15L 20,15L 20,18.5556L 3.99999,23L 3.99999,15 Z "
+                              Fill="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentFill}" />
                         <Viewbox x:Name="Arrow_10" Width="8.50287" Height="15.7991" Canvas.Left="8.67826" Canvas.Top="4.00001">
                             <Canvas Width="8.50287" Height="15.7991">
                                 <Path x:Name="Path_11" Width="6.14346" Height="15" Canvas.Left="9.53674e-007" Canvas.Top="0" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round" 
-                                      Stroke="{StaticResource RibbonButtonNormalContentStroke}"  
+                                      Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}"  
                                       Data="M 5.14346,1C 2.78406,1.58065 1,4.27003 1,7.5C 1,10.73 2.78406,13.4193 5.14346,14"/>
                                 <Path x:Name="Path_12" Width="5.23337" Height="4.96969" Canvas.Left="1.29272" Canvas.Top="10.8295" Stretch="Fill" StrokeJoin="Round" 
-                                      Stroke="{StaticResource RibbonButtonNormalContentStroke}" StrokeThickness="1"
+                                      Stroke="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType=local:IVBDynamicIcon}, Path=ContentStroke}" StrokeThickness="1"
                                       Fill="#FF000000" 
                                       Data="M 6.02609,15.2991L 4.13882,11.3295L 1.79272,14.1164L 6.02609,15.2991 Z "/>
                             </Canvas>

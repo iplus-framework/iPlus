@@ -23,10 +23,8 @@
       </Border.Background>
     </Border>
 	  
-	  <Image Classes="iPlusLogoClass" Source="/Assets/Login.png" DoubleTapped="Image_DoubleTapped">
-      <Image.RenderTransform>
-        <ScaleTransform  ScaleX="1" ScaleY="1" />
-      </Image.RenderTransform>
+	  <Image Height="400" x:Name="iPlusLogo" Classes="iPlusLogoClass" Source="/Assets/Login.png" DoubleTapped="Image_DoubleTapped">
+
     </Image>
    
 	  <StackPanel Grid.Row="1">
@@ -128,6 +126,7 @@
       <Grid x:Name="SettingsGrid" IsVisible="False">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="10"></RowDefinition>
           <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
 
@@ -170,9 +169,13 @@
           <TextBlock VerticalAlignment="Bottom" Grid.Row="8" Grid.Column="1"  Name="DatabasePasswordCaption">Database password</TextBlock>
           <TextBox VerticalAlignment="Bottom" Height="25" Grid.Row="9" Grid.Column="1" Name="DatabasePassword" RevealPassword="False" PasswordChar="*" />
 
-          <Button Grid.Row="11" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Save</Button>
+          <CheckBox VerticalAlignment="Bottom" Grid.Row="11" Grid.Column="1" Name="SingleViewEnabled" Content="Enable single view" Margin="0,5,0,0"/>
 
         </Grid>
+
+        <Button Grid.Row="2" Grid.Column="1" Name="ButtonSave" IsDefault="True" Click="ButtonSave_Click" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center">Save</Button>
+
       </Grid>
     </StackPanel>
   </Grid>

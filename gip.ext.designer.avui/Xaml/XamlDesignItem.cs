@@ -117,13 +117,16 @@ namespace gip.ext.designer.avui.Xaml
                 //}
 
                 root = GetRootXamlObject(this.XamlObject, true);
-                var bindings = GetAllChildXamlObjects(root, true).Where(x => x.ElementType == typeof(Binding) && Equals(x.FindOrCreateProperty("ElementName").GetValueOnInstance<string>(), oldName));
+                var bindings = GetAllChildXamlObjects(root, true).Where(x => x.ElementType == typeof(Binding) && Equals(x.FindOrCreateProperty("ElementName")?.GetValueOnInstance<string>(), oldName));
                 foreach (var designItem in bindings)
                 {
                     var property = designItem.FindOrCreateProperty("ElementName");
-                    var propertyValue = designItem.OwnerDocument.CreatePropertyValue(newName, property);
-                    this.ComponentService.RegisterXamlComponentRecursive(propertyValue as XamlObject);
-                    property.PropertyValue = propertyValue;
+                    if (property != null)
+                    {
+                        var propertyValue = designItem.OwnerDocument.CreatePropertyValue(newName, property);
+                        this.ComponentService.RegisterXamlComponentRecursive(propertyValue as XamlObject);
+                        property.PropertyValue = propertyValue;
+                    }
                 }
             }
         }

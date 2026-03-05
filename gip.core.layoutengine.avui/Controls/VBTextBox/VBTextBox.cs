@@ -83,6 +83,7 @@ namespace gip.core.layoutengine.avui
         {
             if (_Initialized || DataContext == null)
                 return;
+
             if (DisableContextMenu)
                 ContextFlyout = null;
 
@@ -505,6 +506,25 @@ namespace gip.core.layoutengine.avui
             set { SetValue(TransferOnLostFocusProperty, value); }
         }
 
+
+        /// <summary>
+        /// Represents the dependency property for IsSingleViewApp.
+        /// </summary>
+        public static readonly AttachedProperty<bool> IsSingleViewAppProperty =
+            ContentPropertyHandler.IsSingleViewAppProperty.AddOwner<VBTextBox>();
+        /// <summary>
+        /// Determines if the application is a single view app.
+        /// </summary>
+        /// <summary xml:lang="de">
+        /// Ermittelt, ob die Anwendung eine Single-View-App ist.
+        /// </summary>
+        [Category("VBControl")]
+        [ACPropertyInfo(9999)]
+        public bool IsSingleViewApp
+        {
+            get { return GetValue(IsSingleViewAppProperty); }
+            set { SetValue(IsSingleViewAppProperty, value); }
+        }
 
         #endregion //TransferOnLostFocus
 

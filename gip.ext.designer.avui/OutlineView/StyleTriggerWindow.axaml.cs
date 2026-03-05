@@ -21,11 +21,6 @@ namespace gip.ext.designer.avui.OutlineView
             this.InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         DesignItem _DesignObject;
         public void LoadItemsCollection(DesignItem designObject)
 		{

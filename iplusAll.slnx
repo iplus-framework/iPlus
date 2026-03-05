@@ -32,6 +32,7 @@
     <Project Path="gip.core.autocomponent.shared/gip.core.autocomponent.shared.shproj" />
     <Project Path="gip.core.autocomponent/gip.core.autocomponent.csproj" />
     <Project Path="gip.core.communication/gip.core.communication.csproj" />
+    <Project Path="gip.core.crypto/gip.core.crypto.csproj" />
     <Project Path="gip.core.layoutengine/gip.core.layoutengine.csproj" />
     <Project Path="gip.core.manager/gip.core.manager.csproj" />
     <Project Path="gip.core.media/gip.core.media.csproj" />

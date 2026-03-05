@@ -17,9 +17,5 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			InitializeComponent();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-		}
 	}
 }

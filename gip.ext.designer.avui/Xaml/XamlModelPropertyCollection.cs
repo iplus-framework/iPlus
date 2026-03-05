@@ -25,7 +25,10 @@ namespace gip.ext.designer.avui.Xaml
             XamlModelProperty property;
             if (propertiesDictionary.TryGetValue(name, out property))
                 return property;
-            property = new XamlModelProperty(_item, _item.XamlObject.FindOrCreateProperty(name));
+            XamlProperty property2 = _item.XamlObject.FindOrCreateProperty(name);
+            if (property2 == null)
+                return null;
+            property = new XamlModelProperty(_item, property2);
             propertiesDictionary.Add(name, property);
             return property;
 
@@ -38,12 +41,18 @@ namespace gip.ext.designer.avui.Xaml
 
         public override DesignItemProperty GetProperty(string name)
         {
-            return new XamlModelProperty(_item, _item.XamlObject.FindOrCreateProperty(name));
+            XamlProperty property = _item.XamlObject.FindOrCreateProperty(name);
+            if (property == null)
+                return null;
+            return new XamlModelProperty(_item, property);
         }
 
         public override DesignItemProperty GetAttachedProperty(Type ownerType, string name)
         {
-            return new XamlModelProperty(_item, _item.XamlObject.FindOrCreateAttachedProperty(ownerType, name));
+            XamlProperty property = _item.XamlObject.FindOrCreateAttachedProperty(ownerType, name);
+            if (property == null)
+                return null;
+            return new XamlModelProperty(_item, property);
         }
 
         public override System.Collections.Generic.IEnumerator<DesignItemProperty> GetEnumerator()

@@ -27,12 +27,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			InitializeComponent();
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-			
-			//strip = this.FindControl<Dragger>("strip");
-			//itemsControl = this.FindControl<GradientItemsControl>("itemsControl");
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
 
 			this.Bind(SelectedStopProperty, new Binding("SelectedItem") {
 				Source = itemsControl,

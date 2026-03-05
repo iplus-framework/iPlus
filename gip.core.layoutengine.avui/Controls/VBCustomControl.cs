@@ -66,6 +66,10 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public static readonly AttachedProperty<bool> AnimationOffProperty =
             AvaloniaProperty.RegisterAttached<StyledElement, bool>("AnimationOff", typeof(ContentPropertyHandler), defaultValue: false, inherits: true);
+
+
+        public static readonly AttachedProperty<bool> IsSingleViewAppProperty =
+            AvaloniaProperty.RegisterAttached<StyledElement, bool>("IsSingleViewApp", typeof(ContentPropertyHandler), defaultValue: false, inherits: true);
     }
 
     public class VBCustomControl : Control

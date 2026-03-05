@@ -30,5 +30,9 @@ namespace gip.ext.designer.avui.Services
 		public string Message { get; set; }
 		public int Line { get; set; }
 		public int Column { get; set; }
+		public override string ToString()
+		{
+			return string.Format("Line {0}, Column {1}: {2}", Line, Column, Message);
+		}
 	}
 }

@@ -45,13 +45,6 @@ namespace gip.ext.designer.avui.PropertyGrid
 			richTextBox.Background = tb.Background;
 		}
 
-		private void InitializeComponent()
-		{
-			AvaloniaXamlLoader.Load(this);
-			//richTextBox = this.FindControl<RichTextBox>("richTextBox");
-			//richTextBoxToolbar = this.FindControl<Editors.FormatedTextEditor.RichTextBoxToolbar>("richTextBoxToolbar");
-		}
-
 		public static void SetRichTextBoxTextFromTextBlock(RichTextBox richTextBox, TextBlock textBlock)
 		{
 			// TODO: AvRichTextBox might not fully support all TextBlock.Inlines features

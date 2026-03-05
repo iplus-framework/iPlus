@@ -86,6 +86,15 @@ namespace gip.core.layoutengine.avui
         string _DataShowColumns;
         string _DataChilds;
 
+        static VBRadioButtonGroup()
+        {
+            ItemsHostTypeProperty.Changed.AddClassHandler<VBRadioButtonGroup>((x, e) => x.UpdateTemplateClass());
+            ScrollViewerVisibilityProperty.Changed.AddClassHandler<VBRadioButtonGroup>((x, e) => x.UpdateTemplateClass());
+            HorizontalItemsProperty.Changed.AddClassHandler<VBRadioButtonGroup>((x, e) => x.UpdateOrientationClass());
+            ColumnsProperty.Changed.AddClassHandler<VBRadioButtonGroup>((x, e) => x.UpdateItemsPanel());
+            RowsProperty.Changed.AddClassHandler<VBRadioButtonGroup>((x, e) => x.UpdateItemsPanel());
+        }
+
         public VBRadioButtonGroup() : base()
         {
         }

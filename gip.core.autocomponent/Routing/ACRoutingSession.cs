@@ -1048,7 +1048,7 @@ namespace gip.core.autocomponent
 
             if (!string.IsNullOrEmpty(excludedByDeselector))
             {
-                warning = "Components excluded by deselector: " + excludedByDeselector + System.Environment.NewLine; ;
+                warning = "Components excluded by deselector: " + excludedByDeselector + System.Environment.NewLine;
             }
 
             if (!string.IsNullOrEmpty(excludedByLoop))

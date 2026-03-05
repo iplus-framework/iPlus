@@ -107,7 +107,7 @@
       <Controls:EnumBar Grid.Row="1" Value="{Binding CurrentTab}"
                 Container="{Binding ElementName=c1}"
                 Margin="5 0 0 5"
-                      ButtonStyle="{StaticResource ToggleButtonStyle}" />
+                      ButtonTheme="{StaticResource ToggleButtonStyle}" />
 
       <!-- Content section -->
       <Grid x:Name="c1" Grid.Row="2"
@@ -122,7 +122,7 @@
                      HorizontalAlignment="Left"
                      Width="4"
                      Margin="-2 0 0 0"
-                     Cursor="SizeWE">
+                     Cursor="SizeWestEast">
           <Thumb.RenderTransform>
             <TranslateTransform X="{Binding FirstColumnWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:VBPropertyGridView}}" />
           </Thumb.RenderTransform>
@@ -200,7 +200,7 @@
       <Controls:EnumBar Grid.Row="1" Value="{Binding CurrentTab}"
                 Container="{Binding ElementName=c1}"
                 Margin="5 0 0 5"
-                      ButtonStyle="{StaticResource ToggleButtonStyle}" />
+                ButtonTheme="{StaticResource ToggleButtonStyle}" />
 
       <!-- Content section -->
       <local:VBGrid x:Name="c1" Grid.Row="2"
@@ -216,7 +216,7 @@
                      HorizontalAlignment="Left"
                      Width="4"
                      Margin="-2 0 0 0"
-                     Cursor="SizeWE">
+                     Cursor="SizeWestEast">
           <Thumb.RenderTransform>
             <TranslateTransform X="{Binding FirstColumnWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:VBPropertyGridView}}" />
           </Thumb.RenderTransform>
@@ -301,7 +301,7 @@
                        HorizontalAlignment="Left"
                        Width="4"
                        Margin="-2 0 0 0"
-                       Cursor="SizeWE">
+                       Cursor="SizeWestEast">
         <Thumb.RenderTransform>
           <TranslateTransform X="{Binding FirstColumnWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:VBPropertyGridView}}" />
         </Thumb.RenderTransform>
@@ -320,7 +320,7 @@
     <Setter Property="Template" Value="{StaticResource AsGrid}" />
 
 
-    <Style Selector="ToggleButton.ExpandButtonStyle">
+    <Style Selector="^ToggleButton.ExpandButtonStyle">
       <Setter Property="Focusable" Value="False" />
       <Setter Property="Template">
         <ControlTemplate>
@@ -346,12 +346,12 @@
       </Setter>
     </Style>
 
-    <Style Selector="ToggleButton.ExpandButtonStyle:checked /template/ Path#ExpandPath">
+    <Style Selector="^ToggleButton.ExpandButtonStyle:checked /template/ Path#ExpandPath">
       <Setter Property="Data" Value="M 0 2 L 0 3 L 5 3 L 5 2 Z" />
     </Style>
 
     <!-- MoreButtonStyle -->
-    <Style Selector="ToggleButton">
+    <Style Selector="^ToggleButton.MoreButtonStyle">
       <Setter Property="Focusable" Value="False" />
       <Setter Property="Template">
         <ControlTemplate>
@@ -368,12 +368,12 @@
       </Setter>
     </Style>
 
-    <Style Selector="ToggleButton.MoreButtonStyle:checked /template/ Path#arrow">
+    <Style Selector="^ToggleButton.MoreButtonStyle:checked /template/ Path#arrow">
       <Setter Property="Data" Value="M 0 5 L 5 0 L 10 5" />
     </Style>
 
     <!-- CategoryToggleStyle -->
-    <Style Selector="ToggleButton">
+    <Style Selector="^ToggleButton.CategoryToggleStyle">
       <Setter Property="Focusable" Value="False" />
       <Setter Property="Template">
         <ControlTemplate>
@@ -396,7 +396,7 @@
     </Style>
 
     <!-- CategoryExpanderStyle -->
-    <Style Selector="Expander">
+    <Style Selector="^Expander.CategoryExpanderStyle">
       <Setter Property="Template">
         <ControlTemplate TargetType="Expander">
           <Grid>
@@ -415,7 +415,7 @@ IsVisible="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}
     </Style>
 
     <!-- MoreExpanderStyle -->
-    <Style Selector="Expander">
+    <Style Selector="^Expander.MoreExpanderStyle">
       <Setter Property="Template">
         <ControlTemplate TargetType="Expander">
           <Grid>

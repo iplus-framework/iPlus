@@ -23,11 +23,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             InitializeComponent();
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         public IPropertyNode PropertyNode
         {
             get { return DataContext as IPropertyNode; }

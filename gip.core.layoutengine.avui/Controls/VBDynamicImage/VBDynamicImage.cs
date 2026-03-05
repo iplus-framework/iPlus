@@ -61,6 +61,26 @@ namespace gip.core.layoutengine.avui
                         }
                     }
 
+                    if (objForDesign is DesignManagerToolItem designManagerToolItem)
+                    {
+                        try
+                        {
+                            Source = new Bitmap(AssetLoader.Open(designManagerToolItem.IconResourceDictUri));
+                            return;
+                        }
+                        catch (Exception e)
+                        {
+                            string msg = e.Message;
+                            if (e.InnerException != null && e.InnerException.Message != null)
+                                msg += " Inner:" + e.InnerException.Message;
+
+                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                datamodel.Database.Root.Messages.LogException("VBStaticResourceExtension", "ProvideValue(10)", msg);
+
+                            return;
+                        }
+                    }
+
                     // Get ACClassDesign for the object
                     ACClassDesign acClassDesign = null;
                     

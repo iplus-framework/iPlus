@@ -252,14 +252,18 @@ namespace gip.ext.designer.avui.OutlineView
 			{
 				if (!string.IsNullOrEmpty(_name))
 					return _name;
-                if (DesignItem.HasProperty("Name") == null)
-                    return DesignItem.ComponentType.Name;
-                if (string.IsNullOrEmpty(DesignItem.Name))
-                {
-                    return DesignItem.ComponentType.Name;
-                }
-                //return DesignItem.ComponentType.Name + " (" + DesignItem.Name + ")";
-                return DesignItem.Services.GetService<IOutlineNodeNameService>().GetOutlineNodeName(DesignItem);
+				if (DesignItem != null)
+				{
+					if (DesignItem.HasProperty("Name") == null)
+						return DesignItem.ComponentType.Name;
+					if (string.IsNullOrEmpty(DesignItem.Name))
+					{
+						return DesignItem.ComponentType.Name;
+					}
+					//return DesignItem.ComponentType.Name + " (" + DesignItem.Name + ")";
+					return DesignItem.Services.GetService<IOutlineNodeNameService>().GetOutlineNodeName(DesignItem);
+				}
+				return string.Empty;
 			}
 		}
 

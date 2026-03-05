@@ -433,6 +433,112 @@ x:ClassModifier="internal">
     </DataValidationErrors>
   </ControlTemplate>
 
+
+  <!-- VBTextBox ControlTheme SingleViewPlatform --> 
+
+  <ControlTemplate x:Key="TextBoxTemplateSingle" TargetType="local:VBTextBox">
+    <DataValidationErrors>
+      <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+        <Grid.RowDefinitions>
+			<RowDefinition Height="1.5*"/>
+            <RowDefinition Height="3"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+        <local:VBTextBlock x:Name="PART_Caption"
+								   Grid.Row="0"
+								   VerticalAlignment="Center"
+								   Text="{TemplateBinding ACCaptionTrans}"
+								   TextAlignment="{TemplateBinding TextAlignmentCaption}"/>
+        <Border x:Name="BgElement"
+            Grid.Row="2"
+            Margin="0,0,0,0"
+            CornerRadius="3"
+            BorderBrush="{TemplateBinding BorderBrush}"
+            BorderThickness="{TemplateBinding BorderThickness}"
+            Background="{TemplateBinding Background}">
+          <Grid ColumnDefinitions="Auto,*,Auto">
+            <ContentPresenter Grid.Column="0" Grid.ColumnSpan="1" Content="{TemplateBinding InnerLeftContent}" />
+            <DockPanel x:Name="PART_InnerDockPanel"
+								   Grid.Column="1"
+								   Margin="{TemplateBinding Padding}">
+              <TextBlock x:Name="PART_FloatingWatermark"
+									   Opacity="0.5"
+									   Foreground="{StaticResource ColorCtrlTxtDisabled}"
+									   FontSize="{TemplateBinding FontSize}"
+									   IsVisible="False"
+									   Text="{TemplateBinding Watermark}"
+									   DockPanel.Dock="Top" />
+              <ScrollViewer Name="PART_ScrollViewer"
+                            HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                            VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                            IsScrollChainingEnabled="{TemplateBinding (ScrollViewer.IsScrollChainingEnabled)}"
+                            AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}"
+                            BringIntoViewOnFocusChange="{TemplateBinding (ScrollViewer.BringIntoViewOnFocusChange)}">
+                <Panel>
+                  <TextBlock x:Name="PART_Watermark"
+											   Opacity="0.5"
+											   Foreground="{Binding (TextBlock.Foreground), ElementName=PART_TextPresenter, Mode=OneWay}"
+											   Text="{TemplateBinding Watermark}"
+											   TextAlignment="{TemplateBinding TextAlignment}"
+											   TextWrapping="{TemplateBinding TextWrapping}"
+											   IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}"
+											   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+											   VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
+                    <TextBlock.IsVisible>
+                      <MultiBinding Converter="{x:Static BoolConverters.And}">
+                        <Binding ElementName="PART_TextPresenter" Path="PreeditText" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text" Converter="{x:Static StringConverters.IsNullOrEmpty}"/>
+                      </MultiBinding>
+                    </TextBlock.IsVisible>
+                  </TextBlock>
+                  <TextPresenter x:Name="PART_TextPresenter"
+												   Text="{TemplateBinding Text, Mode=TwoWay}"
+												   CaretIndex="{TemplateBinding CaretIndex}"
+												   SelectionStart="{TemplateBinding SelectionStart}"
+												   SelectionEnd="{TemplateBinding SelectionEnd}"
+												   TextAlignment="{TemplateBinding TextAlignment}"
+												   TextWrapping="{TemplateBinding TextWrapping}"
+												   LineHeight="{TemplateBinding LineHeight}"
+												   LetterSpacing="{TemplateBinding LetterSpacing}"
+												   PasswordChar="{TemplateBinding PasswordChar}"
+												   RevealPassword="{TemplateBinding RevealPassword}"
+												   SelectionBrush="{TemplateBinding SelectionBrush}"
+												   SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+												   CaretBrush="{TemplateBinding CaretBrush}"
+												   HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+												   VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                </Panel>
+                <ScrollViewer.Styles>
+                  <Style Selector="ScrollContentPresenter#PART_ContentPresenter">
+                    <Setter Property="Cursor" Value="IBeam" />
+                  </Style>
+                </ScrollViewer.Styles>
+              </ScrollViewer>
+            </DockPanel>
+            <ContentPresenter Grid.Column="2" Grid.ColumnSpan="1" Content="{TemplateBinding InnerRightContent}" />
+          </Grid>
+        </Border>
+        <Canvas x:Name="PART_Nullable"
+						Grid.Row="2"
+						Width="10"
+						Height="10"
+						HorizontalAlignment="Right"
+						VerticalAlignment="Bottom"
+						Margin="0,0,2,2"
+						IsVisible="False">
+          <Rectangle StrokeThickness="1" Width="10" Height="10" Stroke="{StaticResource TextBoxBgDisabled}" RadiusX="2" RadiusY="2"/>
+          <Polygon x:Name="PART_IsValueNull"
+							 Stroke="{StaticResource TextBoxBgDisabled}"
+							 StrokeThickness="1"
+							 Points="1,5 4,8 8,2 4,6"
+							 IsVisible="False"/>
+        </Canvas>
+      </Grid>
+    </DataValidationErrors>
+  </ControlTemplate>
+
+
   <!-- VBTextBox ControlTheme -->
   <ControlTheme x:Key="{x:Type local:VBTextBox}" TargetType="{x:Type local:VBTextBox}">
     <Setter Property="Foreground" Value="{StaticResource TextBoxFgEnabled}"/>
@@ -447,6 +553,11 @@ x:ClassModifier="internal">
     <Setter Property="FocusAdorner" Value="{x:Null}" />
     <Setter Property="ScrollViewer.IsScrollChainingEnabled" Value="True" />
     <Setter Property="Template" Value="{StaticResource TextBoxTemplate}"/>
+
+      <!-- SingleViewPlatform Template Override based on property -->
+    <Style Selector="^[IsSingleViewApp=True]">
+      <Setter Property="Template" Value="{StaticResource TextBoxTemplateSingle}"/>
+    </Style>
 
     <!-- Disabled State -->
     <Style Selector="^:disabled /template/ Border#BgElement">

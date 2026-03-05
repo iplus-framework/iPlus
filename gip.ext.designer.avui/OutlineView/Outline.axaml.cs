@@ -44,11 +44,6 @@ namespace gip.ext.designer.avui.OutlineView
 
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         public static readonly StyledProperty<IOutlineNode> RootProperty =
 			AvaloniaProperty.Register<Outline, IOutlineNode>(nameof(Root));
 

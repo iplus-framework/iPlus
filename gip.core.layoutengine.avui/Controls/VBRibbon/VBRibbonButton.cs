@@ -24,6 +24,8 @@ namespace gip.core.layoutengine.avui
         {
         }
 
+        protected override Type StyleKeyOverride => typeof(VBRibbonButton);
+
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>

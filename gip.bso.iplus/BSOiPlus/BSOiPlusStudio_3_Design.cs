@@ -595,6 +595,7 @@ namespace gip.bso.iplus
                     }
                     break;
                 case Global.ACUsages.DULayout:
+                case Global.ACUsages.DUMainMobile:
                     {
                         defaultXAML += "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n";
                         defaultXAML += "<vb:VBGrid " + ACxmlnsResolver.XMLNamespaces + ">\n";

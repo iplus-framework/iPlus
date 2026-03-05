@@ -106,7 +106,7 @@
             <Setter Property="Stroke" Value="{StaticResource RadioButtonPressFocusBg}" />
             <Setter Property="Fill" Value="{StaticResource RadioButtonPressFocusBg}" />
         </Style>
-
+        
         <Style Selector="^.pushbutton:pointerover">
             <Setter Property="ContentStroke" Value="{StaticResource RadioButtonPressFocusContentStroke}"/>
             <Setter Property="ContentFill" Value="{StaticResource RadioButtonPressFocusContentFill}"/>

@@ -369,6 +369,8 @@ namespace gip.core.autocomponent
                 return _Initialized;
             }
         }
+        public event EventHandler InitializedEvent;
+
 
         public void OnStartupSucceeded()
         {
@@ -377,6 +379,7 @@ namespace gip.core.autocomponent
                 _Communications.StartServiceHost();
             _Initialized = true;
             gip.core.autocomponent.Messages.ConsoleClear();
+            InitializedEvent?.Invoke(this, EventArgs.Empty);
         }
 
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)

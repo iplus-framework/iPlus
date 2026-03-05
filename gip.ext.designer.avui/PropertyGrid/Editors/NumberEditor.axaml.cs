@@ -65,11 +65,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             this.GetObservable(StyledElement.DataContextProperty).Subscribe(_ => NumberEditor_DataContextChanged());
         }
 
-        private void InitializeComponent()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
-
         static Dictionary<Type, double> minimums = new Dictionary<Type, double>();
         static Dictionary<Type, double> maximums = new Dictionary<Type, double>();
 
