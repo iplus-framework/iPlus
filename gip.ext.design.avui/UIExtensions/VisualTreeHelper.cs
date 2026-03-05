@@ -271,19 +271,19 @@ namespace gip.ext.design.avui
             HitTestVisual(reference, filterCallback, resultCallback, hitTestParameters);
         }
 
-        private static void HitTestVisual(Visual reference, HitTestFilterCallback filterCallback, HitTestResultCallback resultCallback, PointHitTestParameters hitTestParameters)
+        private static bool HitTestVisual(Visual reference, HitTestFilterCallback filterCallback, HitTestResultCallback resultCallback, PointHitTestParameters hitTestParameters)
         {
             if (reference == null)
-                return;
+                return true; // Continue
 
             // Apply filter callback
             var filterResult = filterCallback?.Invoke(reference) ?? HitTestFilterBehavior.Continue;
 
             if (filterResult == HitTestFilterBehavior.Stop)
-                return;
+                return false; // Stop
 
             if (filterResult == HitTestFilterBehavior.ContinueSkipSelfAndChildren)
-                return;
+                return true; // Continue
 
             // Hit test children first (reverse order for top-most hit) if not skipping children
             if (filterResult != HitTestFilterBehavior.ContinueSkipChildren && 
@@ -309,7 +309,9 @@ namespace gip.ext.design.avui
                         // Create new hit test parameters for the child
                         var childParams = new PointHitTestParameters(childHitPoint);
                         
-                        HitTestVisual(child, filterCallback, resultCallback, childParams);
+                        // If child hit test returns false (Stop), stop processing immediately
+                        if (!HitTestVisual(child, filterCallback, resultCallback, childParams))
+                            return false; // Stop - child found a hit
                     }
                 }
             }
@@ -332,9 +334,11 @@ namespace gip.ext.design.avui
                     var resultBehavior = resultCallback(result);
                     
                     if (resultBehavior == HitTestResultBehavior.Stop)
-                        return;
+                        return false; // Stop
                 }
             }
+
+            return true; // Continue
         }
 
         public static void HitTest(Visual reference, HitTestFilterCallback filterCallback, HitTestResultCallback resultCallback, GeometryHitTestParameters hitTestParameters)
@@ -345,19 +349,19 @@ namespace gip.ext.design.avui
             HitTestVisual(reference, filterCallback, resultCallback, hitTestParameters);
         }
 
-        private static void HitTestVisual(Visual visual, HitTestFilterCallback filterCallback, HitTestResultCallback resultCallback, GeometryHitTestParameters hitTestParameters)
+        private static bool HitTestVisual(Visual visual, HitTestFilterCallback filterCallback, HitTestResultCallback resultCallback, GeometryHitTestParameters hitTestParameters)
         {
             if (visual == null)
-                return;
+                return true; // Continue
 
             // Apply filter callback
             var filterResult = filterCallback?.Invoke(visual) ?? HitTestFilterBehavior.Continue;
 
             if (filterResult == HitTestFilterBehavior.Stop)
-                return;
+                return false; // Stop
 
             if (filterResult == HitTestFilterBehavior.ContinueSkipSelfAndChildren)
-                return;
+                return true; // Continue
 
             // Hit test this visual if not skipping self
             if (filterResult != HitTestFilterBehavior.ContinueSkipSelf && 
@@ -381,7 +385,7 @@ namespace gip.ext.design.avui
 
                         var resultBehavior = resultCallback?.Invoke(result) ?? HitTestResultBehavior.Continue;
                         if (resultBehavior == HitTestResultBehavior.Stop)
-                            return;
+                            return false; // Stop
                     }
                 }
             }
@@ -392,9 +396,13 @@ namespace gip.ext.design.avui
             {
                 foreach (var child in visual.GetVisualChildren().OfType<Visual>())
                 {
-                    HitTestVisual(child, filterCallback, resultCallback, hitTestParameters);
+                    // If child hit test returns false (Stop), stop processing immediately
+                    if (!HitTestVisual(child, filterCallback, resultCallback, hitTestParameters))
+                        return false; // Stop - child found a hit
                 }
             }
+
+            return true; // Continue
         }
 
         private static IntersectionDetail GetIntersectionDetail(Geometry testGeometry, Geometry visualGeometry, Visual visual)

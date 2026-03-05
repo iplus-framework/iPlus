@@ -7,6 +7,7 @@ using gip.ext.design.avui;
 using System.Linq;
 using Avalonia;
 using Avalonia.Input.Raw;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -20,22 +21,26 @@ namespace gip.ext.designer.avui.Services
 		
 		public void Activate(IDesignPanel designPanel)
 		{
-			designPanel.PointerPressed += OnMouseDown;
             if (designPanel is InputElement ie)
+            {
+                ie.AddHandler(InputElement.PointerPressedEvent, OnMouseDown, RoutingStrategies.Tunnel);
                 ie.Cursor = Cursor;
+            }
         }
 		
 		public void Deactivate(IDesignPanel designPanel)
 		{
-			designPanel.PointerPressed -= OnMouseDown;
             if (designPanel is InputElement ie)
+            {
+                ie.RemoveHandler(InputElement.PointerPressedEvent, OnMouseDown);
                 ie.Cursor = null;
+            }
         }
 		
 		void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{
 			IDesignPanel designPanel = (IDesignPanel)sender;
-			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true, HitTestType.ElementSelection);
+			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true, HitTestType.Default);
 			if (result.ModelHit != null) {
 				IHandlePointerToolMouseDown b = result.ModelHit.GetBehavior<IHandlePointerToolMouseDown>();
 				if (b != null) {

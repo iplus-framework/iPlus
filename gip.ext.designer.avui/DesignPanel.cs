@@ -885,7 +885,7 @@ namespace gip.ext.designer.avui
 
         public void HitTest(Point mousePosition, bool testAdorners, bool testDesignSurface, Predicate<DesignPanelHitTestResult> callback)
         {
-            throw new NotImplementedException();
+            this.HitTest(mousePosition, testAdorners, testDesignSurface, callback, HitTestType.Default);
         }
 
         #endregion
