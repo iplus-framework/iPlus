@@ -96,7 +96,7 @@ namespace gip.ext.designer.avui.Extensions
 					if (canvasLeft.HasValue && canvasTop.HasValue && (p?.X != canvasLeft || p?.Y != canvasTop))
 						p = new Point(canvasLeft.Value, canvasTop.Value);
 				}
-                return new Rect(p.Value, item.View.Bounds.Size);
+                return new Rect(p.HasValue ? p.Value : new Point(), item.View.Bounds.Size);
             }
             else
 			{
@@ -108,9 +108,9 @@ namespace gip.ext.designer.avui.Extensions
         {
             if (item.View == null)
                 return RectExtensions.Empty();
-            var p = item.View.TranslatePoint(new Point(), operation.CurrentContainer.View);
+            Point? p = item.View.TranslatePoint(new Point(), operation.CurrentContainer.View);
 
-            return new Rect(p.Value, PlacementOperation.GetRealElementSize(item.View));
+            return new Rect(p.HasValue ? p.Value : new Point(), PlacementOperation.GetRealElementSize(item.View));
         }
 
         public virtual void BeforeSetPosition(PlacementOperation operation)

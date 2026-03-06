@@ -576,8 +576,11 @@ namespace gip.bso.iplus
                 case Global.ACUsages.DUControl:
                     {
                         defaultXAML += "<?xml version=\"1.0\" encoding=\"utf-16\"?>\n";
-                        defaultXAML += "<vb:VBViewbox " + ACxmlnsResolver.XMLNamespaces + ">\n";
-                        defaultXAML += "    <vb:VBCanvas Width=\"100\" Height=\"100\" Background=\"Transparent\" Name=\"Canvas_0\">\n";
+                        if (this.Root.IsAvaloniaUI)
+                            defaultXAML += "<vb:VBViewbox " + ACxmlnsResolver.XMLNamespaces + " Width=\"200\" Height=\"200\" >\n";
+                        else
+                            defaultXAML += "<vb:VBViewbox " + ACxmlnsResolver.XMLNamespaces + ">\n";
+                        defaultXAML += "    <vb:VBCanvas Width=\"200\" Height=\"200\" Background=\"White\" Name=\"Canvas_0\">\n";
                         defaultXAML += "    </vb:VBCanvas>\n";
                         defaultXAML += "</vb:VBViewbox>";
                     }

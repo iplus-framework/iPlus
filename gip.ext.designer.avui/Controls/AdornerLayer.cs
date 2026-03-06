@@ -221,35 +221,40 @@ namespace gip.ext.designer.avui.Controls
         {
             foreach (AdornerPanel adorner in this.Children)
             {
-                if (adorner.AdornedElement.IsDescendantOf(_designPanel))
+                try
                 {
-                    var transform = adorner.AdornedElement.TransformToAncestor(_designPanel);
-                    var rt = transform as MatrixTransform;
-                    if (rt != null && adorner.AdornedDesignItem != null && adorner.AdornedDesignItem.Parent != null && adorner.AdornedDesignItem.Parent.View is Canvas && adorner.AdornedElement.Bounds.Height == 0 && adorner.AdornedElement.Bounds.Width == 0)
+                    if (adorner.AdornedElement.IsDescendantOf(_designPanel))
                     {
-                        var width = ((Control)adorner.AdornedElement).Width;
-                        width = width > 0 ? width : 2.0;
-                        var height = ((Control)adorner.AdornedElement).Height;
-                        height = height > 0 ? height : 2.0;
-                        var xOffset = rt.Matrix.M31 - (width / 2);
-                        var yOffset = rt.Matrix.M32 - (height / 2);
-                        rt = new MatrixTransform(new Matrix(rt.Matrix.M11, rt.Matrix.M12, rt.Matrix.M21, rt.Matrix.M22, xOffset, yOffset));
-                    }
-                    else if (transform is TransformGroup)
-                    {
-                        //var intTrans = ((GeneralTransformGroup) transform).Children.FirstOrDefault(x => x.GetType().Name == "GeneralTransform2DTo3DTo2D");
-                        //var prp = intTrans.GetType().GetField("_worldTransformation", BindingFlags.Instance | BindingFlags.NonPublic);
-                        //var mtx = (Matrix3D) prp.GetValue(intTrans);
-                        //var mtx2D = new Matrix(mtx.M11, mtx.M12, mtx.M21, mtx.M22, mtx.OffsetX, mtx.OffsetY);
-                        //rt = new MatrixTransform(mtx2D);
-                        rt = ((TransformGroup)transform).Children.OfType<MatrixTransform>().LastOrDefault();
+                        var transform = adorner.AdornedElement.TransformToAncestor(_designPanel);
+                        var rt = transform as MatrixTransform;
+                        if (rt != null && adorner.AdornedDesignItem != null && adorner.AdornedDesignItem.Parent != null && adorner.AdornedDesignItem.Parent.View is Canvas && adorner.AdornedElement.Bounds.Height == 0 && adorner.AdornedElement.Bounds.Width == 0)
+                        {
+                            var width = ((Control)adorner.AdornedElement).Width;
+                            width = width > 0 ? width : 2.0;
+                            var height = ((Control)adorner.AdornedElement).Height;
+                            height = height > 0 ? height : 2.0;
+                            var xOffset = rt.Matrix.M31 - (width / 2);
+                            var yOffset = rt.Matrix.M32 - (height / 2);
+                            rt = new MatrixTransform(new Matrix(rt.Matrix.M11, rt.Matrix.M12, rt.Matrix.M21, rt.Matrix.M22, xOffset, yOffset));
+                        }
+                        else if (transform is TransformGroup)
+                        {
+                            //var intTrans = ((GeneralTransformGroup) transform).Children.FirstOrDefault(x => x.GetType().Name == "GeneralTransform2DTo3DTo2D");
+                            //var prp = intTrans.GetType().GetField("_worldTransformation", BindingFlags.Instance | BindingFlags.NonPublic);
+                            //var mtx = (Matrix3D) prp.GetValue(intTrans);
+                            //var mtx2D = new Matrix(mtx.M11, mtx.M12, mtx.M21, mtx.M22, mtx.OffsetX, mtx.OffsetY);
+                            //rt = new MatrixTransform(mtx2D);
+                            rt = ((TransformGroup)transform).Children.OfType<MatrixTransform>().LastOrDefault();
+                        }
+                        adorner.RenderTransform = rt;
                     }
 
-
-                    adorner.RenderTransform = rt;
+                    adorner.Arrange(new Rect(new Point(0, 0), adorner.DesiredSize));
                 }
-
-                adorner.Arrange(new Rect(new Point(0, 0), adorner.DesiredSize));
+                catch (Exception ex)
+                {
+                    Debug.WriteLine("Adornerlaye.ArrangeOverride: " + ex.Message);
+                }
             }
             return finalSize;
         }

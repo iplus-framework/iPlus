@@ -318,6 +318,15 @@ namespace gip.ext.xamldom.avui
                 return string.Empty;
             }
 
+            // GetPrefixOfNamespace returns "" both when the namespace is the default namespace
+            // (xmlns="...") and when it is not found at all. Disambiguate by checking the
+            // actual default namespace URI; if it matches, return "" so the caller uses the
+            // default namespace without generating a new "ControlsN" prefix.
+            if (prefix == "" && xmlElement.GetNamespaceOfPrefix("") == @namespace)
+            {
+                return string.Empty;
+            }
+
             if (String.IsNullOrEmpty(prefix))
             {
                 prefix = _typeFinder.GetPrefixForXmlNamespace(@namespace);

@@ -12,9 +12,10 @@
         </Grid.RowDefinitions>
         
         <Controls:ZoomControl Grid.Row="0" x:Name="uxZoom" AlwaysShowZoomButtons="True" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
-            <Default:DesignPanel x:Name="_designPanel" HorizontalAlignment="Center" VerticalAlignment="Center" >
+            <!-- MaxWidth and MaxHeight set to avoid exception during MeasureOverride from Dock.Controls.ProportionalStackPanel "... cannot be inside a control that offers infinite space.. -->
+            <Default:DesignPanel x:Name="_designPanel" HorizontalAlignment="Center" VerticalAlignment="Center" MaxHeight="5000" MaxWidth="5000">
                 <!-- Reset some inherited properties to avoid values from SharpDevelop applying to designed forms. -->
-                <Border x:Name="_sceneContainer" DragDrop.AllowDrop="False" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <Border x:Name="_sceneContainer" DragDrop.AllowDrop="False" HorizontalAlignment="Center" VerticalAlignment="Center" MaxHeight="5000" MaxWidth="5000" />
             </Default:DesignPanel>
         </Controls:ZoomControl>
         
