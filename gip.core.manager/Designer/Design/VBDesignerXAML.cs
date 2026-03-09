@@ -324,16 +324,25 @@ namespace gip.core.manager
         public void OnItemExpand(ACObjectItem item)
         {
             if (item.ACObject is ACClass)
-                InsertSubACProjectClass(item, item.ACObject as ACClass);
-            else if(item.ACIdentifier == "Controls")
             {
-                item.Remove(item.Items.FirstOrDefault());
+                InsertSubACProjectClass(item, item.ACObject as ACClass);
+                OnPropertyChanged("AvailableElementList");
+            }
+            else if (item.ACIdentifier == "Controls")
+            {
+                if (item.Items != null && item.Items.Count() == 1)
+                {
+                    var unknownItem = item.Items.FirstOrDefault();
+                    if (unknownItem != null && unknownItem.ACIdentifier == "ACObjectItem(unknown)")
+                        item.Remove(unknownItem);
+                }
                 var vbControlList = WPFProxyXAML.DesignManagerToolGetVBControlList(this.Database.ContextIPlus);
                 foreach (ACClass acControlClass in vbControlList)
                 {
                     ACObjectItem toolItem = new ACObjectItem(acControlClass, acControlClass.ACCaption);
                     item.Add(toolItem);
                 }
+                OnPropertyChanged("AvailableElementList");
             }
             else if (item.ACIdentifier == "Images")
             {
@@ -351,6 +360,7 @@ namespace gip.core.manager
                     ACObjectItem subItem = new ACObjectItem(entry, entry.ACCaption);
                     item.Add(subItem);
                 }
+                OnPropertyChanged("AvailableElementList");
             }
         }
 

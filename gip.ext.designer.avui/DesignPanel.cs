@@ -351,7 +351,7 @@ namespace gip.ext.designer.avui
             DragDrop.SetAllowDrop(_eatAllHitTestRequests, true);
             //_eatAllHitTestRequests.SetValue(DragDrop.AllowDropProperty, true);
             _adornerLayer = new AdornerLayer(this);
-
+            _adornerLayer.ZIndex = 9999;
 
         }
 
@@ -538,10 +538,10 @@ namespace gip.ext.designer.avui
                 {
                     if (VisualChildren != null)
                     {
-                        if (!VisualChildren.Contains(_adornerLayer))
-                            VisualChildren.Add(_adornerLayer);
                         if (!VisualChildren.Contains(_eatAllHitTestRequests))
                             VisualChildren.Add(_eatAllHitTestRequests);
+                        if (!VisualChildren.Contains(_adornerLayer))
+                            VisualChildren.Add(_adornerLayer);
                     }
                 }
             }

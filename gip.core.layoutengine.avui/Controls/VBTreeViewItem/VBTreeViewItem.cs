@@ -33,6 +33,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public VBTreeViewItem() : base()
         {
+            Expanded += VBTreeViewItem_Expanded;
         }
 
         /// <summary>
@@ -195,7 +196,7 @@ namespace gip.core.layoutengine.avui
             base.OnApplyTemplate(e);
             if (!_IsInitialized)
                 InitVBControl();
-            
+
         }
 
         bool _IsInitialized = false;
@@ -205,7 +206,7 @@ namespace gip.core.layoutengine.avui
             VBTreeView vbTreeView = ((VBTreeView)ParentACElement);
             if (vbTreeView == null)
                 return;
-            if (ContentACObject != null 
+            if (ContentACObject != null
                 && vbTreeView.ItemTemplate is DataTemplate
                 && ContentACObject is IVBDataCheckbox && ((IVBDataCheckbox)ContentACObject).DataContentCheckBox == "IsChecked")
             {
@@ -534,23 +535,40 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)
         {
-            if (change.Property == IsExpandedProperty 
-                && BSOACComponent != null 
-                && !IsTreeFilled
-                && (bool)change.NewValue == true)
+            base.OnPropertyChanged(change);
+
+        }
+
+        private void VBTreeViewItem_Expanded(object sender, RoutedEventArgs e)
+        {
+            if (BSOACComponent != null
+                && !IsTreeFilled)
             {
                 VBTreeView vbtv = ParentACElement as VBTreeView;
                 if (vbtv != null && !string.IsNullOrEmpty(vbtv.VBTreeViewExpandMethod))
                 {
-                    Items.Clear();
-                    BSOACComponent.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { ContentACObject });
-                    vbtv.FillChildsOnItemExpand(this);
-                    this.IsSelected = true;
-                }
-            }
-            IsTreeFilled = true;
-            base.OnPropertyChanged(change);
+                    Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+                    {
+                        try
+                        {
+                            //Items.Clear();
+                            BSOACComponent.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { ContentACObject });
+                            vbtv.FillChildsOnItemExpand(this);
+                            this.IsSelected = true;
+                        }
+                        catch (Exception ex)
+                        {
+                            string msg = ex.Message;
+                            if (ex.InnerException != null && ex.InnerException.Message != null)
+                                msg += " Inner:" + ex.InnerException.Message;
 
+                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                datamodel.Database.Root.Messages.LogException("VBTreeViewItem", "VBTreeViewItem_Expanded", msg);
+                        }
+                    }, Avalonia.Threading.DispatcherPriority.Background);
+                }
+                IsTreeFilled = true;
+            }
         }
     }
 }

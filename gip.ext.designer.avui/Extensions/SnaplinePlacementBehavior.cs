@@ -150,7 +150,7 @@ namespace gip.ext.designer.avui.Extensions
             Rect bounds = RectExtensions.Empty();
             foreach (var item in operation.PlacedItems)
             {
-                bounds.Union(item.Bounds);
+                bounds = RectExtensions.Union(bounds, item.Bounds);
             }
 
             var horizontalInput = new List<Snapline>();
@@ -271,7 +271,6 @@ namespace gip.ext.designer.avui.Extensions
                             rX = Math.Round(rX);
                         }
                         item.Bounds = new Rect(rX, item.Bounds.Y, item.Bounds.Width, item.Bounds.Height);
-                        item.Bounds = r;
                     }
                 }
 
@@ -290,6 +289,7 @@ namespace gip.ext.designer.avui.Extensions
 
                 surface = new Canvas();
                 adornerPanel = new AdornerPanel();
+                adornerPanel.Order = AdornerOrder.Foreground;
                 adornerPanel.SetAdornedElement(ExtendedItem.View, ExtendedItem);
                 AdornerPanel.SetPlacement(surface, AdornerPlacement.FillContent);
                 adornerPanel.Children.Add(surface);
@@ -512,7 +512,7 @@ namespace gip.ext.designer.avui.Extensions
                 inputLine.Offset += delta;
                 foreach (var mapLine in map)
                 {
-                    if (inputLine.Offset == mapLine.Offset)
+                    if (Math.Abs(inputLine.Offset - mapLine.Offset) < 0.0001)
                     {
                         var offset = mapLine.Offset;
                         Snapline drawLine;
@@ -537,13 +537,27 @@ namespace gip.ext.designer.avui.Extensions
         [DebuggerDisplay("Snapline: {Offset}")]
         public class Snapline
         {
-            public double Offset;
-            public double Start;
-            public double End;
-            public bool RequireOverlap;
-            public int Group;
+            public double Offset { get; set; }
+            public double Start { get; set; }
 
-            public double DrawOffset = 0;
+            double _end;
+            public double End 
+            { 
+                get { return _end; }
+                set 
+                { 
+                    if (double.IsInfinity(value)) 
+                        _end = value; 
+                    else if (double.IsNaN(value))
+                        _end = value;
+                    else
+                        _end = value;   
+                }
+            }
+            public bool RequireOverlap { get; set; }
+            public int Group { get; set; }
+
+            public double DrawOffset { get; set; } = 0;
         }
     }
 }

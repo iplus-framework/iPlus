@@ -1160,6 +1160,11 @@ namespace gip.core.layoutengine.avui
             if (isVisibleItem != null && !isVisibleItem.IsVisible)
                 return;
 
+            // In Avalonia, Items is read-only when ItemsSource is bound (e.g. via TreeDataTemplate).
+            // In that case we cannot push items manually — bail out.
+            if (itemCollection.IsReadOnly)
+                return;
+
             // Add the model object directly
             itemCollection.Add(dataObject);
             
@@ -1242,26 +1247,51 @@ namespace gip.core.layoutengine.avui
                 // TODO: Sortierung der Elemente
                 // Es gibt keinen Rootknoten
                 var listValues = o2 as IEnumerable;
-                if (!string.IsNullOrEmpty(SortOrder))
+
+                // In Avalonia, when a TreeDataTemplate is active, the container's Items collection
+                // is bound via ItemsSource and is therefore read-only.  We must assign ItemsSource
+                // directly instead of calling Items.Add().
+                if (expandedItem.Items.IsReadOnly)
                 {
-                    List<SortItem> sortItems = new List<SortItem>();
-
-                    foreach (var dataClass in listValues)
+                    var childItems = new System.Collections.ObjectModel.ObservableCollection<object>();
+                    if (!string.IsNullOrEmpty(SortOrder))
                     {
-                        sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
+                        List<SortItem> sortItems = new List<SortItem>();
+                        foreach (var dataClass in listValues)
+                            sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
+                        foreach (var item in sortItems.OrderBy(c => c.Property).Select(c => c.Item))
+                            childItems.Add(item);
                     }
-
-                    var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
-                    foreach (var item in sorted)
+                    else
                     {
-                        FillChildsLegacy(expandedItem.Items, item, 1);
+                        foreach (var item in listValues)
+                            childItems.Add(item);
                     }
+                    expandedItem.ItemsSource = childItems;
                 }
                 else
                 {
-                    foreach (var item in listValues)
+                    if (!string.IsNullOrEmpty(SortOrder))
                     {
-                        FillChildsLegacy(expandedItem.Items, item as IACObject, 1);
+                        List<SortItem> sortItems = new List<SortItem>();
+
+                        foreach (var dataClass in listValues)
+                        {
+                            sortItems.Add(new SortItem(dataClass as IACObject, SortOrder));
+                        }
+
+                        var sorted = sortItems.OrderBy(c => c.Property).Select(c => c.Item);
+                        foreach (var item in sorted)
+                        {
+                            FillChildsLegacy(expandedItem.Items, item, 1);
+                        }
+                    }
+                    else
+                    {
+                        foreach (var item in listValues)
+                        {
+                            FillChildsLegacy(expandedItem.Items, item as IACObject, 1);
+                        }
                     }
                 }
             }

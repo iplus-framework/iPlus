@@ -25,12 +25,12 @@ namespace gip.ext.design.avui.UIExtensions
         private static readonly Rect s_empty = CreateEmptyRect();
         private static Rect CreateEmptyRect()
         {
-            return new Rect(new Point(double.PositiveInfinity, double.PositiveInfinity), new Size(double.PositiveInfinity, double.PositiveInfinity));
+            return new Rect(new Point(double.PositiveInfinity, double.PositiveInfinity), new Size(double.NegativeInfinity, double.NegativeInfinity));
         }
 
         public static bool IsEmpty(this Rect rect)
         {
-            return rect == s_empty;
+            return rect.Width < 0;
         }
 
         public static Rect Empty()
@@ -38,11 +38,30 @@ namespace gip.ext.design.avui.UIExtensions
             return s_empty;
         }
 
+        public static Rect Union(this Rect rect, Rect other)
+        {
+            if (rect.IsEmpty())
+            {
+                return other;
+            }
+            if (other.IsEmpty())
+            {
+                return rect;
+            }
+
+            double x1 = Math.Min(rect.X, other.X);
+            double y1 = Math.Min(rect.Y, other.Y);
+            double x2 = Math.Max(rect.Right, other.Right);
+            double y2 = Math.Max(rect.Bottom, other.Bottom);
+
+            return new Rect(new Point(x1, y1), new Point(x2, y2));
+        }
+
         public static Rect Inflate(this Rect rect, double width, double height)
         {
             if (rect.IsEmpty())
             {
-                throw new InvalidOperationException("rect.IsEmpty()");
+                return Empty();
             }
 
             double _x = rect.X;
@@ -52,11 +71,10 @@ namespace gip.ext.design.avui.UIExtensions
 
             _x -= width;
             _y -= height;
-            _width += width;
-            _width += width;
-            _height += height;
-            _height += height;
-            if (!(_width >= 0.0) || !(_height >= 0.0))
+            _width += 2 * width;
+            _height += 2 * height;
+
+            if (_width < 0 || _height < 0)
             {
                 return Empty();
             }
