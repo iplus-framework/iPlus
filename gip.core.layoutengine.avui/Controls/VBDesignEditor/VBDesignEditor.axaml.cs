@@ -215,7 +215,7 @@ namespace gip.core.layoutengine.avui
                         Global.ControlModes dcRightControlMode2 = Global.ControlModes.Hidden;
                         if (!ContextACObject.ACUrlBinding(VBDesignerDataContext, ref dcACTypeInfo2, ref dcSource2, ref dcPath2, ref dcRightControlMode2))
                         {
-                            this.Root().Messages.ErrorAsync(BSOACComponent, "Error00007", false, "VBDesignEditor", VBDesignerDataContext);
+                            await this.Root().Messages.ErrorAsync(BSOACComponent, "Error00007", false, "VBDesignEditor", VBDesignerDataContext);
                             return;
                         }
 
@@ -236,7 +236,7 @@ namespace gip.core.layoutengine.avui
                         Global.ControlModes dcRightControlMode2 = Global.ControlModes.Hidden;
                         if (!ContextACObject.ACUrlBinding(VBRefreshDesigner, ref dcACTypeInfo2, ref dcSource2, ref dcPath2, ref dcRightControlMode2))
                         {
-                            this.Root().Messages.ErrorAsync(BSOACComponent, "Error00007", false, "VBDesignEditor", VBDesignerDataContext);
+                            await this.Root().Messages.ErrorAsync(BSOACComponent, "Error00007", false, "VBDesignEditor", VBDesignerDataContext);
                             return;
                         }
 

@@ -1,357 +1,357 @@
-<ResourceDictionary
-   xmlns="https://github.com/avaloniaui"
-   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:local="clr-namespace:gip.core.layoutengine.avui">
-    <!--<ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="/Controls/DarkThemeColors.axaml"/>
-    </ResourceDictionary.MergedDictionaries>
-    <ControlTemplate x:Key="DatePickerButtonStyle" TargetType="{x:Type Button}">
-        <Grid>
-            <VisualStateManager.VisualStateGroups>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualStateGroup.Transitions>
-                        <VisualTransition GeneratedDuration="0"/>
-                        <VisualTransition GeneratedDuration="0:0:0.1" To="MouseOver"/>
-                        <VisualTransition GeneratedDuration="0:0:0.1" To="Pressed"/>
-                    </VisualStateGroup.Transitions>
-                    <VisualState x:Name="Normal"/>
-                    <VisualState x:Name="MouseOver">
-                        <Storyboard>
-                            <ColorAnimation Duration="0" To="#FF448DCA" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Background"/>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#7FFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#CCFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#F2FFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </VisualState>
-                    <VisualState x:Name="Pressed">
-                        <Storyboard>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Background">
-                                <SplineColorKeyFrame KeyTime="0" Value="#FF448DCA"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <DoubleAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Highlight">
-                                <SplineDoubleKeyFrame KeyTime="0" Value="1"/>
-                            </DoubleAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#EAFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#C6FFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#6BFFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                            <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                <SplineColorKeyFrame KeyTime="0" Value="#F4FFFFFF"/>
-                            </ColorAnimationUsingKeyFrames>
-                        </Storyboard>
-                    </VisualState>
-                    <VisualState x:Name="Disabled"/>
-                </VisualStateGroup>
-            </VisualStateManager.VisualStateGroups>
-            <Grid Background="#11FFFFFF" FlowDirection="LeftToRight" HorizontalAlignment="Center" Height="18" Margin="0" VerticalAlignment="Center" Width="19">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="20*"/>
-                    <ColumnDefinition Width="20*"/>
-                    <ColumnDefinition Width="20*"/>
-                    <ColumnDefinition Width="20*"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="23*"/>
-                    <RowDefinition Height="19*"/>
-                    <RowDefinition Height="19*"/>
-                    <RowDefinition Height="19*"/>
-                </Grid.RowDefinitions>
-                <Border x:Name="Highlight" BorderBrush="#FF45D6FA" BorderThickness="1" Grid.ColumnSpan="4" CornerRadius="0,0,1,1" Margin="-1" Opacity="0" Grid.Row="0" Grid.RowSpan="4"/>
-                <Border x:Name="Background" BorderBrush="#FFFFFFFF" BorderThickness="1" Background="#FF1F3B53" Grid.ColumnSpan="4" CornerRadius=".5" Margin="0,-1,0,0" Opacity="1" Grid.Row="1" Grid.RowSpan="3"/>
-                <Border x:Name="BackgroundGradient" BorderBrush="#BF000000" BorderThickness="1" Grid.ColumnSpan="4" CornerRadius=".5" Margin="0,-1,0,0" Opacity="1" Grid.Row="1" Grid.RowSpan="3">
-                    <Border.Background>
-                        <LinearGradientBrush EndPoint=".7,1" StartPoint=".7,0">
-                            <GradientStop Color="#FFFFFFFF" Offset="0"/>
-                            <GradientStop Color="#F9FFFFFF" Offset="0.375"/>
-                            <GradientStop Color="#E5FFFFFF" Offset="0.625"/>
-                            <GradientStop Color="#C6FFFFFF" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
-                </Border>
-                <Rectangle Grid.ColumnSpan="4" Grid.RowSpan="1" StrokeThickness="1">
-                    <Rectangle.Fill>
-                        <LinearGradientBrush EndPoint="0.3,-1.1" StartPoint="0.46,1.6">
-                            <GradientStop Color="#FF4084BD"/>
-                            <GradientStop Color="#FFAFCFEA" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Rectangle.Fill>
-                    <Rectangle.Stroke>
-                        <LinearGradientBrush EndPoint="0.48,-1" StartPoint="0.48,1.25">
-                            <GradientStop Color="#FF494949"/>
-                            <GradientStop Color="#FF9F9F9F" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Rectangle.Stroke>
-                </Rectangle>
-                <Path Grid.ColumnSpan="4" Grid.Column="0" Data="M11.426758,8.4305077 L11.749023,8.4305077 L11.749023,16.331387 L10.674805,16.331387 L10.674805,10.299648 L9.0742188,11.298672 L9.0742188,10.294277 C9.4788408,10.090176 9.9094238,9.8090878 10.365967,9.4510155 C10.82251,9.0929432 11.176106,8.7527733 11.426758,8.4305077 z M14.65086,8.4305077 L18.566387,8.4305077 L18.566387,9.3435936 L15.671368,9.3435936 L15.671368,11.255703 C15.936341,11.058764 16.27293,10.960293 16.681133,10.960293 C17.411602,10.960293 17.969301,11.178717 18.354229,11.615566 C18.739157,12.052416 18.931622,12.673672 18.931622,13.479336 C18.931622,15.452317 18.052553,16.438808 16.294415,16.438808 C15.560365,16.438808 14.951641,16.234707 14.468243,15.826504 L14.881817,14.929531 C15.368796,15.326992 15.837872,15.525723 16.289043,15.525723 C17.298809,15.525723 17.803692,14.895514 17.803692,13.635098 C17.803692,12.460618 17.305971,11.873379 16.310528,11.873379 C15.83071,11.873379 15.399232,12.079271 15.016094,12.491055 L14.65086,12.238613 z" Fill="#FF2F2F2F" HorizontalAlignment="Center" Margin="4,3,4,3" Grid.Row="1" Grid.RowSpan="3" RenderTransformOrigin="0.5,0.5" Stretch="Fill" VerticalAlignment="Center"/>
-                <Ellipse Grid.ColumnSpan="4" Fill="#FFFFFFFF" HorizontalAlignment="Center" Height="3" StrokeThickness="0" VerticalAlignment="Center" Width="3"/>
-                <Border x:Name="DisabledVisual" BorderBrush="#B2FFFFFF" BorderThickness="1" Grid.ColumnSpan="4" CornerRadius="0,0,.5,.5" Opacity="0" Grid.Row="0" Grid.RowSpan="4"/>
-            </Grid>
-        </Grid>
-    </ControlTemplate>
-    <Style x:Key="DatePickerTextBoxStyle" TargetType="{x:Type DatePickerTextBox}">
-        --><!--<Setter Property="Foreground" Value="{StaticResource {x:Static SystemColors.WindowTextBrushKey}}"/>
-        <Setter Property="Background" Value="{StaticResource {x:Static ThemeBackgroundBrush}}"/>--><!--
-        <Setter Property="Background" Value="Red"/>
-        <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
-        <Setter Property="ScrollViewer.PanningMode" Value="VerticalFirst"/>
-        <Setter Property="Stylus.IsFlicksEnabled" Value="False"/>
-        <Setter Property="Template">
-            <Setter.Value>
-                <ControlTemplate TargetType="{x:Type DatePickerTextBox}">
-                    <Grid>
-                        <Grid.Resources>
-                            <SolidColorBrush x:Key="WatermarkBrush" Color="#FFAAAAAA"/>
-                        </Grid.Resources>
-                        <VisualStateManager.VisualStateGroups>
-                            <VisualStateGroup x:Name="CommonStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0"/>
-                                    <VisualTransition GeneratedDuration="0:0:0.1" To="MouseOver"/>
-                                </VisualStateGroup.Transitions>
-                                <VisualState x:Name="Normal"/>
-                                <VisualState x:Name="MouseOver">
-                                    <Storyboard>
-                                        <ColorAnimation Duration="0" To="#FF99C1E2" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" Storyboard.TargetName="ContentElement"/>
-                                        <ColorAnimation Duration="0" To="#FF99C1E2" Storyboard.TargetProperty="(Border.BorderBrush).(SolidColorBrush.Color)" Storyboard.TargetName="watermark_decorator"/>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="WatermarkStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0"/>
-                                </VisualStateGroup.Transitions>
-                                <VisualState x:Name="Unwatermarked"/>
-                                <VisualState x:Name="Watermarked">
-                                    <Storyboard>
-                                        <DoubleAnimation Duration="0" To="0" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="ContentElement"/>
-                                        <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_Watermark"/>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                            <VisualStateGroup x:Name="FocusStates">
-                                <VisualStateGroup.Transitions>
-                                    <VisualTransition GeneratedDuration="0"/>
-                                </VisualStateGroup.Transitions>
-                                <VisualState x:Name="Unfocused"/>
-                                <VisualState x:Name="Focused">
-                                    <Storyboard>
-                                        <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="FocusVisual"/>
-                                    </Storyboard>
-                                </VisualState>
-                            </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
-                        <Border x:Name="Border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" CornerRadius="1" Opacity="1" Padding="{TemplateBinding Padding}">
-                            <Grid x:Name="WatermarkContent" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                                <Border x:Name="ContentElement" BorderBrush="#FFFFFFFF" BorderThickness="1"/>
-                                <Border x:Name="watermark_decorator" BorderBrush="#FFFFFFFF" BorderThickness="1">
-                                    <ContentControl x:Name="PART_Watermark" Focusable="False" IsHitTestVisible="False" Opacity="0" Padding="2"/>
-                                </Border>
-                                <ScrollViewer x:Name="PART_ContentHost" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="0" VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
-                                <Border x:Name="FocusVisual" BorderBrush="#FF45D6FA" CornerRadius="1" IsHitTestVisible="False" Opacity="0"/>
-                            </Grid>
-                        </Border>
-                    </Grid>
-                </ControlTemplate>
-            </Setter.Value>
-        </Setter>
-        <Style.Triggers>
-            <Trigger Property="IsEnabled" Value="false">
-                <Setter Property="Background" Value="{StaticResource CtrlBackDisabled}"/>
-                <Setter Property="Foreground" Value="{StaticResource CtrlTxtDisabled}"/>
-            </Trigger>
-        </Style.Triggers>
+<!--
+// (c) Copyright Microsoft Corporation.
+// This source is subject to the Microsoft Public License (Ms-PL).
+// Please see https://go.microsoft.com/fwlink/?LinkID=131993 for details.
+// All other rights reserved.
+-->
+
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+        xmlns:sys="using:System"
+        x:ClassModifier="internal">
+  <Design.PreviewWith>
+    <Border Padding="20" Height="500">
+      <StackPanel Spacing="20" VerticalAlignment="Center">
+        <DatePicker />
+        <DatePicker CornerRadius="10" />
+        <DatePicker IsEnabled="False" />
+        <DatePicker>
+          <DataValidationErrors.Error>
+            <sys:Exception>
+              <x:Arguments>
+                <x:String>Error</x:String>
+              </x:Arguments>
+            </sys:Exception>
+          </DataValidationErrors.Error>
+        </DatePicker>
+      </StackPanel>
+    </Border>
+  </Design.PreviewWith>
+
+  <x:Double x:Key="DatePickerFlyoutPresenterHighlightHeight">40</x:Double>
+  <x:Double x:Key="DatePickerFlyoutPresenterItemHeight">40</x:Double>
+  <x:Double x:Key="DatePickerFlyoutPresenterAcceptDismissHostGridHeight">41</x:Double>
+  <x:Double x:Key="DatePickerThemeMinWidth">296</x:Double>
+  <x:Double x:Key="DatePickerThemeMaxWidth">456</x:Double>
+  <Thickness x:Key="DatePickerFlyoutPresenterItemPadding">0,3,0,6</Thickness>
+  <Thickness x:Key="DatePickerFlyoutPresenterMonthPadding">9,3,0,6</Thickness>
+  <Thickness x:Key="DatePickerHostPadding">0,3,0,6</Thickness>
+  <Thickness x:Key="DatePickerHostMonthPadding">9,3,0,6</Thickness>
+  <x:Double x:Key="DatePickerSpacerThemeWidth">1</x:Double>
+
+  <ControlTheme x:Key="FluentDatePickerFlyoutButton" TargetType="Button">
+    <Setter Property="RenderTransform" Value="none" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="PART_ContentPresenter"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          Background="{TemplateBinding Background}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          Content="{TemplateBinding Content}"
+                          Foreground="{TemplateBinding Foreground}"
+                          HorizontalContentAlignment="Stretch"
+                          VerticalContentAlignment="Stretch"
+                          CornerRadius="{TemplateBinding CornerRadius}"/>
+      </ControlTemplate>
+    </Setter>
+    
+    <Style Selector="^:pressed">
+      <Setter Property="RenderTransform" Value="scale(0.98)" />
+    </Style>
+    
+    <Style Selector="^:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="{DynamicResource DatePickerButtonBackgroundPressed}"/>
+      <Setter Property="Foreground" Value="{DynamicResource DatePickerButtonForegroundPressed}"/>
     </Style>
 
-    <ControlTemplate x:Key="DatePickerTemplate" TargetType="{x:Type local:VBDatePicker}">
-        <Grid x:Name="LayoutRoot" Margin="{TemplateBinding Margin}">
+    <Style Selector="^:disabled /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="BorderBrush" Value="{DynamicResource DatePickerButtonBorderBrushDisabled}"/>
+      <Setter Property="Background" Value="{DynamicResource DatePickerButtonBackgroundDisabled}"/>
+      <Setter Property="Foreground" Value="{DynamicResource DatePickerButtonForegroundDisabled}"/>
+    </Style>
+  </ControlTheme>
+  
+  <ControlTheme x:Key="{x:Type local:VBDatePicker}" TargetType="local:VBDatePicker">
+    <Setter Property="Foreground" Value="{DynamicResource DatePickerButtonForeground}" />
+    <Setter Property="Background" Value="{DynamicResource DatePickerButtonBackground}"/>
+    <Setter Property="BorderBrush" Value="{DynamicResource DatePickerButtonBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,1,1"/>
+    <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Template" Value="{StaticResource DatePickerTemplate}"/>
+
+    <!-- SingleViewPlatform Template Override based on property -->
+    <Style Selector="^[IsSingleViewApp=True]">
+      <Setter Property="Template" Value="{StaticResource DatePickerTemplateSingle}"/>
+    </Style>
+
+    <Style Selector="^:disabled /template/ Rectangle">
+      <Setter Property="Fill" Value="{DynamicResource DatePickerSpacerFillDisabled}"/>
+    </Style>
+
+    <!-- Changes foreground for watermark text when SelectedDate is null-->
+    <Style Selector="^:hasnodate /template/ Button#PART_FlyoutButton TextBlock">
+      <Setter Property="Foreground" Value="{DynamicResource TextControlPlaceholderForeground}"/>
+    </Style>
+
+    <Style Selector="^:error /template/ Button#PART_FlyoutButton">
+      <Setter Property="BorderBrush" Value="{DynamicResource SystemControlErrorTextForegroundBrush}"/>
+    </Style>
+  </ControlTheme>
+
+
+  <ControlTemplate x:Key="DatePickerTemplate" TargetType="local:VBDatePicker">
+        <DataValidationErrors>
+          <Grid Name="LayoutRoot" Margin="{TemplateBinding Padding}">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="ColCaption" Width="{TemplateBinding WidthCaption}" MaxWidth="{TemplateBinding WidthCaptionMax}"></ColumnDefinition>
-                <ColumnDefinition x:Name="ColContent" Width="{TemplateBinding WidthContent}" MaxWidth="{TemplateBinding WidthContentMax}"></ColumnDefinition>
-                <ColumnDefinition x:Name="ColPadding" Width="{TemplateBinding WidthPadding}" ></ColumnDefinition>
+			  <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaption}"
+                                MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthCaptionMax}"/>
+              <!-- Content column -->
+              <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContent}"
+                                MaxWidth="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthContentMax}"/>
+              <!-- Padding column -->
+              <ColumnDefinition Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=WidthPadding}"/>
+
             </Grid.ColumnDefinitions>
-            <local:VBTextBlock x:Name="PART_Caption" Margin="0,0,0,0" Grid.Column="0" VerticalAlignment="Center" Text="{TemplateBinding ACCaptionTrans}"></local:VBTextBlock>
-            <Border x:Name="Border" Margin="5,0,0,0" Grid.Column="1" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="CommonStates">
-                        <VisualState x:Name="Normal"/>
-                        <VisualState x:Name="Disabled">
-                            <Storyboard>
-                                <DoubleAnimation Duration="0" To="1" Storyboard.TargetProperty="Opacity" Storyboard.TargetName="PART_DisabledVisual"/>
-                            </Storyboard>
-                        </VisualState>
-                    </VisualStateGroup>
-                </VisualStateManager.VisualStateGroups>
-                <Grid x:Name="PART_Root" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}">
-                    <Grid.Resources>
-                        <SolidColorBrush x:Key="DisabledBrush" Color="#A5FFFFFF"/>
-                        <ControlTemplate x:Key="DropDownButtonTemplate" TargetType="{x:Type Button}">
-                            <Grid>
-                                <VisualStateManager.VisualStateGroups>
-                                    <VisualStateGroup x:Name="CommonStates">
-                                        <VisualStateGroup.Transitions>
-                                            <VisualTransition GeneratedDuration="0"/>
-                                            <VisualTransition GeneratedDuration="0:0:0.1" To="MouseOver"/>
-                                            <VisualTransition GeneratedDuration="0:0:0.1" To="Pressed"/>
-                                        </VisualStateGroup.Transitions>
-                                        <VisualState x:Name="Normal"/>
-                                        <VisualState x:Name="MouseOver">
-                                            <Storyboard>
-                                                <ColorAnimation Duration="0" To="#FF448DCA" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Background"/>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#7FFFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#CCFFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#F2FFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </VisualState>
-                                        <VisualState x:Name="Pressed">
-                                            <Storyboard>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)" Storyboard.TargetName="Background">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#FF448DCA"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                                <DoubleAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="Highlight">
-                                                    <SplineDoubleKeyFrame KeyTime="0" Value="1"/>
-                                                </DoubleAnimationUsingKeyFrames>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[1].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#EAFFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[2].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#C6FFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[3].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#6BFFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                                <ColorAnimationUsingKeyFrames BeginTime="0" Duration="00:00:00.001" Storyboard.TargetProperty="(Border.Background).(GradientBrush.GradientStops)[0].(GradientStop.Color)" Storyboard.TargetName="BackgroundGradient">
-                                                    <SplineColorKeyFrame KeyTime="0" Value="#F4FFFFFF"/>
-                                                </ColorAnimationUsingKeyFrames>
-                                            </Storyboard>
-                                        </VisualState>
-                                        <VisualState x:Name="Disabled"/>
-                                    </VisualStateGroup>
-                                </VisualStateManager.VisualStateGroups>
-                                <Grid Background="#11FFFFFF" FlowDirection="LeftToRight" HorizontalAlignment="Center" Height="18" Margin="0" VerticalAlignment="Center" Width="19">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="20*"/>
-                                        <ColumnDefinition Width="20*"/>
-                                        <ColumnDefinition Width="20*"/>
-                                        <ColumnDefinition Width="20*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="23*"/>
-                                        <RowDefinition Height="19*"/>
-                                        <RowDefinition Height="19*"/>
-                                        <RowDefinition Height="19*"/>
-                                    </Grid.RowDefinitions>
-                                    <Border x:Name="Highlight" BorderBrush="#FF45D6FA" BorderThickness="1" Grid.ColumnSpan="4" CornerRadius="0,0,1,1" Margin="-1" Opacity="0" Grid.Row="0" Grid.RowSpan="4"/>
-                                    <Border x:Name="Background" BorderBrush="#FFFFFFFF" BorderThickness="1" Background="#FF1F3B53" Grid.ColumnSpan="4" CornerRadius=".5" Margin="0,-1,0,0" Opacity="1" Grid.Row="1" Grid.RowSpan="3"/>
-                                    <Border x:Name="BackgroundGradient" BorderBrush="#BF000000" BorderThickness="1" Grid.ColumnSpan="4" CornerRadius=".5" Margin="0,-1,0,0" Opacity="1" Grid.Row="1" Grid.RowSpan="3">
-                                        <Border.Background>
-                                            <LinearGradientBrush EndPoint=".7,1" StartPoint=".7,0">
-                                                <GradientStop Color="#FFFFFFFF" Offset="0"/>
-                                                <GradientStop Color="#F9FFFFFF" Offset="0.375"/>
-                                                <GradientStop Color="#E5FFFFFF" Offset="0.625"/>
-                                                <GradientStop Color="#C6FFFFFF" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Border.Background>
-                                    </Border>
-                                    <Rectangle Grid.ColumnSpan="4" Grid.RowSpan="1" StrokeThickness="1">
-                                        <Rectangle.Fill>
-                                            <LinearGradientBrush EndPoint="0.3,-1.1" StartPoint="0.46,1.6">
-                                                <GradientStop Color="#FF4084BD"/>
-                                                <GradientStop Color="#FFAFCFEA" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Fill>
-                                        <Rectangle.Stroke>
-                                            <LinearGradientBrush EndPoint="0.48,-1" StartPoint="0.48,1.25">
-                                                <GradientStop Color="#FF494949"/>
-                                                <GradientStop Color="#FF9F9F9F" Offset="1"/>
-                                            </LinearGradientBrush>
-                                        </Rectangle.Stroke>
-                                    </Rectangle>
-                                    <Path Grid.ColumnSpan="4" Grid.Column="0" Data="M11.426758,8.4305077 L11.749023,8.4305077 L11.749023,16.331387 L10.674805,16.331387 L10.674805,10.299648 L9.0742188,11.298672 L9.0742188,10.294277 C9.4788408,10.090176 9.9094238,9.8090878 10.365967,9.4510155 C10.82251,9.0929432 11.176106,8.7527733 11.426758,8.4305077 z M14.65086,8.4305077 L18.566387,8.4305077 L18.566387,9.3435936 L15.671368,9.3435936 L15.671368,11.255703 C15.936341,11.058764 16.27293,10.960293 16.681133,10.960293 C17.411602,10.960293 17.969301,11.178717 18.354229,11.615566 C18.739157,12.052416 18.931622,12.673672 18.931622,13.479336 C18.931622,15.452317 18.052553,16.438808 16.294415,16.438808 C15.560365,16.438808 14.951641,16.234707 14.468243,15.826504 L14.881817,14.929531 C15.368796,15.326992 15.837872,15.525723 16.289043,15.525723 C17.298809,15.525723 17.803692,14.895514 17.803692,13.635098 C17.803692,12.460618 17.305971,11.873379 16.310528,11.873379 C15.83071,11.873379 15.399232,12.079271 15.016094,12.491055 L14.65086,12.238613 z" Fill="#FF2F2F2F" HorizontalAlignment="Center" Margin="4,3,4,3" Grid.Row="1" Grid.RowSpan="3" RenderTransformOrigin="0.5,0.5" Stretch="Fill" VerticalAlignment="Center"/>
-                                    <Ellipse Grid.ColumnSpan="4" Fill="#FFFFFFFF" HorizontalAlignment="Center" Height="3" StrokeThickness="0" VerticalAlignment="Center" Width="3"/>
-                                    <Border x:Name="DisabledVisual" BorderBrush="#B2FFFFFF" BorderThickness="1" Grid.ColumnSpan="4" CornerRadius="0,0,.5,.5" Opacity="0" Grid.Row="0" Grid.RowSpan="4"/>
-                                </Grid>
-                            </Grid>
-                        </ControlTemplate>
-                    </Grid.Resources>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Button x:Name="PART_Button" Grid.Column="1" Foreground="{TemplateBinding Foreground}" Focusable="False" HorizontalAlignment="Left" Margin="3,0,3,0" Grid.Row="0" Template="{StaticResource DatePickerButtonStyle}" VerticalAlignment="Top" Width="20"/>
-                    <DatePickerTextBox x:Name="PART_TextBox" Grid.Column="0" Foreground="{TemplateBinding Foreground}" Focusable="{TemplateBinding Focusable}" HorizontalContentAlignment="Stretch" Grid.Row="0" VerticalContentAlignment="Stretch" Style="{StaticResource DatePickerTextBoxStyle}"/>
-                    <Grid x:Name="PART_DisabledVisual" Grid.ColumnSpan="2" Grid.Column="0" IsHitTestVisible="False" Opacity="0" Grid.Row="0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-                        <Rectangle Grid.Column="0" Fill="#A5FFFFFF" RadiusY="1" Grid.Row="0" RadiusX="1"/>
-                        <Rectangle Grid.Column="1" Fill="#A5FFFFFF" Height="18" Margin="3,0,3,0" RadiusY="1" Grid.Row="0" RadiusX="1" Width="19"/>
-                        <Popup x:Name="PART_Popup" AllowsTransparency="True" Placement="Bottom" PlacementTarget="{Binding ElementName=PART_TextBox}" StaysOpen="False"/>
-                    </Grid>
-                </Grid>
-            </Border>
-        </Grid>
-        <ControlTemplate.Triggers>
-            <Trigger Property="ShowCaption" Value="False">
-                <Setter TargetName="ColCaption" Property="Width" Value="0"/>
-                <Setter TargetName="Border" Property="Margin" Value="0,0,0,0"/>
-            </Trigger>
-            <Trigger Property="ControlMode" Value="Enabled">
-                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource CtrlBackEnabled}"/>
-                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource CtrlTxtEnabled}"/>
-            </Trigger>
-            <Trigger Property="ControlMode" Value="EnabledRequired">
-                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource CtrlBackRequired}"/>
-                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource CtrlTxtRequired}"/>
-            </Trigger>
-            <Trigger Property="ControlMode" Value="EnabledWrong">
-                <Setter TargetName="PART_TextBox" Property="Background" Value="{StaticResource CtrlBackWrong}"/>
-                <Setter TargetName="PART_TextBox" Property="Foreground" Value="{StaticResource CtrlTxtWrong}"/>
-            </Trigger>
-        </ControlTemplate.Triggers>
-    </ControlTemplate>
 
-    <Style x:Key="DatePickerStyleBase" TargetType="{x:Type local:VBDatePicker}">
-        <Setter Property="Foreground" Value="#FF333333"/>
-        <Setter Property="IsTodayHighlighted" Value="True"/>
-        <Setter Property="SelectedDateFormat" Value="Short"/>
-        <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Padding" Value="2"/>
-        <Setter Property="BorderBrush">
-            <Setter.Value>
-                <LinearGradientBrush EndPoint=".5,0" StartPoint=".5,1">
-                    <GradientStop Color="#FFA3AEB9" Offset="0"/>
-                    <GradientStop Color="#FF8399A9" Offset="0.375"/>
-                    <GradientStop Color="#FF718597" Offset="0.375"/>
-                    <GradientStop Color="#FF617584" Offset="1"/>
-                </LinearGradientBrush>
-            </Setter.Value>
-        </Setter>
-        <Setter Property="BorderThickness" Value="1"/>
-        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+              <!-- Caption label -->
+            <local:VBTextBlock x:Name="PART_Caption"
+                               Grid.Column="0"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Stretch"
+                               Text="{TemplateBinding ACCaptionTrans}"/>
+
+              <Border x:Name="BgElement"
+            Grid.Column="1"
+            Margin="5,1,0,0"
+            CornerRadius="3"
+            Background="{TemplateBinding Background}"
+            HorizontalAlignment="Left">
+            <Button Name="PART_FlyoutButton"
+                    Theme="{StaticResource FluentDatePickerFlyoutButton}"
+                    Foreground="{TemplateBinding Foreground}"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    IsEnabled="{TemplateBinding IsEnabled}"
+                    MinWidth="{DynamicResource DatePickerThemeMinWidth}"
+                    MaxWidth="{DynamicResource DatePickerThemeMaxWidth}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    TemplatedControl.IsTemplateFocusTarget="True">
+              <Grid Name="PART_ButtonContentGrid" ColumnDefinitions="78*,Auto,132*,Auto,78*">
+                <TextBlock Name="PART_DayTextBlock" Text="{DynamicResource StringDatePickerDayText}" HorizontalAlignment="Center"
+                           Padding="{DynamicResource DatePickerHostPadding}" />
+                <TextBlock Name="PART_MonthTextBlock" Text="{DynamicResource StringDatePickerMonthText}" TextAlignment="Left"
+                           Padding="{DynamicResource DatePickerHostMonthPadding}" />
+                <TextBlock Name="PART_YearTextBlock" Text="{DynamicResource StringDatePickerYearText}" HorizontalAlignment="Center"
+                           Padding="{DynamicResource DatePickerHostPadding}" />
+                <Rectangle x:Name="PART_FirstSpacer"
+                      Fill="{DynamicResource DatePickerSpacerFill}"
+                      HorizontalAlignment="Center"
+                      Width="1"
+                      Grid.Column="1" />
+                <Rectangle x:Name="PART_SecondSpacer"
+                      Fill="{DynamicResource DatePickerSpacerFill}"
+                      HorizontalAlignment="Center"
+                      Width="1"
+                      Grid.Column="3" />
+              </Grid>
+            </Button>
+           </Border>
+
+            <Popup Name="PART_Popup" WindowManagerAddShadowHint="False" Grid.Column="1"
+                   IsLightDismissEnabled="True" PlacementTarget="{TemplateBinding}"
+                   Placement="Bottom">
+              <DatePickerPresenter Name="PART_PickerPresenter" />
+            </Popup>
+
+          </Grid>
+        </DataValidationErrors>
+      </ControlTemplate>
+
+    <ControlTemplate x:Key="DatePickerTemplateSingle" TargetType="local:VBDatePicker">
+        <DataValidationErrors>
+          <Grid Name="LayoutRoot" Margin="{TemplateBinding Padding}">
+            <Grid.RowDefinitions>
+			<RowDefinition Height="1.5*"/>
+            <RowDefinition Height="3"/>
+            <RowDefinition Height="2*"/>
+        </Grid.RowDefinitions>
+
+              <!-- Caption label -->
+            <local:VBTextBlock x:Name="PART_Caption"
+                               Grid.Row="0"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Stretch"
+                               Text="{TemplateBinding ACCaptionTrans}"/>
+
+              <Border x:Name="BgElement"
+            Grid.Row="2"
+            Margin="5,1,0,0"
+            CornerRadius="3"
+            Background="{TemplateBinding Background}"
+            HorizontalAlignment="Left">
+            <Button Name="PART_FlyoutButton"
+                    Theme="{StaticResource FluentDatePickerFlyoutButton}"
+                    Foreground="{TemplateBinding Foreground}"
+                    Background="{TemplateBinding Background}"
+                    BorderBrush="{TemplateBinding BorderBrush}"
+                    BorderThickness="{TemplateBinding BorderThickness}"
+                    CornerRadius="{TemplateBinding CornerRadius}"
+                    IsEnabled="{TemplateBinding IsEnabled}"
+                    MinWidth="{DynamicResource DatePickerThemeMinWidth}"
+                    MaxWidth="{DynamicResource DatePickerThemeMaxWidth}"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    TemplatedControl.IsTemplateFocusTarget="True">
+              <Grid Name="PART_ButtonContentGrid" ColumnDefinitions="78*,Auto,132*,Auto,78*">
+                <TextBlock Name="PART_DayTextBlock" Text="{DynamicResource StringDatePickerDayText}" HorizontalAlignment="Center"
+                           Padding="{DynamicResource DatePickerHostPadding}" />
+                <TextBlock Name="PART_MonthTextBlock" Text="{DynamicResource StringDatePickerMonthText}" TextAlignment="Left"
+                           Padding="{DynamicResource DatePickerHostMonthPadding}" />
+                <TextBlock Name="PART_YearTextBlock" Text="{DynamicResource StringDatePickerYearText}" HorizontalAlignment="Center"
+                           Padding="{DynamicResource DatePickerHostPadding}" />
+                <Rectangle x:Name="PART_FirstSpacer"
+                      Fill="{DynamicResource DatePickerSpacerFill}"
+                      HorizontalAlignment="Center"
+                      Width="1"
+                      Grid.Column="1" />
+                <Rectangle x:Name="PART_SecondSpacer"
+                      Fill="{DynamicResource DatePickerSpacerFill}"
+                      HorizontalAlignment="Center"
+                      Width="1"
+                      Grid.Column="3" />
+              </Grid>
+            </Button>
+           </Border>
+
+            <Popup Name="PART_Popup" WindowManagerAddShadowHint="False" Grid.Column="1"
+                   IsLightDismissEnabled="True" PlacementTarget="{TemplateBinding}"
+                   Placement="Bottom">
+              <DatePickerPresenter Name="PART_PickerPresenter" />
+            </Popup>
+
+          </Grid>
+        </DataValidationErrors>
+      </ControlTemplate>
+
+  <!--WinUI: DatePickerFlyoutPresenter-->
+  <ControlTheme x:Key="{x:Type DatePickerPresenter}" TargetType="DatePickerPresenter">
+    <Setter Property="Width" Value="296" />
+    <Setter Property="MinWidth" Value="296" />
+    <Setter Property="MaxHeight" Value="398" />
+    <Setter Property="Background" Value="{DynamicResource DatePickerFlyoutPresenterBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource DatePickerFlyoutPresenterBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource DateTimeFlyoutBorderThickness}" />
+    <Setter Property="CornerRadius" Value="{DynamicResource OverlayCornerRadius}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="Background" Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                Padding="{DynamicResource DateTimeFlyoutBorderPadding}"
+                MaxHeight="398" CornerRadius="{TemplateBinding CornerRadius}">
+          <Grid Name="ContentRoot" RowDefinitions="*,Auto">
+            <Grid Name="PART_PickerContainer">
+              <Grid.Styles>
+                <Style Selector="DateTimePickerPanel > ListBoxItem">
+                  <Setter Property="Theme" Value="{StaticResource FluentDateTimePickerItem}" />
+                </Style>
+              </Grid.Styles>
+              <!--Column Definitions set in code, ignore here-->
+              <Panel Name="PART_MonthHost">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Hidden">
+                  <DateTimePickerPanel Name="PART_MonthSelector"
+                                       PanelType="Month"
+                                       ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
+                                       ShouldLoop="True" />
+                </ScrollViewer>
+                <RepeatButton Name="PART_MonthUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_MonthDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+              </Panel>
+              <Panel Name="PART_DayHost">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Hidden">
+                  <DateTimePickerPanel Name="PART_DaySelector"
+                                       PanelType="Day"
+                                       ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
+                                       ShouldLoop="True" />
+                </ScrollViewer>
+                <RepeatButton Name="PART_DayUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_DayDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+              </Panel>
+              <Panel Name="PART_YearHost">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Hidden">
+                  <DateTimePickerPanel Name="PART_YearSelector"
+                                       PanelType="Year"
+                                       ItemHeight="{DynamicResource DatePickerFlyoutPresenterItemHeight}"
+                                       ShouldLoop="False" />
+                </ScrollViewer>
+                <RepeatButton Name="PART_YearUpButton" Theme="{StaticResource FluentDateTimePickerUpButton}"/>
+                <RepeatButton Name="PART_YearDownButton" Theme="{StaticResource FluentDateTimePickerDownButton}"/>
+              </Panel>
+              <Rectangle Name="HighlightRect" IsHitTestVisible="False" ZIndex="-1"
+                         Fill="{DynamicResource DatePickerFlyoutPresenterHighlightFill}"
+                         Grid.Column="0" Grid.ColumnSpan="5" VerticalAlignment="Center"
+                         Height="{DynamicResource DatePickerFlyoutPresenterHighlightHeight}" />
+              <Rectangle Name="PART_FirstSpacer"
+                         Fill="{DynamicResource DatePickerFlyoutPresenterSpacerFill}"
+                         HorizontalAlignment="Center"
+                         Width="{DynamicResource DatePickerSpacerThemeWidth}"
+                         Grid.Column="1" />
+              <Rectangle Name="PART_SecondSpacer"
+                         Fill="{DynamicResource DatePickerFlyoutPresenterSpacerFill}"
+                         HorizontalAlignment="Center"
+                         Width="{DynamicResource DatePickerSpacerThemeWidth}"
+                         Grid.Column="3" />
+            </Grid>
+
+            <Grid Name="AcceptDismissGrid"
+                  Grid.Row="1"
+                  ColumnDefinitions="*,*">
+              <Rectangle Height="{DynamicResource DatePickerSpacerThemeWidth}" 
+                         VerticalAlignment="Top"
+                         Fill="{DynamicResource DatePickerFlyoutPresenterSpacerFill}"
+                         Grid.ColumnSpan="2"/>
+              <Button Name="PART_AcceptButton"
+                      Grid.Column="0"
+                      Theme="{StaticResource FluentDateTimePickerButton}"
+                      Height="{DynamicResource DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
+                      HorizontalAlignment="Stretch"
+                      VerticalAlignment="Stretch">
+                <Path Stroke="{Binding $parent[Button].Foreground}"
+                      StrokeLineCap="Round"
+                      StrokeThickness="0.75"
+                      Data="M0.5,8.5 5,13.5 15.5,3" />
+              </Button>
+              <Button Name="PART_DismissButton"
+                      Grid.Column="1"
+                      Theme="{StaticResource FluentDateTimePickerButton}"
+                      Height="{DynamicResource DatePickerFlyoutPresenterAcceptDismissHostGridHeight}"
+                      HorizontalAlignment="Stretch" 
+                      VerticalAlignment="Stretch">
+                <Path Stroke="{Binding $parent[Button].Foreground}" 
+                      StrokeLineCap="Round"
+                      StrokeThickness="0.75" 
+                      Data="M2,2 14,14 M2,14 14 2" />
+              </Button>
+            </Grid>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^ /template/ Panel">
+      <Style Selector="^:pointerover RepeatButton">
+        <Setter Property="IsVisible" Value="True" />
+      </Style>
     </Style>
+  </ControlTheme>
 
-    <Style x:Key="DatePickerStyle" BasedOn="{StaticResource DatePickerStyleBase}"  TargetType="{x:Type local:VBDatePicker}">
-        <Setter Property="Template" Value="{StaticResource DatePickerTemplate}" />
-    </Style>-->
-
-  <!--<ControlTheme x:Key="{x:Type local:VBDatePicker}" BasedOn="{x:Type DatePicker}"  TargetType="{x:Type local:VBDatePicker}" />-->
 
 </ResourceDictionary>

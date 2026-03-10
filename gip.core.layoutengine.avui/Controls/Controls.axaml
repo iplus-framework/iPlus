@@ -79,6 +79,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBButtonSpinner/Themes/ButtonSpinnerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimeUpDown/Themes/DateTimeUpDownStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDateTimePicker/Themes/DateTimePickerStyle.axaml"/>
+          <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDatePicker/Themes/DatePickerStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBNumericUpDown/Themes/NumericUpDownStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/PropertyGridViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/DesignItemTreeViewStyle.axaml"/>
