@@ -223,6 +223,13 @@ namespace gip.ext.xamldom.avui
             var ctx = new DummyTypeDescriptorContext(this.ServiceProvider);
             ctx.Instance = instance;
             bool hasStringConverter = c.CanConvertTo(ctx, typeof(string)) && c.CanConvertFrom(typeof(string));
+            // Transform subclasses (RotateTransform, ScaleTransform, etc.) report a string
+            // converter via the [TypeConverter(typeof(TransformConverter))] attribute on the
+            // ITransform interface, but ConvertToInvariantString falls back to Transform.ToString()
+            // which produces a Matrix string that TransformParser cannot round-trip.
+            // Force element syntax (<RotateTransform Angle="15"/>) for all Transform instances.
+            if (hasStringConverter && instance is Avalonia.Media.Transform)
+                hasStringConverter = false;
             if (forProperty != null && hasStringConverter)
             {
 

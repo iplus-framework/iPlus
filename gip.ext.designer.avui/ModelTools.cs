@@ -628,7 +628,7 @@ namespace gip.ext.designer.avui
                             designItem.Properties.GetProperty(transformProperty).Value.Properties.GetProperty(RotateTransform.CenterYProperty).SetValue(rotateTransform.CenterY);
 
                         if (oldTransform == null)
-                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue("50%,50%");
                     }
                     else
                     {
@@ -651,7 +651,7 @@ namespace gip.ext.designer.avui
                             des = designItem.Services.Component.RegisterComponentForDesigner(transform);
                         designItem.Services.Component.GetDesignItem(tg).ContentProperty.CollectionElements.Add(des);
                         if (oldTransform == null)
-                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue("50%,50%");
                     }
                 }
                 else
@@ -660,7 +660,7 @@ namespace gip.ext.designer.avui
                     {
                         designItem.Properties.GetProperty(transformProperty).SetValue(transform);
                         if (oldTransform == null)
-                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue(new Point(0.5, 0.5));
+                            designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty).SetValue("50%,50%");
                     }
                 }
             }
