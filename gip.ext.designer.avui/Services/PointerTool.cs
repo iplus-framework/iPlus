@@ -8,6 +8,8 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Input.Raw;
 using Avalonia.Interactivity;
+using Avalonia.VisualTree;
+using gip.ext.design.avui.Adorners;
 
 namespace gip.ext.designer.avui.Services
 {
@@ -39,8 +41,17 @@ namespace gip.ext.designer.avui.Services
 		
 		void OnMouseDown(object sender, PointerPressedEventArgs e)
 		{
+            if (e.Source is Visual sourceVisual)
+            {
+                if (sourceVisual is AdornerPanel || sourceVisual.GetVisualAncestors().Any(v => v is AdornerPanel))
+                {
+                    // Let adorner/thumb controls process pointer pressed themselves.
+                    return;
+                }
+            }
+
 			IDesignPanel designPanel = (IDesignPanel)sender;
-			DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true, HitTestType.Default);
+            DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true, HitTestType.Default);
 			if (result.ModelHit != null) {
 				IHandlePointerToolMouseDown b = result.ModelHit.GetBehavior<IHandlePointerToolMouseDown>();
 				if (b != null) {

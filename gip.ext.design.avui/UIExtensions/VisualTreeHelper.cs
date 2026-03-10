@@ -173,90 +173,14 @@ namespace gip.ext.design.avui
         {
             ArgumentNullException.ThrowIfNull(ancestor);
             ArgumentNullException.ThrowIfNull(element);
-            return InternalTransformToAncestor(element, ancestor, false);
-        }
 
-        private static Transform InternalTransformToAncestor(Visual element, Visual ancestor, bool inverse)
-        {
-            Transform generalTransform;
-            Avalonia.Matrix simpleTransform;
+            // Use Avalonia's native TransformToVisual which correctly accumulates
+            // both layout offsets (Bounds.X/Y) and RenderTransforms at each level.
+            Matrix? matrix = element.TransformToVisual(ancestor);
+            if (matrix.HasValue)
+                return new MatrixTransform(matrix.Value);
 
-            bool isSimple = TrySimpleTransformToAncestor(element, ancestor,
-                                                         inverse,
-                                                         out generalTransform,
-                                                         out simpleTransform);
-
-            if (isSimple)
-            {
-                MatrixTransform matrixTransform = new MatrixTransform(simpleTransform);
-                return matrixTransform;
-            }
-            else
-            {
-                return generalTransform;
-            }
-        }
-
-        private static bool TrySimpleTransformToAncestor(Visual element, Visual ancestor,
-                                           bool inverse,
-                                           out Transform generalTransform,
-                                           out Avalonia.Matrix simpleTransform)
-        {
-            generalTransform = null;
-            simpleTransform = Avalonia.Matrix.Identity;
-
-            if (element == null || ancestor == null)
-                return false;
-
-            Visual current = element;
-            Avalonia.Matrix transform = Avalonia.Matrix.Identity;
-
-            // Walk up the visual tree until we find the ancestor
-            while (current != null && current != ancestor)
-            {
-                // Get the transform relative to parent
-                var renderTransform = current.RenderTransform;
-                if (renderTransform != null)
-                {
-                    transform = renderTransform.Value * transform;
-                }
-
-                // Apply render transform origin
-                var transformOrigin = current.RenderTransformOrigin;
-                if (transformOrigin != default)
-                {
-                    var bounds = current.Bounds;
-                    var originX = transformOrigin.Point.X * bounds.Width;
-                    var originY = transformOrigin.Point.Y * bounds.Height;
-                    
-                    var originTransform = Avalonia.Matrix.CreateTranslation(-originX, -originY);
-                    var backTransform = Avalonia.Matrix.CreateTranslation(originX, originY);
-                    transform = originTransform * transform * backTransform;
-                }
-
-                // Get parent
-                current = current.GetVisualParent() as Visual;
-            }
-
-            if (current != ancestor)
-            {
-                throw new InvalidOperationException("Element is not a descendant of the specified ancestor.");
-            }
-
-            if (inverse)
-            {
-                if (transform.HasInverse)
-                {
-                    transform = transform.Invert();
-                }
-                else
-                {
-                    return false; // Cannot invert
-                }
-            }
-
-            simpleTransform = transform;
-            return true; // Simple transform succeeded
+            throw new InvalidOperationException("Element is not a visual descendant of the specified ancestor.");
         }
 
 

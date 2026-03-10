@@ -167,7 +167,7 @@ namespace gip.ext.designer.avui.Extensions
                 var info = operation.PlacedItems[0];
                 var result = info.OriginalBounds;
 
-                double x = 0, y = 0, width, height;
+                double x = result.X, y = result.Y, width, height;
                 if (alignment.Horizontal == HorizontalAlignment.Left)
                     x = Math.Min(result.Right, result.X - dx);
                 if (alignment.Vertical == VerticalAlignment.Top)

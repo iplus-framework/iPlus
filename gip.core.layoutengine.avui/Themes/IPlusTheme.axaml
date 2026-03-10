@@ -6,8 +6,9 @@
   <!--<FluentTheme DensityStyle="Compact" />-->
   <Styles.Resources>
     <ResourceDictionary>
-      <!--<ResourceDictionary.MergedDictionaries>
-      </ResourceDictionary.MergedDictionaries>-->
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.axaml"/>
+      </ResourceDictionary.MergedDictionaries>
       
       <!-- No dynamic resources. Is done via ControlManager in Method RegisterImplicitStyles -->
       <!--<ResourceDictionary.ThemeDictionaries>

@@ -11,6 +11,7 @@ using Avalonia.Input;
 using Avalonia;
 using Avalonia.Input.Raw;
 using Avalonia.Controls;
+using Avalonia.Interactivity;
 
 namespace gip.ext.designer.avui.Controls
 {
@@ -41,9 +42,25 @@ namespace gip.ext.designer.avui.Controls
         public DragListener(IInputElement target)
 		{
 			Target = target;
-            Target.PointerPressed += Target_PointerPressed;
-            Target.PointerMoved += Target_PointerMoved;
-            Target.PointerReleased += Target_PointerReleased;
+
+            // Listen to handled events too. Several designer/tool handlers consume PointerPressed
+            // during tunneling, but resize drag logic still needs to see that press.
+            if (Target is InputElement inputElement)
+            {
+                inputElement.AddHandler(InputElement.PointerPressedEvent, Target_PointerPressed,
+                    RoutingStrategies.Tunnel | RoutingStrategies.Bubble, true);
+                inputElement.AddHandler(InputElement.PointerMovedEvent, Target_PointerMoved,
+                    RoutingStrategies.Tunnel | RoutingStrategies.Bubble, true);
+                inputElement.AddHandler(InputElement.PointerReleasedEvent, Target_PointerReleased,
+                    RoutingStrategies.Tunnel | RoutingStrategies.Bubble, true);
+            }
+            else
+            {
+                Target.PointerPressed += Target_PointerPressed;
+                Target.PointerMoved += Target_PointerMoved;
+                Target.PointerReleased += Target_PointerReleased;
+            }
+
             SetupGlobalInputHandling();
         }
 

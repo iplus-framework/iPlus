@@ -225,8 +225,12 @@ namespace gip.ext.designer.avui.Controls
                 {
                     if (adorner.AdornedElement.IsDescendantOf(_designPanel))
                     {
-                        var transform = adorner.AdornedElement.TransformToAncestor(_designPanel);
-                        var rt = transform as MatrixTransform;
+                        // Use Avalonia's native TransformToVisual which correctly includes
+                        // both layout offsets (Bounds.X/Y) and RenderTransforms at each level.
+                        // The custom TransformToAncestor extension only includes RenderTransforms,
+                        // causing adorners to appear at (0,0) instead of the control's actual position.
+                        Matrix? avaloniaTransform = adorner.AdornedElement.TransformToVisual(_designPanel);
+                        MatrixTransform rt = avaloniaTransform.HasValue ? new MatrixTransform(avaloniaTransform.Value) : null;
                         if (rt != null && adorner.AdornedDesignItem != null && adorner.AdornedDesignItem.Parent != null && adorner.AdornedDesignItem.Parent.View is Canvas && adorner.AdornedElement.Bounds.Height == 0 && adorner.AdornedElement.Bounds.Width == 0)
                         {
                             var width = ((Control)adorner.AdornedElement).Width;
@@ -236,15 +240,6 @@ namespace gip.ext.designer.avui.Controls
                             var xOffset = rt.Matrix.M31 - (width / 2);
                             var yOffset = rt.Matrix.M32 - (height / 2);
                             rt = new MatrixTransform(new Matrix(rt.Matrix.M11, rt.Matrix.M12, rt.Matrix.M21, rt.Matrix.M22, xOffset, yOffset));
-                        }
-                        else if (transform is TransformGroup)
-                        {
-                            //var intTrans = ((GeneralTransformGroup) transform).Children.FirstOrDefault(x => x.GetType().Name == "GeneralTransform2DTo3DTo2D");
-                            //var prp = intTrans.GetType().GetField("_worldTransformation", BindingFlags.Instance | BindingFlags.NonPublic);
-                            //var mtx = (Matrix3D) prp.GetValue(intTrans);
-                            //var mtx2D = new Matrix(mtx.M11, mtx.M12, mtx.M21, mtx.M22, mtx.OffsetX, mtx.OffsetY);
-                            //rt = new MatrixTransform(mtx2D);
-                            rt = ((TransformGroup)transform).Children.OfType<MatrixTransform>().LastOrDefault();
                         }
                         adorner.RenderTransform = rt;
                     }

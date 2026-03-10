@@ -1,6 +1,7 @@
 ﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
+using System;
 using System.Diagnostics;
 using Avalonia;
 using gip.ext.design.avui;
@@ -14,6 +15,8 @@ namespace gip.ext.designer.avui.Controls
 	public class ResizeThumb : DesignerThumb
 	{
 		protected bool checkWidth, checkHeight;
+
+        protected override Type StyleKeyOverride => typeof(ResizeThumb);
 
 		public ResizeThumb(bool checkWidth, bool checkHeight)
 		{
@@ -44,6 +47,8 @@ namespace gip.ext.designer.avui.Controls
         public ResizeThumbImpl(bool checkWidth, bool checkHeight) : base(checkWidth, checkHeight)
         {
         }
+
+        protected override Type StyleKeyOverride => typeof(ResizeThumb);
 
         protected override Size ArrangeOverride(Size arrangeBounds)
         {

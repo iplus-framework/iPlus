@@ -529,9 +529,15 @@ namespace gip.ext.designer.avui
                     if (VisualChildren != null)
                     {
                         if (VisualChildren.Contains(_adornerLayer))
+                        {
                             VisualChildren.Remove(_adornerLayer);
+                            LogicalChildren.Remove(_adornerLayer);
+                        }
                         if (VisualChildren.Contains(_eatAllHitTestRequests))
+                        {
                             VisualChildren.Remove(_eatAllHitTestRequests);
+                            LogicalChildren.Remove(_eatAllHitTestRequests);
+                        }
                     }
                 }
                 else
@@ -539,9 +545,15 @@ namespace gip.ext.designer.avui
                     if (VisualChildren != null)
                     {
                         if (!VisualChildren.Contains(_eatAllHitTestRequests))
+                        {
                             VisualChildren.Add(_eatAllHitTestRequests);
+                            LogicalChildren.Add(_eatAllHitTestRequests);
+                        }
                         if (!VisualChildren.Contains(_adornerLayer))
+                        {
                             VisualChildren.Add(_adornerLayer);
+                            LogicalChildren.Add(_adornerLayer);
+                        }
                     }
                 }
             }

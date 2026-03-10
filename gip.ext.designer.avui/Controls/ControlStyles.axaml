@@ -54,7 +54,7 @@
   <ControlTheme x:Key="{x:Type Controls:ResizeThumb}" TargetType="Controls:ResizeThumb">
     <Setter Property="Template">
       <ControlTemplate>
-        <Rectangle Name="thumbRectangle" Stroke="Black" Fill="White" RadiusX="1.414" RadiusY="1.414" />
+        <Rectangle Name="thumbRectangle" Stroke="Black" Fill="White" RadiusX="1.414" RadiusY="1.414" StrokeThickness="1" />
       </ControlTemplate>
     </Setter>
     
@@ -405,12 +405,7 @@
           <Path Grid.Row="0" Stroke="#AC0000" StrokeThickness="1.0" Data="M0,0 L1,0 M0.75,0 L0.75,1" Stretch="Fill" />
           <TextBlock HorizontalAlignment="Center" Margin="8,0,0,1" Padding="1,1,1,1" FontSize="10" Grid.Row="1">
             <TextBlock.Text>
-              <MultiBinding Converter="{x:Static Converters:ControlToRealHeightConverter.Instance}" StringFormat="0">
-                <MultiBinding.Bindings>
-                  <Binding Path="ActualHeight" UpdateSourceTrigger="PropertyChanged" />
-                  <Binding Path="Height" UpdateSourceTrigger="PropertyChanged" />
-                </MultiBinding.Bindings>
-              </MultiBinding>
+              <Binding Path="Bounds" Converter="{x:Static Converters:BoundsToHeightConverter.Instance}" ConverterParameter="0" UpdateSourceTrigger="PropertyChanged" />
             </TextBlock.Text>
             <TextBlock.RenderTransform>
               <RotateTransform Angle="270" />
@@ -421,7 +416,7 @@
       </ControlTemplate>
     </Setter>
   </ControlTheme>
-  
+
   <ControlTheme x:Key="{x:Type Controls:WidthDisplay}" TargetType="Controls:WidthDisplay">
     <Setter Property="Template">
       <ControlTemplate>
@@ -434,12 +429,7 @@
           <Path Grid.Column="0" Stroke="#AC0000" StrokeThickness="1" Data="M0,0 L0,1 M0,0.75 L1,0.75" Stretch="Fill" />
           <TextBlock HorizontalAlignment="Center" Margin="0,8,0,0" Padding="1,1,1,1" FontSize="10" Grid.Column="1">
             <TextBlock.Text>
-              <MultiBinding Converter="{x:Static Converters:ControlToRealWidthConverter.Instance}" StringFormat="0">
-                <MultiBinding.Bindings>
-                  <Binding Path="ActualWidth" UpdateSourceTrigger="PropertyChanged" />
-                  <Binding Path="Width" UpdateSourceTrigger="PropertyChanged" />
-                </MultiBinding.Bindings>
-              </MultiBinding>
+              <Binding Path="Bounds" Converter="{x:Static Converters:BoundsToWidthConverter.Instance}" ConverterParameter="0" UpdateSourceTrigger="PropertyChanged" />
             </TextBlock.Text>
           </TextBlock>
           <Path Grid.Column="2" Stroke="#AC0000" StrokeThickness="1" Data="M0,0.75 L3,0.75 M3,0 L3,1 " Stretch="Fill" />

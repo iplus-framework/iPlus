@@ -12,6 +12,7 @@ using Avalonia.Data.Converters;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using Avalonia.Xaml.Interactions.Custom;
 
 namespace gip.ext.designer.avui.Converters
 {
@@ -227,7 +228,15 @@ namespace gip.ext.designer.avui.Converters
 
         public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
-            return PlacementOperation.GetRealElementSize((Control)values[0]).Width;
+            if (values == null || values.Count < 1 || values[0] is UnsetValueType || !(values[0] is Rect bounds))
+                return 0;
+
+            if (targetType == typeof(string) && parameter is string format)
+            {
+                return bounds.Width.ToString(format, culture);
+            }
+
+            return bounds.Width;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
@@ -242,13 +251,57 @@ namespace gip.ext.designer.avui.Converters
 
         public object Convert(IList<object> values, Type targetType, object parameter, CultureInfo culture)
         {
-            return PlacementOperation.GetRealElementSize((Control)values[0]).Height;
+            if (values == null || values.Count < 1 || values[0] is UnsetValueType || !(values[0] is Rect bounds))
+                return 0;
+
+            if (targetType == typeof(string) && parameter is string format)
+            {
+                return bounds.Height.ToString(format, culture);
+            }
+
+            return bounds.Height;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotImplementedException();
         }
+    }
+
+    public class BoundsToWidthConverter : IValueConverter
+    {
+        public static readonly BoundsToWidthConverter Instance = new BoundsToWidthConverter();
+
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is Rect bounds)
+            {
+                if (targetType == typeof(string) && parameter is string format)
+                    return bounds.Width.ToString(format, culture);
+                return bounds.Width;
+            }
+            return 0.0;
+        }
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class BoundsToHeightConverter : IValueConverter
+    {
+        public static readonly BoundsToHeightConverter Instance = new BoundsToHeightConverter();
+
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        {
+            if (value is Rect bounds)
+            {
+                if (targetType == typeof(string) && parameter is string format)
+                    return bounds.Height.ToString(format, culture);
+                return bounds.Height;
+            }
+            return 0.0;
+        }
+
+        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
     public class FormatDoubleConverter : IValueConverter
