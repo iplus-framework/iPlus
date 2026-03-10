@@ -6,6 +6,7 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Styling;
+using Avalonia.VisualTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using System;
@@ -80,8 +81,11 @@ namespace gip.core.layoutengine.avui
                 _calendar.SelectedDatesChanged += Calendar_SelectedDatesChanged;
                 _calendar.SelectedDate = SelectedDate;
             }
+
             InitVBControl();
         }
+
+        protected override Type StyleKeyOverride => typeof(VBDateTimePicker);
 
         #endregion
 
@@ -648,6 +652,22 @@ namespace gip.core.layoutengine.avui
 
         private void OnMouseDownOutsideCapturedElement(object sender, PointerReleasedEventArgs e)
         {
+            if (_calendar != null && IsOpen)
+            {
+                // Check if the click is inside the calendar
+                var source = e.Source as Visual;
+                while (source != null)
+                {
+                    if (source == _calendar || source is VBDateTimeUpDown)
+                        return; // Click was inside calendar, don't close
+
+                    if (source is CalendarDayButton)
+                        break;
+
+                    source = source.GetVisualParent() as Visual;
+                }
+            }
+
             CloseDateTimePicker();
         }
 

@@ -283,7 +283,7 @@
 	<SolidColorBrush x:Key="TextBoxDisabledBackgroundBrush" Color="{StaticResource TextBoxDisabledBackgroundColor}" />
 
 	<Color x:Key="TextBoxDisabledBorderBrushColor">#FFB5B2AD</Color>
-	<SolidColorBrush x:Key="TextBoxDisabledBorderBrush" Color="{StaticResource TextBoxDisabledorderBrushColor}" />
+	<SolidColorBrush x:Key="TextBoxDisabledBorderBrush" Color="{StaticResource TextBoxDisabledBorderBrushColor}" />
 
 
 	<Color x:Key="TextBoxErrorBorderBrushColor0">#FF3B3BAF</Color>
