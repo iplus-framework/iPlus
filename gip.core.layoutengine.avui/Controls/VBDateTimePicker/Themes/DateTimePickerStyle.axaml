@@ -9,8 +9,8 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
     <!-- DateTimePicker ToggleButton Template -->
     <ControlTemplate x:Key="DateTimePickerToggleButtonTemplate" TargetType="ToggleButton">
-        <Grid>
-            <local:VBRepeatButton x:Name="RepeatButton"
+        <Grid Background="Transparent">
+            <local:VBRepeatButton x:Name="RepeatButton" IsHitTestVisible="False"
                                   CornerRadius="0,2.75,2.75,0" />
 
             <Grid>
@@ -71,7 +71,7 @@ xmlns:local="clr-namespace:gip.core.layoutengine.avui">
                                               IsHitTestVisible="{Binding IsOpen, RelativeSource={RelativeSource TemplatedParent}, Converter={StaticResource InverseBoolConverter}}"/>
                             </Grid>
                             <Popup IsOpen="{Binding IsChecked, ElementName=calendarToggleButton}"
-                                   Placement="Bottom">
+                                   Placement="BottomEdgeAlignedRight">
                                 <Border BorderThickness="1"
                                         Background="{StaticResource DateTimePickerPopupBackgroundBrush}"
                                         BorderBrush="{StaticResource DateTimePickerPopupDarkBorderBrush}"
