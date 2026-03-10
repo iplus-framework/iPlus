@@ -23,11 +23,16 @@ using System.Xml.Linq;
 
 namespace gip.core.wpfservices
 {
-    public abstract class VBDesignerProxy : IVBComponentDesignManagerProxy
+    public abstract class VBDesignerProxy : EntityBase, IVBComponentDesignManagerProxy
     {
         public VBDesignerProxy(IACComponent component)
         {
             _DesignerComp = component;
+        }
+
+        public virtual void OnManagerRemoved()
+        {
+            UnSubscribeFromSelectionService();
         }
 
         #region Properties
@@ -94,6 +99,13 @@ namespace gip.core.wpfservices
                     return (vbDesigner.VBDesignControl as VBDesign);
                 return null;
             }
+        }
+
+        int _SelectionChangeCounter;
+        public int SelectionChangeCounter 
+        {
+            get { return _SelectionChangeCounter; }
+            set { SetProperty<int>(ref _SelectionChangeCounter, value); }
         }
 
         #endregion
@@ -277,6 +289,7 @@ namespace gip.core.wpfservices
                 && (DesignSurface != null)
                 && (DesignSurface.DesignContext != null))
             {
+                SubscribeToSelectionService();
                 newService = this.DesignSurface.DesignContext.Services.Tool;
             }
             bool changed = false;
@@ -443,6 +456,30 @@ namespace gip.core.wpfservices
                     routingLogic.CalculateEdgeRoute(rootCanvas);
             }
             DesignPanel.Focus();
+        }
+
+        bool _SelectionServiceSubscribed = false;
+        private void SubscribeToSelectionService()
+        {
+            if (DesignSurface != null && DesignSurface.DesignContext != null && DesignSurface.DesignContext.Services != null && DesignSurface.DesignContext.Services.Selection != null)
+            {
+                _SelectionServiceSubscribed = true;
+                DesignSurface.DesignContext.Services.Selection.SelectionChanged += new EventHandler<DesignItemCollectionEventArgs>(OnSelection_SelectionChanged);    
+            }        
+        }
+
+        private void UnSubscribeFromSelectionService()
+        {
+            if (_SelectionServiceSubscribed && DesignSurface != null && DesignSurface.DesignContext != null && DesignSurface.DesignContext.Services != null && DesignSurface.DesignContext.Services.Selection != null)
+            {
+                _SelectionServiceSubscribed = false;
+                DesignSurface.DesignContext.Services.Selection.SelectionChanged -= new EventHandler<DesignItemCollectionEventArgs>(OnSelection_SelectionChanged);
+            }
+        }
+
+        protected virtual void OnSelection_SelectionChanged(object sender, DesignItemCollectionEventArgs e)
+        {
+            SelectionChangeCounter++;
         }
 
         #region Abstract/Virtual Methods

@@ -1237,44 +1237,62 @@ namespace gip.core.manager
             result = null;
             switch (acMethodName)
             {
-                case"OnItemExpand":
+                case nameof(OnItemExpand):
                     OnItemExpand((ACObjectItem)acParameter[0]);
                     return true;
-                case"IsEnabledACActionToTarget":
+                case nameof(IsEnabledACActionToTarget):
                     result = IsEnabledACActionToTarget((IACInteractiveObject)acParameter[0], (ACActionArgs)acParameter[1]);
                     return true;
-                case"IsEnabledCreateEdge":
+                case nameof(IsEnabledCreateEdge):
                     result = IsEnabledCreateEdge((IVBConnector)acParameter[0], (IVBConnector)acParameter[1]);
                     return true;
-                case"IsEnabledDropDesignItem":
+                case nameof(IsEnabledDropDesignItem):
                     result = IsEnabledDropDesignItem((Global.ElementActionType)acParameter[0], (IACInteractiveObject)acParameter[1], (IACInteractiveObject)acParameter[2], (Double)acParameter[3], (Double)acParameter[4]);
                     return true;
-                case"DesignerRotateR90":
+                case nameof(DesignerRotateR90):
                     DesignerRotateR90();
                     return true;
-                case"IsEnabledDesignerRotateR90":
+                case nameof(IsEnabledDesignerRotateR90):
                     result = IsEnabledDesignerRotateR90();
                     return true;
-                case"DesignerFlipHorz":
+                case nameof(DesignerFlipHorz):
                     DesignerFlipHorz();
                     return true;
-                case"IsEnabledDesignerFlipHorz":
+                case nameof(IsEnabledDesignerFlipHorz):
                     result = IsEnabledDesignerFlipHorz();
                     return true;
-                case"DesignerFlipVert":
+                case nameof(DesignerFlipVert):
                     DesignerFlipVert();
                     return true;
-                case"IsEnabledDesignerFlipVert":
+                case nameof(IsEnabledDesignerFlipVert):
                     result = IsEnabledDesignerFlipVert();
                     return true;
-                case"DesignerResetTransform":
+                case nameof(DesignerResetTransform):
                     DesignerResetTransform();
                     return true;
-                case"IsEnabledDesignerResetTransform":
+                case nameof(IsEnabledDesignerResetTransform):
                     result = IsEnabledDesignerResetTransform();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(DesignerRotateR90):
+                case nameof(IsEnabledDesignerRotateR90):
+                case nameof(DesignerFlipHorz):
+                case nameof(IsEnabledDesignerFlipHorz):
+                case nameof(DesignerFlipVert):
+                case nameof(IsEnabledDesignerFlipVert):
+                case nameof(DesignerResetTransform):
+                case nameof(IsEnabledDesignerResetTransform):
+                    return new string[] { nameof(SelectionChangeCounter)};
+
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

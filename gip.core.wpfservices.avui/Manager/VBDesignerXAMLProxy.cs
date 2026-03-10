@@ -29,7 +29,7 @@ namespace gip.core.wpfservices.avui
 
             ChangeGroup changeGroup = null;
 
-            // Einfügen von WFEdge (Vor WF, da diese für die Layoutberechnung benötigt werden
+            // Einfï¿½gen von WFEdge (Vor WF, da diese fï¿½r die Layoutberechnung benï¿½tigt werden
             foreach (var change in VisualChangeList)
             {
                 if (change.LayoutAction != LayoutActionType.InsertEdge) continue;

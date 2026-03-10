@@ -33,7 +33,17 @@ namespace gip.core.manager
                 _AvailableElementList = new ObservableCollection<IACObject>();
             bool initialized = base.ACInit(startChildMode);
             if (initialized)
+            {
                 _WPFProxy = Root?.WPFServices?.DesignerService?.GetDesignMangerProxy(this);
+                if (_WPFProxy != null)
+                {
+                    _WPFProxy.PropertyChanged += (s, e) =>
+                    {
+                        if (e.PropertyName == nameof(SelectionChangeCounter))
+                            OnPropertyChanged(nameof(SelectionChangeCounter));
+                    };
+                }
+            }
             return initialized;
         }
 
@@ -332,6 +342,12 @@ namespace gip.core.manager
                 OnPropertyChanged("SelectedVBControl");
                 OnPropertyChanged("CurrentContentACObject");
             }
+        }
+
+        [ACPropertyInfo(9999)]
+        public int SelectionChangeCounter 
+        {
+            get { return _WPFProxy != null ? _WPFProxy.SelectionChangeCounter : 0; }
         }
         #endregion
 

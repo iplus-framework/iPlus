@@ -509,6 +509,18 @@ namespace gip.ext.designer.avui
             set;
         }
 
+        // <summary>
+        /// Gets/Sets whether to use layout transform control.
+        /// </summary>
+        public static readonly StyledProperty<bool> UseLayoutTransformControlProperty =
+            AvaloniaProperty.Register<DesignPanel, bool>(nameof(UseLayoutTransformControl), true);
+
+        public bool UseLayoutTransformControl
+        {
+            get { return GetValue(UseLayoutTransformControlProperty); }
+            set { SetValue(UseLayoutTransformControlProperty, value); }
+        }
+
         #endregion
 
         #region Visual Child Management

@@ -15,12 +15,13 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.Design;
 using System.Xml.Linq;
 
 namespace gip.core.datamodel
 {
-    public interface IVBComponentDesignManagerProxy
+    public interface IVBComponentDesignManagerProxy : INotifyPropertyChanged
     {
 
         #region Methods
@@ -35,6 +36,8 @@ namespace gip.core.datamodel
         void ShowDesignManager(string dockingManagerName = "");
         void HideDesignManager();
 
+        void OnManagerRemoved();
+
         #region ToolService
         void OnCurrentToolChanged(object sender, EventArgs e);
         void ReloadToolService();
@@ -48,6 +51,10 @@ namespace gip.core.datamodel
         void ClearVisualChangeList();
         void AddToVisualChangeList(IACObject visualObject, short layoutAction, string acUrl = "", string acUrl2 = "");
         IACInteractiveObject GetVBDesignEditor(IACComponent component);
+        #endregion
+
+        #region Properties
+        int SelectionChangeCounter { get; }
         #endregion
     }
 

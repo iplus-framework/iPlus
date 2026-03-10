@@ -212,6 +212,8 @@ namespace gip.ext.design.avui
 
         bool IsRasterOn { get; }
 
+        bool UseLayoutTransformControl {get; }
+
         /// <summary>
         /// If HitTestLayer = 0, then select the deepest element
         /// If HitTestLayer > 0, then select only elements from this Layer 

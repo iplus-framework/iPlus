@@ -39,6 +39,7 @@
             <TextBlock Margin="20,2,0,0" Text="Layer:"/>
             <Controls:NumericUpDown x:Name="_LayerHitTest" Background="Transparent" Width="40" SmallChange="1" LargeChange="5" Maximum="20" Minimum="-1" />
             <CheckBox Margin="2,2,0,0" x:Name="_GroupedOnly" Content="Grouped only" />
+            <CheckBox Margin="2,2,0,0" x:Name="_UseLayoutTransformControl" Content="Transform Control" />
         </StackPanel>
     </Grid>
 </UserControl>

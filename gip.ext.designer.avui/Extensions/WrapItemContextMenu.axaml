@@ -7,4 +7,9 @@
             <Image Source="avares://gip.ext.designer.avui/Images/wrap-option.png" />
         </MenuItem.Icon>
     </MenuItem>
+    <MenuItem Header="Wrap in LayoutTransformControl" Click="Click_WrapInLayoutTransformControl">
+        <MenuItem.Icon>
+            <Image Source="avares://gip.ext.designer.avui/Images/wrap-option.png" />
+        </MenuItem.Icon>
+    </MenuItem>
 </ContextMenu>

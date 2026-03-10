@@ -29,5 +29,10 @@ namespace gip.ext.designer.avui.Extensions
 		{
 			ModelTools.WrapItemsNewContainer(this.designItem.Services.Selection.SelectedItems, typeof(Viewbox));
 		}
+
+		void Click_WrapInLayoutTransformControl(object sender, RoutedEventArgs e)
+		{
+			ModelTools.WrapItemsNewContainer(this.designItem.Services.Selection.SelectedItems, typeof(LayoutTransformControl));
+		}
 	}
 }

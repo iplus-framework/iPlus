@@ -68,6 +68,12 @@ namespace gip.ext.designer.avui
             binding.Mode = BindingMode.TwoWay;
             _LayerHitTest.Bind(gip.ext.designer.avui.Controls.NumericUpDown.ValueProperty, binding);
 
+            binding = new Binding();
+            binding.Source = this;
+            binding.Path = "UseLayoutTransformControl";
+            binding.Mode = BindingMode.TwoWay;
+            _UseLayoutTransformControl.Bind(CheckBox.IsCheckedProperty, binding);
+
             // Register command handlers
             this.AddCommandHandler(ApplicationCommands.Undo, Undo, CanUndo);
             this.AddCommandHandler(ApplicationCommands.Redo, Redo, CanRedo);
@@ -84,8 +90,26 @@ namespace gip.ext.designer.avui
             this.AddCommandHandler(Commands.AlignCenterCommand, () => ModelTools.ArrangeItems(this.DesignContext.Services.Selection.SelectedItems, ArrangeDirection.HorizontalMiddle), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
             this.AddCommandHandler(Commands.AlignRightCommand, () => ModelTools.ArrangeItems(this.DesignContext.Services.Selection.SelectedItems, ArrangeDirection.Right), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
 
-            this.AddCommandHandler(Commands.RotateLeftCommand, () => ModelTools.ApplyTransform(this.DesignContext.Services.Selection.PrimarySelection, new RotateTransform(-90), true, this.DesignContext.RootItem == this.DesignContext.Services.Selection.PrimarySelection ? Control.RenderTransformProperty : Control.RenderTransformProperty), () => this.DesignContext.Services.Selection.PrimarySelection != null);
-            this.AddCommandHandler(Commands.RotateRightCommand, () => ModelTools.ApplyTransform(this.DesignContext.Services.Selection.PrimarySelection, new RotateTransform(90), true, this.DesignContext.RootItem == this.DesignContext.Services.Selection.PrimarySelection ? Control.RenderTransformProperty : Control.RenderTransformProperty), () => this.DesignContext.Services.Selection.PrimarySelection != null);
+            this.AddCommandHandler(Commands.RotateLeftCommand, () =>
+            {
+                var selected = this.DesignContext.Services.Selection.PrimarySelection;
+                if (selected == null)
+                    return;
+                if (UseLayoutTransformControl)
+                    ModelTools.ApplyLayoutTransform(selected, new RotateTransform(-90), true);
+                else
+                    ModelTools.ApplyTransform(selected, new RotateTransform(-90), true, Control.RenderTransformProperty);
+            }, () => this.DesignContext.Services.Selection.PrimarySelection != null);
+            this.AddCommandHandler(Commands.RotateRightCommand, () =>
+            {
+                var selected = this.DesignContext.Services.Selection.PrimarySelection;
+                if (selected == null)
+                    return;
+                if (UseLayoutTransformControl)
+                    ModelTools.ApplyLayoutTransform(selected, new RotateTransform(90), true);
+                else
+                    ModelTools.ApplyTransform(selected, new RotateTransform(90), true, Control.RenderTransformProperty);
+            }, () => this.DesignContext.Services.Selection.PrimarySelection != null);
 
             this.AddCommandHandler(Commands.StretchToSameWidthCommand, () => ModelTools.StretchItems(this.DesignContext.Services.Selection.SelectedItems, StretchDirection.Width), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
             this.AddCommandHandler(Commands.StretchToSameHeightCommand, () => ModelTools.StretchItems(this.DesignContext.Services.Selection.SelectedItems, StretchDirection.Height), () => this.DesignContext.Services.Selection.SelectedItems.Count() > 1);
@@ -348,118 +372,24 @@ namespace gip.ext.designer.avui
                     DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
                     if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                     {
-                        DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
-                        if (prop != null)
-                        {
-                            if (prop.Value == null)
-                            {
-                                NewTransformGroupWithRotate(prop, value);
-                            }
-                            else if (typeof(RotateTransform).IsAssignableFrom(prop.Value.ComponentType))
-                            {
-                                DesignItemProperty propAngle = prop.Value.Properties.GetProperty(RotateTransform.AngleProperty);
-                                if (propAngle != null)
-                                {
-                                    propAngle.SetValue(value);
-                                }
-                            }
-                            else if (typeof(TransformGroup).IsAssignableFrom(prop.Value.ComponentType))
-                            {
-                                UpdateTransformGroupWithRotate(prop, value);
-                            }
-                            // Sonst Skew oder ScaleTransform => Umverpackung in TransformGroup
-                            else if (typeof(Transform).IsAssignableFrom(prop.Value.ComponentType))
-                            {
-                                NewTransformGroupWithRotate(prop, value);
-                            }
-                        }
+                        if (UseLayoutTransformControl)
+                            ModelTools.ApplyLayoutTransform(designItem, new RotateTransform(value), false);
+                        else
+                            ModelTools.ApplyTransform(designItem, new RotateTransform(value), false, Control.RenderTransformProperty);
                     }
                 }
             }
         }
 
-        private void NewTransformGroupWithRotate(DesignItemProperty prop, Double value)
+        public bool UseLayoutTransformControl
         {
-            TransformGroup transformFroup = new TransformGroup();
-            prop.SetValue(transformFroup);
-            UpdateTransformGroupWithRotate(prop, value);
-        }
-
-        private void UpdateTransformGroupWithRotate(DesignItemProperty prop, Double value)
-        {
-            if (prop.Value.ContentProperty.IsCollection)
+            get
             {
-                DesignItem transformObject = null;
-                foreach (DesignItem child in prop.Value.ContentProperty.CollectionElements)
-                {
-                    if (typeof(RotateTransform).IsAssignableFrom(child.ComponentType))
-                    {
-                        transformObject = child;
-                        break;
-                    }
-                }
-
-                if (transformObject == null)
-                {
-                    RotateTransform rotTransform = new RotateTransform();
-                    transformObject = GetService<IComponentService>().RegisterComponentForDesigner(rotTransform);
-                    prop.Value.ContentProperty.CollectionElements.Add(transformObject);
-                }
-                DesignItemProperty propAngle = transformObject.Properties.GetProperty(RotateTransform.AngleProperty);
-                if (propAngle != null)
-                    propAngle.SetValue(value);
+                return _designPanel.UseLayoutTransformControl;
             }
-        }
-
-        private void NewTransformGroupWithScale(DesignItemProperty prop, bool swapHorz)
-        {
-            TransformGroup transformFroup = new TransformGroup();
-            prop.SetValue(transformFroup);
-            UpdateTransformGroupWithScale(prop, swapHorz);
-        }
-
-        private void UpdateTransformGroupWithScale(DesignItemProperty prop, bool swapHorz)
-        {
-            if (prop.Value.ContentProperty.IsCollection)
+            set
             {
-                DesignItem transformObject = null;
-                foreach (DesignItem child in prop.Value.ContentProperty.CollectionElements)
-                {
-                    if (typeof(ScaleTransform).IsAssignableFrom(child.ComponentType))
-                    {
-                        transformObject = child;
-                        break;
-                    }
-                }
-
-                if (transformObject == null)
-                {
-                    ScaleTransform rotTransform = new ScaleTransform();
-                    transformObject = GetService<IComponentService>().RegisterComponentForDesigner(rotTransform);
-                    prop.Value.ContentProperty.CollectionElements.Add(transformObject);
-                }
-                if (swapHorz)
-                {
-                    DesignItemProperty propAngle = transformObject.Properties.GetProperty(ScaleTransform.ScaleXProperty);
-                    if (propAngle != null)
-                    {
-                        if (Convert.ToInt32(propAngle.ValueOnInstance) == 1)
-                            propAngle.SetValue((Double)(-1.0));
-                        else
-                            propAngle.SetValue((Double)(1));
-                    }
-                }
-                else
-                {
-                    DesignItemProperty propAngle = transformObject.Properties.GetProperty(ScaleTransform.ScaleYProperty);
-                    if (propAngle != null)
-                    {
-                        if (Convert.ToInt32(propAngle.ValueOnInstance) == 1)
-                            propAngle.SetValue((Double)(-1.0));
-                        else
-                            propAngle.SetValue((Double)(1));
-                    }
-                }
+                _designPanel.UseLayoutTransformControl = value;
             }
         }
 
@@ -498,34 +428,7 @@ namespace gip.ext.designer.avui
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
                 if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                 {
-                    DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
-                    if (prop != null)
-                    {
-                        if (prop.Value == null)
-                        {
-                            NewTransformGroupWithScale(prop, true);
-                        }
-                        else if (typeof(ScaleTransform).IsAssignableFrom(prop.Value.ComponentType))
-                        {
-                            DesignItemProperty propAngle = prop.Value.Properties.GetProperty(ScaleTransform.ScaleXProperty);
-                            if (propAngle != null)
-                            {
-                                if (Convert.ToInt32(propAngle.ValueOnInstance) == 1)
-                                    propAngle.SetValue((Double)(-1.0));
-                                else
-                                    propAngle.SetValue((Double)(1));
-                            }
-                        }
-                        else if (typeof(TransformGroup).IsAssignableFrom(prop.Value.ComponentType))
-                        {
-                            UpdateTransformGroupWithScale(prop, true);
-                        }
-                        // Sonst Skew oder ScaleTransform => Umverpackung in TransformGroup
-                        else if (typeof(Transform).IsAssignableFrom(prop.Value.ComponentType))
-                        {
-                            NewTransformGroupWithScale(prop, true);
-                        }
-                    }
+                    ModelTools.ApplyMirrorTransform(designItem, true, UseLayoutTransformControl);
                 }
             }
         }
@@ -548,34 +451,7 @@ namespace gip.ext.designer.avui
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
                 if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                 {
-                    DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
-                    if (prop != null)
-                    {
-                        if (prop.Value == null)
-                        {
-                            NewTransformGroupWithScale(prop, false);
-                        }
-                        else if (typeof(ScaleTransform).IsAssignableFrom(prop.Value.ComponentType))
-                        {
-                            DesignItemProperty propAngle = prop.Value.Properties.GetProperty(ScaleTransform.ScaleYProperty);
-                            if (propAngle != null)
-                            {
-                                if (Convert.ToInt32(propAngle.ValueOnInstance) == 1)
-                                    propAngle.SetValue((Double)(-1.0));
-                                else
-                                    propAngle.SetValue((Double)(1));
-                            }
-                        }
-                        else if (typeof(TransformGroup).IsAssignableFrom(prop.Value.ComponentType))
-                        {
-                            UpdateTransformGroupWithScale(prop, false);
-                        }
-                        // Sonst Skew oder ScaleTransform => Umverpackung in TransformGroup
-                        else if (typeof(Transform).IsAssignableFrom(prop.Value.ComponentType))
-                        {
-                            NewTransformGroupWithScale(prop, false);
-                        }
-                    }
+                    ModelTools.ApplyMirrorTransform(designItem, false, UseLayoutTransformControl);
                 }
             }
         }
@@ -598,11 +474,7 @@ namespace gip.ext.designer.avui
                 DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
                 if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
                 {
-                    DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
-                    if (prop != null)
-                    {
-                        prop.Reset();
-                    }
+                    ModelTools.ResetTransform(designItem, UseLayoutTransformControl);
                 }
             }
         }
@@ -626,7 +498,18 @@ namespace gip.ext.designer.avui
             DesignItem designItem = _designContext.Services.Selection.PrimarySelection;
             if ((designItem != null) && (designItem.View != null) && (designItem.View is Control))
             {
-                DesignItemProperty prop = designItem.Properties.GetProperty(Control.RenderTransformProperty);
+                DesignItem rotateContainer = designItem;
+                if (UseLayoutTransformControl && !(rotateContainer.Component is LayoutTransformControl)
+                    && rotateContainer.Parent != null && rotateContainer.Parent.Component is LayoutTransformControl)
+                {
+                    rotateContainer = rotateContainer.Parent;
+                }
+
+                AvaloniaProperty transformProperty = UseLayoutTransformControl
+                    ? LayoutTransformControl.LayoutTransformProperty
+                    : Control.RenderTransformProperty;
+
+                DesignItemProperty prop = rotateContainer.Properties.GetProperty(transformProperty);
                 if ((prop != null) && (prop.Value != null) && (typeof(RotateTransform).IsAssignableFrom(prop.Value.ComponentType)))
                 {
                     DesignItemProperty propAngle = prop.Value.Properties.GetProperty(RotateTransform.AngleProperty);
@@ -635,10 +518,7 @@ namespace gip.ext.designer.avui
                         if (propAngle.ValueOnInstance != null)
                             _UpDownRotation.Value = (Double)propAngle.ValueOnInstance;
                         else
-                        {
-                            propAngle.SetValue((double)0.0);
-                            _UpDownRotation.Value = (Double)propAngle.ValueOnInstance;
-                        }
+                            _UpDownRotation.Value = 0;
                     }
                 }
                 else

@@ -41,7 +41,13 @@ namespace gip.core.wpfservices.avui
         {
             IVBComponentDesignManagerProxy proxy = null;
             if (_DesignManagerProxies.ContainsKey(component))
+            {
                 _DesignManagerProxies.Remove(component, out proxy);
+                if (proxy != null)
+                {
+                    proxy.OnManagerRemoved();
+                }
+            }
         }
 
         #region VBPresenter

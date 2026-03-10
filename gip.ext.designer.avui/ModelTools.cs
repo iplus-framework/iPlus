@@ -292,10 +292,11 @@ namespace gip.ext.designer.avui
         public static Tuple<DesignItem, Rect> WrapItemsNewContainer(IEnumerable<DesignItem> items, Type containerType, bool doInsert = true)
         {
             var collection = items;
+            DesignItem designItemToWrap = collection.First();
 
-            var _context = collection.First().Context as XamlDesignContext;
+            var _context = designItemToWrap.Context as XamlDesignContext;
 
-            var container = collection.First().Parent;
+            var container = designItemToWrap.Parent;
 
             if (collection.Any(x => x.Parent != container))
                 return null;
@@ -417,6 +418,10 @@ namespace gip.ext.designer.avui
                 {
                     newPanel.ContentProperty.SetValue(item.DesignItem);
                 }
+                else if (newPanel.Component is Decorator)
+                {
+                    newPanel.ContentProperty.SetValue(item.DesignItem);
+                }
             }
 
             if (doInsert)
@@ -435,6 +440,14 @@ namespace gip.ext.designer.avui
                 }
 
                 operation2.Commit();
+
+                if (newPanel.Component is LayoutTransformControl)
+                {
+                    // LayoutTransformControl must size to transformed child. Keeping explicit
+                    // width/height on the wrapper clips rotated content.
+                    newPanel.Properties.GetProperty(Layoutable.WidthProperty).Reset();
+                    newPanel.Properties.GetProperty(Layoutable.HeightProperty).Reset();
+                }
 
                 _context.Services.Selection.SetSelectedComponents(new[] { newPanel });
             }
@@ -585,15 +598,15 @@ namespace gip.ext.designer.avui
             {
                 var mt = oldTransform as MatrixTransform;
                 var tg = new TransformGroup();
-                if (mt.Matrix.M31 != 0 && mt.Matrix.M32 != 0)
+                if (Math.Abs(mt.Matrix.M31) > double.Epsilon && Math.Abs(mt.Matrix.M32) > double.Epsilon)
                     tg.Children.Add(new TranslateTransform() { X = mt.Matrix.M31, Y = mt.Matrix.M32 });
-                if (mt.Matrix.M11 != 0 && mt.Matrix.M22 != 0)
+                if (Math.Abs(mt.Matrix.M11) > double.Epsilon && Math.Abs(mt.Matrix.M22) > double.Epsilon)
                     tg.Children.Add(new ScaleTransform() { ScaleX = mt.Matrix.M11, ScaleY = mt.Matrix.M22 });
 
                 var angle = Math.Atan2(mt.Matrix.M21, mt.Matrix.M11) * 180 / Math.PI;
-                if (angle != 0)
+                if (Math.Abs(angle) > double.Epsilon)
                     tg.Children.Add(new RotateTransform() { Angle = angle });
-                //if (mt.Matrix.M11 != 0 && mt.Matrix.M22 != 0)
+                //if (Math.Abs(mt.Matrix.M11) > double.Epsilon && Math.Abs(mt.Matrix.M22) > double.Epsilon)
                 //	tg.Children.Add(new SkewTransform(){ ScaleX = mt.Matrix.M11, ScaleY = mt.Matrix.M22 });
             }
             else if (oldTransform != null && oldTransform.GetType() != transform.GetType())
@@ -613,7 +626,7 @@ namespace gip.ext.designer.avui
 
                 if (oldTransform is RotateTransform || oldTransform == null)
                 {
-                    if (rotateTransform.Angle != 0)
+                    if (Math.Abs(rotateTransform.Angle) > double.Epsilon)
                     {
                         designItem.Properties.GetProperty(transformProperty).SetValue(transform);
                         var angle = rotateTransform.Angle;
@@ -622,9 +635,9 @@ namespace gip.ext.designer.avui
                             angle = rotateTransform.Angle + ((RotateTransform)oldTransform).Angle;
                         }
                         designItem.Properties.GetProperty(transformProperty).Value.Properties.GetProperty(RotateTransform.AngleProperty).SetValue(angle);
-                        if (rotateTransform.CenterX != 0.0)
+                        if (Math.Abs(rotateTransform.CenterX) > double.Epsilon)
                             designItem.Properties.GetProperty(transformProperty).Value.Properties.GetProperty(RotateTransform.CenterXProperty).SetValue(rotateTransform.CenterX);
-                        if (rotateTransform.CenterY != 0.0)
+                        if (Math.Abs(rotateTransform.CenterY) > double.Epsilon)
                             designItem.Properties.GetProperty(transformProperty).Value.Properties.GetProperty(RotateTransform.CenterYProperty).SetValue(rotateTransform.CenterY);
 
                         if (oldTransform == null)
@@ -644,7 +657,7 @@ namespace gip.ext.designer.avui
                     {
                         designItem.Services.Component.GetDesignItem(tg).ContentProperty.CollectionElements.Remove(designItem.Services.Component.GetDesignItem(rot));
                     }
-                    if (rotateTransform.Angle != 0)
+                    if (Math.Abs(rotateTransform.Angle) > double.Epsilon)
                     {
                         var des = designItem.Services.Component.GetDesignItem(transform);
                         if (des == null)
@@ -656,7 +669,7 @@ namespace gip.ext.designer.avui
                 }
                 else
                 {
-                    if (rotateTransform.Angle != 0)
+                    if (Math.Abs(rotateTransform.Angle) > double.Epsilon)
                     {
                         designItem.Properties.GetProperty(transformProperty).SetValue(transform);
                         if (oldTransform == null)
@@ -668,6 +681,405 @@ namespace gip.ext.designer.avui
             ((DesignPanel)designItem.Services.DesignPanel).AdornerLayer.UpdateAdornersForElement(designItem.View, true);
 
             changeGroup.Commit();
+        }
+
+        /// <summary>
+        /// Applies a transform using <see cref="LayoutTransformControl.LayoutTransformProperty"/>.
+        /// If needed, wraps the current item into a new <see cref="LayoutTransformControl"/> so
+        /// positioning-related attached properties stay on the outer element.
+        /// </summary>
+        public static void ApplyLayoutTransform(DesignItem designItem, Transform transform, bool relative = true)
+        {
+            if (designItem == null || transform == null)
+                return;
+
+            var changeGroup = designItem.OpenGroup("Apply Layout Transform");
+
+            try
+            {
+                DesignItem targetItem;
+
+                if (designItem.Component is LayoutTransformControl)
+                {
+                    targetItem = designItem;
+                }
+                else if (designItem.Parent != null && designItem.Parent.Component is LayoutTransformControl)
+                {
+                    // The active extension might still point to the inner element.
+                    // Re-target to the already-created wrapper to avoid wrapping again.
+                    targetItem = designItem.Parent;
+                }
+                else if (designItem.Services.Selection.PrimarySelection != null
+                      && designItem.Services.Selection.PrimarySelection.Component is LayoutTransformControl)
+                {
+                    // During ongoing drag/adorner interactions the extension can still hold
+                    // a stale inner DesignItem that already lost its parent. In that case,
+                    // use the currently selected wrapper item.
+                    targetItem = designItem.Services.Selection.PrimarySelection;
+                }
+                else
+                {
+                    if (designItem.Parent == null)
+                        return;
+
+                    var attachedPropertiesToMove = designItem.SettedProperties
+                        .Where(p => p.IsSet && p.DependencyProperty != null && !p.DeclaringType.IsAssignableFrom(designItem.ComponentType))
+                        .Select(p => new { Property = p.DependencyProperty, Value = p.ValueOnInstance })
+                        .ToList();
+
+                    var wrapped = WrapItemsNewContainer(new[] { designItem }, typeof(LayoutTransformControl), true);
+                    if (wrapped == null || wrapped.Item1 == null)
+                        return;
+                    targetItem = wrapped.Item1;
+
+                    foreach (var ap in attachedPropertiesToMove)
+                    {
+                        targetItem.Properties.GetAttachedProperty(ap.Property).SetValue(ap.Value);
+                        designItem.Properties.GetAttachedProperty(ap.Property).Reset();
+                    }
+
+                    // Force selection/adorners/extensions to move to the wrapper item.
+                    targetItem.Services.Selection.SetSelectedComponents(new[] { targetItem }, SelectionTypes.Primary);
+                }
+
+                var layoutTransformProperty = targetItem.Properties.GetProperty(LayoutTransformControl.LayoutTransformProperty);
+                if (layoutTransformProperty == null)
+                    return;
+
+                Transform oldTransform = null;
+                if (layoutTransformProperty.IsSet)
+                {
+                    oldTransform = layoutTransformProperty.GetConvertedValueOnInstance<Transform>();
+                }
+
+                if (transform is RotateTransform)
+                {
+                    var rotateTransform = transform as RotateTransform;
+
+                    if (oldTransform is RotateTransform || oldTransform == null)
+                    {
+                        if (Math.Abs(rotateTransform.Angle) > double.Epsilon)
+                        {
+                            layoutTransformProperty.SetValue(transform);
+                            var angle = rotateTransform.Angle;
+                            if (relative && oldTransform != null)
+                            {
+                                angle = rotateTransform.Angle + ((RotateTransform)oldTransform).Angle;
+                            }
+                            layoutTransformProperty.Value.Properties.GetProperty(RotateTransform.AngleProperty).SetValue(angle);
+                            if (Math.Abs(rotateTransform.CenterX) > double.Epsilon)
+                                layoutTransformProperty.Value.Properties.GetProperty(RotateTransform.CenterXProperty).SetValue(rotateTransform.CenterX);
+                            if (Math.Abs(rotateTransform.CenterY) > double.Epsilon)
+                                layoutTransformProperty.Value.Properties.GetProperty(RotateTransform.CenterYProperty).SetValue(rotateTransform.CenterY);
+                        }
+                        else
+                        {
+                            layoutTransformProperty.Reset();
+                        }
+                    }
+                    else if (oldTransform is TransformGroup)
+                    {
+                        var tg = oldTransform as TransformGroup;
+                        var rot = tg.Children.FirstOrDefault(x => x is RotateTransform);
+                        if (rot != null)
+                        {
+                            targetItem.Services.Component.GetDesignItem(tg).ContentProperty.CollectionElements.Remove(targetItem.Services.Component.GetDesignItem(rot));
+                        }
+                        if (Math.Abs(rotateTransform.Angle) > double.Epsilon)
+                        {
+                            var des = targetItem.Services.Component.GetDesignItem(transform);
+                            if (des == null)
+                                des = targetItem.Services.Component.RegisterComponentForDesigner(transform);
+                            targetItem.Services.Component.GetDesignItem(tg).ContentProperty.CollectionElements.Add(des);
+                            des.Properties.GetProperty(RotateTransform.AngleProperty).SetValue(rotateTransform.Angle);
+                            if (Math.Abs(rotateTransform.CenterX) > double.Epsilon)
+                                des.Properties.GetProperty(RotateTransform.CenterXProperty).SetValue(rotateTransform.CenterX);
+                            if (Math.Abs(rotateTransform.CenterY) > double.Epsilon)
+                                des.Properties.GetProperty(RotateTransform.CenterYProperty).SetValue(rotateTransform.CenterY);                        
+                        }
+                    }
+                    else
+                    {
+                        if (Math.Abs(rotateTransform.Angle) > double.Epsilon)
+                        {
+                            // The existing transform is a non-rotate, non-group transform (e.g. ScaleTransform).
+                            // Preserve it by wrapping both into a new TransformGroup.
+                            DesignItem existingTransformItem = layoutTransformProperty.Value;
+                            var des = targetItem.Services.Component.GetDesignItem(transform);
+                            if (des == null)
+                                des = targetItem.Services.Component.RegisterComponentForDesigner(transform);
+                            layoutTransformProperty.SetValue(new TransformGroup());
+                            layoutTransformProperty.Value.ContentProperty.CollectionElements.Add(existingTransformItem);
+                            layoutTransformProperty.Value.ContentProperty.CollectionElements.Add(des);
+                            des.Properties.GetProperty(RotateTransform.AngleProperty).SetValue(rotateTransform.Angle);
+                            if (Math.Abs(rotateTransform.CenterX) > double.Epsilon)
+                                des.Properties.GetProperty(RotateTransform.CenterXProperty).SetValue(rotateTransform.CenterX);
+                            if (Math.Abs(rotateTransform.CenterY) > double.Epsilon)
+                                des.Properties.GetProperty(RotateTransform.CenterYProperty).SetValue(rotateTransform.CenterY);
+                        }
+                    }
+                }
+                else
+                {
+                    layoutTransformProperty.SetValue(transform);
+                }
+
+                ((DesignPanel)targetItem.Services.DesignPanel).AdornerLayer.UpdateAdornersForElement(targetItem.View, true);
+            }
+            finally
+            {
+                changeGroup.Commit();
+            }
+        }
+
+        public static void ApplyMirrorTransform(DesignItem designItem, bool horizontal, bool useLayoutTransformControl)
+        {
+            if (designItem == null || !(designItem.Component is Control) || designItem.View == null)
+                return;
+
+            var changeGroup = designItem.OpenGroup(horizontal ? "Flip Horizontal" : "Flip Vertical");
+
+            try
+            {
+                DesignItem transformContainer = designItem;
+                AvaloniaProperty transformProperty = Control.RenderTransformProperty;
+
+                if (useLayoutTransformControl)
+                {
+                    if (transformContainer.Component is LayoutTransformControl)
+                    {
+                        // already a LayoutTransformControl wrapper – use it directly
+                    }
+                    else if (transformContainer.Parent != null && transformContainer.Parent.Component is LayoutTransformControl)
+                    {
+                        transformContainer = transformContainer.Parent;
+                    }
+                    else if (designItem.Services.Selection.PrimarySelection != null
+                          && designItem.Services.Selection.PrimarySelection.Component is LayoutTransformControl)
+                    {
+                        transformContainer = designItem.Services.Selection.PrimarySelection;
+                    }
+                    else
+                    {
+                        // Item is a plain Control – wrap it in a new LayoutTransformControl so that
+                        // LayoutTransformControl.LayoutTransformProperty is available on the wrapper.
+                        if (designItem.Parent == null)
+                            return;
+
+                        var attachedPropertiesToMove = designItem.SettedProperties
+                            .Where(p => p.IsSet && p.DependencyProperty != null && !p.DeclaringType.IsAssignableFrom(designItem.ComponentType))
+                            .Select(p => new { Property = p.DependencyProperty, Value = p.ValueOnInstance })
+                            .ToList();
+
+                        var wrapped = WrapItemsNewContainer(new[] { designItem }, typeof(LayoutTransformControl), true);
+                        if (wrapped == null || wrapped.Item1 == null)
+                            return;
+                        transformContainer = wrapped.Item1;
+
+                        foreach (var ap in attachedPropertiesToMove)
+                        {
+                            transformContainer.Properties.GetAttachedProperty(ap.Property).SetValue(ap.Value);
+                            designItem.Properties.GetAttachedProperty(ap.Property).Reset();
+                        }
+
+                        transformContainer.Services.Selection.SetSelectedComponents(new[] { transformContainer }, SelectionTypes.Primary);
+                    }
+
+                    transformProperty = LayoutTransformControl.LayoutTransformProperty;
+                }
+
+                DesignItemProperty prop = transformContainer.Properties.GetProperty(transformProperty);
+                if (prop == null)
+                    return;
+
+                if (prop.Value == null)
+                {
+                    NewTransformGroupWithScale(prop, horizontal);
+                }
+                else if (typeof(ScaleTransform).IsAssignableFrom(prop.Value.ComponentType))
+                {
+                    ToggleScaleAxis(prop.Value, horizontal);
+                }
+                else if (typeof(TransformGroup).IsAssignableFrom(prop.Value.ComponentType))
+                {
+                    UpdateTransformGroupWithScale(prop, horizontal);
+                }
+                else if (typeof(Transform).IsAssignableFrom(prop.Value.ComponentType))
+                {
+                    // The existing transform is a non-group, non-scale transform (e.g. RotateTransform).
+                    // Preserve it by moving it into a new TransformGroup alongside the new ScaleTransform.
+                    DesignItem existingTransformItem = prop.Value;
+                    TransformGroup transformGroup = new TransformGroup();
+                    prop.SetValue(transformGroup);
+                    prop.Value.ContentProperty.CollectionElements.Add(existingTransformItem);
+                    UpdateTransformGroupWithScale(prop, horizontal);
+                }
+
+                ((DesignPanel)transformContainer.Services.DesignPanel).AdornerLayer.UpdateAdornersForElement(transformContainer.View, true);
+            }
+            finally
+            {
+                changeGroup.Commit();
+            }
+        }
+
+        private static void NewTransformGroupWithScale(DesignItemProperty prop, bool horizontal)
+        {
+            TransformGroup transformGroup = new TransformGroup();
+            prop.SetValue(transformGroup);
+            UpdateTransformGroupWithScale(prop, horizontal);
+        }
+
+        private static void UpdateTransformGroupWithScale(DesignItemProperty prop, bool horizontal)
+        {
+            if (!prop.Value.ContentProperty.IsCollection)
+                return;
+
+            DesignItem transformObject = prop.Value.ContentProperty.CollectionElements
+                .FirstOrDefault(child => typeof(ScaleTransform).IsAssignableFrom(child.ComponentType));
+
+            if (transformObject == null)
+            {
+                ScaleTransform scaleTransform = new ScaleTransform();
+                transformObject = prop.Value.Services.Component.RegisterComponentForDesigner(scaleTransform);
+                prop.Value.ContentProperty.CollectionElements.Add(transformObject);
+            }
+
+            ToggleScaleAxis(transformObject, horizontal);
+        }
+
+        private static void ToggleScaleAxis(DesignItem scaleTransformItem, bool horizontal)
+        {
+            var axisProperty = horizontal
+                ? scaleTransformItem.Properties.GetProperty(ScaleTransform.ScaleXProperty)
+                : scaleTransformItem.Properties.GetProperty(ScaleTransform.ScaleYProperty);
+
+            if (axisProperty == null)
+                return;
+
+            double current = 1;
+            if (axisProperty.ValueOnInstance != null)
+                current = Convert.ToDouble(axisProperty.ValueOnInstance);
+
+            axisProperty.SetValue(current >= 0 ? -1.0 : 1.0);
+        }
+
+        public static void ResetTransform(DesignItem designItem, bool useLayoutTransformControl)
+        {
+            if (designItem == null)
+                return;
+
+            DesignItem innerItem = null;
+            var changeGroup = designItem.OpenGroup("Reset Transform");
+            try
+            {
+                if (useLayoutTransformControl)
+                {
+                    DesignItem transformContainer = designItem;
+
+                    if (!(transformContainer.Component is LayoutTransformControl))
+                    {
+                        if (transformContainer.Parent != null && transformContainer.Parent.Component is LayoutTransformControl)
+                            transformContainer = transformContainer.Parent;
+                        else if (designItem.Services.Selection.PrimarySelection != null
+                              && designItem.Services.Selection.PrimarySelection.Component is LayoutTransformControl)
+                            transformContainer = designItem.Services.Selection.PrimarySelection;
+                    }
+
+                    if (transformContainer.Component is LayoutTransformControl)
+                    {
+                        innerItem = UnwrapLayoutTransformControl(transformContainer);
+                    }
+                }
+                else
+                {
+                    var renderTransformProp = designItem.Properties.GetProperty(Control.RenderTransformProperty);
+                    if (renderTransformProp != null && renderTransformProp.IsSet)
+                        renderTransformProp.Reset();
+
+                    var originProp = designItem.Properties.GetProperty(Visual.RenderTransformOriginProperty);
+                    if (originProp != null && originProp.IsSet)
+                        originProp.Reset();
+
+                    ((DesignPanel)designItem.Services.DesignPanel).AdornerLayer.UpdateAdornersForElement(designItem.View, true);
+                }
+            }
+            finally
+            {
+                changeGroup.Commit();
+                if (innerItem != null)
+                {
+                    innerItem.Services.Selection.SetSelectedComponents(new[] { innerItem }, SelectionTypes.Primary);
+                    ((DesignPanel)innerItem.Services.DesignPanel).AdornerLayer.UpdateAdornersForElement(innerItem.View, true);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Removes a <see cref="LayoutTransformControl"/> wrapper and puts its single child back
+        /// directly into the parent container, preserving all attached/positioning properties
+        /// (Canvas.Left, Grid.Row, Margin, …) that were on the wrapper.
+        /// </summary>
+        private static DesignItem UnwrapLayoutTransformControl(DesignItem container)
+        {
+            if (container == null || !(container.Component is LayoutTransformControl))
+                return null;
+
+            DesignItem parent = container.Parent;
+            if (parent == null)
+                return null;
+
+            // The child of a Decorator is held via ContentProperty.Value, not CollectionElements.
+            DesignItem innerItem = container.ContentProperty?.Value;
+            if (innerItem == null)
+                return null;
+
+            // Collect all attached/positioning properties set on the wrapper so we can
+            // restore them on the inner item after reinsertion.
+            var attachedPropertiesToMove = container.SettedProperties
+                .Where(p => p.IsSet && p.DependencyProperty != null
+                            && !p.DeclaringType.IsAssignableFrom(container.ComponentType))
+                .Select(p => new { Property = p.DependencyProperty, Value = p.ValueOnInstance })
+                .ToList();
+
+            // Detach inner item from the wrapper (resets the Child/Content property).
+            innerItem.ParentProperty.Reset();
+
+            // LayoutTransformControl.OnChildChanged() directly stamps its internal MatrixTransform onto
+            // the child's RenderTransform and sets RenderTransformOrigin to (0,0,Absolute) on the live
+            // Avalonia control — completely bypassing the XAML model.  After detaching, that
+            // MatrixTransform (still holding the rotation) would remain on the child's live control and
+            // cause it to appear rotated even though the LTC is gone.  Clear both values directly on the
+            // live control (ClearValue restores the styled-property default, i.e. no transform).
+            if (innerItem.View != null)
+            {
+                innerItem.View.ClearValue(Visual.RenderTransformProperty);
+                innerItem.View.ClearValue(Visual.RenderTransformOriginProperty);
+            }
+
+            // Remove the (now empty) wrapper from its parent and insert the inner item in its place.
+            if (container.ParentProperty.IsCollection)
+            {
+                var parCol = container.ParentProperty.CollectionElements;
+                int index = parCol.IndexOf(container);
+                parCol.Remove(container);
+                if (index >= 0 && index <= parCol.Count)
+                    parCol.Insert(index, innerItem);
+                else
+                    parCol.Add(innerItem);
+            }
+            else
+            {
+                container.ParentProperty.Reset();
+                container.ParentProperty.SetValue(innerItem);
+            }
+
+            // Transfer the positioning attached properties to the inner item.
+            foreach (var ap in attachedPropertiesToMove)
+            {
+                innerItem.Properties.GetAttachedProperty(ap.Property).SetValue(ap.Value);
+            }
+            return innerItem;
         }
 
         public static void StretchItems(IEnumerable<DesignItem> items, StretchDirection stretchDirection)

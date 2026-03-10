@@ -80,14 +80,40 @@ namespace gip.ext.designer.avui.Extensions
         private RotateTransform rotateTransform;
         private double initialAngle;
         private DesignItem rtTransform;
+        private DesignItem activeRotateItem;
+        private bool useLayoutTransformControl;
 
         private void drag_Rotate_Started(DragListener drag)
         {
             if (drag == null || drag.LastEventArgs == null)
                 return;
 
-            var designerItem = this.ExtendedItem.Component as Control;
+            IDesignPanel designPanel = this.ExtendedItem.Services.DesignPanel;
+            useLayoutTransformControl = designPanel != null && designPanel.UseLayoutTransformControl;
+
+            activeRotateItem = this.ExtendedItem;
+            if (useLayoutTransformControl && !(activeRotateItem.Component is LayoutTransformControl))
+            {
+                if (activeRotateItem.Parent != null && activeRotateItem.Parent.Component is LayoutTransformControl)
+                {
+                    activeRotateItem = activeRotateItem.Parent;
+                }
+                else
+                {
+                    var wrapped = ModelTools.WrapItemsNewContainer(new[] { activeRotateItem }, typeof(LayoutTransformControl), true);
+                    if (wrapped != null && wrapped.Item1 != null)
+                    {
+                        activeRotateItem = wrapped.Item1;
+                    }
+                }
+            }
+
+            var designerItem = activeRotateItem.Component as Control;
+            if (designerItem == null)
+                return;
             this.parent = VisualTreeHelper.GetParent(designerItem) as Control;
+            if (this.parent == null)
+                return;
             this.centerPoint = designerItem.TranslatePoint(
                 new Point(designerItem.Bounds.Width * designerItem.RenderTransformOrigin.Point.X,
                           designerItem.Bounds.Height * designerItem.RenderTransformOrigin.Point.Y),
@@ -95,6 +121,32 @@ namespace gip.ext.designer.avui.Extensions
 
             Point startPoint = drag.LastEventArgs.GetPosition(this.parent);
             this.startVector = startPoint - this.centerPoint;
+
+            this.rotateTransform = null;
+            if (useLayoutTransformControl && designerItem is LayoutTransformControl ltc)
+            {
+                this.rotateTransform = ltc.LayoutTransform as RotateTransform;
+                if (this.rotateTransform == null)
+                {
+                    var tgLayout = ltc.LayoutTransform as TransformGroup;
+                    if (tgLayout != null)
+                    {
+                        this.rotateTransform = tgLayout.Children.FirstOrDefault(x => x is RotateTransform) as RotateTransform;
+                    }
+                }
+            }
+            if (this.rotateTransform == null)
+            {
+                this.rotateTransform = designerItem.RenderTransform as RotateTransform;
+                if (this.rotateTransform == null)
+                {
+                    var tg = designerItem.RenderTransform as TransformGroup;
+                    if (tg != null)
+                    {
+                        this.rotateTransform = tg.Children.FirstOrDefault(x => x is RotateTransform) as RotateTransform;
+                    }
+                }
+            }
 
             if (this.rotateTransform == null)
             {
@@ -105,8 +157,9 @@ namespace gip.ext.designer.avui.Extensions
                 this.initialAngle = this.rotateTransform.Angle;
             }
 
-            rtTransform = this.ExtendedItem.Properties[Control.RenderTransformProperty].Value;
+            rtTransform = activeRotateItem.Properties[Control.RenderTransformProperty].Value;
 
+            extendedItemArray[0] = activeRotateItem;
             operation = PlacementOperation.Start(extendedItemArray, PlacementType.Resize);
         }
 
@@ -125,12 +178,22 @@ namespace gip.ext.designer.avui.Extensions
             if (!IsKeyDown(Key.LeftCtrl))
                 destAngle = ((int)destAngle / 15) * 15;
 
-            ModelTools.ApplyTransform(this.ExtendedItem, new RotateTransform() { Angle = destAngle }, false);
+            if (activeRotateItem == null)
+                return;
+
+            if (useLayoutTransformControl)
+                ModelTools.ApplyLayoutTransform(activeRotateItem, new RotateTransform() { Angle = destAngle }, false);
+            else
+                ModelTools.ApplyTransform(activeRotateItem, new RotateTransform() { Angle = destAngle }, false);
         }
 
         void drag_Rotate_Completed(DragListener drag)
         {
-            operation.Commit();
+            if (operation != null)
+            {
+                operation.Commit();
+                operation = null;
+            }
         }
 
         #endregion
