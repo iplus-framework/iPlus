@@ -49,7 +49,7 @@ namespace gip.ext.designer.avui.Extensions
 			}
 		}
 		
-		AdornerPanel adornerPanel = new AdornerPanel();
+		AdornerPanel adornerPanel = new AdornerPanel() { Order = AdornerOrder.Foreground };
 		GridRailAdorner topBar, leftBar;
 		
 		protected override void OnInitialized()

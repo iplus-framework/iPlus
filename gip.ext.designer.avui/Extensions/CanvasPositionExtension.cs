@@ -27,6 +27,7 @@ namespace gip.ext.designer.avui.Extensions
 					Control extendedControl = (Control)this.ExtendedItem.Component;
                     LayoutTransformControl layoutTransformControl = extendedControl as LayoutTransformControl;
                     AdornerPanel adornerPanel = new AdornerPanel();
+					adornerPanel.Order = AdornerOrder.Foreground;
 
 					// If the Element is rotated/skewed in the grid, then margin handles do not appear
 					if (   (layoutTransformControl != null && layoutTransformControl.LayoutTransform.Value == Matrix.Identity) 

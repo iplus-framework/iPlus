@@ -24,8 +24,9 @@ namespace gip.ext.designer.avui.Controls
             Shape shape = shapeToEdit.View as Shape;
             if (shape != null)
             {
-                (shape.Stroke as SolidColorBrush).ToImmutable();
-                _PenOfShapeToEdit = new Pen((shape.Stroke as SolidColorBrush).Color.ToUInt32(), shape.StrokeThickness, new DashStyle(shape.StrokeDashArray, shape.StrokeDashOffset), shape.StrokeLineCap);
+                if (shape.Fill != null)
+                    _ShapeFill = shape.Fill as Brush;
+                _PenOfShapeToEdit = new Pen(shape.Stroke, shape.StrokeThickness, new DashStyle(shape.StrokeDashArray, shape.StrokeDashOffset), shape.StrokeLineCap);
                 _PenOfShapeToEdit.LineJoin = shape.StrokeJoin;
                 _PenOfShapeToEdit.LineCap = shape.StrokeLineCap;
                 //_PenOfShapeToEdit.MiterLimit = shape;

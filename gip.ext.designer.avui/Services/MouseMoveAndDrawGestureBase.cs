@@ -73,6 +73,7 @@ namespace gip.ext.designer.avui.Services
             if (_ShapeDrawer == null)
                 return;
             _AdornerPanel = new AdornerPanel();
+            _AdornerPanel.Order = AdornerOrder.Foreground;
             if (ContainerForShape.Services.Tool.CurrentTool is DrawingTool)
                 (ContainerForShape.Services.Tool.CurrentTool as DrawingTool).ShapeDrawer = _ShapeDrawer;
             _AdornerPanel.SetAdornedElement(_ShapeDrawer.ContainerForShape.View, _ShapeDrawer.ContainerForShape);

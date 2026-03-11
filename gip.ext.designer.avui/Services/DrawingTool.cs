@@ -20,8 +20,8 @@ namespace gip.ext.designer.avui.Services
 
         public virtual Cursor Cursor
         {
-            // Avalonia doen't support pen cursors - using arrow cursor as fallback
-            get { return new Cursor(StandardCursorType.Arrow); }
+            // Avalonia doen't support pen cursors - using Cross cursor as fallback
+            get { return new Cursor(StandardCursorType.Cross); }
         }
 
         public void Activate(IDesignPanel designPanel)
@@ -100,7 +100,7 @@ namespace gip.ext.designer.avui.Services
 
         void OnPreviewMouseMove(object sender, PointerEventArgs e)
         {
-            // Onnly preview events:
+            // Only preview events:
             if (e.Route != RoutingStrategies.Tunnel)
                 return; 
             IDesignPanel designPanel = (IDesignPanel)sender;
@@ -122,6 +122,9 @@ namespace gip.ext.designer.avui.Services
 
         public virtual void OnMouseDown(object sender, PointerPressedEventArgs e)
         {
+            // Only preview events:
+            if (e.Route != RoutingStrategies.Bubble)
+                return; 
             IDesignPanel designPanel = (IDesignPanel)sender;
             DesignPanelHitTestResult result = designPanel.HitTest(e.GetPosition(designPanel as Visual), false, true);
             if (result.ModelHit != null)
@@ -249,7 +252,7 @@ namespace gip.ext.designer.avui.Services
         {
         }
 
-        private Cursor _Cursor = ZoomControl.GetCursor("Images/CursorEditNode.cur");
+        private Cursor _Cursor = new Cursor(StandardCursorType.Cross); //ZoomControl.GetCursor("Images/CursorEditNode.cur");
         public override Cursor Cursor
         {
             get 

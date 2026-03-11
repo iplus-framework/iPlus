@@ -48,9 +48,9 @@ namespace gip.ext.designer.avui.Controls
             set { SetValue(GeometryProperty, value); }
         }
 
-        public static IBrush s_ShapeStroke = Brushes.LightSlateGray;
+        public static IBrush s_ShapeStroke = Brushes.DarkRed;
         public static double s_ShapeStrokeThickness = 1;
-        public static IBrush s_ShapeFill;
+        public static IBrush s_ShapeFill = Brushes.Red;
         public static IList<double> s_ShapeStrokeDashArray;
         public static Nullable<double> s_ShapeStrokeDashOffset;// = 0;
         //public static Nullable<PenLineCap> s_ShapeStrokeEndLineCap;// = PenLineCap.Flat;
@@ -171,7 +171,8 @@ namespace gip.ext.designer.avui.Controls
         public override void Render(DrawingContext dc)
         {
             base.Render(dc);
-            dc.DrawGeometry(Fill, DrawingPen, this.Geometry);
+            if (this.Geometry != null)
+                dc.DrawGeometry(Fill != null ? Fill : Brushes.Red, DrawingPen != null ? DrawingPen : DefaultDrawingPen, this.Geometry);
 
             // without a background the OnMouseMove event would not be fired
             // Alternative: implement a Canvas as a child of this adorner, like

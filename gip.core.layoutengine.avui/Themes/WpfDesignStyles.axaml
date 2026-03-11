@@ -209,7 +209,7 @@
             <DockPanel Height="26" DockPanel.Dock="Top">
               <Image Width="16" Height="16" Margin="1,0,0,0" Source="{TemplateBinding Window.Icon}" />
               <Button Name="CloseButton" VerticalAlignment="Top" Width="43" Height="17" DockPanel.Dock="Right">
-                <Path Fill="#FFF6F2F2" Stretch="Uniform" Margin="1" Stroke="#FF808080" Data="M160,400 L176,400 192,384 208,400 224,400 200,376 224,352 208,352 192,368 176,352 160,352 184,376 z" />
+                <Path Fill="#FFF6F2F2" Stretch="Uniform" Margin="1" Stroke="#FF808080" StrokeThickness="1" Data="M160,400 L176,400 192,384 208,400 224,400 200,376 224,352 208,352 192,368 176,352 160,352 184,376 z" />
               </Button>
               <Button Name="MaximiseButton" VerticalAlignment="Top" Width="25" Height="17" DockPanel.Dock="Right" />
               <Button Name="MinimizeButton" VerticalAlignment="Top" Width="25" Height="17" DockPanel.Dock="Right">
@@ -263,8 +263,8 @@
           </Grid.ColumnDefinitions>
           <!-- put a transparent rectangle in the rail so the user does not have to hit the small railHandle -->
           <Rectangle Fill="Transparent" />
-          <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" Data="M0,0 L0,1 1,0.5 z" />
-          <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" Grid.Column="2" Margin="-1 0 0 0" Data="M0,0.5 L1,0.5" />
+          <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" StrokeThickness="1" Data="M0,0 L0,1 1,0.5 z" />
+          <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" StrokeThickness="1" Grid.Column="2" Margin="-1 0 0 0" Data="M0,0.5 L1,0.5" />
         </Grid>
       </ControlTemplate>
     </Setter>
@@ -292,8 +292,8 @@
           </Grid.RowDefinitions>
           <!-- put a transparent rectangle in the rail so the user does not have to hit the small railHandle -->
           <Rectangle Fill="Transparent" />
-          <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" Data="M0,0 L1,0 0.5,1 z" />
-          <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" Grid.Row="2" Margin="0 -1 0 0" Data="M0.5,0 L0.5,1" />
+          <Path Name="railHandle" Fill="#FFE6E6FF" Stretch="Fill" Stroke="DodgerBlue" StrokeThickness="1" Data="M0,0 L1,0 0.5,1 z" />
+          <Path Name="line" Stretch="Fill" Stroke="DodgerBlue" StrokeThickness="1" Grid.Row="2" Margin="0 -1 0 0" Data="M0.5,0 L0.5,1" />
         </Grid>
       </ControlTemplate>
     </Setter>

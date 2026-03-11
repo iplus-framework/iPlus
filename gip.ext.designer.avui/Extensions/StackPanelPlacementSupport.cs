@@ -57,6 +57,7 @@ namespace gip.ext.designer.avui.Extensions
             
             /* Place the Rectangle */
             _adornerPanel = new AdornerPanel();
+            _adornerPanel.Order = AdornerOrder.Foreground;
             _rectangle = new Rectangle();
             _adornerPanel.SetAdornedElement(this.ExtendedItem.View, this.ExtendedItem);
             _adornerPanel.Children.Add(_rectangle);
