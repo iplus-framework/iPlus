@@ -47,6 +47,12 @@ namespace gip.ext.designer.avui
             //{
             //    return new PointHitTestResult(this, hitTestParameters.HitPoint);
             //}
+
+            public override void Render(DrawingContext context)
+            {
+                base.Render(context);
+                context.DrawRectangle(Brushes.Transparent, null, new Rect(Bounds.Size));
+            }
         }
 
         private readonly Dictionary<Key, bool> _pressedKeys = new Dictionary<Key, bool>();
@@ -529,15 +535,9 @@ namespace gip.ext.designer.avui
         {
             if (change.Property == ChildProperty)
             {
-                //if (change.OldValue != null)
-                //{
-                //    var oldChild = change.OldValue as Control;
-                //    if (oldChild != null)
-                //    {
-                //    }
-                //}
                 if (change.NewValue == null)
                 {
+                    // Remove our overlays BEFORE base removes Child
                     if (VisualChildren != null)
                     {
                         if (VisualChildren.Contains(_adornerLayer))
@@ -551,9 +551,14 @@ namespace gip.ext.designer.avui
                             LogicalChildren.Remove(_eatAllHitTestRequests);
                         }
                     }
+                    base.OnPropertyChanged(change);
                 }
                 else
                 {
+                    // Let base add Child FIRST so it is at the back (index 0).
+                    // _eatAllHitTestRequests and _adornerLayer are added after so they
+                    // sit on top in z-order and are hit-tested before the design content.
+                    base.OnPropertyChanged(change);
                     if (VisualChildren != null)
                     {
                         if (!VisualChildren.Contains(_eatAllHitTestRequests))
@@ -568,6 +573,7 @@ namespace gip.ext.designer.avui
                         }
                     }
                 }
+                return; // base already called above for ChildProperty changes
             }
             base.OnPropertyChanged(change);
         }

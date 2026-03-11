@@ -1313,7 +1313,7 @@ namespace gip.core.layoutengine.avui
                 VBTreeViewItem vbTreeViewItem = SelectedTreeViewItemContainer;
                 if (vbTreeViewItem != null)
                 {
-                    UpdateValue(true);
+                    //UpdateValue(true);
                     TreeItemClicked++;
 
                     try

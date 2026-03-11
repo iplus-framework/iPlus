@@ -2,6 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
@@ -29,8 +30,15 @@ namespace gip.ext.xamldom.avui
 				if (nameScope != null) {
 					if (oldName != null) {
 						try {
-							throw new NotImplementedException("INameScope.Unregister is not implemented in Avalonia");
-                            //nameScope.Unregister(oldName);
+							// INameScope has no Unregister method in Avalonia, so use reflection
+							// to remove the entry from NameScope's internal dictionary.
+							if (nameScope is Avalonia.Controls.NameScope concreteScope)
+							{
+								var innerField = typeof(Avalonia.Controls.NameScope).GetField("_inner",
+									System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+								if (innerField?.GetValue(concreteScope) is Dictionary<string, object> inner)
+									inner.Remove(oldName);
+							}
 						} catch (Exception x) {
 							Debug.WriteLine(x.Message);
 						}

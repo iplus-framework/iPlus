@@ -27,11 +27,11 @@ namespace gip.ext.designer.avui
 		{
 			if (exception == null)
 				throw new ArgumentNullException("exception");
-			ThreadExceptionEventHandler eh = UnhandledException;
-			if (eh != null)
-				eh(null, new ThreadExceptionEventArgs(exception));
-			else
-				Environment.FailFast(exception.ToString());
+			// ThreadExceptionEventHandler eh = UnhandledException;
+			// if (eh != null)
+			// 	eh(null, new ThreadExceptionEventArgs(exception));
+			// else
+			// 	Environment.FailFast(exception.ToString());
 		}
 	}
 }

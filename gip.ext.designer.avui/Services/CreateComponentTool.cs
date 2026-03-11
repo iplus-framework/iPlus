@@ -22,11 +22,14 @@ namespace gip.ext.designer.avui.Services
 	/// </summary>
 	public class CreateComponentTool : ITool
 	{
-		readonly Type componentType;
-        readonly object[] arguments = null;
-        MoveLogic moveLogic;
-		protected ChangeGroup ChangeGroup;
-		Point createPoint;
+		readonly Type _ComponentType;
+        readonly object[] _Arguments = null;
+        MoveLogic _MoveLogic;
+        bool _CreateItemLocked = false;
+        bool _IsDropped = false;
+        object _DragDropOperationsLock = new object();
+		protected ChangeGroup _ChangeGroup;
+		Point _CreatePoint;
 
         public event EventHandler<DesignItem> CreateComponentCompleted;
 
@@ -44,8 +47,8 @@ namespace gip.ext.designer.avui.Services
         {
             if (componentType == null)
                 throw new ArgumentNullException(nameof(componentType));
-            this.componentType = componentType;
-            this.arguments = arguments;
+            this._ComponentType = componentType;
+            this._Arguments = arguments;
         }
 
 
@@ -53,7 +56,7 @@ namespace gip.ext.designer.avui.Services
         /// Gets the type of the component to be created.
         /// </summary>
         public virtual Type ComponentType {
-			get { return componentType; }
+			get { return _ComponentType; }
 		}
 		
 		public Cursor Cursor {
@@ -80,33 +83,112 @@ namespace gip.ext.designer.avui.Services
 			designPanel.DragLeave -= designPanel_DragLeave;
 			if (designPanel is InputElement ie)
 				ie.Cursor = null;
+            ResetDragDropOperations();
+        }
+
+        private void ResetDragDropOperations()
+        {
+            lock (_DragDropOperationsLock)
+            {
+                _IsDropped = false;
+                _CreateItemLocked = false;
+                if (_MoveLogic != null)
+                {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("ResetDragDropOperations(10): _MoveLogic != null, Cancelling Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+#endif     
+                    _MoveLogic.Cancel();
+					if (_MoveLogic.ClickedOn.Services.Tool.CurrentTool is CreateComponentTool) 
+						_MoveLogic.ClickedOn.Services.Tool.CurrentTool = _MoveLogic.ClickedOn.Services.Tool.PointerTool;
+					_MoveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
+					_MoveLogic = null;
+                }
+                if (_ChangeGroup != null)
+                {
+                    _ChangeGroup.Abort();
+                    _ChangeGroup = null;
+                }
+            }
         }
 
 		protected virtual void designPanel_DragOver(object sender, DragEventArgs e)
 		{
-			try {
+            lock (_DragDropOperationsLock)
+            {
+                if (_MoveLogic != null) 
+                {
+                    if ((_MoveLogic.ClickedOn.View as Control).IsLoaded)
+                    {
+                        try
+                        {
+                            IDesignPanel designPanel = (IDesignPanel)sender;
+                            e.DragEffects = DragDropEffects.Copy;
+                            e.Handled = true;
+                            Point p = e.GetPosition(designPanel as Visual);
+                            if (_MoveLogic.Operation == null) 
+                            {
+                                #if DEBUG
+                                System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(10): _MoveLogic.Start Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+                                #endif    
+                                _MoveLogic.Start(_CreatePoint);
+                            } 
+                            else 
+                            {
+                                #if DEBUG
+                                System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(20): _MoveLogic.Move Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+                                #endif    
+                                _MoveLogic.Move(p);
+                            }
+                        } 
+                        catch
+                        {
+                        }
+                    }
+                    else
+                    {
+                        #if DEBUG
+                        System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(90): _MoveLogic not stopped for Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+                        #endif    
+                    }
+                    return;
+                }                    
+                if (_CreateItemLocked)
+                    return;
+                _IsDropped = false;
+                _CreateItemLocked = true;                    
+            }
+			try 
+            {
 				IDesignPanel designPanel = (IDesignPanel)sender;
 				e.DragEffects = DragDropEffects.Copy;
 				e.Handled = true;
 				Point p = e.GetPosition(designPanel as Visual);
 
-				if (moveLogic == null) {
+				if (_MoveLogic == null) 
+                {
                     //if (e.Data.GetData(this.GetType()) != this) return;
                     //if (e.Data.GetData(typeof(CreateComponentTool)) != this) return;
                     // TODO: dropLayer in designPanel
                     designPanel.IsAdornerLayerHitTestVisible = false;
 					DesignPanelHitTestResult result = designPanel.HitTest(p, false, true, HitTestType.Default);
 					
-					if (result.ModelHit != null) {
+					if (result.ModelHit != null) 
+                    {
 						designPanel.Focus();
 						DesignItem createdItem = CreateItem(designPanel.Context);
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(30): CreateItem {0}", createdItem.GetHashCode()));
+#endif    
                         Size defaultSize = OnGetDefaultSize();
                         if (AddItemWithDefaultSize(result.ModelHit, createdItem, e.GetPosition(result.ModelHit.View), defaultSize))
                         {
-							moveLogic = new MoveLogic(createdItem);
-							createPoint = p;
-							double x = createPoint.X;
-							double y = createPoint.Y;
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(40): new MoveLogic for Item {0}", createdItem.GetHashCode()));
+#endif
+							_MoveLogic = new MoveLogic(createdItem);
+							_CreatePoint = p;
+							double x = _CreatePoint.X;
+							double y = _CreatePoint.Y;
                             // Offset Mouse-Pointer, damit DesignItem nicht flackert auf Oberfläche, wegen wechsel mit Resize-Adorner
                             if (!Double.IsNaN(defaultSize.Height) && !Double.IsNaN(defaultSize.Width)
                                 && (defaultSize.Height > 0) && (defaultSize.Width > 0))
@@ -119,57 +201,134 @@ namespace gip.ext.designer.avui.Services
                                 x += 10;
                                 y += 10;
                             }
-							createPoint = new Point(x, y);
+							_CreatePoint = new Point(x, y);
                             // We'll keep the ChangeGroup open as long as the moveLogic is active.
-                        } else {
+                        } 
+                        else 
+                        {
 							// Abort the ChangeGroup created by the CreateItem() call.
-							ChangeGroup.Abort();
-                            ChangeGroup = null;
+							_ChangeGroup.Abort();
+                            _ChangeGroup = null;
 						}
 					}
-				} else if ((moveLogic.ClickedOn.View as Control).IsLoaded) {
-					if (moveLogic.Operation == null) {
-						moveLogic.Start(createPoint);
-					} else {
-						moveLogic.Move(p);
+				} 
+                else if ((_MoveLogic.ClickedOn.View as Control).IsLoaded) 
+                {
+					if (_MoveLogic.Operation == null) 
+                    {
+                        #if DEBUG
+                        System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(50): _MoveLogic.Start Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+                        #endif    
+						_MoveLogic.Start(_CreatePoint);
+					} 
+                    else 
+                    {
+                        #if DEBUG
+                        System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragOver(60): _MoveLogic.Move Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+                        #endif    
+						_MoveLogic.Move(p);
 					}
 				}
-			} catch (Exception x) {
+                lock (_DragDropOperationsLock)
+                {                
+                    if (_IsDropped && _MoveLogic != null) 
+                    {
+#if DEBUG
+                    System.Diagnostics.Debug.WriteLine("designPanel_DragOver(70): StopMoveLogic()");
+#endif                          
+                        StopMoveLogic();
+                        _IsDropped = false;
+                    }
+                }
+			} 
+            catch (Exception x) 
+            {
 				DragDropExceptionHandler.RaiseUnhandledException(x);
 			}
+            finally
+            {
+                lock (_DragDropOperationsLock)
+                {
+#if DEBUG
+                    System.Diagnostics.Debug.WriteLine("designPanel_DragOver(80): _CreateItemLocked = false");
+#endif                        
+                    _CreateItemLocked = false;
+                }
+            }
 		}
 
         protected virtual void designPanel_Drop(object sender, DragEventArgs e)
 		{
-			try {
-				if (moveLogic != null) {
-					moveLogic.Stop();
-					if (moveLogic.ClickedOn.Services.Tool.CurrentTool is CreateComponentTool) {
+            lock (_DragDropOperationsLock)
+            {     
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine("designPanel_Drop(10): StopMoveLogic()");
+#endif                       
+                StopMoveLogic();
+                _IsDropped = true;
+            }
+		}
+
+        private void StopMoveLogic()
+        {
+			try 
+            {
+				if (_MoveLogic != null) 
+                {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("StopMoveLogic(10): _MoveLogic != null, Committing Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+#endif                       
+					_MoveLogic.Stop();
+					_MoveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
+                    // Null _MoveLogic and _ChangeGroup BEFORE changing CurrentTool.
+                    // Setting CurrentTool triggers Deactivate() -> ResetDragDropOperations(),
+                    // which would incorrectly cancel the just-committed item if _MoveLogic is still set.
+                    var moveLogic = _MoveLogic;
+                    _MoveLogic = null;
+                    var changeGroup = _ChangeGroup;
+                    _ChangeGroup = null;
+					if (moveLogic.ClickedOn.Services.Tool.CurrentTool is CreateComponentTool) 
+                    {
 						moveLogic.ClickedOn.Services.Tool.CurrentTool = moveLogic.ClickedOn.Services.Tool.PointerTool;
 					}
-					moveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
-					moveLogic = null;
-                    ChangeGroup.Commit();
-                    ChangeGroup = null;
+                    changeGroup?.Commit();
 				}
-			} catch (Exception x) {
+			} 
+            catch (Exception x) 
+            {
 				DragDropExceptionHandler.RaiseUnhandledException(x);
 			}
-		}
+        }
 
         protected virtual void designPanel_DragLeave(object sender, DragEventArgs e)
 		{
-			try {
-				if (moveLogic != null) {
-					moveLogic.Cancel();
-					moveLogic.ClickedOn.Services.Selection.SetSelectedComponents(null);
-					moveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
-					moveLogic = null;
-					ChangeGroup.Abort();
-                    ChangeGroup = null;
+			try 
+            {
+                // In Avalonia, DragLeave fires when the pointer moves between child elements
+                // with different hit-test targets (e.g. from VBCanvas to VBCheckBox), because
+                // DragDropDevice switches its _lastTarget. Check if the pointer is still physically
+                // inside the DesignPanel - if so this is a spurious leave and should be ignored.
+                if (sender is Visual panelVisual)
+                {
+                    Point leavePos = e.GetPosition(panelVisual);
+                    if (new Rect(panelVisual.Bounds.Size).Contains(leavePos))
+                        return;
+                }
+				if (_MoveLogic != null) 
+                {
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("designPanel_DragLeave(10): _MoveLogic != null, Cancelling Item {0}", _MoveLogic.ClickedOn.GetHashCode()));
+#endif                          
+					_MoveLogic.Cancel();
+					_MoveLogic.ClickedOn.Services.Selection.SetSelectedComponents(null);
+					_MoveLogic.DesignPanel.IsAdornerLayerHitTestVisible = true;
+					_MoveLogic = null;
+					_ChangeGroup.Abort();
+                    _ChangeGroup = null;
 
 				}
-			} catch (Exception x) {
+			} catch (Exception x) 
+            {
 				DragDropExceptionHandler.RaiseUnhandledException(x);
 			}
 		}
@@ -189,10 +348,10 @@ namespace gip.ext.designer.avui.Services
         /// </summary>
         protected virtual DesignItem CreateItem(DesignContext context)
         {
-            if (ChangeGroup == null)
-                ChangeGroup = context.RootItem.OpenGroup("Add Control");
+            if (_ChangeGroup == null)
+                _ChangeGroup = context.RootItem.OpenGroup("Add Control");
 
-            var item = CreateItem(context, componentType, arguments);
+            var item = CreateItem(context, _ComponentType, _Arguments);
 
             return item;
         }
@@ -241,6 +400,10 @@ namespace gip.ext.designer.avui.Services
             var size = suggestedSize;
             if (double.IsNaN(size.Width) || double.IsNaN(size.Height))
                 size = ModelTools.GetDefaultSize(createdItem);
+                
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("AddItemWithDefaultSize: TryStartInsertNewComponents {0}", createdItem.GetHashCode()));
+#endif                    
 			PlacementOperation operation = PlacementOperation.TryStartInsertNewComponents(
 				container,
 				new DesignItem[] { createdItem },
@@ -250,6 +413,9 @@ namespace gip.ext.designer.avui.Services
 			if (operation != null) {
 				container.Services.Selection.SetSelectedComponents(new DesignItem[] { createdItem });
 				operation.Commit();
+#if DEBUG
+                System.Diagnostics.Debug.WriteLine(string.Format("AddItemWithDefaultSize: Commit {0}", createdItem.GetHashCode()));
+#endif
 				return true;
 			} else {
 				return false;
@@ -355,10 +521,10 @@ namespace gip.ext.designer.avui.Services
                 if (result.ModelHit != null)
                 {
                     var darwItemBehaviors = result.ModelHit.Extensions.OfType<IDrawItemExtension>();
-                    var drawItembehavior = darwItemBehaviors.FirstOrDefault(x => x.CanItemBeDrawn(componentType));
-					if (drawItembehavior != null && drawItembehavior.CanItemBeDrawn(componentType))
+                    var drawItembehavior = darwItemBehaviors.FirstOrDefault(x => x.CanItemBeDrawn(_ComponentType));
+					if (drawItembehavior != null && drawItembehavior.CanItemBeDrawn(_ComponentType))
 					{
-						drawItembehavior.StartDrawItem(result.ModelHit, componentType, designPanel, e, SetPropertiesForDrawnItem);
+						drawItembehavior.StartDrawItem(result.ModelHit, _ComponentType, designPanel, e, SetPropertiesForDrawnItem);
 					}
 					else
 					{
@@ -369,9 +535,9 @@ namespace gip.ext.designer.avui.Services
 
                             CreateComponentCompleted?.Invoke(this, createdItem);
 
-                            new CreateComponentMouseGesture(result.ModelHit, createdItem, ChangeGroup).Start(designPanel, e);
+                            new CreateComponentMouseGesture(result.ModelHit, createdItem, _ChangeGroup).Start(designPanel, e);
 							// CreateComponentMouseGesture now is responsible for the changeGroup created by CreateItem()
-							ChangeGroup = null;
+							_ChangeGroup = null;
 						}
 					}
                 }

@@ -173,7 +173,7 @@ namespace gip.core.layoutengine.avui
                 newInstance = context.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(ComponentType, null);
 
             DesignItem item = context.Services.Component.RegisterComponentForDesigner(newInstance);
-            ChangeGroup = item.OpenGroup("Drop Control");
+            _ChangeGroup = item.OpenGroup("Drop Control");
 
             if (item.View != null)
             {
