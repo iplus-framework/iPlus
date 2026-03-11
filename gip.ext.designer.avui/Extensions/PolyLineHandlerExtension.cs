@@ -50,7 +50,7 @@ namespace gip.ext.designer.avui.Extensions
 
 		private void ResetThumbs()
 		{
-			foreach (TemplatedControl rt in adornerPanel.Children)
+			foreach (Control rt in adornerPanel.Children)
 			{
 				if (rt is DesignerThumb)
 					(rt as DesignerThumb).IsPrimarySelection = true;

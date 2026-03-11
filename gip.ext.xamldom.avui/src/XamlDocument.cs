@@ -219,7 +219,12 @@ namespace gip.ext.xamldom.avui
                 throw new ArgumentNullException("instance");
 
             Type elementType = instance.GetType();
-            TypeConverter c = TypeDescriptor.GetConverter(instance);
+            // Prefer Avalonia-specific converters (registered in AvaloniaConverterRegistry) over the
+            // System.ComponentModel fallbacks.  For example, List<Point> yields CollectionConverter
+            // from TypeDescriptor which can neither serialize nor deserialize the "x1,y1 x2,y2"
+            // format, whereas PointsListBidirectionalConverter handles both directions correctly.
+            TypeConverter c = AvaloniaConverterRegistry.GetConverter(elementType)
+                ?? TypeDescriptor.GetConverter(instance);
             var ctx = new DummyTypeDescriptorContext(this.ServiceProvider);
             ctx.Instance = instance;
             bool hasStringConverter = c.CanConvertTo(ctx, typeof(string)) && c.CanConvertFrom(typeof(string));

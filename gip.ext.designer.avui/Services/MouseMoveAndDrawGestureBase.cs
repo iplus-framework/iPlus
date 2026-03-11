@@ -123,6 +123,11 @@ namespace gip.ext.designer.avui.Services
             }
         }
 
+        protected override bool ShouldIgnorePointerCaptureLostAfterRelease(PointerReleasedEventArgs e)
+        {
+            return _StopWithDblClick;
+        }
+
         protected virtual void StopOnClickEvent(object sender, PointerEventArgs e)
         {
             if (_HasDragStarted == false)

@@ -1,4 +1,4 @@
-﻿// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
+// This is a modification for iplus-framework from Copyright (c) AlphaSierraPapa for the SharpDevelop Team
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using System;
@@ -32,7 +32,9 @@ namespace gip.ext.designer.avui.Services
         protected IDesignPanel designPanel;
         protected ServiceContainer services;
         protected bool canAbortWithEscape = true;
+
         bool isStarted;
+        bool ignoreNextPointerCaptureLost;
 
         public void Start(IDesignPanel designPanel, PointerEventArgs e)
         {
@@ -44,6 +46,7 @@ namespace gip.ext.designer.avui.Services
                 throw new InvalidOperationException("Gesture already was started");
 
             isStarted = true;
+            ignoreNextPointerCaptureLost = false;
             this.designPanel = designPanel;
             this.services = designPanel.Context.Services;
             e.Pointer.Capture(designPanel);
@@ -63,8 +66,12 @@ namespace gip.ext.designer.avui.Services
 
         void RegisterEvents()
         {
-            if (designPanel is InputElement)
-                (designPanel as InputElement).PointerCaptureLost += OnPointerCaptureLost;
+            if (designPanel is InputElement inputElement)
+            {
+                inputElement.AddHandler(InputElement.PointerCaptureLostEvent, OnPointerCaptureLost, RoutingStrategies.Direct);
+                //inputElement.PointerCaptureLost += OnPointerCaptureLost;
+            }
+
             designPanel.PointerPressed += OnPointerPressed;
             designPanel.PointerMoved += OnPointerMoved;
             designPanel.PointerReleased += OnPointerReleased;
@@ -73,8 +80,12 @@ namespace gip.ext.designer.avui.Services
 
         void UnRegisterEvents()
         {
-            if (designPanel is InputElement)
-                (designPanel as InputElement).PointerCaptureLost -= OnPointerCaptureLost;
+            if (designPanel is InputElement inputElement)
+            {
+                inputElement.RemoveHandler(InputElement.PointerCaptureLostEvent, OnPointerCaptureLost);
+                //inputElement.PointerCaptureLost -= OnPointerCaptureLost;
+            }
+
             designPanel.PointerPressed -= OnPointerPressed;
             designPanel.PointerMoved -= OnPointerMoved;
             designPanel.PointerReleased -= OnPointerReleased;
@@ -92,6 +103,12 @@ namespace gip.ext.designer.avui.Services
 
         void OnPointerCaptureLost(object sender, PointerCaptureLostEventArgs e)
         {
+            if (ignoreNextPointerCaptureLost)
+            {
+                ignoreNextPointerCaptureLost = false;
+                return;
+            }
+
             Stop(e);
         }
 
@@ -105,29 +122,35 @@ namespace gip.ext.designer.avui.Services
         {
             if (e.Properties.IsLeftButtonPressed)
             {
-                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Bubble)
                     OnPreviewMouseLeftButtonDown(sender, e);
             }
             else if (e.Properties.IsRightButtonPressed)
             {
-                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Bubble)
                     OnPreviewMouseLeftButtonDown(sender, e);
             }
+
             OnMouseDown(sender, e);
         }
 
         protected virtual void OnPointerReleased(object sender, PointerReleasedEventArgs e)
         {
+            // Avalonia clears implicit capture on pointer release and raises PointerCaptureLost.
+            // Some gestures (e.g. polyline draw) must stay active across multiple clicks.
+            ignoreNextPointerCaptureLost = ShouldIgnorePointerCaptureLostAfterRelease(e);
+
             if (e.Properties.IsLeftButtonPressed)
             {
-                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Bubble)
                     OnPreviewMouseLeftButtonUp(sender, e);
             }
             else if (e.Properties.IsRightButtonPressed)
             {
-                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Tunnel)
+                if (e.Route == Avalonia.Interactivity.RoutingStrategies.Bubble)
                     OnPreviewMouseLeftButtonUp(sender, e);
             }
+
             OnMouseUp(sender, e);
         }
 
@@ -135,7 +158,6 @@ namespace gip.ext.designer.avui.Services
         {
             OnMouseMove(sender, e);
         }
-
 
         protected virtual void OnPreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
         {
@@ -145,11 +167,11 @@ namespace gip.ext.designer.avui.Services
         }
 
         protected virtual void OnPreviewMouseLeftButtonUp(object sender, PointerReleasedEventArgs e)
-        { 
+        {
         }
 
         protected virtual void OnPreviewMouseRightButtonDown(object sender, PointerPressedEventArgs e)
-        { 
+        {
         }
 
         protected virtual void OnPreviewMouseRightButtonUp(object sender, PointerReleasedEventArgs e)
@@ -157,11 +179,11 @@ namespace gip.ext.designer.avui.Services
         }
 
         protected virtual void OnMouseDoubleClick(object sender, PointerPressedEventArgs e)
-        { 
+        {
         }
 
         protected virtual void OnMouseDown(object sender, PointerPressedEventArgs e)
-        { 
+        {
         }
 
         protected virtual void OnMouseMove(object sender, PointerEventArgs e)
@@ -173,23 +195,19 @@ namespace gip.ext.designer.avui.Services
             Stop(e);
         }
 
-        //private void OnPointerPressed2(object sender, PointerPressedEventArgs e)
-        //{
-        //    var point = e.GetCurrentPoint(null);
-        //    if (point.Properties.IsLeftButtonPressed)
-        //    {
-        //        if (e.ClickCount == 2)
-        //        {
-        //            OnDoubleTapped(sender, new TappedEventArgs(null, e));
-        //        }
-        //    }
-        //}
+        protected virtual bool ShouldIgnorePointerCaptureLostAfterRelease(PointerReleasedEventArgs e)
+        {
+            return false;
+        }
 
         protected void Stop(RoutedEventArgs e)
         {
-            if (!isStarted) 
+            if (!isStarted)
                 return;
+
             isStarted = false;
+            ignoreNextPointerCaptureLost = false;
+
             //PointerEventArgs pe = e as PointerEventArgs;
             //if (pe != null)
             //    designPanel.ReleasePointerCapture();
@@ -213,7 +231,7 @@ namespace gip.ext.designer.avui.Services
                 long clickTicks = DateTime.Now.Ticks;
                 long elapsedTicks = clickTicks - _LastClickTicks;
                 long elapsedTime = elapsedTicks / TimeSpan.TicksPerMillisecond;
-                
+
                 // Use system double-click time (typically 500ms)
                 bool quickClick = (elapsedTime <= 500);
                 bool senderMatch = (_LastSender != null && sender.Equals(_LastSender.Target));
@@ -241,6 +259,5 @@ namespace gip.ext.designer.avui.Services
                 return Math.Sqrt(x * x + y * y);
             }
         }
-
     }
 }

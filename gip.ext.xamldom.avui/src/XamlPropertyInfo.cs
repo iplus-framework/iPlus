@@ -98,8 +98,16 @@ namespace gip.ext.xamldom.avui
                 return TypeTypeConverter.Instance;
             else if (propertyType == typeof(AvaloniaProperty))
                 return DependencyPropertyConverter.Instance;
-            else
-                return null;
+
+            // Check the Avalonia-specific converter registry (e.g. IList<Point> → PointsList
+            // bidirectional converter).  This ensures the parser uses the same converters that
+            // Avalonia's XAML compiler uses, so attribute values such as Points="0,0 10,10 20,5"
+            // are correctly parsed into List<Point> / Avalonia.Points instances.
+            var avaloniaConverter = AvaloniaConverterRegistry.GetConverter(propertyType);
+            if (avaloniaConverter != null)
+                return avaloniaConverter;
+
+            return null;
         }
 
         sealed class TypeTypeConverter : TypeConverter

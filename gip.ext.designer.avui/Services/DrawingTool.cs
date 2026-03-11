@@ -252,7 +252,7 @@ namespace gip.ext.designer.avui.Services
         {
         }
 
-        private Cursor _Cursor = new Cursor(StandardCursorType.Cross); //ZoomControl.GetCursor("Images/CursorEditNode.cur");
+        private Cursor _Cursor = ZoomControl.GetCursor("Images/CursorEditNode.cur");
         public override Cursor Cursor
         {
             get 
