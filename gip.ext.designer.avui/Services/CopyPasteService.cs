@@ -87,20 +87,11 @@ namespace gip.ext.designer.avui.Services
 
 		public virtual bool CanPaste(DesignContext designContext)
 		{
+			// Clipboard.GetTextAsync() cannot be called synchronously on the UI thread without
+			// causing a deadlock. Check only selection state here; Paste() will be a no-op if
+			// the clipboard contains nothing pasteable.
 			ISelectionService selectionService = designContext.Services.GetService<ISelectionService>();
-			if (selectionService != null && selectionService.SelectedItems.Count != 0)
-			{
-				try
-				{
-					string xaml = TopLevel.GetTopLevel(designContext.RootItem.View)?.Clipboard?.GetTextAsync().Result;
-					if (xaml != "" && xaml != " ")
-						return true;
-				}
-				catch (Exception)
-				{
-				}
-			}
-			return false;
+			return selectionService != null && selectionService.SelectedItems.Count != 0;
 		}
 
 		public virtual void Paste(DesignContext designContext)

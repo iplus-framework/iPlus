@@ -68,7 +68,9 @@ namespace gip.ext.designer.avui
 				execute();
 				e.Handled = true;
 			};
-			CommandManager.SetCommandBindings(element, new List<CommandBinding> { cb });
+			// Append to existing bindings instead of replacing — SetCommandBindings would overwrite
+			// all previously registered bindings with a new single-item list.
+			CommandManager.GetCommandBindings(element).Add(cb);
 		}
 	}
 

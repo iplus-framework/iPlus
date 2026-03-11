@@ -612,9 +612,10 @@ namespace gip.ext.designer.avui
 
         public void Delete()
         {
-            _designContext?.Services?.CopyPasteService?.Delete(_designContext);
             if (OnDeleteItem != null)
                 OnDeleteItem(this, new EventArgs());
+            else
+                _designContext?.Services?.CopyPasteService?.Delete(_designContext);
         }
 
         public bool CanPaste()
