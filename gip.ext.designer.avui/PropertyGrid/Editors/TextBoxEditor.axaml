@@ -2,7 +2,7 @@
     x:Class="gip.ext.designer.avui.PropertyGrid.Editors.TextBoxEditor"
     xmlns="https://github.com/avaloniaui"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    
-    Text="{Binding ValueString}"
+    Text="{Binding ValueString, UpdateSourceTrigger=LostFocus}"
     BorderThickness="0"
     Background="Transparent"
     >	

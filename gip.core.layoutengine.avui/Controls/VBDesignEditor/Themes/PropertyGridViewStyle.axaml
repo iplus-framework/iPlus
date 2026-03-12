@@ -95,7 +95,7 @@
         <local:VBTextBlock Text="Filter:" Grid.Column="0" Grid.Row="2"/>
 
         <local:VBTextBox x:Name="PART_NameTextBox" ShowCaption="False" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="0"
-                        Text="{Binding Name}"
+                        Text="{Binding Name, UpdateSourceTrigger=LostFocus}"
                         IsEnabled="{Binding IsNameEnabled}" />
 
         <local:VBTextBlock Text="{Binding SingleItem.ComponentType.Name}" ToolTip.Tip="{Binding SingleItem.ComponentType}" Grid.ColumnSpan="2" Grid.Column="1" Grid.Row="1" />

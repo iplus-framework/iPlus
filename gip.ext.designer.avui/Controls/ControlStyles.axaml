@@ -442,7 +442,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <TextBox Name="editor" Padding="{Binding Path=Padding}" FontSize="{Binding Path=FontSize}" FontFamily="{Binding Path=FontFamily}" FontStyle="{Binding Path=FontStyle}" FontStretch="{Binding Path=FontStretch}" FontWeight="{Binding Path=FontWeight}" Text="{Binding Path=BindPlace, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" />
+          <TextBox Name="editor" Padding="{Binding Path=Padding}" FontSize="{Binding Path=FontSize}" FontFamily="{Binding Path=FontFamily}" FontStyle="{Binding Path=FontStyle}" FontStretch="{Binding Path=FontStretch}" FontWeight="{Binding Path=FontWeight}" Text="{Binding Path=BindPlace, RelativeSource={RelativeSource Mode=TemplatedParent}, Mode=TwoWay,UpdateSourceTrigger=LostFocus}" AcceptsReturn="True" />
         </ControlTemplate>
       </Setter.Value>
     </Setter>

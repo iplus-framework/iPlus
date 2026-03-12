@@ -143,5 +143,54 @@ namespace gip.ext.design.avui.Designer
 				return "Edit Style";
 			}
 		}
+
+		public virtual string Cut
+		{
+			get
+			{
+				return "Cut";
+			}
+		}
+
+		public virtual string Copy
+		{
+			get
+			{
+				return "Copy";
+			}
+		}
+
+		public virtual string Paste
+		{
+			get
+			{
+				return "Paste";
+			}
+		}
+
+		public virtual string Delete
+		{
+			get	
+			{
+				return "Delete";
+			}
+		}
+
+		public virtual string Undo
+		{
+			get
+			{
+				return "Undo";
+			}
+		}
+
+		public virtual string Redo
+		{
+			get
+			{
+				return "Redo";
+			}
+		}
+
 	}
 }

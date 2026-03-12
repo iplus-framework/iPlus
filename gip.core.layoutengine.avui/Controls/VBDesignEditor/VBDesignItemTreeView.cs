@@ -95,7 +95,8 @@ namespace gip.core.layoutengine.avui
             return new VBMenuSeparator();
         }
 
-        public override void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
+
+         public override void OnSubMenuItemClick(object sender, RoutedEventArgs e)
         {
             VBQuickOperationMenuExtension.MainHeaderClick(sender, e, this.DesignItem, _menu, DockingManager, WindowTitle);
         }

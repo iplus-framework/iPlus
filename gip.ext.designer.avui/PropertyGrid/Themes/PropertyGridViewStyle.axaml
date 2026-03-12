@@ -86,7 +86,7 @@
             <TextBlock Grid.Column="1" Text="Name:" Margin="6,30,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
             <TextBlock Grid.Column="1" Text="Type:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,8,0,0" />
             <TextBlock Grid.Column="1" Text="Filter:" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="6,54,0,0" />
-            <Controls:EnterTextBox Grid.Column="1" x:Name="PART_NameTextBox" Text="{Binding Name}" IsEnabled="{Binding IsNameEnabled}" Margin="44,28,6,0" Height="19.277" VerticalAlignment="Top" Classes="NameTextBoxStyle" />
+            <Controls:EnterTextBox Grid.Column="1" x:Name="PART_NameTextBox" Text="{Binding Name, UpdateSourceTrigger=LostFocus}" IsEnabled="{Binding IsNameEnabled}" Margin="44,28,6,0" Height="19.277" VerticalAlignment="Top" Classes="NameTextBoxStyle" />
             <TextBlock Grid.Column="1" Text="{Binding SingleItem.ComponentType.Name}" ToolTip.Tip="{Binding SingleItem.ComponentType}" Margin="44,8,6,0" Height="13.277" VerticalAlignment="Top" />
             <Controls:ClearableTextBox Grid.Column="1" Text="{Binding Filter, UpdateSourceTrigger=PropertyChanged}" Margin="44,52,6,0" VerticalAlignment="Top" Height="19" />
           </Grid>

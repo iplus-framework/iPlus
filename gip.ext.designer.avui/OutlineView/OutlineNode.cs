@@ -275,11 +275,10 @@ namespace gip.ext.designer.avui.OutlineView
         {
             if (_menu == null || _menu.MainHeader == null)
                 return;
-            if (_menu.MainHeader != null)
-            {
-                _menu.MainHeader.Click += MainHeaderClick;
-                _menu.MainHeader.PointerPressed += MainHeader_PointerPressed;
-            }
+
+            int menuItemsAdded = BuildMenu();
+            if (menuItemsAdded > 0)
+                AttachClickHandlers(_menu.MainHeader);
 
             //if (_menu.MainHeader.Items.Count <= 0)
             //{
@@ -296,12 +295,18 @@ namespace gip.ext.designer.avui.OutlineView
 
         public virtual void OnMenuUnloaded(object sender, EventArgs e)
         {
-            if (_menu == null || _menu.MainHeader == null || _menu.MainHeader.Items.Count > 0)
-                return;
-            if (_menu.MainHeader != null)
+            // Individual Click handlers on sub-items are cleaned up when the items/menu are GC'd.
+        }
+
+        private void AttachClickHandlers(MenuItem parent)
+        {
+            foreach (var item in parent.Items)
             {
-                _menu.MainHeader.Click -= MainHeaderClick;
-                _menu.MainHeader.PointerPressed -= MainHeader_PointerPressed;
+                if (item is MenuItem mi)
+                {
+                    mi.Click += OnSubMenuItemClick;
+                    AttachClickHandlers(mi);
+                }
             }
         }
 
@@ -311,12 +316,7 @@ namespace gip.ext.designer.avui.OutlineView
             return menuCount;
         }
 
-        public virtual void MainHeaderClick(object sender, RoutedEventArgs e)
-        {
-            QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, this.DesignItem, _menu);
-        }
-
-        public virtual void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
+        public virtual void OnSubMenuItemClick(object sender, RoutedEventArgs e)
         {
             QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, this.DesignItem, _menu);
         }

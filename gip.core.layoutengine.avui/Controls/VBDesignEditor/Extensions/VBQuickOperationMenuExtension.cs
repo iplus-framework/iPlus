@@ -38,7 +38,7 @@ namespace gip.core.layoutengine.avui
             return new VBMenuSeparator();
         }
 
-        public static void MainHeaderClick(object sender, PointerPressedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
+        public static void MainHeaderClick(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu, VBDockingManager DockingManager, string WindowTitle)
         {
             var clickedOn = e.Source as MenuItem;
             if (clickedOn != null)
@@ -103,7 +103,7 @@ namespace gip.core.layoutengine.avui
             QuickOperationMenuExtension.MainHeader_PointerPressed(sender, e, extendedItem, _menu);
         }
 
-        public override void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
+        public override void OnSubMenuItemClick(object sender, RoutedEventArgs e)
         {
             VBQuickOperationMenuExtension.MainHeaderClick(sender, e, this.ExtendedItem, _menu, DockingManager, WindowTitle);
         }

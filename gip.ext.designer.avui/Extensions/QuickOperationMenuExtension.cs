@@ -23,7 +23,7 @@ namespace gip.ext.designer.avui.Extensions
         MenuItem CreateMenuItem(string header);
         Separator CreateSeparator();
         int BuildMenu();
-        void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e);
+        void OnSubMenuItemClick(object sender, RoutedEventArgs e);
     }
 
 
@@ -242,14 +242,34 @@ namespace gip.ext.designer.avui.Extensions
         {
             if (_menu == null || _menu.MainHeader == null || _menu.MainHeader.Items.Count > 0)
                 return;
-            if (_menu.MainHeader != null)
-                _menu.MainHeader.PointerPressed += MainHeader_PointerPressed;
 
             int menuItemsAdded = BuildMenu();
             if (menuItemsAdded == 0)
             {
                 OnRemove();
+                return;
             }
+            // Attach Click to each individual sub-item. In Avalonia, PointerPressed on the root
+            // MenuItem gives an internal Border (PART_LayoutRoot) as e.Source, not the MenuItem.
+            // MenuItem.Click fires on the actual item and correctly sets sender/Source to it.
+            AttachClickHandlers(_menu.MainHeader);
+        }
+
+        private void AttachClickHandlers(MenuItem parent)
+        {
+            foreach (var item in parent.Items)
+            {
+                if (item is MenuItem mi)
+                {
+                    mi.Click += OnSubMenuItemClick;
+                    AttachClickHandlers(mi);
+                }
+            }
+        }
+
+        public virtual void OnSubMenuItemClick(object sender, RoutedEventArgs e)
+        {
+            MainHeader_PointerPressed(sender, e, this.ExtendedItem, _menu);
         }
 
         public static void MainHeader_PointerPressed(object sender, RoutedEventArgs e, DesignItem extendedItem, QuickOperationMenu _menu)
@@ -398,10 +418,7 @@ namespace gip.ext.designer.avui.Extensions
             return null;
         }
 
-        public virtual void MainHeader_PointerPressed(object sender, PointerPressedEventArgs e)
-        {
-            MainHeader_PointerPressed(sender, e, this.ExtendedItem, _menu);
-        }
+
 
         protected override void OnRemove()
         {
