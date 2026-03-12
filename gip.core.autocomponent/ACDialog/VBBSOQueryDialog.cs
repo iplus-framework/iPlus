@@ -1377,120 +1377,133 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case"QueryConfigDlg":
+                case nameof(QueryConfigDlg):
                     result = QueryConfigDlg((ACQueryDefinition)acParameter[0], (Boolean)acParameter[1], (Boolean)acParameter[2], (Boolean)acParameter[3], (Boolean)acParameter[4]);
                     return true;
-                case"QueryLoadDlg":
+                case nameof(QueryLoadDlg):
                     result = QueryLoadDlg((ACQueryDefinition)acParameter[0]);
                     return true;
-                case"QuerySaveDlg":
+                case nameof(QuerySaveDlg):
                     result = QuerySaveDlg((ACQueryDefinition)acParameter[0]);
                     return true;
-                case"NewFilterItem":
+                case nameof(NewFilterItem):
                     NewFilterItem();
                     return true;
-                case"DeleteFilterItem":
+                case nameof(DeleteFilterItem):
                     DeleteFilterItem();
                     return true;
-                case"IsEnabledDeleteFilterItem":
+                case nameof(IsEnabledDeleteFilterItem):
                     result = IsEnabledDeleteFilterItem();
                     return true;
-                case"UpFilterItem":
+                case nameof(UpFilterItem):
                     UpFilterItem();
                     return true;
-                case"IsEnabledUpFilterItem":
+                case nameof(IsEnabledUpFilterItem):
                     result = IsEnabledUpFilterItem();
                     return true;
-                case"DownFilterItem":
+                case nameof(DownFilterItem):
                     DownFilterItem();
                     return true;
-                case"IsEnabledDownFilterItem":
+                case nameof(IsEnabledDownFilterItem):
                     result = IsEnabledDownFilterItem();
                     return true;
-                case"IsEnabledInsertFilterItem":
+                case nameof(IsEnabledInsertFilterItem):
                     result = IsEnabledInsertFilterItem((IACInteractiveObject)acParameter[0], acParameter.Count() == 2 ? (ACFilterItem)acParameter[1] : null);
                     return true;
-                case"NewSortItem":
+                case nameof(NewSortItem):
                     NewSortItem();
                     return true;
-                case"DeleteSortItem":
+                case nameof(DeleteSortItem):
                     DeleteSortItem();
                     return true;
-                case"IsEnabledDeleteSortItem":
+                case nameof(IsEnabledDeleteSortItem):
                     result = IsEnabledDeleteSortItem();
                     return true;
-                case"UpSortItem":
+                case nameof(UpSortItem):
                     UpSortItem();
                     return true;
-                case"IsEnabledUpSortItem":
+                case nameof(IsEnabledUpSortItem):
                     result = IsEnabledUpSortItem();
                     return true;
-                case"DownSortItem":
+                case nameof(DownSortItem):
                     DownSortItem();
                     return true;
-                case"IsEnabledDownSortItem":
+                case nameof(IsEnabledDownSortItem):
                     result = IsEnabledDownSortItem();
                     return true;
-                case"IsEnabledInsertSortItem":
+                case nameof(IsEnabledInsertSortItem):
                     result = IsEnabledInsertSortItem((IACInteractiveObject)acParameter[0], acParameter.Count() == 2 ? (ACSortItem)acParameter[1] : null);
                     return true;
-                case"NewColumnItem":
+                case nameof(NewColumnItem):
                     NewColumnItem();
                     return true;
-                case"DeleteColumnItem":
+                case nameof(DeleteColumnItem):
                     DeleteColumnItem();
                     return true;
-                case"IsEnabledDeleteColumnItem":
+                case nameof(IsEnabledDeleteColumnItem):
                     result = IsEnabledDeleteColumnItem();
                     return true;
-                case"UpColumnItem":
+                case nameof(UpColumnItem):
                     UpColumnItem();
                     return true;
-                case"IsEnabledUpColumnItem":
+                case nameof(IsEnabledUpColumnItem):
                     result = IsEnabledUpColumnItem();
                     return true;
-                case"DownColumnItem":
+                case nameof(DownColumnItem):
                     DownColumnItem();
                     return true;
-                case"IsEnabledDownColumnItem":
+                case nameof(IsEnabledDownColumnItem):
                     result = IsEnabledDownColumnItem();
                     return true;
-                case"IsEnabledInsertColumnItem":
+                case nameof(IsEnabledInsertColumnItem):
                     result = IsEnabledInsertColumnItem((IACInteractiveObject)acParameter[0], acParameter.Count() == 2 ? (ACColumnItem)acParameter[1] : null);
                     return true;
-                case"OK":
+                case nameof(OK):
                     OK();
                     return true;
-                case"IsEnabledOK":
+                case nameof(IsEnabledOK):
                     result = IsEnabledOK();
                     return true;
-                case"Cancel":
+                case nameof(Cancel):
                     Cancel();
                     return true;
-                case"DeleteConfig":
+                case nameof(DeleteConfig):
                     DeleteConfig();
                     return true;
-                case"IsEnabledDeleteConfig":
+                case nameof(IsEnabledDeleteConfig):
                     result = IsEnabledDeleteConfig();
                     return true;
-                case"OnKeyEvent":
+                case nameof(OnKeyEvent):
                     //OnKeyEvent((KeyEventArgs)acParameter[0]);
                     OnKeyEvent(acParameter[0]);
                     return true;
-                case"IsEnabledACActionToTarget":
+                case nameof(IsEnabledACActionToTarget):
                     result = IsEnabledACActionToTarget((IACInteractiveObject)acParameter[0], (ACActionArgs)acParameter[1]);
                     return true;
-                case"ChangeColumnValues":
+                case nameof(ChangeColumnValues):
                     result = ChangeColumnValues((IAccess)acParameter[0], (ACColumnItem)acParameter[1], (ACQueryDefinition)acParameter[2]);
                     return true;
-                case"OKColumnValues":
+                case nameof(OKColumnValues):
                     OKColumnValues();
                     return true;
-                case"IsEnabledOKColumnValues":
+                case nameof(IsEnabledOKColumnValues):
                     result = IsEnabledOKColumnValues();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch(acMethodName)
+            {
+                case nameof(OK):
+                    return new string[] { "CurrentQueryDefinition", "CurrentLoadConfiguration", "CurrentConfigSaveMode", "CurrentConfigurationName" };
+
+            }
+
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
 {
@@ -637,14 +638,14 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        void searchbutton_Click(object sender, RoutedEventArgs e)
+        async void searchbutton_Click(object sender, RoutedEventArgs e)
         {
             if (ContextACObject == null)
                 return;
-            object searchResult = ContextACObject.ACUrlCommand(Const.CmdShowACQueryDialogPrimary);
-            if (searchResult == null || !(searchResult is bool))
+            Task<bool> searchResult = ContextACObject.ACUrlCommand(Const.CmdShowACQueryDialogPrimary) as Task<bool>;
+            if (searchResult == null)
                 return;
-            bool result = (bool)searchResult;
+            bool result = await searchResult;
             if (result && sender is VBRibbonButton)
             {
                 VBRibbonButton vbRibbonButton = sender as VBRibbonButton;
