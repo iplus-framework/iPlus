@@ -5,14 +5,18 @@ Welcome to the iPlus-Framework repository! This open-source project is designed 
 
 ## Table of Contents
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [What you can create with it](#what-you-can-create-with-it)
-- [Technology](#Technology)
-- [Getting Started](#getting-started)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+- [iPlus-Framework](#iplus-framework)
+  - [Table of Contents](#table-of-contents)
+  - [Introduction](#introduction)
+  - [Features](#features)
+  - [What you can create with it](#what-you-can-create-with-it)
+  - [Technology](#technology)
+  - [Getting Started](#getting-started)
+  - [Contributing](#contributing)
+  - [Limitations](#limitations)
+  - [Documentation](#documentation)
+  - [License](#license)
+  - [Contact](#contact)
 
 ## Introduction
 
@@ -105,7 +109,9 @@ This point is problematic when you work with long-term database contexts and lar
 3. Reverting changes
 https://github.com/dotnet/efcore/issues/14594
 
-If you want to use **iPlus for productive operation** use this release 9.0 fork and **branch "ef_90_iPlus"** instead of the official nuget packages. Open the [Directory.Build.props](https://github.com/iplus-framework/iPlus/blob/main/Directory.Build.props) file and set **UseEFCoreForkIPlus to True to** include the compiled ef-assemblies.
+To simplify usage for our users, we have published these fixes as NuGet packages. You can easily switch to our optimized version by setting a single property.
+
+If you want to use **iPlus for productive operation**, we recommend using our optimized Entity Framework Core packages. Open the [Directory.Build.props](https://github.com/iplus-framework/iPlus/blob/main/Directory.Build.props) file (or [build/EntityFramework.Build.props](build/EntityFramework.Build.props)) and set **UseEFCoreForkIPlus to True**. This will automatically include the iPlus-specific EF Core packages from NuGet instead of the official ones. This remains our recommended approach until these improvements are merged into the official Entity Framework repository.
 
 5. Obsolete constructor public StackTrace(Thread targetThread, bool needFileInfo)
 https://github.com/dotnet/runtime/issues/80555  
