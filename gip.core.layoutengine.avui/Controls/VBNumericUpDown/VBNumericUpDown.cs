@@ -132,7 +132,7 @@ namespace gip.core.layoutengine.avui
         /// Gets or sets the ACCaption translation.
         /// </summary>
         /// <summary xml:lang="de">
-        /// Liest oder setzt die ACCaption-Übersetzung.
+        /// Liest oder setzt die ACCaption-ï¿½bersetzung.
         /// </summary>
         [Category("VBControl")]
         [Bindable(true)]
@@ -574,7 +574,7 @@ namespace gip.core.layoutengine.avui
 
         private void UpdateNumeric(int value)
         {
-            Int32 newVal = (Int32)Value;
+            Int32 newVal = Convert.ToInt32(Value);
             newVal += value;
             Value = newVal;
         }

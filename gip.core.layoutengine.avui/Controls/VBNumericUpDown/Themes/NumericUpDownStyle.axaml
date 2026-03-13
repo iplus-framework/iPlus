@@ -9,7 +9,7 @@
         <Setter Property="Focusable" Value="False" />
         <Setter Property="Template">
                 <ControlTemplate>
-                    <local:VBButtonSpinner x:Name="Spinner" IsTabStop="False" BorderThickness="{TemplateBinding BorderThickness}">
+                    <local:VBButtonSpinner x:Name="PART_Spinner" IsTabStop="False" BorderThickness="{TemplateBinding BorderThickness}">
                         <local:VBTextBox x:Name="PART_TextBox" 
                                  ShowCaption="{TemplateBinding ShowCaption}"
                                  VBContent="{TemplateBinding VBContent}"

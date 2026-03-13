@@ -8,16 +8,15 @@ using System.Text;
 using Avalonia;
 using Avalonia.Media;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
-using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-	public partial class SolidBrushEditor : UserControl
+	public class SolidBrushEditor : ContentControl
     {
 		public SolidBrushEditor()
 		{
-			InitializeComponent();
 		}
 
 		public static readonly StyledProperty<Color> ColorProperty =

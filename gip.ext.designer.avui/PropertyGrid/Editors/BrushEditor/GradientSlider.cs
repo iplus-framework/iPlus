@@ -11,21 +11,18 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Markup.Xaml;
 using Avalonia.Interactivity;
 using Avalonia.Styling;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-	public partial class GradientSlider : UserControl
+	public class GradientSlider : ContentControl
 	{
-		//private Dragger strip;
-		//private GradientItemsControl itemsControl;
+		private Dragger strip;
+		private GradientItemsControl itemsControl;
 
 		public GradientSlider()
 		{
-			InitializeComponent();
-
 			if (Brush == null)
 			{
 				var stops = new GradientStops();
@@ -35,10 +32,19 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			}
 		}
 
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
+		protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+		{
+			base.OnApplyTemplate(e);
 
+			if (strip != null)
+			{
+				strip.RemoveHandler(Thumb.DragStartedEvent, strip_DragStarted);
+				strip.RemoveHandler(Thumb.DragDeltaEvent, strip_DragDelta);
+			}
+
+			strip = e.NameScope.Find<Dragger>("PART_Strip");
+			itemsControl = e.NameScope.Find<GradientItemsControl>("PART_ItemsControl");
+			UpdateStripBrush();
 			this.Bind(SelectedStopProperty, new Binding("SelectedItem") {
 				Source = itemsControl,
 				Mode = BindingMode.TwoWay
@@ -131,6 +137,24 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 					GradientStops = null;
 				}
 			}
+			else if (change.Property == GradientStopsProperty)
+			{
+				UpdateStripBrush();
+			}
+		}
+
+		private void UpdateStripBrush()
+		{
+			if (strip == null) return;
+			var stops = GradientStops ?? new GradientStops();
+			if (strip.Background is LinearGradientBrush existing)
+				existing.GradientStops = stops;
+			else
+				strip.Background = new LinearGradientBrush
+				{
+					EndPoint = new RelativePoint(1, 0, RelativeUnit.Relative),
+					GradientStops = stops
+				};
 		}
 
 		void strip_DragStarted(object sender, VectorEventArgs e)

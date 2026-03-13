@@ -8,6 +8,7 @@ using System.Text;
 using System.Diagnostics;
 using System.Globalization;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
@@ -15,14 +16,12 @@ using Avalonia.Media;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-	public partial class BrushEditorView : UserControl
+	public partial class BrushEditorView : ContentControl
 	{
 		public BrushEditorView()
 		{
 			BrushEditor = new BrushEditor();
 			DataContext = BrushEditor;
-
-			InitializeComponent();
 
 			this.Bind(HeightProperty, new Binding("Brush") {
 				Converter = HeightConverter.Instance

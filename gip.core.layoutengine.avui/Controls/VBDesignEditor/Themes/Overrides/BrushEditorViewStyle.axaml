@@ -1,0 +1,86 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+                    xmlns:Controls="clr-namespace:gip.ext.designer.avui.Controls;assembly=gip.ext.designer.avui"
+                    xmlns:ControlConvertors="clr-namespace:gip.ext.designer.avui.Controls.Converters;assembly=gip.ext.designer.avui"
+                    xmlns:Converters="clr-namespace:gip.ext.designer.avui.Converters;assembly=gip.ext.designer.avui"
+                    xmlns:BrushEditor="clr-namespace:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor;assembly=gip.ext.designer.avui"
+                    xmlns:Designer="clr-namespace:gip.ext.designer.avui;assembly=gip.ext.designer.avui">
+
+  <ControlTheme x:Key="{x:Type BrushEditor:BrushEditorView}" TargetType="BrushEditor:BrushEditorView">
+    <Setter Property="Width" Value="395" />
+    <Setter Property="Template">
+      <ControlTemplate TargetType="BrushEditor:BrushEditorView">
+        <local:VBTabControl x:Name="PART_TabControl"
+                    SelectedIndex="{Binding CurrentKind, Converter={x:Static Converters:IntFromEnumConverter.Instance}}">
+          <local:VBTabItem Header="None">
+            <Border Background="White"
+                    BorderThickness="1"
+                    BorderBrush="Black"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+              <Line StartPoint="0,40"
+                    EndPoint="70,0"
+                    Stroke="Red"
+                    StrokeThickness="1" />
+            </Border>
+          </local:VBTabItem>
+          <local:VBTabItem Header="Solid">
+            <BrushEditor:SolidBrushEditor Color="{Binding Color}" />
+          </local:VBTabItem>
+          <local:VBTabItem Header="Linear">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+              </Grid.RowDefinitions>
+              <StackPanel Grid.Row="0"
+                          Orientation="Horizontal"
+                          Margin="5">
+                <TextBlock Text="Angle"
+                           VerticalAlignment="Center" />
+                <local:VBNumericUpDown Value="{Binding GradientAngle}"
+                                        Minimum="-360"
+                                        Maximum="360"
+                                        Margin="5 0 0 0"
+                                        Width="100" />
+                <local:VBButton Content="H"
+                        Command="{Designer:Call MakeGradientHorizontal}"
+                        Margin="5 0 0 0"
+                        Width="30" />
+                <local:VBButton Content="V"
+                        Command="{Designer:Call MakeGradientVertical}"
+                        Margin="5 0 0 0"
+                        Width="30" />
+              </StackPanel>
+              <BrushEditor:GradientBrushEditor Grid.Row="1" Brush="{Binding LinearBrush}" />
+            </Grid>
+          </local:VBTabItem>
+          <local:VBTabItem Header="Radial">
+            <BrushEditor:GradientBrushEditor Brush="{Binding RadialBrush}" />
+          </local:VBTabItem>
+          <local:VBTabItem Header="Brush List">
+            <local:VBListBox ItemsSource="{Binding AvailableBrushes}"
+                     SelectedValue="{Binding Color}" MaxHeight="400">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal">
+                    <Border Background="{Binding Brush}"
+                            Width="30"
+                            Height="15"
+                            Margin="2"
+                            BorderThickness="1"
+                            BorderBrush="Black" />
+                    <TextBlock Text="{Binding Name}"
+                               VerticalAlignment="Center" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </local:VBListBox>
+          </local:VBTabItem>
+        </local:VBTabControl>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

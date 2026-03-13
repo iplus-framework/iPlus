@@ -7,17 +7,16 @@ using System.Linq;
 using System.Text;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-	public partial class GradientBrushEditor : UserControl
+	public class GradientBrushEditor : ContentControl
 	{
 		public GradientBrushEditor()
 		{
-			InitializeComponent();
 		}
 
 		public static readonly StyledProperty<GradientBrush> BrushProperty =

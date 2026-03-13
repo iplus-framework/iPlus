@@ -1,4 +1,5 @@
 using System;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Metadata;
 using Avalonia.Controls.Primitives;
@@ -28,6 +29,24 @@ namespace gip.core.layoutengine.avui
         #endregion //Members
 
         #region Properties
+
+        public static readonly StyledProperty<object> MaximumProperty =
+            AvaloniaProperty.Register<UpDownBase, object>(nameof(Maximum), coerce: (s, v) => ((UpDownBase)s).OnCoerceMaximum(v));
+
+        public object Maximum
+        {
+            get => GetValue(MaximumProperty);
+            set => SetValue(MaximumProperty, value);
+        }
+
+        public static readonly StyledProperty<object> MinimumProperty =
+            AvaloniaProperty.Register<UpDownBase, object>(nameof(Minimum), coerce: (s, v) => ((UpDownBase)s).OnCoerceMinimum(v));
+
+        public object Minimum
+        {
+            get => GetValue(MinimumProperty);
+            set => SetValue(MinimumProperty, value);
+        }
 
         protected TextBox TextBox { get; private set; }
 
@@ -116,6 +135,39 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        protected override object OnCoerceValue(object value)
+        {
+            if (value is IComparable val)
+            {
+                var min = Minimum;
+                if (min != null)
+                {
+                    var coercedMin = Convert.ChangeType(min, val.GetType());
+                    if (val.CompareTo(coercedMin) < 0)
+                        return coercedMin;
+                }
+
+                var max = Maximum;
+                if (max != null)
+                {
+                    var coercedMax = Convert.ChangeType(max, val.GetType());
+                    if (val.CompareTo(coercedMax) > 0)
+                        return coercedMax;
+                }
+            }
+            return base.OnCoerceValue(value);
+        }
+
+        protected virtual object OnCoerceMaximum(object value)
+        {
+            return value;
+        }
+
+        protected virtual object OnCoerceMinimum(object value)
+        {
+            return value;
+        }
+
         #endregion //Base Class Overrides
 
         #region Event Handlers
@@ -147,6 +199,13 @@ namespace gip.core.layoutengine.avui
         {
             if (Spinner == null || (Spinner.ValidSpinDirection & ValidSpinDirections.Decrease) == ValidSpinDirections.Decrease)
             {
+                if (Value is IComparable val && Minimum != null)
+                {
+                    var min = Convert.ChangeType(Minimum, val.GetType()) as IComparable;
+                    if (val.CompareTo(min) <= 0)
+                        return;
+                }
+
                 OnDecrement();
             }
         }
@@ -158,6 +217,13 @@ namespace gip.core.layoutengine.avui
         {
             if (Spinner == null || (Spinner.ValidSpinDirection & ValidSpinDirections.Increase) == ValidSpinDirections.Increase)
             {
+                if (Value is IComparable val && Maximum != null)
+                {
+                    var max = Convert.ChangeType(Maximum, val.GetType()) as IComparable;
+                    if (val.CompareTo(max) >= 0)
+                        return;
+                }
+
                 OnIncrement();
             }
         }

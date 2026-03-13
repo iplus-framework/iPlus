@@ -7,14 +7,14 @@ using System.Linq;
 using System.Text;
 using gip.ext.design.avui.PropertyGrid;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Input;
 using Avalonia.Media;
-using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
     [TypeEditor(typeof(IBrush))]
-    public partial class BrushTypeEditor : UserControl
+    public class BrushTypeEditor : ContentControl
     {
         // Instance field (not static) so the popup can be added to this control's
         // logical children — required for style resolution to reach Application.Styles
@@ -23,7 +23,6 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
         public BrushTypeEditor()
         {
-            InitializeComponent();
         }
 
         private BrushEditorPopup EnsurePopup()

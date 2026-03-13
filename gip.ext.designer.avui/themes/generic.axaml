@@ -49,6 +49,12 @@
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Themes/DesignItemTreeViewStyle.axaml" />
         <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Themes/PropertyGridViewStyle.axaml" />
 
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Editors/BrushEditor/BrushEditorViewStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Editors/BrushEditor/BrushTypeEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Editors/BrushEditor/GradientSliderStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Editors/BrushEditor/SolidBrushEditorStyle.axaml" />
+        <MergeResourceInclude Source="avares://gip.ext.designer.avui/PropertyGrid/Editors/BrushEditor/GradientBrushEditorStyle.axaml" />
+
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>

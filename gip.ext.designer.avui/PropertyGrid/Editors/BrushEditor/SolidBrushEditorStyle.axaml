@@ -1,0 +1,37 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:BrushEditor="clr-namespace:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor">
+
+  <ControlTheme x:Key="{x:Type BrushEditor:SolidBrushEditor}" TargetType="BrushEditor:SolidBrushEditor">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="BrushEditor:SolidBrushEditor">
+        <TabControl>
+          <TabItem Header="Color Picker">
+            <ColorPicker Color="{Binding Color, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+          </TabItem>
+          <TabItem Header="Color List">
+            <ListBox ItemsSource="{Binding AvailableColors}"
+                     SelectedItem="{Binding SelectedColorItem, RelativeSource={RelativeSource TemplatedParent}}">
+              <ListBox.ItemTemplate>
+                <DataTemplate>
+                  <StackPanel Orientation="Horizontal">
+                    <Border Background="{Binding Brush}"
+                            Width="20"
+                            Height="15"
+                            Margin="2"
+                            BorderThickness="1"
+                            BorderBrush="Gray" />
+                    <TextBlock Text="{Binding Name}"
+                               VerticalAlignment="Center"
+                               Margin="5,0,0,0" />
+                  </StackPanel>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+          </TabItem>
+        </TabControl>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>

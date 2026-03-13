@@ -1,0 +1,19 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:BrushEditor="clr-namespace:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor">
+
+  <ControlTheme x:Key="{x:Type BrushEditor:GradientBrushEditor}" TargetType="BrushEditor:GradientBrushEditor">
+    <Setter Property="Template">
+      <ControlTemplate TargetType="BrushEditor:GradientBrushEditor">
+        <DockPanel>
+          <BrushEditor:GradientSlider x:Name="PART_Slider"
+                                      Height="100"
+                                      DockPanel.Dock="Top"
+                                      Brush="{Binding Brush, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}" />
+          <BrushEditor:SolidBrushEditor Color="{Binding SelectedStop.Color, ElementName=PART_Slider}" />
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+  </ControlTheme>
+
+</ResourceDictionary>
