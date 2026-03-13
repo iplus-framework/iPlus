@@ -13,19 +13,36 @@ using Avalonia.Markup.Xaml;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
-    [TypeEditor(typeof(Brush))]
+    [TypeEditor(typeof(IBrush))]
     public partial class BrushTypeEditor : UserControl
     {
-        static BrushEditorPopup brushEditorPopup = new BrushEditorPopup();
+        // Instance field (not static) so the popup can be added to this control's
+        // logical children — required for style resolution to reach Application.Styles
+        // and find the FluentTheme ControlThemes (TabControl, etc.) in the PopupRoot.
+        private BrushEditorPopup _brushEditorPopup;
 
         public BrushTypeEditor()
         {
             InitializeComponent();
         }
 
+        private BrushEditorPopup EnsurePopup()
+        {
+            if (_brushEditorPopup == null)
+            {
+                _brushEditorPopup = new BrushEditorPopup();
+                // Adding to LogicalChildren sets this control as the popup's
+                // InheritanceParent, so PopupRoot.StylingParent -> Popup ->
+                // BrushTypeEditor -> ... -> Window -> Application.Styles.
+                LogicalChildren.Add(_brushEditorPopup);
+            }
+            return _brushEditorPopup;
+        }
+
         protected override void OnPointerReleased(PointerReleasedEventArgs e)
         {
             base.OnPointerReleased(e);
+            var brushEditorPopup = EnsurePopup();
             var brushEditorView = brushEditorPopup.BrushEditorView;
             if (brushEditorView?.BrushEditor != null)
             {

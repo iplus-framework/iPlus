@@ -7,11 +7,11 @@
              xmlns:Converters="using:gip.ext.designer.avui.Converters"
              xmlns:PropertyGrid="using:gip.ext.designer.avui.PropertyGrid"
              Width="395">
-	<TabControl x:Name="tabControl"
+	<TabControl x:Name="tabControl" Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
 	            SelectedIndex="{Binding CurrentKind, Converter={x:Static Converters:IntFromEnumConverter.Instance}}">
 		<TabItem Header="None">
 			<Border Background="White"
-			        BorderThickness="1"
+					BorderThickness="1"
 			        BorderBrush="Black"
 			        HorizontalAlignment="Center"
 			        VerticalAlignment="Center">
@@ -22,7 +22,7 @@
 			</Border>
 		</TabItem>
 		<TabItem Header="Solid">
-			<BrushEditor:SolidBrushEditor Color="{Binding Brush.Color}" />
+			<BrushEditor:SolidBrushEditor Color="{Binding Color}" />
 		</TabItem>
 		<TabItem Header="Linear">
 			<Grid>
@@ -50,11 +50,11 @@
 					        Margin="5 0 0 0"
 					        Width="30" />
 				</StackPanel>
-				<BrushEditor:GradientBrushEditor Grid.Row="1" />
+				<BrushEditor:GradientBrushEditor Grid.Row="1" Brush="{Binding LinearBrush}" />
 			</Grid>
 		</TabItem>
 		<TabItem Header="Radial">
-			<BrushEditor:GradientBrushEditor />
+			<BrushEditor:GradientBrushEditor Brush="{Binding RadialBrush}" />
 		</TabItem>
 		<TabItem Header="Brush List">
       <ListBox ItemsSource="{Binding AvailableBrushes}"
@@ -75,6 +75,7 @@
         </ListBox.ItemTemplate>
       </ListBox>
 		</TabItem>
-	</TabControl>
+	</TabControl> 
+
 
 </UserControl>

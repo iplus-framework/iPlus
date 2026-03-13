@@ -9,22 +9,9 @@
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Themes/WpfDesignStyles.axaml"/>
       </ResourceDictionary.MergedDictionaries>
-      
-      <!-- No dynamic resources. Is done via ControlManager in Method RegisterImplicitStyles -->
-      <!--<ResourceDictionary.ThemeDictionaries>
-        <ResourceDictionary x:Key="Default">
-          <ResourceDictionary.MergedDictionaries>
-            <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/LightThemeColors.axaml" />
-          </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-        <ResourceDictionary x:Key="Dark">
-          <ResourceDictionary.MergedDictionaries>
-            <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml" />
-          </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-      </ResourceDictionary.ThemeDictionaries>-->
     </ResourceDictionary>
   </Styles.Resources>
+  <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
   <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
   <StyleInclude Source="avares://gip.ext.designer.avui/themes/generic.axaml" />
   <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/Controls.axaml" />

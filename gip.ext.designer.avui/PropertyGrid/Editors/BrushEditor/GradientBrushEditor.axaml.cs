@@ -5,8 +5,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Data;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
@@ -17,5 +20,13 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			InitializeComponent();
 		}
 
+		public static readonly StyledProperty<GradientBrush> BrushProperty =
+			AvaloniaProperty.Register<GradientBrushEditor, GradientBrush>(nameof(Brush), defaultBindingMode: BindingMode.TwoWay);
+
+		public GradientBrush Brush
+		{
+			get { return GetValue(BrushProperty); }
+			set { SetValue(BrushProperty, value); }
+		}
 	}
 }

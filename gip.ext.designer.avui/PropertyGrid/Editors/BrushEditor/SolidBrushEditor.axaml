@@ -1,13 +1,14 @@
 ﻿<UserControl x:Class="gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor.SolidBrushEditor"
 	xmlns="https://github.com/avaloniaui"
-	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+	xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+	x:Name="root">
 	<TabControl>
 		<TabItem Header="Color Picker">
-			<ColorPicker Color="{Binding Color, ElementName=this}" />
+			<ColorPicker Color="{Binding Color, ElementName=root}" />
 		</TabItem>
 		<TabItem Header="Color List">
 			<ListBox ItemsSource="{Binding AvailableColors}"
-			         SelectedItem="{Binding SelectedColorItem}">
+			         SelectedItem="{Binding SelectedColorItem, ElementName=root}">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 						<StackPanel Orientation="Horizontal">

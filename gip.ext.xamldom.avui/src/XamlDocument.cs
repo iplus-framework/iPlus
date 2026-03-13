@@ -235,6 +235,14 @@ namespace gip.ext.xamldom.avui
             // Force element syntax (<RotateTransform Angle="15"/>) for all Transform instances.
             if (hasStringConverter && instance is Avalonia.Media.Transform)
                 hasStringConverter = false;
+
+            // Avalonia's BrushConverter reports string conversion support, but for gradient brush
+            // instances ConvertToInvariantString() yields type names like
+            // "Avalonia.Media.LinearGradientBrush" that Brush.Parse cannot parse back.
+            // Keep text serialization only for solid colors; force object/element syntax for
+            // non-solid brushes.
+            if (hasStringConverter && instance is Brush && instance is not ISolidColorBrush)
+                hasStringConverter = false;
             if (forProperty != null && hasStringConverter)
             {
 
@@ -259,10 +267,9 @@ namespace gip.ext.xamldom.avui
                 xml.InnerText = c.ConvertToInvariantString(instance);
             }
             else if (instance is Brush && forProperty != null)
-            {  // TODO: this is a hacky fix, because Brush Editor doesn't
-               // edit Design Items and so we have no XML, only the Brush 
-               // object and we need to parse the Brush to XAML!
-               throw new NotSupportedException("Brush editing is not supported in Avalonia.");
+            {  
+                // Keep object syntax for brushes that cannot round-trip through BrushConverter text.
+                    // The caller (BrushEditor.Commit) applies detailed brush member updates separately.
                 //var s = new MemoryStream();
                 //XamlWriter.Save(instance, s);
                 //s.Seek(0, SeekOrigin.Begin);

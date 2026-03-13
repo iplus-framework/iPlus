@@ -12,8 +12,8 @@ using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Markup.Xaml;
-using System.ComponentModel;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
 
 namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
@@ -25,6 +25,14 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 		public GradientSlider()
 		{
 			InitializeComponent();
+
+			if (Brush == null)
+			{
+				var stops = new GradientStops();
+				stops.Add(new GradientStop(Colors.Black, 0));
+				stops.Add(new GradientStop(Colors.White, 1));
+				Brush = new LinearGradientBrush { GradientStops = stops };
+			}
 		}
 
         protected override void OnInitialized()
@@ -70,10 +78,10 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			set { SetValue(SelectedStopProperty, value); }
 		}
 
-		public static readonly StyledProperty<BindingList<GradientStop>> GradientStopsProperty =
-			AvaloniaProperty.Register<GradientSlider, BindingList<GradientStop>>(nameof(GradientStops));
+		public static readonly StyledProperty<GradientStops> GradientStopsProperty =
+			AvaloniaProperty.Register<GradientSlider, GradientStops>(nameof(GradientStops));
 
-		public BindingList<GradientStop> GradientStops {
+		public GradientStops GradientStops {
 			get { return GetValue(GradientStopsProperty); }
 			set { SetValue(GradientStopsProperty, value); }
 		}
@@ -115,7 +123,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			if (change.Property == BrushProperty && !isThumbDragInProgress)
 			{
 				if (Brush != null) {
-					GradientStops = new BindingList<GradientStop>(Brush.GradientStops);
+					GradientStops = Brush.GradientStops;
 					if (SelectedStop == null)
 						SelectedStop = GradientStops.FirstOrDefault();
 				}
@@ -131,7 +139,18 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 			{
 				startOffset = e.Vector.X / strip.Bounds.Width;
 				newStop = new GradientStop(GetColorAtOffset(GradientStops, startOffset), startOffset);
-				GradientStops.Add(newStop);
+
+				int insertIndex = GradientStops.Count;
+				for (int i = 0; i < GradientStops.Count; i++)
+				{
+					if (startOffset < GradientStops[i].Offset)
+					{
+						insertIndex = i;
+						break;
+					}
+				}
+
+				GradientStops.Insert(insertIndex, newStop);
 				SelectedStop = newStop;
 				e.Handled = true;
 			}
@@ -187,7 +206,17 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 	{
 		protected override Control CreateContainerForItemOverride(object item, int index, object recycleKey)
 		{
-			return new GradientThumb();
+			var thumb = new GradientThumb();
+
+			// Explicit fallback: type-keyed ControlTheme resources are not auto-applied.
+			if (thumb.Theme == null
+				&& this.TryFindResource(typeof(GradientThumb), ThemeVariant.Default, out var theme)
+				&& theme is ControlTheme controlTheme)
+			{
+				thumb.Theme = controlTheme;
+			}
+
+			return thumb;
 		}
 
 		protected override bool NeedsContainerOverride(object item, int index, out object recycleKey)

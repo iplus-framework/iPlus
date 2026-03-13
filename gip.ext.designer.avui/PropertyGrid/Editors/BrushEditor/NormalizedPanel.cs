@@ -4,6 +4,7 @@
 using Avalonia.Controls;
 using Avalonia;
 using Avalonia.LogicalTree;
+using Avalonia.VisualTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,9 +48,19 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
 		static void OnPositioningChanged(Control sender, AvaloniaPropertyChangedEventArgs e)
 		{
-			NormalizedPanel parent = sender.GetLogicalParent() as NormalizedPanel;
-			if (parent != null) {
-				parent.InvalidateArrange();
+			// In ItemsControl scenarios, the logical parent of item containers is not always
+			// the layout panel that arranges them, so invalidate the actual visual ancestor panel.
+			var panel = sender.GetVisualAncestors().OfType<NormalizedPanel>().FirstOrDefault();
+			if (panel != null)
+			{
+				panel.InvalidateArrange();
+				return;
+			}
+
+			NormalizedPanel logicalParent = sender.GetLogicalParent() as NormalizedPanel;
+			if (logicalParent != null)
+			{
+				logicalParent.InvalidateArrange();
 			}
 		}
 

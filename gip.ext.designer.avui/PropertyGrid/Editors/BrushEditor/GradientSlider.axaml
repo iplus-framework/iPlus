@@ -1,21 +1,22 @@
 ﻿<UserControl x:Class="gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor.GradientSlider"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:BrushEditor="using:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
->
+			 xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:BrushEditor="using:gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor"
+			 x:Name="root"
+			 >
 	<UserControl.Resources>
-		
+
 		<DataTemplate x:Key="GradientStopTemplate">
 			<Grid>
 				<Path x:Name="thumb"
-				      Data="m 6 0 l 6 5 v 12 h -12 v -12 z"
-				      Stroke="Black"
-				      Fill="Orange" />
+					  Data="m 6 0 l 6 5 v 12 h -12 v -12 z"
+					  Stroke="Black"
+					  Fill="Orange" />
 				<Border Margin="2 7 2 2"
-				        BorderBrush="Black"
-				        BorderThickness="1">
+						BorderBrush="Black"
+						BorderThickness="1">
 					<Border BorderBrush="White"
-					        BorderThickness="1">
+							BorderThickness="1">
 						<Border.Background>
 							<SolidColorBrush Color="Red" />
 						</Border.Background>
@@ -24,23 +25,27 @@
 			</Grid>
 		</DataTemplate>
 
-    <ControlTheme x:Key="{x:Type BrushEditor:GradientThumb}" TargetType="BrushEditor:GradientThumb">
+		<ControlTheme x:Key="{x:Type BrushEditor:GradientThumb}" TargetType="BrushEditor:GradientThumb">
 			<Setter Property="BrushEditor:NormalizedPanel.X"
-			        Value="{Binding Offset}" />
+					Value="{Binding Offset}" />
+			<Setter Property="BrushEditor:NormalizedPanel.Y"
+					Value="0.5" />
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate>
-						<StackPanel>
+						<StackPanel Height="18" Orientation="Vertical">
 							<Path x:Name="thumb"
-							      Data="m 0 0 l 6 -5 l 6 5"
-							      Stroke="Black"
-							      Fill="White" />
+								  Data="M 0,5 L 6,0 L 12,5 Z"
+								  StrokeThickness="1"
+								  Stroke="Black"
+								  Fill="White" />
+							<!-- <Rectangle Width="6" Height="6" StrokeThickness="1" Stroke="Black" Fill="White"></Rectangle> -->
 							<Border BorderBrush="Black"
-							        BorderThickness="1"
-							        Width="12"
-							        Height="12">
+									BorderThickness="1"
+									Width="12"
+									Height="12">
 								<Border BorderBrush="White"
-								        BorderThickness="1">
+										BorderThickness="1">
 									<Border.Background>
 										<SolidColorBrush Color="{Binding Color}" />
 									</Border.Background>
@@ -52,38 +57,48 @@
 			</Setter>
 		</ControlTheme>
 
-    <ControlTheme x:Key="{x:Type BrushEditor:Dragger}" TargetType="BrushEditor:Dragger">
+		<ControlTheme x:Key="{x:Type BrushEditor:Dragger}" TargetType="BrushEditor:Dragger">
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate>
 						<Border BorderBrush="{TemplateBinding BorderBrush}"
-						        BorderThickness="{TemplateBinding BorderThickness}"
-						        Background="{TemplateBinding Background}" />
+								BorderThickness="{TemplateBinding BorderThickness}"
+								Background="{TemplateBinding Background}" />
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
 		</ControlTheme>
-	
+
+		<ControlTheme x:Key="{x:Type BrushEditor:GradientItemsControl}" TargetType="BrushEditor:GradientItemsControl">
+			<Setter Property="Template">
+				<ControlTemplate>
+					<ItemsPresenter Name="PART_ItemsPresenter"
+									Margin="{TemplateBinding Padding}"
+									ItemsPanel="{TemplateBinding ItemsPanel}" />
+				</ControlTemplate>
+			</Setter>
+		</ControlTheme>
+
 	</UserControl.Resources>
-	
+
 	<Grid>
 		<BrushEditor:Dragger x:Name="strip"
-		           BorderBrush="Black"
-		           BorderThickness="1"
-		           VerticalAlignment="Top"
-		           Height="20"
-		           Margin="6 0 6 0">
+							 BorderBrush="Black"
+							 BorderThickness="1"
+							 VerticalAlignment="Top"
+							 Height="20"
+							 Margin="6 0 6 0">
 			<BrushEditor:Dragger.Background>
 				<LinearGradientBrush EndPoint="100%,0%"
-					GradientStops="{Binding Brush.GradientStops, ElementName=this}" />
+									 GradientStops="{Binding Brush.GradientStops, ElementName=root}" />
 			</BrushEditor:Dragger.Background>
 		</BrushEditor:Dragger>
-		<BrushEditor:GradientItemsControl x:Name="itemsControl"
-			ItemsSource="{Binding GradientStops, ElementName=this}"
-			Margin="6 28 6 10">
+		<BrushEditor:GradientItemsControl x:Name="itemsControl" Height="20" VerticalAlignment="Top"
+										  ItemsSource="{Binding GradientStops, ElementName=root}"
+										  Margin="6 18 6 0">
 			<ItemsControl.ItemsPanel>
 				<ItemsPanelTemplate>
-					<BrushEditor:NormalizedPanel />
+					<BrushEditor:NormalizedPanel Height="20" />
 				</ItemsPanelTemplate>
 			</ItemsControl.ItemsPanel>
 		</BrushEditor:GradientItemsControl>

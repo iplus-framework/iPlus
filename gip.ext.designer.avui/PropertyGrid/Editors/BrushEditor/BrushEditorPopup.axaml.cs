@@ -15,19 +15,22 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 {
 	public partial class BrushEditorPopup : Popup
     {
-        private BrushEditorView _brushEditorView;
+        /// <summary>
+        /// Optional factory for creating the BrushEditorView. Override in gip.core.layoutengine.avui
+        /// (or any consumer) to inject a custom subclass, e.g. one that uses VBTabControl:
+        ///   BrushEditorPopup.ViewFactory = () => new VBBrushEditorView();
+        /// </summary>
+        public static Func<BrushEditorView> ViewFactory { get; set; }
+
+        public BrushEditorView BrushEditorView { get; private set; }
 
 		public BrushEditorPopup()
 		{
             this.InitializeComponent();
+            BrushEditorView = ViewFactory?.Invoke() ?? new BrushEditorView();
+            this.Child = BrushEditorView;
             this.Closed += OnClosed;
             this.KeyDown += OnKeyDown;
-        }
-
-        protected override void OnInitialized()
-        {
-            base.OnInitialized();
-            _brushEditorView = this.FindControl<BrushEditorView>("BrushEditorView");
         }
 
         protected void OnClosed(object sender, EventArgs e)

@@ -54,6 +54,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
         SolidColorBrush solidColorBrush = new SolidColorBrush(Colors.White);
         LinearGradientBrush linearGradientBrush;
         RadialGradientBrush radialGradientBrush;
+        IBrush workingBrush;
 
         IPropertyNode property;
 
@@ -68,13 +69,27 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                 property = value;
                 if (property != null)
                 {
-                    var f = property.Value as IImmutableBrush;
-                    if (f != null) 
-                        property.Value = f.Clone();
+                    var sourceBrush = property.Value as IBrush;
+                    workingBrush = sourceBrush?.Clone();
+
+                    // Ensure solid brushes are mutable so Color editing works reliably.
+                    if (workingBrush is ISolidColorBrush solid && workingBrush is not SolidColorBrush)
+                    {
+                        workingBrush = new SolidColorBrush(solid.Color, solid.Opacity)
+                        {
+                            Transform = solid.Transform,
+                            TransformOrigin = solid.TransformOrigin
+                        };
+                    }
+                }
+                else
+                {
+                    workingBrush = null;
                 }
                 DetermineCurrentKind();
                 RaisePropertyChanged("Property");
                 RaisePropertyChanged("Brush");
+                RaisePropertyChanged("Color");
             }
         }
 
@@ -82,32 +97,23 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
         {
             get
             {
-                if (property != null)
-                {
-                    return property.Value as IBrush;
-                }
-                return null;
+                return workingBrush;
             }
             set
             {
-                if (property != null && property.Value != value)
+                if (workingBrush != value)
                 {
-                    if (value == null)
-                    {
-                        if (property.CanReset)
-                            property.Reset();
-                    }
-                    else
-                        property.Value = value;
+                    workingBrush = value;
                     DetermineCurrentKind();
                     RaisePropertyChanged("Brush");
+                    RaisePropertyChanged("Color");
                 }
             }
         }
 
         public Color Color
         {
-            get { return Brush is SolidColorBrush ? ((SolidColorBrush)Brush).Color : Colors.Black; }
+            get { return Brush is ISolidColorBrush solid ? solid.Color : Colors.Black; }
 
             set
             {
@@ -119,6 +125,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                 {
                     Brush = new SolidColorBrush(value);
                 }
+
+                RaisePropertyChanged("Color");
+                RaisePropertyChanged("Brush");
             }
         }
 
@@ -133,18 +142,30 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                 solidColorBrush = Brush as SolidColorBrush;
                 currentKind = BrushEditorKind.Solid;
             }
+            else if (Brush is ISolidColorBrush solid)
+            {
+                solidColorBrush = new SolidColorBrush(solid.Color, solid.Opacity)
+                {
+                    Transform = solid.Transform,
+                    TransformOrigin = solid.TransformOrigin
+                };
+                currentKind = BrushEditorKind.Solid;
+            }
             else if (Brush is LinearGradientBrush)
             {
                 linearGradientBrush = Brush as LinearGradientBrush;
                 radialGradientBrush.GradientStops = linearGradientBrush.GradientStops;
                 currentKind = BrushEditorKind.Linear;
+                RaisePropertyChanged("LinearBrush");
             }
             else if (Brush is RadialGradientBrush)
             {
                 radialGradientBrush = Brush as RadialGradientBrush;
                 linearGradientBrush.GradientStops = linearGradientBrush.GradientStops;
                 currentKind = BrushEditorKind.Radial;
+                RaisePropertyChanged("RadialBrush");
             }
+            RaisePropertyChanged("CurrentKind");
         }
 
         BrushEditorKind currentKind;
@@ -182,6 +203,8 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                         Brush = solidColorBrush;
                         break;
                 }
+
+                RaisePropertyChanged("Color");
             }
         }
 
@@ -207,6 +230,16 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
             }
         }
 
+        public LinearGradientBrush LinearBrush
+        {
+            get { return linearGradientBrush; }
+        }
+
+        public RadialGradientBrush RadialBrush
+        {
+            get { return radialGradientBrush; }
+        }
+
         public IEnumerable<BrushItem> AvailableColors
         {
             get { return SystemColors; }
@@ -216,6 +249,10 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
         {
             get { return SystemBrushes; }
         }
+
+        public bool CanMakeGradientHorizontal => true;
+
+        public bool CanMakeGradientVertical => true;
 
         public void MakeGradientHorizontal()
         {
@@ -229,6 +266,9 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
 
         public void Commit()
         {
+            if (Property == null)
+                return;
+
             if (Brush != null)
             {
                 Property.Value = Brush.Clone();
@@ -291,6 +331,10 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors.BrushEditor
                     }
                     ResetBrushes();
                 }
+            }
+            else if (Property.CanReset)
+            {
+                Property.Reset();
             }
         }
 

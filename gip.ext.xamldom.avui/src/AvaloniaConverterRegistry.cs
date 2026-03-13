@@ -32,6 +32,18 @@ namespace gip.ext.xamldom.avui
         {
             _entries = new()
             {
+                // Avalonia.Media.Color -> "#AARRGGBB"
+                (t => t == typeof(Avalonia.Media.Color),
+                    ColorBidirectionalConverter.Instance),
+
+                // Avalonia.RelativePoint -> "x%, y%" or "x, y"
+                (t => t == typeof(RelativePoint),
+                    RelativePointBidirectionalConverter.Instance),
+
+                // Avalonia.RelativeScalar -> "100%" or "12.5"
+                (t => t == typeof(RelativeScalar),
+                    RelativeScalarBidirectionalConverter.Instance),
+
                 // IList<Point> / List<Point> / Avalonia.Points (AvaloniaList<Point>) → "x1,y1 x2,y2 ..."
                 (t => typeof(IList<Point>).IsAssignableFrom(t),
                     PointsListBidirectionalConverter.Instance),
@@ -53,6 +65,111 @@ namespace gip.ext.xamldom.avui
         }
 
         // ----- Private bidirectional converter implementations -----
+
+        /// <summary>
+        /// Bidirectional converter for Avalonia Color values.
+        /// Uses #AARRGGBB to keep round-trippable, explicit alpha output.
+        /// </summary>
+        private sealed class ColorBidirectionalConverter : TypeConverter
+        {
+            public static readonly ColorBidirectionalConverter Instance = new();
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+                => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                if (value is string s)
+                    return Avalonia.Media.Color.Parse(s);
+
+                return base.ConvertFrom(context, culture, value);
+            }
+
+            public override object ConvertTo(
+                ITypeDescriptorContext context,
+                CultureInfo culture,
+                object value,
+                Type destinationType)
+            {
+                if (destinationType == typeof(string) && value is Avalonia.Media.Color color)
+                {
+                    return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
+                }
+
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+        }
+
+        /// <summary>
+        /// Bidirectional converter for RelativePoint values.
+        /// </summary>
+        private sealed class RelativePointBidirectionalConverter : TypeConverter
+        {
+            public static readonly RelativePointBidirectionalConverter Instance = new();
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+                => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                if (value is string s)
+                    return RelativePoint.Parse(s);
+
+                return base.ConvertFrom(context, culture, value);
+            }
+
+            public override object ConvertTo(
+                ITypeDescriptorContext context,
+                CultureInfo culture,
+                object value,
+                Type destinationType)
+            {
+                if (destinationType == typeof(string) && value is RelativePoint p)
+                    return p.ToString();
+
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+        }
+
+        /// <summary>
+        /// Bidirectional converter for RelativeScalar values.
+        /// </summary>
+        private sealed class RelativeScalarBidirectionalConverter : TypeConverter
+        {
+            public static readonly RelativeScalarBidirectionalConverter Instance = new();
+
+            public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+                => sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+
+            public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+                => destinationType == typeof(string) || base.CanConvertTo(context, destinationType);
+
+            public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+            {
+                if (value is string s)
+                    return RelativeScalar.Parse(s);
+
+                return base.ConvertFrom(context, culture, value);
+            }
+
+            public override object ConvertTo(
+                ITypeDescriptorContext context,
+                CultureInfo culture,
+                object value,
+                Type destinationType)
+            {
+                if (destinationType == typeof(string) && value is RelativeScalar scalar)
+                    return scalar.ToString();
+
+                return base.ConvertTo(context, culture, value, destinationType);
+            }
+        }
 
         /// <summary>
         /// Extends Avalonia's <see cref="PointsListTypeConverter"/> (which only parses) with

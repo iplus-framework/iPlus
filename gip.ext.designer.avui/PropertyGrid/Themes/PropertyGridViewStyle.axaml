@@ -8,7 +8,7 @@
     xmlns:Prop="clr-namespace:gip.ext.designer.avui.PropertyGrid">
 
   <ControlTheme x:Key="{x:Type PropertyGrid:PropertyGridView}" TargetType="PropertyGrid:PropertyGridView">
-    <Setter Property="Background" Value="{DynamicResource SystemAccentColor}" />
+    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
     <Setter Property="Template">
       <ControlTemplate TargetType="PropertyGrid:PropertyGridView">
         <DockPanel LastChildFill="True" Background="{TemplateBinding Background}">
