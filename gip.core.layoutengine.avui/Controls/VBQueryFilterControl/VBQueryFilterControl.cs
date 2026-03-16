@@ -330,13 +330,13 @@ namespace gip.core.layoutengine.avui
         {
             if (type == null) return false;
             Type u = Nullable.GetUnderlyingType(type) ?? type;
-            return !u.IsPrimitive
+            return (!u.IsPrimitive
                 && u != typeof(string)
                 && u != typeof(DateTime)
                 && u != typeof(DateTimeOffset)
                 && u != typeof(Guid)
-                && u != typeof(decimal)
-                && !u.IsEnum;
+                && u != typeof(decimal))
+                || u.IsEnum;
         }
 
         /// <summary>
