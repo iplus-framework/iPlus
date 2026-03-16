@@ -15,13 +15,12 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.Serialization;
-using System.Transactions;
-using System.Reflection;
 using System.ComponentModel;
-using Microsoft.Data.SqlClient;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Transactions;
 
 namespace gip.core.datamodel
 {
@@ -261,6 +260,25 @@ namespace gip.core.datamodel
                 OnPropertyChanged("IsConfiguration");
             }
         }
+
+        [IgnoreDataMember]
+        private DateTime? _SearchDT;
+        [IgnoreDataMember]
+        [ACPropertyInfo(6, "", "en{'FilterDT'}de{'FilterDT'}")]
+        public DateTime? SearchDT
+        {
+            get
+            {
+                return _SearchDT;
+            }
+            set
+            {
+                _SearchDT = value;
+                SearchWord = _SearchDT.HasValue ? _SearchDT.Value.ToString("o") : null;
+                OnPropertyChanged(nameof(SearchDT));
+            }
+        }
+
         #endregion
 
         #region IACObject Member
