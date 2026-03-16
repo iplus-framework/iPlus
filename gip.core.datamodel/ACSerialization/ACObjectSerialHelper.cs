@@ -232,7 +232,7 @@ namespace gip.core.datamodel
             {
                 acObjectPropertyType = ACObjectSerialPropertyHandlingTypesEnum.String;
             }
-            else if (pi.PropertyType == typeof(DateTime))
+            else if (pi.PropertyType == typeof(DateTime) || pi.PropertyType == typeof(DateTime?))
             {
                 acObjectPropertyType = ACObjectSerialPropertyHandlingTypesEnum.DateTime;
             }
@@ -303,12 +303,13 @@ namespace gip.core.datamodel
                         break;
                     case ACObjectSerialPropertyHandlingTypesEnum.DateTime:
                         DateTime newDateValue = DateTime.Parse(xValue);
-                        DateTime oldDateValue = (DateTime)pi.GetValue(acObject, null);
+                        object oldRawValue = pi.GetValue(acObject, null);
+                        DateTime oldDateValue = oldRawValue != null ? (DateTime)oldRawValue : default(DateTime);
                         if (oldDateValue != newDateValue)
                         {
                             pi.SetValue(acObject, newDateValue, null);
                         }
-                        changesItem = new ACFSItemChanges(pi.Name, oldDateValue, newDateValue);
+                        changesItem = new ACFSItemChanges(pi.Name, oldRawValue, newDateValue);
                         break;
                     case ACObjectSerialPropertyHandlingTypesEnum.ACClassDesignByte:
                         ACClassDesign acClassDesign = acObject as ACClassDesign;
@@ -397,7 +398,15 @@ namespace gip.core.datamodel
                 foreach (PropertyInfo pi in acObjectPropertyModel.Properties)
                 {
                     KeyValuePair<bool, string> propertyValue = acFsItem.ReadPropertyValue(pi, acObjectPropertyModel.PropertyType);
-                    if (!propertyValue.Key) continue; // Continue for not defined values in XML (but in property list)
+                    if (!propertyValue.Key)
+                    {
+                        // Design from V4 without Avalonia Design:
+                        if (pi.Name == nameof(ACClassDesign.XMLDesignUpdateDate) && acFsItem.ACObject is ACClassDesign design)
+                        {
+                            design.XMLDesignUpdateDate = DateTime.Now;
+                        }
+                        continue; // Continue for not defined values in XML (but in property list)
+                    }
                     string xValue = propertyValue.Value;
                     try
                     {

@@ -165,6 +165,10 @@ namespace gip.bso.iplus
 
         #endregion
 
+        #region Init/DeInit
+
+        #endregion
+
         #region MCP Methods
 
         #region Connection
@@ -342,7 +346,8 @@ namespace gip.bso.iplus
                 // Wait for all connections to complete
                 await Task.WhenAll(connectionTasks).ConfigureAwait(false);
 
-                // Process results
+                // Process results (pure data operations, no UI updates)
+                var connectionErrors = new List<string>();
                 foreach (var result in connectionResults)
                 {
                     if (result.error == null && result.client != null)
@@ -354,32 +359,51 @@ namespace gip.bso.iplus
                     }
                     else
                     {
-                        ChatOutput += $"Failed to connect to MCP server '{result.serverName}': {result.error?.Message}\n";
+                        connectionErrors.Add($"Failed to connect to MCP server '{result.serverName}': {result.error?.Message}");
                     }
                 }
 
-                // Update connection status
-                if (_McpClients.Count > 0)
+                // Dispatch all UI updates to the UI thread synchronously so McpConnected is set
+                // before ConnectMCP() returns and EnsureMCPClientsInitialized() reads it.
+                void applyResults()
                 {
-                    McpConnected = true;
-                    ChatOutput = $"Connected to {_McpClients.Count} MCP server(s): {string.Join(", ", connectedServers)}. Total {totalTools} tools available.";
+                    foreach (var error in connectionErrors)
+                        ChatOutput += error + "\n";
 
-                    // Populate the AvailableToolsWithSelection list after loading tools
-                    PopulateToolsWithSelection();
+                    if (_McpClients.Count > 0)
+                    {
+                        McpConnected = true;
+                        ChatOutput = $"Connected to {_McpClients.Count} MCP server(s): {string.Join(", ", connectedServers)}. Total {totalTools} tools available.";
+                        PopulateToolsWithSelection();
+                    }
+                    else
+                    {
+                        McpConnected = false;
+                        ChatOutput = "Failed to connect to any MCP servers.";
+                    }
+
+                    OnPropertyChanged(nameof(AvailableTools));
+                    OnPropertyChanged(nameof(AvailableToolsNames));
                 }
+
+                if (_MainSyncContext != null)
+                    _MainSyncContext.Send(_ => applyResults(), null);
                 else
-                {
-                    McpConnected = false;
-                    ChatOutput = "Failed to connect to any MCP servers.";
-                }
-
-                OnPropertyChanged(nameof(AvailableTools));
-                OnPropertyChanged(nameof(AvailableToolsNames));
+                    applyResults();
             }
             catch (Exception ex)
             {
-                McpConnected = false;
-                ChatOutput = $"Error connecting MCP clients: {ex.Message}";
+                string errorMsg = ex.Message;
+                void applyError()
+                {
+                    McpConnected = false;
+                    ChatOutput = $"Error connecting MCP clients: {errorMsg}";
+                }
+
+                if (_MainSyncContext != null)
+                    _MainSyncContext.Send(_ => applyError(), null);
+                else
+                    applyError();
             }
         }
 

@@ -167,7 +167,14 @@ namespace gip.bso.iplus
                     return null;
                 if (_ACClassDesignList == null)
                 {
-                    _ACClassDesignList = new ObservableCollection<ACClassDesign>(CurrentACClass.Designs);
+                    if (ShowUnSyncDesigns)
+                    {
+                        _ACClassDesignList = new ObservableCollection<ACClassDesign>(CurrentACClass.Designs.Where(d => !d.XMLDesignUpdateDate.HasValue || !d.XMLDesign2UpdateDate.HasValue || d.XMLDesignUpdateDate.Value != d.XMLDesign2UpdateDate.Value));
+                    }
+                    else
+                    {
+                        _ACClassDesignList = new ObservableCollection<ACClassDesign>(CurrentACClass.Designs);
+                    }
                 }
                 return _ACClassDesignList;
             }
@@ -854,6 +861,40 @@ namespace gip.bso.iplus
             return CurrentACClassDesign != null && !CurrentACClassDesign.IsDesignCompiled;
         }
 
+        [ACMethodInteraction("ACClassDesign", "en{'Convert WPF Design to Avalonia'}de{'WPF-Design in Avalonia konvertieren'}", 9999, false, "SelectedACClassDesign")]
+        public void ConvertWPFDesignToAvalonia()
+        {
+            if (CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign))
+            {
+                CurrentACClassDesign.XMLDesign2 = ACClassDesign.ConvertWpfToAvaloniaXaml(CurrentACClassDesign.XMLDesign);
+                CurrentACClassDesign.XMLDesignUpdateDate = DateTime.Now;
+                CurrentACClassDesign.XMLDesign2UpdateDate = CurrentACClassDesign.XMLDesignUpdateDate;
+                OnPropertyChanged("CurrentACClassDesign");
+            }
+        }
+
+        public bool IsEnabledConvertWPFDesignToAvalonia()
+        {
+            return CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) 
+            && (string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2) || !CurrentACClassDesign.AreDesignsSynchronized);
+        }
+
+        [ACMethodInteraction("ACClassDesign", "en{'Set Designs Synchronized'}de{'Designs Synchronisieren'}", 9999, false, "SelectedACClassDesign")]
+        public void SetDesignsSynchronized()
+        {
+            if (CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2))
+            {
+                CurrentACClassDesign.XMLDesignUpdateDate = DateTime.Now;
+                CurrentACClassDesign.XMLDesign2UpdateDate = CurrentACClassDesign.XMLDesignUpdateDate;
+                OnPropertyChanged("CurrentACClassDesign");
+            }
+        }
+
+        public bool IsEnabledSetDesignsSynchronized()
+        {
+            return CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2)
+                && !CurrentACClassDesign.AreDesignsSynchronized;
+        }
 
         #endregion
 

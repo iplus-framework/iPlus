@@ -993,9 +993,18 @@ namespace gip.bso.iplus
                         IncludeBackgroundModules = this.ShowBGModule,
                         FilterACClass = this.ShowACClass,
                         SearchText = this.SearchClassText,
+                        CustomFilter = CustomProjectTreeFilter
                     };
                 return filter;
             }
+        }
+
+        private bool CustomProjectTreeFilter(ACClassInfoWithItems classInfoItem)
+        {
+            return
+                ! ShowUnSyncDesigns
+                || classInfoItem.ValueT == null
+                || ShowUnSyncDesigns && classInfoItem.ValueT.ACClassDesign_ACClass.Any(x => !x.XMLDesignUpdateDate.HasValue || !x.XMLDesign2UpdateDate.HasValue || x.XMLDesignUpdateDate.Value != x.XMLDesign2UpdateDate.Value);
         }
 
         protected ACProjectManager.PresentationMode ProjectTreePresentationMode
@@ -1227,6 +1236,25 @@ namespace gip.bso.iplus
                     OnPropertyChanged("SearchClassText");
                     RefreshProjectTree(true);
                 }
+            }
+        }
+
+        bool _ShowUnSyncDesigns = false;
+        /// <summary>
+        /// Show unsynchronized designs
+        /// </summary>
+        [ACPropertyInfo(9999, "TreeConfig", "en{'Unsynchronized Designs'}de{'Nicht synchronisierte Designs'}")]
+        public bool ShowUnSyncDesigns
+        {
+            get
+            {
+                return _ShowUnSyncDesigns;
+            }
+            set
+            {
+                _ShowUnSyncDesigns = value;
+                OnPropertyChanged("ShowUnSyncDesigns");
+                RefreshProjectTree(true);
             }
         }
 
@@ -4158,7 +4186,19 @@ namespace gip.bso.iplus
                 case nameof(GenerateExecuteHandler):
                     GenerateExecuteHandler();
                     return true;
-            }
+                case nameof(ConvertWPFDesignToAvalonia):
+                    ConvertWPFDesignToAvalonia();
+                    return true;
+                case nameof(IsEnabledConvertWPFDesignToAvalonia):
+                    result = IsEnabledConvertWPFDesignToAvalonia();
+                    return true;                    
+                case nameof(SetDesignsSynchronized):
+                    SetDesignsSynchronized();
+                    return true;
+                case nameof(IsEnabledSetDesignsSynchronized):
+                    result = IsEnabledSetDesignsSynchronized();
+                    return true;         
+           }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
@@ -4400,6 +4440,14 @@ namespace gip.bso.iplus
                 case nameof(ShowClassLibrary):
                 case nameof(IsEnabledShowClassLibrary):
                      return new string[] { nameof(CurrentACProject) };
+                
+                case nameof(ConvertWPFDesignToAvalonia):
+                case nameof(IsEnabledConvertWPFDesignToAvalonia):
+                    return new string[] { nameof(CurrentACClassDesign) };
+                    
+                case nameof(SetDesignsSynchronized):
+                case nameof(IsEnabledSetDesignsSynchronized):
+                    return new string[] { nameof(CurrentACClassDesign) };
             }
             return base.GetPropsToObserveForIsEnabled(acMethodName);
         }

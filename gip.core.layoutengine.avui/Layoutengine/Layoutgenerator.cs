@@ -234,14 +234,17 @@ namespace gip.core.layoutengine.avui
                     dataContext != null && dataContext is IACComponent)
                 {
                     var rootComponent = (dataContext as IACComponent).Root;
-                    if (rootComponent != null && rootComponent.IsAvaloniaUI && 
-                        string.IsNullOrEmpty(acClassDesign.XMLDesign2) && 
-                        !string.IsNullOrEmpty(acClassDesign.XMLDesign))
+                    if (rootComponent != null && rootComponent.IsAvaloniaUI 
+                        && string.IsNullOrEmpty(acClassDesign.XMLDesign2) 
+                        && !string.IsNullOrEmpty(acClassDesign.XMLDesign))
                     {
                         try
                         {
                             // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
                             acClassDesign.XMLDesign2 = xamlToLoad;
+                            // Mark both designs as synchronized
+                            acClassDesign.XMLDesignUpdateDate = DateTime.Now;
+                            acClassDesign.XMLDesign2UpdateDate = acClassDesign.XMLDesignUpdateDate;
                             if (acClassDesign.Context != null)
                             {
                                 // Save changes to the database if context is available

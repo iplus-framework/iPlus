@@ -225,6 +225,17 @@ namespace gip.core.layoutengine.avui
         protected XmlFoldingStrategy foldingStrategy;
         internal virtual void ChangeSyntaxHighlighting()
         {
+            if (!string.IsNullOrEmpty(VBSyntaxHighlighting))
+                SyntaxHighlighting = HighlightingManager.Instance.GetDefinition(VBSyntaxHighlighting);
+        }
+
+        public static readonly StyledProperty<string> VBSyntaxHighlightingProperty =
+            AvaloniaProperty.Register<VBTextEditor, string>(nameof(VBSyntaxHighlighting));
+
+        public string VBSyntaxHighlighting
+        {
+            get => GetValue(VBSyntaxHighlightingProperty);
+            set => SetValue(VBSyntaxHighlightingProperty, value);
         }
 
         protected virtual void foldingUpdateTimer_Tick(object sender, EventArgs e)

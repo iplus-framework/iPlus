@@ -252,6 +252,18 @@ namespace gip.core.layoutengine.avui
                 else
                     bindingItemSource.Source = sourceOfBindingForItmSrc;
                 this.Bind(ItemsSourceProperty, bindingItemSource);
+
+                // Avalonia does not re-apply a binding when PropertyChanged fires but the collection
+                // reference is unchanged (unlike WPF). Subscribe here so we can force-refresh
+                // ItemsSource for plain List<T> collections that are not INotifyCollectionChanged.
+                if (sourceOfBindingForItmSrc is INotifyPropertyChanged inpc
+                    && !string.IsNullOrEmpty(pathOfBindingForItmSrc)
+                    && !pathOfBindingForItmSrc.Contains('.'))
+                {
+                    _itemsSourceChangeNotifier = inpc;
+                    _itemsSourceNotifyPropertyName = pathOfBindingForItmSrc;
+                    inpc.PropertyChanged += OnItemsSourceListPropertyChanged;
+                }
             }
 
             if (VBContentPropertyInfo != null)
@@ -302,6 +314,21 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        private void OnItemsSourceListPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != _itemsSourceNotifyPropertyName)
+                return;
+            // If the collection already implements INotifyCollectionChanged (e.g. ObservableCollection),
+            // the DataGrid receives add/remove notifications directly — no need to force a refresh.
+            if (ItemsSource is System.Collections.Specialized.INotifyCollectionChanged)
+                return;
+            // Force the DataGrid to re-read the list. Avalonia skips the binding update when the
+            // same object reference is returned, so we reset ItemsSource explicitly.
+            var current = ItemsSource;
+            ItemsSource = null;
+            ItemsSource = current;
+        }
+
         private void cyclickDataRefreshDispTimer_CanExecute(object sender, EventArgs e)
         {
             if (ItemsSource != null && ItemsSource is ICyclicRefreshableCollection)
@@ -336,6 +363,13 @@ namespace gip.core.layoutengine.avui
                 {
                     // Clear bindings for column if needed
                 }
+            }
+
+            if (_itemsSourceChangeNotifier != null)
+            {
+                _itemsSourceChangeNotifier.PropertyChanged -= OnItemsSourceListPropertyChanged;
+                _itemsSourceChangeNotifier = null;
+                _itemsSourceNotifyPropertyName = null;
             }
 
             this.ClearAllBindings();

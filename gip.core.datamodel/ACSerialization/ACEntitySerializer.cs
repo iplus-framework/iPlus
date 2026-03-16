@@ -124,15 +124,22 @@ namespace gip.core.datamodel
                     pi.PropertyType.GetGenericArguments() != null &&
                     pi.PropertyType.GetGenericArguments().Any() &&
                     pi.PropertyType.GetGenericArguments().First().IsPrimitive;
-                if (pi.PropertyType.IsPrimitive || isNullablePrimitive)
+
+                Type propertyType = pi.PropertyType;
+                if (isNullablePrimitive || (propertyType.IsGenericType && propertyType.GetGenericTypeDefinition() == typeof(Nullable<>)))
+                {
+                    propertyType = Nullable.GetUnderlyingType(pi.PropertyType) ?? pi.PropertyType;
+                }
+
+                if (propertyType.IsPrimitive)
                 {
                     xElement.Add(new XElement(pi.Name, value.ToString()));
                 }
-                else if (pi.PropertyType == typeof(string))
+                else if (propertyType == typeof(string))
                 {
                     xElement.Add(new XElement(pi.Name, (string)value));
                 }
-                else if (pi.PropertyType == typeof(DateTime))
+                else if (propertyType == typeof(DateTime))
                 {
                     xElement.Add(new XElement(pi.Name, ((DateTime)value).ToString("o")));
                 }

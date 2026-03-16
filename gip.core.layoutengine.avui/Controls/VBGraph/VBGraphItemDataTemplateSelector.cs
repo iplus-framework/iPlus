@@ -77,10 +77,13 @@ namespace gip.core.layoutengine.avui
 
             string stringValue = "";
 
-            if(!string.IsNullOrEmpty(DataTemplateValueACUrl))
-                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, param).ToString();
+            if (!string.IsNullOrEmpty(DataTemplateValueACUrl))
+            {
+                object acResult = contextObject.ACUrlCommand(DataTemplateValueACUrl, param);
+                stringValue = acResult != null ? acResult.ToString() : "";
+            }
             else
-                stringValue = contextObject.ToString();
+                stringValue = contextObject.ToString() ?? "";
 
             return stringValue switch
             {
@@ -105,7 +108,7 @@ namespace gip.core.layoutengine.avui
                 var value when value == DataTemplate18Value => DataTemplate18.Build(param),
                 var value when value == DataTemplate19Value => DataTemplate19.Build(param),
                 var value when value == DataTemplate20Value => DataTemplate20.Build(param),
-                _ => DataTemplate1.Build(param)
+                _ => DataTemplate0?.Build(param) ?? DataTemplate1?.Build(param)
             };
         }
 
@@ -124,9 +127,12 @@ namespace gip.core.layoutengine.avui
             string stringValue = "";
 
             if (!string.IsNullOrEmpty(DataTemplateValueACUrl))
-                stringValue = contextObject.ACUrlCommand(DataTemplateValueACUrl, data).ToString();
+            {
+                object acResult = contextObject.ACUrlCommand(DataTemplateValueACUrl, data);
+                stringValue = acResult != null ? acResult.ToString() : "";
+            }
             else
-                stringValue = contextObject.ToString();
+                stringValue = contextObject.ToString() ?? "";
 
             return !string.IsNullOrEmpty(stringValue);
         }

@@ -352,6 +352,7 @@ namespace gip.bso.iplus
                 {
                     ChatClientSettingsList.Add(newSetting);
                     OnPropertyChanged(nameof(ChatClientSettingsList));
+                    SelectedChatClientSettings = newSetting;
                     ChatOutput = $"Added new chat client setting: {newSetting}";
                 }
                 else

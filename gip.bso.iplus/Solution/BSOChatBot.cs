@@ -182,6 +182,7 @@ IMPORTANT NOTES:
             _SyncAgentWakeup = new SyncQueueEvents();
             _WorkCycleThread = new ACThread(RunWorkCycle);
             _WorkCycleThread.Start();
+            _MainSyncContext = SynchronizationContext.Current;
             return base.ACInit(startChildMode);
         }
 
@@ -194,6 +195,7 @@ IMPORTANT NOTES:
 
         public override async Task<bool> ACDeInit(bool deleteACClassTask = false)
         {
+            _MainSyncContext = null;
             if (_WorkCycleThread != null)
             {
                 _SyncAgentWakeup.TerminateThread();
@@ -223,6 +225,7 @@ IMPORTANT NOTES:
         #endregion
 
         #region Properties
+        private SynchronizationContext _MainSyncContext;
 
         #region Database
         private Database _BSODatabase = null;
@@ -892,8 +895,22 @@ IMPORTANT NOTES:
                 {
                     if (!AgentStopRequested && !IsAgentRunning && AgentIsWaitingForWakeup)
                     {
-                        ChatInput = C_AgentWakeupCommand;
-                        _ = SendMessage();
+                        // Dispatch to the UI thread so that SendMessage() starts with a
+                        // captured SynchronizationContext. Without this, SendMessage() would
+                        // run on the background ACThread and all await continuations inside
+                        // (including the streaming loop) would resume on the thread pool,
+                        // causing cross-thread UI access exceptions.
+                        if (_MainSyncContext != null)
+                            _MainSyncContext.Post(_ =>
+                            {
+                                ChatInput = C_AgentWakeupCommand;
+                                _ = SendMessage();
+                            }, null);
+                        else
+                        {
+                            ChatInput = C_AgentWakeupCommand;
+                            _ = SendMessage();
+                        }
                     }
                 }
                 catch (ThreadAbortException e)
@@ -1018,6 +1035,50 @@ IMPORTANT NOTES:
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {           
+                case nameof(SendMessage):
+                case nameof(ClearChat):
+                case nameof(NewChat):
+                case nameof(ConnectMCP):
+                case nameof(DisconnectMCP):
+                case nameof(ReadMCPServerConfigFromFile):
+                case nameof(TestConnection):
+                case nameof(PingMcpServer):
+                case nameof(SelectTemplate4ChatMessageWrapper):
+                case nameof(OpenDialogSelectImage):                
+                case nameof(ClearImagePathList):
+                    return new string[] { nameof(InitState)};
+                case nameof(RemoveChat):
+                case nameof(IsEnabledRemoveChat):
+                    return new string[] { nameof(SelectedChatHistory) };
+                case nameof(RemovePreviousMessage):
+                case nameof(IsEnabledRemovePreviousMessage):
+                    return new string[] { nameof(ChatMessagesObservable), nameof(CurrentChatUpdates) };
+                case nameof(SaveToolSelection):
+                case nameof(IsEnabledSaveToolSelection):
+                    return new string[] { nameof(ToolCheckList), nameof(SelectedToolCheck) };
+                case nameof(SaveChatClientSettings):
+                case nameof(IsEnabledSaveChatClientSettings):
+                    return new string[] { nameof(SelectedChatClientSettings), nameof(ChatClientSettingsList) };
+                case nameof(AddChatClientSetting):
+                case nameof(IsEnabledAddChatClientSetting):
+                    return new string[] { nameof(Endpoint), nameof(ModelName), nameof(SelectedAIClientType) };
+                case nameof(RemoveChatClientSetting):
+                case nameof(IsEnabledRemoveChatClientSetting):
+                    return new string[] { nameof(SelectedChatClientSettings), nameof(ChatClientSettingsList) };
+                case nameof(SelectChatClientSettingsByModelName):
+                case nameof(IsEnabledSelectChatClientSettingsByModelName):
+                    return new string[] { nameof(ChatClientSettingsList), nameof(SelectedChatClientSettings) };
+                case nameof(StopAgent):
+                case nameof(IsEnabledStopAgent):
+                    return new string[] { nameof(IsAgentRunning), nameof(AgentStopRequested) };
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

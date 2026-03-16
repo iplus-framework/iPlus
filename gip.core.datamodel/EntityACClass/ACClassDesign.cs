@@ -1191,7 +1191,7 @@ namespace gip.core.datamodel
 
         [NotMapped]
         private bool _StoreDesignInXML2;
-        [ACPropertyInfo(10000, "IsDesignCompiled", "en{'Edit Avalonia Design'}de{'Avalonia Design ändern'}", "", false, IsPersistable = false)]
+        [ACPropertyInfo(10000, "IsDesignCompiled", "en{'Edit Avalonia/WPF Design'}de{'Avalonia/WPF Design ändern'}", "", false, IsPersistable = false)]
         [NotMapped]
         public bool StoreDesignInXML2
         {
@@ -1202,8 +1202,8 @@ namespace gip.core.datamodel
             set
             {
                 // this can only be activated in WPF mode
-                if (Database.Root.IsAvaloniaUI)
-                    return;
+                // if (Database.Root.IsAvaloniaUI)
+                //     return;
                 if (this.SetProperty(ref _StoreDesignInXML2, value))
                     OnPropertyChanged(nameof(XAMLDesign));
             }
@@ -1215,30 +1215,73 @@ namespace gip.core.datamodel
         {
             get
             {
-                if (Database.Root.IsAvaloniaUI || StoreDesignInXML2)
+                // If UI is Avalonia 
+                if (Database.Root.IsAvaloniaUI)
                 {
-                    // Return cached Avalonia XAML if available
-                    if (!string.IsNullOrEmpty(XMLDesign2))
-                        return XMLDesign2;
-                    
-                    // Otherwise convert from WPF XAML
-                    return ConvertWpfToAvaloniaXaml(XMLDesign);
+                    // Return WPF Design
+                    if (StoreDesignInXML2)
+                        return XMLDesign;
+                    else
+                    {
+                        // Return cached Avalonia XAML if available
+                        if (!string.IsNullOrEmpty(XMLDesign2))
+                            return XMLDesign2;
+                        // Otherwise convert from WPF XAML
+                        return ConvertWpfToAvaloniaXaml(XMLDesign);
+                    }
                 }
+                // If UI is WPF
                 else
                 {
+                    // Return Avalonia Design
+                    if (StoreDesignInXML2)
+                        return XMLDesign2;
+                    // Return WPF Design
                     return XMLDesign;
                 }
             }
             set
             {
-                if (Database.Root.IsAvaloniaUI || StoreDesignInXML2)
+                if (Database.Root.IsAvaloniaUI)
                 {
-                    XMLDesign2 = value;
+                    // Store Changes in WPF Design
+                    if (StoreDesignInXML2)
+                    {
+                        XMLDesign = value;
+                        XMLDesignUpdateDate = DateTime.Now;
+                    }
+                    // Else Avalonia Design  (default)
+                    else
+                    {
+                        XMLDesign2 = value;
+                        XMLDesign2UpdateDate = DateTime.Now;
+                    }
                 }
                 else
                 {
-                    XMLDesign = value;
+                    // Store Changes in Avalonia Design
+                    if (StoreDesignInXML2)
+                    {
+                        XMLDesign2 = value;
+                        XMLDesign2UpdateDate = DateTime.Now;
+                    }
+                    // Else Changes in WPF Design (default)
+                    else
+                    {
+                        XMLDesign = value;
+                        XMLDesignUpdateDate = DateTime.Now;
+                    }
                 }
+            }
+        }
+
+        [ACPropertyInfo(14, "AreDesignsSynchronized", "en{'Designs Synchronized'}de{'Designs Synchronisiert'}", "", false)]
+        [NotMapped]
+        public bool AreDesignsSynchronized
+        {
+            get
+            {
+                return XMLDesignUpdateDate.HasValue && XMLDesign2UpdateDate.HasValue && XMLDesignUpdateDate.Value == XMLDesign2UpdateDate.Value;
             }
         }
 
@@ -1247,6 +1290,11 @@ namespace gip.core.datamodel
             if (propertyName == nameof(XMLDesign) || propertyName == nameof(XMLDesign2))
             {
                 OnPropertyChanged(nameof(XAMLDesign));
+                OnPropertyChanged(nameof(AreDesignsSynchronized));
+            }
+            if (propertyName == nameof(XMLDesignUpdateDate) || propertyName == nameof(XMLDesign2UpdateDate))
+            {
+                OnPropertyChanged(nameof(AreDesignsSynchronized));
             }
             base.OnPropertyChanged(propertyName);
         }

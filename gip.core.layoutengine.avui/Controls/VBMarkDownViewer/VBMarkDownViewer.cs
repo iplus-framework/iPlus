@@ -7,6 +7,7 @@ using Markdown.Avalonia;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using MdStyle = Markdown.Avalonia.MarkdownStyle;
 
 namespace gip.core.layoutengine.avui
 {
@@ -27,6 +28,8 @@ namespace gip.core.layoutengine.avui
 
         public VBMarkDownViewer() : base()
         {
+            this.MarkdownStyleName = nameof(MdStyle.Standard);
+            this.MarkdownStyle = MdStyle.Standard;
         }
 
         protected override void OnInitialized()

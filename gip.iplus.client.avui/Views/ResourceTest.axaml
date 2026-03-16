@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-16"?>
-<ResourceDictionary xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vb="http://www.iplus-framework.com/axaml">
+<ResourceDictionary xmlns:local="clr-namespace:gip.bso.iplus;assembly=gip.bso.iplus" xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:vbs="http://www.iplus-framework.com/shapes/axaml" xmlns:vb="http://www.iplus-framework.com/axaml" xmlns:vbc="http://www.iplus-framework.com/scichart/xaml" xmlns:vbv="http://www.iplus-framework.com/visual/axaml" xmlns:vbr="http://www.iplus-framework.com/report/axaml">
 
 </ResourceDictionary>

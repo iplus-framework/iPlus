@@ -150,6 +150,12 @@ namespace gip.core.layoutengine.avui
         bool _Initialized = false;
         bool _Loaded = false;
         private Nullable<bool> ColumnsSetInXAML;
+
+        // Avalonia skips ItemsSource binding updates when the collection reference hasn't changed.
+        // These fields are used to subscribe to PropertyChanged on the source and force a refresh
+        // when the list is a plain List<T> (not INotifyCollectionChanged).
+        private INotifyPropertyChanged _itemsSourceChangeNotifier;
+        private string _itemsSourceNotifyPropertyName;
         #endregion
 
         #region IDataField Members
