@@ -1,0 +1,34 @@
+﻿<!-- Themes/VBQueryFilterControlStyle.axaml -->
+<!-- Include this in your Generic.axaml / resource dictionary -->
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:vb="clr-namespace:gip.core.layoutengine.avui;assembly=gip.core.layoutengine.avui">
+
+    <ControlTheme x:Key="{x:Type vb:VBQueryFilterControl}"
+                  TargetType="{x:Type vb:VBQueryFilterControl}">
+
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type vb:VBQueryFilterControl}">
+                <DockPanel LastChildFill="True">
+
+                    <!-- Dynamic filter panel – rows injected programmatically via PART_FilterGrid -->
+                    <Grid x:Name="PART_FilterGrid"
+                          DockPanel.Dock="Top"
+                          Margin="4,4,4,2"
+                          ColumnDefinitions="Auto,*" />
+
+                    <!-- Search button, always docked to the bottom -->
+                    <vb:VBButton x:Name="PART_SearchButton"
+                                 DockPanel.Dock="Bottom"
+                                 VBContent="!Search"
+                                 HorizontalAlignment="Right"
+                                 Margin="4,4,4,4"
+                                 MinWidth="80" />
+
+                </DockPanel>
+            </ControlTemplate>
+        </Setter>
+
+    </ControlTheme>
+
+</ResourceDictionary>

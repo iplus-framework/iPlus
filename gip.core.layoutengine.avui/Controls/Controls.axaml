@@ -37,6 +37,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScriptEditor/Themes/ScriptEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextAreaStyle.axaml"/>
+          <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBQueryFilterControl/Themes/QueryFilterControlStyle.axaml"/>
         
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingWindowStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingManagerStyle.axaml"/>
