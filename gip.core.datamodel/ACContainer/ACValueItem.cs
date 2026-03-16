@@ -330,6 +330,26 @@ namespace gip.core.datamodel
         }
         #endregion
 
+        #region Other properties
+        private bool _IsSelected;
+        [ACPropertyInfo(999, "IsSelected", "en{'Selected'}de{'Ausgewählt'}")]
+        public bool IsSelected
+        {
+            get
+            {
+                return _IsSelected;
+            }
+            set
+            {
+                if (_IsSelected != value)
+                {
+                    _IsSelected = value;
+                    OnPropertyChanged("IsSelected");
+                }
+            }
+        }
+        #endregion
+
         /// <summary>
         /// Sets the value from string.
         /// </summary>
