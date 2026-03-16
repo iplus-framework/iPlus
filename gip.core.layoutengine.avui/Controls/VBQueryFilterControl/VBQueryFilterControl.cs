@@ -143,6 +143,8 @@ namespace gip.core.layoutengine.avui
         /// <summary>
         /// Resolves the ACQueryDefinition by executing the VBContent ACUrl on the ContextACObject.
         /// Falls back to "AccessPrimary\NavACQueryDefinition" when VBContent is empty.
+        /// If the full URL navigation fails (can happen on first call before the generic
+        /// ACClass type cache is warm), navigates step-by-step as a fallback.
         /// </summary>
         private ACQueryDefinition ResolveQueryDefinition()
         {
@@ -150,7 +152,28 @@ namespace gip.core.layoutengine.avui
                            ? VBContent
                            : @"AccessPrimary\NavACQueryDefinition";
 
-            return ContextACObject.ACUrlCommand(acUrl) as ACQueryDefinition;
+            // Primary path: single ACUrlCommand call
+            if (ContextACObject.ACUrlCommand(acUrl) is ACQueryDefinition queryDef)
+                return queryDef;
+
+            // Fallback: navigate segment by segment to bypass the generic-type ACClass
+            // resolution issue on the first call (before _ACTypeCache is populated for ACAccess<>).
+            int separatorIdx = acUrl.IndexOf('\\');
+            if (separatorIdx > 0)
+            {
+                string accessSegment = acUrl[..separatorIdx];
+                string remainder     = acUrl[(separatorIdx + 1)..];
+
+                object accessObj = ContextACObject.ACUrlCommand(accessSegment);
+                if (accessObj is IAccess access && string.Equals(remainder, nameof(IAccess.NavACQueryDefinition), StringComparison.Ordinal))
+                    return access.NavACQueryDefinition;
+
+                // Generic fallback for deeper paths
+                if (accessObj is IACObject acObject)
+                    return acObject.ACUrlCommand(remainder) as ACQueryDefinition;
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -266,7 +289,7 @@ namespace gip.core.layoutengine.avui
                 {
                     ACClass entityClass = ResolveQueryDefinition()?.TypeACClass;
 
-                    var test = ResolveQueryDefinition();
+                    ACQueryDefinition queryDef = ResolveQueryDefinition();
 
                     // Support dotted / backslash navigation paths
                     string[] parts = propertyName.Split(new[] { '\\', '.' },
@@ -275,7 +298,7 @@ namespace gip.core.layoutengine.avui
 
                     foreach (string part in parts)
                     {
-                        property = test.QueryType?.Properties
+                        property = queryDef.QueryType?.Properties
                                        .FirstOrDefault(p =>
                                            string.Equals(p.ACIdentifier, part,
                                                          StringComparison.OrdinalIgnoreCase));

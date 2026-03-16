@@ -176,6 +176,8 @@ namespace gip.core.datamodel
             return NavSearch(context, context.RecommendedMergeOption);
         }
 
+        bool _IsFirstSearch = true;
+
 
         /// <summary>Executes a Query according to the filter and sort entries in ACQueryDefinition the result is copied to the NavObjectList.</summary>
         /// <param name="parentACObject">Reference to a database context</param>
@@ -183,6 +185,12 @@ namespace gip.core.datamodel
         /// <returns>True, if query was successful</returns>
         public bool NavSearch(IACObject parentACObject, MergeOption mergeOption)
         {
+            if (_IsFirstSearch && Database.Root.IsSingleViewApp)
+            {
+                _IsFirstSearch = false;
+                return true;
+            }
+
             if (NavACQueryDefinition.TakeCount <= 0 && Database.Root != null && Database.Root.Environment != null)
                 NavACQueryDefinition.TakeCount = Database.Root.Environment.AccessDefaultTakeCount;
             IQueryable<T> result = parentACObject.ACSelect<T>(NavACQueryDefinition, mergeOption);
