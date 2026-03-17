@@ -541,8 +541,7 @@ namespace gip.core.layoutengine.avui
 
         private void VBTreeViewItem_Expanded(object sender, RoutedEventArgs e)
         {
-            if (BSOACComponent != null
-                && !IsTreeFilled)
+            if ((BSOACComponent != null || ContextACObject != null) && !IsTreeFilled)
             {
                 VBTreeView vbtv = ParentACElement as VBTreeView;
                 if (vbtv != null && !string.IsNullOrEmpty(vbtv.VBTreeViewExpandMethod))
@@ -552,7 +551,10 @@ namespace gip.core.layoutengine.avui
                         try
                         {
                             //Items.Clear();
-                            BSOACComponent.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { ContentACObject });
+                            if (ContextACObject != null)
+                                ContextACObject.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { ContentACObject });
+                            else if (BSOACComponent != null)
+                                BSOACComponent.ACUrlCommand(vbtv.VBTreeViewExpandMethod, new object[] { ContentACObject });
                             vbtv.FillChildsOnItemExpand(this);
                             this.IsSelected = true;
                         }

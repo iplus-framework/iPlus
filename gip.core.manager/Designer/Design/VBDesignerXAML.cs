@@ -1131,8 +1131,8 @@ namespace gip.core.manager
         {
             ReloadToolService();
             ShowWindow(this, "ToolWindow", false, Global.VBDesignContainer.DockableWindow, Global.VBDesignDockState.AutoHideButton, Global.VBDesignDockPosition.Left,Global.ControlModes.Hidden, dockingManagerName,Global.ControlModes.Hidden);
-            ShowPropertyWindow(dockingManagerName);
-            ShowLogicalTreeWindow(dockingManagerName);
+            //ShowPropertyWindow(dockingManagerName);
+            //ShowLogicalTreeWindow(dockingManagerName);
             base.ShowDesignManager(dockingManagerName);
         }
 

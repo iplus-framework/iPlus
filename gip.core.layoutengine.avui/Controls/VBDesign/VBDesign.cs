@@ -451,6 +451,15 @@ namespace gip.core.layoutengine.avui
             }
 
             Content = uiElement;
+
+            if (OuterDesignEditor != null)
+            {
+                if (uiElement is VBPropertyGridView vBPropertyGridView)
+                    OuterDesignEditor.PropertyGridView = vBPropertyGridView;
+                else if (uiElement is VBDesignItemTreeView designItemTreeView)
+                    OuterDesignEditor.DesignItemTreeView = designItemTreeView;
+            }
+
             if (DesignModeAllways)
             {
                 DesignModeOn();
@@ -1125,6 +1134,10 @@ namespace gip.core.layoutengine.avui
                 dockingManagerName = parentDockingManager.Name;
 
             designManager.ShowDesignManager(dockingManagerName);
+
+            if (parentDockingManager != null && designEditor != null)
+                parentDockingManager.ConnectDesignerTools(designEditor);
+
             IACObject propertyWindow = designManager.PropertyWindow;
             if (propertyWindow != null)
             {
@@ -1305,6 +1318,12 @@ namespace gip.core.layoutengine.avui
                     return this.Content as VBDesignEditor;
                 return null;
             }
+        }
+
+        internal VBDesignEditor OuterDesignEditor
+        {
+            get; 
+            set;
         }
 
         /// <summary>

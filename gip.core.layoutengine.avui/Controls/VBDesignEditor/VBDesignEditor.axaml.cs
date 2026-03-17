@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui;
@@ -156,6 +157,7 @@ namespace gip.core.layoutengine.avui
                         designManager = dcSource as IACComponentDesignManager;
                     if (designManager != null)
                     {
+                        bool connectTools = false;
                         if (!designManager.ShowXMLEditor)
                         {
                             if (ucTabControl != null && ucTabControl.Items != null)
@@ -173,6 +175,7 @@ namespace gip.core.layoutengine.avui
                         {
                             if (designManager.PropertyWindowVisible)
                             {
+                                connectTools = true;
                                 designManager.ShowPropertyWindow();
                             }
                         }
@@ -186,6 +189,7 @@ namespace gip.core.layoutengine.avui
                         {
                             if (designManager.LogicalTreeWindowVisible)
                             {
+                                connectTools = true;
                                 designManager.ShowLogicalTreeWindow();
                             }
                         }
@@ -193,6 +197,11 @@ namespace gip.core.layoutengine.avui
                         {
                             if (DesignItemTreeView.BSOACComponent != designManager)
                                 DesignItemTreeView.BSOACComponent = designManager;
+                        }
+                        if (connectTools)
+                        {
+                            VBDockingManager dockingManager = this.FindLogicalAncestorOfType<VBDockingManager>();
+                            dockingManager?.ConnectDesignerTools(this);
                         }
 
                         BSOACComponent = designManager;
@@ -282,6 +291,14 @@ namespace gip.core.layoutengine.avui
             DesignSurface.OnDeleteItem += DesignSurface_OnDeleteItem;
 
             await RefreshViewFromXAML();
+        }
+
+        internal void RefreshDesignItemTreeView()
+        {
+            if (DesignItemTreeView != null && DesignSurface != null && DesignSurface.DesignContext != null)
+            {
+                DesignItemTreeView.RootItem = DesignSurface.DesignContext.RootItem;
+            }
         }
 
 
@@ -897,6 +914,11 @@ namespace gip.core.layoutengine.avui
             else if (change.Property == RefreshDesignerProperty)
             {
                 await OnTargetUpdatedOfBinding(change.Sender, change);
+            }
+            else if (change.Property == DesignItemTreeViewProperty)
+            {
+                if (DesignItemTreeView != null && BSOACComponent != null && DesignItemTreeView.RootItem == null)
+                    RefreshDesignItemTreeView();
             }
         }
 

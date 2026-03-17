@@ -91,25 +91,12 @@ namespace gip.core.layoutengine.avui
             if (VBDesignList != null)
             {
                 int count = 0;
-                VBPropertyGridView gridView = null;
-                VBDesignEditor designEditor = null;
-                VBDesignItemTreeView logicalTreeView = null;
                 foreach (Control uiElement in VBDesignList)
                 {
                     count++;
                     ShowVBDesign(uiElement, tools2Unpin);
-                    if (uiElement is VBPropertyGridView)
-                        gridView = (uiElement as VBPropertyGridView);
-                    else if (uiElement is VBDesignEditor)
-                        designEditor = (uiElement as VBDesignEditor);
-                    else if (uiElement is VBDesignItemTreeView)
-                        logicalTreeView = (uiElement as VBDesignItemTreeView);
                 }
-
-                if ((designEditor != null) && (gridView != null))
-                    designEditor.PropertyGridView = gridView;
-                if ((designEditor != null) && (logicalTreeView != null))
-                    designEditor.DesignItemTreeView = logicalTreeView;
+                ConnectDesignerTools();
             }
 
             IRootDock root = _Factory.CreateRootDock();
@@ -135,6 +122,28 @@ namespace gip.core.layoutengine.avui
                 OnInitVBControlFinished(this, new EventArgs());
             }
         }
+
+        internal void ConnectDesignerTools(VBDesignEditor designEditor = null)
+        {
+            if (VBDesignList != null)
+            {
+                if (designEditor == null)
+                    designEditor = VBDesignList.OfType<VBDesignEditor>().FirstOrDefault();
+                if (designEditor == null)
+                    return;
+                foreach (Control uiElement in VBDesignList)
+                {
+                    if (uiElement is VBPropertyGridView gridView)
+                        designEditor.PropertyGridView = gridView;
+                    else if (uiElement is VBDesignItemTreeView logicalTreeView)
+                        designEditor.DesignItemTreeView = logicalTreeView;
+                    else if (uiElement is VBDesign vBDesign)
+                        vBDesign.OuterDesignEditor = designEditor;
+                }
+
+            }
+        }
+        
 
         private void _Factory_WindowClosed(object sender, Dock.Model.Core.Events.WindowClosedEventArgs e)
         {
