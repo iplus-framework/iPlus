@@ -262,38 +262,32 @@ namespace gip.core.datamodel
         }
 
         [IgnoreDataMember]
-        private DateTime? _SearchDT;
+        private object _SearchObject;
         [IgnoreDataMember]
-        [ACPropertyInfo(6, "", "en{'FilterDT'}de{'FilterDT'}")]
-        public DateTime? SearchDT
+        [ACPropertyInfo(6, "", "en{'FilterObject'}de{'FilterObjekt'}")]
+        public object SearchObject
         {
             get
             {
-                return _SearchDT;
+                return _SearchObject;
             }
             set
             {
-                _SearchDT = value;
-                SearchWord = _SearchDT.HasValue ? _SearchDT.Value.ToString("o") : null;
-                OnPropertyChanged(nameof(SearchDT));
-            }
-        }
+                _SearchObject = value;
 
-        [IgnoreDataMember]
-        private ACValueItem _SearchACValueItem;
-        [IgnoreDataMember]
-        [ACPropertyInfo(6, "", "en{'FilterDT'}de{'FilterDT'}")]
-        public ACValueItem SearchACValueItem
-        {
-            get
-            {
-                return _SearchACValueItem;
-            }
-            set
-            {
-                _SearchACValueItem = value;
-                SearchWord = _SearchACValueItem != null && _SearchACValueItem.Value != null ? ((short)_SearchACValueItem.Value).ToString() : null;
-                OnPropertyChanged(nameof(SearchACValueItem));
+                if (_SearchObject != null)
+                {
+                    if (_SearchObject is DateTimeOffset dt)
+                        SearchWord = dt.ToString("o");
+                    else if (_SearchObject is ACValueItem acValueItem && acValueItem.Value != null)
+                        SearchWord = ((short)acValueItem.Value).ToString();
+                    else
+                        SearchWord = _SearchObject.ToString();
+                }
+                else
+                    SearchWord = null;
+
+                OnPropertyChanged(nameof(SearchObject));
             }
         }
 

@@ -241,7 +241,7 @@ namespace gip.core.layoutengine.avui
                 var combo = new VBComboBox
                 {
                     DataContext = filterItem,
-                    VBContent = propertyType.IsEnum ? nameof(ACFilterItem.SearchACValueItem) : nameof(ACFilterItem.SearchWord),
+                    VBContent = nameof(ACFilterItem.SearchObject),
                     VBSource = property != null ? property.ACSource : null,
                     ACCaption = property != null ? property.ACCaption : filterItem.ACCaption,
                     ShowCaption = true
@@ -254,7 +254,7 @@ namespace gip.core.layoutengine.avui
                 var datePicker = new VBDatePicker
                 {
                     DataContext = filterItem,
-                    VBContent = nameof(ACFilterItem.SearchDT),
+                    VBContent = nameof(ACFilterItem.SearchObject),
                     ACCaption = property != null ? property.ACCaption : filterItem.ACCaption,
                     ShowCaption = true,
                 };
