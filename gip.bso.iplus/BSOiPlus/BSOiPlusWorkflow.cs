@@ -1152,6 +1152,28 @@ namespace gip.bso.iplus
                 VisitedMethods.Add(acClassMethod);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSave):
+                case nameof(IsEnabledUndoSave):
+                case nameof(IsEnabledNew):
+                    return new string[] { nameof(DbChangeCount) };
+                case nameof(IsEnabledLoad):
+                    return new string[] { nameof(SelectedACClassMethod) };
+                case nameof(IsEnabledDelete):
+                case nameof(IsEnabledShowWorkflowsLiveList):
+                case nameof(IsEnabledWFClone):
+                    return new string[] { nameof(CurrentACClassMethod) };
+                case nameof(IsEnabledStartNewWorkflow):
+                case nameof(IsEnabledTestWorkflow):
+                    return new string[] { nameof(CurrentACProject), nameof(CurrentACClassMethod) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
         #endregion
 
         #region Execute-Helper-Handlers
@@ -1161,67 +1183,67 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "Save":
+                case nameof(Save):
                     Save();
                     return true;
-                case "IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case "UndoSave":
+                case nameof(UndoSave):
                     UndoSave();
                     return true;
-                case "IsEnabledUndoSave":
+                case nameof(IsEnabledUndoSave):
                     result = IsEnabledUndoSave();
                     return true;
-                case "Load":
+                case nameof(Load):
                     Load(acParameter.Count() == 1 ? (Boolean)acParameter[0] : false);
                     return true;
-                case "IsEnabledLoad":
+                case nameof(IsEnabledLoad):
                     result = IsEnabledLoad();
                     return true;
-                case "New":
+                case nameof(New):
                     New();
                     return true;
-                case "IsEnabledNew":
+                case nameof(IsEnabledNew):
                     result = IsEnabledNew();
                     return true;
-                case "Delete":
+                case nameof(Delete):
                     Delete();
                     return true;
-                case "IsEnabledDelete":
+                case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();
                     return true;
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "ShowWorkflowsLiveList":
+                case nameof(ShowWorkflowsLiveList):
                     ShowWorkflowsLiveList();
                     return true;
-                case "IsEnabledShowWorkflowsLiveList":
+                case nameof(IsEnabledShowWorkflowsLiveList):
                     result = IsEnabledShowWorkflowsLiveList();
                     return true;
-                case "ShowWorkflowLive":
+                case nameof(ShowWorkflowLive):
                     ShowWorkflowLive();
                     return true;
-                case "StartNewWorkflow":
+                case nameof(StartNewWorkflow):
                     StartNewWorkflow();
                     return true;
-                case "IsEnabledStartNewWorkflow":
+                case nameof(IsEnabledStartNewWorkflow):
                     result = IsEnabledStartNewWorkflow();
                     return true;
-                case "TestWorkflow":
+                case nameof(TestWorkflow):
                     TestWorkflow();
                     return true;
-                case "IsEnabledTestWorkflow":
+                case nameof(IsEnabledTestWorkflow):
                     result = IsEnabledTestWorkflow();
                     return true;
-                case "WFClone":
+                case nameof(WFClone):
                     WFClone();
                     return true;
-                case "IsEnabledWFClone":
+                case nameof(IsEnabledWFClone):
                     result = IsEnabledWFClone();
                     return true;
-                case "TaskCallback":
+                case nameof(TaskCallback):
                     TaskCallback((IACPointNetBase)acParameter[0], (ACEventArgs)acParameter[1], (IACObject)acParameter[2]);
                     return true;
             }

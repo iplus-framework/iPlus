@@ -841,7 +841,25 @@ namespace gip.bso.iplus
                     result = IsEnabledDeleteWorkflow();
                     return true;
             }
-                return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ShowWorkflow):
+                case nameof(IsEnabledShowWorkflow):
+                case nameof(DeleteWorkflow):
+                case nameof(IsEnabledDeleteWorkflow):
+                    return new string[] { nameof(SelectedACTask) };
+
+                case nameof(Search):
+                case nameof(OnActivate):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

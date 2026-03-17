@@ -1600,6 +1600,22 @@ namespace gip.bso.iplus
             }
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledShowAlarms):
+                    return new string[] { nameof(SelectedItemInTimeline) };
+                case nameof(IsEnabledShowAllAlarms):
+                case nameof(IsEnabledShowDetails):
+                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedPresenterViewMode) };
+                case nameof(IsEnabledGoToNextValue):
+                    return new string[] { nameof(SelectedPropertyLog), nameof(SelectedTimelineValue) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
         #endregion
 
         #region HandleExecuteACMethod
@@ -1639,8 +1655,20 @@ namespace gip.bso.iplus
                 case nameof(IsEnabledShowDetails):
                     result = IsEnabledShowDetails();
                     return true;
+                case nameof(ShowAllAlarms):
+                    ShowAllAlarms();
+                    return true;
+                case nameof(IsEnabledShowAllAlarms):
+                    result = IsEnabledShowAllAlarms();
+                    return true;
                 case nameof(ShowPropertyLogsWithFilterDialog):
                     ShowPropertyLogsWithFilterDialog(acParameter[0] as ACClass, (DateTime)acParameter[1], (DateTime)acParameter[2]);
+                    return true;
+                case nameof(GoToNextValue):
+                    GoToNextValue();
+                    return true;
+                case nameof(IsEnabledGoToNextValue):
+                    result = IsEnabledGoToNextValue();
                     return true;
                     
             }

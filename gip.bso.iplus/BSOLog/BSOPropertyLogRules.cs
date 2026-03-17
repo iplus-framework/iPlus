@@ -749,6 +749,20 @@ namespace gip.bso.iplus
 
         #endregion
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledApplyRules):
+                    return new string[] { nameof(SelectedRuleType), nameof(ComponentSelector) };
+                case nameof(IsEnabledComponentPropertiesLoggingOn):
+                case nameof(IsEnabledComponentPropertiesLoggingOff):
+                    return new string[] { nameof(PropertyLogService) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
         #region HandleExecuteACMethod
 
         /// <summary>
@@ -765,22 +779,22 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ApplyRules":
+                case nameof(ApplyRules):
                     ApplyRules();
                     return true;
-                case "IsEnabledApplyRules":
+                case nameof(IsEnabledApplyRules):
                     result = IsEnabledApplyRules();
                     return true;
-                case "ComponentPropertiesLoggingOn":
+                case nameof(ComponentPropertiesLoggingOn):
                     ComponentPropertiesLoggingOn(acParameter[0] as ACClass);
                     return true;
-                case Const.IsEnabledPrefix + "ComponentPropertiesLoggingOn":
+                case Const.IsEnabledPrefix + nameof(ComponentPropertiesLoggingOn):
                     result = IsEnabledComponentPropertiesLoggingOn(acParameter[0] as ACClass);
                     return true;
-                case "ComponentPropertiesLoggingOff":
+                case nameof(ComponentPropertiesLoggingOff):
                     ComponentPropertiesLoggingOff(acParameter[0] as ACClass);
                     return true;
-                case Const.IsEnabledPrefix + "ComponentPropertiesLoggingOff":
+                case Const.IsEnabledPrefix + nameof(ComponentPropertiesLoggingOff):
                     result = IsEnabledComponentPropertiesLoggingOff(acParameter[0] as ACClass);
                     return true;
             }

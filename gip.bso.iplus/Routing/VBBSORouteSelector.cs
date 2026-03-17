@@ -389,6 +389,22 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ApplyRoute):
+                case nameof(Relayout):
+                case nameof(ReturnToRouteSelector):
+                case nameof(SetRoute):
+                case nameof(SaveSettings):
+                case nameof(SaveRouteItemMode):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         public void ShowAvailableRoutes(IEnumerable<ACClass> startComponents, IEnumerable<ACClass> endComponents, string selectionRuleID = null, object[] selectionRuleParams = null, 
                                         bool allowProcessModuleInRoute = true, ACClass preselectedStart = null)
         {

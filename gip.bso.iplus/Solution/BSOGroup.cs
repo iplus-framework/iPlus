@@ -1872,8 +1872,67 @@ namespace gip.bso.iplus
                 case nameof(UndoSave):
                     UndoSave();
                     return true;
+                case nameof(AssignUser):
+                    AssignUser();
+                    return true;
+                case nameof(IsEnabledAssignUser):
+                    result = IsEnabledAssignUser();
+                    return true;
+                case nameof(UnAssignUser):
+                    UnAssignUser();
+                    return true;
+                case nameof(IsEnabledUnAssignUser):
+                    result = IsEnabledUnAssignUser();
+                    return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AssignAllReadonlyRights):
+                case nameof(IsEnabledAssignAllReadonlyRights):
+                case nameof(AssignAllRights):
+                case nameof(IsEnabledAssignAllRights):
+                case nameof(UnassignAllRights):
+                case nameof(IsEnabledUnassignAllRights):
+                case nameof(SelectedMethodRightAssignOnAllChilds):
+                case nameof(IsEnabledSelectedMethodRightAssignOnAllChilds):
+                case nameof(SelectedPropertyRightAssignOnAllChilds):
+                case nameof(IsEnabledSelectedPropertyRightAssignOnAllChilds):
+                    return new string[] { nameof(CurrentProjectItem) };
+
+                case nameof(SelectedMethodRightAssignOnAllItemsInTree):
+                case nameof(IsEnabledSelectedMethodRightAssignOnAllItemsInTree):
+                case nameof(SelectedPropertyRightAssignOnAllItemsInTree):
+                case nameof(IsEnabledSelectedPropertyRightAssignOnAllItemsInTree):
+                    return new string[] { nameof(CurrentProjectItemRoot) };
+
+                case nameof(GroupClone):
+                case nameof(IsEnabledGroupClone):
+                    return new string[] { nameof(CurrentGroup) };
+
+                case nameof(Load):
+                case nameof(IsEnabledLoad):
+                    return new string[] { nameof(SelectedGroup) };
+
+                case nameof(New):
+                case nameof(IsEnabledNew):
+                case nameof(Delete):
+                case nameof(IsEnabledDelete):
+                case nameof(OnTreeViewItemExpand):
+                case nameof(Search):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+                case nameof(AssignUser):
+                case nameof(IsEnabledAssignUser):
+                case nameof(UnAssignUser):
+                case nameof(IsEnabledUnAssignUser):
+                    return new string[] { nameof(SelectedGroup), nameof(SelectedOtherUser), nameof(SelectedGroupUser) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

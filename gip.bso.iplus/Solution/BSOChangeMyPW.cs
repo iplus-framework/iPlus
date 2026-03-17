@@ -14,6 +14,7 @@
 using gip.core.autocomponent;
 using gip.core.datamodel;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
@@ -221,26 +222,46 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ChangePW":
+                case nameof(ChangePW):
                     ChangePW();
                     return true;
-                case "IsEnabledChangePW":
+                case nameof(IsEnabledChangePW):
                     result = IsEnabledChangePW();
                     return true;
-                case "ShowCheckUserDialog":
+                case nameof(ShowCheckUserDialog):
                     result = ShowCheckUserDialog();
                     return true;
-                case "DialogCheckUserOK":
+                case nameof(DialogCheckUserOK):
                     DialogCheckUserOK();
                     return true;
-                case "IsEnabledDialogCheckUserOK":
+                case nameof(IsEnabledDialogCheckUserOK):
                     result = IsEnabledDialogCheckUserOK();
                     return true;
-                case "DialogCheckUserCancel":
+                case nameof(DialogCheckUserCancel):
                     DialogCheckUserCancel();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ChangePW):
+                case nameof(IsEnabledChangePW):
+                    return new string[] { nameof(NewPassword), nameof(NewPasswordVerify) };
+
+                case nameof(DialogCheckUserOK):
+                case nameof(IsEnabledDialogCheckUserOK):
+                    return new string[] { nameof(CheckUser), nameof(CheckPassword) };
+
+                case nameof(ShowCheckUserDialog):
+                case nameof(DialogCheckUserCancel):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

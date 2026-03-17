@@ -235,6 +235,17 @@ namespace gip.bso.iplus
 
         #endregion
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledStartAnalysis):
+                    return new string[] { nameof(OutputFilePath) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
         #region HandleExecuteACMethod
 
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
@@ -242,6 +253,9 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
+                case nameof(StartAnalysis):
+                    StartAnalysis(acParameter.Length == 1 ? acParameter[0] as Action<int, int> : null);
+                    return true;
                 case nameof(IsEnabledStartAnalysis):
                     result = IsEnabledStartAnalysis();
                     return true;

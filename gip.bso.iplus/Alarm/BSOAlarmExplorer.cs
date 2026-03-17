@@ -1032,6 +1032,39 @@ namespace gip.bso.iplus
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AcknowledgeCurrent):
+                case nameof(IsEnabledAcknowledgeCurrent):
+                case nameof(SetAlarmMessengerConfig):
+                case nameof(IsEnabledSetAlarmMessengerConfig):
+                case nameof(UnsetAlarmMessengerConfig):
+                case nameof(IsEnabledUnsetAlarmMessengerConfig):
+                case nameof(SetExclusionRule):
+                case nameof(IsEnabledSetExclusionRule):
+                case nameof(RemoveExclusionRule):
+                case nameof(IsEnabledRemoveExclusionRule):
+                case nameof(NavigateToVisualisation):
+                case nameof(IsEnabledNavigateToVisualisation):
+                    return new string[] { nameof(CurrentACMsgAlarm) };
+
+                case nameof(Search):
+                case nameof(IsEnabledSearch):
+                    return new string[] { nameof(SearchFrom), nameof(SearchTo) };
+
+                case nameof(AcknowledgeAll):
+                case nameof(IsEnabledAcknowledgeAll):
+                case nameof(ShowAlarmExplorer):
+                case nameof(EventCallback):
+                case nameof(ShowAlarmArchiveExplorer):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
     }
 }

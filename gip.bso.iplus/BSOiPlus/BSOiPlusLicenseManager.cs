@@ -841,6 +841,36 @@ namespace gip.bso.iplus
 
         #region Execute-Helper-Handlers
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSave):
+                case nameof(IsEnabledUndoSave):
+                    return new string[] { nameof(DbChangeCount) };
+                case nameof(IsEnabledNew):
+                    return new string[] { nameof(InitState) };
+                case nameof(IsEnabledImportActivationData):
+                    return new string[] { nameof(CurrentVBLicense) };
+                case nameof(IsEnabledAssignAllPackages):
+                    return new string[] { nameof(AvailablePackages) };
+                case nameof(IsEnabledAssignSelectedPackage):
+                    return new string[] { nameof(SelectedAvailablePackage) };
+                case nameof(IsEnabledRemoveAllPackages):
+                    return new string[] { nameof(AssignedPackages) };
+                case nameof(IsEnabledRemoveSelectedPackage):
+                    return new string[] { nameof(SelectedAssignedPackage) };
+                case nameof(IsEnabledGenerateLicenseFile):
+                    return new string[] { nameof(CurrentVBLicense), nameof(UniqueCustomerCode), nameof(LicenseFileDirPath) };
+                case nameof(IsEnabledSignLicenseFile):
+                    return new string[] { nameof(LicenseFilePath) };
+                case nameof(IsEnabledGenerateRemoteUserKey):
+                    return new string[] { nameof(RemoteUserCode), nameof(CurrentVBLicense) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
         protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
         {
             result = null;

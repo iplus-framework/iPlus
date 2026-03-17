@@ -363,7 +363,7 @@ namespace gip.bso.iplus
             SelectedStartupItem = null;
         }
 
-        [ACMethodInfo("", "en{'Add'}de{'Hinzufügen'}", 999)]
+        [ACMethodInfo("", "en{'Add'}de{'Hinzufï¿½gen'}", 999)]
         public void Add()
         {
             if (SelectedStartupItem != null)
@@ -380,26 +380,41 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "Save":
+                case nameof(Save):
                     Save();
                     return true;
-                case "AddFavorite":
+                case nameof(AddFavorite):
                     AddFavorite();
                     return true;
-                case "AddVBFavorite":
+                case nameof(AddVBFavorite):
                     AddVBFavorite((IVBTileGrid)acParameter[0]);
                     return true;
-                case "DeleteVBFavorite":
+                case nameof(DeleteVBFavorite):
                     DeleteVBFavorite((IVBTileGrid)acParameter[0]);
                     return true;
-                case "OnTileClicked":
+                case nameof(OnTileClicked):
                     OnTileClicked((String)acParameter[0], acParameter[1] as ACValueList);
                     return true;
-                case "StartBSO":
+                case nameof(StartBSO):
                     StartBSO();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AddFavorite):
+                case nameof(AddVBFavorite):
+                case nameof(DeleteVBFavorite):
+                case nameof(OnTileClicked):
+                case nameof(StartBSO):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

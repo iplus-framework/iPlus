@@ -1942,66 +1942,107 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "SearchMsgProp":
+                case nameof(SearchMsgProp):
                     SearchMsgProp();
                     return true;
-                case "AssignMsgProp":
+                case nameof(AssignMsgProp):
                     AssignMsgProp();
                     return true;
-                case "IsEnabledAssignMsgProp":
+                case nameof(IsEnabledAssignMsgProp):
                     result = IsEnabledAssignMsgProp();
                     return true;
-                case "RemoveAssignedMsgProp":
+                case nameof(RemoveAssignedMsgProp):
                     RemoveAssignedMsgProp();
                     return true;
-                case "IsEnabledRemoveAssignedMsgProp":
+                case nameof(IsEnabledRemoveAssignedMsgProp):
                     result = IsEnabledRemoveAssignedMsgProp();
                     return true;
-                case "SearchHierarchyTree":
+                case nameof(SearchHierarchyTree):
                     SearchHierarchyTree();
                     return true;
-                case "AssignMsgPropDialog":
+                case nameof(AssignMsgPropDialog):
                     AssignMsgPropDialog();
                     return true;
-                case "IsEnabledAssignMsgPropDialog":
+                case nameof(IsEnabledAssignMsgPropDialog):
                     result = IsEnabledAssignMsgPropDialog();
                     return true;
-                case "SaveConfiguration":
+                case nameof(SaveConfiguration):
                     SaveConfiguration();
                     return true;
-                case "IsEnabledSaveConfiguration":
+                case nameof(IsEnabledSaveConfiguration):
                     result = IsEnabledSaveConfiguration();
                     return true;
-                case "SaveConfigurationDialog":
+                case nameof(SaveConfigurationDialog):
                     SaveConfigurationDialog();
                     return true;
-                case "IsEnabledSaveConfigurationDialog":
+                case nameof(IsEnabledSaveConfigurationDialog):
                     result = IsEnabledSaveConfigurationDialog();
                     return true;
-                case "RemoveExclusionRule":
+                case nameof(RemoveExclusionRule):
                     RemoveExclusionRule();
                     return true;
-                case "IsEnabledRemoveTargetRule":
+                case nameof(IsEnabledRemoveExclusionRule):
                     result = IsEnabledRemoveExclusionRule();
                     return true;
-                case "CloseConfigurationDialog":
+                case nameof(CloseConfigurationDialog):
                     CloseConfigurationDialog();
                     return true;
-                case "Save":
+                case nameof(Save):
                     Save();
                     return true;
-                case "IsEnabledSave":
+                case nameof(IsEnabledSave):
                     result = IsEnabledSave();
                     return true;
-                case "SelectAlarmConfigTarget":
+                case nameof(SelectAlarmConfigTarget):
                     SelectAlarmConfigTarget();
                     return true;
-                case "IsEnabledSelectAlarmConfigTarget":
+                case nameof(IsEnabledSelectAlarmConfigTarget):
                     result = IsEnabledSelectAlarmConfigTarget();
                     return true;
             }
 
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(AssignMsgProp):
+                case nameof(IsEnabledAssignMsgProp):
+                    return new string[] { nameof(SelectedAlarmSource) };
+
+                case nameof(RemoveAssignedMsgProp):
+                case nameof(IsEnabledRemoveAssignedMsgProp):
+                    return new string[] { nameof(SelectedAssignedAlarmSource) };
+
+                case nameof(AssignMsgPropDialog):
+                case nameof(IsEnabledAssignMsgPropDialog):
+                    return new string[] { nameof(CurrentConfigLevel), nameof(SelectedAlarmMsgLevel) };
+
+                case nameof(SaveConfiguration):
+                case nameof(IsEnabledSaveConfiguration):
+                    return new string[] { nameof(AssignedAlarmSourceList) };
+
+                case nameof(SaveConfigurationDialog):
+                case nameof(IsEnabledSaveConfigurationDialog):
+                    return new string[] { nameof(CurrentConfigLevel), nameof(CurrentConfigTarget) };
+
+                case nameof(RemoveExclusionRule):
+                case nameof(IsEnabledRemoveExclusionRule):
+                    return new string[] { nameof(SelectedExclusionRule) };
+
+                case nameof(SelectAlarmConfigTarget):
+                case nameof(IsEnabledSelectAlarmConfigTarget):
+                    return new string[] { nameof(CurrentConfigTarget) };
+
+                case nameof(SearchMsgProp):
+                case nameof(SearchHierarchyTree):
+                case nameof(CloseConfigurationDialog):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

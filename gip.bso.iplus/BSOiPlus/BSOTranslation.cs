@@ -2572,6 +2572,184 @@ namespace gip.bso.iplus
 
         #endregion
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSearch):
+                    return new string[] { nameof(FilterMandatoryClassID), nameof(FilterOnlyACClassTables), nameof(FilterOnlyMDTables), nameof(FilterClassACIdentifier), nameof(FilterACIdentifier), nameof(FilterTranslation), nameof(FilterNotHaveInTranslation) };
+                case nameof(IsEnabledRemoveMandatory):
+                    return new string[] { nameof(FilterMandatoryClassID) };
+                case nameof(IsEnabledMoveBackward):
+                case nameof(IsEnabledMoveForward):
+                    return new string[] { nameof(TranslationViewCount), nameof(SelectedTranslationViewIndex) };
+                case nameof(IsEnabledMoveUp):
+                case nameof(IsEnabledMoveDown):
+                    return new string[] { nameof(TranslationPairCount), nameof(SelectedTranslationPairIndex) };
+                case nameof(IsEnabledGenerateTranslation):
+                    return new string[] { nameof(SelectedSourceLanguage), nameof(SelectedAutoGenerateOption), nameof(TranslationViewList), nameof(SelectedTargetLanguage), nameof(GoogleAPIAvailable) };
+                case nameof(IsEnabledRemoveGeneratedTranslation):
+                    return new string[] { nameof(TranslationViewList), nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledGenerateTranslationAll):
+                    return new string[] { nameof(SelectedTargetLanguage), nameof(SelectedAutoGenerateOption), nameof(GoogleAPIAvailable) };
+                case nameof(IsEnabledRemoveGeneratedTranslationAll):
+                    return new string[] { nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledReplace):
+                    return new string[] { nameof(FromText), nameof(ReplaceACIdentifier), nameof(SelectedSourceLanguage), nameof(SelectedTargetLanguage), nameof(TranslationViewList) };
+                case nameof(IsEnabledReplaceAll):
+                    return new string[] { nameof(FromText), nameof(ReplaceACIdentifier), nameof(SelectedSourceLanguage), nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledExportTranslations):
+                case nameof(IsEnabledExportTranslationsAll):
+                    return new string[] { nameof(TranslationViewList), nameof(CurrentExportFolder), nameof(CurrentExportFileName), nameof(ExportOnlyForSelectedTargetLanguage), nameof(SelectedTargetLanguage) };
+                case nameof(IsEnabledRefreshExportFileTime):
+                    return new string[] { nameof(CurrentExportFolder) };
+                case nameof(IsEnabledImportSource):
+                    return new string[] { nameof(InitState) };
+                case nameof(IsEnabledImportTranslations):
+                    return new string[] { nameof(ImportSourcePath) };
+                case nameof(IsEnabledAddTranslationPair):
+                    return new string[] { nameof(SelectedTargetLanguage), nameof(SelectedTranslationView), nameof(TranslationPairList) };
+                case nameof(IsEnabledRemoveTranslationPair):
+                    return new string[] { nameof(SelectedTranslationPair) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
+        #region Execute-Helper-Handlers
+
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, core.datamodel.ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+            switch (acMethodName)
+            {
+                case nameof(Save):
+                    Save();
+                    return true;
+                case nameof(Search):
+                    Search();
+                    return true;
+                case nameof(IsEnabledSearch):
+                    result = IsEnabledSearch();
+                    return true;
+                case nameof(RemoveMandatory):
+                    RemoveMandatory();
+                    return true;
+                case nameof(IsEnabledRemoveMandatory):
+                    result = IsEnabledRemoveMandatory();
+                    return true;
+                case nameof(MoveBackward):
+                    MoveBackward();
+                    return true;
+                case nameof(IsEnabledMoveBackward):
+                    result = IsEnabledMoveBackward();
+                    return true;
+                case nameof(MoveForward):
+                    MoveForward();
+                    return true;
+                case nameof(IsEnabledMoveForward):
+                    result = IsEnabledMoveForward();
+                    return true;
+                case nameof(MoveUp):
+                    MoveUp();
+                    return true;
+                case nameof(IsEnabledMoveUp):
+                    result = IsEnabledMoveUp();
+                    return true;
+                case nameof(MoveDown):
+                    MoveDown();
+                    return true;
+                case nameof(IsEnabledMoveDown):
+                    result = IsEnabledMoveDown();
+                    return true;
+                case nameof(GenerateTranslation):
+                    GenerateTranslation();
+                    return true;
+                case nameof(IsEnabledGenerateTranslation):
+                    result = IsEnabledGenerateTranslation();
+                    return true;
+                case nameof(RemoveGeneratedTranslation):
+                    RemoveGeneratedTranslation();
+                    return true;
+                case nameof(IsEnabledRemoveGeneratedTranslation):
+                    result = IsEnabledRemoveGeneratedTranslation();
+                    return true;
+                case nameof(GenerateTranslationAll):
+                    GenerateTranslationAll();
+                    return true;
+                case nameof(IsEnabledGenerateTranslationAll):
+                    result = IsEnabledGenerateTranslationAll();
+                    return true;
+                case nameof(RemoveGeneratedTranslationAll):
+                    RemoveGeneratedTranslationAll();
+                    return true;
+                case nameof(IsEnabledRemoveGeneratedTranslationAll):
+                    result = IsEnabledRemoveGeneratedTranslationAll();
+                    return true;
+                case nameof(Replace):
+                    Replace();
+                    return true;
+                case nameof(IsEnabledReplace):
+                    result = IsEnabledReplace();
+                    return true;
+                case nameof(ReplaceAll):
+                    ReplaceAll();
+                    return true;
+                case nameof(IsEnabledReplaceAll):
+                    result = IsEnabledReplaceAll();
+                    return true;
+                case nameof(ExportFolder):
+                    _ = ExportFolder();
+                    return true;
+                case nameof(ExportTranslations):
+                    ExportTranslations();
+                    return true;
+                case nameof(IsEnabledExportTranslations):
+                    result = IsEnabledExportTranslations();
+                    return true;
+                case nameof(ExportTranslationsAll):
+                    ExportTranslationsAll();
+                    return true;
+                case nameof(IsEnabledExportTranslationsAll):
+                    result = IsEnabledExportTranslationsAll();
+                    return true;
+                case nameof(RefreshExportFileTime):
+                    RefreshExportFileTime();
+                    return true;
+                case nameof(IsEnabledRefreshExportFileTime):
+                    result = IsEnabledRefreshExportFileTime();
+                    return true;
+                case nameof(ImportSource):
+                    _ = ImportSource();
+                    return true;
+                case nameof(IsEnabledImportSource):
+                    result = IsEnabledImportSource();
+                    return true;
+                case nameof(ImportTranslations):
+                    ImportTranslations();
+                    return true;
+                case nameof(IsEnabledImportTranslations):
+                    result = IsEnabledImportTranslations();
+                    return true;
+                case nameof(AddTranslationPair):
+                    AddTranslationPair();
+                    return true;
+                case nameof(IsEnabledAddTranslationPair):
+                    result = IsEnabledAddTranslationPair();
+                    return true;
+                case nameof(RemoveTranslationPair):
+                    RemoveTranslationPair();
+                    return true;
+                case nameof(IsEnabledRemoveTranslationPair):
+                    result = IsEnabledRemoveTranslationPair();
+                    return true;
+            }
+
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        #endregion
+
         public enum TranslationAutogenerateOption
         {
             FetchTranslation,

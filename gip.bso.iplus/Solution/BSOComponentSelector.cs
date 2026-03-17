@@ -438,7 +438,7 @@ namespace gip.bso.iplus
             return CurrentProjectItemCS.ValueT;
         }
 
-        [ACMethodInfo("","en{'Select component'}de{'Komponente übernehmen'}",401)]
+        [ACMethodInfo("","en{'Select component'}de{'Komponente ï¿½bernehmen'}",401)]
         public void SelectComponent()
         {
             CloseTopDialog();
@@ -504,7 +504,7 @@ namespace gip.bso.iplus
             return _UserSelectedChildInstanceInfo;
         }
 
-        [ACMethodInfo("", "en{'Use process module'}de{'Prozessmodul übernehmen'}", 491)]
+        [ACMethodInfo("", "en{'Use process module'}de{'Prozessmodul ï¿½bernehmen'}", 491)]
         public void SelectChildInstanceInfo()
         {
             _UserSelectedChildInstanceInfo = SelectedChildInstanceInfo;
@@ -582,6 +582,28 @@ namespace gip.bso.iplus
                     return true;
             }
            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(SearchClass):
+                case nameof(IsEnabledSearchClass):
+                    return new string[] { nameof(SearchClassText), nameof(CurrentACProject) };
+
+                case nameof(ShowComponentSelector):
+                case nameof(SelectComponent):
+                case nameof(CancelSelectComponent):
+                case nameof(OnTreeViewItemExpand):
+                case nameof(RefreshItems):
+                case nameof(ShowChildInstanceInfo):
+                case nameof(SelectChildInstanceInfo):
+                case nameof(CancelChildInstanceInfo):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

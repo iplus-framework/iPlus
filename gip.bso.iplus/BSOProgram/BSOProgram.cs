@@ -545,6 +545,30 @@ namespace gip.bso.iplus
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(New):
+                case nameof(IsEnabledNew):
+                    return new string[] { nameof(DbChangeCount) };
+
+                case nameof(Delete):
+                case nameof(IsEnabledDelete):
+                    return new string[] { nameof(CurrentACProgram) };
+
+                case nameof(NewACProgramOK):
+                case nameof(IsEnabledNewACProgramOK):
+                    return new string[] { nameof(CurrentNewACProgram) };
+
+                case nameof(Search):
+                case nameof(NewACProgramCancel):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
         #endregion
 
 

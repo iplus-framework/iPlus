@@ -503,6 +503,72 @@ namespace gip.bso.iplus
 
         #endregion
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(IsEnabledSave):
+                    return new string[] { nameof(DbChangeCount) };
+                case nameof(IsEnabledExecuteSQL):
+                    return new string[] { nameof(SelectedSQLScript) };
+                case nameof(IsEnabledExportToExcel):
+                    return new string[] { nameof(SQLScriptResult) };
+                case nameof(IsEnabledNewSQLScript):
+                    return new string[] { nameof(InitState) };
+                case nameof(IsEnabledDeleteSQLScript):
+                    return new string[] { nameof(SelectedSQLScript) };
+                default:
+                    return base.GetPropsToObserveForIsEnabled(acMethodName);
+            }
+        }
+
+        #region Execute-Helper-Handlers
+
+        protected override bool HandleExecuteACMethod(out object result, AsyncMethodInvocationMode invocationMode, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter)
+        {
+            result = null;
+            switch (acMethodName)
+            {
+                case nameof(Save):
+                    Save();
+                    return true;
+                case nameof(IsEnabledSave):
+                    result = IsEnabledSave();
+                    return true;
+                case nameof(UndoSave):
+                    UndoSave();
+                    return true;
+                case nameof(ExecuteSQL):
+                    ExecuteSQL();
+                    return true;
+                case nameof(IsEnabledExecuteSQL):
+                    result = IsEnabledExecuteSQL();
+                    return true;
+                case nameof(ExportToExcel):
+                    ExportToExcel();
+                    return true;
+                case nameof(IsEnabledExportToExcel):
+                    result = IsEnabledExportToExcel();
+                    return true;
+                case nameof(NewSQLScript):
+                    NewSQLScript();
+                    return true;
+                case nameof(IsEnabledNewSQLScript):
+                    result = IsEnabledNewSQLScript();
+                    return true;
+                case nameof(DeleteSQLScript):
+                    DeleteSQLScript();
+                    return true;
+                case nameof(IsEnabledDeleteSQLScript):
+                    result = IsEnabledDeleteSQLScript();
+                    return true;
+            }
+
+            return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        #endregion
+
         #region Messages
 
         /// <summary>

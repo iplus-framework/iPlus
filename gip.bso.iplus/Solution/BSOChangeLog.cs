@@ -571,29 +571,46 @@ namespace gip.bso.iplus
             result = null;
             switch (acMethodName)
             {
-                case "ShowChangeLogForClass":
+                case nameof(ShowChangeLogForClass):
                     ShowChangeLogForClass((Guid)acParameter[0], (Guid)acParameter[1]);
                     return true;
-                case "IsEnabledLogForClass":
+                case nameof(IsEnabledLogForClass):
                     result = IsEnabledLogForClass((Guid)acParameter[0], (Guid)acParameter[1]);
                     return true;
-                case "ShowChangeLogForProperty":
+                case nameof(ShowChangeLogForProperty):
                     ShowChangeLogForProperty((Guid)acParameter[0], (Guid)acParameter[1]);
                     return true;
-                case "IsEnabledLogForProperty":
+                case nameof(IsEnabledLogForProperty):
                     result = IsEnabledLogForProperty((Guid)acParameter[0], (Guid)acParameter[1]);
                     return true;
-                case "ShowMainLayout":
+                case nameof(ShowMainLayout):
                     ShowMainLayout();
                     return true;
-                case "IsEnabledLogForWFConfig":
+                case nameof(IsEnabledLogForWFConfig):
                     result = IsEnabledLogForWFConfig(acParameter as IACConfig[]);
                     return true;
-                case "ShowChangeLogForWFConfig":
+                case nameof(ShowChangeLogForWFConfig):
                     ShowChangeLogForWFConfig(acParameter[0] as IACConfig[]);
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(ShowChangeLogForClass):
+                case nameof(IsEnabledLogForClass):
+                case nameof(ShowChangeLogForProperty):
+                case nameof(IsEnabledLogForProperty):
+                case nameof(ShowMainLayout):
+                case nameof(ShowChangeLogForWFConfig):
+                case nameof(IsEnabledLogForWFConfig):
+                    return new string[] { nameof(InitState), nameof(DbChangeCount) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion
