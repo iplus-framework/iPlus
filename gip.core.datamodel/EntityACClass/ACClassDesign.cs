@@ -1433,6 +1433,7 @@ namespace gip.core.datamodel
             ("LinearGradientBrush.RelativeTransform", "LinearGradientBrush.Transform", false),
             ("Property=\"X2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"1,0\"", false),
             ("Property=\"Y2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"0,1\"", false),
+            ("RelativeSource={x:Static RelativeSource.Self}}", "RelativeSource={RelativeSource Self}}", false),
                         
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),

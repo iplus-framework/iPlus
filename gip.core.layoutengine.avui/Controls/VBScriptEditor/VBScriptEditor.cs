@@ -837,8 +837,15 @@ namespace gip.core.layoutengine.avui
                 // Update Text when VBText changes
                 if (!_OnTargetUpdated)
                 {
-                    _OnTargetUpdated = true;
-                    Text = this.VBText;
+                    var newText = this.VBText ?? string.Empty;
+
+                    // Avoid re-entering TextEditor.Text setter (which resets undo history)
+                    // when the change originated from this editor's own TextChanged event.
+                    if (!string.Equals(Text, newText, StringComparison.Ordinal))
+                    {
+                        _OnTargetUpdated = true;
+                        Text = newText;
+                    }
                 }
             }
         }
