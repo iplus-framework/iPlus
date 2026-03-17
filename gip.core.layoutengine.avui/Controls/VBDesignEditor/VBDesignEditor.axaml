@@ -8,7 +8,7 @@
 
     <local:VBTabControl x:Name="ucTabControl" TabStripPlacement="Bottom" SelectionChanged="TabControl_SelectionChanged">
         <local:VBTabItem Header="Design" x:Name="DesignTab">
-            <wpf:DesignSurface x:Name="ucWpfDesignSurface" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <wpf:DesignSurface x:Name="ucWpfDesignSurface" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
         </local:VBTabItem>
         <local:VBTabItem Header="XAML" x:Name="XAMLTab">
             <local:VBXMLEditor x:Name="ucAvalonTextEditor" CodeCompletionSchema="VBDesignEditor.xsd"/>
