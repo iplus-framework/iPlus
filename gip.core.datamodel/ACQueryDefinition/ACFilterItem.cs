@@ -279,6 +279,24 @@ namespace gip.core.datamodel
             }
         }
 
+        [IgnoreDataMember]
+        private ACValueItem _SearchACValueItem;
+        [IgnoreDataMember]
+        [ACPropertyInfo(6, "", "en{'FilterDT'}de{'FilterDT'}")]
+        public ACValueItem SearchACValueItem
+        {
+            get
+            {
+                return _SearchACValueItem;
+            }
+            set
+            {
+                _SearchACValueItem = value;
+                SearchWord = _SearchACValueItem != null && _SearchACValueItem.Value != null ? ((short)_SearchACValueItem.Value).ToString() : null;
+                OnPropertyChanged(nameof(SearchACValueItem));
+            }
+        }
+
         #endregion
 
         #region IACObject Member

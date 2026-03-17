@@ -241,7 +241,7 @@ namespace gip.core.layoutengine.avui
                 var combo = new VBComboBox
                 {
                     DataContext = filterItem,
-                    VBContent = nameof(ACFilterItem.SearchWord),
+                    VBContent = propertyType.IsEnum ? nameof(ACFilterItem.SearchACValueItem) : nameof(ACFilterItem.SearchWord),
                     VBSource = property != null ? property.ACSource : null,
                     ACCaption = property != null ? property.ACCaption : filterItem.ACCaption,
                     ShowCaption = true
