@@ -2693,7 +2693,11 @@ namespace gip.bso.iplus
         public ACClassDesign NewVisualisation(ACClass parentACClass)
         {
             string secondaryKey = ACRoot.SRoot.NoManager.GetNewNo(Database, typeof(ACClassDesign), ACClassDesign.NoColumnName, ACClassDesign.FormatNewNo, null);
-            ACClassDesign acClassDesign = ACClassDesign.NewACClassDesignVisualisation(Database, parentACClass, secondaryKey);
+            ACClass parentClassFromContext = parentACClass.FromIPlusContext<ACClass>(this.Database);
+            if (parentClassFromContext == null)
+                return null;
+            this.Database.ACClass.Where(c => c.ACClassID == parentACClass.ACClassID).FirstOrDefault(); // Ensure parentACClass is attached to context
+            ACClassDesign acClassDesign = ACClassDesign.NewACClassDesignVisualisation(Database, parentClassFromContext, secondaryKey);
             Database.ACClassDesign.Add(acClassDesign);
             return acClassDesign;
         }

@@ -407,14 +407,17 @@ namespace gip.core.layoutengine.avui
                 if (ContextACObject != null && ContentACObject is ACClassDesign)
                 {
                     ACClassDesign = ContentACObject as ACClassDesign;
-                    var query = ACClassDesign.VBUserACClassDesign_ACClassDesign.Where(c => c.VBUserID == this.Root().Environment.User.VBUserID && c.ACClassDesign != null);
-                    if (query.Any())
+                    if (ACClassDesign.VBUserACClassDesign_ACClassDesign != null)
                     {
-                        VBUserACClassDesign userDesign = query.First();
-                        if (!String.IsNullOrEmpty(userDesign.XAMLDesign))
+                        var query = ACClassDesign.VBUserACClassDesign_ACClassDesign.Where(c => c.VBUserID == this.Root().Environment.User.VBUserID && c.ACClassDesign != null);
+                        if (query.Any())
                         {
-                            xaml = userDesign.XAMLDesign;  // User-specific XAML
-                            hasUserSpecificDesign = true;
+                            VBUserACClassDesign userDesign = query.First();
+                            if (!String.IsNullOrEmpty(userDesign.XAMLDesign))
+                            {
+                                xaml = userDesign.XAMLDesign;  // User-specific XAML
+                                hasUserSpecificDesign = true;
+                            }
                         }
                     }
                 }
