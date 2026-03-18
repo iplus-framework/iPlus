@@ -1,6 +1,7 @@
 ﻿using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.Collections.Generic;
+using System;
 
 namespace gip.core.manager
 {
@@ -35,6 +36,14 @@ namespace gip.core.manager
         /// XAML-Code for Presentation
         /// </value>
         public abstract string XAMLDesign { get; set; }
+
+        public abstract string XMLDesign { get; set; }
+        public abstract string XMLDesign2 { get; set; }
+
+        public abstract DateTime? XMLDesignUpdateDate { get; set; }
+        public abstract DateTime? XMLDesign2UpdateDate { get; set; }
+        
+        public abstract IACEntityObjectContext Context { get; }
 
         /// <summary>
         /// Root-Workflownode

@@ -33,8 +33,8 @@ namespace gip.ext.designer.avui.Extensions
                     AdornerPanel adornerPanel = new AdornerPanel();
 
                     // If the Element is rotated/skewed in the grid, then margin handles do not appear
-                    if ((layoutTransformControl != null && layoutTransformControl.LayoutTransform.Value == Matrix.Identity)
-                        || extendedControl.RenderTransform.Value == Matrix.Identity)
+                    if (   (layoutTransformControl != null && layoutTransformControl.LayoutTransform.Value == Matrix.Identity)
+                        || (extendedControl != null && extendedControl.RenderTransform != null && extendedControl.RenderTransform.Value == Matrix.Identity))
                     {
                         _grid = this.ExtendedItem.Parent.View as Grid;
                         _handles = new[]
@@ -49,8 +49,6 @@ namespace gip.ext.designer.avui.Extensions
                             handle.PointerPressed += OnMouseDown;
                             handle.Stub.PointerPressed += OnMouseDownPreview;
                         }
-
-
                     }
 
                     if (adornerPanel != null)

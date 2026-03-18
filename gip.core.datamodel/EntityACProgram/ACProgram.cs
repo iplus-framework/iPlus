@@ -374,7 +374,68 @@ namespace gip.core.datamodel
             }
             set
             {
-                throw new NotSupportedException();
+                if (ProgramACClassMethod != null)
+                    ProgramACClassMethod.XAMLDesign = value;
+            }
+        }
+
+        public string XMLDesign
+        {
+            get
+            {
+                if (ProgramACClassMethod == null)
+                    return null;
+                return ProgramACClassMethod.XMLDesign;
+            }
+            set
+            {
+                if (ProgramACClassMethod != null)
+                    ProgramACClassMethod.XMLDesign = value;
+            }
+        }
+
+        public string XMLDesign2
+        {
+            get
+            {
+                if (ProgramACClassMethod == null)
+                    return null;
+                return ProgramACClassMethod.XMLDesign2;
+            }
+            set
+            {
+                if (ProgramACClassMethod != null)
+                    ProgramACClassMethod.XMLDesign2 = value;
+            }
+        }
+
+        public DateTime? XMLDesignUpdateDate
+        {
+            get
+            {
+                if (ProgramACClassMethod == null)
+                    return null;
+                return ProgramACClassMethod.XMLDesignUpdateDate;
+            }
+            set
+            {
+                if (ProgramACClassMethod != null)
+                    ProgramACClassMethod.XMLDesignUpdateDate = value;
+            }
+        }
+
+        public DateTime? XMLDesign2UpdateDate
+        {
+            get
+            {
+                if (ProgramACClassMethod == null)
+                    return null;
+                return ProgramACClassMethod.XMLDesign2UpdateDate;
+            }
+            set
+            {
+                if (ProgramACClassMethod != null)
+                    ProgramACClassMethod.XMLDesign2UpdateDate = value;
             }
         }
 

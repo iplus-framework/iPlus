@@ -217,38 +217,39 @@ namespace gip.core.layoutengine.avui
            return LoadXAML(xmlLayout, dataContext, bso, layoutName) as Visual;
         }
 
-        static public Visual LoadLayout(ACClassDesign acClassDesign, IACObject dataContext, IACBSO bso, string layoutName)
+        static public Visual LoadLayout(IACObjectDesign aCObjectDesign, IACObject dataContext, IACBSO bso, string layoutName)
         {
+            ACClassDesign acClassDesign = aCObjectDesign as ACClassDesign;
             if (acClassDesign != null && acClassDesign.BAMLDesign != null && acClassDesign.IsDesignCompiled)
             {
                 return LoadBAML(acClassDesign, dataContext, bso) as Visual;
             }
             else
             {
-                string xamlToLoad = acClassDesign.XAMLDesign;
+                string xamlToLoad = aCObjectDesign.XAMLDesign;
                 object result = LoadXAML(xamlToLoad, dataContext, bso, layoutName);
                 
                 // Cache the converted XAML to XMLDesign2 if conversion was successful
                 // Only cache if we're in Avalonia mode and XMLDesign2 is empty (not already cached)
-                if (result != null && acClassDesign != null && 
+                if (result != null && aCObjectDesign != null && 
                     dataContext != null && dataContext is IACComponent)
                 {
                     var rootComponent = (dataContext as IACComponent).Root;
                     if (rootComponent != null && rootComponent.IsAvaloniaUI 
-                        && string.IsNullOrEmpty(acClassDesign.XMLDesign2) 
-                        && !string.IsNullOrEmpty(acClassDesign.XMLDesign))
+                        && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
+                        && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
                     {
                         try
                         {
                             // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
-                            acClassDesign.XMLDesign2 = xamlToLoad;
+                            aCObjectDesign.XMLDesign2 = xamlToLoad;
                             // Mark both designs as synchronized
-                            acClassDesign.XMLDesignUpdateDate = DateTime.Now;
-                            acClassDesign.XMLDesign2UpdateDate = acClassDesign.XMLDesignUpdateDate;
-                            if (acClassDesign.Context != null)
+                            aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
+                            aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
+                            if (aCObjectDesign.Context != null)
                             {
                                 // Save changes to the database if context is available
-                                var msgWithDetails = acClassDesign.Context.ACSaveChanges();
+                                var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
                                 if (msgWithDetails != null)
                                 {
                                     Root.Messages.LogMessageMsg(msgWithDetails);

@@ -314,6 +314,112 @@ namespace gip.core.autocomponent
             }
         }
 
+        public string XMLDesign
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                {
+                    ContentACClassWF.ACClassMethod.AutoRefresh();
+                }
+                return ContentACClassWF.ACClassMethod.XMLDesign;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        ContentACClassWF.ACClassMethod.XMLDesign = value;
+                    }
+                }
+            }
+        }
+
+        public string XMLDesign2
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                {
+                    ContentACClassWF.ACClassMethod.AutoRefresh();
+                }
+                return ContentACClassWF.ACClassMethod.XMLDesign2;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        ContentACClassWF.ACClassMethod.XMLDesign2 = value;
+                    }
+                }
+            }
+        }
+
+        public DateTime? XMLDesignUpdateDate
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return DateTime.MinValue;
+                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                {
+                    ContentACClassWF.ACClassMethod.AutoRefresh();
+                }
+                return ContentACClassWF.ACClassMethod.XMLDesignUpdateDate;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        ContentACClassWF.ACClassMethod.XMLDesignUpdateDate = value;
+                    }
+                }
+            }
+        }
+
+        public DateTime? XMLDesign2UpdateDate
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return DateTime.MinValue;
+                using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                {
+                    ContentACClassWF.ACClassMethod.AutoRefresh();
+                }
+                return ContentACClassWF.ACClassMethod.XMLDesign2UpdateDate;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        ContentACClassWF.ACClassMethod.XMLDesign2UpdateDate = value;
+                    }
+                }
+            }
+        }
+
+        public IACEntityObjectContext Context
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                return ContentACClassWF.Context;
+            }
+        }
+
         /// <summary>
         /// Root-Workflownode
         /// </summary>

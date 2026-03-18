@@ -100,6 +100,77 @@ namespace gip.core.manager
             }
         }
 
+
+        public override string XMLDesign
+        {
+            get
+            {
+                if (CurrentACClassMethod == null)
+                    return null;
+                return CurrentACClassMethod.XMLDesign;
+            }
+            set
+            {
+                if (CurrentACClassMethod != null)
+                    CurrentACClassMethod.XMLDesign = value;
+            }
+        }
+
+        public override string XMLDesign2
+        {
+            get
+            {
+                if (CurrentACClassMethod == null)
+                    return null;
+                return CurrentACClassMethod.XMLDesign2;
+            }
+            set
+            {
+                if (CurrentACClassMethod != null)
+                    CurrentACClassMethod.XMLDesign2 = value;
+            }
+        }
+
+        public override DateTime? XMLDesignUpdateDate
+        {
+            get
+            {
+                if (CurrentACClassMethod == null)
+                    return null;
+                return CurrentACClassMethod.XMLDesignUpdateDate;
+            }
+            set
+            {
+                if (CurrentACClassMethod != null)
+                    CurrentACClassMethod.XMLDesignUpdateDate = value;
+            }
+        }
+
+        public override DateTime? XMLDesign2UpdateDate
+        {
+            get
+            {
+                if (CurrentACClassMethod == null)
+                    return null;
+                return CurrentACClassMethod.XMLDesign2UpdateDate;
+            }
+            set
+            {
+                if (CurrentACClassMethod != null)
+                    CurrentACClassMethod.XMLDesign2UpdateDate = value;
+            }
+        }
+
+        public override IACEntityObjectContext Context
+        {
+            get
+            {
+                if (CurrentACClassMethod == null)
+                    return null;
+                return CurrentACClassMethod.Context;
+            }
+        }
+
         private bool _UseAutoLayoutElements = true;
         [ACPropertyInfo(999, "", "en{'Auto layout elements'}de{'Auto Layout-Elemente'}")]
         public bool UseAutoLayoutElements

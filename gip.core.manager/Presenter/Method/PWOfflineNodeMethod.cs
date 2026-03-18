@@ -233,6 +233,80 @@ namespace gip.core.manager
             }
         }
 
+        public override string XMLDesign
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                ContentACClassWF.ACClassMethod.AutoRefresh();
+                return ContentACClassWF.ACClassMethod.XMLDesign;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                    ContentACClassWF.ACClassMethod.XMLDesign = value;
+            }
+        }
+
+        public override string XMLDesign2
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                ContentACClassWF.ACClassMethod.AutoRefresh();
+                return ContentACClassWF.ACClassMethod.XMLDesign2;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                    ContentACClassWF.ACClassMethod.XMLDesign2 = value;
+            }
+        }
+
+        public override DateTime? XMLDesignUpdateDate
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                ContentACClassWF.ACClassMethod.AutoRefresh();
+                return ContentACClassWF.ACClassMethod.XMLDesignUpdateDate;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                    ContentACClassWF.ACClassMethod.XMLDesignUpdateDate = value;
+            }
+        }
+
+        public override DateTime? XMLDesign2UpdateDate
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                ContentACClassWF.ACClassMethod.AutoRefresh();
+                return ContentACClassWF.ACClassMethod.XMLDesign2UpdateDate;
+            }
+            set
+            {
+                if (ContentACClassWF != null)
+                    ContentACClassWF.ACClassMethod.XMLDesign2UpdateDate = value;
+            }
+        }
+
+        public override IACEntityObjectContext Context
+        {
+            get
+            {
+                if (ContentACClassWF == null)
+                    return null;
+                return ContentACClassWF.Context;
+            }
+        }
+
         /// <summary>
         /// Root-Workflownode of type PWOfflineNodeMethod
         /// </summary>

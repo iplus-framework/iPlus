@@ -30,6 +30,16 @@ namespace gip.core.datamodel
         /// XAML-Code for Presentation
         /// </value>
         String XAMLDesign { get; set; }
+
+        string XMLDesign { get; set; }
+    
+        string XMLDesign2 { get; set; }
+
+        DateTime? XMLDesignUpdateDate { get; set; }
+
+        DateTime? XMLDesign2UpdateDate { get; set; }
+
+        IACEntityObjectContext Context { get; }
     }
 }
 

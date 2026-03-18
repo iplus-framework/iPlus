@@ -432,10 +432,10 @@ namespace gip.core.layoutengine.avui
             Content = null;
             Visual uiElement = null;
             
-            if (ACClassDesign != null && !hasUserSpecificDesign)
+            if (ContentACObject != null && !hasUserSpecificDesign)
             {
                 // Use ACClassDesign overload for base designs - this handles BAML, conversion, and caching to XMLDesign2
-                uiElement = Layoutgenerator.LoadLayout(ACClassDesign, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
+                uiElement = Layoutgenerator.LoadLayout(ContentACObject, ContextACObject, BSOACComponent, ContentACObject.ACIdentifier);
             }
             else if (!string.IsNullOrEmpty(xaml))
             {

@@ -1343,22 +1343,27 @@ namespace gip.core.datamodel
                     // Remove all xmlns declarations from child content only
                     childContent = Regex.Replace(childContent, @"\s+xmlns:?\w*=""[^""]*""", "", RegexOptions.IgnoreCase);
                     
-                    // Remove attributes' namespace prefix if it matches the root element prefix (e.g. vb: in <vb:VBButton vb:VBContent="...">)
-                    // We skip "x:" and "xmlns:" to ensure standard XAML features are preserved
-                    var nameMatch = Regex.Match(rootPart, @"<([a-zA-Z][\w.]*):[a-zA-Z][\w.]*");
-                    if (nameMatch.Success)
+                    // Remove attributes' namespace prefix for prefixes used by element names (e.g. vb: in <vb:VBButton vb:VBContent="...">).
+                    // This also covers unprefixed roots like <Grid ...> where the first prefixed element appears in child content.
+                    // We skip x/xml/xmlns to preserve standard XAML/XML behavior.
+                    var elementPrefixMatches = Regex.Matches(rootPart + childContent, @"<([a-zA-Z][\w.]*)\:[a-zA-Z][\w.]*");
+                    var elementPrefixes = elementPrefixMatches
+                        .Cast<Match>()
+                        .Select(m => m.Groups[1].Value)
+                        .Distinct(StringComparer.OrdinalIgnoreCase)
+                        .Where(prefix =>
+                            !string.Equals(prefix, "x", StringComparison.OrdinalIgnoreCase) &&
+                            !string.Equals(prefix, "xml", StringComparison.OrdinalIgnoreCase) &&
+                            !string.Equals(prefix, "xmlns", StringComparison.OrdinalIgnoreCase));
+
+                    foreach (string elementPrefix in elementPrefixes)
                     {
-                        string rootPrefix = nameMatch.Groups[1].Value;
-                        if (!string.Equals(rootPrefix, "x", StringComparison.OrdinalIgnoreCase) && 
-                            !string.Equals(rootPrefix, "xmlns", StringComparison.OrdinalIgnoreCase))
-                        {
-                            // Pattern matches the prefix only if the attribute name does NOT contain a dot
-                            // This ensures simple attributes like vb:VBContent become VBContent,
-                            // but attached properties like vb:VBDockingManager.IsCloseableBSORoot are preserved.
-                            string prefixAttrPattern = @"(\s+)" + Regex.Escape(rootPrefix) + @":([\w]+)(=)";
-                            rootPart = Regex.Replace(rootPart, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
-                            childContent = Regex.Replace(childContent, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
-                        }
+                        // Pattern matches the prefix only if the attribute name does NOT contain a dot.
+                        // This ensures simple attributes like vb:VBContent become VBContent,
+                        // but attached properties like vb:VBDockingManager.IsCloseableBSORoot are preserved.
+                        string prefixAttrPattern = @"(\s+)" + Regex.Escape(elementPrefix) + @":([\w]+)(=)";
+                        rootPart = Regex.Replace(rootPart, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
+                        childContent = Regex.Replace(childContent, prefixAttrPattern, "$1$2$3", RegexOptions.IgnoreCase);
                     }
 
                     avaloniaXAML = rootPart + childContent;
@@ -1431,6 +1436,7 @@ namespace gip.core.datamodel
             ("Property=\"X2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"1,0\"", false),
             ("Property=\"Y2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"0,1\"", false),
             ("RelativeSource={x:Static RelativeSource.Self}}", "RelativeSource={RelativeSource Self}}", false),
+            ("StrokeLineJoin=", "StrokeJoin=", false),
                         
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),

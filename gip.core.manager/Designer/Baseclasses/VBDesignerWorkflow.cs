@@ -103,6 +103,15 @@ namespace gip.core.manager
             get;
             set;
         }
+
+        public abstract string XMLDesign { get; set; }
+        public abstract string XMLDesign2 { get; set; }
+
+        public abstract DateTime? XMLDesignUpdateDate { get; set; }
+        public abstract DateTime? XMLDesign2UpdateDate { get; set; }
+        
+        public abstract IACEntityObjectContext Context { get; }
+
         #endregion
 
         #endregion

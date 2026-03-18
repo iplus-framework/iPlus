@@ -14,6 +14,7 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
 using Avalonia.Styling;
 using Avalonia.Metadata;
 using Avalonia.Interactivity;
@@ -491,6 +492,18 @@ namespace gip.ext.xamldom.avui
                     XamlPropertyValue childValue = ParseValue(childNode);
                     if (childValue != null)
                     {
+                        // When plain text appears inside an InlineCollection (e.g. <TextBlock>AND</TextBlock>),
+                        // the Avalonia XAML reader implicitly wraps it in a Run. We do the same so the
+                        // designer can create a proper DesignItem for it (a raw XamlTextValue yields null).
+                        if (childValue is XamlTextValue inlineTextVal && collectionInstance is InlineCollection)
+                        {
+                            XmlElement runXmlElement = element.OwnerDocument.CreateElement("Run", element.NamespaceURI);
+                            var runInstance = new Run { Text = inlineTextVal.Text };
+                            var runXamlObject = new XamlObject(document, runXmlElement, typeof(Run), runInstance);
+                            runXamlObject.ParentObject = obj;
+                            childValue = runXamlObject;
+                        }
+
                         if (collectionProperty != null)
                         {
                             collectionProperty.ParserAddCollectionElement(collectionPropertyElement, childValue);

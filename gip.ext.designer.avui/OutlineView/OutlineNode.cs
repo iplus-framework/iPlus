@@ -205,6 +205,7 @@ namespace gip.ext.designer.avui.OutlineView
             var retVal = false;
             foreach (var item in items)
             {
+                if (item == null) continue; // text nodes in e.g. InlineCollection have no DesignItem
                 if (ModelTools.CanSelectComponent(item))
                 {
                     if (Children.All(x => x.DesignItem != item))
