@@ -50,7 +50,6 @@ namespace gip.core.datamodel
     [ACPropertyEntity(15, nameof(ContinueByError), "en{'Continue on Error'}de{'Fortsetzen bei Fehler'}", "", "", true)]
     [ACPropertyEntity(16, nameof(Comment), "en{'Comment'}de{'Bemerkung'}", "", "", true)]
     [ACPropertyEntity(17, nameof(IsPersistable), "en{'Persistable'}de{'Persistierbar'}", "", "", true)]
-    [ACPropertyEntity(18, "IsSystem", "en{'System'}de{'System'}", "", "", true)]
     [ACPropertyEntity(19, nameof(ContextMenuCategoryIndex), "en{'Contextmenu Category'}de{'Kontextmenükategorie'}", "", "", true)]
     [ACPropertyEntity(20, nameof(IsRPCEnabled), "en{'Is RPC Enabled'}de{'Ist RPC aktiviert'}", "", "", true)]
     [ACPropertyEntity(21, nameof(AttachedFromACClass), "en{'Attached from Class'}de{'Angehängt von der Klasse'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
@@ -69,6 +68,8 @@ namespace gip.core.datamodel
     [ACPropertyEntity(9999, nameof(ValueTypeACClass), "en{'Data Type'}de{'Datentyp'}", Const.ContextDatabaseIPlus + "\\" + ACClass.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, nameof(ACClassMethod1_ParentACClassMethod), "en{'Parent Method'}de{'Elternmethode'}", Const.ContextDatabaseIPlus + "\\" + ACClassMethod.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
     [ACPropertyEntity(9999, nameof(XMLACMethod), "en{'Method Definition'}de{'Methodendefinition'}")]
+    [ACPropertyEntity(9999, nameof(XMLDesignUpdateDate), "en{'XML Design Update Date'}de{'Datum der Aktualisierung des XML-Designs'}", "", "", true)]
+    [ACPropertyEntity(9999, nameof(XMLDesign2UpdateDate), "en{'XML Design 2 Update Date'}de{'Datum der Aktualisierung des XML-Designs2'}", "", "", true)]
     [ACDeleteAction("VBGroupRight_ACClassMethod", Global.DeleteAction.CascadeManual)]
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + ACClassMethod.ClassName, "en{'Method'}de{'Methode'}", typeof(ACClassMethod), ACClassMethod.ClassName, Const.ACIdentifierPrefix, "SortIndex," + Const.ACIdentifierPrefix)]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<ACClassMethod>) })]
@@ -1833,11 +1834,33 @@ namespace gip.core.datamodel
         {
             get
             {
-                return XMLDesign;
+                // If UI is Avalonia 
+                if (Database.Root.IsAvaloniaUI)
+                {
+                    if (!string.IsNullOrEmpty(XMLDesign2))
+                        return XMLDesign2;
+                    // Otherwise convert from WPF XAML
+                    return ACClassDesign.ConvertWpfToAvaloniaXaml(XMLDesign);
+                }
+                // If UI is WPF
+                else
+                {
+                    // Return WPF Design
+                    return XMLDesign;
+                }
             }
             set
             {
-                XMLDesign = value;
+                if (Database.Root.IsAvaloniaUI)
+                {
+                    XMLDesign2 = value;
+                    XMLDesign2UpdateDate = DateTime.Now;
+                }
+                else
+                {
+                    XMLDesign = value;
+                    XMLDesignUpdateDate = DateTime.Now;
+                }
             }
         }
         #endregion

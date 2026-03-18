@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -119,11 +119,13 @@ public partial class iPlusV5Context : DbContext
             .UseModel(iPlusV5ContextModel.Instance)
             .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
             //Uncomment connection string when generating new CompiledModels
-//.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString);
+            //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.UseCollation("Latin1_General_CI_AS");
+
         modelBuilder.Entity<ACAssembly>(entity =>
         {
             entity.ToTable("ACAssembly");
@@ -432,6 +434,9 @@ public partial class iPlusV5Context : DbContext
             entity.Property(e => e.XMLACMethod).IsUnicode(false);
             entity.Property(e => e.XMLConfig).HasColumnType("text");
             entity.Property(e => e.XMLDesign).HasColumnType("text");
+            entity.Property(e => e.XMLDesign2).HasColumnType("text");
+            entity.Property(e => e.XMLDesign2UpdateDate).HasColumnType("datetime");
+            entity.Property(e => e.XMLDesignUpdateDate).HasColumnType("datetime");
 
            entity.HasOne(d => d.ACClass).WithMany(p => p.ACClassMethod_ACClass)
                 .HasForeignKey(d => d.ACClassID)

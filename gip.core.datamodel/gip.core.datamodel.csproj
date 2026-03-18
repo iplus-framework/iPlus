@@ -102,9 +102,10 @@
     <None Include="DbScripts\iPlus\dbsync_2025-01-24_08-00_aagincic.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="DbScripts\iPlus\dbsync_2026-02-23_12-10_aagincic.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="DbScripts\iPlus\dbsync_2026-03-18_16-48_dlisak.sql">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
