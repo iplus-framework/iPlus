@@ -305,11 +305,12 @@ namespace gip.core.autocomponent
                 if (_ContentACClassWF == null)
                     return "";
                 _ContentACClassWF.ACClassMethod.AutoRefresh();
-                return _ContentACClassWF.ACClassMethod.XMLDesign;
+                return _ContentACClassWF.ACClassMethod.XAMLDesign;
             }
             set
             {
-                throw new NotImplementedException();
+                if (_ContentACClassWF != null)
+                    _ContentACClassWF.ACClassMethod.XAMLDesign = value;
             }
         }
 

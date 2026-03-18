@@ -658,11 +658,17 @@ namespace gip.core.autocomponent
                 {
                     ContentACClassWF.ACClassMethod.AutoRefresh();
                 }
-                return ContentACClassWF.ACClassMethod.XMLDesign;
+                return ContentACClassWF.ACClassMethod.XAMLDesign;
             }
             set
             {
-                throw new NotImplementedException();
+                if (ContentACClassWF != null)
+                {
+                    using (ACMonitor.Lock(this.ContextLockForACClassWF))
+                    {
+                        ContentACClassWF.ACClassMethod.XAMLDesign = value;
+                    }
+                }
             }
         }
 

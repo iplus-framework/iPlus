@@ -63,14 +63,15 @@ namespace gip.core.layoutengine.avui
         protected override void OnInitialized()
         {
             base.OnInitialized();
-            //// Businessobjects-Root must me bound later, because at this time this first VBDesign is not loaded in the logical tree.
-            //// Therefore the Datacontext could not be determinde from child VBDesigns, when the application starts
-            //if (this.ContextACObject == null 
-            //    || this.ContextACObject.ACType == null 
-            //    || this.ContextACObject.ACType.ACKind != Global.ACKinds.TACBusinessobjects)
+            // In Avalonia, OnInitialized fires during visual tree attachment, BEFORE OnApplyTemplate/Measure.
+            // Only call InitBinding here when no VBInstanceInfo item will later override the DataContext or
+            // BSOACComponent (those are processed in base.InitVBControl() during OnApplyTemplate).
+            // If we called InitBinding too early in that case, it would use the wrong inherited DataContext.
+            // For VBDesigns without such VBInstanceInfo (e.g. created via StartBusinessobject), InitBinding
+            // must run here so that BSOACComponent is correctly set before children like VBRibbonBSODefault
+            // apply their own template and read BSOACComponent.
+            if (!InstanceInfoList.Any(i => i.SetAsDataContext || i.SetAsBSOACComponet))
                 InitBinding();
-            //this.MouseDown += new MouseButtonEventHandler(VBDesign_MouseDown);
-            //this.AddHandler(VBDesign.MouseDownEvent, new MouseButtonEventHandler(VBDesign_MouseDown), true);
         }
 
 

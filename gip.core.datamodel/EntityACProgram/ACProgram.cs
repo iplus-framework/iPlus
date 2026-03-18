@@ -370,7 +370,7 @@ namespace gip.core.datamodel
         {
             get
             {
-                return ProgramACClassMethod.XMLDesign;
+                return ProgramACClassMethod.XAMLDesign;
             }
             set
             {

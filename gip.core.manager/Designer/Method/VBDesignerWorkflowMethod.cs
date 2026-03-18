@@ -92,11 +92,11 @@ namespace gip.core.manager
         {
             get
             {
-                return CurrentACClassMethod.XMLDesign;
+                return CurrentACClassMethod.XAMLDesign;
             }
             set
             {
-                CurrentACClassMethod.XMLDesign = value;
+                CurrentACClassMethod.XAMLDesign = value;
             }
         }
 

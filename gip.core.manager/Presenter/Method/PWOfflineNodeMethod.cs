@@ -225,11 +225,11 @@ namespace gip.core.manager
             get
             {
                 ContentACClassWF.ACClassMethod.AutoRefresh();
-                return ContentACClassWF.ACClassMethod.XMLDesign;
+                return ContentACClassWF.ACClassMethod.XAMLDesign;
             }
             set
             {
-                ContentACClassWF.ACClassMethod.XMLDesign = value;
+                ContentACClassWF.ACClassMethod.XAMLDesign = value;
             }
         }
 
