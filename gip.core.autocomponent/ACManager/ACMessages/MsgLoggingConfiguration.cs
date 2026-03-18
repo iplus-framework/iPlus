@@ -167,7 +167,7 @@ namespace gip.core.autocomponent
             {
                 if (String.IsNullOrEmpty(Path))
                     return System.IO.Path.GetTempPath();
-                if (Path.Contains("\\"))
+                if (Path.Contains(System.IO.Path.DirectorySeparatorChar.ToString()) || Path.Contains(System.IO.Path.AltDirectorySeparatorChar.ToString()))
                     return Path;
                 System.Environment.SpecialFolder specialFolder;
                 if (Enum.TryParse<System.Environment.SpecialFolder>(Path, out specialFolder))

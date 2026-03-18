@@ -20,6 +20,7 @@ using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.designer.avui;
 using SkiaSharp;
 using System.Collections;
+using Avalonia.Metadata;
 
 
 namespace gip.core.layoutengine.avui
@@ -214,6 +215,7 @@ namespace gip.core.layoutengine.avui
         #region InstanceInfo
         public VBInstanceInfoList _InstanceInfoList = new VBInstanceInfoList();
 
+        [Content]
         public VBInstanceInfoList InstanceInfoList
         {
             get

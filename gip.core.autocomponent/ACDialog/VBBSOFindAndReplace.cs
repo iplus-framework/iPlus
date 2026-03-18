@@ -470,44 +470,68 @@ namespace gip.core.autocomponent
             result = null;
             switch (acMethodName)
             {
-                case "UpdateFindTextFromSelection":
+                case nameof(UpdateFindTextFromSelection):
                     UpdateFindTextFromSelection();
                     return true;
-                case "Search":
+                case nameof(Search):
                     Search();
                     return true;
-                case "Bookmark":
+                case nameof(Bookmark):
                     Bookmark();
                     return true;
-                case "Replace":
+                case nameof(Replace):
                     Replace();
                     return true;
-                case "ReplaceAll":
+                case nameof(ReplaceAll):
                     ReplaceAll();
                     return true;
-                case "SearchDB":
+                case nameof(SearchDB):
                     SearchDB();
                     return true;
-                case "ShowFindAndReplaceDialog":
+                case nameof(ShowFindAndReplaceDialog):
                     ShowFindAndReplaceDialog(acParameter[0] as IACInteractiveObject);
                     return true;
-                case Const.IsEnabledPrefix + "Search":
+                case nameof(IsEnabledSearch):
                     result = IsEnabledSearch();
                     return true;
-                case Const.IsEnabledPrefix + "Bookmark":
+                case nameof(IsEnabledBookmark):
                     result = IsEnabledBookmark();
                     return true;
-                case Const.IsEnabledPrefix + "Replace":
+                case nameof(IsEnabledReplace):
                     result = IsEnabledReplace();
                     return true;
-                case Const.IsEnabledPrefix + "ReplaceAll":
+                case nameof(IsEnabledReplaceAll):
                     result = IsEnabledReplaceAll();
                     return true;
-                case Const.IsEnabledPrefix + "SearchDB":
+                case nameof(IsEnabledSearchDB):
                     result = IsEnabledSearchDB();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+                public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                case nameof(Search):
+                case nameof(IsEnabledSearch):
+                    return new string[] { nameof(FindTextInput)};
+                case nameof(Bookmark):
+                case nameof(IsEnabledBookmark):
+                    return new string[] { nameof(FindTextInput) };
+                case nameof(Replace):
+                case nameof(IsEnabledReplace):
+                    return new string[] { nameof(FindTextInput), nameof(ReplaceTextInput) };
+                case nameof(ReplaceAll):
+                case nameof(IsEnabledReplaceAll):
+                    return new string[] { nameof(FindTextInput), nameof(ReplaceTextInput) };
+                case nameof(SearchDB):
+                case nameof(IsEnabledSearchDB):
+                    return new string[] { nameof(FindTextInput) };
+            }
+
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
         #endregion
 

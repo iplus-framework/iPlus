@@ -3193,9 +3193,20 @@ namespace gip.bso.iplus
             }
             else if (bso.ACIdentifier.Contains("XML"))
             {
-                var query = Database.ContextIPlus.ACClassDesign.Where(c => (EF.Functions.Like(c.XMLDesign, findPattern) == true)
-                                                                && c.ACClass.ACProjectID == CurrentACProject.ACProjectID);
-                return query;
+                if (Root.IsAvaloniaUI)
+                {
+                    var query = Database.ContextIPlus.ACClassDesign.Where(c => 
+                                                (EF.Functions.Like(c.XMLDesign2, findPattern) == true || EF.Functions.Like(c.XMLDesign, findPattern) == true)
+                                                && c.ACClass.ACProjectID == CurrentACProject.ACProjectID);
+                    return query;                
+                }
+                else
+                {
+                    var query = Database.ContextIPlus.ACClassDesign.Where(c => 
+                                                (EF.Functions.Like(c.XMLDesign2, findPattern) == true || EF.Functions.Like(c.XMLDesign, findPattern) == true)
+                                                && c.ACClass.ACProjectID == CurrentACProject.ACProjectID);
+                    return query;
+                }
             }
             return new List<IACObjectEntityWithCheckTrans>();
         }

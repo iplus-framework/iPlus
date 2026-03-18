@@ -1,7 +1,8 @@
 ﻿<ResourceDictionary
    xmlns="https://github.com/avaloniaui"
    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:avaloniaedit="using:AvaloniaEdit"
+   xmlns:avaloniaedit="clr-namespace:AvaloniaEdit;assembly=AvaloniaEdit"
+   xmlns:search="clr-namespace:AvaloniaEdit.Search;assembly=AvaloniaEdit"
    xmlns:local="clr-namespace:gip.core.layoutengine.avui">
 
   <ControlTheme x:Key="VBTextEditorStyle" TargetType="{x:Type avaloniaedit:TextEditor}">
@@ -43,4 +44,233 @@
 
   <ControlTheme x:Key="{x:Type avaloniaedit:TextEditor}" TargetType="{x:Type avaloniaedit:TextEditor}" BasedOn="{StaticResource VBTextEditorStyle}" />
   <ControlTheme x:Key="{x:Type local:VBTextEditor}" TargetType="{x:Type local:VBTextEditor}" BasedOn="{StaticResource VBTextEditorStyle}" />
+
+  <StreamGeometry x:Key="DatabaseIconPath">M 3.29464,1.29515L 21.2946,1.29515C 22.3992,1.29515 23.2946,2.19058 23.2946,3.29514L 23.2946,21.2951C 23.2946,22.3997 22.3992,23.2951 21.2946,23.2951L 3.29464,23.2951C 2.19007,23.2951 1.29464,22.3997 1.29464,21.2951L 1.29464,3.29514C 1.29464,2.19058 2.19007,1.29515 3.29464,1.29515 Z M 6.29464,1.29515L 18.2946,1.29515C 18.8469,1.29515 19.2946,1.74285 19.2946,2.29514L 19.2946,8.29514C 19.2946,8.84742 18.8469,9.29514 18.2946,9.29514L 6.29464,9.29514C 5.74236,9.29514 5.29464,8.84742 5.29464,8.29514L 5.29464,2.29514C 5.29464,1.74285 5.74236,1.29515 6.29464,1.29515 Z M 13.2946,1.29514L 17.2946,1.29514L 17.2946,7.29514L 13.2946,7.29514L 13.2946,1.29514 Z M 7.04464,12.7951L 17.5446,12.7951C 18.5111,12.7951 19.2946,13.6092 19.2946,14.6133L 19.2946,20.977C 19.2946,21.9811 18.5111,22.7951 17.5446,22.7951L 7.04464,22.7951C 6.07814,22.7951 5.29464,21.9811 5.29464,20.977L 5.29464,14.6133C 5.29464,13.6092 6.07814,12.7951 7.04464,12.7951 Z M 7.29464,16.2951L 17.2946,16.2951M 7.29464,18.2951L 17.2946,18.2951M 7.29464,20.2951L 17.2946,20.2951</StreamGeometry>
+  <StreamGeometry x:Key="DatabaseFindIconPath">M 14.4645,13.0503L 22.9498,21.5355C 23.3403,21.9261 23.3403,22.5592 22.9498,22.9497L 22.9498,22.9497C 22.5592,23.3403 21.9261,23.3403 21.5355,22.9497L 13.0503,14.4645C 12.6597,14.0739 12.6597,13.4408 13.0503,13.0503L 13.0503,13.0503C 13.4408,12.6597 14.0739,12.6597 14.4645,13.0503 Z M 9,3C 12.3137,3 15,5.68629 15,9C 15,12.3137 12.3137,15 9,15C 5.68629,15 3,12.3137 3,9C 3,5.68629 5.68629,3 9,3 Z</StreamGeometry>
+
+  <ControlTheme x:Key="{x:Type search:SearchPanel}" TargetType="search:SearchPanel">
+    <Setter Property="BorderThickness" Value="1 0 1 1" />
+    <Setter Property="CornerRadius" Value="0 0 4 4" />
+    <Setter Property="BorderBrush" Value="{DynamicResource SearchPanelBorderBrush}" />
+    <Setter Property="Background" Value="{DynamicResource SearchPanelBackgroundBrush}" />
+    <Setter Property="Focusable" Value="True" />
+    <Setter Property="Margin" Value="0 0 18 0" />
+    <Setter Property="FontSize" Value="{DynamicResource SearchPanelFontSize}" />
+    <Setter Property="FontFamily" Value="{DynamicResource SearchPanelFontFamily}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="PART_Border"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                Background="{TemplateBinding Background}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Top"
+                Padding="10">
+          <Grid ColumnDefinitions="Auto,Auto,Auto"
+                RowDefinitions="Auto,Auto,Auto">
+            <ToggleButton Name="Expander"
+                          Theme="{StaticResource SearchPanelExpanderToggle}"
+                          VerticalAlignment="Center"
+                          IsVisible="{Binding !TextEditor.IsReadOnly, RelativeSource={RelativeSource TemplatedParent}}"
+                          IsChecked="{Binding IsReplaceMode, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                          Grid.Column="0"
+                          Grid.Row="0"
+                          Width="16"
+                          Margin="0, 0, 5, 0">
+              <ToolTip.Tip>
+                <TextBlock Text="{x:Static avaloniaedit:SR.SearchToggleReplace}" />
+              </ToolTip.Tip>
+            </ToggleButton>
+            <StackPanel Orientation="Horizontal"
+                        Grid.Column="2"
+                        Grid.Row="0">
+              <TextBox Watermark="{x:Static avaloniaedit:SR.SearchLabel}"
+                       Name="PART_searchTextBox"
+                       Grid.Column="1"
+                       Grid.Row="0"
+                       Width="265"
+                       Margin="0,0,0,0"
+                       Text="{Binding SearchPattern, RelativeSource={RelativeSource TemplatedParent}}">
+                <TextBox.InnerRightContent>
+                  <StackPanel Orientation="Horizontal">
+                    <ToggleButton Theme="{StaticResource SearchPanelTextBoxButton}"
+                                  IsChecked="{Binding $parent[search:SearchPanel].MatchCase, Mode=TwoWay}"
+                                  ToolTip.Tip="{x:Static avaloniaedit:SR.SearchMatchCaseText}"
+                                  VerticalAlignment="Center">
+                      <Path Data="{StaticResource CaseSensitiveIconPath}"
+                            Stretch="UniformToFill"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Width="12"
+                            Fill="{Binding $parent[ToggleButton].Foreground}"
+                            Stroke="{Binding $parent[ToggleButton].Foreground}"
+                            StrokeThickness="1" />
+                    </ToggleButton>
+                    <ToggleButton Theme="{StaticResource SearchPanelTextBoxButton}"
+                                  IsChecked="{Binding $parent[search:SearchPanel].WholeWords, Mode=TwoWay}"
+                                  ToolTip.Tip="{x:Static avaloniaedit:SR.SearchMatchWholeWordsText}"
+                                  Margin="3,0,0,0"
+                                  VerticalAlignment="Center">
+                      <Path Data="{StaticResource CompleteWordIconPath}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Width="14"
+                            Fill="{Binding $parent[ToggleButton].Foreground}"
+                            Stroke="{Binding $parent[ToggleButton].Foreground}"
+                            StrokeThickness="1" />
+                    </ToggleButton>
+                    <ToggleButton Theme="{StaticResource SearchPanelTextBoxButton}"
+                                  IsChecked="{Binding $parent[search:SearchPanel].UseRegex, Mode=TwoWay}"
+                                  ToolTip.Tip="{x:Static avaloniaedit:SR.SearchUseRegexText}"
+                                  Margin="3,0,5,0"
+                                  VerticalAlignment="Center">
+                      <Path Data="{StaticResource RegularExpressionIconPath}"
+                            Stretch="Uniform"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Width="12"
+                            Fill="{Binding $parent[ToggleButton].Foreground}"
+                            Stroke="{Binding $parent[ToggleButton].Foreground}"
+                            StrokeThickness="1" />
+                    </ToggleButton>
+                  </StackPanel>
+                </TextBox.InnerRightContent>
+              </TextBox>
+              <Button Margin="5,0,0,0"
+                      MinWidth="34"
+                      VerticalAlignment="Stretch"
+                      Command="{x:Static search:SearchCommands.FindPrevious}">
+                <ToolTip.Tip>
+                  <TextBlock Text="{x:Static avaloniaedit:SR.SearchFindPreviousText}" />
+                </ToolTip.Tip>
+                <Path Data="{StaticResource FindPreviousIconPath}"
+                      Stretch="Uniform"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Width="16"
+                      Fill="{Binding $parent[Button].Foreground}"
+                      Stroke="{Binding $parent[Button].Foreground}"
+                      StrokeThickness="1" />
+              </Button>
+              <Button Margin="3,0,0,0"
+                      VerticalAlignment="Stretch"
+                      MinWidth="34"
+                      Command="{x:Static search:SearchCommands.FindNext}">
+                <ToolTip.Tip>
+                  <TextBlock Text="{x:Static avaloniaedit:SR.SearchFindNextText}" />
+                </ToolTip.Tip>
+                <Path Data="{StaticResource FindNextIconPath}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"
+                      Width="16"
+                      Fill="{Binding $parent[Button].Foreground}"
+                      Stroke="{Binding $parent[Button].Foreground}"
+                      StrokeThickness="1" />
+              </Button>
+              <Button Margin="3,0,0,0"
+                      VerticalAlignment="Stretch"
+                      MinWidth="34"
+                      Command="{x:Static local:AppCommands.CmdFindDb}">
+                <ToolTip.Tip>
+                  <TextBlock Text="Database" />
+                </ToolTip.Tip>
+                <Grid>
+                  <Path Data="{StaticResource DatabaseIconPath}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Stretch="Uniform"
+                        Width="16"
+                        Stroke="#30FFFFFF"
+                        StrokeThickness="1" />
+                  <Path Data="{StaticResource DatabaseFindIconPath}"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Stretch="Uniform"
+                        Width="16"
+                        Fill="{Binding $parent[Button].Foreground}"
+                        Stroke="{Binding $parent[Button].Foreground}"
+                        StrokeThickness="1" />
+                </Grid>
+              </Button>
+              <Button Margin="3,0,0,0"
+                      VerticalAlignment="Stretch"
+                      MinWidth="34"
+                      Command="{x:Static search:SearchCommands.CloseSearchPanel}"
+                      Focusable="True">
+                <Path Data="{StaticResource CloseIconPath}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"
+                      Width="12"
+                      Fill="{Binding $parent[Button].Foreground}"
+                      Stroke="{Binding $parent[Button].Foreground}"
+                      StrokeThickness="1" />
+              </Button>
+            </StackPanel>
+            <StackPanel Name="ReplaceButtons"
+                        IsVisible="{Binding #Expander.IsChecked}"
+                        Orientation="Horizontal"
+                        Margin="0 5 0 0 "
+                        Grid.Column="2"
+                        Grid.Row="1">
+              <TextBox Watermark="{x:Static avaloniaedit:SR.ReplaceLabel}"
+                       Name="PART_replaceTextBox"
+                       IsVisible="{Binding IsReplaceMode, RelativeSource={RelativeSource TemplatedParent}}"
+                       Grid.Column="1"
+                       Grid.Row="1"
+                       Width="265"
+                       Margin="0 0 0 0"
+                       Text="{Binding ReplacePattern, RelativeSource={RelativeSource TemplatedParent}}" />
+              <Button Margin="5, 0, 0, 0"
+                      VerticalAlignment="Stretch"
+                      MinWidth="34"
+                      Command="{x:Static search:SearchCommands.ReplaceNext}">
+                <ToolTip.Tip>
+                  <TextBlock Text="{x:Static avaloniaedit:SR.SearchReplaceNext}" />
+                </ToolTip.Tip>
+                <Path Data="{StaticResource ReplaceNextIconPath}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"
+                      Width="12"
+                      Fill="{Binding $parent[Button].Foreground}"
+                      StrokeThickness="1" />
+              </Button>
+              <Button Margin="3, 0, 0, 0"
+                      VerticalAlignment="Stretch"
+                      MinWidth="34"
+                      Command="{x:Static search:SearchCommands.ReplaceAll}">
+                <ToolTip.Tip>
+                  <TextBlock Text="{x:Static avaloniaedit:SR.SearchReplaceAll}" />
+                </ToolTip.Tip>
+                <Path Data="{StaticResource ReplaceAllIconPath}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"
+                      Width="18"
+                      Fill="{Binding $parent[Button].Foreground}" />
+              </Button>
+            </StackPanel>
+            <StackPanel Name="PART_MessageView"
+                        IsVisible="False"
+                        Orientation="Horizontal"
+                        Margin="0 5 0 0 "
+                        Grid.Column="2"
+                        Grid.Row="2">
+              <TextBlock Name="PART_MessageContent"
+                         FontSize="11" />
+            </StackPanel>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+
+    <Style Selector="^/template/ Button">
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+  </ControlTheme>  
 </ResourceDictionary>

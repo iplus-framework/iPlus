@@ -1,6 +1,7 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 ﻿using System.CodeDom;
+using System.Data;
 
 namespace gip.core.datamodel
 {
@@ -222,6 +223,9 @@ namespace gip.core.datamodel
 
         public const string CmdNameExport = "DataExportDialog";            // dataExport
         public const string CmdExport = "!" + CmdNameExport;            // dataExport
+
+        public const string CmdNameFindDb = "FindDb";            // FindDb
+        public const string CmdFindDb = "!" + CmdNameFindDb;            // FindDb
 
         public const string CmdNameKeyHandle = "KeyHandle";            // keyHand
         public const string CmdKeyHandle = "!" + CmdNameKeyHandle;            // dataExport
