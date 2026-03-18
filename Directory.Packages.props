@@ -1,4 +1,21 @@
 <Project>
+	<PropertyGroup>
+		<!-- Local DLL fallback for iPlus.ZUGFeRD when the package is not available from NuGet. -->
+		<IPlusZUGFeRDVersion>18.0.0-beta3</IPlusZUGFeRDVersion>
+		<IPlusZUGFeRDHintPath>$(MSBuildThisFileDirectory)..\packages\iplus.zugferd.$(IPlusZUGFeRDVersion)\lib\net8.0\iPlus.ZUGFeRD.dll</IPlusZUGFeRDHintPath>
+	</PropertyGroup>
+
+	<ItemGroup Condition="Exists('$(IPlusZUGFeRDHintPath)') and ($([System.String]::Copy('$(TargetFramework)').StartsWith('net9.0')) Or $([System.String]::Copy('$(TargetFramework)').StartsWith('net10.0')))">
+		<Reference Include="iPlus.ZUGFeRD">
+			<HintPath>$(IPlusZUGFeRDHintPath)</HintPath>
+			<Private>true</Private>
+		</Reference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageVersion Include="iPlus.ZUGFeRD" Version="$(IPlusZUGFeRDVersion)" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
 		<DefaultCodeAnalysisVersion>4.12.0</DefaultCodeAnalysisVersion>
