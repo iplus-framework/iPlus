@@ -20,6 +20,7 @@ using Avalonia.Data;
 using AvaloniaEdit.Folding;
 using Avalonia.Input;
 using AvaloniaEdit;
+using AvaloniaEdit.Search;
 using Avalonia;
 using Avalonia.Interactivity;
 using Avalonia.Controls.Primitives;
@@ -131,12 +132,28 @@ namespace gip.core.layoutengine.avui
 
                     this.Bind(VBScriptEditor.VBTextProperty, binding);
                     
-                    _ibFind = new KeyBinding { Command = ApplicationCommands.Find, Gesture = new KeyGesture(Key.F, KeyModifiers.Control) };
+                    _ibFind = new KeyBinding { Command = AppCommands.CmdFindDb, Gesture = new KeyGesture(Key.Q, KeyModifiers.Control|KeyModifiers.Shift) };
                     this.KeyBindings.Add(_ibFind);
-                    _CmdBindingFind = new CommandBinding() { Command = ApplicationCommands.Find };
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Undo,      Gesture = new KeyGesture(Key.Z, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Redo,      Gesture = new KeyGesture(Key.Y, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Copy,      Gesture = new KeyGesture(Key.C, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Cut,       Gesture = new KeyGesture(Key.X, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Paste,     Gesture = new KeyGesture(Key.V, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.SelectAll, Gesture = new KeyGesture(Key.A, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Find,      Gesture = new KeyGesture(Key.F, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = ApplicationCommands.Replace,   Gesture = new KeyGesture(Key.H, KeyModifiers.Control) });
+                    this.KeyBindings.Add(new KeyBinding { Command = SearchCommands.FindNext,       Gesture = new KeyGesture(Key.F3) });
+                    this.KeyBindings.Add(new KeyBinding { Command = SearchCommands.FindPrevious,   Gesture = new KeyGesture(Key.F3, KeyModifiers.Shift) });
+                    _CmdBindingFind = new CommandBinding() { Command = AppCommands.CmdFindDb };
                     _CmdBindingFind.Executed += OpenFindAndReplace;
                     _CmdBindingFind.CanExecute += CanOpenFindAndReplace;
-                    CommandManager.SetCommandBindings(this, new List<CommandBinding> { _CmdBindingFind });
+                    IList<CommandBinding> commandBindings = CommandManager.GetCommandBindings(this);
+                    if (commandBindings == null)
+                    {
+                        commandBindings = new List<CommandBinding>();
+                        CommandManager.SetCommandBindings(this, commandBindings);
+                    }
+                    commandBindings.Add(_CmdBindingFind);
 
                     if (BSOACComponent != null)
                     {

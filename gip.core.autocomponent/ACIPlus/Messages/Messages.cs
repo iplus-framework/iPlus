@@ -568,7 +568,7 @@ namespace gip.core.autocomponent
                         DateTime dateTime = DateTime.ParseExact(dateTimeString, "yyyyMMdd", System.Globalization.CultureInfo.InvariantCulture);
                         if ((DateTime.Now - dateTime).Days > _ArchiveAfterDays)
                         {
-                            using (FileStream fs = new FileStream(logFilesDir + "\\" + fileNamePattern + dateTime.Year + dateTime.Month.ToString().PadLeft(2, '0') + endFileName + ".zip", FileMode.OpenOrCreate))
+                            using (FileStream fs = new FileStream(Path.Combine(logFilesDir, fileNamePattern + dateTime.Year + dateTime.Month.ToString().PadLeft(2, '0') + endFileName + ".zip"), FileMode.OpenOrCreate))
                             {
                                 using (ZipArchive zip = new ZipArchive(fs, ZipArchiveMode.Update))
                                 {
@@ -836,8 +836,8 @@ namespace gip.core.autocomponent
             if(loggingConfiguration != null)
             {
                 _LogFilePath = loggingConfiguration.LogFilePath;
-                if (!_LogFilePath.EndsWith("\\"))
-                    _LogFilePath += "\\";
+                if (!_LogFilePath.EndsWith(Path.DirectorySeparatorChar.ToString()) && !_LogFilePath.EndsWith(Path.AltDirectorySeparatorChar.ToString()))
+                    _LogFilePath += Path.DirectorySeparatorChar;
                 if (loggingConfiguration != null)
                 {
                     foreach (LogFileElement files in loggingConfiguration.LogFiles)

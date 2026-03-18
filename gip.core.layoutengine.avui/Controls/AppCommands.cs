@@ -54,6 +54,7 @@ namespace gip.core.layoutengine.avui
         private static RoutedUICommandEx cmdQueryDesignDlg;
         private static RoutedUICommandEx cmdFindAndReplace;
         private static RoutedUICommandEx cmdExport;
+        private static RoutedUICommandEx cmdFindDb;
 
         public static readonly KeyGesture NewGesture = new KeyGesture(Key.N, ApplicationCommands.PlatformCommandKey);
         public static readonly KeyGesture SaveGesture = new KeyGesture(Key.S, ApplicationCommands.PlatformCommandKey);
@@ -88,6 +89,7 @@ namespace gip.core.layoutengine.avui
             cmdQueryDesignDlg = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdQueryDesignDlg, null), new KeyGesture(Key.F2, KeyModifiers.Alt));
             cmdFindAndReplace = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdFindAndReplace, null), ApplicationCommands.ReplaceGesture);
             cmdExport = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdExport, null), new KeyGesture(Key.E, KeyModifiers.Control));
+            cmdFindDb = (RoutedUICommandEx)AppCommands.AddApplicationCommand(new ACCommand("", Const.CmdFindDb, null), new KeyGesture(Key.Q, KeyModifiers.Control | KeyModifiers.Shift));
         }
 
         public static bool IsBuiltInGesture(KeyGesture gesture)
@@ -285,6 +287,8 @@ namespace gip.core.layoutengine.avui
         public static RoutedUICommandEx CmdQueryPreviewDlg { get { return cmdQueryPreviewDlg; } }
         public static RoutedUICommandEx CmdQueryDesignDlg { get { return cmdQueryDesignDlg; } }
         public static RoutedUICommandEx CmdFindAndReplace { get { return cmdFindAndReplace; } }
+        public static RoutedUICommandEx CmdExport { get { return cmdExport; } }
+        public static RoutedUICommandEx CmdFindDb { get { return cmdFindDb; } }
 
         public static ICommand CmdCut { get { return ApplicationCommands.Cut; } }
         public static ICommand CmdCopy { get { return ApplicationCommands.Copy; } }

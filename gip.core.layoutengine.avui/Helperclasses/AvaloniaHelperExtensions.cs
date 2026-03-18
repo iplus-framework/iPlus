@@ -16,14 +16,25 @@ namespace gip.core.layoutengine.avui.Helperclasses
         {
             if (obj == null)
                 throw new ArgumentNullException(nameof(obj));
+
+            // For SelectingItemsControl (ComboBox, ListBox, DataGrid, …) the SelectedItem/SelectedValue/SelectedIndex
+            // bindings must be disposed BEFORE the ItemsSource binding.
+            // When the ItemsSource binding is disposed, Avalonia resets ItemsSource → null, which clears the
+            // SelectionModel (SelectedItem → null).  If the SelectedItem binding is still alive at that moment,
+            // its TwoWay OnTargetPropertyChanged handler fires and writes null back to the bound source property.
+            // Disposing the selection bindings first removes that handler so the write-back never occurs.
+            if (obj is SelectingItemsControl sic)
+            {
+                BindingOperations.GetBindingExpressionBase(obj, SelectingItemsControl.SelectedItemProperty)?.Dispose();
+                BindingOperations.GetBindingExpressionBase(obj, SelectingItemsControl.SelectedValueProperty)?.Dispose();
+                BindingOperations.GetBindingExpressionBase(obj, SelectingItemsControl.SelectedIndexProperty)?.Dispose();
+            }
+
             foreach (var prop in AvaloniaPropertyRegistry.Instance.GetRegistered(obj))
             {
                 if (obj.IsSet(prop))
                 {
                     BindingOperations.GetBindingExpressionBase(obj, prop)?.Dispose();
-                    //var binding = obj.GetBindingObservable(prop);
-                    //if (binding != null)
-                    //    obj.ClearValue(prop);
                 }
             }
         }

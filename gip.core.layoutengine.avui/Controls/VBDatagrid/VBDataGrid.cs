@@ -650,7 +650,12 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The event arguments.</param>
         protected override void OnSelectionChanged(SelectionChangedEventArgs e)
         {
-            if (BSOACComponent == null || _CopyToClipboard)
+            IACObject contextObject = ContextACObject;
+            if (contextObject == null)
+            {
+                contextObject = BSOACComponent;
+            }
+            if (contextObject == null || _CopyToClipboard)
             {
                 base.OnSelectionChanged(e);
                 return;
@@ -665,22 +670,27 @@ namespace gip.core.layoutengine.avui
                 {
                     list.Add(item);
                 }
-                BSOACComponent.ACUrlCommand(VBContent, list);
+                contextObject.ACUrlCommand(VBContent, list);
             }
 
             if ((_PropertyInfoOfACPropertySelected != null) && (Enabled || AutoLoad))
             {
-                var query = BSOACComponent.ACClassMethods.Where(c => c.InteractionVBContent == VBContent && c.SortIndex == (short)MISort.Load);
-                if (query.Any())
+                IACComponent aCComponent = contextObject as IACComponent;
+                if (aCComponent != null)
                 {
-                    BSOACComponent.ACUrlCommand("!" + query.First().ACIdentifier);
+                    var query = aCComponent.ACClassMethods.Where(c => c.InteractionVBContent == VBContent && c.SortIndex == (short)MISort.Load);
+                    if (query.Any())
+                    {
+                        contextObject.ACUrlCommand("!" + query.First().ACIdentifier);
+                        return;
+                    }
                 }
-                else if (VBContentPropertyInfo != null)
+                if (VBContentPropertyInfo != null)
                 {
                     string dataCurrent = VBContentPropertyInfo.GetACCurrent(DataCurrent);
                     if (!string.IsNullOrEmpty(dataCurrent))
                     {
-                        BSOACComponent.ACUrlCommand(dataCurrent, SelectedItem);
+                        contextObject.ACUrlCommand(dataCurrent, SelectedItem);
                     }
                 }
             }

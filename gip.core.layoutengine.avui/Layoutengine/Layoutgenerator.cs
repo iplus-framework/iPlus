@@ -304,6 +304,7 @@ namespace gip.core.layoutengine.avui
                     errorMessage = string.Format("Error loading XAML:{0}BSO:{1}{2}XAMLLayout:{3}{4}Error:{5}",
                         Environment.NewLine, bso != null ? bso.ACIdentifier : "", Environment.NewLine, layoutName, Environment.NewLine, errorMessage);
 
+                    Root.Environment.Messages.LogMessage(eMsgLevel.Exception, "Layoutgenerator", "LoadXAML()", errorMessage);
                     Root.Environment.Messages.ExceptionAsync(Root, errorMessage, true);
 
                     return null;
