@@ -161,6 +161,9 @@ namespace gip.core.layoutengine.avui
                 app.Resources.MergedDictionaries.Add(
                     AvaloniaXamlLoader.Load(new Uri("avares://gip.core.layoutengine.avui/Controls/DarkThemeColors.axaml", UriKind.Absolute)) as ResourceDictionary);
             }
+            app.Styles.Add(
+                    AvaloniaXamlLoader.Load(new Uri("avares://gip.core.visualcontrols.avui/Themes/IPlusTheme.axaml", UriKind.Absolute)) as IStyle);
+
             app.Styles.Add(new DockFluentTheme());
             app.Styles.Add(new IPlusTheme());
         }

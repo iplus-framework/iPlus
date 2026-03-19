@@ -31,7 +31,10 @@ namespace gip.ext.xamldom.avui
                 typeof(IList).IsAssignableFrom(type)
                 || type.IsArray
                 || typeof(IAddChild).IsAssignableFrom(type)
-                || typeof(IResourceDictionary).IsAssignableFrom(type));
+                || typeof(IResourceDictionary).IsAssignableFrom(type)
+                || type.GetInterfaces().Any(i => i.IsGenericType && (
+                       i.GetGenericTypeDefinition() == typeof(IList<>)
+                    || i.GetGenericTypeDefinition() == typeof(ICollection<>))));
         }
 
         /// <summary>

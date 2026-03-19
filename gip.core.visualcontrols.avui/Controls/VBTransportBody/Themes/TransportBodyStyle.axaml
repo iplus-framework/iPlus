@@ -6,7 +6,7 @@
         <ResourceInclude Source="/Controls/Shared.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <ControlTemplate x:Key="AutoTransportBodyGip" TargetType="local:VBTransportBody">
+    <ControlTemplate x:Key="AutoTransportBody" TargetType="local:VBTransportBody">
         <Viewbox Stretch="Fill">
             <Canvas x:Name="Ebene_1_24" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
                 <Rectangle x:Name="Back" Width="220" Height="250" Canvas.Left="15.0001" Canvas.Top="-7.62939e-005" Stretch="Fill" 
@@ -34,7 +34,7 @@
     </ControlTemplate>
 
     <ControlTheme x:Key="{x:Type local:VBTransportBody}" TargetType="local:VBTransportBody">
-        <Setter Property="Template" Value="{StaticResource AutoTransportBodyGip}"/>
+        <Setter Property="Template" Value="{StaticResource AutoTransportBody}"/>
         
         <!-- OperatingMode Manual -->
         <Style Selector="^[OperatingMode=Manual] /template/ Path#BorderLeft">

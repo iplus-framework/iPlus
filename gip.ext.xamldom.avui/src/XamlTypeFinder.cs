@@ -12,6 +12,7 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.Metadata;
+using Avalonia.Xaml.Interactivity;
 
 
 namespace gip.ext.xamldom.avui
@@ -525,6 +526,7 @@ namespace gip.ext.xamldom.avui
                 Instance.RegisterAssembly(typeof(AvaloniaXamlLoader).Assembly); // Avalonia.Markup.Xaml.dll
                 Instance.RegisterAssembly(typeof(AvaloniaRuntimeXamlLoader).Assembly); // Avalonia.Markup.Xaml.Loader.dll
                 Instance.RegisterAssembly(typeof(Type).Assembly); // mscorelib
+                Instance.RegisterAssembly(typeof(Interaction).Assembly); // Xaml.Behaviors (Avalonia.Xaml.Interactivity)
             }
         }
     }

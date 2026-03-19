@@ -24,6 +24,9 @@
   </Styles.Resources>
 
 
+  <Style Selector="local|VBMotor[MotorType=Motor]">
+    <Setter Property="Theme" Value="{StaticResource Motor}"/>
+  </Style>
   <Style Selector="local|VBMotor[MotorType=StarFeeder]">
     <Setter Property="Theme" Value="{StaticResource StarFeeder}"/>
   </Style>

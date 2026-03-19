@@ -831,7 +831,10 @@ namespace gip.ext.xamldom.avui
                 return wrapper.GetClonedInstance();
             if (sealedObjectWrapper != null)
                 return sealedObjectWrapper.GetClonedInstance();
-            return null;
+            // Some "sealed" object categories (for example StyledElementTrigger) do not yet
+            // have a dedicated wrapper implementation. Falling back to the parsed instance keeps
+            // collection insertion working and avoids null entries in BehaviorCollection.
+            return instance;
         }
 
         internal string GetNameForMarkupExtension()

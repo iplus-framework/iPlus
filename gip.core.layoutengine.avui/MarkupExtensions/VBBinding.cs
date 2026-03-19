@@ -34,6 +34,12 @@ namespace gip.core.layoutengine.avui
             set;
         }
 
+        // Tracks whether the binding is in design/declaration mode fallback.
+        // When true, ProvideValue skips target.Bind() to prevent Avalonia's stricter
+        // binding engine from publishing type-conversion errors (e.g. string "Root" → bool)
+        // that would abort XAML rendering.
+        private bool _isDesignFallback = false;
+
         private string _VBContent;
         public string VBContent
         {
@@ -57,6 +63,7 @@ namespace gip.core.layoutengine.avui
                     string dcPath = "";
                     if (context.ACUrlBinding(_VBContent, ref _dcACTypeInfo, ref dcSource, ref dcPath, ref _dcRightControlMode))
                     {
+                        _isDesignFallback = false;
                         this.Source = dcSource;
                         this.Path = dcPath;
                         //this.NotifyOnSourceUpdated = true;
@@ -74,18 +81,12 @@ namespace gip.core.layoutengine.avui
                     }
                     else
                     {
-                        if (Layoutgenerator.Root != null)
-                        {
-                            this.Source = Layoutgenerator.Root;
-                            this.Path = Const.ACIdentifierPrefix;
-                            this.Mode = BindingMode.OneWay;
-                        }
-                        else
-                        {
-                            this.Source = Layoutgenerator.CurrentDataContext;
-                            this.Path = Const.ACIdentifierPrefix;
-                            this.Mode = BindingMode.OneWayToSource;
-                        }
+                        // Design/declaration mode: ACUrlBinding could not resolve the path.
+                        // Mark as fallback so ProvideValue skips target.Bind().
+                        // In WPF the fallback binding (Root.ACIdentifier → "Root") was silently
+                        // discarded on type mismatch; Avalonia's stricter engine propagates the
+                        // BindingError and can abort XAML rendering, so we skip the binding.
+                        _isDesignFallback = true;
                     }
                 }
             }
@@ -123,6 +124,13 @@ namespace gip.core.layoutengine.avui
             
             if (target == null || dp == null)
                 return this;
+
+            // In design/declaration mode the binding resolution failed and there is no
+            // meaningful source to bind to.  Skip applying the binding so that Avalonia's
+            // stricter engine does not publish type-conversion BindingErrors (e.g. converting
+            // the string "Root" to bool) that can abort XAML rendering downstream.
+            if (_isDesignFallback)
+                return target.GetValue(dp);
 
             target.Bind(dp, this);
             return target.GetValue(dp);
@@ -367,18 +375,13 @@ namespace gip.core.layoutengine.avui
                 }
                 else
                 {
-                    if (Layoutgenerator.Root != null)
-                    {
-                        this.Source = Layoutgenerator.Root;
-                        this.Path = Const.ACIdentifierPrefix;
-                        this.Mode = BindingMode.OneWay;
-                    }
-                    else
-                    {
-                        this.Source = Layoutgenerator.CurrentDataContext;
-                        this.Path = Const.ACIdentifierPrefix;
-                        this.Mode = BindingMode.OneWayToSource;
-                    }
+                    // Design/declaration mode: ACUrlBinding could not resolve the path.
+                    // Skip applying the binding entirely — Avalonia's stricter engine would
+                    // publish a BindingError when it tries to convert the string "Root"
+                    // (Root.ACIdentifier) to non-string target property types (e.g. bool),
+                    // which can abort XAML rendering.  Leave the property at its default value.
+                    _VBInitialized = true;
+                    return target.GetValue(dp);
                 }
             }
 

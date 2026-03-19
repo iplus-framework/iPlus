@@ -38,6 +38,7 @@ namespace gip.core.layoutengine.avui
         public VBDesignBase()
             : base()
         {
+            this.InstanceInfoList = new VBInstanceInfoList();
         }
 
         protected override void OnInitialized()
@@ -213,20 +214,15 @@ namespace gip.core.layoutengine.avui
         #endregion
 
         #region InstanceInfo
-        public VBInstanceInfoList _InstanceInfoList = new VBInstanceInfoList();
+        public static readonly StyledProperty<VBInstanceInfoList> InstanceInfoListProperty =
+            AvaloniaProperty.Register<VBDesignBase, VBInstanceInfoList>(nameof(InstanceInfoList));        
 
         [Content]
         public VBInstanceInfoList InstanceInfoList
         {
-            get
-            {
-                return _InstanceInfoList;
-            }
-            set
-            {
-                _InstanceInfoList = value;
-            }
-        }
+            get => GetValue(InstanceInfoListProperty);
+            set => SetValue(InstanceInfoListProperty, value);
+        }        
 
         public bool ContainsInstanceInfoForKey(string key)
         {

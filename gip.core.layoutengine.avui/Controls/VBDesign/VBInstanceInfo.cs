@@ -1,3 +1,4 @@
+using Avalonia.Collections;
 using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
@@ -114,7 +115,7 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Represents the list of VBInstanceInfo.
     /// </summary>
-    public class VBInstanceInfoList : List<VBInstanceInfo>
+    public class VBInstanceInfoList : AvaloniaList<VBInstanceInfo>
     {
         /// <summary>
         /// Gets the instance info by key.

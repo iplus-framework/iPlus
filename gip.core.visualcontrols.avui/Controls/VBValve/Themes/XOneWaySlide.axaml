@@ -167,7 +167,7 @@
     </Style>
   </ControlTheme>
 
-  <ControlTheme x:Key="SimpleRectGip" TargetType="local:VBValve">
+  <ControlTheme x:Key="SimpleRect" TargetType="local:VBValve">
     <Setter Property="Template">
       <ControlTemplate>
         <Viewbox Stretch="Fill">

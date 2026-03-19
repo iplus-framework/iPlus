@@ -6,7 +6,7 @@
     <ResourceInclude Source="/Controls/Shared.axaml"/>
   </ResourceDictionary.MergedDictionaries>
 
-  <ControlTemplate x:Key="SensorRectangleGip" TargetType="local:VBSensor">
+  <ControlTemplate x:Key="SensorRectangle" TargetType="local:VBSensor">
     <Viewbox>
       <Canvas Width="200" Height="200">
         <Rectangle x:Name="OpModeBack" Width="200" Height="200" Canvas.Left="-1.52588e-005" Canvas.Top="0" Stretch="Fill"
@@ -69,7 +69,7 @@
     </Viewbox>
   </ControlTemplate>
 
-  <ControlTemplate x:Key="SensorCircleGip" TargetType="local:VBSensor">
+  <ControlTemplate x:Key="SensorCircle" TargetType="local:VBSensor">
     <Viewbox>
       <Canvas Width="200" Height="200">
         <Ellipse x:Name="OpModeBack" Width="200" Height="200" Canvas.Left="0" Canvas.Top="0" Stretch="Fill"
@@ -108,11 +108,11 @@
   </ControlTemplate>
 
   <ControlTheme x:Key="{x:Type local:VBSensor}" TargetType="local:VBSensor">
-    <Setter Property="Template" Value="{StaticResource SensorRectangleGip}"/>
+    <Setter Property="Template" Value="{StaticResource SensorRectangle}"/>
 
     <!-- SensorType Circle -->
     <Style Selector="^[SensorType=Circle]">
-      <Setter Property="Template" Value="{StaticResource SensorCircleGip}"/>
+      <Setter Property="Template" Value="{StaticResource SensorCircle}"/>
     </Style>
 
     <!-- OperatingMode Manual -->

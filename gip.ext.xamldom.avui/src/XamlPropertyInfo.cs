@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Reflection;
 using Avalonia;
+using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.SourceGenerator;
 
@@ -281,7 +282,7 @@ namespace gip.ext.xamldom.avui
 
         public override bool IsCollection
         {
-            get { return false; }
+            get { return _isCollection; }
         }
 
         public override object GetValue(object instance)
@@ -309,7 +310,17 @@ namespace gip.ext.xamldom.avui
 
         public override void SetValue(object instance, object value)
         {
-            ((AvaloniaObject)instance).SetValue(_avaloniaProperty, value);
+            var avaloniaObject = (AvaloniaObject)instance;
+
+            // Markup-extension bindings (for example {vb:VBBinding ...}) must be applied via Bind,
+            // otherwise SetValue treats the binding object as a literal value and type validation fails.
+            if (value is IBinding binding)
+            {
+                avaloniaObject.Bind(_avaloniaProperty, binding);
+                return;
+            }
+
+            avaloniaObject.SetValue(_avaloniaProperty, value);
         }
 
         public override void ResetValue(object instance)
@@ -363,6 +374,14 @@ namespace gip.ext.xamldom.avui
         {
             if (instance is AvaloniaObject avaloniaObject && _avaloniaProperty != null)
             {
+                // Apply bindings through Bind() so styled properties receive a binding expression
+                // instead of a raw binding object value.
+                if (value is IBinding binding)
+                {
+                    avaloniaObject.Bind(_avaloniaProperty, binding);
+                    return;
+                }
+
                 avaloniaObject.SetValue(_avaloniaProperty, value);
                 return;
             }

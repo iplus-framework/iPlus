@@ -6,12 +6,12 @@
         <ResourceInclude Source="/Controls/Shared.axaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <LinearGradientBrush x:Key="SlideValveCloseBgGip" StartPoint="100%,0%" EndPoint="0%,0%">
+    <LinearGradientBrush x:Key="SlideValveCloseBg" StartPoint="100%,0%" EndPoint="0%,0%">
         <GradientStop Color="DarkGray" Offset="0"/>
         <GradientStop Color="DarkSlateGray" Offset="1"/>
     </LinearGradientBrush>
 
-    <LinearGradientBrush x:Key="SlideValveOpenBgGip" StartPoint="100%,0%" EndPoint="0%,0%">
+    <LinearGradientBrush x:Key="SlideValveOpenBg" StartPoint="100%,0%" EndPoint="0%,0%">
         <GradientStop Color="LimeGreen" Offset="0"/>
         <GradientStop Color="Lime" Offset="1"/>
     </LinearGradientBrush>
@@ -22,7 +22,7 @@
                 <ColumnDefinition></ColumnDefinition>
                 <ColumnDefinition></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Border x:Name="Border" Grid.ColumnSpan="2" BorderBrush="LightGray" BorderThickness="1" Background="{StaticResource SlideValveCloseBgGip}"/>
+            <Border x:Name="Border" Grid.ColumnSpan="2" BorderBrush="LightGray" BorderThickness="1" Background="{StaticResource SlideValveCloseBg}"/>
             <Line x:Name="Line" Grid.Column="1" StartPoint="1,1" EndPoint="1,1" StrokeThickness="2" Stroke="White" 
                 Stretch="Fill" VerticalAlignment="Center"></Line>
         </Grid>
@@ -33,7 +33,7 @@
         
         <!-- IsOpen = true -->
         <Style Selector="^[IsOpen=True] /template/ Border#Border">
-            <Setter Property="Background" Value="{StaticResource SlideValveOpenBgGip}"/>
+            <Setter Property="Background" Value="{StaticResource SlideValveOpenBg}"/>
         </Style>
     </ControlTheme>
 </ResourceDictionary>

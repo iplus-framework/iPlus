@@ -46,6 +46,7 @@
     <PackageReference Include="HarfBuzzSharp.NativeAssets.WebAssembly" />
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaInclude.props" />
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaBehavioursInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaBaseReactiveInclude.props" />
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="$(MSBuildThisFileDirectory)../build/AvaloniaMessageBoxInclude.props" />
 

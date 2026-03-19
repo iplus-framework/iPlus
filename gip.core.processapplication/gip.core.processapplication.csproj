@@ -38,6 +38,9 @@
     <None Include="VBControlScripts\2025-12-12 11-49_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Include="VBControlScripts/2026-03-19 15-39_dlisak.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
   <ItemGroup Condition="'$(UseEFCoreForkIPlus)' == 'False'">
     <PackageReference Include="Microsoft.EntityFrameworkCore" />

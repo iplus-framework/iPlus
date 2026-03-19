@@ -155,7 +155,171 @@
   <!-- The WPF-style triggers have been omitted since they would need to be converted to ControlThemes -->
   <!-- Note: In Avalonia, nested ControlTemplates would need to be defined as separate ControlThemes -->
 
-  <ControlTheme x:Key="ElevTopLeftGip" TargetType="local:VBMotor">
+  <ControlTheme x:Key="ElevTopRight" TargetType="local:VBMotor">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox Stretch="Fill">
+          <Canvas Width="41" Height="24">
+            <Path x:Name="BackEnd" Width="41" Height="24" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round"
+                  Stroke="{TemplateBinding BorderBrushAuto}"
+                  Fill="{TemplateBinding FillBrushIdle}"
+                  Data="F1 M 12,23L 40,23L 18,1L 1,1L 1,23"/>
+            <Path x:Name="BorderDecoEnd" Width="36" Height="21.4999" Canvas.Left="1.5" Canvas.Top="1.5" Stretch="Fill" StrokeJoin="Round"
+                  Stroke="#FF000000"
+                  Data="F1 M 11.5248,22.013C 10.6772,22.0123 25.3333,22 37,22L 17,2L 2,2.00022L 2,22.4999"/>
+            <Path x:Name="EvEnd" Width="11" Height="16" Canvas.Left="1.49999" Canvas.Top="6.5" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" Data="F1 M 1.99999,12C 1.99999,9.23858 4.23857,7 6.99999,7C 9.76142,7 12,9.23858 12,12L 11.9995,12L 12,22"/>
+            <Viewbox x:Name="Glass" Width="35" Height="20" Canvas.Left="1.99997" Canvas.Top="2" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+              <Canvas Width="35" Height="20">
+                <Path x:Name="Path_106" Width="35" Height="20" Canvas.Left="4.19617e-005" Canvas.Top="0" Stretch="Fill" Data="F1 M 35,20L 4.19617e-005,20L 4.19617e-005,0L 15,7.62939e-006L 35,20 Z " StrokeThickness="1" StrokeJoin="Bevel">
+                  <Path.Stroke>
+                    <RadialGradientBrush RadiusX="126%" RadiusY="64%" Center="126%,50%" GradientOrigin="126%,50%">
+                      <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                  </Path.Stroke>
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#5A000000" Offset="0.0418311"/>
+                        <GradientStop Color="#00000000" Offset="0.078534"/>
+                        <GradientStop Color="#00000000" Offset="0.931937"/>
+                        <GradientStop Color="#5A000000" Offset="0.959162"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_107" Width="15" Height="4" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 7.13216,4.00002L 7.88163,4.00002C 10.9921,4.00002 14.8839,2.21833 15,2.28882e-005L 0,2.28882e-005C 0.116512,2.21833 4.0217,4.00002 7.13216,4.00002 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_108" Width="25" Height="4" Canvas.Left="10" Canvas.Top="16" Stretch="Fill" Data="F1 M 21.8869,16L 23.1361,16C 28.3202,16 34.8065,17.7817 35,20L 10,20C 10.1942,17.7817 16.7029,16 21.8869,16 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Animation States: ReqRunState=True, RunState=False, IsTriggered=False -->
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: IsTriggered=True -->
+    <Style Selector="^[IsTriggered=True] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[IsTriggered=True] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- OperatingMode Manual -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushManual}"/>
+    </Style>
+
+    <!-- OperatingMode Maintenance -->
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushMaint}"/>
+    </Style>
+
+    <!-- RunState True and FaultState Off -->
+    <Style Selector="^[RunState=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushRunning}"/>
+    </Style>
+
+    <!-- IsInterlocked True and FaultState Off -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- FaultState AlarmOrFault -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushFault}"/>
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="ElevTopLeft" TargetType="local:VBMotor">
     <Setter Property="Template">
       <ControlTemplate>
         <Viewbox Stretch="Fill">
@@ -220,11 +384,431 @@
         </Viewbox>
       </ControlTemplate>
     </Setter>
-    <!-- Styles would be added here for each elevator template but simplified for readability -->
+
+    <!-- Animation States: ReqRunState=True, RunState=False, IsTriggered=False -->
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: IsTriggered=True -->
+    <Style Selector="^[IsTriggered=True] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[IsTriggered=True] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- OperatingMode Manual -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushManual}"/>
+    </Style>
+
+    <!-- OperatingMode Maintenance -->
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushMaint}"/>
+    </Style>
+
+    <!-- RunState True and FaultState Off -->
+    <Style Selector="^[RunState=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushRunning}"/>
+    </Style>
+
+    <!-- IsInterlocked True and FaultState Off -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- FaultState AlarmOrFault -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushFault}"/>
+    </Style>
   </ControlTheme>
 
-  <!-- Additional Elevator Templates would continue here but have been simplified -->
-  <!-- In a real implementation, each template should be converted to a separate ControlTheme -->
-  <!-- with its own set of Style selectors for the various states -->
+  <ControlTheme x:Key="ElevBottomLeft" TargetType="local:VBMotor">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox Stretch="Fill">
+          <Canvas Width="41" Height="24">
+            <Path x:Name="BackEnd" Width="41" Height="24" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round"
+                  Stroke="{TemplateBinding BorderBrushAuto}"
+                  Fill="{TemplateBinding FillBrushIdle}"
+                  Data="F1 M 29,1L 1,1L 23,23L 40,23L 40,1"/>
+            <Path x:Name="BorderDecoEnd" Width="36" Height="21.4999" Canvas.Left="3.5" Canvas.Top="1.00011" Stretch="Fill" StrokeJoin="Round"
+                  Stroke="#FF000000"
+                  Data="F1 M 29.4752,1.98701C 30.3228,1.98771 15.6667,2 4,2L 24,22L 39,21.9998L 39,1.50011"/>
+            <Path x:Name="EvEnd" Width="11" Height="16" Canvas.Left="28.5" Canvas.Top="1.49999" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" Data="F1 M 39,12C 39,14.7614 36.7614,17 34,17C 31.2386,17 29,14.7614 29,12L 29.0005,12L 29,1.99999"/>
+            <Viewbox x:Name="Glass" Width="35" Height="20" Canvas.Left="3.99999" Canvas.Top="1.99999" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+              <Canvas Width="35" Height="20">
+                <Path x:Name="Path_114" Width="35" Height="20" Canvas.Left="1.52588e-005" Canvas.Top="7.62939e-006" Stretch="Fill" Data="F1 M 1.52588e-005,7.62939e-006L 35,7.62939e-006L 35,20L 20,20L 1.52588e-005,7.62939e-006 Z " StrokeThickness="1" StrokeJoin="Bevel">
+                  <Path.Stroke>
+                    <RadialGradientBrush RadiusX="126%" RadiusY="64%" Center="-26%,50%" GradientOrigin="-26%,50%">
+                      <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                  </Path.Stroke>
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#5A000000" Offset="0.0418311"/>
+                        <GradientStop Color="#00000000" Offset="0.078534"/>
+                        <GradientStop Color="#00000000" Offset="0.931937"/>
+                        <GradientStop Color="#5A000000" Offset="0.959162"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_115" Width="15" Height="4" Canvas.Left="20" Canvas.Top="16" Stretch="Fill" Data="F1 M 27.8678,16L 27.1184,16C 24.0079,16 20.1161,17.7817 20,20L 35,20C 34.8835,17.7817 30.9783,16 27.8678,16 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_116" Width="25" Height="4" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" Data="F1 M 13.1131,4L 11.8639,4C 6.67985,4 0.193516,2.21832 0,0L 25,0C 24.8058,2.21832 18.2972,4 13.1131,4 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Animation States: ReqRunState=True, RunState=False, IsTriggered=False -->
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: IsTriggered=True -->
+    <Style Selector="^[IsTriggered=True] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[IsTriggered=True] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- OperatingMode Manual -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushManual}"/>
+    </Style>
+
+    <!-- OperatingMode Maintenance -->
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushMaint}"/>
+    </Style>
+
+    <!-- RunState True and FaultState Off -->
+    <Style Selector="^[RunState=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushRunning}"/>
+    </Style>
+
+    <!-- IsInterlocked True and FaultState Off -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- FaultState AlarmOrFault -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushFault}"/>
+    </Style>
+  </ControlTheme>
+
+  <ControlTheme x:Key="ElevBottomRight" TargetType="local:VBMotor">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Viewbox Stretch="Fill">
+          <Canvas Width="41" Height="24">
+            <Path x:Name="BackEnd" Width="41" Height="24" Canvas.Left="0" Canvas.Top="0" Stretch="Fill" StrokeThickness="2" StrokeJoin="Round"
+                  Stroke="{TemplateBinding BorderBrushAuto}"
+                  Fill="{TemplateBinding FillBrushIdle}"
+                  Data="F1 M 12,1L 40,1L 18,23L 1,23L 1,1"/>
+            <Path x:Name="BorderDecoEnd" Width="36" Height="21.4999" Canvas.Left="1.50001" Canvas.Top="1.00011" Stretch="Fill" StrokeJoin="Round"
+                  Stroke="#FF000000"
+                  Data="F1 M 11.5248,1.98701C 10.6772,1.98771 25.3333,2 37,2L 17,22L 2.00001,21.9998L 2.00001,1.50011"/>
+            <Path x:Name="EvEnd" Width="11" Height="16" Canvas.Left="1.5" Canvas.Top="1.49999" Stretch="Fill" StrokeJoin="Round" Stroke="#FF000000" Data="F1 M 2,12C 2,14.7614 4.23857,17 7,17C 9.76142,17 12,14.7614 12,12L 11.9995,12L 12,1.99999"/>
+            <Viewbox x:Name="Glass" Width="35" Height="20" Canvas.Left="1.99999" Canvas.Top="2" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=GlassEffect}">
+              <Canvas Width="35" Height="20">
+                <Path x:Name="Path_122" Width="35" Height="20" Canvas.Left="1.90735e-005" Canvas.Top="0" Stretch="Fill" Data="F1 M 35,0L 1.90735e-005,0L 1.90735e-005,20L 15,20L 35,0 Z " StrokeThickness="1" StrokeJoin="Bevel">
+                  <Path.Stroke>
+                    <RadialGradientBrush RadiusX="126%" RadiusY="64%" Center="126%,50%" GradientOrigin="126%,50%">
+                      <RadialGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#00000000" Offset="0.253275"/>
+                        <GradientStop Color="#00000000" Offset="0.741525"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </RadialGradientBrush.GradientStops>
+                    </RadialGradientBrush>
+                  </Path.Stroke>
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#B3000000" Offset="0.00436681"/>
+                        <GradientStop Color="#5A000000" Offset="0.0418311"/>
+                        <GradientStop Color="#00000000" Offset="0.078534"/>
+                        <GradientStop Color="#00000000" Offset="0.931937"/>
+                        <GradientStop Color="#5A000000" Offset="0.959162"/>
+                        <GradientStop Color="#B3000000" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_123" Width="15" Height="4" Canvas.Left="0" Canvas.Top="16" Stretch="Fill" Data="F1 M 7.13216,16L 7.88163,16C 10.9921,16 14.8839,17.7817 15,20L 0,20C 0.116508,17.7817 4.0217,16 7.13216,16 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+                <Path x:Name="Path_124" Width="25" Height="4" Canvas.Left="10" Canvas.Top="0" Stretch="Fill" Data="F1 M 21.8869,4L 23.1361,4C 28.3201,4 34.8065,2.21832 35,0L 10,0C 10.1942,2.21832 16.7028,4 21.8869,4 Z ">
+                  <Path.Fill>
+                    <LinearGradientBrush StartPoint="100%,50%" EndPoint="0%,50%">
+                      <LinearGradientBrush.GradientStops>
+                        <GradientStop Color="#0DFFFFFF" Offset="0.00847458"/>
+                        <GradientStop Color="#CCFFFFFF" Offset="1"/>
+                      </LinearGradientBrush.GradientStops>
+                    </LinearGradientBrush>
+                  </Path.Fill>
+                </Path>
+              </Canvas>
+            </Viewbox>
+          </Canvas>
+        </Viewbox>
+      </ControlTemplate>
+    </Setter>
+
+    <!-- Animation States: ReqRunState=True, RunState=False, IsTriggered=False -->
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[ReqRunState=True][RunState=False][IsTriggered=False] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- Animation States: IsTriggered=True -->
+    <Style Selector="^[IsTriggered=True] /template/ Path#BorderDecoEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+    <Style Selector="^[IsTriggered=True] /template/ Path#EvEnd">
+      <Setter Property="StrokeThickness" Value="2"/>
+      <Setter Property="StrokeDashArray" Value="4,4"/>
+      <Style.Animations>
+        <Animation IterationCount="Infinite" Duration="0:0:1">
+          <KeyFrame Cue="0%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+          <KeyFrame Cue="50%">
+            <Setter Property="StrokeDashOffset" Value="8"/>
+          </KeyFrame>
+          <KeyFrame Cue="100%">
+            <Setter Property="StrokeDashOffset" Value="0"/>
+          </KeyFrame>
+        </Animation>
+      </Style.Animations>
+    </Style>
+
+    <!-- OperatingMode Manual -->
+    <Style Selector="^[OperatingMode=Manual] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushManual}"/>
+    </Style>
+
+    <!-- OperatingMode Maintenance -->
+    <Style Selector="^[OperatingMode=Maintenance] /template/ Path#BackEnd">
+      <Setter Property="Stroke" Value="{Binding $parent[local:VBMotor].BorderBrushMaint}"/>
+    </Style>
+
+    <!-- RunState True and FaultState Off -->
+    <Style Selector="^[RunState=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushRunning}"/>
+    </Style>
+
+    <!-- IsInterlocked True and FaultState Off -->
+    <Style Selector="^[IsInterlocked=True][FaultState=Off] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushInterlocked}"/>
+    </Style>
+
+    <!-- FaultState AlarmOrFault -->
+    <Style Selector="^[FaultState=AlarmOrFault] /template/ Path#BackEnd">
+      <Setter Property="Fill" Value="{Binding $parent[local:VBMotor].FillBrushFault}"/>
+    </Style>
+  </ControlTheme>
 
 </ResourceDictionary>

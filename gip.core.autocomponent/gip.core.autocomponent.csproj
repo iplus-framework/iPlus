@@ -67,13 +67,16 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-    <None Update="VBControlScripts\2025-08-02 13-07_dlisak.zip">
+    <None Update="VBControlScripts/2025-08-02 13-07_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Include="..\GIP-SNKey.snk">
       <Link>GIP-SNKey.snk</Link>
     </None>
-    <None Include="VBControlScripts\2025-06-12 13-24_aagincic.zip">
+    <None Include="VBControlScripts/2025-06-12 13-24_aagincic.zip">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Include="VBControlScripts/2026-03-19 15-40_dlisak.zip">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
