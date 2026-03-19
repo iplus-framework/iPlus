@@ -16,52 +16,6 @@ namespace gip.core.layoutengine.avui
 {
     public class Layoutgenerator 
     {      
-        static public string CheckOrUpdateNamespaceInLayout(string xmlLayout)
-        {
-            if (String.IsNullOrEmpty(xmlLayout))
-                return xmlLayout;
-            // Beispiel XAML-Layout
-            // <StackPanel>
-            //      <Button x:Name="BtnKlick">Klick mich</Button>
-            //      <TextBox x:Name="TBAusgabe">HalliHallo</TextBox>
-            //  </StackPanel>
-
-            string xmlDeclaration = "";
-            string xamlContent = xmlLayout;
-            
-            // Falls <?xml ....> Deklaration
-            int posXmlDekl = xmlLayout.IndexOf("<?xml");
-            if (posXmlDekl >= 0)
-            {
-                // Finde nächste öffnende Klammer
-                int posNextTag = xmlLayout.IndexOf("<", posXmlDekl + 1);
-                if (posNextTag >= 0)
-                {
-                    // Preserve the XML declaration
-                    xmlDeclaration = xmlLayout.Substring(0, posNextTag);
-                    xamlContent = xmlLayout.Substring(posNextTag);
-                }
-            }
-
-            int pos1 = xamlContent.IndexOf(">");
-            string part1 = "";
-            string part2 = "";
-            if (pos1 > 0)
-            {
-                part1 = xamlContent.Substring(0, pos1);
-                part2 = xamlContent.Substring(pos1);
-            }
-            // Falls keine Namespace-Deklaration im Root-Element vorhanden, dann füge ein
-            if (part1.IndexOf("xmlns") < 0)
-            {
-                foreach (string nameSpace in ACxmlnsResolver.NamespaceList)
-                {
-                    part1 += " " + nameSpace;
-                }
-            }
-            
-            return xmlDeclaration + part1 + part2;
-        }
 
         static public ResourceDictionary LoadResource(string xmlLayout, IACObject dataContext, IACBSO bso)
         {
@@ -74,7 +28,7 @@ namespace gip.core.layoutengine.avui
 
                 try
                 {
-                    ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
+                    ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
                     return sp;
                 }
                 catch (XmlException e)
@@ -109,7 +63,7 @@ namespace gip.core.layoutengine.avui
 
                 try
                 {
-                    Visual sp = (Visual)AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
+                    Visual sp = (Visual)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
                     return sp;
                 }
                 catch (XmlException e)
@@ -141,7 +95,7 @@ namespace gip.core.layoutengine.avui
 
                 try
                 {
-                    AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
+                    AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
                     return sp;
                 }
                 catch (XmlException e)
@@ -289,7 +243,7 @@ namespace gip.core.layoutengine.avui
             //        return null;
                 try
                 {
-                    return AvaloniaRuntimeXamlLoader.Load(CheckOrUpdateNamespaceInLayout(xmlLayout));
+                    return AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
                 }
                 catch (Exception e)
                 {
@@ -376,7 +330,7 @@ namespace gip.core.layoutengine.avui
             else
                 aEncoding = System.Text.Encoding.GetEncoding("utf-8");
 
-            xmlLayout = CheckOrUpdateNamespaceInLayout(xmlLayout);
+            xmlLayout = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout);
 
             return new MemoryStream(aEncoding.GetBytes(xmlLayout));
         }
@@ -387,5 +341,6 @@ namespace gip.core.layoutengine.avui
                 return new KeyValuePair<string, ACxmlnsInfo>();
             return ACxmlnsResolver.GetNamespaceInfo(Visual.GetType());
         }
+
     }
 }

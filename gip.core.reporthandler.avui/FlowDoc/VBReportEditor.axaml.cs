@@ -369,7 +369,7 @@ namespace gip.core.reporthandler.avui
             if (!IsLoaded)
                 return;
 
-            //string newXMLText = Layoutgenerator.CheckOrUpdateNamespaceInLayout(this.XMLText);
+            //string newXMLText = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(this.XMLText);
             //if (DesignerReportData == null || (_ReportDocument != null && _ReportDocument.XamlData == newXMLText))
             //    return;
 
@@ -398,7 +398,7 @@ namespace gip.core.reporthandler.avui
             //if (String.IsNullOrEmpty(this.XMLText) || !IsLoaded)
             //    return;
 
-            //string newXMLText = Layoutgenerator.CheckOrUpdateNamespaceInLayout(this.XMLText);
+            //string newXMLText = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(this.XMLText);
             //if (DesignerReportData == null || _ReportDocument != null && _ReportDocument.XamlData == newXMLText)
             //    return;
 

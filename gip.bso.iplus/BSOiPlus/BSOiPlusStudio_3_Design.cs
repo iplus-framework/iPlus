@@ -835,7 +835,7 @@ namespace gip.bso.iplus
         [ACMethodInteraction("ACClassDesign", "en{'Compile Design'}de{'Design kompilieren'}", 9999, false, "SelectedACClassDesign")]
         public void CompileACClassDesign()
         {
-            if (!string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) && CurrentACClassDesign.ACUsage != Global.ACUsages.DUBitmap)
+            if (!string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign) && CurrentACClassDesign.ACUsage != Global.ACUsages.DUBitmap)
             {
                 //byte[] bamlDesign = VarioBatch.Helper.BamlWriter.Save(CurrentACClassDesign.XMLDesign);
                 byte[] bamlDesign = null;
@@ -864,9 +864,9 @@ namespace gip.bso.iplus
         [ACMethodInteraction("ACClassDesign", "en{'Convert WPF Design to Avalonia'}de{'WPF-Design in Avalonia konvertieren'}", 9999, false, "SelectedACClassDesign")]
         public void ConvertWPFDesignToAvalonia()
         {
-            if (CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign))
+            if (CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign))
             {
-                CurrentACClassDesign.XMLDesign2 = ACClassDesign.ConvertWpfToAvaloniaXaml(CurrentACClassDesign.XMLDesign);
+                CurrentACClassDesign.XMLDesign2 = XAMLConversionHelper.ConvertWpfToAvaloniaXaml(CurrentACClassDesign.XMLDesign);
                 CurrentACClassDesign.XMLDesignUpdateDate = DateTime.Now;
                 CurrentACClassDesign.XMLDesign2UpdateDate = CurrentACClassDesign.XMLDesignUpdateDate;
                 OnPropertyChanged("CurrentACClassDesign");
@@ -875,14 +875,17 @@ namespace gip.bso.iplus
 
         public bool IsEnabledConvertWPFDesignToAvalonia()
         {
-            return CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) 
-            && (string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2) || !CurrentACClassDesign.AreDesignsSynchronized);
+            return CurrentACClassDesign != null 
+                    && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign) 
+                    && (string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2) || !CurrentACClassDesign.AreDesignsSynchronized);
         }
 
         [ACMethodInteraction("ACClassDesign", "en{'Set Designs Synchronized'}de{'Designs Synchronisieren'}", 9999, false, "SelectedACClassDesign")]
         public void SetDesignsSynchronized()
         {
-            if (CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2))
+            if (CurrentACClassDesign != null 
+                && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign) 
+                && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2))
             {
                 CurrentACClassDesign.XMLDesignUpdateDate = DateTime.Now;
                 CurrentACClassDesign.XMLDesign2UpdateDate = CurrentACClassDesign.XMLDesignUpdateDate;
@@ -892,8 +895,10 @@ namespace gip.bso.iplus
 
         public bool IsEnabledSetDesignsSynchronized()
         {
-            return CurrentACClassDesign != null && !string.IsNullOrEmpty(CurrentACClassDesign.XAMLDesign) && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2)
-                && !CurrentACClassDesign.AreDesignsSynchronized;
+            return CurrentACClassDesign != null 
+                    && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign) 
+                    && !string.IsNullOrEmpty(CurrentACClassDesign.XMLDesign2)
+                    && !CurrentACClassDesign.AreDesignsSynchronized;
         }
 
         #endregion

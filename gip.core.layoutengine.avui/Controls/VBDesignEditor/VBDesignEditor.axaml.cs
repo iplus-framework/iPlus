@@ -599,11 +599,11 @@ namespace gip.core.layoutengine.avui
             else
                 newContext = this.DataContext;
 
-            string newXMLText = Layoutgenerator.CheckOrUpdateNamespaceInLayout(this.XMLText);
+            string newXMLText = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(this.XMLText);
             if ((_LastLoadedXAMLInView == newXMLText) && (DesignSurface.DataContext == newContext))
                 return;
             string errorMessage = null;
-            using (StringReader sr = new StringReader(Layoutgenerator.CheckOrUpdateNamespaceInLayout(newXMLText)))
+            using (StringReader sr = new StringReader(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(newXMLText)))
             using (XmlTextReader r = new XmlTextReader(sr))
             {
                 _LastLoadedXAMLInView = newXMLText;

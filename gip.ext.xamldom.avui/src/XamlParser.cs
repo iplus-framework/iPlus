@@ -906,6 +906,14 @@ namespace gip.ext.xamldom.avui
                     return propertyInfo;
             }
 
+            // Some contexts (for example Setter.Property resolution in animation keyframes)
+            // don't have an ambient element type. In that case resolve the property against
+            // the qualified owner type (e.g. RotateTransform.Angle).
+            if (elementType == null)
+            {
+                return FindProperty(elementInstance, propertyType, propertyType, propertyName);
+            }
+
             if (elementType == propertyType || elementType.IsAssignableFrom(propertyType) || propertyType.IsAssignableFrom(elementType))
             {
                 return FindProperty(elementInstance, elementType, propertyType, propertyName);

@@ -171,7 +171,7 @@ namespace gip.ext.xamldom.avui
                     if (depProp != null)
                         return depProp.DependencyProperty;
                     FieldInfo field = prop.TargetType.GetField(prop.Name + "Property", BindingFlags.Public | BindingFlags.Static);
-                    if (field != null && field.FieldType == typeof(AvaloniaProperty))
+                    if (field != null && typeof(AvaloniaProperty).IsAssignableFrom(field.FieldType))
                     {
                         return (AvaloniaProperty)field.GetValue(null);
                     }

@@ -13,7 +13,7 @@
           <Canvas x:Name="Ebene_1_24" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
             <Viewbox x:Name="Group" Width="265.92" Height="265.92" Canvas.Left="0.84" Canvas.Top="0.720001">
               <Canvas Width="265.92" Height="265.92">
-                <Image x:Name="Image" Source="imageMaint.png" Width="266" Height="266" Canvas.Left="0" Canvas.Top="0"/>
+                <Image x:Name="Image" Source="/Controls/VBOperatingMode/Themes/imageMaint.png" Width="266" Height="266" Canvas.Left="0" Canvas.Top="0"/>
                 <Viewbox x:Name="Group_0" Width="133.92" Height="146.4" Canvas.Left="68.64" Canvas.Top="61.92">
                   <Canvas Width="133.92" Height="146.4">
                     <Path x:Name="Path" Width="117.545" Height="134.061" Canvas.Left="4.28846" Canvas.Top="2.06748" Stretch="Fill" StrokeThickness="3" StrokeJoin="Round" Stroke="#FFF10000" Fill="#FF230000" Data="M 6.47846,118.973C 10.4482,115.091 63.9589,59.9193 71.6783,46.4427C 79.3976,32.966 80.2143,19.8497 82.7298,14.6781C 85.2454,9.50642 89.9238,5.26369 96.2395,4.01593C 102.555,2.76819 109.807,4.26569 113.315,6.76129C 116.824,9.25687 117.058,9.25687 120.333,13.25L 97.6431,21.7354L 94.368,29.472L 94.3082,41.8547L 108.637,54.1793C 102.217,54.792 98.0317,54.2707 91.7951,56.675C 85.5585,59.0793 84.3878,61.9991 80.801,64.4116C 58.3733,87.4704 25.0532,130.335 20.9181,134.041C 16.783,137.747 2.50875,122.855 6.47846,118.973 Z M 23.6303,116.233L 16.5875,114.924L 12.4898,119.296L 13.706,126.822L 20.76,128.119L 24.8578,123.747L 23.6303,116.233 Z M 85.0713,40.6669C 88.0265,40.6669 90.4221,43.2229 90.4221,46.3758C 90.4221,49.5288 88.0265,52.0848 85.0713,52.0847C 82.1161,52.0848 79.7205,49.5288 79.7205,46.3758C 79.7205,43.2229 82.1161,40.6669 85.0713,40.6669 Z ">
@@ -29,8 +29,8 @@
                   </Canvas>
                   <Viewbox.RenderTransform>
                     <RotateTransform Angle="0"
-                            CenterX="77.67"
-                            CenterY="58.56" />
+                            CenterX="0"
+                            CenterY="0" />
                   </Viewbox.RenderTransform>
                 </Viewbox>
                 <Path x:Name="Path_2" Width="200" Height="152.42" Canvas.Left="32.9189" Canvas.Top="18.1799" Stretch="Fill" StrokeThickness="1" StrokeJoin="Round" Stroke="#FFFF5959" Data="F1 M 137.822,18.1799L 127.832,18.1799C 85.7425,18.1799 32.9189,52.3003 32.9189,94.3899L 32.9189,94.3899C 32.9189,136.48 67.0393,170.6 109.129,170.6L 156.709,170.6C 198.798,170.6 232.919,136.48 232.919,94.3899L 232.919,94.3899C 232.919,52.3003 179.911,18.1799 137.822,18.1799 Z ">
@@ -65,10 +65,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:1" PlaybackDirection="Alternate">
           <KeyFrame Cue="0%">
-            <Setter Property="RenderTransform" Value="rotate(-30deg)"/>
+            <Setter Property="RotateTransform.Angle" Value="-30"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="RenderTransform" Value="rotate(30deg)"/>
+            <Setter Property="RotateTransform.Angle" Value="30"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>

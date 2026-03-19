@@ -93,9 +93,9 @@
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />
 
   <ItemGroup>
-    <Resource Include="Controls\VBOperatingMode\Themes\imageAuto.png" />
-    <Resource Include="Controls\VBOperatingMode\Themes\imageMaint.png" />
-    <Resource Include="Controls\VBOperatingMode\Themes\imageManual.png" />
+    <AvaloniaResource Include="Controls\VBOperatingMode\Themes\imageAuto.png" />
+    <AvaloniaResource Include="Controls\VBOperatingMode\Themes\imageMaint.png" />
+    <AvaloniaResource Include="Controls\VBOperatingMode\Themes\imageManual.png" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

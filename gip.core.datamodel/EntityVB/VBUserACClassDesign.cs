@@ -129,7 +129,7 @@ namespace gip.core.datamodel
                 if (Database.Root.IsAvaloniaUI)
                 {
                     // Use unified conversion method from ACClassDesign
-                    return ACClassDesign.ConvertWpfToAvaloniaXaml(XMLDesign);
+                    return XAMLConversionHelper.ConvertWpfToAvaloniaXaml(XMLDesign);
                 }
                 else
                 {
@@ -142,7 +142,7 @@ namespace gip.core.datamodel
                         wpfXAML = wpfXAML?.Replace(tuple.AvaloniaNamespace, tuple.WpfNamespace);
                     }
                     // Note: Reverse conversion (Avalonia to WPF) does not support regex patterns
-                    foreach (var tuple in ACClassDesign.C_AvaloniaFindAndReplace)
+                    foreach (var tuple in XAMLConversionHelper.C_AvaloniaFindAndReplace)
                     {
                         if (!tuple.IsRegex)
                         {

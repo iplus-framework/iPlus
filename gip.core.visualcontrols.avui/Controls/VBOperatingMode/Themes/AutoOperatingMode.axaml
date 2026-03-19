@@ -11,7 +11,7 @@
       <ControlTemplate>
         <Viewbox>
           <Canvas x:Name="Ebene_1" Width="250" Height="250" Canvas.Left="0" Canvas.Top="0">
-            <Image x:Name="Image" Source="imageAuto.png" Width="266" Height="266" Canvas.Left="0.32" Canvas.Top="0.76001"/>
+            <Image x:Name="Image" Source="/Controls/VBOperatingMode/Themes/imageAuto.png" Width="266" Height="266" Canvas.Left="0.32" Canvas.Top="0.76001"/>
             <Viewbox x:Name="Group" Width="141.6" Height="150.72" Canvas.Left="60.8" Canvas.Top="54.52">
               <Canvas Width="141.6" Height="150.72">
                 <Path x:Name="Path" Width="75.1485" Height="116.525" Canvas.Left="47.8634" Canvas.Top="0.107056" Stretch="Fill" StrokeThickness="12" StrokeLineCap="Round" StrokeJoin="Round" Stroke="#FF012303" Data="F1 M 77.9728,6.10706C 88.7262,13.6215 99.4795,21.1358 106.983,32.268C 114.486,43.4002 118.739,58.1502 116.343,70.7822C 113.946,83.4141 104.899,93.928 93.3772,100.217C 81.8557,106.505 67.8596,108.568 53.8634,110.632">
@@ -32,8 +32,8 @@
               </Canvas>
               <Viewbox.RenderTransform>
                 <RotateTransform Angle="0"
-                                CenterX="70.8"
-                                CenterY="75.36" />
+                                CenterX="0"
+                                CenterY="0" />
               </Viewbox.RenderTransform>
             </Viewbox>
             <Path x:Name="Path_2" Width="200" Height="152.42" Canvas.Left="33.1481" Canvas.Top="19.6546" Stretch="Fill" Data="F1 M 138.051,19.6546L 128.061,19.6546C 85.9716,19.6546 33.1481,53.775 33.1481,95.8646L 33.1481,95.8646C 33.1481,137.954 67.2684,172.075 109.358,172.075L 156.938,172.075C 199.027,172.075 233.148,137.954 233.148,95.8646L 233.148,95.8646C 233.148,53.775 180.14,19.6546 138.051,19.6546 Z ">
@@ -66,10 +66,10 @@
       <Style.Animations>
         <Animation IterationCount="Infinite" Duration="0:0:1">
           <KeyFrame Cue="0%">
-            <Setter Property="RenderTransform" Value="rotate(0deg)"/>
+            <Setter Property="RotateTransform.Angle" Value="0"/>
           </KeyFrame>
           <KeyFrame Cue="100%">
-            <Setter Property="RenderTransform" Value="rotate(360deg)"/>
+            <Setter Property="RotateTransform.Angle" Value="360"/>
           </KeyFrame>
         </Animation>
       </Style.Animations>
