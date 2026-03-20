@@ -93,7 +93,7 @@ namespace gip.core.layoutengine.avui
                 {
                     try
                     {
-                        var resource = Layoutgenerator.LoadResource(acClassDesign.XAMLDesign, ContentACObject, BSOACComponent);
+                        var resource = Layoutgenerator.LoadResource(acClassDesign, ContentACObject, BSOACComponent);
 
                         if (e.NameScope.Find(acClassDesign.ACIdentifier) == null)
                             this.Resources.MergedDictionaries.Add(resource);

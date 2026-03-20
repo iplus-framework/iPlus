@@ -136,7 +136,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
 
     #endregion
 
-    #region Menü
+    #region Menï¿½
     private void CreateMenu(ACMenuItemList mainMenu, ItemCollection items)
     {
         foreach (ACMenuItem acMenuItem in mainMenu)
@@ -189,11 +189,12 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
             acClassDesign = ACRoot.SRoot.Businessobjects.GetDesign("AppResourceDict");
             if (acClassDesign != null)
             {
-                ResourceDictionary resDict = Layoutgenerator.LoadResource(acClassDesign.XAMLDesign, ACRoot.SRoot.Businessobjects, null);
+                ResourceDictionary resDict = Layoutgenerator.LoadResource(acClassDesign, ACRoot.SRoot.Businessobjects, null);
                 if (resDict != null)
                 {
                     resDict.Add("TouchScreenMode", ControlManager.TouchScreenMode);
                     App._GlobalApp.Resources.MergedDictionaries.Add(resDict);
+
                 }
             }
         }
@@ -460,7 +461,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     public async Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
         // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
-        // Das findet man über den Zugriff auf eine interne Member heraus:
+        // Das findet man ï¿½ber den Zugriff auf eine interne Member heraus:
         //System.Reflection.MemberInfo[] infos = typeof(Dispatcher).GetMember("_disableProcessingCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         //Type typeDispatcher = typeof(Dispatcher);
         //FieldInfo fieldInfo = typeDispatcher.GetField("_disableProcessingCount", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -680,7 +681,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
 
     #region IRootPageWPF Member
 
-    #region Blidschirm für nächsten Start einfrieren
+    #region Blidschirm fï¿½r nï¿½chsten Start einfrieren
     public static readonly StyledProperty<WPFControlSelectionEventArgs> VBDockingManagerFreezingProperty = AvaloniaProperty.Register<MainView, WPFControlSelectionEventArgs>(nameof(VBDockingManagerFreezing));
     public WPFControlSelectionEventArgs VBDockingManagerFreezing
     {

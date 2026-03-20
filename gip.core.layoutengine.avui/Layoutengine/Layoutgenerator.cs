@@ -16,27 +16,67 @@ namespace gip.core.layoutengine.avui
 {
     public class Layoutgenerator 
     {      
+        static public ResourceDictionary LoadResource(IACObjectDesign aCObjectDesign, IACObject dataContext, IACBSO bso)
+        {
+            CurrentDataContext = dataContext;
+            CurrentBSO = bso;
+
+            try
+            {
+                string xamlToLoad = aCObjectDesign.XAMLDesign;
+                ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xamlToLoad));
+                var rootComponent = (dataContext as IACComponent).Root;
+                if (rootComponent == null)
+                    rootComponent = Database.Root;
+                if (rootComponent != null && rootComponent.IsAvaloniaUI 
+                    && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
+                    && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
+                {
+                    try
+                    {
+                        // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
+                        aCObjectDesign.XMLDesign2 = xamlToLoad;
+                        // Mark both designs as synchronized
+                        aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
+                        aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
+                        if (aCObjectDesign.Context != null)
+                        {
+                            // Save changes to the database if context is available
+                            var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
+                            if (msgWithDetails != null)
+                            {
+                                Root.Messages.LogMessageMsg(msgWithDetails);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore caching errors, the conversion still worked
+                    }
+                }
+                return sp;
+            }
+            catch (XmlException e)
+            {
+                Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
+                return null;
+            }
+        }
 
         static public ResourceDictionary LoadResource(string xmlLayout, IACObject dataContext, IACBSO bso)
         {
             CurrentDataContext = dataContext;
             CurrentBSO = bso;
-            //using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
-            //{
-            //    if (memoryStream == null)
-            //        return null;
-
-                try
-                {
-                    ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
-                    return sp;
-                }
-                catch (XmlException e)
-                {
-                    Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
-                    return null;
-                }
-            //}
+            try
+            {
+                ResourceDictionary sp = (ResourceDictionary)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
+                return sp;
+            }
+            catch (XmlException e)
+            {
+                Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
+                return null;
+            }
         }
 
         static private bool _WPFAssembliesLoaded = false;
@@ -74,6 +114,63 @@ namespace gip.core.layoutengine.avui
             //}
         }
 
+        static public AvaloniaObject LoadXAMLResource(IACObjectDesign aCObjectDesign, IACObject dataContext)
+        {
+            if (!_WPFAssembliesLoaded)
+            {
+                foreach (Assembly assembly in ACxmlnsResolver.Assemblies)
+                {
+                    var queryIsLoaded = AppDomain.CurrentDomain.GetAssemblies().Where(c => c.FullName == assembly.FullName);
+                    if (!queryIsLoaded.Any())
+                    {
+                        AppDomain.CurrentDomain.Load(assembly.FullName);
+                    }
+                }
+                _WPFAssembliesLoaded = true;
+            }
+            
+            try
+            {
+                string xamlToLoad = aCObjectDesign.XAMLDesign;
+                AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xamlToLoad));
+                IRoot rootComponent = (dataContext as IACComponent).Root;
+                if (rootComponent == null)
+                    rootComponent = Database.Root;
+                if (rootComponent != null && rootComponent.IsAvaloniaUI 
+                    && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
+                    && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))
+                {
+                    try
+                    {
+                        // Save the successfully loaded Avalonia XAML to XMLDesign2 for future use
+                        aCObjectDesign.XMLDesign2 = xamlToLoad;
+                        // Mark both designs as synchronized
+                        aCObjectDesign.XMLDesignUpdateDate = DateTime.Now;
+                        aCObjectDesign.XMLDesign2UpdateDate = aCObjectDesign.XMLDesignUpdateDate;
+                        if (aCObjectDesign.Context != null)
+                        {
+                            // Save changes to the database if context is available
+                            var msgWithDetails = aCObjectDesign.Context.ACSaveChanges();
+                            if (msgWithDetails != null)
+                            {
+                                Root.Messages.LogMessageMsg(msgWithDetails);
+                            }
+                        }
+                    }
+                    catch
+                    {
+                        // Ignore caching errors, the conversion still worked
+                    }
+                }
+                return sp;
+            }
+            catch (XmlException e)
+            {
+                Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
+                return null;
+            }
+        }        
+
         static public AvaloniaObject LoadXAMLResource(string xmlLayout)
         {
             if (!_WPFAssembliesLoaded)
@@ -88,22 +185,17 @@ namespace gip.core.layoutengine.avui
                 }
                 _WPFAssembliesLoaded = true;
             }
-            //using (MemoryStream memoryStream = GetEncodedStream(xmlLayout))
-            //{
-            //    if (memoryStream == null)
-            //        return null;
 
-                try
-                {
-                    AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
-                    return sp;
-                }
-                catch (XmlException e)
-                {
-                    Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
-                    return null;
-                }
-            //}
+            try
+            {
+                AvaloniaObject sp = (AvaloniaObject)AvaloniaRuntimeXamlLoader.Load(XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(xmlLayout));
+                return sp;
+            }
+            catch (XmlException e)
+            {
+                Root.Environment.Messages.ExceptionAsync(Root, e.Message, true);
+                return null;
+            }
         }
 
 
@@ -189,6 +281,8 @@ namespace gip.core.layoutengine.avui
                     dataContext != null && dataContext is IACComponent)
                 {
                     var rootComponent = (dataContext as IACComponent).Root;
+                    if (rootComponent == null)
+                        rootComponent = Database.Root;
                     if (rootComponent != null && rootComponent.IsAvaloniaUI 
                         && string.IsNullOrEmpty(aCObjectDesign.XMLDesign2) 
                         && !string.IsNullOrEmpty(aCObjectDesign.XMLDesign))

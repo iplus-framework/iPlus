@@ -299,7 +299,7 @@ namespace gip.core.layoutengine.avui
                                 }
                                 else if (needBrush && !String.IsNullOrEmpty(acClassDesign.XAMLDesign))
                                 {
-                                    Brush brushRes = Layoutgenerator.LoadXAMLResource(acClassDesign.XAMLDesign) as Brush;
+                                    Brush brushRes = Layoutgenerator.LoadXAMLResource(acClassDesign, acComponent) as Brush;
                                     if (brushRes != null)
                                     {
                                         if (wpfApplication != null)

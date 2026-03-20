@@ -64,7 +64,7 @@ namespace gip.core.layoutengine.avui.Converters
                             
                             if (!string.IsNullOrEmpty(acClassDesign?.XAMLDesign))
                             {
-                                Brush brushRes = Layoutgenerator.LoadXAMLResource(acClassDesign.XAMLDesign) as Brush;
+                                Brush brushRes = Layoutgenerator.LoadXAMLResource(acClassDesign, objForDesign) as Brush;
                                 if (brushRes != null)
                                 {
                                     return brushRes;

@@ -148,9 +148,9 @@ namespace gip.core.datamodel
             // Convert {vb:VBBinding vb:VBContent=...} -> {vb:VBBinding VBContent=...}.
             avaloniaXAML = RemovePrefixedVBBindingParameterNames(avaloniaXAML);
 
-            // RelativeTransform is no longer supported for brushes in Avalonia.
-            // Remove both attribute usage and *.RelativeTransform property elements.
-            avaloniaXAML = RemoveRelativeTransforms(avaloniaXAML);
+            // RelativeTransform was renamed to Transform for Avalonia brushes.
+            // Convert both attribute usage and *.RelativeTransform property elements.
+            avaloniaXAML = ConvertRelativeTransformsToTransforms(avaloniaXAML);
 
             // Convert WPF Line coordinates to Avalonia points:
             // <Line X1="0" Y1="6" X2="60" Y2="6" ... /> -> <Line StartPoint="0,6" EndPoint="60,6" ... />
@@ -824,7 +824,7 @@ namespace gip.core.datamodel
             }
         }
 
-        private static string RemoveRelativeTransforms(string xaml)
+        private static string ConvertRelativeTransformsToTransforms(string xaml)
         {
             if (string.IsNullOrWhiteSpace(xaml))
                 return xaml;
@@ -837,7 +837,8 @@ namespace gip.core.datamodel
                 };
                 doc.LoadXml(xaml);
 
-                // Remove property elements like <RadialGradientBrush.RelativeTransform>...</...>
+                // Convert property elements like <RadialGradientBrush.RelativeTransform>...</...>
+                // into <RadialGradientBrush.Transform>...</...>.
                 var relativeTransformElements = doc.SelectNodes("//*[contains(local-name(), '.RelativeTransform')]");
                 if (relativeTransformElements != null)
                 {
@@ -845,18 +846,68 @@ namespace gip.core.datamodel
                     {
                         if (element.LocalName.EndsWith(".RelativeTransform", StringComparison.OrdinalIgnoreCase))
                         {
-                            element.ParentNode?.RemoveChild(element);
+                            if (IsEmptyRelativeTransformElement(element))
+                            {
+                                element.ParentNode?.RemoveChild(element);
+                                continue;
+                            }
+
+                            string transformedLocalName = element.LocalName.Substring(0, element.LocalName.Length - ".RelativeTransform".Length) + ".Transform";
+                            var replacement = doc.CreateElement(element.Prefix, transformedLocalName, element.NamespaceURI);
+
+                            if (element.HasAttributes)
+                            {
+                                foreach (XmlAttribute attribute in element.Attributes)
+                                {
+                                    var copied = doc.CreateAttribute(attribute.Prefix, attribute.LocalName, attribute.NamespaceURI);
+                                    copied.Value = attribute.Value;
+                                    replacement.Attributes.Append(copied);
+                                }
+                            }
+
+                            while (element.HasChildNodes)
+                            {
+                                replacement.AppendChild(element.FirstChild);
+                            }
+
+                            element.ParentNode?.ReplaceChild(replacement, element);
                         }
                     }
                 }
 
-                // Remove attribute usage: RelativeTransform="..."
+                // Convert attribute usage: RelativeTransform="..." -> Transform="..."
                 var allElements = doc.SelectNodes("//*");
                 if (allElements != null)
                 {
                     foreach (var element in allElements.OfType<XmlNode>().OfType<XmlElement>())
                     {
-                        element.RemoveAttribute("RelativeTransform");
+                        var relativeTransformAttributes = element.Attributes
+                            .OfType<XmlAttribute>()
+                            .Where(a => string.Equals(a.LocalName, "RelativeTransform", StringComparison.OrdinalIgnoreCase))
+                            .ToList();
+
+                        foreach (var attribute in relativeTransformAttributes)
+                        {
+                            if (string.IsNullOrWhiteSpace(attribute.Value))
+                            {
+                                element.Attributes.Remove(attribute);
+                                continue;
+                            }
+
+                            bool hasTransformAlready = element.Attributes
+                                .OfType<XmlAttribute>()
+                                .Any(a => string.Equals(a.LocalName, "Transform", StringComparison.OrdinalIgnoreCase) &&
+                                          string.Equals(a.NamespaceURI, attribute.NamespaceURI, StringComparison.Ordinal));
+
+                            if (!hasTransformAlready)
+                            {
+                                var transformedAttribute = doc.CreateAttribute(attribute.Prefix, "Transform", attribute.NamespaceURI);
+                                transformedAttribute.Value = attribute.Value;
+                                element.Attributes.Append(transformedAttribute);
+                            }
+
+                            element.Attributes.Remove(attribute);
+                        }
                     }
                 }
 
@@ -867,6 +918,24 @@ namespace gip.core.datamodel
                 // Keep conversion resilient: if this pass fails, return the original text.
                 return xaml;
             }
+        }
+
+        private static bool IsEmptyRelativeTransformElement(XmlElement relativeTransformElement)
+        {
+            if (relativeTransformElement == null)
+                return true;
+
+            var childElements = relativeTransformElement.ChildNodes.OfType<XmlElement>().ToList();
+            if (childElements.Count == 0)
+                return true;
+
+            if (childElements.Count == 1 &&
+                string.Equals(childElements[0].LocalName, "TransformGroup", StringComparison.OrdinalIgnoreCase))
+            {
+                return !childElements[0].ChildNodes.OfType<XmlElement>().Any();
+            }
+
+            return false;
         }
 
         private static string ConvertResourceDictionarySourceToResourceInclude(string xaml)
@@ -1297,7 +1366,7 @@ namespace gip.core.datamodel
             ("Property=\"Y2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"0,1\"", false),
             ("RelativeSource={x:Static RelativeSource.Self}}", "RelativeSource={RelativeSource Self}}", false),
             ("StrokeLineJoin=", "StrokeJoin=", false),
-            ("Transform=\"Identity\"", "", false),
+            (" Transform=\"Identity\"", "", false),
             ("GlassEffect=\"Visible\"", "GlassEffect=\"True\"", false),
             ("GlassEffect=\"Hidden\"", "GlassEffect=\"False\"", false),
             ("GlassEffect=\"Collapsed\"", "GlassEffect=\"False\"", false),

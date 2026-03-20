@@ -1158,12 +1158,8 @@ namespace gip.core.layoutengine.avui
 
             Content = null;
             Visual uiElement = null;
-            //var x = ACClassDesign.ValueTypeACClass.ACIdentifier;
-
-            if (ACClassDesign != null && ACClassDesign.BAMLDesign != null && ACClassDesign.IsDesignCompiled)
+            if (ACClassDesign != null && (!string.IsNullOrEmpty(ACClassDesign.XMLDesign) || !string.IsNullOrEmpty(ACClassDesign.XMLDesign2)))
                 uiElement = Layoutgenerator.LoadLayout(ACClassDesign, ContextACObject == null ? ContentACObject : ContextACObject, BSOACComponent, ACClassDesign.ACIdentifier);
-            else if (ACClassDesign != null && !string.IsNullOrEmpty(ACClassDesign.XAMLDesign) && !ACClassDesign.IsResourceStyle)
-                uiElement = Layoutgenerator.LoadLayout(ACClassDesign.XAMLDesign, ContextACObject == null ? ContentACObject : ContextACObject, BSOACComponent, ACClassDesign.ACIdentifier);
             else
             {
                 // Im Fehlerfall
