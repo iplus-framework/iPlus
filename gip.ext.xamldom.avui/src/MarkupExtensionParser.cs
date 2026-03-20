@@ -237,6 +237,192 @@ namespace gip.ext.xamldom.avui
 	/// </summary>
 	static class MarkupExtensionParser
 	{
+		static bool IsXamlIntrinsicNamespace(string ns)
+		{
+			return ns == XamlConstants.XamlNamespace || ns == XamlConstants.Xaml2009Namespace;
+		}
+
+		static bool TrySplitTypeName(string qualifiedName, out string prefix, out string localName)
+		{
+			int idx = qualifiedName.IndexOf(':');
+			if (idx >= 0)
+			{
+				prefix = qualifiedName.Substring(0, idx);
+				localName = qualifiedName.Substring(idx + 1);
+				return true;
+			}
+
+			prefix = string.Empty;
+			localName = qualifiedName;
+			return false;
+		}
+
+		static string ResolvePrefixNamespace(XamlObject parent, string prefix)
+		{
+			var obj = parent;
+			while (obj != null)
+			{
+				var ns = obj.XmlElement.GetNamespaceOfPrefix(prefix);
+				if (!string.IsNullOrEmpty(ns))
+					return ns;
+				obj = obj.ParentObject;
+			}
+
+			return null;
+		}
+
+		static string ResolveArgumentOrValue(string extension, string name, List<string> positionalArgs, List<KeyValuePair<string, string>> namedArgs)
+		{
+			string value = null;
+
+			if (positionalArgs.Count == 1 && namedArgs.Count == 0)
+				value = positionalArgs[0];
+			else if (positionalArgs.Count == 0 && namedArgs.Count == 1 && string.Equals(namedArgs[0].Key, name, StringComparison.Ordinal))
+				value = namedArgs[0].Value;
+
+			if (value == null)
+				throw new XamlMarkupExtensionParseException(
+					extension + " extension should take exactly one constructor parameter without any content OR " + name + " property");
+
+			return value;
+		}
+
+		static XamlObject ParseXamlIntrinsicExtension(
+			XamlObject parent,
+			XmlAttribute attribute,
+			string intrinsicName,
+			List<string> positionalArgs,
+			List<KeyValuePair<string, string>> namedArgs)
+		{
+			if (intrinsicName == "Null")
+				return (XamlObject)parent.OwnerDocument.CreateNullValue();
+			if (intrinsicName == "True")
+				return parent.OwnerDocument.CreateObject(true);
+			if (intrinsicName == "False")
+				return parent.OwnerDocument.CreateObject(false);
+
+			var typeResolver = parent.ServiceProvider.Resolver;
+
+			if (intrinsicName == "Type")
+			{
+				var typeName = ResolveArgumentOrValue("x:Type", "TypeName", positionalArgs, namedArgs).Trim();
+				var resolvedType = typeResolver.Resolve(typeName);
+				if (resolvedType == null)
+					throw new XamlMarkupExtensionParseException("Unable to resolve type " + typeName);
+				return parent.OwnerDocument.CreateObject(resolvedType);
+			}
+
+			if (intrinsicName == "Static")
+			{
+				var memberRef = ResolveArgumentOrValue("x:Static", "Member", positionalArgs, namedArgs).Trim();
+
+				string nsPrefix = string.Empty;
+				string typeAndMember = memberRef;
+				var nsp = memberRef.Split(new[] { ':' }, 2);
+				if (nsp.Length == 2)
+				{
+					nsPrefix = nsp[0];
+					typeAndMember = nsp[1];
+				}
+
+				var pair = typeAndMember.Split(new[] { '.' }, 2);
+				if (pair.Length != 2)
+					throw new XamlMarkupExtensionParseException("Unable to parse " + typeAndMember + " as 'type.member'");
+
+				var typeName = string.IsNullOrEmpty(nsPrefix) ? pair[0] : nsPrefix + ":" + pair[0];
+				var declaringType = typeResolver.Resolve(typeName);
+				if (declaringType == null)
+					throw new XamlMarkupExtensionParseException("Unable to resolve type " + typeName + " for x:Static");
+
+				var memberName = pair[1];
+				var flags = BindingFlags.Public | BindingFlags.Static;
+				var prop = declaringType.GetProperty(memberName, flags);
+				if (prop != null)
+					return parent.OwnerDocument.CreateObject(prop.GetValue(null, null));
+
+				var field = declaringType.GetField(memberName, flags);
+				if (field != null)
+					return parent.OwnerDocument.CreateObject(field.GetValue(null));
+
+				throw new XamlMarkupExtensionParseException("Unable to resolve static member " + memberRef);
+			}
+
+			throw new XamlMarkupExtensionParseException("Unknown intrinsic markup extension x:" + intrinsicName);
+		}
+
+		static bool TryParseRelativeSourceEnum<TEnum>(string text, out TEnum value) where TEnum : struct
+		{
+			if (Enum.TryParse<TEnum>(text, true, out value))
+				return true;
+
+			// Common legacy alias used in WPF XAML.
+			if (typeof(TEnum) == typeof(RelativeSourceMode)
+				&& string.Equals(text, "Ancestor", StringComparison.OrdinalIgnoreCase))
+			{
+				value = (TEnum)(object)RelativeSourceMode.FindAncestor;
+				return true;
+			}
+
+			return false;
+		}
+
+		static XamlObject ParseRelativeSourceExtension(
+			XamlObject parent,
+			XmlAttribute attribute,
+			List<string> positionalArgs,
+			List<KeyValuePair<string, string>> namedArgs)
+		{
+			var rs = new RelativeSource();
+
+			if (positionalArgs.Count > 1)
+				throw new XamlMarkupExtensionParseException("RelativeSource extension takes at most one positional argument");
+
+			if (positionalArgs.Count == 1)
+			{
+				if (!TryParseRelativeSourceEnum(positionalArgs[0], out RelativeSourceMode mode))
+					throw new XamlMarkupExtensionParseException("Invalid RelativeSource mode " + positionalArgs[0]);
+				rs.Mode = mode;
+			}
+
+			var resolver = parent.ServiceProvider.Resolver;
+			foreach (var pair in namedArgs)
+			{
+				if (string.Equals(pair.Key, "Mode", StringComparison.OrdinalIgnoreCase))
+				{
+					if (!TryParseRelativeSourceEnum(pair.Value, out RelativeSourceMode mode))
+						throw new XamlMarkupExtensionParseException("Invalid RelativeSource mode " + pair.Value);
+					rs.Mode = mode;
+				}
+				else if (string.Equals(pair.Key, "AncestorLevel", StringComparison.OrdinalIgnoreCase))
+				{
+					rs.AncestorLevel = int.Parse(pair.Value, CultureInfo.InvariantCulture);
+				}
+				else if (string.Equals(pair.Key, "AncestorType", StringComparison.OrdinalIgnoreCase))
+				{
+					var t = resolver.Resolve(pair.Value);
+					if (t == null)
+						throw new XamlMarkupExtensionParseException("Unable to resolve type " + pair.Value + " for RelativeSource.AncestorType");
+					rs.AncestorType = t;
+				}
+				else if (string.Equals(pair.Key, "Tree", StringComparison.OrdinalIgnoreCase))
+				{
+					if (!TryParseRelativeSourceEnum(pair.Value, out TreeType treeType))
+						throw new XamlMarkupExtensionParseException("Invalid RelativeSource tree type " + pair.Value);
+					rs.Tree = treeType;
+				}
+				else
+				{
+					throw new XamlMarkupExtensionParseException("Unknown RelativeSource argument " + pair.Key);
+				}
+			}
+
+			var result = parent.OwnerDocument.CreateObject(rs);
+			if (attribute != null)
+				result.XmlAttribute = attribute;
+			result.ParentObject = parent;
+			return result;
+		}
+
 		public static XamlObject Parse(string text, XamlObject parent, XmlAttribute attribute)
 		{
 			var tokens = MarkupExtensionTokenizer.Tokenize(text);
@@ -248,9 +434,46 @@ namespace gip.ext.xamldom.avui
 				throw new XamlMarkupExtensionParseException("Invalid markup extension");
 			}
 			
+			string typeName = tokens[1].Value;
+
+			List<string> positionalArgs = new List<string>();
+			List<KeyValuePair<string, string>> namedArgs = new List<KeyValuePair<string, string>>();
+			for (int i = 2; i < tokens.Count - 1; i++) {
+				if (tokens[i].Kind == MarkupExtensionTokenKind.String) {
+					positionalArgs.Add(tokens[i].Value);
+				} else if (tokens[i].Kind == MarkupExtensionTokenKind.Membername) {
+					if (tokens[i+1].Kind != MarkupExtensionTokenKind.Equals
+					    || tokens[i+2].Kind != MarkupExtensionTokenKind.String)
+					{
+						throw new XamlMarkupExtensionParseException("Invalid markup extension");
+					}
+					namedArgs.Add(new KeyValuePair<string, string>(tokens[i].Value, tokens[i+2].Value));
+					i += 2;
+				}
+			}
+
+			TrySplitTypeName(typeName, out var typePrefix, out var typeLocalName);
+			if (string.Equals(typeName, "RelativeSource", StringComparison.Ordinal)
+				|| string.Equals(typeName, "RelativeSourceExtension", StringComparison.Ordinal))
+			{
+				return ParseRelativeSourceExtension(parent, attribute, positionalArgs, namedArgs);
+			}
+
+			if (!string.IsNullOrEmpty(typePrefix))
+			{
+				var ns = ResolvePrefixNamespace(parent, typePrefix);
+				if (IsXamlIntrinsicNamespace(ns))
+				{
+					var intrinsic = ParseXamlIntrinsicExtension(parent, attribute, typeLocalName, positionalArgs, namedArgs);
+					if (attribute != null)
+						intrinsic.XmlAttribute = attribute;
+					intrinsic.ParentObject = parent;
+					return intrinsic;
+				}
+			}
+
 			var typeResolver = parent.ServiceProvider.Resolver;
 
-			string typeName = tokens[1].Value;
             Type extensionType = null;
             try
             {
@@ -272,22 +495,6 @@ namespace gip.ext.xamldom.avui
 				throw new XamlMarkupExtensionParseException("Unknown markup extension " + typeName + "Extension");
 			}
 			
-			List<string> positionalArgs = new List<string>();
-			List<KeyValuePair<string, string>> namedArgs = new List<KeyValuePair<string, string>>();
-			for (int i = 2; i < tokens.Count - 1; i++) {
-				if (tokens[i].Kind == MarkupExtensionTokenKind.String) {
-					positionalArgs.Add(tokens[i].Value);
-				} else if (tokens[i].Kind == MarkupExtensionTokenKind.Membername) {
-					if (tokens[i+1].Kind != MarkupExtensionTokenKind.Equals
-					    || tokens[i+2].Kind != MarkupExtensionTokenKind.String)
-					{
-						throw new XamlMarkupExtensionParseException("Invalid markup extension");
-					}
-					namedArgs.Add(new KeyValuePair<string, string>(tokens[i].Value, tokens[i+2].Value));
-					i += 2;
-				}
-			}
-
 			// Find the constructor with positionalArgs.Count arguments (considering optional parameters)
 			var ctors = extensionType.GetConstructors()
 				.Where(c => {

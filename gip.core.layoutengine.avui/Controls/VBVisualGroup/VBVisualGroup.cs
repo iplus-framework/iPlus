@@ -5,6 +5,7 @@ using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.design.avui.Extensions;
@@ -48,6 +49,9 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBVisualGroup'}de{'VBVisualGroup'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBVisualGroup : HeaderedContentControl, IVBContent, IACMenuBuilderWPFTree, IACObject
     {
+        private string _appliedThemeKey;
+        private ResourceDictionary _appliedDesignDictionary;
+
         #region c'tors
         /// <summary>
         /// Creates a new instance of VBVisualGroup.
@@ -95,10 +99,13 @@ namespace gip.core.layoutengine.avui
                     {
                         var resource = Layoutgenerator.LoadResource(acClassDesign, ContentACObject, BSOACComponent);
 
-                        if (e.NameScope.Find(acClassDesign.ACIdentifier) == null)
+                        // NameScope belongs to the instantiated template and cannot be used to dedupe
+                        // dynamically loaded ResourceDictionaries across template reapplications.
+                        if (resource != null && !ReferenceEquals(_appliedDesignDictionary, resource))
                             this.Resources.MergedDictionaries.Add(resource);
 
                         styleName = acClassDesign.ACIdentifier;
+                        ApplyControlTheme(resource, styleName);
                     }
                     catch (Exception ex)
                     {
@@ -117,6 +124,37 @@ namespace gip.core.layoutengine.avui
                 ContentACObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
             UpdateACClassDesign();
             InitVBControl();
+        }
+
+        private void ApplyControlTheme(ResourceDictionary resourceDictionary, string controlThemeKey)
+        {
+            if (resourceDictionary == null || String.IsNullOrWhiteSpace(controlThemeKey))
+                return;
+
+            if (resourceDictionary.TryGetResource(controlThemeKey, null, out object resource)
+                && resource is ControlTheme theme)
+            {
+                if (!ReferenceEquals(Theme, theme)
+                    && !String.Equals(_appliedThemeKey, controlThemeKey, StringComparison.Ordinal)
+                    && !ReferenceEquals(_appliedDesignDictionary, resourceDictionary))
+                {
+                    _appliedThemeKey = controlThemeKey;
+                    _appliedDesignDictionary = resourceDictionary;
+                    Theme = theme;
+                }
+                return;
+            }
+
+            if (this.TryFindResource(controlThemeKey, out object inheritedResource)
+                && inheritedResource is ControlTheme inheritedTheme)
+            {
+                if (!ReferenceEquals(Theme, inheritedTheme)
+                    && !String.Equals(_appliedThemeKey, controlThemeKey, StringComparison.Ordinal))
+                {
+                    _appliedThemeKey = controlThemeKey;
+                    Theme = inheritedTheme;
+                }
+            }
         }
         #endregion
 

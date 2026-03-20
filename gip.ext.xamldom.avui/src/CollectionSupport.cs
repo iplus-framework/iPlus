@@ -72,6 +72,8 @@ namespace gip.ext.xamldom.avui
         {
             if (collectionInstance == null)
                 return;
+
+            object value = newElement.GetValueFor(null);
             IAddChild addChild = collectionInstance as IAddChild;
             if (addChild != null)
             {
@@ -84,12 +86,12 @@ namespace gip.ext.xamldom.avui
                 }
                 else
                 {
-                    addChild.AddChild(newElement.GetValueFor(null));
+                    addChild.AddChild(value);
                 }
             }
             else if (collectionInstance is IResourceDictionary)
             {
-                object val = newElement.GetValueFor(null);
+                object val = value;
                 object key = newElement is XamlObject ? ((XamlObject)newElement).GetXamlAttribute("Key") : null;
                 if (key == null || (key as string) == "")
                 {
@@ -102,10 +104,42 @@ namespace gip.ext.xamldom.avui
             }
             else
             {
+                // Prefer runtime collection dispatch to support interface-typed collection properties
+                // such as IList<IBinding> that are backed by concrete types with explicit/interface members.
+                if (collectionInstance is IList list)
+                {
+                    list.Add(value);
+                    return;
+                }
+
+                var runtimeType = collectionInstance.GetType();
+                var addMethod = runtimeType
+                    .GetMethods(BindingFlags.Public | BindingFlags.Instance)
+                    .FirstOrDefault(m =>
+                    {
+                        if (m.Name != "Add")
+                            return false;
+                        var parameters = m.GetParameters();
+                        if (parameters.Length != 1)
+                            return false;
+
+                        var pType = parameters[0].ParameterType;
+                        if (value == null)
+                            return !pType.IsValueType || Nullable.GetUnderlyingType(pType) != null;
+
+                        return pType.IsAssignableFrom(value.GetType());
+                    });
+
+                if (addMethod != null)
+                {
+                    addMethod.Invoke(collectionInstance, new[] { value });
+                    return;
+                }
+
                 collectionType.InvokeMember(
                     "Add", BindingFlags.Public | BindingFlags.InvokeMethod | BindingFlags.Instance,
                     null, collectionInstance,
-                    new object[] { newElement.GetValueFor(null) },
+                    new[] { value },
                     CultureInfo.InvariantCulture);
             }
         }

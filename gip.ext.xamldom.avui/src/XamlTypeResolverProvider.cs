@@ -115,6 +115,21 @@ namespace gip.ext.xamldom.avui
             XamlObject obj = containingObject;
             while (obj != null)
             {
+                // Xaml.Behaviors animations can specify x:SetterTargetType (e.g. Canvas) so
+                // Setter.Property resolution works outside ControlTheme contexts.
+                var setterTargetTypeName = obj.XmlElement.GetAttribute("SetterTargetType", XamlConstants.XamlNamespace);
+                if (string.IsNullOrEmpty(setterTargetTypeName))
+                    setterTargetTypeName = obj.XmlElement.GetAttribute("SetterTargetType", XamlConstants.Xaml2009Namespace);
+                if (!string.IsNullOrEmpty(setterTargetTypeName))
+                {
+                    var resolvedSetterTargetType = Resolve(setterTargetTypeName);
+                    if (resolvedSetterTargetType != null)
+                    {
+                        elementType = resolvedSetterTargetType;
+                        break;
+                    }
+                }
+
                 ControlTheme style = obj.Instance as ControlTheme;
                 if (style != null && style.TargetType != null)
                 {

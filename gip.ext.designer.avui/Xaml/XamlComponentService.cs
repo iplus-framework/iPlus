@@ -144,6 +144,9 @@ namespace gip.ext.designer.avui.Xaml
         {
             if (obj == null) return null;
 
+            if (_sites.TryGetValue(obj.Instance, out var existingSite))
+                return existingSite;
+
             foreach (XamlProperty prop in obj.Properties)
             {
                 RegisterXamlComponentRecursive(prop.PropertyValue as XamlObject);

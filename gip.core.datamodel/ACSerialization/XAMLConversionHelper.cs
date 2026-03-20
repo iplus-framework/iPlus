@@ -318,74 +318,116 @@ namespace gip.core.datamodel
                             .OfType<XmlElement>()
                             .FirstOrDefault(e => string.Equals(e.LocalName, "DataTrigger.EnterActions", StringComparison.OrdinalIgnoreCase));
 
-                        if (enterActions != null)
-                        {
-                            foreach (var beginStoryboard in enterActions
-                                .ChildNodes
-                                .OfType<XmlElement>()
-                                .Where(e => string.Equals(e.LocalName, "BeginStoryboard", StringComparison.OrdinalIgnoreCase)))
-                            {
-                                var storyboard = beginStoryboard
-                                    .ChildNodes
-                                    .OfType<XmlElement>()
-                                    .FirstOrDefault(e => string.Equals(e.LocalName, "Storyboard", StringComparison.OrdinalIgnoreCase));
-
-                                if (storyboard == null)
-                                    continue;
-
-                                foreach (var doubleAnimation in storyboard
-                                    .ChildNodes
-                                    .OfType<XmlElement>()
-                                    .Where(e => string.Equals(e.LocalName, "DoubleAnimation", StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    string targetProperty = ConvertStoryboardTargetProperty(doubleAnimation.GetAttribute("Storyboard.TargetProperty"));
-                                    string from = doubleAnimation.GetAttribute("From");
-                                    string to = doubleAnimation.GetAttribute("To");
-                                    string duration = doubleAnimation.GetAttribute("Duration");
-
-                                    if (string.IsNullOrWhiteSpace(targetProperty)
-                                        || string.IsNullOrWhiteSpace(from)
-                                        || string.IsNullOrWhiteSpace(to)
-                                        || string.IsNullOrWhiteSpace(duration))
-                                        continue;
-
-                                    var beginAnimationAction = doc.CreateElement("BeginAnimationAction", xamlNs);
-                                    var beginAnimationActionProperty = doc.CreateElement("BeginAnimationAction.Animation", xamlNs);
-                                    var animation = doc.CreateElement("Animation", xamlNs);
-                                    animation.SetAttribute("Duration", duration);
-                                    animation.SetAttribute("IterationCount", "1");
-                                    animation.SetAttribute("FillMode", "Forward");
-                                    animation.SetAttribute("SetterTargetType", "http://schemas.microsoft.com/winfx/2006/xaml", ownerElement.LocalName);
-
-                                    var keyFrameStart = doc.CreateElement("KeyFrame", xamlNs);
-                                    keyFrameStart.SetAttribute("Cue", "0%");
-                                    var keyFrameStartSetter = doc.CreateElement("Setter", xamlNs);
-                                    keyFrameStartSetter.SetAttribute("Property", targetProperty);
-                                    keyFrameStartSetter.SetAttribute("Value", from);
-                                    keyFrameStart.AppendChild(keyFrameStartSetter);
-
-                                    var keyFrameEnd = doc.CreateElement("KeyFrame", xamlNs);
-                                    keyFrameEnd.SetAttribute("Cue", "100%");
-                                    var keyFrameEndSetter = doc.CreateElement("Setter", xamlNs);
-                                    keyFrameEndSetter.SetAttribute("Property", targetProperty);
-                                    keyFrameEndSetter.SetAttribute("Value", to);
-                                    keyFrameEnd.AppendChild(keyFrameEndSetter);
-
-                                    animation.AppendChild(keyFrameStart);
-                                    animation.AppendChild(keyFrameEnd);
-                                    beginAnimationActionProperty.AppendChild(animation);
-                                    beginAnimationAction.AppendChild(beginAnimationActionProperty);
-
-                                    behavior.AppendChild(beginAnimationAction);
-                                    actionCount++;
-                                }
-                            }
-                        }
+                        actionCount += AppendBeginStoryboardAnimations(doc, xamlNs, ownerElement, behavior, enterActions, null);
 
                         if (actionCount > 0)
                         {
                             interactionBehaviors.AppendChild(behavior);
                             hasBehavior = true;
+                        }
+                    }
+
+                    foreach (var trigger in triggersElement
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .Where(e => string.Equals(e.LocalName, "Trigger", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var triggerProperty = trigger.GetAttribute("Property");
+                        if (string.IsNullOrWhiteSpace(triggerProperty))
+                            continue;
+
+                        // Keep Trigger conversion aligned with ChangePropertyAction constraints.
+                        if (triggerProperty.Contains(".") || triggerProperty.Contains(":"))
+                            continue;
+
+                        triggerProperty = NormalizeTriggerPropertyName(triggerProperty);
+                        string triggerValue = NormalizeTriggerPropertyValue(triggerProperty, trigger.GetAttribute("Value"));
+
+                        var behavior = doc.CreateElement("DataTriggerBehavior", xamlNs);
+                        behavior.SetAttribute("Value", triggerValue);
+
+                        var behaviorBindingProperty = doc.CreateElement("DataTriggerBehavior.Binding", xamlNs);
+                        var behaviorBinding = doc.CreateElement("Binding", xamlNs);
+                        behaviorBinding.SetAttribute("Path", triggerProperty);
+                        behaviorBinding.SetAttribute("RelativeSource", "{RelativeSource Self}");
+                        behaviorBindingProperty.AppendChild(behaviorBinding);
+                        behavior.AppendChild(behaviorBindingProperty);
+
+                        int actionCount = 0;
+                        foreach (var setter in trigger
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            var propertyName = setter.GetAttribute("Property");
+                            if (string.IsNullOrWhiteSpace(propertyName))
+                                continue;
+
+                            if (propertyName.Contains(".") || propertyName.Contains(":"))
+                                continue;
+
+                            propertyName = NormalizeTriggerPropertyName(propertyName);
+                            var propertyValue = NormalizeTriggerPropertyValue(propertyName, setter.GetAttribute("Value"));
+
+                            var action = doc.CreateElement("ChangePropertyAction", xamlNs);
+                            action.SetAttribute("PropertyName", propertyName);
+                            action.SetAttribute("Value", propertyValue);
+                            behavior.AppendChild(action);
+                            actionCount++;
+                        }
+
+                        var enterActions = trigger
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "Trigger.EnterActions", StringComparison.OrdinalIgnoreCase));
+
+                        var stopStoryboardFallbackValues = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+                        actionCount += AppendBeginStoryboardAnimations(doc, xamlNs, ownerElement, behavior, enterActions, stopStoryboardFallbackValues);
+
+                        if (actionCount > 0)
+                        {
+                            interactionBehaviors.AppendChild(behavior);
+                            hasBehavior = true;
+                        }
+
+                        var exitActions = trigger
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "Trigger.ExitActions", StringComparison.OrdinalIgnoreCase));
+
+                        bool hasStopStoryboard = exitActions != null && exitActions
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .Any(e => string.Equals(e.LocalName, "StopStoryboard", StringComparison.OrdinalIgnoreCase));
+
+                        string inverseValue = TryInvertBooleanLiteral(triggerValue);
+                        if (hasStopStoryboard && !string.IsNullOrWhiteSpace(inverseValue) && stopStoryboardFallbackValues.Count > 0)
+                        {
+                            var stopBehavior = doc.CreateElement("DataTriggerBehavior", xamlNs);
+                            stopBehavior.SetAttribute("Value", inverseValue);
+
+                            var stopBehaviorBindingProperty = doc.CreateElement("DataTriggerBehavior.Binding", xamlNs);
+                            var stopBehaviorBinding = doc.CreateElement("Binding", xamlNs);
+                            stopBehaviorBinding.SetAttribute("Path", triggerProperty);
+                            stopBehaviorBinding.SetAttribute("RelativeSource", "{RelativeSource Self}");
+                            stopBehaviorBindingProperty.AppendChild(stopBehaviorBinding);
+                            stopBehavior.AppendChild(stopBehaviorBindingProperty);
+
+                            int stopActionCount = 0;
+                            foreach (var kvp in stopStoryboardFallbackValues)
+                            {
+                                var stopAction = doc.CreateElement("ChangePropertyAction", xamlNs);
+                                stopAction.SetAttribute("PropertyName", kvp.Key);
+                                stopAction.SetAttribute("Value", kvp.Value);
+                                stopBehavior.AppendChild(stopAction);
+                                stopActionCount++;
+                            }
+
+                            if (stopActionCount > 0)
+                            {
+                                interactionBehaviors.AppendChild(stopBehavior);
+                                hasBehavior = true;
+                            }
                         }
                     }
 
@@ -547,6 +589,122 @@ namespace gip.core.datamodel
             }
 
             return trimmed;
+        }
+
+        private static int AppendBeginStoryboardAnimations(
+            XmlDocument doc,
+            string xamlNs,
+            XmlElement ownerElement,
+            XmlElement behavior,
+            XmlElement actionsContainer,
+            Dictionary<string, string> stopStoryboardFallbackValues)
+        {
+            if (doc == null || ownerElement == null || behavior == null || actionsContainer == null)
+                return 0;
+
+            int actionCount = 0;
+            foreach (var beginStoryboard in actionsContainer
+                .ChildNodes
+                .OfType<XmlElement>()
+                .Where(e => string.Equals(e.LocalName, "BeginStoryboard", StringComparison.OrdinalIgnoreCase)))
+            {
+                var storyboard = beginStoryboard
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .FirstOrDefault(e => string.Equals(e.LocalName, "Storyboard", StringComparison.OrdinalIgnoreCase));
+
+                if (storyboard == null)
+                    continue;
+
+                foreach (var doubleAnimation in storyboard
+                    .ChildNodes
+                    .OfType<XmlElement>()
+                    .Where(e => string.Equals(e.LocalName, "DoubleAnimation", StringComparison.OrdinalIgnoreCase)))
+                {
+                    string targetProperty = ConvertStoryboardTargetProperty(doubleAnimation.GetAttribute("Storyboard.TargetProperty"));
+                    string from = doubleAnimation.GetAttribute("From");
+                    string to = doubleAnimation.GetAttribute("To");
+                    string duration = doubleAnimation.GetAttribute("Duration");
+
+                    if (string.IsNullOrWhiteSpace(targetProperty)
+                        || string.IsNullOrWhiteSpace(from)
+                        || string.IsNullOrWhiteSpace(to)
+                        || string.IsNullOrWhiteSpace(duration))
+                        continue;
+
+                    var beginAnimationAction = doc.CreateElement("BeginAnimationAction", xamlNs);
+                    var beginAnimationActionProperty = doc.CreateElement("BeginAnimationAction.Animation", xamlNs);
+                    var animation = doc.CreateElement("Animation", xamlNs);
+                    animation.SetAttribute("Duration", duration);
+                    animation.SetAttribute("IterationCount", ConvertRepeatBehaviorToIterationCount(doubleAnimation.GetAttribute("RepeatBehavior")));
+                    animation.SetAttribute("FillMode", "Forward");
+                    animation.SetAttribute("SetterTargetType", "http://schemas.microsoft.com/winfx/2006/xaml", ownerElement.LocalName);
+
+                    if (IsExplicitTrueLiteral(doubleAnimation.GetAttribute("AutoReverse")))
+                    {
+                        animation.SetAttribute("PlaybackDirection", "Alternate");
+                    }
+
+                    var keyFrameStart = doc.CreateElement("KeyFrame", xamlNs);
+                    keyFrameStart.SetAttribute("Cue", "0%");
+                    var keyFrameStartSetter = doc.CreateElement("Setter", xamlNs);
+                    keyFrameStartSetter.SetAttribute("Property", targetProperty);
+                    keyFrameStartSetter.SetAttribute("Value", from);
+                    keyFrameStart.AppendChild(keyFrameStartSetter);
+
+                    var keyFrameEnd = doc.CreateElement("KeyFrame", xamlNs);
+                    keyFrameEnd.SetAttribute("Cue", "100%");
+                    var keyFrameEndSetter = doc.CreateElement("Setter", xamlNs);
+                    keyFrameEndSetter.SetAttribute("Property", targetProperty);
+                    keyFrameEndSetter.SetAttribute("Value", to);
+                    keyFrameEnd.AppendChild(keyFrameEndSetter);
+
+                    animation.AppendChild(keyFrameStart);
+                    animation.AppendChild(keyFrameEnd);
+                    beginAnimationActionProperty.AppendChild(animation);
+                    beginAnimationAction.AppendChild(beginAnimationActionProperty);
+                    behavior.AppendChild(beginAnimationAction);
+
+                    if (stopStoryboardFallbackValues != null)
+                    {
+                        stopStoryboardFallbackValues[targetProperty] = to;
+                    }
+
+                    actionCount++;
+                }
+            }
+
+            return actionCount;
+        }
+
+        private static string ConvertRepeatBehaviorToIterationCount(string repeatBehavior)
+        {
+            if (string.IsNullOrWhiteSpace(repeatBehavior))
+                return "1";
+
+            if (string.Equals(repeatBehavior.Trim(), "Forever", StringComparison.OrdinalIgnoreCase))
+                return "Infinite";
+
+            return "1";
+        }
+
+        private static bool IsExplicitTrueLiteral(string value)
+        {
+            return string.Equals(value, "True", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase);
+        }
+
+        private static string TryInvertBooleanLiteral(string value)
+        {
+            if (string.Equals(value, "True", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, "1", StringComparison.OrdinalIgnoreCase))
+                return "False";
+
+            if (string.Equals(value, "False", StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, "0", StringComparison.OrdinalIgnoreCase))
+                return "True";
+
+            return null;
         }
 
         private static string NormalizeTriggerPropertyValue(string normalizedPropertyName, string propertyValue)
@@ -1374,7 +1532,9 @@ namespace gip.core.datamodel
             ("Rotor=\"Hidden\"", "Rotor=\"False\"", false),
             ("Rotor=\"Collapsed\"", "Rotor=\"False\"", false),
             ("<vb:VBInstanceInfo x:Key=", "<vb:VBInstanceInfo Key=", false),
-                        
+            ("Visibility=\"{vb:VBBinding Converter={vb:ConverterVisibilitySingle UseCollapsed=True,c ACUrlCommand=\\Environment!GetVisibilityForPANotifyState},", "IsVisible=\"{vb:VBBinding Converter={vb:ConverterObject ACUrlCommand=\\Environment!GetVisibilityForPANotifyStateAv},", false),
+            ("ListBox.ItemContainerStyle", "ListBox.ItemContainerTheme", false),
+
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
             (@"<vb:VBTreeView\.ItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
@@ -1384,7 +1544,11 @@ namespace gip.core.datamodel
             (@"</DataTemplate>\s*</vb:VBTreeView\.ItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
             (@"</DataTemplate>\s*</TreeView\.TreeItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
             (@"</DataTemplate>\s*</TreeView\.ItemTemplate>", "</TreeDataTemplate>\n</TreeView.ItemTemplate>", true),
-            
+            (@"\bACStateBrush\b", "ACStateBrushAv", true),
+            (@"\bBrushButtonText\b", "BrushButtonTextAv", true),
+            (@"\bBrushOnOff\b", "BrushOnOffAv", true),
+            (@"\bBrushTextRed\b", "BrushTextRedAv", true),
+
             // Remove CenterX and CenterY from SkewTransform
             (@"<SkewTransform\s+([^>]*?)CenterX=""[^""]*""\s*", @"<SkewTransform $1", true),
             (@"<SkewTransform\s+([^>]*?)CenterY=""[^""]*""\s*", @"<SkewTransform $1", true),

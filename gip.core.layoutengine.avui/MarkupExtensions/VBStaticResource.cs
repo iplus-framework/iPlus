@@ -383,8 +383,23 @@ namespace gip.core.layoutengine.avui
                     }
                 }
             }
-            result = new StaticResourceExtension(ResourceKey).ProvideValue(serviceProvider);
-            return result;
+            try
+            {
+                result = new StaticResourceExtension(ResourceKey).ProvideValue(serviceProvider);
+                return result;
+            }
+            catch (KeyNotFoundException)
+            {
+                // In the designer's DOM parser, ProvideValue can run before the target is in a
+                // resource lookup context. Keep parsing alive and let the value stay unresolved.
+                if (serviceProvider != null
+                    && serviceProvider.GetType().FullName == "gip.ext.xamldom.avui.XamlObjectServiceProvider")
+                {
+                    return null;
+                }
+
+                throw;
+            }
         }
 
 

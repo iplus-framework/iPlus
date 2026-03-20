@@ -62,8 +62,11 @@ namespace gip.ext.xamldom.avui
 						return attribute.Value.Substring(2);
 					else
 						return attribute.Value;
-				} else if (textValue != null)
+				} else if (textValue != null) {
+					if (textValue.StartsWith("{}", StringComparison.Ordinal))
+						return textValue.Substring(2);
 					return textValue;
+				}
 				else if (cDataSection != null)
 					return cDataSection.Value;
 				else

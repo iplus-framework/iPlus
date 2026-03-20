@@ -313,35 +313,40 @@ namespace gip.core.layoutengine.avui.Helperclasses
             if (visual == null)
                 return;
 
-            foreach (var childControl in visual.GetVisualChildren())
+            foreach (var visualChild in visual.GetVisualChildren())
             {
                 if (childControlToFind != null)
                     return;
-                if (childControl is Control)
+                if (visualChild is Control childControl)
                 {
                     if (childControl != null)
                     {
                         //if (childControl is VBVisual || childControl is VBVisualGroup)                           
                         if (childControl is IVBContent)
                         {
-                            if ((childControl as Control).Name.Equals(childControlName))
+                            if (childControl != null 
+                                && !string.IsNullOrEmpty(childControl.Name) 
+                                && childControl.Name.Equals(childControlName))
                             {
-                                childControlToFind = (childControl as Control);
+                                childControlToFind = childControl;
                                 return;
                             }
                             continue;
                         }
                         if (childControl is VBConnector)
                         {
-                            if ((childControl as VBConnector).VBContent.Equals(childControlName))
+                            var vBConnector = childControl as VBConnector;
+                            if (vBConnector != null 
+                                && !string.IsNullOrEmpty(vBConnector.VBContent) 
+                                && vBConnector.VBContent.Equals(childControlName))
                             {
-                                childControlToFind = (childControl as Control);
+                                childControlToFind = vBConnector;
                                 return;
                             }
                             continue;
                         }
                     }
-                    SearchControl((childControl as Control), ref childControlToFind, childControlName);
+                    SearchControl(childControl, ref childControlToFind, childControlName);
                     if (childControlToFind != null)
                         return;
                 }

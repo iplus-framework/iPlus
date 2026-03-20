@@ -428,16 +428,40 @@ namespace gip.ext.xamldom.avui
             if (defaultProperty == null && obj.Instance != null && CollectionSupport.IsCollectionType(obj.Instance.GetType()))
             {
                 XamlObject parentObj = obj.ParentObject;
-                var parentElement = element.ParentNode;
-                XamlPropertyInfo propertyInfo;
-                if (parentObj != null)
+                var parentElement = element.ParentNode as XmlElement;
+                bool treatAsCollectionRoot = true;
+                if (parentObj != null && parentElement != null && ObjectChildElementIsPropertyElement(parentElement))
                 {
-                    propertyInfo = GetPropertyInfo(settings.TypeFinder, parentObj.Instance, parentObj.ElementType, parentElement.NamespaceURI, parentElement.LocalName);
-                    collectionProperty = FindExistingXamlProperty(parentObj, propertyInfo);
+                    var propertyInfo = GetPropertyInfo(settings.TypeFinder, parentObj.Instance, parentObj.ElementType, parentElement.NamespaceURI, parentElement.LocalName);
+
+                    // Only use the "existing collection property" path when the parent property
+                    // itself is a collection property element. For scalar properties like
+                    // ItemContainerTheme (ControlTheme), don't treat the value object as a
+                    // collection root even if its runtime type looks collection-like.
+                    if (propertyInfo.IsCollection)
+                    {
+                        collectionProperty = parentObj.Properties
+                            .FirstOrDefault(existing => existing.propertyInfo.FullyQualifiedName == propertyInfo.FullyQualifiedName);
+                        if (collectionProperty == null)
+                        {
+                            // For property-element values whose CLR type matches the declared
+                            // property type (e.g. ItemContainerTheme -> ControlTheme), the parent
+                            // XamlProperty is created later in ParseObjectChildElementAsPropertyElement.
+                            // Keep collection-root treatment enabled so child setters can be added.
+                            bool isTypedPropertyValue = propertyInfo.ReturnType.IsAssignableFrom(obj.ElementType)
+                                || obj.ElementType.IsAssignableFrom(propertyInfo.ReturnType);
+                            if (!isTypedPropertyValue)
+                                treatAsCollectionRoot = false;
+                        }
+                    }
                 }
-                collectionInstance = obj.Instance;
-                collectionType = obj.ElementType;
-                collectionPropertyElement = element;
+
+                if (treatAsCollectionRoot)
+                {
+                    collectionInstance = obj.Instance;
+                    collectionType = obj.ElementType;
+                    collectionPropertyElement = element;
+                }
             }
             else if (defaultProperty != null && defaultProperty.IsCollection && !element.IsEmpty)
             {
@@ -475,6 +499,14 @@ namespace gip.ext.xamldom.avui
                 foreach (XmlNode childNode in elementChildNodes)
                 {
                     currentParsedNode = childNode;
+
+                    if ((collectionProperty != null || collectionInstance != null)
+                        && currentXmlSpace != XmlSpace.Preserve
+                        && (childNode is XmlText childText && string.IsNullOrWhiteSpace(childText.Value)))
+                    {
+                        continue;
+                    }
+
                     XmlElement childElement = childNode as XmlElement;
                     if (childElement != null)
                     {
@@ -509,9 +541,9 @@ namespace gip.ext.xamldom.avui
                             collectionProperty.ParserAddCollectionElement(collectionPropertyElement, childValue);
                             CollectionSupport.AddToCollection(collectionType, collectionInstance, childValue);
                         }
-                        else if (collectionProperty == null && collectionInstance is ResourceDictionary)
+                        else if (collectionInstance != null)
                         {
-                            CollectionSupport.AddToCollection(collectionType, collectionInstance, childValue);
+                            CollectionSupport.AddToCollection(collectionType ?? collectionInstance.GetType(), collectionInstance, childValue);
                         }
                         else
                         {
@@ -953,7 +985,7 @@ namespace gip.ext.xamldom.avui
             XamlPropertyValue value = null;
 
             var valueText = attribute.Value;
-            if (valueText.StartsWith("{", StringComparison.Ordinal) && !valueText.StartsWith("{}", StringComparison.Ordinal))
+            if (LooksLikeMarkupExtension(valueText))
             {
                 var xamlObject = MarkupExtensionParser.Parse(valueText, obj, real ? attribute : null);
                 value = xamlObject;
@@ -968,6 +1000,25 @@ namespace gip.ext.xamldom.avui
 
             var property = new XamlProperty(obj, propertyInfo, value);
             obj.AddProperty(property);
+        }
+
+        static bool LooksLikeMarkupExtension(string valueText)
+        {
+            if (string.IsNullOrEmpty(valueText))
+                return false;
+            if (!valueText.StartsWith("{", StringComparison.Ordinal) || valueText.StartsWith("{}", StringComparison.Ordinal))
+                return false;
+
+            int i = 1;
+            while (i < valueText.Length && char.IsWhiteSpace(valueText[i]))
+                i++;
+            if (i >= valueText.Length)
+                return false;
+
+            // A markup extension type name starts with an identifier-like character.
+            // Literal format strings such as {0:hh\\:mm\\:ss} must not be reparsed.
+            char c = valueText[i];
+            return char.IsLetter(c) || c == '_' || c == ':';
         }
 
         static bool ObjectChildElementIsPropertyElement(XmlElement element)

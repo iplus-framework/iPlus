@@ -260,7 +260,13 @@ namespace gip.ext.xamldom.avui
             if (parent != null)
                 prefix = GetPrefixForNamespace(parent.XmlElement, ns);
 
-            XmlElement xml = _xmlDoc.CreateElement(prefix, elementType.Name, ns);
+            string localName = elementType.Name;
+            int genericTick = localName.IndexOf('`');
+            if (genericTick > 0)
+                localName = localName.Substring(0, genericTick);
+            localName = XmlConvert.EncodeLocalName(localName);
+
+            XmlElement xml = _xmlDoc.CreateElement(prefix, localName, ns);
 
             if (hasStringConverter && (XamlObject.GetContentPropertyName(elementType) != null || IsNativeType(instance)))
             {
