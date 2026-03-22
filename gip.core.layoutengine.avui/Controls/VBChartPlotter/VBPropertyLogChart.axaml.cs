@@ -26,6 +26,7 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBPropertyLogChart'}de{'VBPropertyLogChart'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public partial class VBPropertyLogChart : UserControl, IVBContent, IVBSource, IACObject
     {
+        private IACBSO _LastKnownBSOACComponent = null;
         string _DataSource;
         string _DataShowColumns;
         string _DataChilds;
@@ -99,7 +100,7 @@ namespace gip.core.layoutengine.avui
                 return;
 
             //if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
-            //    BSOACComponent.RemoveWPFRef(this.GetHashCode());
+            //    (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
 
             _Loaded = false;
         }
@@ -138,8 +139,9 @@ namespace gip.core.layoutengine.avui
             _Initialized = false;
 
             if (ChartControl != null)
-                ChartControl.DeInitVBControl(bso);
+                ChartControl.DeInitVBControl(bso ?? _LastKnownBSOACComponent);
             this.ClearAllBindings();
+            _LastKnownBSOACComponent = null;
         }
 
         /// <summary>
@@ -147,9 +149,10 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso ?? _LastKnownBSOACComponent);
         }
 
         /// <summary>
@@ -174,11 +177,17 @@ namespace gip.core.layoutengine.avui
                 InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
+                IACBSO newBso = change.NewValue as IACBSO;
+                IACBSO oldBso = change.OldValue as IACBSO;
+                if (newBso != null)
+                    _LastKnownBSOACComponent = newBso;
+                else if (oldBso != null)
+                    _LastKnownBSOACComponent = oldBso;
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
                     IACBSO bso = change.OldValue as IACBSO;
-                    if (bso != null)
-                        DeInitVBControl(bso);
+                    if (bso != null && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
+                        DeInitVBControl(bso ?? _LastKnownBSOACComponent);
                 }
             }
         }

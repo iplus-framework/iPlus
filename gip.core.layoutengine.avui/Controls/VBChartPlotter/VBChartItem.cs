@@ -15,6 +15,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBChartItem : TemplatedControl, IVBChartItem
     {
+        private IACBSO _LastKnownBSOACComponent = null;
         /// <summary>
         /// Creates a new instance of VBChartItem.
         /// </summary>
@@ -108,6 +109,7 @@ namespace gip.core.layoutengine.avui
             if (bso != null && bso is IACBSO)
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
             this.ClearAllBindings();
+            _LastKnownBSOACComponent = null;
         }
 
         /// <summary>
@@ -115,9 +117,10 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso ?? _LastKnownBSOACComponent);
         }
 
         protected ChartItem _ChartItem = null;
@@ -487,11 +490,17 @@ namespace gip.core.layoutengine.avui
                 InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
+                IACBSO newBso = change.NewValue as IACBSO;
+                IACBSO oldBso = change.OldValue as IACBSO;
+                if (newBso != null)
+                    _LastKnownBSOACComponent = newBso;
+                else if (oldBso != null)
+                    _LastKnownBSOACComponent = oldBso;
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
                     IACBSO bso = change.OldValue as IACBSO;
-                    if (bso != null)
-                        DeInitVBControl(bso);
+                    if (bso != null && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
+                        DeInitVBControl(bso ?? _LastKnownBSOACComponent);
                 }
             }
         }

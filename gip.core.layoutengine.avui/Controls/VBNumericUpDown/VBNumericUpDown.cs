@@ -21,6 +21,7 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class VBNumericUpDown : UpDownBase, IVBContent, IACMenuBuilderWPFTree, IACObject
     {
+        private IACBSO _LastKnownBSOACComponent = null;
         static VBNumericUpDown()
         {
             // In Avalonia, we don't override metadata like in WPF
@@ -53,7 +54,7 @@ namespace gip.core.layoutengine.avui
                 return;
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
-                BSOACComponent.RemoveWPFRef(this.GetHashCode());
+                (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
         }
 
         /// <summary>
@@ -435,8 +436,9 @@ namespace gip.core.layoutengine.avui
             if (!_Initialized)
                 return;
             _Initialized = false;
-            TextBoxVB?.DeInitVBControl(bso);
+            TextBoxVB?.DeInitVBControl(bso ?? _LastKnownBSOACComponent);
             this.ClearAllBindings();
+            _LastKnownBSOACComponent = null;
         }
 
         /// <summary>

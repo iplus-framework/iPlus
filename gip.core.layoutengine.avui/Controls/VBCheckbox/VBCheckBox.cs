@@ -27,6 +27,7 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBCheckBox'}de{'VBCheckBox'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBCheckBox : CheckBox, IVBContent, IACMenuBuilderWPFTree, IACObject, IVBDynamicIcon
     {
+        private IACBSO _LastKnownBSOACComponent = null;
         #region c'tors
         /// <summary>
         /// Creates a new instance of VBCheckBox.
@@ -351,7 +352,7 @@ namespace gip.core.layoutengine.avui
                 return;
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
-                BSOACComponent.RemoveWPFRef(this.GetHashCode());
+                (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
 
             _Loaded = false;
         }
@@ -373,10 +374,11 @@ namespace gip.core.layoutengine.avui
                 (bso as IACBSO).RemoveWPFRef(this.GetHashCode());
             _VBContentPropertyInfo = null;
             _ValidationRule = null;
-            if (BSOACComponent != null)
-                BSOACComponent.RemoveWPFRef(this.GetHashCode());
+            if ((BSOACComponent ?? _LastKnownBSOACComponent) != null)
+                    (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
 
             this.ClearAllBindings();
+            _LastKnownBSOACComponent = null;
         }
 
 
@@ -385,9 +387,10 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso ?? _LastKnownBSOACComponent);
         }
         #endregion
 
@@ -443,11 +446,17 @@ namespace gip.core.layoutengine.avui
                 InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
+                IACBSO newBso = change.NewValue as IACBSO;
+                IACBSO oldBso = change.OldValue as IACBSO;
+                if (newBso != null)
+                    _LastKnownBSOACComponent = newBso;
+                else if (oldBso != null)
+                    _LastKnownBSOACComponent = oldBso;
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
                     IACBSO bso = change.OldValue as IACBSO;
-                    if (bso != null)
-                        DeInitVBControl(bso);
+                    if (bso != null && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
+                        DeInitVBControl(bso ?? _LastKnownBSOACComponent);
                 }
             }
             else if (change.Property == ACCaptionProperty)

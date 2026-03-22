@@ -17,6 +17,7 @@ namespace gip.core.layoutengine.avui
 { 
     public class VBRepeatButton : RepeatButton, IVBContent, IACObject, IACCommandControl
     {
+        private IACBSO _LastKnownBSOACComponent = null;
         #region c'tors
         /// <summary>
         /// The event hander for Initialized event.
@@ -224,6 +225,7 @@ namespace gip.core.layoutengine.avui
             _TypeMemberMouseDown = null;
             _TypeMemberMouseUp = null;
             this.ClearAllBindings();
+            _LastKnownBSOACComponent = null;
         }
 
         /// <summary>
@@ -231,9 +233,10 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso ?? _LastKnownBSOACComponent);
         }
 
         #endregion
@@ -294,11 +297,17 @@ namespace gip.core.layoutengine.avui
                 thisControl.InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
+                IACBSO newBso = change.NewValue as IACBSO;
+                IACBSO oldBso = change.OldValue as IACBSO;
+                if (newBso != null)
+                    _LastKnownBSOACComponent = newBso;
+                else if (oldBso != null)
+                    _LastKnownBSOACComponent = oldBso;
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
                     IACBSO bso = change.OldValue as IACBSO;
                     if (bso != null && thisControl.CommandParameter == null)
-                        thisControl.DeInitVBControl(bso);
+                        thisControl.DeInitVBControl(bso ?? thisControl._LastKnownBSOACComponent);
                 }
             }
         }
@@ -379,8 +388,8 @@ namespace gip.core.layoutengine.avui
 
             try
             {
-                if (BSOACComponent != null)
-                    BSOACComponent.RemoveWPFRef(this.GetHashCode());
+                if ((BSOACComponent ?? _LastKnownBSOACComponent) != null)
+                    (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
             }
             catch (Exception exw)
             {

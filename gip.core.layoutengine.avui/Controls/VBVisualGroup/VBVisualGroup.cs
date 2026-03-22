@@ -14,6 +14,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.layoutengine.avui
 {
@@ -84,6 +85,7 @@ namespace gip.core.layoutengine.avui
             IACObject acObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
             ContentACObject = acObject;
             string styleName = "";
+            TraceGroupState("OnApplyTemplate-Begin");
 
             if (ContentACObject != null && ContentACObject.ACType != null)
             {
@@ -106,6 +108,7 @@ namespace gip.core.layoutengine.avui
 
                         styleName = acClassDesign.ACIdentifier;
                         ApplyControlTheme(resource, styleName);
+                        TraceGroupState("OnApplyTemplate-ThemeApplied");
                     }
                     catch (Exception ex)
                     {
@@ -120,10 +123,12 @@ namespace gip.core.layoutengine.avui
             }
 
             base.OnApplyTemplate(e);
+            TraceGroupState("OnApplyTemplate-AfterBase");
             if (ParentACObject != null)
                 ContentACObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
             UpdateACClassDesign();
             InitVBControl();
+            TraceGroupState("OnApplyTemplate-End");
         }
 
         private void ApplyControlTheme(ResourceDictionary resourceDictionary, string controlThemeKey)
@@ -141,6 +146,7 @@ namespace gip.core.layoutengine.avui
                     _appliedThemeKey = controlThemeKey;
                     _appliedDesignDictionary = resourceDictionary;
                     Theme = theme;
+                    TraceGroupState("ApplyControlTheme-Assigned");
                 }
                 return;
             }
@@ -153,6 +159,7 @@ namespace gip.core.layoutengine.avui
                 {
                     _appliedThemeKey = controlThemeKey;
                     Theme = inheritedTheme;
+                    TraceGroupState("ApplyControlTheme-AssignedInherited");
                 }
             }
         }
@@ -160,6 +167,8 @@ namespace gip.core.layoutengine.avui
 
         #region Loaded-Event
 
+        private IACBSO _LastKnownBSOACComponent = null;
+        private bool _WPFRefAdded = false;
         private IACComponent _LastElementACComponent = null;
         private IACComponent LastElementACComponent
         {
@@ -169,15 +178,29 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if (_LastElementACComponent != null && BSOACComponent != null)
-                    BSOACComponent.RemoveWPFRef(GetHashCode());
+                IACBSO removeBso = BSOACComponent ?? _LastKnownBSOACComponent;
+                if (_WPFRefAdded && _LastElementACComponent != null && removeBso != null)
+                {
+                    try
+                    {
+                        removeBso.RemoveWPFRef(GetHashCode());
+                        _WPFRefAdded = false;
+                    }
+                    catch (Exception exr)
+                    {
+                        this.Root().Messages.LogDebug("VBVisualGroup", "RemoveWPFRef", exr.Message);
+                    }
+                }
 
                 _LastElementACComponent = value;
 
                 try
                 {
                     if (_LastElementACComponent != null && BSOACComponent != null)
+                    {
                         BSOACComponent.AddWPFRef(GetHashCode(), _LastElementACComponent);
+                        _WPFRefAdded = true;
+                    }
                 }
                 catch (Exception exw)
                 {
@@ -198,12 +221,29 @@ namespace gip.core.layoutengine.avui
         {
             if (!_Initialized)
                 return;
+
+            IACBSO removeBso = bso as IACBSO ?? BSOACComponent ?? _LastKnownBSOACComponent;
+            if (_WPFRefAdded && removeBso != null)
+            {
+                try
+                {
+                    removeBso.RemoveWPFRef(GetHashCode());
+                    _WPFRefAdded = false;
+                }
+                catch (Exception exr)
+                {
+                    this.Root().Messages.LogDebug("VBVisualGroup", "DeInitVBControl-RemoveWPFRef", exr.Message);
+                }
+            }
+
             _Initialized = false;
             DoubleTapped -= VBVisualGroup_DoubleTapped;
             _Initialized = false;
+            LastElementACComponent = null;
             _ACClassDesign = null;
             _ACObject = null;
             _VBContentPropertyInfo = null;
+            _LastKnownBSOACComponent = null;
             this.ClearAllBindings();
 
             _PART_Canvas = null;
@@ -215,9 +255,21 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso);
+        }
+
+        private bool ShouldDeInitForBsoChange(IACBSO oldBso)
+        {
+            if (oldBso == null)
+                return false;
+
+            if (oldBso.InitState == ACInitState.Destructed || oldBso.InitState == ACInitState.DisposedToPool)
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -228,17 +280,30 @@ namespace gip.core.layoutengine.avui
         protected override void OnUnloaded(RoutedEventArgs e)
         {
             base.OnUnloaded(e);
+            TraceGroupState("OnUnloaded");
             if (!_Initialized)
                 return;
 
-            if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
-                BSOACComponent.RemoveWPFRef(this.GetHashCode());
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (_WPFRefAdded && bso != null && !String.IsNullOrEmpty(VBContent))
+            {
+                try
+                {
+                    bso.RemoveWPFRef(this.GetHashCode());
+                    _WPFRefAdded = false;
+                }
+                catch (Exception exr)
+                {
+                    this.Root().Messages.LogDebug("VBVisualGroup", "OnUnloaded-RemoveWPFRef", exr.Message);
+                }
+            }
         }
 
 
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
+            TraceGroupState("OnLoaded");
             InitVBControl();
         }
 
@@ -489,21 +554,68 @@ namespace gip.core.layoutengine.avui
         {
             base.OnPropertyChanged(change);
             if (change.Property == ACCompInitStateProperty)
+            {
+                TraceGroupState("ACCompInitStateChanged");
                 InitStateChanged();
+            }
             else if (change.Property == BSOACComponentProperty)
             {
+                TraceGroupState("BSOACComponentChanged");
+                IACBSO newBso = change.NewValue as IACBSO;
+                IACBSO oldBso = change.OldValue as IACBSO;
+
+                if (newBso != null)
+                    _LastKnownBSOACComponent = newBso;
+                else if (oldBso != null && _LastKnownBSOACComponent == null)
+                    _LastKnownBSOACComponent = oldBso;
+
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(VBContent))
                 {
-                    IACBSO bso = change.OldValue as IACBSO;
-                    if (bso != null)
+                    IACBSO bso = oldBso ?? _LastKnownBSOACComponent;
+                    if (ShouldDeInitForBsoChange(bso))
                         DeInitVBControl(bso);
                 }
             }
             else if (change.Property == DataContextProperty)
             {
+                TraceGroupState("DataContextChanged");
                 IACObject acObject = ParentACObject?.ACUrlCommand(VBContent, null) as IACObject;
                 ContentACObject = acObject;
                 LoadDesign();
+            }
+            else if (change.Property == BoundsProperty)
+            {
+                TraceGroupState("BoundsChanged");
+            }
+        }
+
+        private void TraceGroupState(string stage)
+        {
+            try
+            {
+                string msg = string.Format(
+                    "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Theme={4}; DataContext={5}; ContentObj={6}; Parent={7}; CanvasLeft={8}; CanvasTop={9}; IsVisible={10}; Opacity={11}; Bounds={12}; Initialized={13}; MergedDictionaries={14}",
+                    stage,
+                    string.IsNullOrEmpty(Name) ? "<null>" : Name,
+                    string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
+                    string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
+                    Theme?.GetType().Name ?? "<null>",
+                    DataContext?.GetType().Name ?? "<null>",
+                    ContentACObject?.GetType().Name ?? "<null>",
+                    Parent?.GetType().Name ?? "<null>",
+                    Canvas.GetLeft(this),
+                    Canvas.GetTop(this),
+                    IsVisible,
+                    Opacity,
+                    Bounds,
+                    _Initialized,
+                    Resources?.MergedDictionaries?.Count ?? 0);
+
+                this.Root()?.Messages?.LogDebug("VBVisualGroup", "TraceGroupState", msg);
+            }
+            catch
+            {
+                // Diagnostic tracing must never affect control behavior.
             }
         }
 

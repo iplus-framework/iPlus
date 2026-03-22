@@ -235,12 +235,7 @@ namespace gip.core.layoutengine.avui
                 {
                     if (DataContext != _ACObject)
                     {
-                        this.ClearBinding(Control.DataContextProperty);
-                        var binding = new Binding
-                        {
-                            Source = _ACObject
-                        };
-                        this.Bind(Control.DataContextProperty, binding);
+                        DataContext = _ACObject;
                     }
                     if (_ACObject is IACComponent)
                         LastElementACComponent = _ACObject as IACComponent;
@@ -251,6 +246,7 @@ namespace gip.core.layoutengine.avui
         }
 
         private bool _WPFRefAdded = false;
+        private IACBSO _LastKnownBSOACComponent = null;
         private IACComponent _LastElementACComponent = null;
         private IACComponent LastElementACComponent
         {
@@ -260,11 +256,12 @@ namespace gip.core.layoutengine.avui
             }
             set
             {
-                if (_LastElementACComponent != null && BSOACComponent != null)
+                IACBSO removeBso = BSOACComponent ?? _LastKnownBSOACComponent;
+                if (_WPFRefAdded && _LastElementACComponent != null && removeBso != null)
                 {
                     try
                     {
-                        BSOACComponent.RemoveWPFRef(GetHashCode());
+                        removeBso.RemoveWPFRef(GetHashCode());
                         _WPFRefAdded = false;
                     }
                     catch (Exception e)
@@ -282,6 +279,7 @@ namespace gip.core.layoutengine.avui
 
                 if (_LastElementACComponent != null && BSOACComponent != null)
                 {
+                    _LastKnownBSOACComponent = BSOACComponent;
                     if (_LastElementACComponent.InitState == ACInitState.Initializing || _LastElementACComponent.InitState == ACInitState.Initialized || _LastElementACComponent.InitState == ACInitState.Constructed)
                     {
                         try
@@ -678,13 +676,25 @@ namespace gip.core.layoutengine.avui
                     thisControl.LoadDesign();
             }
             else if (change.Property == ACCompInitStateProperty)
+            {
+                TraceLayoutState("ACCompInitStateChanged", Content as Visual);
                 thisControl.InitStateChanged();
+            }
             else if (change.Property == BSOACComponentProperty)
             {
+                TraceLayoutState("BSOACComponentChanged", Content as Visual);
+                IACBSO newBso = change.NewValue as IACBSO;
+                IACBSO oldBso = change.OldValue as IACBSO;
+
+                if (newBso != null)
+                    _LastKnownBSOACComponent = newBso;
+                else if (oldBso != null)
+                    _LastKnownBSOACComponent = oldBso;
+
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = change.OldValue as IACBSO;
-                    if (bso != null)
+                    IACBSO bso = oldBso ?? _LastKnownBSOACComponent;
+                    if (ShouldDeInitForBsoChange(bso))
                         thisControl.DeInitVBControl(bso);
                 }
             }
@@ -702,6 +712,24 @@ namespace gip.core.layoutengine.avui
             {
                 // Update drag and drop handlers when DragEnabled property changes
                 UpdateDragDropHandlers();
+            }
+            else if (change.Property == BoundsProperty)
+            {
+                TraceLayoutState("BoundsChanged", Content as Visual);
+            }
+            else if (change.Property == ContentProperty)
+            {
+                TraceLayoutState("ContentChanged", Content as Visual);
+            }
+            else if (change.Property == DataContextProperty)
+            {
+                // DataContext often arrives after template/load in dynamic layouts.
+                // If this visual was not initialized yet, try initialization now.
+                TraceLayoutState("DataContextChanged", Content as Visual);
+                if (!thisControl._VBInitialized && change.NewValue != null)
+                {
+                    thisControl.InitVBControl();
+                }
             }
         }
         #endregion
@@ -727,28 +755,33 @@ namespace gip.core.layoutengine.avui
                 else
                     ContentACObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
             }
+            TraceLayoutState("OnApplyTemplate", Content as Visual);
             UpdateACClassDesign();
             InitVBControl();
         }
 
 
         protected bool _VBInitialized = false;
+        protected bool _VBInitializing = false;
         protected bool _VBContentBindedLate = false;
         protected bool _VBLoaded = false;
 
         protected virtual void InitVBControl()
         {
-            if (_VBInitialized)
+            if (_VBInitialized || _VBInitializing)
             {
                 InsertVBVisual();
                 return;
             }
+
+            _VBInitializing = true;
+            try
+            {
             if (DisableContextMenu)
                 ContextFlyout = null;
 
             if (this.DataContext == null)
             {
-                _VBInitialized = true;
                 return;
             }
             if (string.IsNullOrEmpty(VBContent) && !VBDynamicContent)
@@ -776,6 +809,7 @@ namespace gip.core.layoutengine.avui
 
             if (BSOACComponent != null)
             {
+                _LastKnownBSOACComponent = BSOACComponent;
                 var binding = new Binding
                 {
                     Source = BSOACComponent,
@@ -817,13 +851,7 @@ namespace gip.core.layoutengine.avui
                         ContentACObject = acObject;
                         if (acObject is IACObject && (_ACObject != acObject || DataContext != _ACObject))
                         {
-                            this.ClearBinding(Control.DataContextProperty);
-                            var binding = new Binding
-                            {
-                                Source = acObject
-                            };
-                            this.Bind(Control.DataContextProperty, binding);
-                            //DataContext = acObject;
+                            DataContext = acObject;
                             if (ContentACObject is IACComponent)
                                 LastElementACComponent = ContentACObject as IACComponent;
 
@@ -884,12 +912,7 @@ namespace gip.core.layoutengine.avui
                     ContentACObject = acObject;
                     if (acObject is IACObject && (_ACObject != acObject || DataContext != _ACObject))
                     {
-                        this.ClearBinding(Control.DataContextProperty);
-                        var binding = new Binding
-                        {
-                            Source = acObject
-                        };
-                        this.Bind(Control.DataContextProperty, binding);
+                        DataContext = acObject;
                     }
                     LoadDesign();
                 }
@@ -950,13 +973,7 @@ namespace gip.core.layoutengine.avui
                     ContentACObject = acObject;
                     if (acObject is IACObject && (_ACObject != acObject || DataContext != _ACObject))
                     {
-                        this.ClearBinding(Control.DataContextProperty);
-                        var binding = new Binding
-                        {
-                            Source = acObject
-                        };
-                        this.Bind(Control.DataContextProperty, binding);
-                        //DataContext = acObject;
+                        DataContext = acObject;
                     }
                     LoadDesign();
                 }
@@ -1010,11 +1027,17 @@ namespace gip.core.layoutengine.avui
 
             _VBInitialized = true;
             InsertVBVisual();
+            }
+            finally
+            {
+                _VBInitializing = false;
+            }
         }
 
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
+            TraceLayoutState("OnLoaded", Content as Visual);
             InitVBControl();
             if (_VBLoaded)
                 return;
@@ -1041,16 +1064,18 @@ namespace gip.core.layoutengine.avui
         protected override void OnUnloaded(RoutedEventArgs e)
         {
             base.OnUnloaded(e);      
+            TraceLayoutState("OnUnloaded", Content as Visual);
             if (!_VBLoaded)
                 return;
 
             RemoveVBVisual();
 
-            if (_WPFRefAdded && BSOACComponent != null)
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (_WPFRefAdded && bso != null)
             {
                 try
                 {
-                    BSOACComponent.RemoveWPFRef(GetHashCode());
+                    bso.RemoveWPFRef(GetHashCode());
                     _WPFRefAdded = false;
                 }
                 catch (Exception ec)
@@ -1069,13 +1094,28 @@ namespace gip.core.layoutengine.avui
 
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso);
+        }
+
+        private bool ShouldDeInitForBsoChange(IACBSO oldBso)
+        {
+            if (oldBso == null)
+                return false;
+
+            // During template/binding churn BSO can temporarily become null.
+            // Only deinit on real component shutdown/dispose.
+            if (oldBso.InitState == ACInitState.Destructed || oldBso.InitState == ACInitState.DisposedToPool)
+                return true;
+
+            return false;
         }
 
         public virtual void DeInitVBControl(IACComponent bso)
         {
+            TraceLayoutState("DeInitVBControl-Begin", Content as Visual);
             if (!_VBInitialized)
                 return;
             if (_WPFRefAdded && bso != null && bso is IACBSO)
@@ -1101,9 +1141,11 @@ namespace gip.core.layoutengine.avui
             _ACClassDesign = null;
             _ACObject = null;
             _VBContentValueType = null;
+            _LastKnownBSOACComponent = null;
             this.ClearAllBindings();
             DataContext = null;
             Content = null;
+            TraceLayoutState("DeInitVBControl-End", Content as Visual);
         }
 
         /// <summary>
@@ -1156,6 +1198,7 @@ namespace gip.core.layoutengine.avui
             ACClassDesign = null;
             UpdateACClassDesign();
 
+            TraceLayoutState("LoadDesign-Before", Content as Visual);
             Content = null;
             Visual uiElement = null;
             if (ACClassDesign != null && (!string.IsNullOrEmpty(ACClassDesign.XMLDesign) || !string.IsNullOrEmpty(ACClassDesign.XMLDesign2)))
@@ -1166,12 +1209,51 @@ namespace gip.core.layoutengine.avui
                 ContentControl contentControl = new ContentControl();
                 uiElement = contentControl;
             }
+
+            if (uiElement == null)
+                TraceLayoutState("LoadDesign-ResultNull", null);
+            else
+                TraceLayoutState("LoadDesign-Result", uiElement);
+
             Content = uiElement;
+            TraceLayoutState("LoadDesign-Assigned", Content as Visual);
             OnDesignLoaded();
         }
 
         protected virtual void OnDesignLoaded()
         {
+            TraceLayoutState("OnDesignLoaded", Content as Visual);
+        }
+
+        private void TraceLayoutState(string stage, Visual visual)
+        {
+            try
+            {
+                string msg = string.Format(
+                    "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Design={4}; Context={5}; ContentObj={6}; Visual={7}; Parent={8}; CanvasLeft={9}; CanvasTop={10}; IsVisible={11}; Opacity={12}; Bounds={13}; Initialized={14}; Initializing={15}",
+                    stage,
+                    string.IsNullOrEmpty(Name) ? "<null>" : Name,
+                    string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
+                    string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
+                    ACClassDesign?.ACIdentifier ?? "<null>",
+                    ContextACObject?.GetType().Name ?? "<null>",
+                    ContentACObject?.GetType().Name ?? "<null>",
+                    visual?.GetType().Name ?? "<null>",
+                    Parent?.GetType().Name ?? "<null>",
+                    Canvas.GetLeft(this),
+                    Canvas.GetTop(this),
+                    IsVisible,
+                    Opacity,
+                    Bounds,
+                    _VBInitialized,
+                    _VBInitializing);
+
+                this.Root()?.Messages?.LogDebug("VBVisual", "TraceLayoutState", msg);
+            }
+            catch
+            {
+                // Diagnostic tracing must never affect control behavior.
+            }
         }
         #endregion
 

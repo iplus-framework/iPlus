@@ -20,6 +20,7 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBHeader'}de{'VBHeader'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBHeader : TemplatedControl, IVBContent, IACObject
     {
+        private IACBSO _LastKnownBSOACComponent = null;
         #region c'tors
 
         /// <summary>
@@ -197,11 +198,17 @@ namespace gip.core.layoutengine.avui
 
         private void OnBSOACComponentChanged(AvaloniaPropertyChangedEventArgs e)
         {
+            IACBSO newBso = e.NewValue as IACBSO;
+            IACBSO oldBso = e.OldValue as IACBSO;
+            if (newBso != null)
+                _LastKnownBSOACComponent = newBso;
+            else if (oldBso != null)
+                _LastKnownBSOACComponent = oldBso;
             if (e.NewValue == null && e.OldValue != null && !String.IsNullOrEmpty(this.VBContent))
             {
                 IACBSO bso = e.OldValue as IACBSO;
-                if (bso != null)
-                    this.DeInitVBControl(bso);
+                if (bso != null && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
+                    this.DeInitVBControl(bso ?? _LastKnownBSOACComponent);
             }
         }
 
@@ -394,7 +401,7 @@ namespace gip.core.layoutengine.avui
                 return;
 
             if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
-                BSOACComponent.RemoveWPFRef(this.GetHashCode());
+                (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
 
             _Loaded = false;
         }
@@ -420,6 +427,7 @@ namespace gip.core.layoutengine.avui
             this.ClearValue(VBHeader.ACCaptionTransProperty);
             this.ClearValue(VBHeader.ACCompInitStateProperty);
             this.ClearAllBindings();
+            _LastKnownBSOACComponent = null;
         }
 
 
@@ -428,9 +436,10 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         protected void InitStateChanged()
         {
-            if (BSOACComponent != null &&
+            IACBSO bso = BSOACComponent ?? _LastKnownBSOACComponent;
+            if (bso != null &&
                 (ACCompInitState == ACInitState.Destructed || ACCompInitState == ACInitState.DisposedToPool))
-                DeInitVBControl(BSOACComponent);
+                DeInitVBControl(bso ?? _LastKnownBSOACComponent);
         }
 
         /// <summary>
