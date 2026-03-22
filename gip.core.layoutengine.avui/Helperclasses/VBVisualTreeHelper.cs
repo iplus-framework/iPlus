@@ -265,6 +265,9 @@ namespace gip.core.layoutengine.avui.Helperclasses
 
         public static Control FindChildVBContentObjectInVisualTree(Control startObj, string vbContentXName)
         {
+            if (startObj == null || string.IsNullOrWhiteSpace(vbContentXName))
+                return null;
+
             string[] result = vbContentXName.Split(new String[]{"\\"}, StringSplitOptions.RemoveEmptyEntries);
             if (result == null || !result.Any())
                 return null;

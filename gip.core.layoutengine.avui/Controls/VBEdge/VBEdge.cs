@@ -19,6 +19,7 @@ using Avalonia.Interactivity;
 using Avalonia.Controls;
 using Avalonia.VisualTree;
 using Avalonia.Input;
+using Avalonia.Threading;
 
 namespace gip.core.layoutengine.avui
 {
@@ -175,9 +176,13 @@ namespace gip.core.layoutengine.avui
         {
             ArrowEndsProperty.OverrideMetadata(typeof(VBEdge), new StyledPropertyMetadata<ArrowEnds>(ArrowEnds.End));//, FrameworkPropertyMetadataOptions.AffectsMeasure));
             IsArrowClosedProperty.OverrideMetadata(typeof(VBEdge), new StyledPropertyMetadata<bool>(true)); //, FrameworkPropertyMetadataOptions.AffectsMeasure));
+            AffectsGeometry<VBEdge>(DataProperty);
         }
 
         private static bool _NewEdgeRouting = false;
+        private bool _ConnectorResolveScheduled;
+        private int _ConnectorResolveAttempts;
+        private const int MaxConnectorResolveAttempts = 64;
 
         /// <summary>
         /// The event hander for Initialized event.
@@ -190,12 +195,17 @@ namespace gip.core.layoutengine.avui
         protected override void OnLoaded(RoutedEventArgs e)
         {
             base.OnLoaded(e);
-            InitConnectionPoints();
+            _ConnectorResolveAttempts = 0;
+            LayoutUpdated += VBEdge_LayoutUpdated;
+            ScheduleConnectorResolve();
         }
 
         protected override void OnUnloaded(RoutedEventArgs e)
         {
             base.OnUnloaded(e);
+            LayoutUpdated -= VBEdge_LayoutUpdated;
+            _ConnectorResolveScheduled = false;
+            _ConnectorResolveAttempts = 0;
             // Remove List in VBConnector
             this.Source = null;
             this.Target = null;
@@ -204,42 +214,78 @@ namespace gip.core.layoutengine.avui
 
         private void InitConnectionPoints()
         {
-            if ((this.Source != null) || (this.Target != null))
+            if (this.Source != null && this.Target != null)
                 return;
-            this.Source = GetConnector(VBConnectorSource);
-            this.Target = GetConnector(VBConnectorTarget);
-            if ((this.Source != null) || (this.Target != null))
-            {
-                CalculateNewConnectorPos();
-                if (_NewEdgeRouting)
-                    TransformConnectorPosToPolylinePoints();
-                Geometry newGeo = GetConnectionPathGeometry();
-                if (!_NewEdgeRouting)
-                    newGeo = TransformGeometryToZeroCoord(newGeo);
 
-                this.Data = newGeo;
-                UpdatePlacementOfParentContainer(_NewSourcePosition, _NewTargetPosition);
+            if (this.Source == null)
+                this.Source = GetConnector(VBConnectorSource);
+            if (this.Target == null)
+                this.Target = GetConnector(VBConnectorTarget);
+
+            if (this.Source == null || this.Target == null)
+                return;
+
+            UpdateEdgeGeometry();
+        }
+
+        private void VBEdge_LayoutUpdated(object sender, EventArgs e)
+        {
+            if (!IsLoaded)
+                return;
+
+            if (Source == null || Target == null)
+            {
+                InitConnectionPoints();
+                if (Source == null || Target == null)
+                    ScheduleConnectorResolve();
+                return;
             }
+
+            OnRender();
+        }
+
+        private void ScheduleConnectorResolve()
+        {
+            if (_ConnectorResolveScheduled || !IsLoaded)
+                return;
+
+            _ConnectorResolveScheduled = true;
+            Dispatcher.UIThread.Post(() =>
+            {
+                _ConnectorResolveScheduled = false;
+                if (!IsLoaded)
+                    return;
+
+                if (_ConnectorResolveAttempts >= MaxConnectorResolveAttempts)
+                    return;
+
+                _ConnectorResolveAttempts++;
+                InitConnectionPoints();
+                if (Source == null || Target == null)
+                    ScheduleConnectorResolve();
+                else
+                {
+                    _ConnectorResolveAttempts = 0;
+                    InvalidateVisual();
+                }
+            }, DispatcherPriority.Loaded);
         }
         #endregion
 
         #region Dependency-Properties
 
         #region Geometry-Data
-        //public static readonly DependencyProperty DataProperty
-        //    = DependencyProperty.Register("Data", typeof(Geometry), typeof(VBEdge), new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.AffectsRender));
-
-        //public Geometry Data
-        //{
-        //    get { return (Geometry)GetValue(DataProperty); }
-        //    set { SetValue(DataProperty, value); }
-        //}
+        public static readonly StyledProperty<Geometry> DataProperty = AvaloniaProperty.Register<VBEdge, Geometry>(nameof(Data));
 
 
         /// <summary>
         /// Gets or sets the geometry data.
         /// </summary>
-        public Geometry Data { get; set; }
+        public Geometry Data
+        {
+            get { return GetValue(DataProperty); }
+            set { SetValue(DataProperty, value); }
+        }
 
         /// <summary>
         /// Gets the defining geometry.
@@ -250,10 +296,10 @@ namespace gip.core.layoutengine.avui
             {
                 if (_NewEdgeRouting)
                     InitConnectionPoints();
-                return base.DefiningGeometry;
+                return base.CreateDefiningGeometry();
             }
             if (_NewEdgeRouting)
-                return this.Data != null ? this.Data : base.DefiningGeometry;
+                return this.Data != null ? this.Data : base.CreateDefiningGeometry();
             else
                 return this.Data;
         }
@@ -440,10 +486,11 @@ namespace gip.core.layoutengine.avui
         /// <returns>The line path geometry.</returns>
         public Geometry GetLinePathGeo()
         {
-            Points.Clear();
-            Points.Add(_NewSourcePosition);
-            Points.Add(_NewTargetPosition);
-            return GetPathGeometry(Points, this.ArrowEnds, 6, 50, true);
+            var points = EnsureMutablePoints(true);
+            points.Clear();
+            points.Add(_NewSourcePosition);
+            points.Add(_NewTargetPosition);
+            return GetPathGeometry(points, this.ArrowEnds, 6, 50, true);
         }
 
         /// <summary>
@@ -452,18 +499,25 @@ namespace gip.core.layoutengine.avui
         /// <returns>The connection path geometry.</returns>
         public Geometry GetConnectionPathGeometry()
         {
-            if (Points == null)
+            return GetConnectionPathGeometry(true);
+        }
+
+        private Geometry GetConnectionPathGeometry(bool includeArrows)
+        {
+            var points = EnsureMutablePoints(false);
+            if (points == null)
                 return null;
 
-            if (Points.Count <= 2)
+            if (points.Count <= 2)
             {
-                Points.Clear();
-                Points.Add(_NewSourcePosition);
-                Points.Add(_NewTargetPosition);
+                points.Clear();
+                points.Add(_NewSourcePosition);
+                points.Add(_NewTargetPosition);
             }
             Point start, end;
-            Points = gip.ext.designer.avui.Controls.DrawShapesAdornerBase.TranslatePointsToBounds(Points, out start, out end);
-            return GetPathGeometry(Points, this.ArrowEnds, 6, 50, true);
+            Points = gip.ext.designer.avui.Controls.DrawShapesAdornerBase.TranslatePointsToBounds(points, out start, out end);
+            ArrowEnds arrowEnds = includeArrows ? this.ArrowEnds : ArrowEnds.None;
+            return GetPathGeometry(Points, arrowEnds, 6, 50, true);
         }
 
         /// <summary>
@@ -591,12 +645,38 @@ namespace gip.core.layoutengine.avui
         private void OnRender()
         {
             //base.Render(drawingContext);
-            InitConnectionPoints();
+            if (!IsLoaded)
+                return;
+
+            if (Source == null || Target == null)
+            {
+                InitConnectionPoints();
+                if (Source == null || Target == null)
+                {
+                    ScheduleConnectorResolve();
+                    return;
+                }
+
+                _ConnectorResolveAttempts = 0;
+            }
             if (Source != null && Target != null && ParentContainerOfEdge != null)
             {
+                UpdateEdgeGeometry();
                 _LastRendererSourcePosition = Source.GetPointRelativeToContainer(ParentContainerOfEdge);
                 _LastRendererTargetPosition = Target.GetPointRelativeToContainer(ParentContainerOfEdge);
             }
+        }
+
+        private void UpdateEdgeGeometry()
+        {
+            CalculateNewConnectorPos();
+            if (ParentContainerOfEdge == null)
+                return;
+
+            Geometry newGeo = BuildEdgeGeometry();
+
+            this.Data = newGeo;
+            UpdatePlacementOfParentContainer(_NewSourcePosition, _NewTargetPosition);
         }
 
         void SourceConnector_LayoutUpdated(object sender, EventArgs e)
@@ -604,11 +684,7 @@ namespace gip.core.layoutengine.avui
             CalculateNewConnectorPos();
             if (_NewSourcePosition != _LastRendererSourcePosition)
             {
-                if (_NewEdgeRouting)
-                    TransformConnectorPosToPolylinePoints();
-                Geometry newGeo = GetLineGeometry(_NewSourcePosition, _NewTargetPosition);
-                if (!_NewEdgeRouting)
-                    newGeo = TransformGeometryToZeroCoord(newGeo);
+                Geometry newGeo = BuildEdgeGeometry();
                 this.Data = newGeo;
                 UpdatePlacementOfParentContainer(_NewSourcePosition, _NewTargetPosition);
                 OnVBEdgeRedraw(newGeo);
@@ -620,11 +696,7 @@ namespace gip.core.layoutengine.avui
             CalculateNewConnectorPos();
             if (_NewTargetPosition != _LastRendererTargetPosition)
             {
-                if (_NewEdgeRouting)
-                    TransformConnectorPosToPolylinePoints();
-                Geometry newGeo = GetLineGeometry(_NewSourcePosition, _NewTargetPosition);
-                if (!_NewEdgeRouting)
-                    newGeo = TransformGeometryToZeroCoord(newGeo);
+                Geometry newGeo = BuildEdgeGeometry();
                 this.Data = newGeo;
                 UpdatePlacementOfParentContainer(_NewSourcePosition, _NewTargetPosition);
                 OnVBEdgeRedraw(newGeo);
@@ -645,15 +717,29 @@ namespace gip.core.layoutengine.avui
                 CalculateNewConnectorPos();
 
             if (isFromDrag && Points != null)
-                Points.Clear();
-            if (_NewEdgeRouting)
-                TransformConnectorPosToPolylinePoints();
-            Geometry newGeo = GetConnectionPathGeometry();
-            if (!_NewEdgeRouting)
-                newGeo = TransformGeometryToZeroCoord(newGeo);
+                EnsureMutablePoints(true).Clear();
+            Geometry newGeo = BuildEdgeGeometry();
             this.Data = newGeo;
             UpdatePlacementOfParentContainer(_NewSourcePosition, _NewTargetPosition);
             InvalidateVisual();
+        }
+
+        private Geometry BuildEdgeGeometry()
+        {
+            if (_NewEdgeRouting)
+            {
+                TransformConnectorPosToPolylinePoints();
+                return GetConnectionPathGeometry(true);
+            }
+
+            if (Points != null && Points.Count > 1)
+            {
+                // Serialized workflow routes are stored as relative polyline points.
+                // Keep them unchanged to avoid stretching lines across the full canvas.
+                return GetConnectionPathGeometry(false);
+            }
+
+            return TransformGeometryToZeroCoord(GetLineGeometry(_NewSourcePosition, _NewTargetPosition));
         }
 
         void CalculateNewConnectorPos()
@@ -672,7 +758,7 @@ namespace gip.core.layoutengine.avui
             if (_NewEdgeRouting)
             {
                 bool rebuildPoints = true;
-                if (Points.Any() && Points.Count >= 2)
+                if (Points != null && Points.Any() && Points.Count >= 2)
                 {
                     if (Points[0] == _NewSourcePosition && Points.Last() == _NewTargetPosition)
                         rebuildPoints = false;
@@ -680,12 +766,36 @@ namespace gip.core.layoutengine.avui
 
                 if (rebuildPoints)
                 {
-                    if (Points == null || !Points.Any())
-                        Points = new List<Point>();
-                    Points.Insert(0, _NewSourcePosition);
-                    Points.Insert(Points.Count, _NewTargetPosition);
+                    var points = EnsureMutablePoints(true);
+                    if (!points.Any())
+                    {
+                        points.Add(_NewSourcePosition);
+                        points.Add(_NewTargetPosition);
+                    }
+                    else
+                    {
+                        points.Insert(0, _NewSourcePosition);
+                        points.Insert(points.Count, _NewTargetPosition);
+                    }
                 }
             }
+        }
+
+        private IList<Point> EnsureMutablePoints(bool createIfNull)
+        {
+            if (Points == null)
+            {
+                if (!createIfNull)
+                    return null;
+
+                Points = new List<Point>();
+                return Points;
+            }
+
+            if (Points.IsReadOnly)
+                Points = Points.ToList();
+
+            return Points;
         }
 
         void TransformConnectorPosToPolylinePoints()
@@ -708,6 +818,30 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        private static bool AreClose(double a, double b)
+        {
+            return Math.Abs(a - b) < 0.0001;
+        }
+
+        private void SetSizeIfChanged(double width, double height)
+        {
+            if (!AreClose(this.Width, width))
+                this.Width = width;
+            if (!AreClose(this.Height, height))
+                this.Height = height;
+        }
+
+        private void SetCanvasPositionIfChanged(double left, double top)
+        {
+            double currentLeft = Canvas.GetLeft(this);
+            if (double.IsNaN(currentLeft) || !AreClose(currentLeft, left))
+                Canvas.SetLeft(this, left);
+
+            double currentTop = Canvas.GetTop(this);
+            if (double.IsNaN(currentTop) || !AreClose(currentTop, top))
+                Canvas.SetTop(this, top);
+        }
+
         private void UpdatePlacementOfParentContainer(Point sourceConnector, Point targetConnector)
         {
             if (ParentContainerOfEdge == null)
@@ -718,24 +852,28 @@ namespace gip.core.layoutengine.avui
             {
                 if (ParentContainerOfEdge is Canvas)
                 {
-                    var x = DefiningGeometry;
-                    if (x == null)
+                    var geometry = Data ?? DefiningGeometry;
+                    if (geometry == null)
                         return;
-                    this.Width = DefiningGeometry.Bounds.Width+2;
-                    this.Height = DefiningGeometry.Bounds.Height+2;
+                    SetSizeIfChanged(geometry.Bounds.Width + 2, geometry.Bounds.Height + 2);
                     //this.Width = position.Width;
                     //this.Height = position.Height;
-                    if (DefiningGeometry is PathGeometry)
+                    if (geometry is PathGeometry pathGeometry)
                     {
-                        PathGeometry pathGeometry = DefiningGeometry as PathGeometry;
                         PathFigure pathFigure = pathGeometry.Figures.FirstOrDefault();
-                        Canvas.SetLeft(this, sourceConnector.X - pathFigure.StartPoint.X);
-                        Canvas.SetTop(this, sourceConnector.Y - pathFigure.StartPoint.Y);
+                        if (pathFigure != null)
+                        {
+                            SetCanvasPositionIfChanged(sourceConnector.X - pathFigure.StartPoint.X,
+                                                       sourceConnector.Y - pathFigure.StartPoint.Y);
+                        }
+                        else
+                        {
+                            SetCanvasPositionIfChanged(position.Left, position.Top);
+                        }
                     }
                     else
                     {
-                        Canvas.SetLeft(this, position.Left);
-                        Canvas.SetTop(this, position.Top);
+                        SetCanvasPositionIfChanged(position.Left, position.Top);
                     }
                 }
             }

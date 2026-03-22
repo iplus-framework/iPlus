@@ -112,6 +112,8 @@ namespace gip.ext.graphics.avui.shapes
             {
                 // Define a PathFigure containing the points.
                 pathfigLine.StartPoint = points[0];
+                pathfigLine.IsClosed = false;
+                pathfigLine.IsFilled = false;
                 polysegLine.Points.Clear();
 
                 for (int i = 1; i < points.Count; i++)

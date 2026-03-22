@@ -93,6 +93,8 @@ namespace gip.ext.graphics.avui.shapes
             _PathGeo = new PathGeometry();
 
             _PathfigLine = new PathFigure();
+            _PathfigLine.IsClosed = false;
+            _PathfigLine.IsFilled = false;
             _PolysegLine = new PolyLineSegment();
             _PathfigLine.Segments.Add(_PolysegLine);
 
