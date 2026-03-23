@@ -12,13 +12,31 @@ using System.Xml;
 using System.Xml.Serialization;
 using System.Reflection;
 using Microsoft.Isam.Esent.Collections.Generic;
+using FASTER.core;
 using gip.core.datamodel;
 using System.Globalization;
 
 namespace gip.core.autocomponent
 {
+    public enum ACPropertyLogStorageBackend
+    {
+        PersistentDictionary = 0,
+        FasterLog = 1
+    }
+
+    public static class ACPropertyValueLogSettings
+    {
+        public static ACPropertyLogStorageBackend StorageBackend { get; set; } = ACPropertyLogStorageBackend.PersistentDictionary;
+    }
+
     public class ACPropertyValueLog<T>
     {
+        public static ACPropertyLogStorageBackend StorageBackend
+        {
+            get => ACPropertyValueLogSettings.StorageBackend;
+            set => ACPropertyValueLogSettings.StorageBackend = value;
+        }
+
         public ACPropertyValueLog(ACPropertyNetServerBase<T> property2Log)
         {
             _property2Log = property2Log;
@@ -43,7 +61,7 @@ namespace gip.core.autocomponent
         private DateTime _LastLogTime = DateTime.MinValue;
         internal void LogCurrentValue()
         {
-            if (PropertyLogDict == null)
+            if (PropertyLogStore == null)
             {
                 if (IsRefreshCycleElapsed && ApplyFilter_IsLogable)
                 {
@@ -59,9 +77,9 @@ namespace gip.core.autocomponent
                 {
                     try
                     {
-                        if (PropertyLogDict.Any())
+                        if (PropertyLogStore.Any())
                         {
-                            KeyValuePair<DateTime, T> lastEntry = PropertyLogDict.Last();
+                            KeyValuePair<DateTime, T> lastEntry = PropertyLogStore.Last();
                             _LastLogTime = lastEntry.Key;
                             _LastLogValue = lastEntry.Value;
                         }
@@ -93,8 +111,8 @@ namespace gip.core.autocomponent
 
         public void AddValue(T value, DateTime stamp)
         {
-            if (PropertyLogDict != null)
-                PropertyLogDict[stamp] = value;
+            if (PropertyLogStore != null)
+                PropertyLogStore.Set(stamp, value);
         }
 
         private const string C_DT_FormatPrefix = "yyyyMM";
@@ -103,7 +121,7 @@ namespace gip.core.autocomponent
         {
             PropertyLogListInfo pLInfo = null;
             DateTime now = DateTime.Now;
-            if (  PropertyLogDict == null
+            if (  PropertyLogStore == null
                 || from > now
                 || to < from)
             {
@@ -136,20 +154,20 @@ namespace gip.core.autocomponent
                                     if (   (from.Month == fileMonth.Month && from.Year == fileMonth.Year)
                                         || (to.Month == fileMonth.Month && to.Year == fileMonth.Year))
                                     {
-                                        if (PropertyLogDict.DatabasePath == fileDict.FullName)
+                                        if (PropertyLogStore.StoragePath == fileDict.FullName)
                                             continue;
-                                        using (PersistentDictionary<DateTime, T> oldDict = new PersistentDictionary<DateTime, T>(fileDict.FullName))
+                                        using (IPropertyLogStorage<T> oldStore = CreateStorage(fileDict.FullName))
                                         {
                                             if (pLInfo == null)
                                             {
                                                 pLInfo = new PropertyLogListInfo((_property2Log.ACType as ACClassProperty).LogRefreshRate,
-                                                       oldDict.Where(c => c.Key >= from && c.Key <= to)
+                                                       oldStore.QueryRange(from, to)
                                                             .Select(c => new PropertyLogItem() { Time = c.Key, Value = c.Value })
                                                             .ToList());
                                             }
                                             else
                                             {
-                                                (pLInfo.PropertyLogList as List<PropertyLogItem>).AddRange(oldDict.Where(c => c.Key >= from && c.Key <= to)
+                                                (pLInfo.PropertyLogList as List<PropertyLogItem>).AddRange(oldStore.QueryRange(from, to)
                                                             .Select(c => new PropertyLogItem() { Time = c.Key, Value = c.Value }));
                                             }
                                         }
@@ -173,13 +191,13 @@ namespace gip.core.autocomponent
                     if (pLInfo == null)
                     {
                         pLInfo = new PropertyLogListInfo((_property2Log.ACType as ACClassProperty).LogRefreshRate,
-                                                       PropertyLogDict.Where(c => c.Key >= from && c.Key <= to)
+                                                       PropertyLogStore.QueryRange(from, to)
                                                             .Select(c => new PropertyLogItem() { Time = c.Key, Value = c.Value })
                                                             .ToList());
                     }
                     else
                     {
-                        (pLInfo.PropertyLogList as List<PropertyLogItem>).AddRange(PropertyLogDict.Where(c => c.Key >= from && c.Key <= to)
+                        (pLInfo.PropertyLogList as List<PropertyLogItem>).AddRange(PropertyLogStore.QueryRange(from, to)
                                     .Select(c => new PropertyLogItem() { Time = c.Key, Value = c.Value }));
                     }
                 }
@@ -279,20 +297,20 @@ namespace gip.core.autocomponent
         private DateTime _LastSaveTime = DateTime.Now;
         public void SaveChanges(bool isDeInit = false)
         {
-            if (isDeInit || _PropertyLogDict == null)
+            if (isDeInit || _PropertyLogStore == null)
                 return;
 
             using (ACMonitor.Lock(_property2Log._20015_LockValue))
             {
-                PropertyLogDict.Flush();
+                PropertyLogStore.Flush();
             }
             _LastSaveTime = DateTime.Now;
         }
 
         private bool _LogDeletionChecked = false;
         private DateTime _PropertyLogFileStamp = DateTime.MinValue;
-        private PersistentDictionary<DateTime, T> _PropertyLogDict = null;
-        public PersistentDictionary<DateTime, T> PropertyLogDict
+        private IPropertyLogStorage<T> _PropertyLogStore = null;
+        public IPropertyLogStorage<T> PropertyLogStore
         {
             get
             {
@@ -300,7 +318,7 @@ namespace gip.core.autocomponent
 
                 using (ACMonitor.Lock(_property2Log._20015_LockValue))
                 {
-                    if ((_PropertyLogDict == null)
+                    if ((_PropertyLogStore == null)
                         || (_PropertyLogFileStamp == DateTime.MinValue)
                         || (_PropertyLogFileStamp.Year != dtNow.Year)
                         || (_PropertyLogFileStamp.Month != dtNow.Month))
@@ -309,12 +327,15 @@ namespace gip.core.autocomponent
                         if (!String.IsNullOrEmpty(fileName))
                         {
                             _PropertyLogFileStamp = DateTime.MinValue;
-                            if (_PropertyLogDict != null)
-                                _PropertyLogDict.Flush();
-                            _PropertyLogDict = null;
+                            if (_PropertyLogStore != null)
+                            {
+                                _PropertyLogStore.Flush();
+                                _PropertyLogStore.Dispose();
+                            }
+                            _PropertyLogStore = null;
                             try
                             {
-                                _PropertyLogDict = new PersistentDictionary<DateTime, T>(fileName);
+                                _PropertyLogStore = CreateStorage(fileName);
                                 _PropertyLogFileStamp = dtNow;
                             }
                             catch (Exception e)
@@ -329,15 +350,22 @@ namespace gip.core.autocomponent
                     else if (!_LogDeletionChecked)
                         DeleteOldDictionaries(dtNow);
                 }
-                return _PropertyLogDict;
+                return _PropertyLogStore;
             }
+        }
+
+        private IPropertyLogStorage<T> CreateStorage(string fileName)
+        {
+            if (StorageBackend == ACPropertyLogStorageBackend.FasterLog)
+                return new FasterLogStorage<T>(fileName);
+            return new PersistentDictionaryStorage<T>(fileName);
         }
 
         private string GetFileName(DateTime stamp)
         {
             if (String.IsNullOrEmpty(PathOfDirectory))
                 return "";
-            return PathOfDirectory + "\\" + stamp.ToString(C_DT_FormatPrefix) + "." + _property2Log.ACIdentifier + ".edb";
+            return Path.Combine(PathOfDirectory, stamp.ToString(C_DT_FormatPrefix) + "." + _property2Log.ACIdentifier + ".edb");
         }
 
         private void DeleteOldDictionaries(DateTime stamp)
@@ -432,6 +460,217 @@ namespace gip.core.autocomponent
 
     }
 
+    public interface IPropertyLogStorage<T> : IDisposable
+    {
+        string StoragePath { get; }
+        bool Any();
+        KeyValuePair<DateTime, T> Last();
+        IEnumerable<KeyValuePair<DateTime, T>> QueryRange(DateTime from, DateTime to);
+        void Set(DateTime stamp, T value);
+        void Flush();
+    }
+
+    internal sealed class PersistentDictionaryStorage<T> : IPropertyLogStorage<T>
+    {
+        private readonly PersistentDictionary<DateTime, T> _store;
+
+        public PersistentDictionaryStorage(string storagePath)
+        {
+            _store = new PersistentDictionary<DateTime, T>(storagePath);
+        }
+
+        public string StoragePath => _store.DatabasePath;
+
+        public bool Any() => _store.Any();
+
+        public KeyValuePair<DateTime, T> Last() => _store.Last();
+
+        public IEnumerable<KeyValuePair<DateTime, T>> QueryRange(DateTime from, DateTime to)
+        {
+            return _store.Where(c => c.Key >= from && c.Key <= to);
+        }
+
+        public void Set(DateTime stamp, T value)
+        {
+            _store[stamp] = value;
+        }
+
+        public void Flush()
+        {
+            _store.Flush();
+        }
+
+        public void Dispose()
+        {
+            _store.Dispose();
+        }
+    }
+
+    internal sealed class FasterLogStorage<T> : IPropertyLogStorage<T>
+    {
+        private readonly SortedDictionary<DateTime, T> _entries = new SortedDictionary<DateTime, T>();
+        private readonly FasterLogSettings _settings;
+        private readonly FasterLog _log;
+
+        public FasterLogStorage(string storagePath)
+        {
+            StoragePath = storagePath;
+            Directory.CreateDirectory(StoragePath);
+
+            _settings = new FasterLogSettings(StoragePath);
+            _log = new FasterLog(_settings);
+            LoadExistingEntries();
+        }
+
+        public string StoragePath { get; private set; }
+
+        public bool Any() => _entries.Any();
+
+        public KeyValuePair<DateTime, T> Last() => _entries.Last();
+
+        public IEnumerable<KeyValuePair<DateTime, T>> QueryRange(DateTime from, DateTime to)
+        {
+            return _entries.Where(c => c.Key >= from && c.Key <= to);
+        }
+
+        public void Set(DateTime stamp, T value)
+        {
+            byte[] data = LogRecordSerializer<T>.Serialize(stamp, value);
+            if (!_log.TryEnqueue(data, out _))
+                _log.Enqueue(data);
+
+            _entries[stamp] = value;
+        }
+
+        public void Flush()
+        {
+            _log.Commit(true);
+        }
+
+        public void Dispose()
+        {
+            _log.Dispose();
+            _settings.Dispose();
+        }
+
+        private void LoadExistingEntries()
+        {
+            using (FasterLogScanIterator iter = _log.Scan(_log.BeginAddress, long.MaxValue))
+            {
+                byte[] result;
+                int length;
+                while (iter.GetNext(out result, out length, out _))
+                {
+                    if (LogRecordSerializer<T>.TryDeserialize(result, length, out DateTime stamp, out T value))
+                        _entries[stamp] = value;
+                }
+            }
+        }
+    }
+
+    internal static class LogRecordSerializer<T>
+    {
+        public static byte[] Serialize(DateTime stamp, T value)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            using (BinaryWriter writer = new BinaryWriter(ms, Encoding.UTF8, true))
+            {
+                writer.Write(stamp.Ticks);
+                bool hasValue = value != null;
+                writer.Write(hasValue);
+                if (hasValue)
+                {
+                    string serialized = SerializeValue(value);
+                    writer.Write(serialized ?? String.Empty);
+                }
+                writer.Flush();
+                return ms.ToArray();
+            }
+        }
+
+        public static bool TryDeserialize(byte[] data, int length, out DateTime stamp, out T value)
+        {
+            stamp = DateTime.MinValue;
+            value = default(T);
+
+            try
+            {
+                using (MemoryStream ms = new MemoryStream(data, 0, length))
+                using (BinaryReader reader = new BinaryReader(ms, Encoding.UTF8, true))
+                {
+                    stamp = new DateTime(reader.ReadInt64());
+                    bool hasValue = reader.ReadBoolean();
+                    if (!hasValue)
+                        return true;
+
+                    string serialized = reader.ReadString();
+                    value = DeserializeValue(serialized);
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string SerializeValue(T value)
+        {
+            if (value == null)
+                return null;
+
+            Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            if (targetType == typeof(string))
+                return value as string;
+            if (targetType == typeof(DateTime))
+                return ((DateTime)(object)value).ToString("O", CultureInfo.InvariantCulture);
+            if (targetType == typeof(TimeSpan))
+                return ((TimeSpan)(object)value).ToString("c", CultureInfo.InvariantCulture);
+            if (targetType == typeof(Guid))
+                return ((Guid)(object)value).ToString("D", CultureInfo.InvariantCulture);
+            if (targetType.IsEnum)
+                return Convert.ToString(value, CultureInfo.InvariantCulture);
+            if (targetType.IsPrimitive || targetType == typeof(decimal))
+                return Convert.ToString(value, CultureInfo.InvariantCulture);
+
+            XmlSerializer serializer = new XmlSerializer(targetType);
+            using (StringWriter sw = new StringWriter(CultureInfo.InvariantCulture))
+            {
+                serializer.Serialize(sw, value);
+                return sw.ToString();
+            }
+        }
+
+        private static T DeserializeValue(string serialized)
+        {
+            Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+            object value;
+
+            if (targetType == typeof(string))
+                value = serialized;
+            else if (targetType == typeof(DateTime))
+                value = DateTime.ParseExact(serialized, "O", CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+            else if (targetType == typeof(TimeSpan))
+                value = TimeSpan.ParseExact(serialized, "c", CultureInfo.InvariantCulture);
+            else if (targetType == typeof(Guid))
+                value = Guid.Parse(serialized);
+            else if (targetType.IsEnum)
+                value = Enum.Parse(targetType, serialized, true);
+            else if (targetType.IsPrimitive || targetType == typeof(decimal))
+                value = Convert.ChangeType(serialized, targetType, CultureInfo.InvariantCulture);
+            else
+            {
+                XmlSerializer serializer = new XmlSerializer(targetType);
+                using (StringReader sr = new StringReader(serialized))
+                {
+                    value = serializer.Deserialize(sr);
+                }
+            }
+
+            return (T)value;
+        }
+    }
+
     public static class ACUrl2ArchiveDirectoryManager
     {
         public static void GetArchivePath(this IACComponent forComponent, ref string rootPath, ref string subPath)
@@ -443,13 +682,11 @@ namespace gip.core.autocomponent
                 throw new InvalidOperationException("ApplicationManager not found");
             if (String.IsNullOrEmpty(pAppManager.ArchivePath))
                 throw new InvalidOperationException("ArchivePath not set in ApplicationManager");
-            rootPath = pAppManager.ArchivePath;
-            if (rootPath.Last() == '\\')
-                rootPath = rootPath.Substring(0, rootPath.Length - 1);
+            rootPath = pAppManager.ArchivePath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
             //subPath = forComponent.ACUrl.Replace(pAppManager.ACUrl, "");
-            subPath = forComponent.GetACUrl();
-            if (subPath.First() != '\\')
-                subPath = "\\" + subPath;
+            subPath = forComponent.GetACUrl() ?? String.Empty;
+            subPath = subPath.TrimStart('\\', '/');
+            subPath = subPath.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
         }
 
         public static string FindAndCreateArchivePath(this IACComponent forComponent)
@@ -467,7 +704,7 @@ namespace gip.core.autocomponent
             }
             if (!Directory.Exists(rootPath))
                 throw new InvalidOperationException("RootPath for Archive doesn't exist");
-            string archivePath = rootPath + subPath;
+            string archivePath = String.IsNullOrEmpty(subPath) ? rootPath : Path.Combine(rootPath, subPath);
             if (!Directory.Exists(archivePath))
             {
                 try

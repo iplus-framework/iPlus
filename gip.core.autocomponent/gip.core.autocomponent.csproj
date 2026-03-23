@@ -94,6 +94,7 @@
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces"  />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common"  />
     <PackageReference Include="Microsoft.Database.Collections.Generic"  />
+    <PackageReference Include="Microsoft.FASTER.Core" />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.Configuration.ConfigurationManager"  />
     <!--<PackageReference Include="System.IO.Compression"  />-->

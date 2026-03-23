@@ -41,6 +41,19 @@ namespace gip.core.autocomponent
             }
         }
 
+        [ConfigurationProperty("UseFasterPropertyLog", DefaultValue = false, IsRequired = false)]
+        public bool UseFasterPropertyLog
+        {
+            get
+            {
+                return (bool)this["UseFasterPropertyLog"];
+            }
+            set
+            {
+                this["UseFasterPropertyLog"] = value;
+            }
+        }
+
 
         [ConfigurationProperty("ValidateLockHierarchies", DefaultValue = true, IsRequired = false)]
         public bool ValidateLockHierarchies

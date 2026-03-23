@@ -32,6 +32,9 @@ namespace gip.core.autocomponent
                     if (coreConfig != null)
                     {
                         ACMonitor.UseSimpleMonitor = coreConfig.UseSimpleMonitor;
+                        ACPropertyValueLogSettings.StorageBackend = coreConfig.UseFasterPropertyLog
+                            ? ACPropertyLogStorageBackend.FasterLog
+                            : ACPropertyLogStorageBackend.PersistentDictionary;
                         if (coreConfig.ValidateLockHierarchies)
                             ACMonitor.ValidateLockHierarchy = true;
                         PWBase.PoolWFComponents = coreConfig.PoolWFNodes;
