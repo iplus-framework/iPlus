@@ -2,19 +2,25 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using gip.core.datamodel;
-using gip.core.autocomponent;
+using System.Diagnostics;
 using System.IO;
-using System.Windows.Xps.Packaging;
+using System.IO.Packaging;
+using System.Linq;
 using System.Printing;
-using System.Windows;
-using System.Windows.Markup;
-using System.Windows.Documents;
-using System.Windows.Xps;
-using gip.core.reporthandlerwpf.Flowdoc;
-using gip.core.reporthandler;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Markup;
+using System.Windows.Xps;
+using System.Windows.Xps.Packaging;
+using System.Windows.Xps.Serialization;
+using gip.core.autocomponent;
+using gip.core.datamodel;
+using gip.core.reporthandler;
+using gip.core.reporthandlerwpf.Flowdoc;
+using Microsoft.Win32;
 
 namespace gip.core.reporthandlerwpf
 {
@@ -884,23 +890,42 @@ namespace gip.core.reporthandlerwpf
             if (acClassDesign == null || data == null)
                 return null;
 
+            EnsureWineLegacySerializationPath();
+
             using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XMLDesign))
             { 
                 if (reportDoc == null)
                     return null;
                 XpsDocument xps = null;
+                string _wineXpsPath = null; // temp XPS file path used on Wine (file-based creation)
                 if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
                 {
                     string fileName = printerName.Substring(7);
                     xps = reportDoc.CreateXpsDocument(data, fileName);
                     return null;
                 }
+                else if (IsRunningUnderWine())
+                {
+                    // File-based creation: commits + closes the zip package and reopens it in
+                    // FileAccess.Read mode.  This is required because the memory-based overload
+                    // opens the package in ZipArchiveMode.Update, which forbids opening the same
+                    // zip entry more than once — the XPS image serializer does exactly that when
+                    // the same bitmap brush appears on multiple pages or multiple elements.
+                    // The file-based path also gives us the XPS directly on disk so xpstopdf can
+                    // consume it without any re-serialization.
+                    string uid = Guid.NewGuid().ToString("N").Substring(0, 8);
+                    _wineXpsPath = $@"Z:\tmp\iplus_{uid}.xps";
+                    xps = reportDoc.CreateXpsDocument(data, _wineXpsPath);
+                }
                 else
                     xps = reportDoc.CreateXpsDocument(data);
                 if (xps == null)
                     return null;
 
-                using (xps)
+                // Do NOT use a using(xps) block here: xps is owned by reportDoc and will be
+                // closed exactly once by reportDoc.Dispose() when the outer using ends.
+                // A second manual Close/Dispose call causes ObjectDisposedException because
+                // XpsDocument.Dispose does not guard against repeated invocations.
                 {
                     FixedDocumentSequence fDocSeq = null;
                     try
@@ -957,17 +982,26 @@ namespace gip.core.reporthandlerwpf
                                             pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
                                         }
 
-                                        writer.Write(fDocSeq, pt);
+                                        if (IsRunningUnderWine())
+                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                        else
+                                            writer.Write(fDocSeq, pt);
                                     }
                                 }
                             }
                             catch (Exception e)
                             {
                                 this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
-                                PrintDocumentImageableArea area = null;
-                                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
-                                if (writer != null)
-                                    writer.Write(fDocSeq);
+                                // On Wine the dialog path should never fall back to writer.Write —
+                                // that would submit a raw XPS job through Wine's PS driver, producing
+                                // the garbled "System.Windows.Documents.FixedDocumentSequence.pdf".
+                                if (!IsRunningUnderWine())
+                                {
+                                    PrintDocumentImageableArea area = null;
+                                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
+                                    if (writer != null)
+                                        writer.Write(fDocSeq);
+                                }
                             }
                         }
                         else
@@ -1047,24 +1081,28 @@ namespace gip.core.reporthandlerwpf
                                     pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
                                 }
 
-                                //for (int i = 0; i < copies; i++)
-                                //{
                                 try
                                 {
-                                    writer.Write(fDocSeq, pt);
+                                    if (IsRunningUnderWine())
+                                        PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                    else
+                                        writer.Write(fDocSeq, pt);
                                 }
                                 catch (Exception ex2)
                                 {
                                     this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
                                 }
-                                //}
                             }
                         }
                     }
                     finally
                     {
-                        if (xps != null)
-                            xps.Close();
+                        // xps.Close() is intentionally NOT called here — reportDoc.Dispose() (outer using)
+                        // closes it exactly once. Calling it here too would cause ObjectDisposedException.
+                        // On Linux/Wine, File.Delete works on open files (POSIX unlink semantics), so
+                        // we can safely remove _wineXpsPath while xps still holds the file handle.
+                        if (_wineXpsPath != null)
+                            try { File.Delete(_wineXpsPath); } catch { }
                         try
                         {
                             // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
@@ -1103,6 +1141,395 @@ namespace gip.core.reporthandlerwpf
             }
 
             return null;
+        }
+
+        // Wine detection: ntdll.wine_get_version() is only exported by Wine's ntdll.dll.
+        // On real Windows this import throws EntryPointNotFoundException, indicating we are NOT in Wine.
+        [DllImport("ntdll.dll", CallingConvention = CallingConvention.Cdecl, EntryPoint = "wine_get_version", CharSet = CharSet.Ansi)]
+        private static extern IntPtr WineGetVersion();
+
+        private static bool? _isRunningUnderWine;
+        private static bool IsRunningUnderWine()
+        {
+            if (_isRunningUnderWine.HasValue)
+                return _isRunningUnderWine.Value;
+            try
+            {
+                WineGetVersion();
+                _isRunningUnderWine = true;
+            }
+            catch
+            {
+                _isRunningUnderWine = false;
+            }
+            return _isRunningUnderWine.Value;
+        }
+
+        private static bool _wineLegacySerializationConfigured;
+        private static void EnsureWineLegacySerializationPath()
+        {
+            if (!IsRunningUnderWine() || _wineLegacySerializationConfigured)
+                return;
+
+            // 1) Best effort: set the documented runtime switch used by System.Printing.
+            try
+            {
+                // Verified in WPF source (System.Printing.resx):
+                // RegKeyBasePath = HKEY_CURRENT_USER\Software\Microsoft\.NETFramework\Windows Presentation Foundation\Printing
+                // PrintSystemJobInfo_disableXPSOMPrinting_RegValue = DisableXPSOMPrinting
+                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\.NETFramework\Windows Presentation Foundation\Printing",
+                    "DisableXPSOMPrinting",
+                    1,
+                    RegistryValueKind.DWord);
+            }
+            catch
+            {
+                // Ignore: reflection fallback below may still force the same behavior in-process.
+            }
+
+            // 2) In-process force: set internal static flags/caches so runtime does not keep XPS OM enabled.
+            try
+            {
+                Assembly printingAssembly = typeof(PrintQueue).Assembly;
+                foreach (Type type in printingAssembly.GetTypes())
+                {
+                    FieldInfo[] fields = type.GetFields(BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                    foreach (FieldInfo field in fields)
+                    {
+                        string name = field.Name ?? string.Empty;
+                        bool isDisableFlag =
+                            name.IndexOf("disable", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            name.IndexOf("xps", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            name.IndexOf("om", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                        bool isSupportedCache =
+                            name.IndexOf("xps", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            name.IndexOf("om", StringComparison.OrdinalIgnoreCase) >= 0 &&
+                            name.IndexOf("supported", StringComparison.OrdinalIgnoreCase) >= 0;
+
+                        if (isDisableFlag || isSupportedCache)
+                        {
+                            if (field.FieldType == typeof(bool))
+                                field.SetValue(null, isDisableFlag ? true : false);
+                            else if (field.FieldType == typeof(int))
+                                field.SetValue(null, isDisableFlag ? 1 : 0);
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Ignore and continue; call-site still handles failure with logging.
+            }
+
+            _wineLegacySerializationConfigured = true;
+        }
+
+        /// <summary>
+        /// Serializes a FixedDocumentSequence to a PrintQueue, bypassing XpsDocumentWriter so the
+        /// font subsetting policy can be overridden.
+        ///
+        /// Background: XpsDocumentWriter.Write() calls the internal PrintQueue.CreateSerializationManager(),
+        /// which hardcodes FontSubsetterCommitPolicies.CommitPerPage (at most 4 fonts per page).
+        /// This creates XPS font subsets that omit ToUnicode mapping tables — PDF viewers can render
+        /// the glyphs visually, but cannot map glyph IDs back to Unicode characters when copying text,
+        /// resulting in garbled/cryptic characters (reproduced via CUPS PDF printer under Wine/Linux).
+        ///
+        /// Additionally, on Wine with Windows 10/11 profiles, CreateSerializationManager() tries to use
+        /// the XPS Object Model via COM interfaces that Wine does not fully implement, throwing an
+        /// exception. This method avoids both issues by calling CreateSerializationManager() directly
+        /// via reflection (bypassing the XPS OM check) and overriding the font policy before serializing.
+        ///
+        /// FontSubsetterCommitPolicies.None embeds the full font file including all Unicode cmap tables,
+        /// so the resulting PDF has correct text encoding and is fully selectable/copy-pasteable.
+        /// </summary>
+
+        /// <summary>
+        /// On Wine: converts the pre-built XPS file to a properly-encoded PDF using Linux-side tools,
+        /// completely bypassing Wine's GDI/PostScript printer driver.
+        ///
+        /// FlowPrint creates the XPS directly to a temp file on disk using the file-based
+        /// CreateXpsDocument overload (which commits and reopens in FileAccess.Read).  This method
+        /// then converts it with /usr/bin/xpstopdf and delivers the result.
+        ///
+        /// Returns true if the PDF was successfully delivered.
+        /// Returns false on any failure so the caller can fall back to the Wine print path.
+        /// </summary>
+        private bool TryPrintViaLinuxTools(string winXpsPath, PrintQueue pQ, PrintTicket pt)
+        {
+            if (string.IsNullOrEmpty(winXpsPath) || !File.Exists(winXpsPath))
+            {
+                this.Root().Messages.LogException("VBBSOReport", "TryPrintViaLinuxTools",
+                    "Pre-built XPS file not found — falling back to Wine print path");
+                return false;
+            }
+
+            // Derive the PDF path from the XPS path.
+            string winPdfPath = Path.ChangeExtension(winXpsPath, ".pdf");
+            // Wine maps Z: to Linux root (/): Z:\tmp\foo.xps → /tmp/foo.xps
+            string linuxXpsPath = "/" + winXpsPath.Substring(3).Replace('\\', '/');
+            string linuxPdfPath = Path.ChangeExtension(linuxXpsPath, ".pdf");
+
+            try
+            {
+                // XPS → PDF via the Linux-side xpstopdf binary.
+                // In Wine, proc.Start() may return false for ELF binaries launched via binfmt —
+                // the process still runs but we have no handle and WaitForExit cannot be called.
+                // Poll until the output file appears (up to 60 s) before declaring failure.
+                RunLinuxProcess("/usr/bin/xpstopdf", $"{linuxXpsPath} {linuxPdfPath}");
+                if (!File.Exists(winPdfPath))
+                {
+                    var deadline = DateTime.UtcNow.AddSeconds(60);
+                    while (!File.Exists(winPdfPath) && DateTime.UtcNow < deadline)
+                        System.Threading.Thread.Sleep(500);
+                }
+                if (!File.Exists(winPdfPath))
+                {
+                    this.Root().Messages.LogException("VBBSOReport", "TryPrintViaLinuxTools",
+                        "xpstopdf produced no output — falling back to Wine print path");
+                    return false;
+                }
+
+                // Deliver the PDF.
+                string cupsPdfDir = GetCupsPdfOutputDir();
+                if (!string.IsNullOrEmpty(cupsPdfDir))
+                {
+                    // CUPS-PDF destination: write directly to the output folder.
+                    // This bypasses pdftocairo -ps -level2 which would re-encode the fonts.
+                    string winOutputDir = @"Z:\" + cupsPdfDir.TrimStart('/').Replace('/', '\\');
+                    Directory.CreateDirectory(winOutputDir);
+                    string safeName = SanitizeFileName(pQ.Description ?? pQ.Name ?? "Report");
+                    string uid = Path.GetFileNameWithoutExtension(winXpsPath);
+                    File.Copy(winPdfPath, Path.Combine(winOutputDir, $"{safeName}_{uid}.pdf"), overwrite: true);
+                }
+                else
+                {
+                    // Generic CUPS printer: submit PDF via lpr.
+                    if (!RunLinuxProcess("/usr/bin/lpr", $"-P \"{pQ.Name}\" {linuxPdfPath}"))
+                        return false;
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                this.Root().Messages.LogException("VBBSOReport", "TryPrintViaLinuxTools",
+                    ex.InnerException?.Message ?? ex.Message);
+                return false;
+            }
+            finally
+            {
+                // Note: winXpsPath may still be held open by the XpsDocument in FlowPrint.
+                // On Wine/Linux, unlink works even on open files (fd-based access).
+                try { File.Delete(winPdfPath); } catch { }
+                // winXpsPath is deleted by FlowPrint's finally block.
+            }
+        }
+
+        /// <summary>
+        /// Attempts to start a Linux ELF binary from within Wine using CreateProcess.
+        /// In Wine, Process.Start() may return false even when the ELF binary launched successfully
+        /// via Wine's binfmt mechanism (Wine does not always track the resulting process handle).
+        /// Callers should check output file existence as the primary success criterion.
+        /// </summary>
+        private static bool RunLinuxProcess(string path, string arguments)
+        {
+            try
+            {
+                using var proc = new Process
+                {
+                    StartInfo = new ProcessStartInfo
+                    {
+                        FileName = path,
+                        Arguments = arguments,
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                        RedirectStandardOutput = true,
+                        RedirectStandardError = true,
+                    }
+                };
+                bool started = proc.Start();
+                if (started)
+                {
+                    // Process handle was tracked — wait and check exit code.
+                    proc.WaitForExit(60_000);
+                    return proc.ExitCode == 0;
+                }
+                // proc.Start() returned false: Wine launched the ELF via binfmt but didn't give us
+                // a handle.  The process may still have run — let the caller verify by output file.
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Reads the cups-pdf output directory from /etc/cups/cups-pdf.conf (accessible from Wine
+        /// via the Z: drive), expanding ${HOME} using the Linux HOME environment variable.
+        /// Returns null if cups-pdf.conf is absent or has no Out directive.
+        /// </summary>
+        private static string GetCupsPdfOutputDir()
+        {
+            try
+            {
+                const string configPath = @"Z:\etc\cups\cups-pdf.conf";
+                if (!File.Exists(configPath))
+                    return null;
+
+                foreach (var line in File.ReadAllLines(configPath))
+                {
+                    var trimmed = line.Trim();
+                    if (trimmed.Length == 0 || trimmed.StartsWith("#"))
+                        continue;
+                    if (!trimmed.StartsWith("Out ", StringComparison.OrdinalIgnoreCase) &&
+                        !trimmed.StartsWith("Out\t", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var value = trimmed.Substring(3).Trim();
+                    if (value.StartsWith("${HOME}", StringComparison.OrdinalIgnoreCase))
+                    {
+                        var home = System.Environment.GetEnvironmentVariable("HOME")
+                            ?? $"/home/{System.Environment.GetEnvironmentVariable("USER") ?? System.Environment.UserName}";
+                        value = home + value.Substring(7);
+                    }
+                    return value; // e.g. "/home/damir/PDF"
+                }
+            }
+            catch { }
+            return null;
+        }
+
+        private static string SanitizeFileName(string name)
+        {
+            var invalid = Path.GetInvalidFileNameChars();
+            return string.Concat(name.Select(c => invalid.Contains(c) ? '_' : c));
+        }
+
+        private object TryCreateNgcSerializationManager(PrintQueue pQ)
+        {
+            try
+            {
+                // NgcSerializationManager lives in ReachFramework (same assembly as XpsSerializationManager),
+                // NOT in System.Printing where PrintQueue lives.
+                Assembly reachAssembly = typeof(XpsSerializationManager).Assembly;
+                Type ngcType = reachAssembly.GetType("System.Windows.Xps.Serialization.NgcSerializationManager", false)
+                    ?? reachAssembly.GetTypes().FirstOrDefault(t => t.Name == "NgcSerializationManager");
+
+                if (ngcType == null)
+                    return null;
+
+                ConstructorInfo ctor = ngcType.GetConstructor(
+                    BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public,
+                    null,
+                    new[] { typeof(PrintQueue), typeof(bool) },
+                    null);
+
+                if (ctor == null)
+                    return null;
+
+                return ctor.Invoke(new object[] { pQ, false });
+            }
+            catch (Exception ex)
+            {
+                this.Root().Messages.LogException("VBBSOReport", "TryCreateNgcSerializationManager",
+                    ex.InnerException?.Message ?? ex.Message);
+                return null;
+            }
+        }
+
+        private void PrintFixedDocumentSequenceToQueue(PrintQueue pQ, FixedDocumentSequence fDocSeq, PrintTicket pt, string prebuiltWinXpsPath = null)
+        {
+            EnsureWineLegacySerializationPath();
+
+            // On Wine: use the pre-built temp XPS file (created by FlowPrint using the file-based
+            // CreateXpsDocument overload which commits and reopens in Read mode) to drive xpstopdf.
+            if (IsRunningUnderWine() && TryPrintViaLinuxTools(prebuiltWinXpsPath, pQ, pt))
+                return;
+
+            object manager = null;
+
+            // On Wine fallback (Linux tools not available): use NgcSerializationManager to at least
+            // avoid the XPS OM COM crash. Text may still be garbled due to Wine's PS driver.
+            if (IsRunningUnderWine())
+                manager = TryCreateNgcSerializationManager(pQ);
+
+            // Locate the internal CreateSerializationManager method.  Its signature is confirmed
+            // by the user's own call stack: PrintQueue.CreateSerializationManager(bool,bool,PrintTicket).
+            MethodInfo createMethod = typeof(PrintQueue).GetMethod(
+                "CreateSerializationManager",
+                BindingFlags.Instance | BindingFlags.NonPublic,
+                null,
+                new[] { typeof(bool), typeof(bool), typeof(PrintTicket) },
+                null);
+
+            if (manager == null && createMethod == null)
+            {
+                // Unexpected: API was renamed or removed; fall back to standard path.
+                PrintQueue.CreateXpsDocumentWriter(pQ)?.Write(fDocSeq, pt);
+                return;
+            }
+
+            if (manager == null)
+            {
+                try
+                {
+                    // This call internally creates a PrintQueueStream (starting the print job).
+                    // From this point on we MUST use this manager to complete or cleanly abandon the job.
+                    manager = createMethod.Invoke(pQ, new object[] { false, false, pt });
+                }
+                catch (Exception ex)
+                {
+                    // On Wine+Win10/11 profile, this is typically the XPS OM path failing in StartDocPrinterW.
+                    this.Root().Messages.LogException("VBBSOReport", "PrintFixedDocumentSequenceToQueue",
+                        ex.InnerException?.Message ?? ex.Message);
+
+                    if (!IsRunningUnderWine())
+                        PrintQueue.CreateXpsDocumentWriter(pQ)?.Write(fDocSeq, pt);
+
+                    return;
+                }
+            }
+
+            if (manager == null)
+                return;  // Printing was cancelled during CreateSerializationManager (e.g. user aborted)
+
+            try
+            {
+                if (manager is XpsSerializationManager xpsManager)
+                {
+                    // Override the hardcoded CommitPerPage policy with None so the full font,
+                    // including its cmap/ToUnicode tables, is embedded in the XPS stream.
+                    xpsManager.SetFontSubsettingPolicy(FontSubsetterCommitPolicies.None);
+                }
+
+                // SaveAsXaml(Object) and Commit() are public on all concrete managers
+                // (XpsSerializationManager, NgcSerializationManager, etc.).
+                MethodInfo saveMethod = manager.GetType().GetMethod(
+                    "SaveAsXaml",
+                    BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    new[] { typeof(object) },
+                    null);
+                saveMethod?.Invoke(manager, new object[] { fDocSeq });
+
+                MethodInfo commitMethod = manager.GetType().GetMethod(
+                    "Commit",
+                    BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    Type.EmptyTypes,
+                    null);
+                commitMethod?.Invoke(manager, null);
+            }
+            catch (Exception ex)
+            {
+                this.Root().Messages.LogException("VBBSOReport", "PrintFixedDocumentSequenceToQueue(Serialize)",
+                    ex.InnerException?.Message ?? ex.Message);
+            }
+            finally
+            {
+                (manager as IDisposable)?.Dispose();
+            }
         }
 
         #endregion
