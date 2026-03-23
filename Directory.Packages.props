@@ -322,6 +322,9 @@
 		<PackageVersion Include="Serilog.Sinks.Trace" Version="2.1.0" />
 		<PackageVersion Include="JetBrains.Annotations" Version="11.0.0" />
 
+		<!-- Other -->
+		<PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.7" />
+
 	</ItemGroup>
 
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
@@ -627,5 +630,8 @@
 		<PackageVersion Include="Serilog.Sinks.Trace" Version="2.2.0" />
 		<PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
 
+		<!-- Other -->
+		<PackageVersion Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.7" />
+		
 	</ItemGroup>
 </Project>
