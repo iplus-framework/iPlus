@@ -37,6 +37,21 @@ namespace gip.core.autocomponent
             set => ACPropertyValueLogSettings.StorageBackend = value;
         }
 
+        private static string FileNameExtension
+        {
+            get
+            {
+                switch (StorageBackend)
+                {
+                    case ACPropertyLogStorageBackend.FasterLog:
+                        return ".flg";
+                    case ACPropertyLogStorageBackend.PersistentDictionary:
+                    default:
+                        return ".edb";
+                }
+            }
+        }
+        
         public ACPropertyValueLog(ACPropertyNetServerBase<T> property2Log)
         {
             _property2Log = property2Log;
@@ -137,7 +152,7 @@ namespace gip.core.autocomponent
                         var dir = new DirectoryInfo(PathOfDirectory);
                         if (dir != null)
                         {
-                            var dirInfos = dir.GetDirectories("*." + _property2Log.ACIdentifier + ".edb", SearchOption.TopDirectoryOnly);
+                            var dirInfos = dir.GetDirectories("*." + _property2Log.ACIdentifier + FileNameExtension, SearchOption.TopDirectoryOnly);
                             if (dirInfos != null && dirInfos.Any())
                             {
                                 foreach (var fileDict in dirInfos)
@@ -365,7 +380,7 @@ namespace gip.core.autocomponent
         {
             if (String.IsNullOrEmpty(PathOfDirectory))
                 return "";
-            return Path.Combine(PathOfDirectory, stamp.ToString(C_DT_FormatPrefix) + "." + _property2Log.ACIdentifier + ".edb");
+            return Path.Combine(PathOfDirectory, stamp.ToString(C_DT_FormatPrefix) + "." + _property2Log.ACIdentifier + FileNameExtension);
         }
 
         private void DeleteOldDictionaries(DateTime stamp)
@@ -383,7 +398,7 @@ namespace gip.core.autocomponent
                 var dir = new DirectoryInfo(PathOfDirectory);
                 if (dir != null)
                 {
-                    var dirInfos = dir.GetDirectories("*." + _property2Log.ACIdentifier + ".edb", SearchOption.TopDirectoryOnly);
+                    var dirInfos = dir.GetDirectories("*." + _property2Log.ACIdentifier + FileNameExtension, SearchOption.TopDirectoryOnly);
                     if (dirInfos != null && dirInfos.Any())
                     {
                         var dirsToDelete = dirInfos.Where(c => c.CreationTime < deleteDate).ToArray();
