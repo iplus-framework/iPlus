@@ -408,8 +408,12 @@ namespace gip.core.layoutengine.avui
                                         if (initObject == null)
                                             initObject = BSOACComponent;
 
-                                        bool isObjectSet = ((dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext))
-                                                        && (dsACTypeInfo is ACClassProperty && (dsACTypeInfo as ACClassProperty).GenericType == typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName));
+                                        bool contextCheck = (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext));
+                                        bool isObjectSet = 
+                                                        contextCheck
+                                                        && (
+                                                                dsACTypeInfo is ACClassProperty 
+                                                                && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable")/*dsACTypeInfo as ACClassProperty).GenericType == typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName*/);
                                         if (initObject != null && isObjectSet)
                                             ACAccess = queryDef.NewAccess("VBComboBox", initObject, dsSource as IACObject);
                                         else
