@@ -33,10 +33,21 @@ namespace gip.core.datamodel
                 return false;
 
             OnPropertyChanging<T>(value, propertyName, false);
+
             backingStore = value;
             OnPropertyChanging<T>(value, propertyName, true);
             onChanged?.Invoke();
-            OnPropertyChanged(propertyName);
+            try
+            {
+                OnPropertyChanged(propertyName);
+            }
+            catch (InvalidOperationException invalidOperationEx)
+            {
+                if (!(backingStore == null && this is VBEntityObject))
+                {
+                    throw new InvalidOperationException("InvalidOperationException only on VBEntityObject allowed when backingStore is null", invalidOperationEx);
+                }
+            }
             return true;
         }
 
@@ -51,15 +62,7 @@ namespace gip.core.datamodel
             var changed = PropertyChanged;
             if (changed == null)
                 return;
-
-            try
-            {
-                changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
-            }
-            catch (TargetInvocationException ex)
-            {
-                // Unwrap the inner exception to get the actual error
-            }
+            changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         #endregion
 
