@@ -1,6 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿// ***********************************************************************
+// ***********************************************************************
 // Assembly         : gip.core.datamodel
 // Author           : DLisak
 // Created          : 10-16-2012
@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Runtime.Serialization;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Reflection;
 
 namespace gip.core.datamodel
 {
@@ -25,7 +26,7 @@ namespace gip.core.datamodel
     public abstract class EntityBase : INotifyPropertyChanged //, INotifyPropertyChanging
     {
         protected bool SetProperty<T>(ref T backingStore, T value,
-            [CallerMemberName]string propertyName = "",
+            [CallerMemberName] string propertyName = "",
             Action onChanged = null)
         {
             if (EqualityComparer<T>.Default.Equals(backingStore, value))
@@ -51,7 +52,14 @@ namespace gip.core.datamodel
             if (changed == null)
                 return;
 
-            changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            try
+            {
+                changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            }
+            catch (TargetInvocationException ex)
+            {
+                // Unwrap the inner exception to get the actual error
+            }
         }
         #endregion
 
