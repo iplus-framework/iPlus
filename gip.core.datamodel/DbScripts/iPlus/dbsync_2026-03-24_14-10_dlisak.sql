@@ -1,0 +1,1 @@
+delete p from ACClassProperty p inner join ACClass c on c.ACClassID = p.ACClassID where c.ACIdentifier = 'VBDesignerWorkflowMethod' and p.ACIdentifier = 'AvailableElementList';

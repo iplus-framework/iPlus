@@ -317,8 +317,6 @@ namespace gip.core.layoutengine.avui
             if (DisableContextMenu)
                 ContextFlyout = null;
 
-            _Initialized = true;
-
             if (ParentACObject == null)
                 return;
 
@@ -337,6 +335,10 @@ namespace gip.core.layoutengine.avui
             }
 
             IACObject acObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
+            if (acObject == null)
+                return;
+
+            _Initialized = true;
             ContentACObject = acObject;
 
             if (acObject is IACObject)
@@ -579,9 +581,11 @@ namespace gip.core.layoutengine.avui
             else if (change.Property == DataContextProperty)
             {
                 TraceGroupState("DataContextChanged");
-                IACObject acObject = ParentACObject?.ACUrlCommand(VBContent, null) as IACObject;
-                ContentACObject = acObject;
-                LoadDesign();
+                // Avalonia updates inherited DataContext while the logical parent tree is changing.
+                // Re-resolving ContentACObject here can pick a transient parent context and corrupt
+                // the mapping between VBContent and the actual workflow node instance.
+                if (!_Initialized && change.NewValue != null)
+                    InitVBControl();
             }
             else if (change.Property == BoundsProperty)
             {
@@ -591,32 +595,32 @@ namespace gip.core.layoutengine.avui
 
         private void TraceGroupState(string stage)
         {
-            try
-            {
-                string msg = string.Format(
-                    "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Theme={4}; DataContext={5}; ContentObj={6}; Parent={7}; CanvasLeft={8}; CanvasTop={9}; IsVisible={10}; Opacity={11}; Bounds={12}; Initialized={13}; MergedDictionaries={14}",
-                    stage,
-                    string.IsNullOrEmpty(Name) ? "<null>" : Name,
-                    string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
-                    string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
-                    Theme?.GetType().Name ?? "<null>",
-                    DataContext?.GetType().Name ?? "<null>",
-                    ContentACObject?.GetType().Name ?? "<null>",
-                    Parent?.GetType().Name ?? "<null>",
-                    Canvas.GetLeft(this),
-                    Canvas.GetTop(this),
-                    IsVisible,
-                    Opacity,
-                    Bounds,
-                    _Initialized,
-                    Resources?.MergedDictionaries?.Count ?? 0);
+            // try
+            // {
+            //     string msg = string.Format(
+            //         "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Theme={4}; DataContext={5}; ContentObj={6}; Parent={7}; CanvasLeft={8}; CanvasTop={9}; IsVisible={10}; Opacity={11}; Bounds={12}; Initialized={13}; MergedDictionaries={14}",
+            //         stage,
+            //         string.IsNullOrEmpty(Name) ? "<null>" : Name,
+            //         string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
+            //         string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
+            //         Theme?.GetType().Name ?? "<null>",
+            //         DataContext?.GetType().Name ?? "<null>",
+            //         ContentACObject?.GetType().Name ?? "<null>",
+            //         Parent?.GetType().Name ?? "<null>",
+            //         Canvas.GetLeft(this),
+            //         Canvas.GetTop(this),
+            //         IsVisible,
+            //         Opacity,
+            //         Bounds,
+            //         _Initialized,
+            //         Resources?.MergedDictionaries?.Count ?? 0);
 
-                this.Root()?.Messages?.LogDebug("VBVisualGroup", "TraceGroupState", msg);
-            }
-            catch
-            {
-                // Diagnostic tracing must never affect control behavior.
-            }
+            //     this.Root()?.Messages?.LogDebug("VBVisualGroup", "TraceGroupState", msg);
+            // }
+            // catch
+            // {
+            //     // Diagnostic tracing must never affect control behavior.
+            // }
         }
 
         /// <summary>

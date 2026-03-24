@@ -5,8 +5,11 @@ using Avalonia.Data.Converters;
 using Avalonia.Markup.Xaml;
 using gip.core.datamodel;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace gip.core.layoutengine.avui
 {
@@ -51,45 +54,132 @@ namespace gip.core.layoutengine.avui
             set
             {
                 _VBContent = value;
-                IACObject context = null;
-                if (BindToBSO)
-                    context = Layoutgenerator.CurrentBSO;
-                else
-                    context = Layoutgenerator.CurrentDataContext;
-
-                if ((context != null) && !String.IsNullOrEmpty(_VBContent))
-                {
-                    object dcSource = null;
-                    string dcPath = "";
-                    if (context.ACUrlBinding(_VBContent, ref _dcACTypeInfo, ref dcSource, ref dcPath, ref _dcRightControlMode))
-                    {
-                        _isDesignFallback = false;
-                        this.Source = dcSource;
-                        this.Path = dcPath;
-                        //this.NotifyOnSourceUpdated = true;
-                        //this.NotifyOnTargetUpdated = true;
-                        if (_dcACTypeInfo != null)
-                        {
-                            bool isInput = true;
-                            if (_dcACTypeInfo is ACClassProperty)
-                                isInput = (_dcACTypeInfo as ACClassProperty).IsInput;
-                            if (this.Mode == BindingMode.Default)
-                                this.Mode = isInput ? BindingMode.TwoWay : BindingMode.OneWay;
-                        }
-                        if (Layoutgenerator.CurrentBSO != null)
-                            Layoutgenerator.CurrentBSO.AddWPFRef(this.GetHashCode(), dcSource as IACObject);
-                    }
-                    else
-                    {
-                        // Design/declaration mode: ACUrlBinding could not resolve the path.
-                        // Mark as fallback so ProvideValue skips target.Bind().
-                        // In WPF the fallback binding (Root.ACIdentifier → "Root") was silently
-                        // discarded on type mismatch; Avalonia's stricter engine propagates the
-                        // BindingError and can abort XAML rendering, so we skip the binding.
-                        _isDesignFallback = true;
-                    }
-                }
+                // Do not permanently resolve here using global context.
+                // In Avalonia, markup extensions can be created before the final target DataContext
+                // is stable (especially in nested templates). ProvideValue re-resolves against the
+                // concrete target control context to avoid stale bindings.
+                _isDesignFallback = false;
             }
+        }
+
+        private bool TryResolveBinding(IACObject context, out object dcSource, out string dcPath, out BindingMode resolvedMode)
+        {
+            dcSource = null;
+            dcPath = "";
+            resolvedMode = this.Mode;
+
+            if (context == null || String.IsNullOrEmpty(_VBContent))
+                return false;
+
+            if (!context.ACUrlBinding(_VBContent, ref _dcACTypeInfo, ref dcSource, ref dcPath, ref _dcRightControlMode))
+                return false;
+
+            if (_dcACTypeInfo != null)
+            {
+                bool isInput = true;
+                if (_dcACTypeInfo is ACClassProperty)
+                    isInput = (_dcACTypeInfo as ACClassProperty).IsInput;
+                if (this.Mode == BindingMode.Default)
+                    resolvedMode = isInput ? BindingMode.TwoWay : BindingMode.OneWay;
+            }
+
+            if (Layoutgenerator.CurrentBSO != null)
+                Layoutgenerator.CurrentBSO.AddWPFRef(this.GetHashCode(), dcSource as IACObject);
+
+            return true;
+        }
+
+        private static string ResolveTypeName(object value)
+        {
+            return value == null ? "<null>" : value.GetType().Name;
+        }
+
+        private static readonly ConditionalWeakTable<AvaloniaObject, HashSet<AvaloniaProperty>> _attachedRebindTargets =
+            new ConditionalWeakTable<AvaloniaObject, HashSet<AvaloniaProperty>>();
+
+        private Binding CreateResolvedBinding(object dcSource, string dcPath, BindingMode resolvedMode)
+        {
+            return new Binding
+            {
+                Source = dcSource,
+                Path = dcPath,
+                Mode = resolvedMode,
+                Priority = this.Priority,
+                Delay = this.Delay,
+                FallbackValue = this.FallbackValue,
+                StringFormat = this.StringFormat,
+                Converter = this.Converter,
+                ConverterCulture = this.ConverterCulture,
+                ConverterParameter = this.ConverterParameter,
+                TargetNullValue = this.TargetNullValue,
+                UpdateSourceTrigger = this.UpdateSourceTrigger
+            };
+        }
+
+        private void EnsureDataContextRebind(StyledElement target, AvaloniaProperty dp)
+        {
+            HashSet<AvaloniaProperty> attachedProperties = _attachedRebindTargets.GetOrCreateValue(target);
+            lock (attachedProperties)
+            {
+                if (attachedProperties.Contains(dp))
+                    return;
+                attachedProperties.Add(dp);
+            }
+
+            target.PropertyChanged += (s, e) =>
+            {
+                if (e.Property != StyledElement.DataContextProperty)
+                    return;
+
+                IACObject nextContext = e.NewValue as IACObject;
+                if (nextContext == null)
+                    return;
+
+                if (!TryResolveBinding(nextContext, out object nextSource, out string nextPath, out BindingMode nextMode))
+                {
+                    if (dp == ToolTip.TipProperty)
+                        target.SetValue(dp, null);
+                    return;
+                }
+
+                var resolvedBinding = CreateResolvedBinding(nextSource, nextPath, nextMode);
+                target.Bind(dp, resolvedBinding);
+
+                // FOR TRACING:
+                // Database.Root.Messages.LogDebug(
+                //     "VBBindingExt",
+                //     "ProvideValue",
+                //     $"VBBinding DataContext Rebind OK Target={target.GetType().Name}:{target.Name}; Property={dp.Name}; VBContent={_VBContent}; Context={ResolveTypeName(nextContext)}; Source={ResolveTypeName(nextSource)}; Path={nextPath}; Mode={nextMode}");
+            };
+        }
+
+        private void TryDeferredRebind(StyledElement target, AvaloniaProperty dp)
+        {
+            EventHandler<AvaloniaPropertyChangedEventArgs> handler = null;
+            handler = (s, e) =>
+            {
+                if (e.Property != StyledElement.DataContextProperty)
+                    return;
+
+                IACObject nextContext = e.NewValue as IACObject;
+                if (nextContext == null)
+                    return;
+
+                if (!TryResolveBinding(nextContext, out object nextSource, out string nextPath, out BindingMode nextMode))
+                    return;
+
+                target.PropertyChanged -= handler;
+
+                var resolvedBinding = CreateResolvedBinding(nextSource, nextPath, nextMode);
+                target.Bind(dp, resolvedBinding);
+
+                string targetName = target.Name;
+                string targetType = target.GetType().Name;
+                // FOR TRACING:
+                // Database.Root.Messages.LogDebug("VBBindingExt", "ProvideValue", $"VBBinding Deferred Rebind OK Target={targetType}:{targetName}; Property={dp.Name}; VBContent={_VBContent}; Context={ResolveTypeName(nextContext)}; Source={ResolveTypeName(nextSource)}; Path={nextPath}; Mode={nextMode}");
+            };
+
+            target.PropertyChanged += handler;
         }
 
         private IACType _dcACTypeInfo;
@@ -125,15 +215,59 @@ namespace gip.core.layoutengine.avui
             if (target == null || dp == null)
                 return this;
 
+            // Re-resolve against the real target context at apply time.
+            // This avoids stale global-context bindings during nested XAML loading.
+            IACObject context = null;
+            StyledElement styledTarget = target as StyledElement;
+            if (styledTarget != null)
+                context = styledTarget.DataContext as IACObject;
+
+            if (context == null)
+                context = BindToBSO ? Layoutgenerator.CurrentBSO : Layoutgenerator.CurrentDataContext;
+
+            object dcSource;
+            string dcPath;
+            BindingMode resolvedMode;
+            _isDesignFallback = !TryResolveBinding(context, out dcSource, out dcPath, out resolvedMode);
+
+            string targetName = (target as StyledElement)?.Name;
+            string targetType = target.GetType().Name;
+            string dpName = dp.Name;
+            string contextType = ResolveTypeName(context);
+
             // In design/declaration mode the binding resolution failed and there is no
             // meaningful source to bind to.  Skip applying the binding so that Avalonia's
             // stricter engine does not publish type-conversion BindingErrors (e.g. converting
             // the string "Root" to bool) that can abort XAML rendering downstream.
             if (_isDesignFallback)
-                return target.GetValue(dp);
+            {
+                // FOR TRACING:
+                // Database.Root.Messages.LogInfo("VBBindingExt", "ProvideValue", $"VBBinding Resolve FAIL Target={targetType}:{targetName}; Property={dpName}; VBContent={_VBContent}; Context={contextType}");
 
-            target.Bind(dp, this);
-            return target.GetValue(dp);
+                if (styledTarget != null)
+                {
+                    EnsureDataContextRebind(styledTarget, dp);
+                    TryDeferredRebind(styledTarget, dp);
+                }
+
+                // Prevent stale tooltip values from previous template/data context phases.
+                if (dp == ToolTip.TipProperty)
+                    return null;
+
+                return target.GetValue(dp);
+            }
+
+            // Create a concrete binding per target instance so shared template bindings
+            // do not leak Source/Path state between controls.
+            var resolvedBinding = CreateResolvedBinding(dcSource, dcPath, resolvedMode);
+
+            if (styledTarget != null)
+                EnsureDataContextRebind(styledTarget, dp);
+
+            // FOR TRACING:
+            // Database.Root.Messages.LogInfo("VBBindingExt", "ProvideValue", $"VBBinding Resolve OK Target={targetType}:{targetName}; Property={dpName}; VBContent={_VBContent}; Context={contextType}; Source={ResolveTypeName(dcSource)}; Path={dcPath}; Mode={resolvedMode}");
+
+            return resolvedBinding;
         }
     }
 

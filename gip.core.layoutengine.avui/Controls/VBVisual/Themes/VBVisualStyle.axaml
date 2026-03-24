@@ -8,7 +8,7 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>                    
-                    <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                    <Grid>
                         <!-- PART_ContentPresenter -->
                         <ContentPresenter x:Name="PART_ContentPresenter"
                                           HorizontalAlignment="Stretch"

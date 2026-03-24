@@ -828,6 +828,10 @@ namespace gip.core.layoutengine.avui
                         acObject = ParentACObject as ACClass;
                     else
                         acObject = (ParentACObject as ACClass).GetTypeByACUrlComponent(VBContent);
+
+                    if (acObject == null)
+                        return;
+
                     ContentACObject = acObject;
 
                     LoadDesign();
@@ -847,6 +851,9 @@ namespace gip.core.layoutengine.avui
                         {
                             acObject = ParentACObject.ACUrlCommand(VBContent, null) as IACObject;
                         }
+
+                        if (acObject == null)
+                            return;
 
                         ContentACObject = acObject;
                         if (acObject is IACObject && (_ACObject != acObject || DataContext != _ACObject))
@@ -909,6 +916,9 @@ namespace gip.core.layoutengine.avui
                         acObject = ParentACComponent.ACUrlCommand(VBContent, null) as IACObject;
                     }
 
+                    if (acObject == null)
+                        return;
+
                     ContentACObject = acObject;
                     if (acObject is IACObject && (_ACObject != acObject || DataContext != _ACObject))
                     {
@@ -969,6 +979,9 @@ namespace gip.core.layoutengine.avui
                     {
                         acObject = BSOACComponent.ACUrlCommand(VBContent, null) as IACObject;
                     }
+
+                    if (acObject == null)
+                        return;
 
                     ContentACObject = acObject;
                     if (acObject is IACObject && (_ACObject != acObject || DataContext != _ACObject))
@@ -1227,33 +1240,35 @@ namespace gip.core.layoutengine.avui
 
         private void TraceLayoutState(string stage, Visual visual)
         {
-            try
-            {
-                string msg = string.Format(
-                    "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Design={4}; Context={5}; ContentObj={6}; Visual={7}; Parent={8}; CanvasLeft={9}; CanvasTop={10}; IsVisible={11}; Opacity={12}; Bounds={13}; Initialized={14}; Initializing={15}",
-                    stage,
-                    string.IsNullOrEmpty(Name) ? "<null>" : Name,
-                    string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
-                    string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
-                    ACClassDesign?.ACIdentifier ?? "<null>",
-                    ContextACObject?.GetType().Name ?? "<null>",
-                    ContentACObject?.GetType().Name ?? "<null>",
-                    visual?.GetType().Name ?? "<null>",
-                    Parent?.GetType().Name ?? "<null>",
-                    Canvas.GetLeft(this),
-                    Canvas.GetTop(this),
-                    IsVisible,
-                    Opacity,
-                    Bounds,
-                    _VBInitialized,
-                    _VBInitializing);
+            // #if DEBUG
+            // try
+            // {
+            //     string msg = string.Format(
+            //         "Stage={0}; Name={1}; VBContent={2}; VBDesignName={3}; Design={4}; Context={5}; ContentObj={6}; Visual={7}; Parent={8}; CanvasLeft={9}; CanvasTop={10}; IsVisible={11}; Opacity={12}; Bounds={13}; Initialized={14}; Initializing={15}",
+            //         stage,
+            //         string.IsNullOrEmpty(Name) ? "<null>" : Name,
+            //         string.IsNullOrEmpty(VBContent) ? "<null>" : VBContent,
+            //         string.IsNullOrEmpty(VBDesignName) ? "<null>" : VBDesignName,
+            //         ACClassDesign?.ACIdentifier ?? "<null>",
+            //         ContextACObject?.GetType().Name ?? "<null>",
+            //         ContentACObject?.GetType().Name ?? "<null>",
+            //         visual?.GetType().Name ?? "<null>",
+            //         Parent?.GetType().Name ?? "<null>",
+            //         Canvas.GetLeft(this),
+            //         Canvas.GetTop(this),
+            //         IsVisible,
+            //         Opacity,
+            //         Bounds,
+            //         _VBInitialized,
+            //         _VBInitializing);
 
-                this.Root()?.Messages?.LogDebug("VBVisual", "TraceLayoutState", msg);
-            }
-            catch
-            {
-                // Diagnostic tracing must never affect control behavior.
-            }
+            //     this.Root()?.Messages?.LogDebug("VBVisual", "TraceLayoutState", msg);
+            // }
+            // catch
+            // {
+            //     // Diagnostic tracing must never affect control behavior.
+            // }
+            // #endif
         }
         #endregion
 

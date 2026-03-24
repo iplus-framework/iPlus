@@ -1518,6 +1518,7 @@ namespace gip.core.datamodel
             (" Visibility=\"Visible\"", " IsVisible=\"True\"", false),
             (" Key=\"", " x:Key=\"", false),
             (" SumVisibility=\"Visible\"", " SumVisibility=\"True\"", false),
+            (" FillRule=\"Nonzero\"", " FillRule=\"NonZero\"", false),
             
             (" ColorInterpolationMode=\"SRgbLinearInterpolation\"", " ", false),
             (" MappingMode=\"RelativeToBoundingBox\"", " ", false),
@@ -1563,7 +1564,13 @@ namespace gip.core.datamodel
             (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s+([^,}]+)\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1VBContent=""$2""$3$4", true),
             // Convert Image with VBStaticResource to VBDynamicImage (no ResourceKey - keep VBContent if already present)
             (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1$2$3", true),
-            
+
+            // Convert WPF raw matrix string (6 comma-separated numbers) to Avalonia matrix() syntax.
+            // WPF: RenderTransform="M11,M12,M21,M22,OffX,OffY"
+            // Avalonia: RenderTransform="matrix(M11,M12,M21,M22,OffX,OffY)"
+            // Note: no spaces between values — Avalonia's ParseCommaDelimitedValues does not trim the last value.
+            (@"RenderTransform=""(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?)""", @"RenderTransform=""matrix($1,$2,$3,$4,$5,$6)""", true),
+
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
         };
     }
