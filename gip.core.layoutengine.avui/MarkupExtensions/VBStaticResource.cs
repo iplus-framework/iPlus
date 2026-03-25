@@ -88,9 +88,10 @@ namespace gip.core.layoutengine.avui
                 ACClassDesign acClassDesign = null;
 
                 Type typeImageSource = typeof(IImage);
+                Type typeImageBrushSource = typeof(IImageBrushSource);
                 Type typeImageStream = typeof(Stream);
                 Type typeBrush = typeof(IBrush);
-                bool needBitmap = typeImageSource.IsAssignableFrom(targetType);
+                bool needBitmap = typeImageSource.IsAssignableFrom(targetType) || typeImageBrushSource.IsAssignableFrom(targetType);
                 bool needBrush = typeBrush.IsAssignableFrom(targetType);
                 bool needStream = typeImageStream.IsAssignableFrom(targetType);
                 bool needString = typeof(string).IsAssignableFrom(targetType);

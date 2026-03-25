@@ -1581,6 +1581,11 @@ namespace gip.core.datamodel
             // Remove obsolete Shape property not available in Avalonia.
             (@"\s+StrokeMiterLimit=""[^""]*""", "", true),
 
+            // ImageBrush property mapping: Viewport -> SourceRect, ImageSource -> Source, removal of ViewportUnits
+            (@"<ImageBrush\s+([^>]*?)Viewport=""([^""]*)""([^>]*?)", @"<ImageBrush $1SourceRect=""$2""$3", true),
+            (@"<ImageBrush\s+([^>]*?)ImageSource=""([^""]*)""([^>]*?)", @"<ImageBrush $1Source=""$2""$3", true),
+            (@"<ImageBrush\s+([^>]*?)\s+ViewportUnits=""[^""]*""([^>]*?)", @"<ImageBrush $1$2", true),
+
             // Convert Image with VBStaticResource to VBDynamicImage (with ResourceKey parameter)
             (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s+ResourceKey=([^,}]+)[^}]*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1VBContent=""$2""$3$4", true),
             // Convert Image with VBStaticResource to VBDynamicImage (with positional ResourceKey)
