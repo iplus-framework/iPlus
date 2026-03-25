@@ -10,7 +10,6 @@ using System.Reflection;
 
 namespace gip.core.layoutengine.avui
 {
-    //[MarkupExtensionReturnType(typeof(Delegate))]
     //[Localizability(LocalizationCategory.NeverLocalize)]
     public class VBDelegateExtension : MarkupExtension, IACObject
     {
@@ -29,41 +28,186 @@ namespace gip.core.layoutengine.avui
             AvaloniaObject target = service.TargetObject as AvaloniaObject;
             if (service.TargetProperty is string eventName)
             {
+                EventInfo eventInfoByName = target?.GetType().GetEvent(eventName, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+                if (target is Interactive interactiveForNamedEvent)
+                {
+                    var strategy = HandlePreviewEvents ? RoutingStrategies.Tunnel : RoutingStrategies.Bubble;
+                    if (eventName == nameof(IInputElement.PointerEntered))
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.PointerEnteredEvent, (EventHandler<PointerEventArgs>)OnPointerEvent, strategy, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == nameof(IInputElement.PointerExited))
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.PointerExitedEvent, (EventHandler<PointerEventArgs>)OnPointerEvent, strategy, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == nameof(IInputElement.PointerMoved))
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.PointerMovedEvent, (EventHandler<PointerEventArgs>)OnPointerEvent, strategy, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == nameof(IInputElement.KeyDown))
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.KeyDownEvent, (EventHandler<KeyEventArgs>)OnKeyEvent, strategy, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == nameof(IInputElement.KeyUp))
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.KeyUpEvent, (EventHandler<KeyEventArgs>)OnKeyEvent, strategy, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                    else if (eventName == nameof(IInputElement.PointerPressed))
+                    {
+                        interactiveForNamedEvent.AddHandler(InputElement.PointerPressedEvent, (EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent, strategy, HandledEventsToo);
+                        return CreateDummyDelegateForEventName(eventName);
+                    }
+                }
+
+                if (HandlePreviewEvents && target is Interactive interactive)
+                {
+                    if (eventName == nameof(IInputElement.PointerEntered))
+                        interactive.AddHandler(InputElement.PointerEnteredEvent, (EventHandler<PointerEventArgs>)OnPointerEvent, RoutingStrategies.Tunnel, HandledEventsToo);
+                    else if (eventName == nameof(IInputElement.PointerExited))
+                        interactive.AddHandler(InputElement.PointerExitedEvent, (EventHandler<PointerEventArgs>)OnPointerEvent, RoutingStrategies.Tunnel, HandledEventsToo);
+                    else if (eventName == nameof(IInputElement.PointerMoved))
+                        interactive.AddHandler(InputElement.PointerMovedEvent, (EventHandler<PointerEventArgs>)OnPointerEvent, RoutingStrategies.Tunnel, HandledEventsToo);
+                    else if (eventName == nameof(IInputElement.KeyDown))
+                        interactive.AddHandler(InputElement.KeyDownEvent, (EventHandler<KeyEventArgs>)OnKeyEvent, RoutingStrategies.Tunnel, HandledEventsToo);
+                    else if (eventName == nameof(IInputElement.KeyUp))
+                        interactive.AddHandler(InputElement.KeyUpEvent, (EventHandler<KeyEventArgs>)OnKeyEvent, RoutingStrategies.Tunnel, HandledEventsToo);
+                    else if (eventName == nameof(IInputElement.PointerPressed))
+                        interactive.AddHandler(InputElement.PointerPressedEvent, (EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent, RoutingStrategies.Tunnel, HandledEventsToo);
+
+                    // Return a matching delegate type so generated XAML IL can cast safely.
+                    return CreateDummyDelegateFromEventInfo(eventInfoByName) ?? CreateDummyDelegateForEventName(eventName);
+                }
+
                 if (eventName == nameof(IInputElement.PointerEntered)
                     || eventName == nameof(IInputElement.PointerExited)
-                    || eventName == nameof(IInputElement.PointerMoved)
-                    )
+                    || eventName == nameof(IInputElement.PointerMoved))
                 {
-                    eventDelegate = Delegate.CreateDelegate(typeof(EventHandler<PointerEventArgs>), this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
+                    if (target != null && eventInfoByName != null)
+                        eventInfoByName.AddEventHandler(target, new EventHandler<PointerEventArgs>(OnPointerEvent));
+                    return CreateDummyDelegateForEventName(eventName);
                 }
                 else if (eventName == nameof(IInputElement.KeyDown)
                     || eventName == nameof(IInputElement.KeyUp))
                 {
-                    eventDelegate = Delegate.CreateDelegate(typeof(EventHandler<KeyEventArgs>), this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
+                    if (target != null && eventInfoByName != null)
+                        eventInfoByName.AddEventHandler(target, new EventHandler<KeyEventArgs>(OnKeyEvent));
+                    return CreateDummyDelegateForEventName(eventName);
                 }
                 else if (eventName == nameof(IInputElement.PointerPressed))
-                    eventDelegate = Delegate.CreateDelegate(typeof(EventHandler<PointerPressedEventArgs>), this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
-                //else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
-                //    return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
+                {
+                    if (target != null && eventInfoByName != null)
+                        eventInfoByName.AddEventHandler(target, new EventHandler<PointerPressedEventArgs>(OnPointerPressedEvent));
+                    return CreateDummyDelegateForEventName(eventName);
+                }
+                else
+                {
+                    eventDelegate = CreateDelegateFromEventInfo(eventInfoByName);
+                }
             }
             else if (service.TargetProperty is EventInfo eventInfo)
             {
-                if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                if (HandlePreviewEvents && target is Interactive interactive)
                 {
-                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
+                    var routedEventField = target.GetType().GetField(eventInfo.Name + "Event", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
+                    if (routedEventField != null)
+                    {
+                        var routedEvent = routedEventField.GetValue(null) as RoutedEvent;
+                        if (routedEvent != null)
+                        {
+                            interactive.AddHandler(routedEvent, CreateDelegateFromEventInfo(eventInfo), RoutingStrategies.Tunnel, HandledEventsToo);
+                            return CreateDummyDelegateFromEventInfo(eventInfo);
+                        }
+                    }
                 }
-                else if (typeof(EventHandler<KeyEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
-                {
-                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
-                }
-                else if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
-                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
-                else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
-                    eventDelegate = Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
+
+                eventDelegate = CreateDelegateFromEventInfo(eventInfo);
             }
+
             if (eventDelegate == null)
+            {
+                if (HandlePreviewEvents)
+                    return null;
+                
                 throw new ArgumentException("TargetProperty is not an Event");
+            }
             return eventDelegate;
+        }
+
+        private Delegate CreateDummyDelegateForEventName(string eventName)
+        {
+            if (eventName == nameof(IInputElement.PointerEntered)
+                || eventName == nameof(IInputElement.PointerExited)
+                || eventName == nameof(IInputElement.PointerMoved))
+            {
+                return new EventHandler<PointerEventArgs>(OnPointerEventNoOp);
+            }
+
+            if (eventName == nameof(IInputElement.KeyDown)
+                || eventName == nameof(IInputElement.KeyUp))
+            {
+                return new EventHandler<KeyEventArgs>(OnKeyEventNoOp);
+            }
+
+            if (eventName == nameof(IInputElement.PointerPressed))
+            {
+                // XamlIl can choose the EventHandler<RoutedEventArgs> setter overload for PointerPressed.
+                // Return a compatible delegate type to avoid runtime InvalidCastException.
+                return new EventHandler<RoutedEventArgs>(OnRoutedEvent);
+            }
+
+            return Delegate.CreateDelegate(typeof(EventHandler<RoutedEventArgs>), this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
+        }
+
+        private Delegate CreateDummyDelegateFromEventInfo(EventInfo eventInfo)
+        {
+            if (eventInfo == null || eventInfo.EventHandlerType == null)
+                return null;
+
+            if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerEventArgs>)OnPointerEventNoOp).Method);
+            }
+
+            if (typeof(EventHandler<KeyEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<KeyEventArgs>)OnKeyEventNoOp).Method);
+            }
+
+            if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEventNoOp).Method);
+            }
+
+            if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
+            }
+
+            return null;
+        }
+
+        private Delegate CreateDelegateFromEventInfo(EventInfo eventInfo)
+        {
+            if (typeof(EventHandler<PointerEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerEventArgs>)OnPointerEvent).Method);
+            }
+            else if (typeof(EventHandler<KeyEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+            {
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<KeyEventArgs>)OnKeyEvent).Method);
+            }
+            else if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
+            else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
+
+            return null;
         }
 
         #region XAML-Properties
@@ -129,6 +273,12 @@ namespace gip.core.layoutengine.avui
         }
 
         public Type InvokeAtVBControl
+        {
+            get;
+            set;
+        }
+
+        public bool HandlePreviewEvents
         {
             get;
             set;
@@ -333,6 +483,18 @@ namespace gip.core.layoutengine.avui
         }
 
         public void OnRoutedEvent(object sender, RoutedEventArgs e)
+        {
+        }
+
+        public void OnPointerEventNoOp(object sender, PointerEventArgs e)
+        {
+        }
+
+        public void OnPointerPressedEventNoOp(object sender, PointerPressedEventArgs e)
+        {
+        }
+
+        public void OnKeyEventNoOp(object sender, KeyEventArgs e)
         {
         }
 

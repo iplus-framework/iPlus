@@ -131,7 +131,7 @@ declare -a SOLUTION_PATHS=(
     "../../Avalonia.Labs/iPlusAvalonia.sln"
     "../../SVG/Source/iPlusAvalonia.sln"
     "../../Avalonia.Controls.DataGrid/iPlusAvalonia.sln"
-    "../../Avalonia.Xaml.Behaviors/iPlusAvalonia.sln"
+    "../../Xaml.Behaviors/iPlusAvalonia.sln"
     "../../AvSvg.Skia/iPlusAvalonia.sln"
     "../../AvRichTextBox/iPlusAvalonia.sln"
     "../../AvMarkdown.Avalonia/iPlusAvalonia.sln"
@@ -281,13 +281,17 @@ build_project() {
     if [[ $SHOW_DIAGNOSTICS == true ]]; then
         print_color $GRAY "Executing: dotnet ${dotnet_args[*]}"
     fi
-    
+
     # Create temporary files for stdout and stderr
     local stdout_file=$(mktemp)
     local stderr_file=$(mktemp)
-    
-    # Execute the build command
-    dotnet "${dotnet_args[@]}" >"$stdout_file" 2>"$stderr_file"
+
+    # Get the directory containing the solution file
+    local solution_dir=$(dirname "$full_path")
+
+    # Execute the build command from the solution's directory
+    # Also pass the full path to the solution to avoid ambiguity
+    (cd "$solution_dir" && dotnet "${dotnet_args[@]}" >"$stdout_file" 2>"$stderr_file")
     local exit_code=$?
     
     local end_time=$(date +%s.%N)

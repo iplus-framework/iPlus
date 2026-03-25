@@ -29,7 +29,7 @@ namespace gip.core.wpfservices.avui
             List<DesignItem> changedItems = new List<DesignItem>();
 
             ChangeGroup changeGroup = null;
-            // Löschen von WF und WFEdge
+            // Lï¿½schen von WF und WFEdge
             foreach (var change in VisualChangeList)
             {
                 if (change.LayoutAction != LayoutActionType.Delete && change.LayoutAction != LayoutActionType.DeleteEdge) continue;
@@ -65,7 +65,7 @@ namespace gip.core.wpfservices.avui
                 }
             }
 
-            // Einfügen von WFEdge (Vor WF, da diese für die Layoutberechnung benötigt werden
+            // Einfï¿½gen von WFEdge (Vor WF, da diese fï¿½r die Layoutberechnung benï¿½tigt werden
             foreach (var change in VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
             {
                 if (change.LayoutAction != LayoutActionType.InsertEdge) continue;
@@ -80,7 +80,7 @@ namespace gip.core.wpfservices.avui
                 }
             }
 
-            // Einfügen von WF
+            // Einfï¿½gen von WF
             foreach (var change in VisualChangeList)            //foreach (var change in VisualChangeList.Where(c => !c.IsDelete))
             {
                 if (change.LayoutAction != LayoutActionType.Insert) continue;
@@ -164,7 +164,7 @@ namespace gip.core.wpfservices.avui
             DesignItem item = designItemParent.Context.Services.Component.RegisterComponentForDesigner(newInstance);
             item.Properties[VBVisual.VBContentProperty].SetValue(newACUrl);
             item.Properties[VBVisual.NameProperty].SetValue(acVisualWF.XName);
-            item.Properties[DragDrop.AllowDropProperty].SetValue(true);
+            item.Properties.GetAttachedProperty(DragDrop.AllowDropProperty).SetValue(true);
 
             Rect rect = new Rect();
             if (acClassDesign != null)
@@ -177,7 +177,7 @@ namespace gip.core.wpfservices.avui
 
             AddItemWithDefaultSize(designItemParent.ContentProperty.Value, item, rect);
 
-            // Falls VBVisualGroup, dann muß auch ein DesignItem für das Canvas eingefügt werden
+            // Falls VBVisualGroup, dann muï¿½ auch ein DesignItem fï¿½r das Canvas eingefï¿½gt werden
             if (newInstance is VBVisualGroup)
             {
                 object newInstanceCanvas = designContext.Services.ExtensionManager.CreateInstanceWithCustomInstanceFactory(typeof(VBCanvasInGroup), null);

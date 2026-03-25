@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections;
+using System.Globalization;
 using System.Runtime.Serialization;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.core.datamodel;
@@ -19,6 +20,7 @@ using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Interactivity;
 using Avalonia.VisualTree;
+using Avalonia.Data.Converters;
 
 namespace gip.core.layoutengine.avui
 {
@@ -276,6 +278,9 @@ namespace gip.core.layoutengine.avui
                         binding2.Source = sourceOfBindingForSelItm;
                     binding2.Path = pathOfBindingForSelItm;
                     binding2.Mode = VBContentPropertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
+                    // DataGrid can transiently coerce SelectedItem to null while reattaching to visual tree.
+                    // Ignore null in ConvertBack so tab switches don't clear the underlying BSO selection.
+                    binding2.Converter = IgnoreNullConvertBackConverter.Instance;
                     this.Bind(SelectedItemProperty, binding2);
                 }
                 else
@@ -312,6 +317,21 @@ namespace gip.core.layoutengine.avui
                     _cyclickDataRefreshDispTimer.Interval = new TimeSpan(0, 0, 0, 0, CyclicDataRefresh);
                     _cyclickDataRefreshDispTimer.Start();
                 }
+            }
+        }
+
+        private sealed class IgnoreNullConvertBackConverter : IValueConverter
+        {
+            public static readonly IgnoreNullConvertBackConverter Instance = new IgnoreNullConvertBackConverter();
+
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                return value;
+            }
+
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                return value == null ? BindingOperations.DoNothing : value;
             }
         }
 
