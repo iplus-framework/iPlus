@@ -544,19 +544,9 @@ namespace gip.core.layoutengine
                                         if (initObject == null)
                                             initObject = BSOACComponent;
 
-                                        //(dsACTypeInfo as ACClassProperty).GenericType
-                                        //"System.Collections.Generic.IEnumerable`1"
-                                        // typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName)
-                                        //error CS0726: ')' is not a valid format specifier
-                                        // typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName
-                                        //"Microsoft.EntityFrameworkCore.DbSet`1"
-
-                                        bool contextCheck = (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext));
-                                        bool isObjectSet = 
-                                                        contextCheck
-                                                        && (
-                                                                dsACTypeInfo is ACClassProperty 
-                                                                && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable")/*dsACTypeInfo as ACClassProperty).GenericType == typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName*/);
+                                        bool isObjectSet =    (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext))
+                                                           && dsACTypeInfo is ACClassProperty 
+                                                           && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable");
                                         if (initObject != null && isObjectSet)
                                             ACAccess = queryDef.NewAccess("VBComboBox", initObject, dsSource as IACObject);
                                         else
@@ -683,13 +673,19 @@ namespace gip.core.layoutengine
                             }
                             else
                             {
-                                if (dsSource != null && dsSource is IACEntityObjectContext)
+                                if (dsSource != null && dsSource is IACEntityObjectContext dbContext)
                                 {
-                                    IQueryable result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
-                                    Binding binding = new Binding();
-                                    binding.Source = result.AsArrayList();
-                                    SetBinding(ComboBox.ItemsSourceProperty, binding);
-                                    //this.ItemsSource = result;
+                                    if (dbContext.IsACSelectSupported(ACQueryDefinition))
+                                    {
+                                        IQueryable result = dbContext.ACSelect(ACQueryDefinition, dsPath);
+                                        Binding binding = new Binding();
+                                        binding.Source = result.AsArrayList();
+                                        SetBinding(ComboBox.ItemsSourceProperty, binding);
+                                    }
+                                    else
+                                    {
+                                        BindDirectlyToSource(dsSource, dsPath, dsACTypeInfo);
+                                    }
                                 }
                                 else
                                 {
@@ -708,40 +704,7 @@ namespace gip.core.layoutengine
                         }
                         else
                         {
-                            if (ACAccess != null)
-                            {
-                                ACAccessComposite = new CompositeCollection(2);
-                                CollectionContainer container = new CollectionContainer();
-                                Binding binding = new Binding();
-                                binding.Source = dsSource;
-                                if (!string.IsNullOrEmpty(dsPath))
-                                    binding.Path = new PropertyPath(dsPath);
-                                binding.Mode = BindingMode.OneWay;
-                                BindingOperations.SetBinding(container, CollectionContainer.CollectionProperty, binding);
-                                ACAccessComposite.Add(container);
-
-                                object selectedValue = ContextACObject.ACUrlCommand(VBContent);
-                                if (selectedValue != null)
-                                {
-                                    ACAccessComposite.Add(selectedValue);
-                                }
-
-                                binding = new Binding();
-                                binding.Source = this;
-                                binding.Path = new PropertyPath("ACAccessComposite");
-                                SetBinding(ComboBox.ItemsSourceProperty, binding);
-                            }
-                            else
-                            {
-                                // Listenbereich von Combobox füllen 
-                                Binding binding = new Binding();
-                                binding.Source = dsSource;
-                                if (!string.IsNullOrEmpty(dsPath))
-                                {
-                                    binding.Path = new PropertyPath(dsPath);
-                                }
-                                SetBinding(ComboBox.ItemsSourceProperty, binding);
-                            }
+                            BindDirectlyToSource(dsSource, dsPath, dsACTypeInfo);
                         }
                     }
 
@@ -944,6 +907,44 @@ namespace gip.core.layoutengine
                     datamodel.Database.Root.Messages.LogException("VBCheckBox", "InitVBControl(10)", msg);
             }
         }
+
+        private void BindDirectlyToSource(object dsSource, string dsPath, IACType dsACTypeInfo)
+        {
+            if (ACAccess != null)
+            {
+                ACAccessComposite = new CompositeCollection(2);
+                CollectionContainer container = new CollectionContainer();
+                Binding binding = new Binding();
+                binding.Source = dsSource;
+                if (!string.IsNullOrEmpty(dsPath))
+                    binding.Path = new PropertyPath(dsPath);
+                binding.Mode = BindingMode.OneWay;
+                BindingOperations.SetBinding(container, CollectionContainer.CollectionProperty, binding);
+                ACAccessComposite.Add(container);
+
+                object selectedValue = ContextACObject.ACUrlCommand(VBContent);
+                if (selectedValue != null)
+                {
+                    ACAccessComposite.Add(selectedValue);
+                }
+
+                binding = new Binding();
+                binding.Source = this;
+                binding.Path = new PropertyPath("ACAccessComposite");
+                SetBinding(ComboBox.ItemsSourceProperty, binding);
+            }
+            else
+            {
+                // Listenbereich von Combobox füllen 
+                Binding binding = new Binding();
+                binding.Source = dsSource;
+                if (!string.IsNullOrEmpty(dsPath))
+                {
+                    binding.Path = new PropertyPath(dsPath);
+                }
+                SetBinding(ComboBox.ItemsSourceProperty, binding);
+            }
+        }        
 
         bool _Loaded = false;
         void VBComboBox_Loaded(object sender, RoutedEventArgs e)

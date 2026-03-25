@@ -1,15 +1,14 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.EntityFrameworkCore.Query.Internal;
 
 namespace gip.core.datamodel
 {
@@ -1130,24 +1129,44 @@ namespace gip.core.datamodel
                             using (ACMonitor.Lock(_ObjectContext.QueryLock_1X000))
                             {
                                 //No replacement for ObjectQuery, used IQueryable instead
-                                IQueryable objectQuery = (IQueryable)piEntity.GetValue(_ObjectContext, null);
-                                var resultQuery = objectQuery.Where(filter, filterValues);
-                                foreach (object resultObject in resultQuery)
+                                IQueryable objectQuery = piEntity.GetValue(_ObjectContext, null) as IQueryable;
+                                if (objectQuery == null)
                                 {
-                                    if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                                    if (piEntity.GetValue(_ObjectContext, null) is IEnumerable enumerable)
                                     {
-                                        return resultObject;
+                                        foreach (object resultObject in enumerable)
+                                        {
+                                            if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                                            {
+                                                return resultObject;
+                                            }
+                                            else
+                                            {
+                                                return ((IACObject)resultObject).ACUrlCommand(acUrlHelper.NextACUrl, acParameter);
+                                            }
+                                        }
                                     }
-                                    else
+                                }
+                                else
+                                {
+                                    var resultQuery = objectQuery.Where(filter, filterValues);
+                                    foreach (object resultObject in resultQuery)
                                     {
-                                        return ((IACObject)resultObject).ACUrlCommand(acUrlHelper.NextACUrl, acParameter);
+                                        if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
+                                        {
+                                            return resultObject;
+                                        }
+                                        else
+                                        {
+                                            return ((IACObject)resultObject).ACUrlCommand(acUrlHelper.NextACUrl, acParameter);
+                                        }
                                     }
                                 }
                             }
                         }
                         else if (string.IsNullOrEmpty(acUrlHelper.NextACUrl))
                         {
-                            return (IQueryable)piEntity.GetValue(_ObjectContext, null);
+                            return piEntity.GetValue(_ObjectContext, null);
                         }
                         return null;
                     }

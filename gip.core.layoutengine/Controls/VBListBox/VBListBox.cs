@@ -491,26 +491,8 @@ namespace gip.core.layoutengine
                 }
             }
 
-            // dsSource = Reference auf BSOCompany-Instanz
-            // dsPath = "Database.MDCountryList"
-            // Liefert gefiltertes (ACQueryDefinition.ACFilterColumns) und 
-            // sortiertes (ACQueryDefinition.ACSortColumns) Ergebnis: 
-
-            // IEnumerable list = BSOCompany.Database.MDCountryList.ACSelect(ACQueryDefinition);
-            // Zukünftig, da die ...List-Eigenschaften in Database entfallen:
-            // IEnumerable list = BSOCompany.Database.MDCountry.ACSelect(ACQueryDefinition);
-
-
-            // TODO: Zwischenlösung
             if (dsPath.StartsWith(Const.ContextDatabase + ".") || (dsSource != null && dsSource is IACEntityObjectContext))
             {
-                //Type t = dsSource.GetType();
-                //PropertyInfo pi = t.GetProperty(Const.ContextDatabase);
-
-                //var lastPath = dsPath.Substring(9);
-                //var database = pi.GetValue(dsSource, null) as IACObject;
-                //var result = database.ACSelect(ACQueryDefinition, lastPath);
-                //this.ItemsSource = result;
                 if (NavSearchOnACAccess())
                 {
                     Binding binding = new Binding();
@@ -521,12 +503,25 @@ namespace gip.core.layoutengine
                 }
                 else
                 {
-                    if (dsSource != null && dsSource is IACEntityObjectContext)
+                    if (dsSource != null && dsSource is IACEntityObjectContext dbContext)
                     {
-                        var result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
-                        Binding binding = new Binding();
-                        binding.Source = result.AsArrayList();
-                        SetBinding(ComboBox.ItemsSourceProperty, binding);
+                        if (dbContext.IsACSelectSupported(ACQueryDefinition))
+                        {
+                            var result = dbContext.ACSelect(ACQueryDefinition, dsPath);
+                            Binding binding = new Binding();
+                            binding.Source = result.AsArrayList();
+                            SetBinding(ComboBox.ItemsSourceProperty, binding);
+                        }
+                        else
+                        {
+                            Binding binding = new Binding();
+                            binding.Source = dsSource;
+                            if (!string.IsNullOrEmpty(dsPath))
+                            {
+                                binding.Path = new PropertyPath(dsPath);
+                            }
+                            SetBinding(ListBox.ItemsSourceProperty, binding);
+                        }
                     }
                     else
                     {

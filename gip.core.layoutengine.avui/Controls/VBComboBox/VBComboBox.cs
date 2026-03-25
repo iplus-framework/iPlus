@@ -408,12 +408,9 @@ namespace gip.core.layoutengine.avui
                                         if (initObject == null)
                                             initObject = BSOACComponent;
 
-                                        bool contextCheck = (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext));
-                                        bool isObjectSet = 
-                                                        contextCheck
-                                                        && (
-                                                                dsACTypeInfo is ACClassProperty 
-                                                                && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable")/*dsACTypeInfo as ACClassProperty).GenericType == typeof(Microsoft.EntityFrameworkCore.DbSet<>).FullName*/);
+                                        bool isObjectSet =    (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext))
+                                                           && dsACTypeInfo is ACClassProperty 
+                                                           && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable");
                                         if (initObject != null && isObjectSet)
                                             ACAccess = queryDef.NewAccess("VBComboBox", initObject, dsSource as IACObject);
                                         else
@@ -519,14 +516,21 @@ namespace gip.core.layoutengine.avui
                             }
                             else
                             {
-                                if (dsSource != null && dsSource is IACEntityObjectContext)
+                                if (dsSource != null && dsSource is IACEntityObjectContext dbContext)
                                 {
-                                    IQueryable result = (dsSource as IACEntityObjectContext).ACSelect(ACQueryDefinition, dsPath);
-                                    var binding = new Binding
+                                    if (dbContext.IsACSelectSupported(ACQueryDefinition))
                                     {
-                                        Source = result.AsArrayList()
-                                    };
-                                    this.Bind(ItemsSourceProperty, binding);
+                                        IQueryable result = dbContext.ACSelect(ACQueryDefinition, dsPath);
+                                        var binding = new Binding
+                                        {
+                                            Source = result.AsArrayList()
+                                        };
+                                        this.Bind(ItemsSourceProperty, binding);
+                                    }
+                                    else
+                                    {
+                                        BindDirectlyToSource(dsSource, dsPath, dsACTypeInfo);
+                                    }
                                 }
                                 else
                                 {
@@ -546,39 +550,7 @@ namespace gip.core.layoutengine.avui
                         }
                         else
                         {
-                            if (ACAccess != null)
-                            {
-                                ACAccessComposite = new ObservableCollection<object>();
-                                
-                                var binding = new Binding
-                                {
-                                    Source = dsSource,
-                                    Mode = BindingMode.OneWay
-                                };
-                                if (!string.IsNullOrEmpty(dsPath))
-                                    binding.Path = dsPath;
-                                // For Avalonia, bind directly to the source
-                                this.Bind(ItemsSourceProperty, binding);
-
-                                object selectedValue = ContextACObject.ACUrlCommand(VBContent);
-                                if (selectedValue != null)
-                                {
-                                    ACAccessComposite.Add(selectedValue);
-                                }
-                            }
-                            else
-                            {
-                                // Fill list area of combobox
-                                var binding = new Binding
-                                {
-                                    Source = dsSource
-                                };
-                                if (!string.IsNullOrEmpty(dsPath))
-                                {
-                                    binding.Path = dsPath;
-                                }
-                                this.Bind(ItemsSourceProperty, binding);
-                            }
+                            BindDirectlyToSource(dsSource, dsPath, dsACTypeInfo);
                         }
                     }
 
@@ -751,6 +723,43 @@ namespace gip.core.layoutengine.avui
 
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
                     datamodel.Database.Root.Messages.LogException("VBComboBox", "InitVBControl(10)", msg);
+            }
+        }
+
+        private void BindDirectlyToSource(object dsSource, string dsPath, IACType dsACTypeInfo)
+        {
+            if (ACAccess != null)
+            {
+                ACAccessComposite = new ObservableCollection<object>();
+                
+                var binding = new Binding
+                {
+                    Source = dsSource,
+                    Mode = BindingMode.OneWay
+                };
+                if (!string.IsNullOrEmpty(dsPath))
+                    binding.Path = dsPath;
+                // For Avalonia, bind directly to the source
+                this.Bind(ItemsSourceProperty, binding);
+
+                object selectedValue = ContextACObject.ACUrlCommand(VBContent);
+                if (selectedValue != null)
+                {
+                    ACAccessComposite.Add(selectedValue);
+                }
+            }
+            else
+            {
+                // Fill list area of combobox
+                var binding = new Binding
+                {
+                    Source = dsSource
+                };
+                if (!string.IsNullOrEmpty(dsPath))
+                {
+                    binding.Path = dsPath;
+                }
+                this.Bind(ItemsSourceProperty, binding);
             }
         }
 

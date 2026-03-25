@@ -58,6 +58,20 @@ namespace gip.core.datamodel
             return acObject.ACSelect<T>(queryDefinition, queryDefinition.ChildACUrl, mergeOption);
         }
 
+        public static bool IsACSelectSupported(this IACObject acObject, ACQueryDefinition queryDefinition)
+        {
+            Type typeParent = acObject.GetType();
+            PropertyInfo pi = typeParent.GetProperty(queryDefinition.ChildACUrl);
+            if (pi != null)
+            {
+                return typeof(IQueryable).IsAssignableFrom(pi.PropertyType);
+            }
+            else
+            {
+                var childProp = acObject.ACUrlCommand(queryDefinition.ChildACUrl);
+                return childProp != null;
+            }
+        }
         /// <summary>
         /// ACs the select.
         /// </summary>
