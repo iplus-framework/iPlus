@@ -134,6 +134,11 @@ namespace Fluent
             return Binding.DoNothing;
         }
 
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+
         #endregion
     }
 }

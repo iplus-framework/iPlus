@@ -1,26 +1,27 @@
-﻿using Avalonia.Data.Converters;
+using Avalonia.Data.Converters;
 using System;
 using System.Globalization;
+using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.core.layoutengine.avui
 {
-    public class VisibilityNullConverter : IValueConverter
+    [Converter(typeof(object), typeof(bool))]
+    public class IsVisibleNullConverter : IValueConverter
     {
-        private static VisibilityNullConverter _Current;
+        private static IsVisibleNullConverter _Current;
 
-        public static VisibilityNullConverter Current
+        public static IsVisibleNullConverter Current
         {
             get
             {
-                if (_Current == null) _Current = new VisibilityNullConverter();
+                if (_Current == null) _Current = new IsVisibleNullConverter();
                 return _Current;
             }
         }
         /// <summary>
         /// Updated and builded method
         /// - param : 
-        ///     true -> for visibility hidden 
-        ///     true, invert -> hidden and inverted logic - hidde if value is null
+        ///     invert -> logic - hide if value is null
         /// </summary>
         /// <param name="value"></param>
         /// <param name="targetType"></param>
@@ -29,14 +30,9 @@ namespace gip.core.layoutengine.avui
         /// <returns></returns>
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-
-            Visibility notPresentedVisibility = Visibility.Collapsed;
-            if(parameter != null && parameter.ToString().Contains("true"))
-                notPresentedVisibility = Visibility.Hidden;
             bool invertedLogic = parameter != null && parameter.ToString().Contains("invert");
 
-            return value != null ^ invertedLogic ? Visibility.Visible : notPresentedVisibility;
-
+            return value != null ^ invertedLogic;
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

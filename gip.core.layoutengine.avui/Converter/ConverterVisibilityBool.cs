@@ -40,5 +40,10 @@ namespace gip.core.layoutengine.avui
         {
             return null;
         }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
     }
 }

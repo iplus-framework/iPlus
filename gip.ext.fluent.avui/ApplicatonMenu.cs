@@ -62,6 +62,11 @@ namespace Fluent
             return value;
         }
 
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+
         #endregion
     }
 

@@ -1,38 +1,38 @@
-﻿using Avalonia.Data.Converters;
+using Avalonia.Data.Converters;
 using System;
 using System.Globalization;
+using gip.ext.design.avui.PropertyGrid;
 
 namespace gip.core.layoutengine.avui
 {
-    public class ConverterVisibilityInverseBool : IValueConverter
+    [Converter(typeof(object), typeof(bool))]
+    public class ConverterIsVisibleBool : IValueConverter
     {
-        private static ConverterVisibilityInverseBool _Current;
+        private static ConverterIsVisibleBool _Current;
 
-        public static ConverterVisibilityInverseBool Current
+        public static ConverterIsVisibleBool Current
         {
             get
             {
-                if (_Current == null) _Current = new ConverterVisibilityInverseBool();
+                if (_Current == null) 
+                    _Current = new ConverterIsVisibleBool();
                 return _Current;
             }
         }
 
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            Visibility visibility = Visibility.Collapsed;
-            if (parameter != null)
-                visibility = Visibility.Hidden;
             bool visible = false;
             if (value != null)
             {
-                if (value is String)
-                    bool.TryParse((String)value, out visible);
+                if (value is string s)
+                    bool.TryParse(s, out visible);
                 else if (value is IConvertible)
-                    visible = System.Convert.ToBoolean(value);
+                    visible = Convert.ToBoolean(value);
+                else if (value is bool b)
+                    visible = b;
             }
-            if (!visible)
-                visibility = Visibility.Visible;
-            return visibility;
+            return visible;
         }
 
         object IValueConverter.ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

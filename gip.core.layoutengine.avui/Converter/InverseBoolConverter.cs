@@ -29,6 +29,11 @@ namespace gip.core.layoutengine.avui
             return !(bool)value;
         }
 
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         #endregion
     }
 
@@ -46,6 +51,11 @@ namespace gip.core.layoutengine.avui
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value;
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
         }
     }
 

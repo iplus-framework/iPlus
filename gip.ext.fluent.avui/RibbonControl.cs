@@ -74,6 +74,11 @@ namespace Fluent
             throw new NotImplementedException();
         }
 
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return this;
+        }
+
         #endregion
     }
     /// <summary>

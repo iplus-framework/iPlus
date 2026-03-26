@@ -12,6 +12,7 @@ using System.Xml;
 using System.Collections;
 using System.Linq;
 using Avalonia;
+using Avalonia.Collections;
 using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Controls;
 using Avalonia.Controls.Documents;
@@ -952,7 +953,16 @@ namespace gip.ext.xamldom.avui
             }
             else
             {
-                // This is an attached property
+                // First try as a normal property on the qualifying type (e.g. RotateTransform.Angle
+                // where Angle is a regular property of RotateTransform, not an attached property).
+                try
+                {
+                    return FindProperty(null, propertyType, propertyType, propertyName);
+                }
+                catch (XamlLoadException)
+                { }
+
+                // Fall back to attached property lookup
                 return FindAttachedProperty(propertyType, propertyName);
             }
         }
@@ -1246,6 +1256,24 @@ namespace gip.ext.xamldom.avui
             else if (targetProperty.ReturnType == typeof(Uri))
             {
                 return scope.OwnerDocument.TypeFinder.ConvertUriToLocalUri(new Uri(valueText, UriKind.RelativeOrAbsolute));
+            }
+            else if (targetProperty.ReturnType.IsGenericType
+                     && targetProperty.ReturnType.GetGenericTypeDefinition() == typeof(AvaloniaList<>))
+            {
+                // e.g. StrokeDashArray="2,2" → AvaloniaList<double>
+                Type itemType = targetProperty.ReturnType.GetGenericArguments()[0];
+                TypeConverter itemConverter = TypeDescriptor.GetConverter(itemType);
+                object list = Activator.CreateInstance(targetProperty.ReturnType);
+                var addMethod = targetProperty.ReturnType.GetMethod("Add");
+                if (addMethod != null && itemConverter != null)
+                {
+                    foreach (string part in valueText.Split(new[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries))
+                    {
+                        object item = itemConverter.ConvertFromInvariantString(part.Trim());
+                        addMethod.Invoke(list, new[] { item });
+                    }
+                }
+                return list;
             }
             else if (targetProperty.ReturnType == typeof(Bitmap))
             {

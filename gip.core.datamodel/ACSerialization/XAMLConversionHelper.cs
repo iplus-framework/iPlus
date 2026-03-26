@@ -1548,6 +1548,7 @@ namespace gip.core.datamodel
             ("Property=\"Y2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"0,1\"", false),
             ("RelativeSource={x:Static RelativeSource.Self}}", "RelativeSource={RelativeSource Self}}", false),
             ("StrokeLineJoin=", "StrokeJoin=", false),
+            (" RelativeTransform=\"Identity\"", " ", false),
             (" Transform=\"Identity\"", " ", false),
             ("GlassEffect=\"Visible\"", "GlassEffect=\"True\"", false),
             ("GlassEffect=\"Hidden\"", "GlassEffect=\"False\"", false),
@@ -1558,6 +1559,15 @@ namespace gip.core.datamodel
             ("<vb:VBInstanceInfo x:Key=", "<vb:VBInstanceInfo Key=", false),
             ("Visibility=\"{vb:VBBinding Converter={vb:ConverterVisibilitySingle UseCollapsed=True,c ACUrlCommand=\\Environment!GetVisibilityForPANotifyState},", "IsVisible=\"{vb:VBBinding Converter={vb:ConverterObject ACUrlCommand=\\Environment!GetVisibilityForPANotifyStateAv},", false),
             ("ListBox.ItemContainerStyle", "ListBox.ItemContainerTheme", false),
+            // Visibility to IsVisible converters
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleBool.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
+            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
+            (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
+            (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
+            (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
 
             // Regex-based patterns for complex multi-line replacements
             (@"<vb:VBTreeView\.TreeItemTemplate>\s*<DataTemplate>", "<TreeView.ItemTemplate>\n    <TreeDataTemplate ItemsSource=\"{Binding VisibleItemsT}\">", true),
@@ -1573,6 +1583,8 @@ namespace gip.core.datamodel
             (@"\bBrushOnOff\b", "BrushOnOffAv", true),
             (@"\bBrushTextRed\b", "BrushTextRedAv", true),
             (@"\bDropShadowEffect\b", "DropShadowDirectionEffect", true),
+            (@"\bUIElement\b", "Control", true),
+            (@"\bFrameworkElement\b", "Control", true),
 
             // Remove CenterX and CenterY from SkewTransform
             (@"<SkewTransform\s+([^>]*?)CenterX=""[^""]*""\s*", @"<SkewTransform $1", true),
@@ -1581,10 +1593,19 @@ namespace gip.core.datamodel
             // Remove obsolete Shape property not available in Avalonia.
             (@"\s+StrokeMiterLimit=""[^""]*""", "", true),
 
+            // Pen property mapping: StartLineCap -> LineCap, removal of EndLineCap
+            (@"<Pen\s+([^>]*?)StartLineCap=""([^""]*)""([^>]*?)", @"<Pen $1LineCap=""$2""$3", true),
+            (@"<Pen\s+([^>]*?)\s+EndLineCap=""[^""]*""([^>]*?)", @"<Pen $1$2", true),
+            (@"<Pen\s+([^>]*?)\s+DashCap=""[^""]*""([^>]*?)", @"<Pen $1$2", true),
+
             // ImageBrush property mapping: Viewport -> SourceRect, ImageSource -> Source, removal of ViewportUnits
             (@"<ImageBrush\s+([^>]*?)Viewport=""([^""]*)""([^>]*?)", @"<ImageBrush $1SourceRect=""$2""$3", true),
             (@"<ImageBrush\s+([^>]*?)ImageSource=""([^""]*)""([^>]*?)", @"<ImageBrush $1Source=""$2""$3", true),
             (@"<ImageBrush\s+([^>]*?)\s+ViewportUnits=""[^""]*""([^>]*?)", @"<ImageBrush $1$2", true),
+            (@"<DrawingBrush\s+([^>]*?)Viewbox=""([^""]*)""([^>]*?)", @"<DrawingBrush $1SourceRect=""$2""$3", true),
+            (@"<DrawingBrush\s+([^>]*?)\s+ViewboxUnits=""[^""]*""([^>]*?)", @"<DrawingBrush $1$2", true),
+            (@"<DrawingBrush\s+([^>]*?)x:Key=""[^""]*""([^>]*?)", @"<DrawingBrush $1$2", true),
+            (@"<DrawingBrush\s+([^>]*?)\s+Key=""[^""]*""([^>]*?)", @"<DrawingBrush $1$2", true),
 
             // Convert Image with VBStaticResource to VBDynamicImage (with ResourceKey parameter)
             (@"<Image\s+([^>]*?)Source=""\{vb:VBStaticResource\s+ResourceKey=([^,}]+)[^}]*\}""([^>]*?)(/?>)", @"<vb:VBDynamicImage $1VBContent=""$2""$3$4", true),
@@ -1598,6 +1619,15 @@ namespace gip.core.datamodel
             // Avalonia: RenderTransform="matrix(M11,M12,M21,M22,OffX,OffY)"
             // Note: no spaces between values — Avalonia's ParseCommaDelimitedValues does not trim the last value.
             (@"RenderTransform=""(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?),\s*(-?[\d.]+(?:[eE][+-]?\d+)?)""", @"RenderTransform=""matrix($1,$2,$3,$4,$5,$6)""", true),
+
+            // Convert StrokeDashArray spaces into commas for Avalonia
+            // This pattern specifically targets space-separated numbers inside StrokeDashArray quotes.
+            // Simplified regex to match single pairs and relies on multiple passes if needed, 
+            // but global replacement in Regex.Replace (which is used here) handles it if the pattern is right.
+            (@"\bStrokeDashArray=""([\d\s.]+)""", @"StrokeDashArray=""$1""", true), // Helper to find them, but we need a more surgical replacement for the spaces themselves.
+            // Note: The conversion engine usually runs these patterns. If we want to replace spaces with commas INSIDE the value:
+            // We use a lookahead/lookbehind approach or a specialized mapping.
+            (@"\bStrokeDashArray=""([^""]*?\d)\s+(\d[^""]*?)\""", @"StrokeDashArray=""$1,$2""", true),
 
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
         };

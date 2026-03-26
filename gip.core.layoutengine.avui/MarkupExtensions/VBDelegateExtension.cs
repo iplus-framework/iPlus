@@ -204,6 +204,8 @@ namespace gip.core.layoutengine.avui
             }
             else if (typeof(EventHandler<PointerPressedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerPressedEventArgs>)OnPointerPressedEvent).Method);
+            else if (typeof(EventHandler<PointerReleasedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
+                return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<PointerReleasedEventArgs>)OnPointerReleasedEvent).Method);
             else if (typeof(EventHandler<RoutedEventArgs>).IsAssignableFrom(eventInfo.EventHandlerType))
                 return Delegate.CreateDelegate(eventInfo.EventHandlerType, this, ((EventHandler<RoutedEventArgs>)OnRoutedEvent).Method);
 
@@ -372,6 +374,61 @@ namespace gip.core.layoutengine.avui
                 if (e.ClickCount < 2)
                     return;
             }
+            if (InvokeAtVBControl != null && sender is AvaloniaObject)
+            {
+                IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as AvaloniaObject, InvokeAtVBControl) as IACObject;
+                if (vbControl != null)
+                {
+                    vbControl.ACUrlCommand(ACUrlCmd, null);
+                    return;
+                }
+            }
+            if (ACComponent != null)
+            {
+                bool handled = false;
+                object result;
+                if (PassEventArgs)
+                {
+                    if (String.IsNullOrEmpty(Parameter))
+                        result = ACComponent.ACUrlCommand(ACUrlCmd, e);
+                    else
+                    {
+                        string[] sParams = Parameter.Split(',');
+                        object[] oParams = new object[sParams.Count() + 1];
+                        oParams[0] = e;
+                        for (int i = 0; i < sParams.Count(); i++)
+                        {
+                            oParams[i + 1] = sParams[i];
+                        }
+                        result = ACComponent.ACUrlCommand(ACUrlCmd, oParams);
+                    }
+                }
+                else
+                {
+                    if (String.IsNullOrEmpty(Parameter))
+                        result = ACComponent.ACUrlCommand(ACUrlCmd);
+                    else
+                    {
+                        string[] sParams = Parameter.Split(',');
+                        object[] oParams = new object[sParams.Count()];
+                        //oParams[0] = e;
+                        for (int i = 0; i < sParams.Count(); i++)
+                        {
+                            oParams[i] = sParams[i];
+                        }
+                        result = ACComponent.ACUrlCommand(ACUrlCmd, oParams);
+                    }
+                }
+
+                if (result != null)
+                    handled = (bool)result;
+                if (typeof(RoutedEventArgs).IsAssignableFrom(e.GetType()))
+                    ((RoutedEventArgs)e).Handled = handled;
+            }
+        }
+
+        public void OnPointerReleasedEvent(object sender, PointerReleasedEventArgs e)
+        {
             if (InvokeAtVBControl != null && sender is AvaloniaObject)
             {
                 IACObject vbControl = gip.core.layoutengine.avui.Helperclasses.VBLogicalTreeHelper.FindObjectInLogicalTree(sender as AvaloniaObject, InvokeAtVBControl) as IACObject;

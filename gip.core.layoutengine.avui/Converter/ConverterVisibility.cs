@@ -17,7 +17,7 @@ namespace gip.core.layoutengine.avui
         Collapsed
     }
 
-    [ConverterAttribute(typeof(object), typeof(Visibility))]
+    [Converter(typeof(object), typeof(Visibility))]
     public class ConverterVisibilitySingle : ConverterBase, IValueConverter
     {
         #region IValueConverter Members
@@ -60,7 +60,36 @@ namespace gip.core.layoutengine.avui
         }
     }
 
-    [ConverterAttribute(typeof(object), typeof(Visibility))]
+    [Converter(typeof(object), typeof(bool))]
+    public class ConverterIsVisibleSingle : ConverterBase, IValueConverter
+    {
+        #region IValueConverter Members
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool isVisible = (bool)ConverterIsVisibleMulti.Convert(this, new object[] { value }, targetType, parameter, culture);
+            if (Negate)
+                isVisible = !isVisible;
+            return isVisible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            object[] result = ConverterIsVisibleMulti.ConvertBack(this, value, new Type[] { targetType }, parameter, culture);
+            if (result == null)
+                return null;
+            if (!result.Any())
+                return null;
+            return result[0];
+        }
+        #endregion
+
+        public bool Negate
+        {
+            get; set;
+        }
+    }
+
+    [Converter(typeof(object), typeof(Visibility))]
     public class ConverterVisibilityMulti : ConverterBase, IMultiValueConverter
     {
         #region IMultiValueConverter Members
@@ -166,6 +195,97 @@ namespace gip.core.layoutengine.avui
         {
             get;
             set;
+        }
+    }
+
+    [Converter(typeof(object), typeof(bool))]
+    public class ConverterIsVisibleMulti : ConverterBase, IMultiValueConverter
+    {
+        #region IMultiValueConverter Members
+        public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            bool isVisible = (bool)Convert(this, values, targetType, parameter, culture);
+            if (Negate)
+                isVisible = !isVisible;
+            return isVisible;
+        }
+
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+        {
+            return ConvertBack(this, value, targetTypes, parameter, culture);
+        }
+        #endregion
+
+        internal static object Convert(ConverterBase converter, IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+        {
+            object result = null;
+            bool val = true;
+            try
+            {
+                if ((converter.ConversionBy != ConvType.Direct) && (converter.Calculator != null))
+                {
+                    ICalculatorResult calcResult = converter.Calculator.Calculate(values, targetType, parameter, culture, out result);
+                    if (calcResult == ICalculatorResult.FromScriptEngine)
+                    {
+                        if (result is bool b)
+                            return b;
+                        if (result is Visibility v)
+                            return v == Visibility.Visible;
+                    }
+                    else if (calcResult == ICalculatorResult.FromExpression)
+                    {
+                        if (result is string text)
+                        {
+                            if (text == "Visible" || text == "True")
+                                return true;
+                            else
+                                return false;
+                        }
+                        else if (result is IConvertible)
+                            val = System.Convert.ToBoolean(result);
+                    }
+                    else if (values[0] is IConvertible)
+                    {
+                        if (values[0] is string s)
+                            bool.TryParse(s, out val);
+                        else
+                            val = System.Convert.ToBoolean(values[0]);
+                    }
+                }
+                else if (values[0] is IConvertible)
+                {
+                    if (values[0] is string s)
+                        bool.TryParse(s, out val);
+                    else
+                        val = System.Convert.ToBoolean(values[0]);
+                }
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+
+                if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                    datamodel.Database.Root.Messages.LogException("ConverterIsVisibleMulti", "Convert", msg);
+            }
+            return val;
+        }
+
+        internal static object[] ConvertBack(ConverterBase converter, object value, Type[] targetTypes, object parameter, System.Globalization.CultureInfo culture)
+        {
+            object[] result = new object[targetTypes.Count()];
+            int i = 0;
+            foreach (Type type in targetTypes)
+            {
+                result[i] = null;
+            }
+            return result;
+        }
+
+        public bool Negate
+        {
+            get; set;
         }
     }
 }
