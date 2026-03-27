@@ -157,6 +157,9 @@ namespace gip.core.autocomponent
 
             if (updateEndDateTime)
             {
+                if (!UserEndDateTemp.HasValue)
+                    return false;
+
                 DateTime temp = UserEndDateTemp.Value;
                 if(UserEndTime.TotalSeconds != 0)
                 {
