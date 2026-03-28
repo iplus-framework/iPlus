@@ -134,7 +134,7 @@ namespace gip.core.layoutengine.avui.Helperclasses
         {
             if (adornerLayer == null || element == null) 
                 return null;
-            return adornerLayer.Children.OfType<Adorner>().Where(c => c.AdornedElement == element);
+            return adornerLayer.Children.OfType<Adorner>().Where(c => c.AdornedElement == element).ToArray();
         }
 
         public static AdornerHitTestResult AdornerHitTest(this AdornerLayer adornerLayer, Point point)

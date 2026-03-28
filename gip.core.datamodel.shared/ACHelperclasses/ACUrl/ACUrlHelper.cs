@@ -15,6 +15,7 @@
 // ***********************************************************************
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 
@@ -113,8 +114,12 @@ namespace gip.core.datamodel
         public const char AttachedMethodIDConcatenator = '@';
 
         public const char OpeningBrace = '{';
-
+    
         public const char ClosingBrace = '}';
+
+        public const char Delimiter_AsyncMethodInvocation = '`';
+
+        public const string CallAsync = "!`";
 
         /// <summary>
         /// All reserved Characters, which are not allowed to use in a ACIdentifer
@@ -130,6 +135,7 @@ namespace gip.core.datamodel
             Delimiter_CustomMessage,
             Delimiter_InstanceNoOpen,
             Delimiter_InstanceNoClose,
+            Delimiter_AsyncMethodInvocation,
             '<', '>', '+', '-', '/', '*', '|', '$', '%', '%', '&', '{', '}', '[', ']' };
 
         /// <summary>

@@ -6,6 +6,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterAbbreviateNum : IValueConverter
     {
+        private static ConverterAbbreviateNum _Current;
+
+        public static ConverterAbbreviateNum Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterAbbreviateNum();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         #region IValueConverter Members
         /// <summary>
         /// Returns a Substring

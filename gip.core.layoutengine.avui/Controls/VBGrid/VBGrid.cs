@@ -311,20 +311,13 @@ namespace gip.core.layoutengine.avui
         /// Updates a control mode.
         /// </summary>
         public void UpdateControlMode()
-        {
-            IACComponent elementACComponent = ContextACObject as IACComponent;
-            if (elementACComponent == null)
-                return;
-            Global.ControlModesInfo controlModeInfo = elementACComponent.GetControlModes(this);
-            Global.ControlModes controlMode = controlModeInfo.Mode;
-            
-            // In Avalonia, we can't use ValueSource or DependencyPropertyHelper
-            // We simplify the logic for now
-            bool hasCustomVisibility = false; // We could implement this check if needed
-            
-            if (!hasCustomVisibility || !String.IsNullOrEmpty(VBContent))
+        {                
+            if (IsSet(ACUpdateControlModeProperty) || !String.IsNullOrEmpty(VBContent))
             {
-                IsVisible = controlMode >= Global.ControlModes.Disabled;
+                IACComponent elementACComponent = ContextACObject as IACComponent;
+                if (elementACComponent == null)
+                    return;
+                IsVisible = elementACComponent.GetControlModes(this).Mode >= Global.ControlModes.Disabled;
             }
         }
 

@@ -11,6 +11,23 @@ namespace gip.core.layoutengine.avui
     /// </summary>
     public class ConverterBoolFillColor : IValueConverter
     {
+        private static ConverterBoolFillColor _Current;
+
+        public static ConverterBoolFillColor Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterBoolFillColor();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         public string TrueColor { get; set; } = "#00FF00";
         public string FalseColor { get; set; } = "#FFFF00";
 

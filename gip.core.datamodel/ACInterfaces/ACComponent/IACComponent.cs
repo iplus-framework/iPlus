@@ -723,4 +723,5 @@ namespace gip.core.datamodel
     }
 
     public delegate bool HandleExecuteACMethodStatic(out object result, IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter);
+    public delegate Task<object> HandleExecuteACMethodStaticAsync(IACComponent acComponent, string acMethodName, ACClassMethod acClassMethod, params object[] acParameter);
 }

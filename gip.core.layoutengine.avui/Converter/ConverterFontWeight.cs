@@ -11,6 +11,18 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(FontWeight))]
     public class ConverterFontWeightSingle : ConverterBase, IValueConverter
     {
+        private static ConverterFontWeightSingle _Current;
+
+        public static ConverterFontWeightSingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterFontWeightSingle();
+                return _Current;
+            }
+        }
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -32,6 +44,18 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(FontWeight))]
     public class ConverterFontWeightMulti : ConverterBase, IMultiValueConverter
     {
+        private static ConverterFontWeightMulti _Current;
+
+        public static ConverterFontWeightMulti Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterFontWeightMulti();
+                return _Current;
+            }
+        }
+
         #region IMultiValueConverter Members
         public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

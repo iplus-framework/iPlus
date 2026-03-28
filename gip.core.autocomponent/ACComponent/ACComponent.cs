@@ -36,7 +36,7 @@ namespace gip.core.autocomponent
     /// <seealso cref="gip.core.datamodel.IACMenuBuilder" />
     [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + "ACComponent", "en{'ACComponent'}de{'ACComponent'}", typeof(ACComponent), "ACComponentChilds", Const.ACCaptionPrefix, Const.ACCaptionPrefix)]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'Baseclass ACComponent'}de{'Basisklasse ACComponent'}", Global.ACKinds.TACAbstractClass, Global.ACStorableTypes.NotStorable, true, true)]
-    public abstract partial class ACComponent : IACComponent, INotifyPropertyChanged, IComparable, IACClassDesignProvider, IACMenuBuilder
+    public abstract partial class ACComponent : IACComponent, INotifyPropertyChanged, IComparable, IACClassDesignProvider, IACMenuBuilder, IACInteractiveObjectAsync
     {
 
         #region c´tors
@@ -2626,12 +2626,17 @@ namespace gip.core.autocomponent
                 acMethodName1 = acMethodName.Substring(1);
             else
                 acMethodName1 = acMethodName;
+
+            if (acMethodName1.StartsWith(ACUrlHelper.Delimiter_AsyncMethodInvocation))
+                acMethodName1 = acMethodName1.Substring(1);
+
             normalizedMethodName = acMethodName1;
 
             return ACClassMethods.FirstOrDefault(c => c.ACIdentifier == acMethodName1);
         }
 
         internal static readonly ConcurrentDictionary<Type, HandleExecuteACMethodStatic> _StaticExecuteHandlers = new ConcurrentDictionary<Type, HandleExecuteACMethodStatic>();
+        internal static readonly ConcurrentDictionary<Type, HandleExecuteACMethodStaticAsync> _StaticExecuteHandlersAsync = new ConcurrentDictionary<Type, HandleExecuteACMethodStaticAsync>();
         /// <summary>
         /// You cannot override static methods. As a result, acComponent cannot provide a virtual method that it is already aware of in advance. o announce these static handler methods to the iPlus framework, you must call the RegisterExecuteHandler method in the static class constructor and pass your handler method as a delegate.
         /// </summary>
@@ -2640,6 +2645,11 @@ namespace gip.core.autocomponent
         public static void RegisterExecuteHandler(Type typeOfClass, HandleExecuteACMethodStatic refToStaticMethod)
         {
             _StaticExecuteHandlers.TryAdd(typeOfClass, refToStaticMethod);
+        }
+
+        public static void RegisterExecuteHandlerAsync(Type typeOfClass, HandleExecuteACMethodStaticAsync refToStaticMethod)
+        {
+            _StaticExecuteHandlersAsync.TryAdd(typeOfClass, refToStaticMethod);
         }
         internal static readonly ConcurrentDictionary<Type, bool> _HasStaticAskMethods = new ConcurrentDictionary<Type, bool>();
 
@@ -2800,6 +2810,16 @@ namespace gip.core.autocomponent
                         // Ermittle Typ: Falls AttachedFromACClassID gesetzt, dann ist eine Erweterungsmethode aus einer anderen Klasse, sonst eigene Methode in dieser Klasse
                         Type targetForInvocation = acClassMethod.AttachedFromACClassID.HasValue ? acClassMethod.AttachedFromACClass.ObjectType : ACType.ObjectType;
                         HandleExecuteACMethodStatic staticHandler = null;
+
+                        if (acMethodName.StartsWith(ACUrlHelper.CallAsync))
+                        {
+                            HandleExecuteACMethodStaticAsync staticHandlerAsync = null;
+                            if (_StaticExecuteHandlersAsync.TryGetValue(targetForInvocation, out staticHandlerAsync))
+                            {
+                                return staticHandlerAsync(this, acMethodName1, acClassMethod, acParameter);
+                            }
+                        }
+
                         if (_StaticExecuteHandlers.TryGetValue(targetForInvocation, out staticHandler))
                         {
                             object result = null;
@@ -4444,6 +4464,61 @@ namespace gip.core.autocomponent
                             {
                                 _CurrentInvokingACCommand = acCommand;
                                 ACUrlCommand(acCommand.GetACUrl(), acCommand.ParameterList.ToValueArray());
+                                _CurrentInvokingACCommand = null;
+                                return;
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// ACActionAsync is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event asynchronously.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        public virtual async Task ACActionAsync(ACActionArgs actionArgs)
+        {
+            ACActionEvent?.Invoke(this, actionArgs);
+
+            switch (actionArgs.ElementAction)
+            {
+                case Global.ElementActionType.ContextMenu:
+                    {
+                        if (actionArgs is ACActionMenuArgs)
+                        {
+                            ACActionMenuArgs acActionMenuArgs = actionArgs as ACActionMenuArgs;
+                            acActionMenuArgs.ACMenuItemList = MenuManager.GetMenu(this, actionArgs.DropObject);
+                        }
+                        return;
+                    }
+                case Global.ElementActionType.ACCommand:
+                    {
+                        ACCommand acCommand = actionArgs.DropObject.ACContentList.Where(c => c is ACCommand).FirstOrDefault() as ACCommand;
+                        if (acCommand != null)
+                        {
+                            if (Root != null)
+                                Messages.LogDebug(this.GetACUrl(), "ACActionAsync()", acCommand.GetACUrl());
+                            if (acCommand.GetACUrl().StartsWith(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start))
+                            {
+                                _CurrentInvokingACCommand = acCommand;
+                                await Root.ACActionAsync(actionArgs);
+                                _CurrentInvokingACCommand = null;
+                                return;
+                            }
+                            if (!acCommand.ParameterList.Any())
+                            {
+                                _CurrentInvokingACCommand = acCommand;
+                                object result = ExecuteMethod(acCommand.GetAsyncACUrl());
+                                if (result is Task) await (Task)result;
+                                _CurrentInvokingACCommand = null;
+                                return;
+                            }
+                            else
+                            {
+                                _CurrentInvokingACCommand = acCommand;
+                                object result = ExecuteMethod(acCommand.GetAsyncACUrl(), acCommand.ParameterList.ToValueArray());
+                                if (result is Task) await (Task)result;
                                 _CurrentInvokingACCommand = null;
                                 return;
                             }

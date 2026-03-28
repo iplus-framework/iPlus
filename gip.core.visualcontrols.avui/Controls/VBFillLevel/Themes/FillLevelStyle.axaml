@@ -1,7 +1,7 @@
 <ResourceDictionary
-   xmlns="https://github.com/avaloniaui"
-   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-   xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
+xmlns="https://github.com/avaloniaui"
+xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+xmlns:local="clr-namespace:gip.core.visualcontrols.avui">
     <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="/Controls/Shared.axaml"/>
     </ResourceDictionary.MergedDictionaries>
@@ -62,82 +62,88 @@
     </LinearGradientBrush>
 
     <ControlTemplate x:Key="DefaultBar" TargetType="local:VBFillLevel">
-        <Border x:Name="TemplateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-            <Grid>
-                <Rectangle Grid.Row="0" Fill="{TemplateBinding Background}" RadiusX="6" RadiusY="6"/>
-                <Border Grid.Row="0" Background="{StaticResource ProgressBarGlassyHighlight}" CornerRadius="6" Margin="1"/>
-                <Border Grid.Row="0" BorderBrush="#80FFFFFF" BorderThickness="1,0,1,1" Background="{StaticResource ProgressBarTopHighlight}" Margin="1"/>
-                <Rectangle Grid.Row="0" x:Name="PART_Track" Margin="1"/>
-                <Border Grid.Row="0" x:Name="PART_Indicator" HorizontalAlignment="Left" Margin="1">
-                    <Grid x:Name="Foreground">
-                        <Rectangle x:Name="Indicator" Fill="{TemplateBinding Foreground}"/>
-                        <Grid x:Name="Animation" ClipToBounds="true">
-                            <Rectangle x:Name="PART_GlowRect" Fill="{StaticResource ProgressBarIndicatorAnimatedFill}" HorizontalAlignment="Left" Margin="-100,0,0,0" Width="100"/>
+        <LayoutTransformControl x:Name="TemplateRoot">
+            <LayoutTransformControl.LayoutTransform>
+                <RotateTransform Angle="0" />
+            </LayoutTransformControl.LayoutTransform>
+            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+                <Grid>
+                    <Rectangle Grid.Row="0" Fill="{TemplateBinding Background}" RadiusX="6" RadiusY="6"/>
+                    <Border Grid.Row="0" Background="{StaticResource ProgressBarGlassyHighlight}" CornerRadius="6" Margin="1"/>
+                    <Border Grid.Row="0" BorderBrush="#80FFFFFF" BorderThickness="1,0,1,1" Background="{StaticResource ProgressBarTopHighlight}" Margin="1"/>
+                    <Rectangle Grid.Row="0" x:Name="PART_Track" Margin="1"/>
+                    <Border Grid.Row="0" x:Name="PART_Indicator" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="1">
+                        <Grid x:Name="Foreground">
+                            <Rectangle x:Name="Indicator" Fill="{TemplateBinding Foreground}"/>
+                            <Grid x:Name="Animation" ClipToBounds="true">
+                                <Rectangle x:Name="PART_GlowRect" Fill="{StaticResource ProgressBarIndicatorAnimatedFill}" HorizontalAlignment="Left" Margin="-100,0,0,0" Width="100"/>
+                            </Grid>
+                            <Grid x:Name="Overlay">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MaxWidth="15"/>
+                                    <ColumnDefinition Width="0.1*"/>
+                                    <ColumnDefinition MaxWidth="15"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Rectangle x:Name="LeftDark" Fill="{StaticResource ProgressBarIndicatorDarkEdgeLeft}" Margin="1,1,0,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
+                                <Rectangle x:Name="RightDark" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorDarkEdgeRight}" Margin="0,1,1,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
+                                <Rectangle x:Name="LeftLight" Grid.Column="0" Fill="{StaticResource ProgressBarIndicatorLightingEffectLeft}" Grid.Row="2"/>
+                                <Rectangle x:Name="CenterLight" Grid.Column="1" Fill="{StaticResource ProgressBarIndicatorLightingEffect}" Grid.Row="2"/>
+                                <Rectangle x:Name="RightLight" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorLightingEffectRight}" Grid.Row="2"/>
+                                <Border x:Name="Highlight1" Background="{StaticResource ProgressBarIndicatorGlassyHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
+                                <Border x:Name="Highlight2" Background="{StaticResource ProgressBarTopHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
+                            </Grid>
                         </Grid>
-                        <Grid x:Name="Overlay">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition MaxWidth="15"/>
-                                <ColumnDefinition Width="0.1*"/>
-                                <ColumnDefinition MaxWidth="15"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Rectangle x:Name="LeftDark" Fill="{StaticResource ProgressBarIndicatorDarkEdgeLeft}" Margin="1,1,0,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
-                            <Rectangle x:Name="RightDark" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorDarkEdgeRight}" Margin="0,1,1,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
-                            <Rectangle x:Name="LeftLight" Grid.Column="0" Fill="{StaticResource ProgressBarIndicatorLightingEffectLeft}" Grid.Row="2"/>
-                            <Rectangle x:Name="CenterLight" Grid.Column="1" Fill="{StaticResource ProgressBarIndicatorLightingEffect}" Grid.Row="2"/>
-                            <Rectangle x:Name="RightLight" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorLightingEffectRight}" Grid.Row="2"/>
-                            <Border x:Name="Highlight1" Background="{StaticResource ProgressBarIndicatorGlassyHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
-                            <Border x:Name="Highlight2" Background="{StaticResource ProgressBarTopHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
-                        </Grid>
-                    </Grid>
-                </Border>
-                <Border Grid.Row="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                <Canvas x:Name="BottomTick" Grid.Row="0" IsVisible="False">
-                    <!-- TickBar replacement - simplified implementation -->
-                </Canvas>
-            </Grid>
-        </Border>
+                    </Border>
+                    <Border Grid.Row="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
+                    <TickBar x:Name="BottomTick" Grid.Row="0" Fill="{TemplateBinding Foreground}" Placement="Bottom" IsVisible="False" TickFrequency="{TemplateBinding TickFrequency}" Ticks="{TemplateBinding TicksView}" Maximum="{TemplateBinding Maximum}" Minimum="{TemplateBinding Minimum}" />
+                </Grid>
+            </Border>
+        </LayoutTransformControl>
     </ControlTemplate>
 
     <ControlTemplate x:Key="PerformantBar" TargetType="local:VBFillLevel">
-        <Border x:Name="TemplateRoot" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}">
-            <Grid>
-                <Rectangle Grid.Row="0" Fill="{TemplateBinding Background}" RadiusX="6" RadiusY="6"/>
-                <Border Grid.Row="0" Background="{StaticResource ProgressBarGlassyHighlight}" CornerRadius="6" Margin="1"/>
-                <Border Grid.Row="0" BorderBrush="#80FFFFFF" BorderThickness="1,0,1,1" Background="{StaticResource ProgressBarTopHighlight}" Margin="1"/>
-                <Rectangle Grid.Row="0" x:Name="PART_Track" Margin="1"/>
-                <Border Grid.Row="0" x:Name="PART_Indicator" HorizontalAlignment="Left" Margin="1">
-                    <Grid x:Name="Foreground">
-                        <Rectangle x:Name="Indicator" Fill="{TemplateBinding Foreground}"/>
-                        <Grid x:Name="Overlay">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition MaxWidth="15"/>
-                                <ColumnDefinition Width="0.1*"/>
-                                <ColumnDefinition MaxWidth="15"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Rectangle x:Name="LeftDark" Fill="{StaticResource ProgressBarIndicatorDarkEdgeLeft}" Margin="1,1,0,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
-                            <Rectangle x:Name="RightDark" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorDarkEdgeRight}" Margin="0,1,1,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
-                            <Rectangle x:Name="LeftLight" Grid.Column="0" Fill="{StaticResource ProgressBarIndicatorLightingEffectLeft}" Grid.Row="2"/>
-                            <Rectangle x:Name="CenterLight" Grid.Column="1" Fill="{StaticResource ProgressBarIndicatorLightingEffect}" Grid.Row="2"/>
-                            <Rectangle x:Name="RightLight" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorLightingEffectRight}" Grid.Row="2"/>
-                            <Border x:Name="Highlight1" Background="{StaticResource ProgressBarIndicatorGlassyHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
-                            <Border x:Name="Highlight2" Background="{StaticResource ProgressBarTopHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
+        <LayoutTransformControl x:Name="TemplateRoot">
+            <LayoutTransformControl.LayoutTransform>
+                <RotateTransform Angle="0" />
+            </LayoutTransformControl.LayoutTransform>
+            <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid>
+                    <Rectangle Grid.Row="0" Fill="{TemplateBinding Background}" RadiusX="6" RadiusY="6"/>
+                    <Border Grid.Row="0" Background="{StaticResource ProgressBarGlassyHighlight}" CornerRadius="6" Margin="1"/>
+                    <Border Grid.Row="0" BorderBrush="#80FFFFFF" BorderThickness="1,0,1,1" Background="{StaticResource ProgressBarTopHighlight}" Margin="1"/>
+                    <Rectangle Grid.Row="0" x:Name="PART_Track" Margin="1"/>
+                    <Border Grid.Row="0" x:Name="PART_Indicator" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="1">
+                        <Grid x:Name="Foreground">
+                            <Rectangle x:Name="Indicator" Fill="{TemplateBinding Foreground}"/>
+                            <Grid x:Name="Overlay">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition MaxWidth="15"/>
+                                    <ColumnDefinition Width="0.1*"/>
+                                    <ColumnDefinition MaxWidth="15"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Rectangle x:Name="LeftDark" Fill="{StaticResource ProgressBarIndicatorDarkEdgeLeft}" Margin="1,1,0,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
+                                <Rectangle x:Name="RightDark" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorDarkEdgeRight}" Margin="0,1,1,1" RadiusX="1" RadiusY="1" Grid.RowSpan="2"/>
+                                <Rectangle x:Name="LeftLight" Grid.Column="0" Fill="{StaticResource ProgressBarIndicatorLightingEffectLeft}" Grid.Row="2"/>
+                                <Rectangle x:Name="CenterLight" Grid.Column="1" Fill="{StaticResource ProgressBarIndicatorLightingEffect}" Grid.Row="2"/>
+                                <Rectangle x:Name="RightLight" Grid.Column="2" Fill="{StaticResource ProgressBarIndicatorLightingEffectRight}" Grid.Row="2"/>
+                                <Border x:Name="Highlight1" Background="{StaticResource ProgressBarIndicatorGlassyHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
+                                <Border x:Name="Highlight2" Background="{StaticResource ProgressBarTopHighlight}" Grid.ColumnSpan="3" Grid.RowSpan="2"/>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                </Border>
-                <Border Grid.Row="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
-                <Canvas x:Name="BottomTick" Grid.Row="0" IsVisible="False">
-                    <!-- TickBar replacement - simplified implementation -->
-                </Canvas>
-            </Grid>
-        </Border>
+                    </Border>
+                    <Border Grid.Row="0" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="2"/>
+                    <TickBar x:Name="BottomTick" Grid.Row="0" Fill="{TemplateBinding Foreground}" Placement="Bottom" IsVisible="False" TickFrequency="{TemplateBinding TickFrequency}" Ticks="{TemplateBinding TicksView}" Maximum="{TemplateBinding Maximum}" Minimum="{TemplateBinding Minimum}" />
+                </Grid>
+            </Border>
+        </LayoutTransformControl>
     </ControlTemplate>
 
     <ControlTheme x:Key="{x:Type local:VBFillLevel}" TargetType="local:VBFillLevel">
@@ -146,21 +152,26 @@
         <Setter Property="BorderBrush" Value="{StaticResource ProgressBarBorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Template" Value="{StaticResource PerformantBar}"/>
-        
+
         <!-- ProgressBarStyle DefaultBar -->
         <Style Selector="^[ProgressBarStyle=DefaultBar]">
             <Setter Property="Template" Value="{StaticResource DefaultBar}"/>
         </Style>
-        
+
         <!-- Orientation Vertical -->
-        <Style Selector="^[Orientation=Vertical] /template/ Border#TemplateRoot">
-            <Setter Property="RenderTransform">
+        <Style Selector="^:vertical /template/ LayoutTransformControl#TemplateRoot">
+            <Setter Property="LayoutTransform">
                 <Setter.Value>
                     <RotateTransform Angle="-90"/>
                 </Setter.Value>
             </Setter>
         </Style>
-        
+
+        <!-- <Style Selector="^:vertical /template/ Border#PART_Indicator">
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="VerticalAlignment" Value="Bottom"/>
+        </Style> -->
+
         <!-- ShowTickBar true -->
         <Style Selector="^[ShowTickBar=True] /template/ Canvas#BottomTick">
             <Setter Property="IsVisible" Value="True"/>

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Interactivity;
+using Avalonia.Layout;
 using Avalonia.Media;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -19,13 +20,15 @@ namespace gip.core.layoutengine.avui
     /// Steuerelement zur Anzeige eines Verlaufsbalkens.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBProgressBar'}de{'VBProgressBar'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public class VBProgressBar : ProgressBar, IVBContent, IACObject
+    public class VBProgressBar : VBProgressBarBase, IVBContent, IACObject
     {
         private IACBSO _LastKnownBSOACComponent = null;
         #region c'tors
         public VBProgressBar() : base()
         {
         }
+
+        protected override Type StyleKeyOverride => typeof(VBProgressBar);
 
         /// <summary>
         /// The event hander for Initialized event.
@@ -131,6 +134,28 @@ namespace gip.core.layoutengine.avui
             set { SetValue(PieTextColorProperty, value); }
         }
 
+
+        #endregion
+
+                #region Custom Orientation Property
+
+        /// <summary>
+        /// Represents the styled property for VisualOrientation.
+        /// This is a custom orientation property that controls visual rotation
+        /// </summary>
+        public static readonly StyledProperty<Orientation> VisualOrientationProperty =
+            AvaloniaProperty.Register<VBProgressBar, Orientation>(nameof(VisualOrientation), Orientation.Horizontal);
+
+        /// <summary>
+        /// Gets or sets the visual orientation.
+        /// </summary>
+        [Category("VBControl")]
+        [Bindable(true)]
+        public Orientation VisualOrientation
+        {
+            get { return GetValue(VisualOrientationProperty); }
+            set { SetValue(VisualOrientationProperty, value); }
+        }
 
         #endregion
 

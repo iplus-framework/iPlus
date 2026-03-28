@@ -20,6 +20,7 @@ using System.Text;
 using System.Collections.ObjectModel;
 using System.Collections;
 using System.Collections.Specialized;
+using System.Reflection.Metadata.Ecma335;
 
 
 namespace gip.core.datamodel
@@ -60,7 +61,7 @@ namespace gip.core.datamodel
     /// Class PropertyLogRing
     /// </summary>
     /// <typeparam name="T"></typeparam>
-	public class PropertyLogRing<T> : INotifyCollectionChanged, IList<T>
+	public class PropertyLogRing<T> : INotifyCollectionChanged, IList<T>, IList
 	{
         /// <summary>
         /// Initializes a new instance of the <see cref="PropertyLogRing{T}"/> class.
@@ -260,8 +261,16 @@ namespace gip.core.datamodel
         /// <returns>true, wenn <see cref="T:System.Collections.Generic.ICollection`1" /> schreibgeschützt ist, andernfalls false.</returns>
 		public bool IsReadOnly
 		{
-			get { throw new NotImplementedException(); }
+			get { return true; }
 		}
+
+        public bool IsFixedSize => true;
+
+        public bool IsSynchronized => true;
+
+        public object SyncRoot => this;
+
+        object IList.this[int index] { get => this[index]; set => this[index] = (T)value; }
 
         /// <summary>
         /// Entfernt das erste Vorkommen eines bestimmten Objekts aus <see cref="T:System.Collections.Generic.ICollection`1" />.
@@ -269,7 +278,7 @@ namespace gip.core.datamodel
         /// <param name="item">Das aus dem <see cref="T:System.Collections.Generic.ICollection`1" /> zu entfernende Objekt.</param>
         /// <returns>true, wenn <paramref name="item" /> erfolgreich aus <see cref="T:System.Collections.Generic.ICollection`1" /> gelöscht wurde, andernfalls false. Diese Methode gibt auch dann false zurück, wenn <paramref name="item" /> nicht in der ursprünglichen <see cref="T:System.Collections.Generic.ICollection`1" /> gefunden wurde.</returns>
         /// <exception cref="System.NotImplementedException"></exception>
-		public bool Remove(T item)
+        public bool Remove(T item)
 		{
 			throw new NotImplementedException();
 		}
@@ -287,7 +296,49 @@ namespace gip.core.datamodel
 			return GetEnumerator();
 		}
 
-		#endregion    
+        public int Add(object value)
+        {
+            this.Add((T)value);
+            return this.Count - 1;
+        }
+
+        public bool Contains(object value)
+        {
+            return this.Contains((T)value);
+        }
+
+        public int IndexOf(object value)
+        {
+            return this.IndexOf((T)value);
+        }
+
+        public void Insert(int index, object value)
+        {
+            this.Insert(index, (T)value);
+        }
+
+        public void Remove(object value)
+        {
+            this.Remove((T)value);
+        }
+
+        public void CopyTo(Array array, int index)
+        {
+            if (array.Length < _Array.Length)
+            {
+                Array.Copy(_Array, 0, array, index, array.Length);
+            }
+            else if (array.Length > _Array.Length)
+            {
+                Array.Copy(_Array, 0, array, index, _Array.Length);
+            }
+            else
+            {
+                this._Array.CopyTo(array, index);
+            }
+        }
+
+        #endregion
     }
 
     /// <summary>

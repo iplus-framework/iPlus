@@ -11,6 +11,18 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(FontFamily))]
     public class ConverterFontFamilySingle : ConverterBase, IValueConverter
     {
+        private static ConverterFontFamilySingle _Current;
+
+        public static ConverterFontFamilySingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterFontFamilySingle();
+                return _Current;
+            }
+        }
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -32,6 +44,18 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(FontFamily))]
     public class ConverterFontFamilyMulti : ConverterBase, IMultiValueConverter
     {
+        private static ConverterFontFamilyMulti _Current;
+
+        public static ConverterFontFamilyMulti Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterFontFamilyMulti();
+                return _Current;
+            }
+        }
+
         #region IMultiValueConverter Members
         public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

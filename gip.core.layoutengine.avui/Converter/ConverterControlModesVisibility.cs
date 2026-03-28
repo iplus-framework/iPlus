@@ -7,6 +7,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterControlModesVisibility : IValueConverter
     {
+        private static ConverterControlModesVisibility _Current;
+
+        public static ConverterControlModesVisibility Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterControlModesVisibility();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         object IValueConverter.Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             try

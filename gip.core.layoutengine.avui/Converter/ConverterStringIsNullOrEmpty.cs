@@ -5,6 +5,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterStringIsNullOrEmpty : IValueConverter
     {
+        private static ConverterStringIsNullOrEmpty _Current;
+
+        public static ConverterStringIsNullOrEmpty Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterStringIsNullOrEmpty();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         #region IValueConverter Members
         /// <summary>
         /// Returns Boolean

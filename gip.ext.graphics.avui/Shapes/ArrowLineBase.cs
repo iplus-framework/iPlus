@@ -111,7 +111,7 @@ namespace gip.ext.graphics.avui.shapes
         ///     Gets a value that represents the Geometry of the ArrowLine.
         /// </summary>
         protected override Geometry CreateDefiningGeometry()
-        {
+        { 
             return ArrowLineBase.GetPathGeometry(_PathGeo, _PathfigLine, _PolysegLine,
                                     _PathfigHead1, _PolysegHead1,
                                     _PathfigHead2, _PolysegHead2,
@@ -125,22 +125,41 @@ namespace gip.ext.graphics.avui.shapes
 
         public static PathFigure CalculateArrow(PathFigure pathfig, Point pt1, Point pt2, double arrowLength, double arrowAngle, bool isArrowClosed)
         {
-            //Matrix matx = new Matrix();
-            Vector vect = pt1 - pt2;
-            vect.Normalize();
-            vect *= arrowLength;
-
+            // Calculate the direction vector from pt2 to pt1 (arrow points from pt2 to pt1)
+            Vector direction = pt1 - pt2;
+            
+            // Avoid division by zero
+            if (direction.Length < 1e-10)
+                return pathfig;
+                
+            // Normalize the direction vector
+            Vector normalizedDirection = direction / direction.Length;
+            
+            // Calculate the angle of the direction vector
+            double directionAngle = Math.Atan2(normalizedDirection.Y, normalizedDirection.X);
+            
+            // Calculate the half-angle for the arrowhead
+            double halfAngle = arrowAngle / 2.0;
+            double radians = halfAngle * Math.PI / 180.0; // Convert to radians
+            
+            // Create vectors for the two sides of the arrowhead
+            // These are rotated from the direction vector by ±halfAngle
+            double leftAngle = directionAngle + radians;
+            double rightAngle = directionAngle - radians;
+            
+            // Create the arrowhead points (relative to pt2)
+            Vector leftVector = new Vector(Math.Cos(leftAngle), Math.Sin(leftAngle)) * arrowLength;
+            Vector rightVector = new Vector(Math.Cos(rightAngle), Math.Sin(rightAngle)) * arrowLength;
+            
+            // Set up the arrowhead figure
             PolyLineSegment polyseg = pathfig.Segments[0] as PolyLineSegment;
             polyseg.Points.Clear();
             
-            var rotationMatrix = Matrix.CreateRotation(Math.PI * arrowAngle / 360.0); // Convert degrees to radians and half angle
-            var transformedVect = rotationMatrix.Transform(new Point(vect.X, vect.Y));
-            pathfig.StartPoint = pt2 + new Vector(transformedVect.X, transformedVect.Y);
+            // Start point of arrowhead is at the end point (pt2)
+            pathfig.StartPoint = pt2 + leftVector;
             polyseg.Points.Add(pt2);
-
-            var reverseRotationMatrix = Matrix.CreateRotation(-Math.PI * arrowAngle / 360.0); // Negative rotation
-            var reverseTransformedVect = reverseRotationMatrix.Transform(new Point(vect.X, vect.Y));
-            polyseg.Points.Add(pt2 + new Vector(reverseTransformedVect.X, reverseTransformedVect.Y));
+            polyseg.Points.Add(pt2 + rightVector);
+            
             pathfig.IsClosed = isArrowClosed;
             pathfig.IsFilled = isArrowClosed;
 

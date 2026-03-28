@@ -5,6 +5,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterStringSubstring : IValueConverter
     {
+        private static ConverterStringSubstring _Current;
+
+        public static ConverterStringSubstring Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterStringSubstring();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         #region IValueConverter Members
         /// <summary>
         /// Returns a Substring

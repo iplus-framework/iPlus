@@ -11,6 +11,20 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(HorizontalAlignment))]
     public class ConverterHorizontalAlignmentSingle : ConverterBase, IValueConverter
     {
+        #region Singleton
+        private static ConverterHorizontalAlignmentSingle _Current;
+
+        public static ConverterHorizontalAlignmentSingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterHorizontalAlignmentSingle();
+                return _Current;
+            }
+        }
+        #endregion
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -32,6 +46,21 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(HorizontalAlignment))]
     public class ConverterHorizontalAlignmentMulti : ConverterBase, IMultiValueConverter
     {
+        #region Singleton
+        private static ConverterHorizontalAlignmentMulti _Current;
+
+        public static ConverterHorizontalAlignmentMulti Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterHorizontalAlignmentMulti();
+                return _Current;
+            }
+        }
+        #endregion
+
+
         #region IMultiValueConverter Members
         public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

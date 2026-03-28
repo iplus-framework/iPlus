@@ -14,17 +14,32 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia;
 using Avalonia.Controls.Primitives;
+using Avalonia.Controls.Metadata;
+using Avalonia.Controls.Presenters;
 
 namespace gip.core.layoutengine.avui
 {
     /// <summary>
     /// Represents a control that displaying logged data.
-    /// </summary>
-    /// <summary xml:lang="de">
-    /// Steuerelement zur Anzeige von geloggten Daten.
-    /// </summary>
+    /// </summary>    
+    [TemplatePart(Name = "PART_ChartContent", Type = typeof(ContentPresenter))]
+    [TemplatePart(Name = "PART_LiveConsole", Type = typeof(VBGrid))]
+    [TemplatePart(Name = "PART_ArchiveConsole", Type = typeof(VBGrid))]
+    [TemplatePart(Name = "PART_InterpolationConsole", Type = typeof(VBGrid))]
+    [TemplatePart(Name = "PART_PrintConsole", Type = typeof(VBGrid))]   
+    [TemplatePart(Name = "PART_SmoothingOn", Type = typeof(VBComboBox))]
+    [TemplatePart(Name = "PART_SmoothingRange", Type = typeof(VBSlider))]
+    [TemplatePart(Name = "PART_SmoothingDecay", Type = typeof(VBSlider))]
+    [TemplatePart(Name = "PART_DatepickerFrom", Type = typeof(VBDateTimePicker))]
+    [TemplatePart(Name = "PART_DatepickerTo", Type = typeof(VBDateTimePicker))]
+    [TemplatePart(Name = "PART_ButtonPlay", Type = typeof(VBButton))]
+    [TemplatePart(Name = "PART_ButtonPause", Type = typeof(VBButton))]
+    [TemplatePart(Name = "PART_ButtonStop", Type = typeof(VBButton))]
+    [TemplatePart(Name = "PART_ButtonLoadArchive", Type = typeof(VBButton))]
+    [TemplatePart(Name = "PART_ButtonPrint", Type = typeof(VBButton))]
+    [TemplatePart(Name = "PART_ButtonPrintMode", Type = typeof(VBButton))]
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBPropertyLogChart'}de{'VBPropertyLogChart'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
-    public partial class VBPropertyLogChart : UserControl, IVBContent, IVBSource, IACObject
+    public partial class VBPropertyLogChart : TemplatedControl, IVBContent, IVBSource, IACObject
     {
         private IACBSO _LastKnownBSOACComponent = null;
         string _DataSource;
@@ -36,7 +51,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public VBPropertyLogChart()
         {
-            InitializeComponent();
+            
         }
 
         /// <summary>
@@ -46,6 +61,65 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
         }
+
+        ContentPresenter _PART_ChartContent;
+        VBGrid _PART_LiveConsole;
+        VBGrid _PART_ArchiveConsole;
+        VBGrid _PART_InterpolationConsole;
+        VBGrid _PART_PrintConsole;
+        VBComboBox _PART_SmoothingOn;
+        VBSlider _PART_SmoothingRange;
+        VBSlider _PART_SmoothingDecay;
+        VBDateTimePicker _PART_DatepickerFrom;
+        VBDateTimePicker _PART_DatepickerTo;
+        VBButton _PART_ButtonPlay;
+        VBButton _PART_ButtonPause;
+        VBButton _PART_ButtonStop;
+        VBButton _PART_ButtonLoadArchive;
+        VBButton _PART_ButtonPrint;
+        VBButton _PART_ButtonPrintMode;
+
+
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
+
+            _PART_ChartContent = e.NameScope.Find("PART_ChartContent") as ContentPresenter;
+            _PART_LiveConsole = e.NameScope.Find("PART_LiveConsole") as VBGrid;
+            _PART_ArchiveConsole = e.NameScope.Find("PART_ArchiveConsole") as VBGrid;
+            _PART_InterpolationConsole = e.NameScope.Find("PART_InterpolationConsole") as VBGrid;
+            _PART_PrintConsole = e.NameScope.Find("PART_PrintConsole") as VBGrid;
+            _PART_SmoothingOn = e.NameScope.Find("PART_SmoothingOn") as VBComboBox;
+            if (_PART_SmoothingOn != null)
+                _PART_SmoothingOn.SelectionChanged += SmoothingOn_SelectionChanged;
+            _PART_SmoothingRange = e.NameScope.Find("PART_SmoothingRange") as VBSlider;
+            if (_PART_SmoothingRange != null)
+                _PART_SmoothingRange.ValueChanged += SmoothingRange_ValueChanged;
+            _PART_SmoothingDecay = e.NameScope.Find("PART_SmoothingDecay") as VBSlider;
+            if (_PART_SmoothingDecay != null)                
+            _PART_SmoothingDecay.ValueChanged += SmoothingDecay_ValueChanged;
+            _PART_ButtonPlay = e.NameScope.Find("PART_ButtonPlay") as VBButton;
+            if (_PART_ButtonPlay != null)
+                _PART_ButtonPlay.Click += OnPlayButtonClicked;
+            _PART_ButtonPause = e.NameScope.Find("PART_ButtonPause") as VBButton;
+            if (_PART_ButtonPause != null)
+                _PART_ButtonPause.Click += OnPauseButtonClick;
+            _PART_ButtonStop = e.NameScope.Find("PART_ButtonStop") as VBButton;
+            if (_PART_ButtonStop != null)
+                _PART_ButtonStop.Click += OnStopButtonClick;
+            _PART_ButtonLoadArchive = e.NameScope.Find("PART_ButtonLoadArchive") as VBButton;
+            if (_PART_ButtonLoadArchive != null)
+                _PART_ButtonLoadArchive.Click += OnLoadArchiveButtonClick;
+            _PART_ButtonPrint = e.NameScope.Find("PART_ButtonPrint") as VBButton;
+            if (_PART_ButtonPrint != null)
+                _PART_ButtonPrint.Click += OnPrintButtonClick;
+            _PART_ButtonPrintMode = e.NameScope.Find("PART_ButtonPrintMode") as VBButton;
+            if (_PART_ButtonPrintMode != null)
+                _PART_ButtonPrintMode.Click += OnPrintModeButtonClick;
+            _PART_DatepickerFrom = e.NameScope.Find("PART_DatepickerFrom") as VBDateTimePicker;
+            _PART_DatepickerTo = e.NameScope.Find("PART_DatepickerTo") as VBDateTimePicker;
+        }
+
 
         /// <summary>
         /// Determines is control initialized or not.
@@ -65,21 +139,21 @@ namespace gip.core.layoutengine.avui
                 Bind(VBPropertyLogChart.ACCompInitStateProperty, binding);
             }
 
-            if (SmoothingOn != null)
+            if (_PART_SmoothingOn != null)
             {
-                SmoothingOn.DisplayMemberBinding = new Binding("ACCaption");
+                _PART_SmoothingOn.DisplayMemberBinding = new Binding("ACCaption");
                 Binding binding = new Binding();
                 binding.Source = Global.InterpolationMethodList;
                 binding.Mode = BindingMode.OneWay;
-                SmoothingOn.Bind(VBComboBox.ItemsSourceProperty, binding);
+                _PART_SmoothingOn.Bind(VBComboBox.ItemsSourceProperty, binding);
 
             }
 
             SetConsoleVisibility();
             if (ChartControl != null)
                 ChartControl.DisplayAsArchive = DisplayAsArchive;
-            ucDatepickerFrom.SelectedDate = DateTime.Now;
-            ucDatepickerTo.SelectedDate = DateTime.Now;
+            _PART_DatepickerFrom.SelectedDate = DateTime.Now;
+            _PART_DatepickerTo.SelectedDate = DateTime.Now;
         }
 
 
@@ -99,8 +173,8 @@ namespace gip.core.layoutengine.avui
             if (!_Loaded)
                 return;
 
-            //if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
-            //    (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
+            if (BSOACComponent != null && !String.IsNullOrEmpty(VBContent))
+               (BSOACComponent ?? _LastKnownBSOACComponent)?.RemoveWPFRef(this.GetHashCode());
 
             _Loaded = false;
         }
@@ -189,6 +263,14 @@ namespace gip.core.layoutengine.avui
                     if (bso != null && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
                         DeInitVBControl(bso ?? _LastKnownBSOACComponent);
                 }
+            }
+            else if (change.Property == DisplayAsArchiveProperty)
+            {
+                SetConsoleVisibility();
+            }
+            else if (change.Property == DisplayControlConsoleProperty)
+            {
+                SetConsoleVisibility();
             }
         }
 
@@ -379,44 +461,27 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private Nullable<bool> _DisplayAsArchive;
+        public static readonly StyledProperty<bool> DisplayAsArchiveProperty = AvaloniaProperty.Register<VBPropertyLogChart, bool>(nameof(DisplayAsArchive));
         /// <summary>
         /// Determines is displays as archive or not.
         /// </summary>
         [Category("VBControl")]
         public bool DisplayAsArchive
         {
-            get
-            {
-                if (_DisplayAsArchive.HasValue)
-                    return _DisplayAsArchive.Value;
-                return false;
-            }
-            set
-            {
-                if (_DisplayAsArchive.HasValue)
-                    return;
-                _DisplayAsArchive = value;
-            }
+            get { return (bool)GetValue(DisplayAsArchiveProperty); }
+            set { SetValue(DisplayAsArchiveProperty, value); }
         }
 
-        private bool _DisplayControlConsole = true;
+        public static readonly StyledProperty<bool> DisplayControlConsoleProperty = AvaloniaProperty.Register<VBPropertyLogChart, bool>(nameof(DisplayControlConsole));
+        
         /// <summary>
         /// Determines is control console displayed or not.
         /// </summary>
         [Category("VBControl")]
         public bool DisplayControlConsole
         {
-            get
-            {
-                return _DisplayControlConsole;
-            }
-            set
-            {
-                _DisplayControlConsole = value;
-                //if (_Loaded)
-                    //UpdateConsoleVisibility();
-            }
+            get { return (bool)GetValue(DisplayControlConsoleProperty); }
+            set { SetValue(DisplayControlConsoleProperty, value); }
         }
 
         #endregion
@@ -460,7 +525,7 @@ namespace gip.core.layoutengine.avui
 
         #region LiveConsole members
 
-        private void ucButtonStop_Click(object sender, RoutedEventArgs e)
+        private void OnStopButtonClick(object sender, RoutedEventArgs e)
         {
             if (DisplayAsArchive || (WorkChartItems == null))
                 return;
@@ -477,7 +542,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void ucButtonPause_Click(object sender, RoutedEventArgs e)
+        private void OnPauseButtonClick(object sender, RoutedEventArgs e)
         {
             if (DisplayAsArchive || (WorkChartItems == null))
                 return;
@@ -493,7 +558,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void ucButtonPlay_Click(object sender, RoutedEventArgs e)
+        private void OnPlayButtonClicked(object sender, RoutedEventArgs e)
         {
             if (DisplayAsArchive || (WorkChartItems == null))
                 return;
@@ -509,30 +574,30 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void ucButtonLoadArchive_Click(object sender, RoutedEventArgs e)
+        private void OnLoadArchiveButtonClick(object sender, RoutedEventArgs e)
         {
             if (WorkChartItems == null)
                 return;
-            DateTime from = ucDatepickerFrom.SelectedDate.HasValue ? ucDatepickerFrom.SelectedDate.Value : DateTime.Now.AddDays(-1);
-            DateTime to =   ucDatepickerTo.SelectedDate.HasValue ? ucDatepickerTo.SelectedDate.Value : DateTime.Now;
+            DateTime from = _PART_DatepickerFrom.SelectedDate.HasValue ? _PART_DatepickerFrom.SelectedDate.Value : DateTime.Now.AddDays(-1);
+            DateTime to =   _PART_DatepickerTo.SelectedDate.HasValue ? _PART_DatepickerTo.SelectedDate.Value : DateTime.Now;
 
             Global.InterpolationMethod interpolEnum = Global.InterpolationMethod.None;
-            ACValueItem selectedInterpol = SmoothingOn.SelectedValue as ACValueItem;
+            ACValueItem selectedInterpol = _PART_SmoothingOn.SelectedValue as ACValueItem;
             if (selectedInterpol != null)
             {
                 interpolEnum = (Global.InterpolationMethod)selectedInterpol.Value;
             }
 
-            ChartControl.InitializeChartArchive(from, to, interpolEnum, Convert.ToInt32(SmoothingRange.Value), SmootingDecay.Value);
+            ChartControl.InitializeChartArchive(from, to, interpolEnum, Convert.ToInt32(_PART_SmoothingRange.Value), _PART_SmoothingDecay.Value);
         }
 
-        private void ucButtonPrintMode_Click(object sender, RoutedEventArgs e)
+        private void OnPrintModeButtonClick(object sender, RoutedEventArgs e)
         {
             ChartControl.SwitchNormalPrintingMode();
         }
 
         //private XpsDocument _CurrentXpsDoc;
-        private void ucButtonPrint_Click(object sender, RoutedEventArgs e)
+        private void OnPrintButtonClick(object sender, RoutedEventArgs e)
         {
             //try
             //{
@@ -626,7 +691,7 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public void RefreshLiveConsole()
         {
-            if (!ucLiveConsole.IsVisible || WorkChartItems == null)
+            if (!_PART_LiveConsole.IsVisible || WorkChartItems == null)
                 return;
             PropertyLogListInfo.PropertyLogState logState = PropertyLogListInfo.PropertyLogState.Stopped;
             if (WorkChartItems.Any())
@@ -642,19 +707,19 @@ namespace gip.core.layoutengine.avui
                 switch (_CurrentLogState)
                 {
                     case PropertyLogListInfo.PropertyLogState.LogActive:
-                        ucButtonPlay.IsEnabled = false;
-                        ucButtonPause.IsEnabled = true;
-                        ucButtonStop.IsEnabled = true;
+                        _PART_ButtonPlay.IsEnabled = false;
+                        _PART_ButtonPause.IsEnabled = true;
+                        _PART_ButtonStop.IsEnabled = true;
                         break;
                     case PropertyLogListInfo.PropertyLogState.Paused:
-                        ucButtonPlay.IsEnabled = true;
-                        ucButtonPause.IsEnabled = false;
-                        ucButtonStop.IsEnabled = true;
+                        _PART_ButtonPlay.IsEnabled = true;
+                        _PART_ButtonPause.IsEnabled = false;
+                        _PART_ButtonStop.IsEnabled = true;
                         break;
                     case PropertyLogListInfo.PropertyLogState.Stopped:
-                        ucButtonPlay.IsEnabled = true;
-                        ucButtonPause.IsEnabled = false;
-                        ucButtonStop.IsEnabled = false;
+                        _PART_ButtonPlay.IsEnabled = true;
+                        _PART_ButtonPause.IsEnabled = false;
+                        _PART_ButtonStop.IsEnabled = false;
                         break;
                 }
             }
@@ -662,25 +727,28 @@ namespace gip.core.layoutengine.avui
 
         private void SetConsoleVisibility()
         {
+            // If the template is not applied yet, the console parts are not available, so we can skip setting visibility.
+            if (_PART_ArchiveConsole == null || _PART_LiveConsole == null || _PART_InterpolationConsole == null || _PART_PrintConsole == null)
+                 return;
             if (DisplayControlConsole)
             {
                 if (DisplayAsArchive)
                 {
-                    ucArchiveConsole.RightControlMode = Global.ControlModes.Enabled;
-                    ucLiveConsole.RightControlMode = Global.ControlModes.Hidden;
+                    _PART_ArchiveConsole.IsVisible = true;
+                    _PART_LiveConsole.IsVisible = false;
                 }
                 else
                 {
-                    ucLiveConsole.RightControlMode = Global.ControlModes.Enabled;
-                    ucArchiveConsole.RightControlMode = Global.ControlModes.Hidden;
+                    _PART_LiveConsole.IsVisible = true;
+                    _PART_ArchiveConsole.IsVisible = false;
                 }
             }
             else
             {
-                ucLiveConsole.RightControlMode = Global.ControlModes.Collapsed;
-                ucArchiveConsole.RightControlMode = Global.ControlModes.Collapsed;
-                ucInterpolationConsole.RightControlMode = Global.ControlModes.Collapsed;
-                ucPrintConsole.RightControlMode = Global.ControlModes.Collapsed;
+                _PART_LiveConsole.IsVisible = false;
+                _PART_ArchiveConsole.IsVisible = false;
+                _PART_InterpolationConsole.IsVisible = false;
+                _PART_PrintConsole.IsVisible = false;
             }
         }
 
@@ -819,7 +887,7 @@ namespace gip.core.layoutengine.avui
             InterpolationChanged();
         }
 
-        private void SmootingDecay_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        private void SmoothingDecay_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             InterpolationChanged();
         }
@@ -829,13 +897,13 @@ namespace gip.core.layoutengine.avui
             if (ChartControl == null || DisplayAsArchive || !this.IsLoaded)
                 return;
             Global.InterpolationMethod interpolEnum = Global.InterpolationMethod.None;
-            ACValueItem selectedInterpol = SmoothingOn.SelectedValue as ACValueItem;
+            ACValueItem selectedInterpol = _PART_SmoothingOn.SelectedValue as ACValueItem;
             if (selectedInterpol != null)
             {
                 interpolEnum = (Global.InterpolationMethod)selectedInterpol.Value;
             }
 
-            ChartControl.InterpolationParamsChangedInView(interpolEnum, Convert.ToInt32(SmoothingRange.Value), SmootingDecay.Value);
+            ChartControl.InterpolationParamsChangedInView(interpolEnum, Convert.ToInt32(_PART_SmoothingRange.Value), _PART_SmoothingDecay.Value);
         }
     }
 }

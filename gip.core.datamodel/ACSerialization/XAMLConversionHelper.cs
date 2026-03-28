@@ -164,6 +164,10 @@ namespace gip.core.datamodel
             // Convert WPF-style trigger blocks embedded in *.Style property elements into
             // Xaml.Behaviors-based triggers and copy default Setter values to owner attributes.
             avaloniaXAML = ConvertControlThemeTriggersToBehaviors(avaloniaXAML);
+
+            // Convert direct element trigger blocks (e.g. Border.Triggers/EventTrigger)
+            // into behavior-based equivalents.
+            avaloniaXAML = ConvertElementTriggersToBehaviors(avaloniaXAML);
             
             return avaloniaXAML;
         }
@@ -562,6 +566,62 @@ namespace gip.core.datamodel
             }
         }
 
+        private static string ConvertElementTriggersToBehaviors(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                if (doc.DocumentElement == null)
+                    return xaml;
+
+                string xamlNs = GetDefaultXamlNamespace(doc);
+                if (string.IsNullOrEmpty(xamlNs))
+                    return xaml;
+
+                var triggersPropertyNodes = doc.SelectNodes("//*[contains(local-name(), '.Triggers') and not(local-name()='ControlTheme.Triggers')]");
+                if (triggersPropertyNodes == null || triggersPropertyNodes.Count == 0)
+                    return xaml;
+
+                var triggersProperties = triggersPropertyNodes
+                    .OfType<XmlNode>()
+                    .OfType<XmlElement>()
+                    .ToList();
+
+                foreach (var triggersProperty in triggersProperties)
+                {
+                    if (!triggersProperty.LocalName.EndsWith(".Triggers", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var ownerElement = triggersProperty.ParentNode as XmlElement;
+                    if (ownerElement == null)
+                        continue;
+
+                    var interactionBehaviors = doc.CreateElement("Interaction.Behaviors", xamlNs);
+                    int behaviorCount = AppendEventTriggers(doc, xamlNs, ownerElement, interactionBehaviors, triggersProperty);
+
+                    if (behaviorCount > 0)
+                    {
+                        ownerElement.ReplaceChild(interactionBehaviors, triggersProperty);
+                    }
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
         private static string NormalizeTriggerPropertyName(string propertyName)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
@@ -589,6 +649,65 @@ namespace gip.core.datamodel
             }
 
             return trimmed;
+        }
+
+        private static int AppendEventTriggers(
+            XmlDocument doc,
+            string xamlNs,
+            XmlElement ownerElement,
+            XmlElement interactionBehaviors,
+            XmlElement triggersContainer)
+        {
+            if (doc == null || ownerElement == null || interactionBehaviors == null || triggersContainer == null)
+                return 0;
+
+            int behaviorCount = 0;
+            foreach (var eventTrigger in triggersContainer
+                .ChildNodes
+                .OfType<XmlElement>()
+                .Where(e => string.Equals(e.LocalName, "EventTrigger", StringComparison.OrdinalIgnoreCase)))
+            {
+                string eventName = ConvertRoutedEventToEventName(eventTrigger.GetAttribute("RoutedEvent"), ownerElement.LocalName);
+                if (string.IsNullOrWhiteSpace(eventName))
+                    continue;
+
+                var behavior = doc.CreateElement("EventTriggerBehavior", xamlNs);
+                behavior.SetAttribute("EventName", eventName);
+
+                int actionCount = AppendBeginStoryboardAnimations(doc, xamlNs, ownerElement, behavior, eventTrigger, null);
+                if (actionCount > 0)
+                {
+                    interactionBehaviors.AppendChild(behavior);
+                    behaviorCount++;
+                }
+            }
+
+            return behaviorCount;
+        }
+
+        private static string ConvertRoutedEventToEventName(string routedEvent, string ownerTypeName)
+        {
+            if (string.IsNullOrWhiteSpace(routedEvent))
+                return null;
+
+            string text = routedEvent.Trim();
+            int dotIndex = text.LastIndexOf('.');
+            if (dotIndex >= 0 && dotIndex < text.Length - 1)
+            {
+                string eventOwner = text.Substring(0, dotIndex);
+                string eventName = text.Substring(dotIndex + 1);
+
+                if (string.IsNullOrWhiteSpace(ownerTypeName)
+                    || string.Equals(eventOwner, ownerTypeName, StringComparison.OrdinalIgnoreCase)
+                    || eventOwner.EndsWith(ownerTypeName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return eventName;
+                }
+
+                return eventName;
+            }
+
+            return text;
         }
 
         private static int AppendBeginStoryboardAnimations(
@@ -1592,6 +1711,7 @@ namespace gip.core.datamodel
 
             // Remove obsolete Shape property not available in Avalonia.
             (@"\s+StrokeMiterLimit=""[^""]*""", "", true),
+            (@"\s+StrokeDashCap=""[^""]*""", "", true),
 
             // Pen property mapping: StartLineCap -> LineCap, removal of EndLineCap
             (@"<Pen\s+([^>]*?)StartLineCap=""([^""]*)""([^>]*?)", @"<Pen $1LineCap=""$2""$3", true),

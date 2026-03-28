@@ -11,6 +11,7 @@ using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.autocomponent;
 using gip.core.layoutengine.avui.Helperclasses;
+using Avalonia.Controls.Primitives;
 
 namespace gip.core.visualcontrols.avui
 {
@@ -21,6 +22,22 @@ namespace gip.core.visualcontrols.avui
         static VBFillLevel()
         {
             VBProgressBar.ProgressBarStyleProperty.OverrideMetadata(typeof(VBFillLevel), new StyledPropertyMetadata<ProgressBarStyles>(ProgressBarStyles.PerformantBar));
+        }
+
+        public VBFillLevel(): base()
+        {
+        }
+
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+        }
+
+        protected override Type StyleKeyOverride => typeof(VBFillLevel);
+
+        protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
+        {
+            base.OnApplyTemplate(e);
         }
         #endregion
 

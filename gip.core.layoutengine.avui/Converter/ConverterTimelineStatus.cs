@@ -7,6 +7,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterTimelineStatus : IValueConverter
     {
+        private static ConverterTimelineStatus _Current;
+
+        public static ConverterTimelineStatus Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterTimelineStatus();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             List<Global.TimelineItemStatus> status = value as List<Global.TimelineItemStatus>;

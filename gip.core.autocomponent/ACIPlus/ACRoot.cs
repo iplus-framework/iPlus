@@ -644,6 +644,30 @@ namespace gip.core.autocomponent
             base.ACAction(actionArgs);
         }
 
+        public override async Task  ACActionAsync(ACActionArgs actionArgs)
+        {
+            switch (actionArgs.ElementAction)
+            {
+                case Global.ElementActionType.ACCommand:
+                    {
+                        var query = actionArgs.DropObject.ACContentList.Where(c => c is ACCommand);
+                        if (query.Any())
+                        {
+                            ACCommand acCommand = query.First() as ACCommand;
+                            if (acCommand.GetACUrl().StartsWith(Const.BusinessobjectsACUrl + ACUrlHelper.Delimiter_Start))
+                            {
+                                RootPageWPF.StartBusinessobjectByACCommand(acCommand);
+                                return;
+                            }
+                        }
+                    }
+                    break;
+
+            }
+
+            await base.ACActionAsync(actionArgs);
+        }
+
         /// <summary>
         /// It's called at the Target-IACInteractiveObject to inform the Source-IACInteractiveObject that ACAction ist allowed to be invoked.
         /// </summary>

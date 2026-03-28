@@ -154,6 +154,7 @@ namespace gip.core.layoutengine.avui
             PropertyLogItems = new ObservableCollection<IVBChartItem>();
         }
 
+        protected override Type StyleKeyOverride => typeof(Plot);
 
         VBPropertyLogChart _VBPropertyLogChart = null;
 
@@ -331,6 +332,7 @@ namespace gip.core.layoutengine.avui
                 InitLine(chartItem);
             }
             InitializeAutoRangeOfAxes();
+            AutoZoomExtents();
         }
 
         private void ACProperty_PropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -20,6 +20,20 @@ namespace gip.core.layoutengine.avui
     [Converter(typeof(object), typeof(Visibility))]
     public class ConverterVisibilitySingle : ConverterBase, IValueConverter
     {
+        #region Singleton
+        private static ConverterVisibilitySingle _Current;
+
+        public static ConverterVisibilitySingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterVisibilitySingle();
+                return _Current;
+            }
+        }
+        #endregion
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -63,6 +77,20 @@ namespace gip.core.layoutengine.avui
     [Converter(typeof(object), typeof(bool))]
     public class ConverterIsVisibleSingle : ConverterBase, IValueConverter
     {
+        #region Singleton
+        private static ConverterIsVisibleSingle _Current;
+
+        public static ConverterIsVisibleSingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterIsVisibleSingle();
+                return _Current;
+            }
+        }
+        #endregion
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

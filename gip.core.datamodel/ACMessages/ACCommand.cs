@@ -142,6 +142,15 @@ namespace gip.core.datamodel
             return _ACUrl; 
         }
 
+        public string GetAsyncACUrl()
+        {
+            if (string.IsNullOrEmpty(_ACUrl))
+                return null;
+            if (_ACUrl.Contains(ACUrlHelper.Delimiter_AsyncMethodInvocation))
+                return _ACUrl;
+            return _ACUrl.Replace(ACUrlHelper.Delimiter_InvokeMethod.ToString(), ACUrlHelper.CallAsync);
+        }
+
         /// <summary>
         /// The _ AC URL
         /// </summary>

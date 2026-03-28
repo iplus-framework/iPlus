@@ -13,6 +13,20 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(Brush))]
     public class ConverterBrushSingle : ConverterBase, IValueConverter
     {
+        #region Singleton
+        private static ConverterBrushSingle _Current;
+
+        public static ConverterBrushSingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterBrushSingle();
+                return _Current;
+            }
+        }    
+        #endregion    
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -34,6 +48,20 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(Brush))]
     public class ConverterBrushMulti : ConverterBase, IMultiValueConverter
     {
+        #region Singleton
+        private static ConverterBrushMulti _Current;
+
+        public static ConverterBrushMulti Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterBrushMulti();
+                return _Current;
+            }
+        }
+        #endregion
+
         #region IMultiValueConverter Members
         public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {

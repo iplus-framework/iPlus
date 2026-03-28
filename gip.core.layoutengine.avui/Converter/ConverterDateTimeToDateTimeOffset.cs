@@ -11,7 +11,23 @@ namespace gip.core.layoutengine.avui
     {
         public static readonly ConverterDateTimeToDateTimeOffset Instance = new();
 
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        private static ConverterDateTimeToDateTimeOffset _Current;
+
+        public static ConverterDateTimeToDateTimeOffset Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterDateTimeToDateTimeOffset();
+                return _Current;
+            }
+        }
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return value switch
             {
@@ -22,7 +38,7 @@ namespace gip.core.layoutengine.avui
             };
         }
 
-        public object? ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is DateTimeOffset dto)
             {

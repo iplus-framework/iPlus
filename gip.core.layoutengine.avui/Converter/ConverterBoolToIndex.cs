@@ -6,6 +6,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterBoolToIndex : IValueConverter
     {
+        private static ConverterBoolToIndex _Current;
+
+        public static ConverterBoolToIndex Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterBoolToIndex();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)

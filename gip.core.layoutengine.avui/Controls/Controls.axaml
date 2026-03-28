@@ -177,7 +177,9 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBRibbon/Icons/Undo.axaml"/>
 
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/BrushEditorViewStyle.axaml"/>        
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/SolidBrushEditorStyle.axaml"/>        
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDesignEditor/Themes/Overrides/SolidBrushEditorStyle.axaml"/>  
+        
+        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBChartPlotter/Themes/VBPropertyLogChartStyle.axaml"/>
       </ResourceDictionary.MergedDictionaries>
     </ResourceDictionary>
   </Styles.Resources>

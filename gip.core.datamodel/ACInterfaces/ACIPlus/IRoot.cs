@@ -9,7 +9,7 @@ namespace gip.core.datamodel
     /// It provides access to the cild instances: Environment, Messages, Queries, Resources and Businessobjects.
     /// </summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'IRoot'}de{'IRoot'}", Global.ACKinds.TACInterface)]
-    public interface IRoot : IACComponent
+    public interface IRoot : IACComponent, IACInteractiveObjectAsync
     {
         #region Manager
         /// <summary>

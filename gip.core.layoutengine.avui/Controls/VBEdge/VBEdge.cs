@@ -739,7 +739,8 @@ namespace gip.core.layoutengine.avui
                 return GetConnectionPathGeometry(false);
             }
 
-            return TransformGeometryToZeroCoord(GetLineGeometry(_NewSourcePosition, _NewTargetPosition));
+            return TransformGeometryToZeroCoord(ArrowPolyline.GetPathGeometry(new List<Point> { _NewSourcePosition, _NewTargetPosition }, this.ArrowEnds, 6, 50, true));
+            //return TransformGeometryToZeroCoord(GetLineGeometry(_NewSourcePosition, _NewTargetPosition));
         }
 
         void CalculateNewConnectorPos()

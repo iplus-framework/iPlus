@@ -1,6 +1,6 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
-﻿// ***********************************************************************
+// ***********************************************************************
 // Assembly         : gip.core.datamodel
 // Author           : DLisak
 // Created          : 10-16-2012
@@ -13,6 +13,8 @@
 // </copyright>
 // <summary></summary>
 // ***********************************************************************
+
+using System.Threading.Tasks;
 
 namespace gip.core.datamodel
 {
@@ -53,11 +55,26 @@ namespace gip.core.datamodel
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
         void ACAction(ACActionArgs actionArgs);
 
+        // /// <summary>
+        // /// ACActionAsync is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event asynchronously.
+        // /// </summary>
+        // /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        // Task ACActionAsync(ACActionArgs actionArgs);
+
         /// <summary>
         /// It's called at the Target-IACInteractiveObject to inform the Source-IACInteractiveObject that ACAction ist allowed to be invoked.
         /// </summary>
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
         /// <returns><c>true</c> if ACAction can be invoked otherwise, <c>false</c>.</returns>
         bool IsEnabledACAction(ACActionArgs actionArgs);
+    }
+
+    public interface IACInteractiveObjectAsync : IACInteractiveObject
+    {
+        /// <summary>
+        /// ACActionAsync is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event asynchronously.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        Task ACActionAsync(ACActionArgs actionArgs);
     }
 }

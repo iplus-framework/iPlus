@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
 {
@@ -51,10 +52,10 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void VBMenuItem_Click(object sender, RoutedEventArgs e)
+        private async void VBMenuItem_Click(object sender, RoutedEventArgs e)
         {
             ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
-            ACAction(actionArgs);
+            await ACActionAsync(actionArgs);
         }
 
         private void VBMenuItem_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
@@ -238,6 +239,17 @@ namespace gip.core.layoutengine.avui
             actionArgs.DropObject = this;
             if (HandlerACElement != null)
                 HandlerACElement.ACAction(actionArgs);
+        }
+
+        /// <summary>
+        /// ACActionAsync is called when one IACInteractiveObject (Source) wants to inform another IACInteractiveObject (Target) about an relevant interaction-event asynchronously.
+        /// </summary>
+        /// <param name="actionArgs">Information about the type of interaction and the source</param>
+        public async Task ACActionAsync(ACActionArgs actionArgs)
+        {
+            actionArgs.DropObject = this;
+            if (HandlerACElement is IACInteractiveObjectAsync interactiveObjectAsync)
+                await interactiveObjectAsync.ACActionAsync(actionArgs);
         }
 
         /// <summary>

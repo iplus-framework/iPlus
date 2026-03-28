@@ -5,6 +5,23 @@ namespace gip.core.layoutengine.avui
 {
     public class ConverterStringContains : IValueConverter
     {
+        private static ConverterStringContains _Current;
+
+        public static ConverterStringContains Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterStringContains();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
         #region IValueConverter Members
         /// <summary>
         /// Returns Boolean

@@ -345,3 +345,5 @@ healthchecksdb
 .vscode/
 .continue/mcpServers/new-mcp-server.yaml
 iplusAvaloniaUI_VSCode.sln
+.continue/mcpServers/iPlus.yaml
+.continue/mcpServers/AvaloniaMCP.yaml

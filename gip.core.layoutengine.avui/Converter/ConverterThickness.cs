@@ -11,6 +11,20 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(Thickness))]
     public class ConverterThicknessSingle : ConverterBase, IValueConverter
     {
+        #region Singleton
+        private static ConverterThicknessSingle _Current;
+
+        public static ConverterThicknessSingle Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterThicknessSingle();
+                return _Current;
+            }
+        }
+        #endregion
+
         #region IValueConverter Members
         public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
@@ -32,6 +46,20 @@ namespace gip.core.layoutengine.avui
     [ConverterAttribute(typeof(object), typeof(Thickness))]
     public class ConverterThicknessMulti : ConverterBase, IMultiValueConverter
     {
+        #region Singleton
+        private static ConverterThicknessMulti _Current;
+
+        public static ConverterThicknessMulti Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new ConverterThicknessMulti();
+                return _Current;
+            }
+        }
+        #endregion
+
         #region IMultiValueConverter Members
         public object Convert(IList<object> values, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
