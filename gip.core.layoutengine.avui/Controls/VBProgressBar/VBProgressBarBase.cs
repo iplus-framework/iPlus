@@ -6,6 +6,8 @@ using Avalonia.Data;
 using Avalonia.Layout;
 using System;
 using Avalonia.VisualTree;
+using Avalonia.Data.Converters;
+using System.Globalization;
 
 namespace gip.core.layoutengine.avui
 {
@@ -348,20 +350,13 @@ namespace gip.core.layoutengine.avui
                 1.0 :
                 (Value - Minimum) / (Maximum - Minimum);
 
-            if (Orientation == Orientation.Horizontal)
-            {
-                var width = (barSize.Width - _indicator.Margin.Left - _indicator.Margin.Right) * percent;
-                _indicator.Width = width > 0 ? width : 0;
-                _indicator.Height = barSize.Height;
-            }
-            else
-            {
-                _indicator.Width = barSize.Height;
-                var height = (barSize.Width - _indicator.Margin.Top - _indicator.Margin.Bottom) * percent;
-                _indicator.Height = height > 0 ? height : 0;
-            }
 
-            Percentage = percent * 100;
+            var width = (barSize.Width  - _indicator.Margin.Left -
+                        _indicator.Margin.Right) * percent;
+            _indicator.Width  = width > 0 ? width : 0;      // <‑‑ grows horizontally
+            _indicator.Height = double.NaN;                 // no height growth
+
+            Percentage = percent * 100.0;
         }
 
         private void UpdatePseudoClasses(
@@ -377,5 +372,54 @@ namespace gip.core.layoutengine.avui
             PseudoClasses.Set(":vertical", o == Orientation.Vertical);
             PseudoClasses.Set(":horizontal", o == Orientation.Horizontal);
         }
+    }
+
+    public class OrientationToHorizontal : IValueConverter
+    {
+        private static OrientationToHorizontal _Current;
+
+        public static OrientationToHorizontal Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new OrientationToHorizontal();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => ((Orientation)value) == Orientation.Horizontal ? "Stretch" : null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
+    }
+
+    public class OrientationToVertical : IValueConverter
+    {
+        private static OrientationToVertical _Current;
+
+        public static OrientationToVertical Current
+        {
+            get
+            {
+                if (_Current == null) 
+                    _Current = new OrientationToVertical();
+                return _Current;
+            }
+        }
+
+        public object ProvideValue(IServiceProvider serviceProvider)
+        {
+            return Current;
+        }
+
+
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            => ((Orientation)value) == Orientation.Vertical ? "Stretch" : null;
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 }
