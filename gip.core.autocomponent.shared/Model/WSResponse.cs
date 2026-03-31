@@ -62,7 +62,7 @@ namespace gip.core.autocomponent
         {
             get
             {
-                return Message == null || Message.MessageLevel < eMsgLevel.Warning;
+                return Message == null || (Message.MessageLevel < eMsgLevel.Warning || Message.MessageLevel == eMsgLevel.Question);
             }
         }
 
