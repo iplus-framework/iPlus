@@ -1,12 +1,9 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.ComponentModel;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.IO;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Threading;
 
@@ -105,6 +102,19 @@ namespace gip.core.communication
             set;
         } = true;
 
+        public virtual JsonSerializerOptions JsonSerializerOptions
+        {
+            get
+            {
+                return new JsonSerializerOptions
+                {
+                    WriteIndented = JSONWriteIndented,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    PropertyNameCaseInsensitive = true
+                };
+            }
+        }
+
         #endregion
 
         #region abstract/virtual
@@ -167,13 +177,7 @@ namespace gip.core.communication
             {
                 try
                 {
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = JSONWriteIndented,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    };
-                    
-                    string jsonString = JsonSerializer.Serialize(rootNode, options);
+                   string jsonString = JsonSerializer.Serialize(rootNode, JsonSerializerOptions);
                     File.WriteAllText(archivFileName, jsonString, Encoding.UTF8);
                     MoveOrArchiveFile(ArchivingOn, exportFileName, archivFileName);
                     exception = null;
@@ -188,15 +192,9 @@ namespace gip.core.communication
             return exception;
         }
 
-        public static string SerializeToJSON<T>(T rootNode) where T : class
+        public string SerializeToJSON<T>(T rootNode) where T : class
         {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            
-            return JsonSerializer.Serialize(rootNode, options);
+            return JsonSerializer.Serialize(rootNode, JsonSerializerOptions);
         }
 
         public virtual void SerializeToJSONEncoded<T>(T rootNode, string fileName) where T : class
@@ -207,13 +205,7 @@ namespace gip.core.communication
                 encoding = Encoding.GetEncoding(EncodingName);
             }
 
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = JSONWriteIndented,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            string jsonString = JsonSerializer.Serialize(rootNode, options);
+           string jsonString = JsonSerializer.Serialize(rootNode, JsonSerializerOptions);
             File.WriteAllText(fileName, jsonString, encoding);
         }
 
