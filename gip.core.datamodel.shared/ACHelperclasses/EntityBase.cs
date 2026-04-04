@@ -37,19 +37,21 @@ namespace gip.core.datamodel
             backingStore = value;
             OnPropertyChanging<T>(value, propertyName, true);
             onChanged?.Invoke();
+            #if NETFRAMEWORK
             try
             {
                 OnPropertyChanged(propertyName);
             }
             catch (InvalidOperationException invalidOperationEx)
             {
-                #if NETFRAMEWORK
                 if (!(backingStore == null && this is VBEntityObject))
                 {
                     throw new InvalidOperationException("InvalidOperationException only on VBEntityObject allowed when backingStore is null", invalidOperationEx);
                 }
-                #endif
             }
+            #else
+            OnPropertyChanged(propertyName);
+            #endif
             return true;
         }
 
