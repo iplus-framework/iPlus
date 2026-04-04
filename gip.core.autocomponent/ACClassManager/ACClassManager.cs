@@ -2192,6 +2192,15 @@ namespace gip.core.autocomponent
                             overriddenProperty.ACPropUsage = acPropertyInfo.ACPropUsage;
                     }
                 }
+                if (acClassProperty.ACKind != Global.ACKinds.PSProperty)
+                {
+                    acClassProperty.ACKind = Global.ACKinds.PSProperty;
+                    if (acClassProperty.ACClassProperty_BasedOnACClassProperty.Any())
+                    {
+                        foreach (var overriddenProperty in acClassProperty.ACClassProperty_BasedOnACClassProperty)
+                            overriddenProperty.ACKind = Global.ACKinds.PSProperty;
+                    }
+                }
                 if (acClassProperty.IsBroadcast != acPropertyInfo.IsBroadcast)
                 {
                     acClassProperty.IsBroadcast = acPropertyInfo.IsBroadcast;

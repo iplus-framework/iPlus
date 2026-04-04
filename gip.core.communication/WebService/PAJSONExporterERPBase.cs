@@ -71,18 +71,6 @@ namespace gip.core.communication
             }
         }
 
-        protected virtual JsonSerializerOptions JsonSerializerOptions
-        {
-            get
-            {
-                return new JsonSerializerOptions
-                {
-                    WriteIndented = JSONWriteIndented,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                    PropertyNameCaseInsensitive = true
-                };
-            }
-        }
 
         protected virtual string FileNameExtension
         {

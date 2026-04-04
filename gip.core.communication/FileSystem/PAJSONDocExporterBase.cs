@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
@@ -7,7 +6,6 @@ using System.Threading.Tasks;
 using gip.core.datamodel;
 using gip.core.autocomponent;
 using System.IO;
-using System.Diagnostics;
 using System.Text.Json;
 using System.Threading;
 
@@ -19,7 +17,7 @@ namespace gip.core.communication
     [ACClassInfo(Const.PackName_VarioSystem, "en{'JSON Exporter'}de{'JSON Exporter'}", Global.ACKinds.TACDAClass, Global.ACStorableTypes.Required, false, false)]
     public abstract class PAJSONDocExporterBase : PAFileCyclicGroupBase, IACComponentTaskExec
     {
-        #region c´tors
+        #region cï¿½tors
         public PAJSONDocExporterBase(ACClass acType, IACObject content, IACObject parentACObject, ACValueList parameter, string acIdentifier = "")
             : base(acType, content, parentACObject, parameter, acIdentifier)
         {
@@ -92,19 +90,32 @@ namespace gip.core.communication
             set;
         }
 
-        [ACPropertyInfo(true, 207, "Configuration", "en{'Nr of retries sending JSON'}de{'Probenummber für JSONSchickung'}", "", false)]
+        [ACPropertyInfo(true, 207, "Configuration", "en{'Nr of retries sending JSON'}de{'Probenummber fï¿½r JSONSchickung'}", "", false)]
         public int NrOfRetriesSendingJSON
         {
             get;
             set;
         }
 
-        [ACPropertyInfo(true, 208, "Configuration", "en{'JSON write indented'}de{'JSON eingerückt schreiben'}", "", false)]
+        [ACPropertyInfo(true, 208, "Configuration", "en{'JSON write indented'}de{'JSON eingerï¿½ckt schreiben'}", "", false)]
         public bool JSONWriteIndented
         {
             get;
             set;
         } = true;
+
+        public virtual JsonSerializerOptions JsonSerializerOptions
+        {
+            get
+            {
+                return new JsonSerializerOptions
+                {
+                    WriteIndented = JSONWriteIndented,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                    PropertyNameCaseInsensitive = true
+                };
+            }
+        }
 
         #endregion
 
@@ -168,13 +179,7 @@ namespace gip.core.communication
             {
                 try
                 {
-                    var options = new JsonSerializerOptions
-                    {
-                        WriteIndented = JSONWriteIndented,
-                        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                    };
-                    
-                    string jsonString = JsonSerializer.Serialize(rootNode, options);
+                   string jsonString = JsonSerializer.Serialize(rootNode, JsonSerializerOptions);
                     File.WriteAllText(archivFileName, jsonString, Encoding.UTF8);
                     MoveOrArchiveFile(ArchivingOn, exportFileName, archivFileName);
                     exception = null;
@@ -189,15 +194,9 @@ namespace gip.core.communication
             return exception;
         }
 
-        public static string SerializeToJSON<T>(T rootNode) where T : class
+        public string SerializeToJSON<T>(T rootNode) where T : class
         {
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-            
-            return JsonSerializer.Serialize(rootNode, options);
+            return JsonSerializer.Serialize(rootNode, JsonSerializerOptions);
         }
 
         public virtual void SerializeToJSONEncoded<T>(T rootNode, string fileName) where T : class
@@ -208,13 +207,7 @@ namespace gip.core.communication
                 encoding = Encoding.GetEncoding(EncodingName);
             }
 
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = JSONWriteIndented,
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-            };
-
-            string jsonString = JsonSerializer.Serialize(rootNode, options);
+           string jsonString = JsonSerializer.Serialize(rootNode, JsonSerializerOptions);
             File.WriteAllText(fileName, jsonString, encoding);
         }
 
