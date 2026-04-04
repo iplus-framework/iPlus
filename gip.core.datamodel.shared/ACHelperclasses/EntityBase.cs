@@ -43,10 +43,12 @@ namespace gip.core.datamodel
             }
             catch (InvalidOperationException invalidOperationEx)
             {
+                #if NETFRAMEWORK
                 if (!(backingStore == null && this is VBEntityObject))
                 {
                     throw new InvalidOperationException("InvalidOperationException only on VBEntityObject allowed when backingStore is null", invalidOperationEx);
                 }
+                #endif
             }
             return true;
         }
