@@ -89,8 +89,11 @@ namespace gip.core.layoutengine.avui
 
         private void _PART_VBCarouselControl_OnElementSelected(object sender)
         {
-            if (_PART_VBCarouselControl.CurrentlySelected != null && ((Control)sender).Name == _PART_VBCarouselControl.CurrentlySelected.Name)
-                SelectedItem = Items.Cast<ACClassDesign>().FirstOrDefault(c => c.ACClassDesignID.ToString() == _PART_VBCarouselControl.CurrentlySelected.Name);
+            Control selectedControl = sender as Control ?? _PART_VBCarouselControl.CurrentlySelected;
+            if (selectedControl == null || String.IsNullOrEmpty(selectedControl.Name))
+                return;
+
+            SelectedItem = Items.Cast<ACClassDesign>().FirstOrDefault(c => c.ACClassDesignID.ToString() == selectedControl.Name);
         }
 
         #endregion

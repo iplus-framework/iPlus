@@ -152,7 +152,7 @@ namespace gip.core.wpfservices.avui
                 return null;
             IStorageProvider provider = topLevel.StorageProvider;
             
-            return await OpenFileDialog(provider, isFolderPicker, initialDirectory, useExisting, defaultExtension, filters);
+            return await OpenFileDialogAsync(provider, isFolderPicker, initialDirectory, useExisting, defaultExtension, filters);
         }
 
         private static TopLevel GetTopLevel(Control control)
@@ -174,7 +174,7 @@ namespace gip.core.wpfservices.avui
             return null;
         }
 
-        public static async Task<string> OpenFileDialog(IStorageProvider provider, bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
+        public static async Task<string> OpenFileDialogAsync(IStorageProvider provider, bool isFolderPicker, string initialDirectory, bool useExisting, string defaultExtension = null, Dictionary<string, string> filters = null)
         {
             IStorageFolder startingLocation = null;
             if (!string.IsNullOrEmpty(initialDirectory))
@@ -248,10 +248,10 @@ namespace gip.core.wpfservices.avui
             if (topLevel == null || topLevel.StorageProvider == null)
                 return null;
             IStorageProvider provider = topLevel.StorageProvider;
-            return await SaveFileDialog(provider, initialDirectory, defaultExtension);
+            return await SaveFileDialogAsync(provider, initialDirectory, defaultExtension);
         }
 
-        public static async Task<string> SaveFileDialog(IStorageProvider provider, string initialDirectory, string defaultExtension = null)
+        public static async Task<string> SaveFileDialogAsync(IStorageProvider provider, string initialDirectory, string defaultExtension = null)
         {
             IStorageFolder startingLocation = null;
             if (!string.IsNullOrEmpty(initialDirectory))

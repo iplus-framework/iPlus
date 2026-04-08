@@ -52,7 +52,7 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
             this.PointerPressed += new EventHandler<PointerPressedEventArgs>(VBListBox_PointerPressed);
-            this.DoubleTapped += VBListBox_DoubleTapped;
+            //this.DoubleTapped += VBListBox_DoubleTapped;
         }
 
         /// <summary>
@@ -665,12 +665,12 @@ namespace gip.core.layoutengine.avui
             base.OnPointerReleased(e);
         }
 
-        void VBListBox_DoubleTapped(object sender, TappedEventArgs e)
-        {
-            OnDoubleTapped(e);
-        }
+        // void VBListBox_DoubleTapped(object sender, TappedEventArgs e)
+        // {
+        //     OnDoubleTapped(e);
+        // }
 
-        protected void OnDoubleTapped(TappedEventArgs e)
+        protected override void OnDoubleTapped(TappedEventArgs e)
         {
             if (DblClick != null && DblClick != "")
             {

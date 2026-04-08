@@ -2,6 +2,7 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading;
+using Avalonia.Threading;
 
 namespace gip.core.layoutengine.avui.timeline
 {
@@ -20,7 +21,6 @@ namespace gip.core.layoutengine.avui.timeline
         public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider)
             : base(itemsProvider)
         {
-            _synchronizationContext = SynchronizationContext.Current;
         }
 
         /// <summary>
@@ -31,7 +31,6 @@ namespace gip.core.layoutengine.avui.timeline
         public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider, int pageSize)
             : base(itemsProvider, pageSize)
         {
-            _synchronizationContext = SynchronizationContext.Current;
         }
 
         /// <summary>
@@ -43,23 +42,6 @@ namespace gip.core.layoutengine.avui.timeline
         public AsyncVirtualizingCollection(IItemsProvider<T> itemsProvider, int pageSize, int pageTimeout)
             : base(itemsProvider, pageSize, pageTimeout)
         {
-            _synchronizationContext = SynchronizationContext.Current;
-        }
-
-        #endregion
-
-        #region SynchronizationContext
-
-        private readonly SynchronizationContext _synchronizationContext;
-
-        /// <summary>
-        /// Gets the synchronization context used for UI-related operations. This is obtained as
-        /// the current SynchronizationContext when the AsyncVirtualizingCollection is created.
-        /// </summary>
-        /// <value>The synchronization context.</value>
-        protected SynchronizationContext SynchronizationContext
-        {
-            get { return _synchronizationContext; }
         }
 
         #endregion
@@ -170,7 +152,7 @@ namespace gip.core.layoutengine.avui.timeline
         private void LoadCountWork(object args)
         {
             int count = FetchCount();
-            SynchronizationContext.Send(LoadCountCompleted, count);
+            Dispatcher.UIThread.Post(() => LoadCountCompleted(count));
         }
 
         /// <summary>
@@ -202,7 +184,7 @@ namespace gip.core.layoutengine.avui.timeline
         {
             int pageIndex = (int)args;
             IList<T> page = FetchPage(pageIndex);
-            SynchronizationContext.Send(LoadPageCompleted, new object[]{ pageIndex, page });
+            Dispatcher.UIThread.Post(() => LoadPageCompleted(new object[] { pageIndex, page }));
         }
 
         /// <summary>

@@ -561,7 +561,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             return null;
 
 #pragma warning disable VSTHRD002
-        return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.OpenFileDialog(mainWindow.StorageProvider, false, initialDirectory, false, null, null)).GetAwaiter().GetResult();
+        return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.OpenFileDialogAsync(mainWindow.StorageProvider, false, initialDirectory, false, null, null)).GetAwaiter().GetResult();
 #pragma warning restore VSTHRD002
     }
 
@@ -572,7 +572,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             return null;
 
 #pragma warning disable VSTHRD002
-        return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.SaveFileDialog(mainWindow.StorageProvider, initialDirectory, filter)).GetAwaiter().GetResult();
+        return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.SaveFileDialogAsync(mainWindow.StorageProvider, initialDirectory, filter)).GetAwaiter().GetResult();
 #pragma warning restore VSTHRD002
 
     }

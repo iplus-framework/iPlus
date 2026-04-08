@@ -43,10 +43,10 @@ namespace gip.core.wpfservices.avui
                 return;
 
             base.UpdateVisual();
-            if (vbDesigner.VBDesignEditor is VBDesignEditor)
+            if (vbDesigner.VBDesignEditor is VBDesignEditor designEditor)
             {
-                ((VBDesignEditor)vbDesigner.VBDesignEditor).SaveToXAML();
-                ((VBDesignEditor)vbDesigner.VBDesignEditor).RefreshViewFromXAML();
+                designEditor.SaveToXAML();
+                _ = designEditor.RefreshViewFromXAML();
             }
         }
 

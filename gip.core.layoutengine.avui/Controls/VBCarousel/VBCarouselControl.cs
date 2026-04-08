@@ -61,17 +61,36 @@ namespace gip.core.layoutengine.avui
         /// <param name="element">The element to select.</param>
         public void SelectElement(Control element)
         {
-            if (element != null)
+            SelectElement(element, true);
+        }
+
+        private void SelectElement(Control element, bool notifySelectionChanged)
+        {
+            Control carouselElement = ResolveCarouselElement(element);
+            if (carouselElement == null)
+                return;
+
+            _previousTime = DateTime.Now;
+
+            RotateToElement(carouselElement);
+            _currentlySelected = carouselElement;
+
+            if (notifySelectionChanged && OnElementSelected != null)
+                OnElementSelected(carouselElement);
+        }
+
+        private Control ResolveCarouselElement(Control element)
+        {
+            Control current = element;
+            while (current != null)
             {
-                _previousTime = DateTime.Now;
+                if (Children.Contains(current))
+                    return current;
 
-                RotateToElement(element);
-
-                if (OnElementSelected != null)
-                    OnElementSelected(element);
-
-                _currentlySelected = element;
+                current = current.Parent as Control;
             }
+
+            return null;
         }
 
         private const double DEFAULT_ROTATION_SPEED = 100;
@@ -180,17 +199,17 @@ namespace gip.core.layoutengine.avui
             if (e.Delta.Y > 0 && !_timer.IsEnabled)
             {
                 if (index == 0)
-                    SelectElement(Children[Children.Count - 1] as Control);
+                    SelectElement(Children[Children.Count - 1] as Control, false);
                 else
-                    SelectElement(Children[index - 1] as Control);
+                    SelectElement(Children[index - 1] as Control, false);
 
             }
             else if (e.Delta.Y < 0 && !_timer.IsEnabled)
             {
                 if (index == Children.Count - 1)
-                    SelectElement(Children[0] as Control);
+                    SelectElement(Children[0] as Control, false);
                 else
-                    SelectElement(Children[index + 1] as Control);
+                    SelectElement(Children[index + 1] as Control, false);
             }
         }
 

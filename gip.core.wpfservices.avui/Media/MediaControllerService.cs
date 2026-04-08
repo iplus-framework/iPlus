@@ -1,6 +1,7 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using gip.core.datamodel;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
@@ -33,6 +34,9 @@ namespace gip.core.wpfservices.avui
 
         public IEnumerable<string> GetWindowsPrinters()
         {
+            if (!OperatingSystem.IsWindowsVersionAtLeast(6, 1))
+                return new List<string>();
+
             System.Drawing.Printing.PrinterSettings.StringCollection windowsPrinters = System.Drawing.Printing.PrinterSettings.InstalledPrinters;
             List<string> windowsPrintersList = new List<string>();
             foreach (string printer in windowsPrinters)

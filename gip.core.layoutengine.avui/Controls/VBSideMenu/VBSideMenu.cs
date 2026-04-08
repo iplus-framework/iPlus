@@ -100,7 +100,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private void OnBackClick(object? sender, RoutedEventArgs e)
+        private void OnBackClick(object sender, RoutedEventArgs e)
         {
             if (CurrentItem != null)
             {
