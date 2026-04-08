@@ -529,6 +529,16 @@ namespace gip.ext.xamldom.avui
         {
             Debug.Assert(index >= 0 && index <= collectionElements.Count);
             XmlElement collection = _propertyElement;
+
+            XmlNode GetValidCollectionNodeAt(int i)
+            {
+                if (i < 0 || i >= collectionElements.Count)
+                    return null;
+
+                var node = collectionElements[i].GetNodeForCollection();
+                return node != null && node.ParentNode == collection ? node : null;
+            }
+
             if (collection == null)
             {
                 if (collectionElements.Count == 0 && this.PropertyName != this.ParentObject.ContentPropertyName)
@@ -561,12 +571,32 @@ namespace gip.ext.xamldom.avui
             else if (index == collectionElements.Count)
             {
                 // insert after last element in collection
-                collection.InsertAfter(newChildNode, collectionElements[collectionElements.Count - 1].GetNodeForCollection());
+                var refNode = GetValidCollectionNodeAt(collectionElements.Count - 1);
+                if (refNode != null)
+                {
+                    collection.InsertAfter(newChildNode, refNode);
+                }
+                else
+                {
+                    collection.AppendChild(newChildNode);
+                }
             }
             else
             {
                 // insert before specified index
-                collection.InsertBefore(newChildNode, collectionElements[index].GetNodeForCollection());
+                var refNode = GetValidCollectionNodeAt(index);
+                if (refNode != null)
+                {
+                    collection.InsertBefore(newChildNode, refNode);
+                }
+                else if (collection.FirstChild != null)
+                {
+                    collection.InsertBefore(newChildNode, collection.FirstChild);
+                }
+                else
+                {
+                    collection.AppendChild(newChildNode);
+                }
             }
         }
 

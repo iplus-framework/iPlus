@@ -441,9 +441,18 @@ namespace gip.ext.xamldom.avui
                     // collection root even if its runtime type looks collection-like.
                     if (propertyInfo.IsCollection)
                     {
-                        collectionProperty = parentObj.Properties
-                            .FirstOrDefault(existing => existing.propertyInfo.FullyQualifiedName == propertyInfo.FullyQualifiedName);
-                        if (collectionProperty == null)
+                        // Bind to the parent collection property only when this object is the
+                        // collection instance for that property (e.g. <Foo.Items><ItemCollection>...).
+                        // For collection items like <Style> inside <Canvas.Styles>, child setters
+                        // must stay on the Style object, not on Canvas.Styles.
+                        bool isCollectionInstanceForParentProperty = propertyInfo.ReturnType.IsAssignableFrom(obj.ElementType);
+                        if (isCollectionInstanceForParentProperty)
+                        {
+                            collectionProperty = parentObj.Properties
+                                .FirstOrDefault(existing => existing.propertyInfo.FullyQualifiedName == propertyInfo.FullyQualifiedName);
+                        }
+
+                        if (isCollectionInstanceForParentProperty && collectionProperty == null)
                         {
                             // For property-element values whose CLR type matches the declared
                             // property type (e.g. ItemContainerTheme -> ControlTheme), the parent
@@ -1275,6 +1284,12 @@ namespace gip.ext.xamldom.avui
                 }
                 return list;
             }
+            else if (typeof(Selector).IsAssignableFrom(targetProperty.ReturnType))
+            {
+                var selector = ParseSelectorFromText(valueText, scope);
+                if (selector != null)
+                    return selector;
+            }
             else if (targetProperty.ReturnType == typeof(Bitmap))
             {
                 var uri = scope.OwnerDocument.TypeFinder.ConvertUriToLocalUri(new Uri(valueText, UriKind.RelativeOrAbsolute));
@@ -1307,6 +1322,53 @@ namespace gip.ext.xamldom.avui
                 return result2;
             }
             return null;
+        }
+
+        private static Selector ParseSelectorFromText(string valueText, XamlObject scope)
+        {
+            var parserType = Type.GetType("Avalonia.Markup.Parsers.SelectorParser, Avalonia.Markup", throwOnError: false);
+            if (parserType == null)
+                return null;
+
+            Func<string, string, Type> typeResolver = (xmlNsPrefix, typeName) =>
+            {
+                var qualifiedName = string.IsNullOrEmpty(xmlNsPrefix)
+                    ? typeName
+                    : xmlNsPrefix + ":" + typeName;
+
+                var resolved = scope.ServiceProvider.Resolver.Resolve(qualifiedName);
+                if (resolved == null)
+                    throw new XamlLoadException("Could not resolve selector type '" + qualifiedName + "'.");
+
+                return resolved;
+            };
+
+            var ctor = parserType.GetConstructor(
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                types: new[] { typeof(Func<string, string, Type>) },
+                modifiers: null);
+            if (ctor == null)
+                return null;
+
+            var parser = ctor.Invoke(new object[] { typeResolver });
+            var parseMethod = parserType.GetMethod(
+                "Parse",
+                BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
+                binder: null,
+                types: new[] { typeof(string) },
+                modifiers: null);
+            if (parseMethod == null)
+                return null;
+
+            try
+            {
+                return parseMethod.Invoke(parser, new object[] { valueText }) as Selector;
+            }
+            catch (TargetInvocationException tie) when (tie.InnerException != null)
+            {
+                throw new XamlLoadException("Could not parse selector '" + valueText + "'.", tie.InnerException);
+            }
         }
 
         internal static object CreateObjectFromAttributeText(string valueText, Type targetType, XamlObject scope)
