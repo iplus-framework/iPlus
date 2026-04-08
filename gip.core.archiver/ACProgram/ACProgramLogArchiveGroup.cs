@@ -459,7 +459,29 @@ namespace gip.core.archiver
                 if (!Directory.Exists(acProgramDirPath))
                 {
                     Directory.CreateDirectory(acProgramDirPath);
-                    ZipFile.ExtractToDirectory(acProgramFilePath, acProgramDirPath);
+                    // Support cross-platform extraction with backslashes
+                    using (ZipArchive zipArchive = ZipFile.OpenRead(acProgramFilePath))
+                    {
+                        foreach (ZipArchiveEntry entry in zipArchive.Entries)
+                        {
+                            string effectiveName = entry.FullName.Replace('\\', Path.DirectorySeparatorChar);
+                            string destFile = Path.Combine(acProgramDirPath, effectiveName);
+
+                            if (string.IsNullOrEmpty(entry.Name))
+                            {
+                                Directory.CreateDirectory(destFile);
+                                continue;
+                            }
+
+                            string destDir = Path.GetDirectoryName(destFile);
+                            if (!string.IsNullOrEmpty(destDir))
+                            {
+                                Directory.CreateDirectory(destDir);
+                            }
+
+                            entry.ExtractToFile(destFile, true);
+                        }
+                    }
                 }
 
                 string[] archive = Directory.GetFiles(acProgramDirPath);

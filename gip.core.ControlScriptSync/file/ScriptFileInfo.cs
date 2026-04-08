@@ -80,7 +80,27 @@ namespace gip.core.ControlScriptSync.file
             {
                 DeleteFolder();
             }
-            ZipFile.ExtractToDirectory(Path.Combine(FolderContainer, FileName), System.IO.Path.GetTempPath());
+            
+            // Instead of using ZipFile.ExtractToDirectory, we extract manually
+            // to correct backslashes in paths (important for Linux)
+            using (ZipArchive archive = ZipFile.OpenRead(Path.Combine(FolderContainer, FileName)))
+            {
+                foreach (ZipArchiveEntry entry in archive.Entries)
+                {
+                    // Ersetze Backslashes durch systemkonforme Trenner
+                    string effectivePath = entry.FullName.Replace('\\', Path.DirectorySeparatorChar);
+                    string destinationPath = Path.Combine(System.IO.Path.GetTempPath(), effectivePath);
+
+                    if (string.IsNullOrEmpty(entry.Name)) // Es ist ein Verzeichnis
+                    {
+                        Directory.CreateDirectory(destinationPath);
+                        continue;
+                    }
+
+                    Directory.CreateDirectory(Path.GetDirectoryName(destinationPath));
+                    entry.ExtractToFile(destinationPath, true);
+                }
+            }
         }
 
         public void DeleteFolder()

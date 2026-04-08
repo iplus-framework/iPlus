@@ -272,7 +272,7 @@ namespace gip.ext.designer.avui.Converters
     {
         public static readonly BoundsToWidthConverter Instance = new BoundsToWidthConverter();
 
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is Rect bounds)
             {
@@ -283,14 +283,14 @@ namespace gip.ext.designer.avui.Converters
             return 0.0;
         }
 
-        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
     public class BoundsToHeightConverter : IValueConverter
     {
         public static readonly BoundsToHeightConverter Instance = new BoundsToHeightConverter();
 
-        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is Rect bounds)
             {
@@ -301,7 +301,7 @@ namespace gip.ext.designer.avui.Converters
             return 0.0;
         }
 
-        public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) => throw new NotImplementedException();
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => throw new NotImplementedException();
     }
 
     public class FormatDoubleConverter : IValueConverter
