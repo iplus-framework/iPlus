@@ -913,13 +913,13 @@ namespace gip.core.media
             switch (acMethodName)
             {
                 case nameof(SetFilePath):
-                    _= SetFilePath();
+                    result = SetFilePath();
                     return true;
                 case nameof(IsEnabledSetFilePath):
                     result = IsEnabledSetFilePath();
                     return true;
                 case nameof(SetFileThumbPath):
-                    _= SetFileThumbPath();
+                    result = SetFileThumbPath();
                     return true;
                 case nameof(IsEnabledSetFileThumbPath):
                     result = IsEnabledSetFileThumbPath();
@@ -931,7 +931,7 @@ namespace gip.core.media
                     result = IsEnabledUploadFile();
                     return true;
                 case nameof(DownloadItem):
-                    _= DownloadItem();
+                    result = DownloadItem();
                     return true;
                 case nameof(IsEnabledDownloadItem):
                     result = IsEnabledDownloadItem();
@@ -952,7 +952,7 @@ namespace gip.core.media
                     Add();
                     return true;
                 case nameof(Delete):
-                    _= Delete();
+                    result = Delete();
                     return true;
                 case nameof(IsEnabledDelete):
                     result = IsEnabledDelete();

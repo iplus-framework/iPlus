@@ -877,7 +877,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(Save):
-                    _= Save();
+                    result = Save();
                     return true;
                 case nameof(IsEnabledSave):
                     result = IsEnabledSave();
@@ -907,7 +907,7 @@ namespace gip.bso.iplus
                     result = IsEnabledImportActivationData();
                     return true;
                 case nameof(BrowseActivationDataFile):
-                    _= BrowseActivationDataFile();
+                    result = BrowseActivationDataFile();
                     return true;
                 case nameof(ImportDataDialog):
                     ImportDataDialog();
@@ -943,7 +943,7 @@ namespace gip.bso.iplus
                     result = IsEnabledGenerateLicenseFile();
                     return true;
                 case nameof(BrowseLicenseDir):
-                    _= BrowseLicenseDir();
+                    result = BrowseLicenseDir();
                     return true;
                 case nameof(SignLicenseFile):
                     SignLicenseFile();
@@ -952,7 +952,7 @@ namespace gip.bso.iplus
                     result = IsEnabledSignLicenseFile();
                     return true;
                 case nameof(BrowseLicenseFile):
-                    _= BrowseLicenseFile();
+                    result = BrowseLicenseFile();
                     return true;
                 case nameof(GenerateRemoteUserKey):
                     GenerateRemoteUserKey();

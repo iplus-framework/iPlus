@@ -127,7 +127,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             IsSingleViewApp = Database.Root.IsSingleViewApp;
     }
 
-    private void InputPane_StateChanged(object? sender, InputPaneStateEventArgs e)
+    private void InputPane_StateChanged(object sender, InputPaneStateEventArgs e)
     {
         if (_inputPane is not null &&
             _insetsManager is not null)
@@ -188,7 +188,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     #endregion
 
-    #region Menü
+    #region Menï¿½
     private void CreateMenu(ACMenuItemList mainMenu, ItemCollection items)
     {
         foreach (ACMenuItem acMenuItem in mainMenu)
@@ -390,7 +390,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
             VBDesign uiElementAsDataDesign = (uiElement as VBDesign);
             uiElementAsDataDesign.BSOACComponent = uiElement.DataContext as Businessobjects;
 
-            // Rechteprüfung ob Design geöffnet werden darf
+            // Rechteprï¿½fung ob Design geï¿½ffnet werden darf
             if (uiElementAsDataContent != null && uiElementAsDataDesign.ContentACObject != null && uiElementAsDataDesign.ContentACObject is IACType)
             {
                 if (uiElementAsDataContent.ContextACObject is IACComponent)
@@ -454,7 +454,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     public async Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
         // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
-        // Das findet man über den Zugriff auf eine interne Member heraus:
+        // Das findet man ï¿½ber den Zugriff auf eine interne Member heraus:
         //System.Reflection.MemberInfo[] infos = typeof(Dispatcher).GetMember("_disableProcessingCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         //Type typeDispatcher = typeof(Dispatcher);
         //FieldInfo fieldInfo = typeDispatcher.GetField("_disableProcessingCount", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -485,7 +485,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     public Global.MsgResult ShowMsgBox(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
     {
         // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
-        // Das findet man über den Zugriff auf eine interne Member heraus:
+        // Das findet man ï¿½ber den Zugriff auf eine interne Member heraus:
         //System.Reflection.MemberInfo[] infos = typeof(Dispatcher).GetMember("_disableProcessingCount", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
         //Type typeDispatcher = typeof(Dispatcher);
         //FieldInfo fieldInfo = typeDispatcher.GetField("_disableProcessingCount", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -560,7 +560,9 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         if (mainWindow == null)
             return null;
 
+#pragma warning disable VSTHRD002
         return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.OpenFileDialog(mainWindow.StorageProvider, false, initialDirectory, false, null, null)).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
     }
 
     public string SaveFileDialog(string filter, string initialDirectory = null, bool restoreDirectory = true)
@@ -569,7 +571,9 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
         if (mainWindow == null)
             return null;
 
+#pragma warning disable VSTHRD002
         return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.SaveFileDialog(mainWindow.StorageProvider, initialDirectory, filter)).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
 
     }
     #endregion
@@ -703,7 +707,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
 
     #region IRootPageWPF Member
 
-    #region Blidschirm für nächsten Start einfrieren
+    #region Blidschirm fï¿½r nï¿½chsten Start einfrieren
     public static readonly StyledProperty<WPFControlSelectionEventArgs> VBDockingManagerFreezingProperty = AvaloniaProperty.Register<MainView, WPFControlSelectionEventArgs>(nameof(VBDockingManagerFreezing));
     public WPFControlSelectionEventArgs VBDockingManagerFreezing
     {
@@ -834,7 +838,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     }
     #endregion
 
-    private async Task WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
+    private async Task WarningIcon_DoubleTappedAsync(object sender, TappedEventArgs e)
     {
         IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null) as IACComponent;
         if (bsoAlarmExplorer != null)

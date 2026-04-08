@@ -175,6 +175,8 @@ namespace gip.core.layoutengine.avui
         {
             base.OnPointerWheelChanged(e);
             int index = Children.IndexOf(CurrentlySelected);
+            if (index == -1)
+                return;
             if (e.Delta.Y > 0 && !_timer.IsEnabled)
             {
                 if (index == 0)
@@ -198,6 +200,8 @@ namespace gip.core.layoutengine.avui
             {
                 //_currentlySelected = element;
                 int targetIndex = Children.IndexOf(element);
+                if (targetIndex == -1)
+                    return;
 
                 double degreesToRotate = GetDegreesNeededToPlaceElementInFront(_currentRotation, targetIndex, TotalNumberOfElements);
                 _targetRotation = ClampDegrees(_currentRotation - degreesToRotate);

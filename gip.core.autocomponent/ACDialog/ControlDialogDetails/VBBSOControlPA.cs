@@ -1016,13 +1016,13 @@ namespace gip.core.autocomponent
                     SaveConfig();
                     return true;
                 case "MassUpdateInPoint":
-                    _= MassUpdateInPoint();
+                    result = MassUpdateInPoint();
                     return true;
                 case "MassUpdateOutPoint":
-                    _= MassUpdateOutPoint();
+                    result = MassUpdateOutPoint();
                     return true;
                 case "ShowACProgramLog":
-                    _= ShowACProgramLog();
+                    result = ShowACProgramLog();
                     return true;
                 case "AcknowledgeCurrent":
                     AcknowledgeCurrent();

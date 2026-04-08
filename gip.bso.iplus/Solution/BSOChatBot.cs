@@ -1003,7 +1003,7 @@ IMPORTANT NOTES:
                     result = IsEnabledSelectChatClientSettingsByModelName();
                     return true;
                 case nameof(ReadMCPServerConfigFromFile):
-                    _= ReadMCPServerConfigFromFile();
+                    result = ReadMCPServerConfigFromFile();
                     return true;
                 case nameof(StopAgent):
                     StopAgent();

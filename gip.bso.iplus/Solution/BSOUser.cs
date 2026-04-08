@@ -1032,7 +1032,7 @@ namespace gip.bso.iplus
                     UnassignACProject();
                     return true;
                 case nameof(UserClone):
-                    _= UserClone();
+                    result = UserClone();
                     return true;
                 case nameof(IsEnabledUnassignACProject):
                     result = IsEnabledUnassignACProject();
@@ -1050,7 +1050,7 @@ namespace gip.bso.iplus
                     result = IsEnabledUnassignAllACProject();
                     return true;
                 case nameof(TestMethod):
-                    _= TestMethod();
+                    result = TestMethod();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

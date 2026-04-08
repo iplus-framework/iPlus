@@ -585,7 +585,7 @@ namespace gip.bso.iplus
                     result = IsEnabledGetActivationData();
                     return true;
                 case nameof(BrowseLicenceFile):
-                    _= BrowseLicenceFile();
+                    result = BrowseLicenceFile();
                     return true;
                 case nameof(ActivateProduct):
                     ActivateProduct();
@@ -597,7 +597,7 @@ namespace gip.bso.iplus
                     AddNewLicense();
                     return true;
                 case nameof(CloseDialog):
-                    _= CloseDialog();
+                    result = CloseDialog();
                     return true;
                 case nameof(ExportActivationData):
                     ExportActivationData();
@@ -606,7 +606,7 @@ namespace gip.bso.iplus
                     ExportActivationDataDialog();
                     return true;
                 case nameof(BrowseExportActivationDataDir):
-                    _= BrowseExportActivationDataDir();
+                    result = BrowseExportActivationDataDir();
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

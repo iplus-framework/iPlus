@@ -371,7 +371,7 @@ public partial class App : Application
             {
                 if (!Dispatcher.UIThread.CheckAccess())
                 {
-                    Dispatcher.UIThread.InvokeAsync(() => UpdateLicenseTitle(desktop.MainWindow), DispatcherPriority.Send);
+                    Dispatcher.UIThread.Post(() => UpdateLicenseTitle(desktop.MainWindow), DispatcherPriority.Send);
                 }
                 else
                     UpdateLicenseTitle(desktop.MainWindow);

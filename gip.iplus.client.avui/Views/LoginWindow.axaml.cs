@@ -50,7 +50,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
     protected override void OnLoaded(RoutedEventArgs e)
     {
         Monitor.Enter(_WaitOnOkClick);
-        DoLoginAction();
+        _ = DoLoginActionAsync();
         base.OnLoaded(e);
     }
 
@@ -65,7 +65,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
         base.OnUnloaded(e);
     }
 
-    private async void DoLoginAction()
+    private async Task DoLoginActionAsync()
     {
         if (_LoginAction is not null)
         {
@@ -75,7 +75,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
                 {
                     _LoginAction.Invoke();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Handle exceptions from the heavy load action
                     await Dispatcher.UIThread.InvokeAsync(() =>
@@ -131,7 +131,7 @@ public partial class LoginWindow : ReactiveWindow<Settings>
         {
             if (!this.listboxInfo.CheckAccess())
             {
-                Dispatcher.UIThread.InvokeAsync(() => _Messages_CollectionChanged(sender, e), DispatcherPriority.Send);
+                Dispatcher.UIThread.Post(() => _Messages_CollectionChanged(sender, e), DispatcherPriority.Send);
                 return;
             }
             AddItems(e.NewItems);
@@ -163,11 +163,11 @@ public partial class LoginWindow : ReactiveWindow<Settings>
     /// <summary>
     /// 1. Call from App
     /// </summary>
-    public async void DisplayLogin(bool display, String errorMsg)
+    public void DisplayLogin(bool display, String errorMsg)
     {
         if (!this.ProgressGrid.CheckAccess())
         {
-            await Dispatcher.UIThread.InvokeAsync(() => DisplayLogin(display, errorMsg), DispatcherPriority.Send);
+            Dispatcher.UIThread.Post(() => DisplayLogin(display, errorMsg), DispatcherPriority.Send);
             return;
         }
 

@@ -619,7 +619,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(ShowACProgramLog):
-                    _= ShowACProgramLog();
+                    result = ShowACProgramLog();
                     return true;
                 case nameof(IsEnabledShowACProgramLog):
                     result = IsEnabledShowACProgramLog();
@@ -655,7 +655,7 @@ namespace gip.bso.iplus
                     DlgCancel();
                     return true;
                 case nameof(Browse):
-                    _= Browse();
+                    result = Browse();
                     return true;
                 case nameof(IsEnabledBrowse):
                     result = IsEnabledBrowse();

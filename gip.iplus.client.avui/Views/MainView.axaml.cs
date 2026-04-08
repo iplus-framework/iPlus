@@ -538,7 +538,9 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
         if (mainWindow == null)
             return null;
 
+#pragma warning disable VSTHRD002
         return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.OpenFileDialog(mainWindow.StorageProvider, false, initialDirectory, false, null, null)).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
     }
 
     public string SaveFileDialog(string filter, string initialDirectory = null, bool restoreDirectory = true)
@@ -547,7 +549,9 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
         if (mainWindow == null)
             return null;
 
+#pragma warning disable VSTHRD002
         return Dispatcher.UIThread.InvokeAsync<string>(() => MediaControllerProxy.SaveFileDialog(mainWindow.StorageProvider, initialDirectory, filter)).GetAwaiter().GetResult();
+#pragma warning restore VSTHRD002
 
     }
     #endregion
@@ -893,7 +897,12 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     }
     #endregion
 
-    private async void WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
+    private void WarningIcon_DoubleTapped(object sender, TappedEventArgs e)
+    {
+        _ = WarningIcon_DoubleTappedAsync();
+    }
+
+    private async Task WarningIcon_DoubleTappedAsync()
     {
         IACComponent bsoAlarmExplorer = ACRoot.SRoot.Businessobjects.StartComponent("BSOAlarmExplorer", this, null) as IACComponent;
         if (bsoAlarmExplorer != null)

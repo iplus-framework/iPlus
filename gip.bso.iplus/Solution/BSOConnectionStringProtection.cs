@@ -152,7 +152,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(SelectConfigFile):
-                    _= SelectConfigFile();
+                    result = SelectConfigFile();
                     return true;
                 case nameof(EncryptConfig):
                     EncryptConfig();

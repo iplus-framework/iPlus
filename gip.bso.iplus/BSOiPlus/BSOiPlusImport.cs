@@ -898,7 +898,7 @@ namespace gip.bso.iplus
                     result = IsEnabledImportSaveFileUndo();
                     return true;
                 case nameof(ImportSource):
-                    _= ImportSource();
+                    result = ImportSource();
                     return true;
                 case nameof(IsEnabledImportSource):
                     result = IsEnabledImportSource();

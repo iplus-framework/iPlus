@@ -985,10 +985,10 @@ namespace gip.core.manager
             switch (acMethodName)
             {
                 case nameof(ShowDetails):
-                    _= ShowDetails();
+                    result = ShowDetails();
                     return true;
                 case nameof(ShowACProgramLog):
-                    _= ShowACProgramLog((ACValueList)acParameter[0]);
+                    result = ShowACProgramLog((ACValueList)acParameter[0]);
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);

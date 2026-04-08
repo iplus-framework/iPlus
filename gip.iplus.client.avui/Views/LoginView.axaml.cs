@@ -66,7 +66,6 @@ public partial class LoginView : UserControl
 
     #region Properties => Login
 
-    private string _Keyword = "";
 
     private string _User;
     public string User
@@ -86,14 +85,14 @@ public partial class LoginView : UserControl
         }
     }
 
-    private eWpfTheme _WpfTheme;
-    public eWpfTheme WpfTheme
-    {
-        get
-        {
-            return _WpfTheme;
-        }
-    }
+    // private eWpfTheme _WpfTheme;
+    // public eWpfTheme WpfTheme
+    // {
+    //     get
+    //     {
+    //         return _WpfTheme;
+    //     }
+    // }
 
     #endregion
 
@@ -139,7 +138,7 @@ public partial class LoginView : UserControl
     protected override void OnLoaded(RoutedEventArgs e)
     {
         Monitor.Enter(_WaitOnOkClick);
-        DoLoginAction();
+        _ = DoLoginActionAsync();
         base.OnLoaded(e);
 
         // Get TopLevel after the view is loaded (not in constructor!)
@@ -158,7 +157,7 @@ public partial class LoginView : UserControl
         }
     }
 
-    private void InputPane_StateChanged(object? sender, InputPaneStateEventArgs e)
+    private void InputPane_StateChanged(object sender, InputPaneStateEventArgs e)
     {
         if (_inputPane is not null &&
             _insetsManager is not null)
@@ -213,7 +212,7 @@ public partial class LoginView : UserControl
         base.OnUnloaded(e);
     }
 
-    private async void DoLoginAction()
+    private async Task DoLoginActionAsync()
     {
         if (_LoginAction is not null)
         {
@@ -223,7 +222,7 @@ public partial class LoginView : UserControl
                 {
                     _LoginAction.Invoke();
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     // Handle exceptions from the heavy load action
                     await Dispatcher.UIThread.InvokeAsync(() =>
@@ -245,11 +244,11 @@ public partial class LoginView : UserControl
     /// <summary>
     /// 1. Call from App
     /// </summary>
-    public async void DisplayLogin(bool display, String errorMsg)
+    public void DisplayLogin(bool display, String errorMsg)
     {
         if (!this.ProgressGrid.CheckAccess())
         {
-            await Dispatcher.UIThread.InvokeAsync(() => DisplayLogin(display, errorMsg), DispatcherPriority.Send);
+            Dispatcher.UIThread.Post(() => DisplayLogin(display, errorMsg), DispatcherPriority.Send);
             return;
         }
 
@@ -449,7 +448,7 @@ public partial class LoginView : UserControl
         {
             if (!this.listboxInfo.CheckAccess())
             {
-                Dispatcher.UIThread.InvokeAsync(() => _Messages_CollectionChanged(sender, e), DispatcherPriority.Send);
+                Dispatcher.UIThread.Post(() => _Messages_CollectionChanged(sender, e), DispatcherPriority.Send);
                 return;
             }
             AddItems(e.NewItems);

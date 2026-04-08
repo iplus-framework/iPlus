@@ -103,8 +103,20 @@ namespace gip.core.autocomponent
 
         #region Public Methods
 
-        public abstract void ShowDialogOrder(IACComponent caller, PAOrderInfo orderInfo = null);
-        public abstract void ShowDialogComponents(IACComponent caller, PAOrderInfo orderInfo = null);
+        public abstract Task ShowDialogOrder(IACComponent caller, PAOrderInfo orderInfo = null);
+        public abstract Task ShowDialogComponents(IACComponent caller, PAOrderInfo orderInfo = null);
+
+        // public virtual Task ShowDialogOrderAsync(IACComponent caller, PAOrderInfo orderInfo = null)
+        // {
+        //     ShowDialogOrder(caller, orderInfo);
+        //     return Task.CompletedTask;
+        // }
+
+        // public virtual Task ShowDialogComponentsAsync(IACComponent caller, PAOrderInfo orderInfo = null)
+        // {
+        //     ShowDialogComponents(caller, orderInfo);
+        //     return Task.CompletedTask;
+        // }
 
         public abstract bool IsEnabledShowDialogOrder(IACComponent caller);
 

@@ -1849,7 +1849,7 @@ namespace gip.bso.iplus
                     OnTreeViewItemExpand((gip.core.datamodel.ACClassInfoWithItems)acParameter[0]);
                     return true;
                 case nameof(Save):
-                    _= Save();
+                    result = Save();
                     return true;
                 case nameof(Search):
                     Search();

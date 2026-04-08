@@ -712,25 +712,25 @@ namespace gip.core.reporthandler.avui
             switch (acMethodName)
             {
                 case nameof(ReportPrintDlg):
-                    _= ReportPrintDlg();
+                    result = ReportPrintDlg();
                     return true;
                 case nameof(IsEnabledReportPrintDlg):
                     result = IsEnabledReportPrintDlg();
                     return true;
                 case nameof(ReportPreviewDlg):
-                    _= ReportPreviewDlg();
+                    result = ReportPreviewDlg();
                     return true;
                 case nameof(IsEnabledReportPreviewDlg):
                     result = IsEnabledReportPreviewDlg();
                     return true;
                 case nameof(ReportDesignDlg):
-                    _= ReportDesignDlg();
+                    result = ReportDesignDlg();
                     return true;
                 case nameof(IsEnabledReportDesignDlg):
                     result = IsEnabledReportDesignDlg();
                     return true;
                 case nameof(ReportNewReportDlg):
-                    _= ReportNewReportDlg();
+                    result = ReportNewReportDlg();
                     return true;
                 case nameof(ReportCancel):
                     ReportCancel();
@@ -757,28 +757,28 @@ namespace gip.core.reporthandler.avui
                     result = IsEnabledReportSave();
                     return true;
                 case nameof(ReportPrint):
-                    _= ReportPrint();
+                    result = ReportPrint();
                     return true;
                 case nameof(IsEnabledReportPrint):
                     result = IsEnabledReportPrint();
                     return true;
                 case nameof(ReportPreview):
-                    _= ReportPreview();
+                    result = ReportPreview();
                     return true;
                 case nameof(IsEnabledReportPreview):
                     result = IsEnabledReportPreview();
                     return true;
                 case nameof(ReportDesign):
-                    _= ReportDesign();
+                    result = ReportDesign();
                     return true;
                 case nameof(IsEnabledReportDesign):
                     result = IsEnabledReportDesign();
                     return true;
                 case nameof(ReportPrintSilent):
-                    _= ReportPrintSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
+                    result = ReportPrintSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
                     return true;
                 case nameof(ReportPreviewSilent):
-                    _= ReportPreviewSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
+                    result = ReportPreviewSilent(acParameter[0] as ACClassDesign, (Global.CurrentOrList)acParameter[1], acParameter[2] as string);
                     return true;
                 case nameof(ReportModifyQuery):
                     ReportModifyQuery();

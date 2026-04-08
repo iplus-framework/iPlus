@@ -16,6 +16,7 @@ using Avalonia.Data;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Threading;
+using Avalonia.Platform;
 
 namespace gip.core.layoutengine.avui
 {
@@ -300,8 +301,7 @@ namespace gip.core.layoutengine.avui
                             catch (Exception e)
                             {
                                 // Use resource URI for Avalonia
-                                img.Source = new Bitmap(System.Reflection.Assembly.GetExecutingAssembly()
-                                    .GetManifestResourceStream("gip.core.layoutengine.avui.Images.questionMark2.jpg"));
+                                img.Source = new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/questionMark2.jpg")));
 
                                 string msg = e.Message;
                                 if (e.InnerException != null && e.InnerException.Message != null)
@@ -313,8 +313,21 @@ namespace gip.core.layoutengine.avui
                         }
                     }
                     else
-                        img.Source = new Bitmap(System.Reflection.Assembly.GetExecutingAssembly()
-                            .GetManifestResourceStream("gip.core.layoutengine.avui.Images.questionMark2.jpg"));
+                    {
+                        try
+                        {
+                            img.Source = new Bitmap(AssetLoader.Open(new Uri("avares://gip.core.layoutengine.avui/Images/questionMark2.jpg")));
+                        }
+                        catch (Exception e)
+                        {
+                            string msg = e.Message;
+                            if (e.InnerException != null && e.InnerException.Message != null)
+                                msg += " Inner:" + e.InnerException.Message;
+
+                            if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
+                                datamodel.Database.Root.Messages.LogException("VBCarousel", "FillCarousel", msg);
+                        }
+                    }
 
                     double imageWidth = 370;
                     double imageHeight = 250;
@@ -707,6 +720,12 @@ namespace gip.core.layoutengine.avui
                     if (bso != null && (bso.InitState == ACInitState.Destructed || bso.InitState == ACInitState.DisposedToPool))
                         DeInitVBControl(bso ?? _LastKnownBSOACComponent);
                 }
+            }
+            else if (change.Property == ItemsSourceProperty)
+            {
+                UpdateControlMode();
+                FillCarousel();
+                InitStateChanged();
             }
         }
 

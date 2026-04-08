@@ -506,7 +506,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(Save):
-                    _= Save();
+                    result = Save();
                     return true;
                 case nameof(IsEnabledSave):
                     result = IsEnabledSave();
@@ -518,7 +518,7 @@ namespace gip.bso.iplus
                     result = IsEnabledUndoSave();
                     return true;
                 case nameof(New):
-                    _= New();
+                    result = New();
                     return true;
                 case nameof(IsEnabledNew):
                     result = IsEnabledNew();

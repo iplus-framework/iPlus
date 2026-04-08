@@ -639,7 +639,7 @@ namespace gip.bso.iplus
             switch (acMethodName)
             {
                 case nameof(SelectLogFile):
-                    _= SelectLogFile();
+                    result = SelectLogFile();
                     return true;
                 case nameof(LoadLogFile):
                     LoadLogFile();
