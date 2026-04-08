@@ -50,9 +50,13 @@ namespace gip.core.autocomponent
                                      .ToArray());
 
                     string fullName = item.FullName;
-                    fullName = fullName.Replace('/', Path.DirectorySeparatorChar);
-                    int lastIndex = fullName.LastIndexOf(Path.DirectorySeparatorChar);
-                    string subPath = fullName.Substring(0, lastIndex);
+                    // Support Windows-style backslashes in ZIP entries on Linux
+                    fullName = fullName.Replace('\\', '/');
+                    int lastIndex = fullName.LastIndexOf('/');
+                    if (lastIndex == -1) // No directory structure
+                        continue;
+
+                    string subPath = fullName.Substring(0, lastIndex).Replace('/', Path.DirectorySeparatorChar);
                     ACFSItem folderRootFSFolderItem = rootACObjectItem.GetChildFolderItem(this, subPath, true);
 
                     try
