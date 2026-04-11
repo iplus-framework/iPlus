@@ -1253,6 +1253,9 @@ namespace gip.core.layoutengine.avui
 
         #region DragAndDrop
 
+        private static readonly DataFormat<string> VBListBoxDragFormat =
+            DataFormat.CreateStringApplicationFormat("VBListBox");
+
         void VBListBox_PointerPressed(object sender, PointerPressedEventArgs e)
         {
             if (DragEnabled == DragMode.Enabled)
@@ -1260,12 +1263,10 @@ namespace gip.core.layoutengine.avui
                 object dragItem = SelectedItem;
                 if (dragItem != null)
                 {
-                    // Create a data object for the drag operation
-                    var dataObject = new DataObject();
-                    dataObject.Set("VBListBox", this);
-                    
-                    // Start the drag operation using Avalonia's DragDrop
-                    var task = DragDrop.DoDragDrop(e, dataObject, DragDropEffects.Move | DragDropEffects.Copy);
+                    var dataTransfer = new DataTransfer();
+                    dataTransfer.Add(DataTransferItem.Create(VBListBoxDragFormat, nameof(VBListBox)));
+
+                    _ = DragDrop.DoDragDropAsync(e, dataTransfer, DragDropEffects.Move | DragDropEffects.Copy);
                 }
             }
         }

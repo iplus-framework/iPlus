@@ -529,7 +529,7 @@ namespace gip.core.layoutengine.avui
                 treeTemplate.Match(item) &&
                 treeTemplate.ItemsSelector(item) is { } itemsBinding)
             {
-                BindingOperations.Apply(this, ItemsSourceProperty, itemsBinding);
+                this.Bind(ItemsSourceProperty, itemsBinding.Source, itemsBinding.Priority);
             }
         }
 

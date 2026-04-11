@@ -31,6 +31,8 @@ namespace gip.core.layoutengine.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBTabItem'}de{'VBTabItem'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public class VBTabItem : TabItem, IVBContent, IVBSource, IACObject
     {
+        private bool _tabIsActivatedBindingInitialized;
+
         static VBTabItem()
         {
             StringFormatProperty = ContentPropertyHandler.StringFormatProperty.AddOwner<VBTabItem>();
@@ -117,12 +119,10 @@ namespace gip.core.layoutengine.avui
             {
                 if (!string.IsNullOrEmpty(TabIsActivated))
                 {
-                    var binding = new Binding
+                    if (!TryBindTabIsActivated())
                     {
-                        ElementName = TabIsActivated,
-                        Path = "Visibility"
-                    };
-                    this.Bind(IsVisibleProperty, binding);
+                        Dispatcher.UIThread.Post(() => TryBindTabIsActivated(), DispatcherPriority.Loaded);
+                    }
                 }
                 else if (!String.IsNullOrEmpty(TabVisibilityACUrl))
                 {
@@ -160,6 +160,27 @@ namespace gip.core.layoutengine.avui
             CheckIsSelected();
         }
 
+        private bool TryBindTabIsActivated()
+        {
+            if (_tabIsActivatedBindingInitialized || string.IsNullOrEmpty(TabIsActivated))
+                return _tabIsActivatedBindingInitialized;
+
+            var sourceControl = this.Find<StyledElement>(TabIsActivated);
+            if (sourceControl == null)
+                return false;
+
+            var binding = new Binding
+            {
+                Source = sourceControl,
+                Path = nameof(IsVisible),
+                Mode = BindingMode.OneWay,
+            };
+
+            this.Bind(IsVisibleProperty, binding);
+            _tabIsActivatedBindingInitialized = true;
+            return true;
+        }
+
         /// <summary>
         /// DeInitVBControl is used to remove all References which a WPF-Control refers to.
         /// It's needed that the Garbage-Collerctor can delete the object when it's removed from the Logical-Tree.
@@ -193,6 +214,7 @@ namespace gip.core.layoutengine.avui
             _PART_CloseButton = null;
             _PART_RibbonSwitchButton = null;
             _ACComponent = null;
+            _tabIsActivatedBindingInitialized = false;
         }
 
         private void CheckIsSelected()

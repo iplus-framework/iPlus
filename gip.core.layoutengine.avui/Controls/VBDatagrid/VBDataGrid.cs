@@ -52,15 +52,16 @@ namespace gip.core.layoutengine.avui
         {
             base.OnInitialized();
             _ColumnsFromXAML = Columns.ToList();
+            CellPointerPressed += VBDataGrid_CellPointerPressed;
             // Set up drag and drop event handlers for Avalonia
-            if (DragEnabled == DragMode.Enabled)
-            {
-                DragDrop.SetAllowDrop(this, true);
+            // if (DragEnabled == DragMode.Enabled)
+            // {
+                //DragDrop.SetAllowDrop(this, true);
                 AddHandler(DragDrop.DragEnterEvent, OnDragEnter);
                 AddHandler(DragDrop.DragOverEvent, OnDragOver);
                 AddHandler(DragDrop.DropEvent, OnDrop);
                 AddHandler(DragDrop.DragLeaveEvent, OnDragLeave);
-            }
+            //}
         }
 
         /// <summary>
@@ -393,6 +394,8 @@ namespace gip.core.layoutengine.avui
                 _itemsSourceNotifyPropertyName = null;
             }
 
+            CellPointerPressed -= VBDataGrid_CellPointerPressed;
+
             this.ClearAllBindings();
             _LastKnownBSOACComponent = null;
             this.ItemsSource = null;
@@ -576,11 +579,33 @@ namespace gip.core.layoutengine.avui
         /// <param name="e">The MouseButtonEvent arguments.</param>
         protected override void OnPointerPressed(PointerPressedEventArgs e)
         {
-            if (e.Properties.IsLeftButtonPressed)
+            // Cell presses are handled via CellPointerPressed. Keep this only as fallback
+            // for clicks that originate from the grid surface itself.
+            if (e.Properties.IsLeftButtonPressed && ReferenceEquals(e.Source, this))
             {
                 OnLeftButtonDown(e);
             }
             base.OnPointerPressed(e);
+        }
+
+        private void VBDataGrid_CellPointerPressed(object sender, DataGridCellPointerPressedEventArgs e)
+        {
+            if (!e.PointerPressedEventArgs.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+                return;
+
+            if (DragEnabled == DragMode.Enabled)
+            {
+                if (e.Row?.DataContext is IACObject dragItem)
+                {
+                    string vbContent = null;
+                    UpdateACContentList(dragItem, vbContent);
+                    VBDragDrop.VBDoDragDrop(e.PointerPressedEventArgs, this);
+                }
+            }
+            else if (IsEnabledMoveRows)
+            {
+                _DraggedItem = e.Row?.DataContext;
+            }
         }
 
         /// <summary>
@@ -868,20 +893,36 @@ namespace gip.core.layoutengine.avui
         {
             if (control is DataGridCellsPresenter cellsPresenter)
             {
-                // In Avalonia, we need to handle this differently
-                // DataGridCellsPresenter might not have direct Item access
-                UpdateACContentList((IACObject)null, vbContent);
+                // Avalonia DataGridCellsPresenter has no public Item property.
+                // Resolve the bound row object via DataContext or owning row container.
+                IACObject rowObject = cellsPresenter.DataContext as IACObject;
+                if (rowObject == null)
+                {
+                    var row = VBVisualTreeHelper.FindParentObjectInVisualTree(cellsPresenter, typeof(DataGridRow)) as DataGridRow;
+                    rowObject = row?.DataContext as IACObject;
+                }
+                UpdateACContentList(rowObject, vbContent);
             }
             else if (control is DataGridColumnHeader currentHeader)
             {
                 _ACContentList.Clear();
-                // In Avalonia, DataGridColumnHeader might not have direct Column access
-                // We need to implement this based on the actual Avalonia DataGrid structure
+                DataGridColumn column = currentHeader.GetOwningColumnViaReflection();
+                if (column is IGriColumn gridColumn && gridColumn.ACColumnItem != null)
+                    _ACContentList.Add(gridColumn.ACColumnItem);
             }
             else if (control is DataGridCell cell)
             {
-                // In Avalonia, DataGridCell might not have direct Column access
-                // We need to implement this based on the actual Avalonia DataGrid structure
+                DataGridColumn column = cell.GetOwningColumnViaReflection();
+                if (column is IGriColumn gridColumn && gridColumn.ACColumnItem != null)
+                    _ACContentList.Add(gridColumn.ACColumnItem);
+
+                IACObject rowObject = cell.DataContext as IACObject;
+                if (rowObject == null)
+                {
+                    var row = cell.GetOwningRowViaReflection();
+                    rowObject = row?.DataContext as IACObject;
+                }
+                UpdateACContentList(rowObject, vbContent);
             }
         }
 

@@ -12,6 +12,7 @@ using gip.ext.design.avui;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
@@ -502,8 +503,7 @@ namespace gip.core.layoutengine.avui
                                             {
                                                 treeView.Items.Add(newModel);
                                                 SelectedItem = newModel;
-                                                var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
-                                                newContainer?.BringIntoView();
+                                                BringModelIntoViewWhenRealized(newModel);
                                             }
                                         }
                                         else if (container.Parent is VBTreeViewItem parentContainer)
@@ -512,8 +512,7 @@ namespace gip.core.layoutengine.avui
                                             {
                                                 parentContainer.Items.Add(newModel);
                                                 SelectedItem = newModel;
-                                                var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
-                                                newContainer?.BringIntoView();
+                                                BringModelIntoViewWhenRealized(newModel);
                                             }
                                         }
                                     }
@@ -536,8 +535,7 @@ namespace gip.core.layoutengine.avui
                                             {
                                                 parentContainer.Items.Insert(index, newModel);
                                                 SelectedItem = newModel;
-                                                var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
-                                                newContainer?.BringIntoView();
+                                                BringModelIntoViewWhenRealized(newModel);
                                             }
                                         }
                                     }
@@ -546,41 +544,47 @@ namespace gip.core.layoutengine.avui
                             break;
                         case Const.CmdAddChildData:
                             {
-                                IACObject targetModel = null;
-                                if (ChangeInfo.ParentObject != null)
-                                {
-                                    targetModel = FindItem(Items, ChangeInfo.ParentObject);
-                                }
-                                else
-                                {
-                                    targetModel = SelectedItem as IACObject;
-                                }
+                                IACObject targetModel = ResolveTargetModelFromParent(ChangeInfo.ParentObject);
 
                                 if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
                                 {
                                     var container = TreeContainerFromItem(targetModel) as VBTreeViewItem;
-                                    if (container != null)
+                                    bool addedToModel = false;
+                                    if (container != null && container.Items.IsReadOnly)
+                                    {
+                                        bool addedToItemsSource = EnsureContainerItemsSourceAdded(container, newModel);
+                                        addedToModel = EnsureModelChildAddedInBoundGraph(targetModel, newModel, out targetModel) || addedToItemsSource;
+                                    }
+                                    else if (container != null)
                                     {
                                         AddModelItem(container.Items, newModel);
-                                        SelectedItem = newModel;
-                                        var newContainer = TreeContainerFromItem(newModel) as TreeViewItem;
-                                        newContainer?.BringIntoView();
+                                        addedToModel = true;
+                                    }
+                                    else
+                                    {
+                                        addedToModel = EnsureModelChildAddedInBoundGraph(targetModel, newModel, out targetModel);
+                                    }
+
+                                    if (addedToModel)
+                                    {
+                                        BringModelIntoViewWhenRealized(newModel, targetModel);
                                     }
                                 }
                             }
                             break;
                         case Const.CmdAddChildNoExpand:
                             {
-                                IACObject targetModel = null;
-                                if (ChangeInfo.ParentObject != null)
-                                    targetModel = FindItem(Items, ChangeInfo.ParentObject);
-                                else
-                                    targetModel = SelectedItem as IACObject;
+                                IACObject targetModel = ResolveTargetModelFromParent(ChangeInfo.ParentObject);
 
                                 if (targetModel != null && ChangeInfo.ChangedObject is IACObject newModel)
                                 {
                                     var container = TreeContainerFromItem(targetModel) as VBTreeViewItem;
-                                    if (container != null)
+                                    if (container != null && container.Items.IsReadOnly)
+                                    {
+                                        EnsureContainerItemsSourceAdded(container, newModel);
+                                        EnsureModelChildAddedInBoundGraph(targetModel, newModel, out _);
+                                    }
+                                    else if (container != null)
                                     {
                                         AddModelItem(container.Items, newModel);
                                     }
@@ -589,15 +593,7 @@ namespace gip.core.layoutengine.avui
                             break;
                         case Const.CmdUpdateAllData:
                             {
-                                IACObject targetModel = null;
-                                if (ChangeInfo.ChangedObject is IACObject changedModel)
-                                {
-                                    targetModel = FindItem(Items, changedModel);
-                                }
-                                else
-                                {
-                                    targetModel = SelectedItem as IACObject;
-                                }
+                                IACObject targetModel = ResolveTargetModelFromChangedObject(ChangeInfo.ChangedObject as IACObject);
                                 if (targetModel != null)
                                 {
                                     SelectedItem = targetModel;
@@ -613,6 +609,104 @@ namespace gip.core.layoutengine.avui
                 }, Avalonia.Threading.DispatcherPriority.Background);
             }
         }
+
+        private void BringModelIntoViewWhenRealized(object model, object parentModel = null)
+        {
+            if (model == null)
+                return;
+
+            const int retries = 8;
+            string modelIdentity = GetModelIdentity(model as IACObject);
+            string parentIdentity = GetModelIdentity(parentModel as IACObject);
+
+            void TryBringIntoView(int remainingRetries)
+            {
+                IACObject resolvedParent = null;
+                if (parentModel is IACObject parentAsObject)
+                {
+                    resolvedParent = FindItem(Items, parentAsObject, parentIdentity);
+                }
+
+                if (resolvedParent != null)
+                {
+                    var parentContainer = TreeContainerFromItem(resolvedParent) as TreeViewItem;
+                    if (parentContainer != null && !parentContainer.IsExpanded)
+                    {
+                        parentContainer.IsExpanded = true;
+                    }
+                }
+
+                IACObject resolvedModel = model as IACObject;
+                if (resolvedModel != null)
+                {
+                    resolvedModel = FindItem(Items, resolvedModel, modelIdentity);
+                }
+
+                var container = resolvedModel != null ? TreeContainerFromItem(resolvedModel) as TreeViewItem : null;
+                if (container == null && !string.IsNullOrEmpty(modelIdentity))
+                    container = FindRealizedContainerByIdentity(modelIdentity);
+
+                if (container != null)
+                {
+                    if (resolvedModel == null)
+                        resolvedModel = TreeItemFromContainer(container) as IACObject;
+
+                    SelectedItem = resolvedModel;
+                    container.BringIntoView();
+                    return;
+                }
+
+                if (remainingRetries <= 0)
+                {
+                    return;
+                }
+
+                Avalonia.Threading.Dispatcher.UIThread.Post(
+                    () => TryBringIntoView(remainingRetries - 1),
+                    Avalonia.Threading.DispatcherPriority.Loaded);
+            }
+
+            Avalonia.Threading.Dispatcher.UIThread.Post(
+                () => TryBringIntoView(retries),
+                Avalonia.Threading.DispatcherPriority.Loaded);
+        }
+
+        private IACObject ResolveTargetModelFromParent(IACObject parentObject)
+        {
+            if (parentObject != null)
+                return FindItem(Items, parentObject);
+
+            return SelectedItem as IACObject;
+        }
+
+        private IACObject ResolveTargetModelFromChangedObject(IACObject changedObject)
+        {
+            if (changedObject != null)
+                return FindItem(Items, changedObject);
+
+            return SelectedItem as IACObject;
+        }
+
+        private TreeViewItem FindRealizedContainerByIdentity(string identity)
+        {
+            if (string.IsNullOrEmpty(identity))
+                return null;
+
+            foreach (Control realizedContainer in GetRealizedTreeContainers())
+            {
+                if (realizedContainer is not TreeViewItem treeViewItem)
+                    continue;
+
+                if (TreeItemFromContainer(treeViewItem) is not IACObject item)
+                    continue;
+
+                if (IsIdentityMatch(item, identity))
+                    return treeViewItem;
+            }
+
+            return null;
+        }
+
 
         /// <summary>
         /// Deinitializes a tree view item.
@@ -840,13 +934,10 @@ namespace gip.core.layoutengine.avui
                         if (!string.IsNullOrEmpty(dataContentCheckBox))
                         {
                             Type t = childModel.GetType();
-                            if (t != null)
+                            PropertyInfo pi = t.GetProperty(dataContentCheckBox);
+                            if (pi != null)
                             {
-                                PropertyInfo pi = t.GetProperty(dataContentCheckBox);
-                                if (pi != null)
-                                {
-                                    pi.SetValue(childModel, isChecked, null);
-                                }
+                                pi.SetValue(childModel, isChecked, null);
                             }
                         }
                     }
@@ -1036,7 +1127,6 @@ namespace gip.core.layoutengine.avui
 
             if (ContextACObject == null)
                 return;
-            Type t = ContextACObject.GetType();
             Object root = ContextACObject.ACUrlCommand(VBSource, null);
             if (root == null)
             {
@@ -1051,8 +1141,7 @@ namespace gip.core.layoutengine.avui
                 }
                 try
                 {
-                    t = root.GetType();
-                    PropertyInfo pi = t.GetProperty(dataPath.Last());
+                    PropertyInfo pi = root.GetType().GetProperty(dataPath.Last());
                     root = pi.GetValue(root, null);
                 }
                 catch (Exception e)
@@ -1135,6 +1224,7 @@ namespace gip.core.layoutengine.avui
                         container?.BringIntoView();
                     }
                 }
+
             }, Avalonia.Threading.DispatcherPriority.Background);
         }
 
@@ -1157,6 +1247,106 @@ namespace gip.core.layoutengine.avui
             // Simply add the model object - Avalonia will create the VBTreeViewItem container
             // and populate children via the TreeDataTemplate's ItemsSelector
             itemCollection.Add(dataObject);
+        }
+
+        private bool EnsureModelChildAdded(IACObject parentModel, IACObject childModel)
+        {
+            if (parentModel is not IACContainerWithItems parentContainer || childModel is not IACContainerWithItems childContainer)
+                return false;
+
+            string childIdentity = GetModelIdentity(childModel);
+            foreach (IACContainerWithItems existingChild in parentContainer.Items)
+            {
+                if (existingChild is IACObject existingChildObject && IsSameModel(existingChildObject, childModel, childIdentity))
+                {
+                    return true;
+                }
+            }
+
+            parentContainer.Add(childContainer);
+            return true;
+        }
+
+        private bool EnsureModelChildAddedInBoundGraph(IACObject parentModel, IACObject childModel, out IACObject resolvedParentModel)
+        {
+            resolvedParentModel = parentModel;
+            string parentIdentity = GetModelIdentity(parentModel);
+
+            if (!string.IsNullOrEmpty(parentIdentity))
+            {
+                IACObject boundParent = FindItemByIdentity(Items, parentIdentity);
+                if (boundParent != null)
+                {
+                    resolvedParentModel = boundParent;
+                }
+            }
+
+            return EnsureModelChildAdded(resolvedParentModel, childModel);
+        }
+
+
+        private bool EnsureContainerItemsSourceAdded(TreeViewItem parentContainer, IACObject childModel)
+        {
+            if (parentContainer?.ItemsSource == null || childModel == null)
+                return false;
+
+            if (parentContainer.ItemsSource is not IEnumerable itemsSource)
+                return false;
+
+            string childIdentity = GetModelIdentity(childModel);
+            foreach (object existing in itemsSource)
+            {
+                if (existing is IACObject existingObject && IsSameModel(existingObject, childModel, childIdentity))
+                {
+                    return true;
+                }
+            }
+
+            bool added = TryAddToCollection(itemsSource, childModel);
+            if (!added)
+            {
+                added = ReplaceContainerItemsSourceWithMutableCollection(parentContainer, itemsSource, childModel, childIdentity);
+            }
+
+            return added;
+        }
+
+        private bool ReplaceContainerItemsSourceWithMutableCollection(TreeViewItem parentContainer, IEnumerable existingItemsSource, IACObject childModel, string childIdentity)
+        {
+            if (parentContainer == null || existingItemsSource == null || childModel == null)
+                return false;
+
+            List<object> snapshot = new List<object>();
+            foreach (object item in existingItemsSource)
+            {
+                snapshot.Add(item);
+            }
+
+            bool alreadyPresent = snapshot
+                .OfType<IACObject>()
+                .Any(existing => IsSameModel(existing, childModel, childIdentity));
+
+            if (!alreadyPresent)
+                snapshot.Add(childModel);
+
+            parentContainer.ItemsSource = new ObservableCollection<object>(snapshot);
+            return true;
+        }
+
+        private static bool TryAddToCollection(IEnumerable collection, object item)
+        {
+            if (collection == null || item == null)
+                return false;
+
+            // Only mutate collections with stable mutable semantics.
+            // Non-IList enumerables (e.g. LINQ iterators) are handled by source replacement fallback.
+            if (collection is IList list)
+            {
+                list.Add(item);
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>
@@ -1367,25 +1557,233 @@ namespace gip.core.layoutengine.avui
         /// <returns>The model object if found, otherwise null.</returns>
         public IACObject FindItem(ItemCollection itemCollection, IACObject acObject)
         {
+            return FindItem(itemCollection, acObject, GetModelIdentity(acObject));
+        }
+
+        private IACObject FindItem(ItemCollection itemCollection, IACObject acObject, string identity)
+        {
             foreach (var item in itemCollection)
             {
-                // Items now contain model objects (IACObject), not VBTreeViewItem
                 if (item is IACObject modelObject)
                 {
-                    if (modelObject == acObject)
+                    if (IsSameModel(modelObject, acObject, identity))
                         return modelObject;
-                        
-                    // For hierarchical items, get the children using VBChilds property
-                    var container = TreeContainerFromItem(item);
-                    if (container is TreeViewItem treeItem)
+
+                    IEnumerable childModels = GetChildModels(modelObject);
+                    if (childModels != null)
                     {
-                        IACObject found = FindItem(treeItem.Items, acObject);
+                        IACObject found = FindItemInEnumerable(childModels, acObject, identity);
                         if (found != null)
                             return found;
                     }
                 }
             }
             return null;
+        }
+
+        private IACObject FindItemInEnumerable(IEnumerable items, IACObject acObject, string identity)
+        {
+            if (items == null)
+                return null;
+
+            foreach (object item in items)
+            {
+                if (item is not IACObject modelObject)
+                    continue;
+
+                if (IsSameModel(modelObject, acObject, identity))
+                    return modelObject;
+
+                IEnumerable childModels = GetChildModels(modelObject);
+                if (childModels == null)
+                    continue;
+
+                IACObject found = FindItemInEnumerable(childModels, acObject, identity);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private IACObject FindItemByIdentity(ItemCollection itemCollection, string identity)
+        {
+            if (itemCollection == null || string.IsNullOrEmpty(identity))
+                return null;
+
+            foreach (var item in itemCollection)
+            {
+                if (item is not IACObject modelObject)
+                    continue;
+
+                if (IsIdentityMatch(modelObject, identity))
+                    return modelObject;
+
+                IEnumerable childModels = GetChildModels(modelObject);
+                if (childModels == null)
+                    continue;
+
+                IACObject found = FindItemByIdentityInEnumerable(childModels, identity);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private IACObject FindItemByIdentityInEnumerable(IEnumerable items, string identity)
+        {
+            if (items == null || string.IsNullOrEmpty(identity))
+                return null;
+
+            foreach (object item in items)
+            {
+                if (item is not IACObject modelObject)
+                    continue;
+
+                if (IsIdentityMatch(modelObject, identity))
+                    return modelObject;
+
+                IEnumerable childModels = GetChildModels(modelObject);
+                if (childModels == null)
+                    continue;
+
+                IACObject found = FindItemByIdentityInEnumerable(childModels, identity);
+                if (found != null)
+                    return found;
+            }
+
+            return null;
+        }
+
+        private IEnumerable GetChildModels(IACObject parent)
+        {
+            if (parent == null)
+                return null;
+
+            IEnumerable templateChildren = GetChildModelsFromVBChilds(parent);
+            if (templateChildren != null)
+                return templateChildren;
+
+            if (parent is IACContainerWithItems containerWithItems && containerWithItems.Items != null)
+                return containerWithItems.Items;
+
+            return null;
+        }
+
+        private IEnumerable GetChildModelsFromVBChilds(IACObject parent)
+        {
+            if (parent == null || string.IsNullOrEmpty(VBChilds))
+                return null;
+
+            object current = parent;
+            string[] dataPath = VBChilds.Split('.');
+
+            for (int i = 0; i < dataPath.Length - 1; i++)
+            {
+                if (current == null)
+                    return null;
+
+                PropertyInfo prop = current.GetType().GetProperty(dataPath[i]);
+                if (prop == null)
+                    return null;
+
+                current = prop.GetValue(current, null);
+            }
+
+            if (current == null)
+                return null;
+
+            PropertyInfo childrenProperty = current.GetType().GetProperty(dataPath.Last());
+            return childrenProperty?.GetValue(current, null) as IEnumerable;
+        }
+
+        private static bool IsSameModel(IACObject left, IACObject right, string rightIdentity)
+        {
+            if (ReferenceEquals(left, right))
+                return true;
+
+            if (left == null || right == null)
+                return false;
+
+            string leftIdentity = GetModelIdentity(left);
+            if (!string.IsNullOrEmpty(leftIdentity) && !string.IsNullOrEmpty(rightIdentity))
+            {
+                if (string.Equals(leftIdentity, rightIdentity, StringComparison.Ordinal))
+                    return true;
+
+                // Some model types expose different identity formats (e.g. full ACUrl vs. local token).
+                // Fall back to comparing the leaf segment to keep lookup stable across refresh/rebind paths.
+                string leftLeaf = GetIdentityLeaf(leftIdentity);
+                string rightLeaf = GetIdentityLeaf(rightIdentity);
+                if (!string.IsNullOrEmpty(leftLeaf) && !string.IsNullOrEmpty(rightLeaf) &&
+                    string.Equals(leftLeaf, rightLeaf, StringComparison.Ordinal))
+                    return true;
+            }
+
+            if (string.Equals(left.ACIdentifier, right.ACIdentifier, StringComparison.Ordinal))
+                return true;
+
+            string rightLeafFromIdentity = GetIdentityLeaf(rightIdentity);
+            if (!string.IsNullOrEmpty(rightLeafFromIdentity) &&
+                string.Equals(left.ACIdentifier, rightLeafFromIdentity, StringComparison.Ordinal))
+                return true;
+
+            return false;
+        }
+
+        private static string GetModelIdentity(IACObject model)
+        {
+            if (model == null)
+                return null;
+
+            try
+            {
+                string acUrl = model.GetACUrl();
+                if (!string.IsNullOrEmpty(acUrl))
+                    return acUrl;
+            }
+            catch
+            {
+                // Fall back to ACIdentifier below.
+            }
+
+            return model.ACIdentifier;
+        }
+
+        private static bool IsIdentityMatch(IACObject model, string identity)
+        {
+            if (model == null || string.IsNullOrEmpty(identity))
+                return false;
+
+            string modelIdentity = GetModelIdentity(model);
+            if (!string.IsNullOrEmpty(modelIdentity) && string.Equals(modelIdentity, identity, StringComparison.Ordinal))
+                return true;
+
+            string modelLeaf = GetIdentityLeaf(modelIdentity);
+            string identityLeaf = GetIdentityLeaf(identity);
+            if (!string.IsNullOrEmpty(modelLeaf) && !string.IsNullOrEmpty(identityLeaf) &&
+                string.Equals(modelLeaf, identityLeaf, StringComparison.Ordinal))
+                return true;
+
+            return string.Equals(model.ACIdentifier, identityLeaf, StringComparison.Ordinal) ||
+                   string.Equals(model.ACIdentifier, identity, StringComparison.Ordinal);
+        }
+
+        private static string GetIdentityLeaf(string identity)
+        {
+            if (string.IsNullOrEmpty(identity))
+                return identity;
+
+            int lastSlash = identity.LastIndexOf('\\');
+            string segment = lastSlash >= 0 ? identity.Substring(lastSlash + 1) : identity;
+
+            int openParen = segment.LastIndexOf('(');
+            int closeParen = segment.LastIndexOf(')');
+            if (openParen >= 0 && closeParen > openParen)
+                return segment.Substring(openParen + 1, closeParen - openParen - 1);
+
+            return segment;
         }
 
         /// <summary>

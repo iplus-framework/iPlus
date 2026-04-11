@@ -5,6 +5,7 @@ using gip.ext.designer.avui.Services;
 using System;
 using System.Windows;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using System.Threading.Tasks;
 
 namespace gip.ext.designer.avui.Services
@@ -73,7 +74,7 @@ namespace gip.ext.designer.avui.Services
 			{
 				try
 				{
-                    string xaml = await TopLevel.GetTopLevel(designContext.RootItem.View)?.Clipboard?.GetTextAsync();
+					string xaml = await TopLevel.GetTopLevel(designContext.RootItem.View)?.Clipboard?.TryGetTextAsync();
                     //string xaml = Clipboard.GetText(TextDataFormat.Xaml);
 					if (xaml != "" && xaml != " ")
 						return true;

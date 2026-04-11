@@ -2069,6 +2069,10 @@ namespace gip.core.datamodel
             // We use a lookahead/lookbehind approach or a specialized mapping.
             (@"\bStrokeDashArray=""([^""]*?\d)\s+(\d[^""]*?)\""", @"StrokeDashArray=""$1,$2""", true),
 
+            // Convert WPF ToolTip style (Control.ToolTip/ToolTip) to Avalonia attached property style (ToolTip.Tip)
+            (@"<[\w.]+\.ToolTip>\s*<ToolTip>", "<ToolTip.Tip>", true),
+            (@"</ToolTip>\s*</[\w.]+\.ToolTip>", "</ToolTip.Tip>", true),
+
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
         };
     }

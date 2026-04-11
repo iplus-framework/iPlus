@@ -23,8 +23,11 @@ namespace gip.ext.designer.avui.OutlineView
     // limitations:
     // - Do not use ItemsSource (use Root)
     // - Do not use Items (use Root)
-    public class DragTreeView : TreeView, IDataObject
+    public class DragTreeView : TreeView
     {
+        private static readonly DataFormat<string> DragTreeViewFormat =
+            DataFormat.CreateStringApplicationFormat("gip.DragTreeView");
+
         static DragTreeView()
         {
             // In AvaloniaUI, styling is handled through XAML styles rather than metadata override
@@ -106,8 +109,9 @@ namespace gip.ext.designer.avui.OutlineView
 
         void DragTreeView_DragStarted(object sender, PointerEventArgs e)
         {
-            // TODO: Implement drag drop for AvaloniaUI
-            DragDrop.DoDragDrop(e, this, DragDropEffects.Copy);
+            var dataTransfer = new DataTransfer();
+            dataTransfer.Add(DataTransferItem.Create(DragTreeViewFormat, nameof(DragTreeView)));
+            _ = DragDrop.DoDragDropAsync(e, dataTransfer, DragDropEffects.Copy);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
@@ -405,19 +409,5 @@ namespace gip.ext.designer.avui.OutlineView
         {
         }
 
-        public IEnumerable<string> GetDataFormats()
-        {
-            return null;
-        }
-
-        public bool Contains(string dataFormat)
-        {
-            return false;
-        }
-
-        public object Get(string dataFormat)
-        {
-            return "";
-        }
     }
 }

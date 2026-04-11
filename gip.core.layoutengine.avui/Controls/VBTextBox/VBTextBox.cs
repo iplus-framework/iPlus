@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
 using Avalonia.Data;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Interactivity;
 using Avalonia.Labs.Input;
 using Avalonia.Media;
@@ -511,6 +512,21 @@ namespace gip.core.layoutengine.avui
 
 
         /// <summary>
+        /// Includes mask literals when formatted text is produced from the mask provider.
+        /// </summary>
+        public static readonly StyledProperty<bool> IncludeLiteralsProperty =
+            AvaloniaProperty.Register<VBTextBox, bool>(nameof(IncludeLiterals), true);
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public bool IncludeLiterals
+        {
+            get { return GetValue(IncludeLiteralsProperty); }
+            set { SetValue(IncludeLiteralsProperty, value); }
+        }
+
+
+        /// <summary>
         /// Represents the dependency property for IsSingleViewApp.
         /// </summary>
         public static readonly AttachedProperty<bool> IsSingleViewAppProperty =
@@ -686,6 +702,11 @@ namespace gip.core.layoutengine.avui
             VBTextBox thisControl = this;
             if (change.Property == ACCompInitStateProperty)
                 thisControl.InitStateChanged();
+            else if (change.Property == MaskProperty)
+            {
+                if (MaskProvider != null)
+                    MaskProvider.IncludeLiterals = IncludeLiterals;
+            }
             else if (change.Property == BSOACComponentProperty)
             {
                 IACBSO newBso = change.NewValue as IACBSO;
@@ -714,6 +735,11 @@ namespace gip.core.layoutengine.avui
             {
                 // Note: Avalonia handles binding updates differently
                 // This would need to be implemented differently in Avalonia
+            }
+            else if (change.Property == IncludeLiteralsProperty)
+            {
+                if (MaskProvider != null)
+                    MaskProvider.IncludeLiterals = IncludeLiterals;
             }
             else if (change.Property == ACCaptionProperty)
             {
@@ -1202,7 +1228,7 @@ namespace gip.core.layoutengine.avui
         public bool IsEnabledPaste()
         {
             var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-            return clipboard?.GetTextAsync().Result != null && !this.IsReadOnly;
+            return clipboard?.TryGetTextAsync().Result != null && !this.IsReadOnly;
         }
 
         [ACMethodInteraction("", "en{'Undo'}de{'Rückgängig'}", (short)MISort.Undo, false)]
@@ -1284,6 +1310,16 @@ namespace gip.core.layoutengine.avui
             base.OnGotFocus(e);
         }
 
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            base.OnLostFocus(e);
+
+            if (HidePromptOnLeave && MaskProvider != null)
+            {
+                SetCurrentValue(TextProperty, MaskProvider.ToString(!HidePromptOnLeave, IncludeLiterals));
+            }
+        }
+
 
         /// <summary>
         /// Handles the OnContextMenuOpening event.
@@ -1353,7 +1389,7 @@ namespace gip.core.layoutengine.avui
                 int position = this.SelectionStart;
 
                 var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-                var text = clipboard?.GetTextAsync().Result?.Trim();
+                var text = clipboard?.TryGetTextAsync().Result?.Trim();
                 if (!string.IsNullOrEmpty(text))
                 {
                     provider.Set(text);
@@ -1363,7 +1399,7 @@ namespace gip.core.layoutengine.avui
             else
             {
                 var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
-                var pastText = clipboard?.GetTextAsync().Result?.Trim();
+                var pastText = clipboard?.TryGetTextAsync().Result?.Trim();
                 if (!string.IsNullOrEmpty(pastText))
                 {
                     if (string.IsNullOrEmpty(this.Text))

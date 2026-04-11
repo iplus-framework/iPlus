@@ -1714,6 +1714,8 @@ namespace gip.bso.iplus
         /// <param name="acUsage">The ac usage.</param>
         public void SetDefaultPropertyACClassDesign(ACClassProperty acClassProperty, ACClassDesign acClassDesign, Global.ACKinds acKind, Global.ACUsages acUsage)
         {
+            if (acClassProperty == null || acClassDesign == null)
+                return;
             IACConfig acConfig = acClassProperty.GetConfigListOfType(acClassDesign.ACClass).Where(c => c.LocalConfigACUrl == "Design_" + acUsage.ToString()).FirstOrDefault();
 
             if (acConfig != null)

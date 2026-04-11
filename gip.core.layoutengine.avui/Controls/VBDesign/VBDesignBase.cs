@@ -13,6 +13,7 @@ using Avalonia.Labs.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
+using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
 using gip.core.datamodel;
@@ -1096,17 +1097,15 @@ namespace gip.core.layoutengine.avui
         public void PrintScreenToClipboard(Bitmap bitmap)
         {
             var topLevel = TopLevel.GetTopLevel(this);
-            if (topLevel != null)
+            var clipboard = topLevel?.Clipboard;
+            if (clipboard != null)
             {
                 using (var ms = new MemoryStream())
                 {
                     bitmap.Save(ms);
-                    //DataTransfer dataTransfer = new DataTransfer();
-                    //DataTransferItem dataTransferItem = new DataTransferItem("image/png", ms.ToArray());
-                    //dataTransfer.Add("image/png", ms.ToArray());
-                    var dataObject = new DataObject();
-                    dataObject.Set("image/png", ms.ToArray());
-                    topLevel.Clipboard.SetDataObjectAsync(dataObject);
+                    var dataTransfer = new DataTransfer();
+                    dataTransfer.Add(DataTransferItem.Create(DataFormat.CreateBytesPlatformFormat("image/png"), ms.ToArray()));
+                    _ = clipboard.SetDataAsync(dataTransfer);
                 }
             }
             //BitmapSource bitmapSource = Interop.Imaging.CreateBitmapSourceFromHBitmap(bitmap.GetHbitmap(), IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());

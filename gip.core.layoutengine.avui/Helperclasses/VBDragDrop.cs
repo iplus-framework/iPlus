@@ -1,27 +1,61 @@
 ﻿using Avalonia.Input;
 using gip.core.datamodel;
 using System;
-using System.Linq;
+using System.Collections.Concurrent;
+using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
 {
     public static class VBDragDrop 
     {
+        private const string DragTokenPrefix = "gip-iac-drag:";
+
+        private static readonly DataFormat<string> DragObjectTokenFormat =
+            DataFormat.CreateStringApplicationFormat("gip.IACInteractiveObject.Token");
+
+        private static readonly ConcurrentDictionary<string, WeakReference<IACInteractiveObject>> DragObjectCache = new();
+
         public static void VBDoDragDrop(PointerEventArgs e, IACInteractiveObject vbControl/*, IACObjectWithBinding acObject, IACComponent acComponent, Point position*/)
         {
-            DataObject data = new DataObject();
-            data.Set(vbControl.GetType().FullName, vbControl.GetType());
-            data.Set(nameof(IACInteractiveObject), vbControl);
-            DragDrop.DoDragDrop(e, data, DragDropEffects.Copy);
+            if (vbControl == null)
+                return;
+
+            var token = Guid.NewGuid().ToString("N");
+            DragObjectCache[token] = new WeakReference<IACInteractiveObject>(vbControl);
+
+            var dataTransfer = new DataTransfer();
+            dataTransfer.Add(DataTransferItem.Create(DragObjectTokenFormat, token));
+            dataTransfer.Add(DataTransferItem.CreateText(DragTokenPrefix + token));
+
+            _ = DragDrop.DoDragDropAsync(e, dataTransfer, DragDropEffects.Copy)
+                .ContinueWith(t => DragObjectCache.TryRemove(token, out _), TaskScheduler.Default);
         }
 
         public static IACInteractiveObject GetDropObject(DragEventArgs e)
         {
-            var formats = e.Data.GetDataFormats();
-            if (formats == null || !formats.Contains(nameof(IACInteractiveObject)))
+            if (e?.DataTransfer == null)
                 return null;
 
-            return e.Data.Get(nameof(IACInteractiveObject)) as IACInteractiveObject;
+            var token = e.DataTransfer.TryGetValue(DragObjectTokenFormat);
+            if (string.IsNullOrEmpty(token))
+            {
+                var textPayload = e.DataTransfer.TryGetText();
+                if (!string.IsNullOrEmpty(textPayload) && textPayload.StartsWith(DragTokenPrefix, StringComparison.Ordinal))
+                {
+                    token = textPayload.Substring(DragTokenPrefix.Length);
+                }
+            }
+
+            if (string.IsNullOrEmpty(token))
+                return null;
+
+            if (DragObjectCache.TryGetValue(token, out var weakReference) &&
+                weakReference.TryGetTarget(out var interactiveObject))
+            {
+                return interactiveObject;
+            }
+
+            return null;
         }
     }
 

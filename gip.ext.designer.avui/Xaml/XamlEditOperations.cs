@@ -10,6 +10,7 @@ using gip.ext.xamldom.avui;
 using gip.ext.design.avui;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 
 namespace gip.ext.designer.avui.Xaml
 {
@@ -116,7 +117,7 @@ namespace gip.ext.designer.avui.Xaml
             var child = container;
 
             bool pasted = false;
-            string combinedXaml = await clipboard.GetTextAsync(); //(TextDataFormat.Xaml);
+            string combinedXaml = await clipboard.TryGetTextAsync() ?? string.Empty; //(TextDataFormat.Xaml);
             IEnumerable<string> xamls = combinedXaml.Split(_delimeter);
             xamls = xamls.Where(xaml => xaml != "");
 

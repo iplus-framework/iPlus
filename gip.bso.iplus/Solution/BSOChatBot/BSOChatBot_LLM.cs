@@ -462,6 +462,7 @@ namespace gip.bso.iplus
                             Timeout = TimeSpan.FromSeconds(HttpTimeOut)
                         };
                         openAIOptions.Transport = new System.ClientModel.Primitives.HttpClientPipelineTransport(httpClient);
+                        openAIOptions.NetworkTimeout = TimeSpan.FromSeconds(HttpTimeOut);
                     }
                     
                     var chatClient = new OpenAI.Chat.ChatClient(ModelName,

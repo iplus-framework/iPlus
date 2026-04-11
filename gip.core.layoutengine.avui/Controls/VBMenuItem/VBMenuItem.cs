@@ -247,9 +247,15 @@ namespace gip.core.layoutengine.avui
         /// <param name="actionArgs">Information about the type of interaction and the source</param>
         public async Task ACActionAsync(ACActionArgs actionArgs)
         {
-            actionArgs.DropObject = this;
             if (HandlerACElement is IACInteractiveObjectAsync interactiveObjectAsync)
+            {
+                actionArgs.DropObject = this;
                 await interactiveObjectAsync.ACActionAsync(actionArgs);
+            }
+            else
+            {
+                ACAction(actionArgs);
+            }
         }
 
         /// <summary>
