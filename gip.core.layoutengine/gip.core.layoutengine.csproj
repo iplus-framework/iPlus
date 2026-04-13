@@ -407,6 +407,7 @@
     <Compile Include="Helperclasses\VBWorkflowAdorner.cs" />
     <Compile Include="Helperclasses\WindowStateHandle.cs" />
     <Compile Include="Helperclasses\WindowStateHandleSettings.cs" />
+    <Compile Include="Helperclasses\ObjectDataProviderExtension.cs" />
     <Compile Include="Interfaces\IClearVBContent.cs" />
     <Compile Include="Interfaces\IBindingDropHandler.cs" />
     <Compile Include="Interfaces\IEdge.cs" />

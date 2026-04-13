@@ -873,8 +873,8 @@ namespace gip.core.datamodel
             {
                 PropertyInfo pi = this.ObjectTypeParent.GetProperty(this.ACIdentifier);
                 if (pi == null)
-                    return String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, ObjectType.AssemblyQualifiedName);
-                return String.Format("\\!{0}(#{1}\\{2}#)", Const.MN_GetEnumList, ObjectType.AssemblyQualifiedName, pi.PropertyType.AssemblyQualifiedName);
+                    return ACUrlHelper.CreateACSourceForObjectDataProvider(Const.MN_GetEnumList, ObjectType.AssemblyQualifiedName, ObjectType.AssemblyQualifiedName);
+                return ACUrlHelper.CreateACSourceForObjectDataProvider(Const.MN_GetEnumList, ObjectType.AssemblyQualifiedName, pi.PropertyType.AssemblyQualifiedName);
             }
 
             if (this.ValueTypeACClass != null)

@@ -530,22 +530,7 @@ namespace gip.core.layoutengine
                 this.DisplayMemberPath = dsColPathColumn;
             }
 
-            ObjectDataProvider odp = new ObjectDataProvider();
-            odp.ObjectInstance = dscSource;
-            string param = dataSourceColumn.Substring(dataSourceColumn.IndexOf('(') + 1, dataSourceColumn.LastIndexOf(')') - (dataSourceColumn.IndexOf('(') + 1));
-            if (param.StartsWith("#") && param.EndsWith("#"))
-            {
-                odp.MethodParameters.Add(param.Substring(1, param.Length - 2));
-            }
-            else
-            {
-                string[] paramList = param.Split(',');
-                foreach (var param1 in paramList)
-                {
-                    odp.MethodParameters.Add(param1.Replace("\"", ""));
-                }
-            }
-            odp.MethodName = dscPath.Substring(1);  // "!" bei Methodenname entfernen
+            ObjectDataProvider odp = ObjectDataProviderExtension.CreateObjectDataProvider(dataSourceColumn, dscSource, dscPath);
             Binding bindingSource = new Binding();
             bindingSource.Source = odp;
             BindingOperations.SetBinding(this, DataGridComboBoxColumn.ItemsSourceProperty, bindingSource);
