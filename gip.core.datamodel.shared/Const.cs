@@ -71,6 +71,7 @@ namespace gip.core.datamodel
         public const string QueryPrefix = "QRY";
         public const string MN_NewACObject = "NewACObject";
         public const string MN_GetEnumList = "GetEnumList";
+        public const string MN_GetDatabaseACValueList = "GetDatabaseACValueList";
         public const string DBSetAsEnumerablePostfix = "List";
 
         public const string PreConfigACUrl = "en{'Parent WF URL'}de{'WF Eltern-URL'}";

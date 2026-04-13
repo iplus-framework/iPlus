@@ -292,7 +292,7 @@ namespace gip.core.layoutengine.avui
                                             {
                                                 //enumArray = Enum.GetValues(acValue.ValueTypeACClass.ObjectType);
                                                 if (acValue.ValueTypeACClass.ACValueListForEnum == null)
-                                                    vbSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, acValue.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                                    vbSource = ACUrlHelper.CreateACSourceForObjectDataProvider(Const.MN_GetEnumList, acValue.ValueTypeACClass.ObjectType.AssemblyQualifiedName, acValue.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
                                                 else
                                                 {
                                                     newDataContextForChild = DesignVBContent;

@@ -428,7 +428,7 @@ namespace gip.core.layoutengine.avui
                                     {
                                         if (container.ValueTypeACClass.ACValueListForEnum == null)
                                         {
-                                            VBSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                            VBSource = ACUrlHelper.CreateACSourceForObjectDataProvider(Const.MN_GetEnumList, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
                                             if (!BSOACComponent.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
                                                 return;
                                         }
@@ -469,22 +469,7 @@ namespace gip.core.layoutengine.avui
 
                     if (dsACTypeInfo is ACClassMethod)
                     {
-                        ObjectDataProvider odp = new ObjectDataProvider();
-                        odp.ObjectInstance = dsSource;
-                        string param = VBSource.Substring(VBSource.IndexOf('(') + 1, VBSource.LastIndexOf(')') - (VBSource.IndexOf('(') + 1));
-                        if (param.StartsWith("#") && param.EndsWith("#"))
-                        {
-                            odp.MethodParameters.Add(param.Substring(1, param.Length - 2));
-                        }
-                        else
-                        {
-                            string[] paramList = param.Split(',');
-                            foreach (var param1 in paramList)
-                            {
-                                odp.MethodParameters.Add(param1.Replace("\"", ""));
-                            }
-                        }
-                        odp.MethodName = dsPath.Substring(1);  // "!" bei Methodenname entfernen
+                        ObjectDataProvider odp = ObjectDataProviderExtension.CreateObjectDataProvider(VBSource, dsSource, dsPath);
                         Binding binding = new Binding();
                         binding.Source = odp;
                         binding.Path = nameof(odp.Data); // In Avalonia, we need to explicitly bind to the Data property

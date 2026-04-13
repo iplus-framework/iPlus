@@ -2860,7 +2860,7 @@ namespace gip.core.datamodel
                 try
                 {
                     _ACValueListForEnum = Activator.CreateInstance(classForEnumList.ObjectType, false) as ACValueItemList;
-                    foreach(ACClassText aCClassText in classForEnumList.ACClassText_ACClass.ToArray())
+                    foreach (ACClassText aCClassText in classForEnumList.ACClassText_ACClass.ToArray())
                     {
                         ACValueItem aCValueItem = _ACValueListForEnum.FirstOrDefault(c=>c.Value.ToString() == aCClassText.ACIdentifier);
                         if (aCValueItem != null)
@@ -2874,6 +2874,31 @@ namespace gip.core.datamodel
                         Database.Root.Messages.LogException("ACClass", "ACValueListForEnum", e);
                 }
                 return null;
+            }
+        }
+
+        private ACValueItemList _ACValueListFromDatabase = null;
+        public ACValueItemList ACValueListFromDatabase
+        {
+            get
+            {
+                if (_ACValueListFromDatabase != null)
+                    return _ACValueListFromDatabase;
+
+                _ACValueListFromDatabase = new ACValueItemList(nameof(ACValueListFromDatabase));
+                //ACClassText[] translations = null;
+                foreach (var acConfig in ConfigurationEntries.Where(c => c.LocalConfigACUrl == nameof(ACValueItem)))
+                {
+                    // if (translations == null)
+                    //     translations = ACClassText_ACClass.ToArray();
+                    //string key = acConfig.Value.ToString();
+                    // ACClassText acClassText = null;
+                    // if (!string.IsNullOrEmpty(key))
+                    //     acClassText = translations.Where(c => c.ACIdentifier == key).FirstOrDefault();
+                    //_ACValueListFromDatabase.AddEntry(acConfig.Value, acClassText != null ? acClassText.ACCaption : acConfig.ACCaption);
+                    _ACValueListFromDatabase.AddEntry(acConfig.Value, acConfig.ACCaption);
+                }
+                return _ACValueListFromDatabase;
             }
         }
 

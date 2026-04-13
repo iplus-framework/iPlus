@@ -837,5 +837,44 @@ namespace gip.core.datamodel
                 return acURL.Substring(0, indexOfLastSegment);
             return acURL;
         }
+
+        public static IEnumerable<string> ExtractParamsForObjectDataProvider(string acSource)
+        {
+            List<string> parameters = new List<string>();
+            if (String.IsNullOrEmpty(acSource))
+                return parameters;
+            string param = acSource.Substring(acSource.IndexOf(Delimiter_InstanceNoOpen) + 1, acSource.LastIndexOf(Delimiter_InstanceNoClose) - (acSource.IndexOf(Delimiter_InstanceNoOpen) + 1));
+            if (param.StartsWith(Delimiter_Start.ToString()) && param.EndsWith(Delimiter_Start.ToString()))
+            {
+                parameters.Add(param.Substring(1, param.Length - 2));
+            }
+            else
+            {
+                string[] paramList = param.Split(',');
+                foreach (var param1 in paramList)
+                {
+                    parameters.Add(param1.Replace("\"", ""));
+                }
+            }
+            return parameters;
+        }
+
+
+        static readonly string C_ACSourceForObjectDataProviderFormatString = "" 
+            + Delimiter_DirSeperator 
+            + Delimiter_InvokeMethod 
+            + "{0}" 
+            + Delimiter_InstanceNoOpen 
+            + Delimiter_Start 
+            + "{1}" 
+            + Delimiter_DirSeperator
+            + "{2}"
+            + Delimiter_Start
+            + Delimiter_InstanceNoClose;
+
+        public static string CreateACSourceForObjectDataProvider(string methodName, string param1, string param2)
+        {
+            return String.Format(C_ACSourceForObjectDataProviderFormatString, methodName, param1, param2);
+        }
     }
 }

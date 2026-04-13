@@ -888,6 +888,12 @@ namespace gip.core.autocomponent
         [ACMethodInfo("", "", 9999)]
         public IEnumerable<ACValueItem> GetEnumList(string enumType)
         {
+            // ObjectDataProvider.InvokeMethodOnInstance calls this method by extracting the Methodname first and passing the parameter as string.
+            // Example - ACClassProperty.GetACSource returns this string:
+            // \\!GetEnumList(#gip.core.datamodel.Global+Operators, gip.core.datamodel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=12adb6357a02d860\System.Int16, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e#)
+            // Then GetEnumList is passed as ObjectDataProvider.MethodName
+            // and the parameter is passed as string to this method:
+            // gip.core.datamodel.Global+Operators, gip.core.datamodel, Version=1.0.0.0, Culture=neutral, PublicKeyToken=12adb6357a02d860\System.Int16, System.Private.CoreLib, Version=9.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e
             var enums = enumType.Split('\\');
 
             Type t1 = Type.GetType(enums[0]);
@@ -909,6 +915,26 @@ namespace gip.core.autocomponent
 
             return new ACValueItemList(t1, t2);
         }
+
+        [ACMethodInfo("", "", 9999)]
+        public IEnumerable<ACValueItem> GetDatabaseACValueList(string acClassACIdentifier)
+        {
+            // ObjectDataProvider.InvokeMethodOnInstance calls this method by extracting the Methodname first and passing the parameter as string.
+            // Example - ACClassProperty.GetACSource returns this string:
+            // \\!GetDatabaseACValueList(#MyDbValueList#)
+            // Then GetDatabaseACValueList is passed as ObjectDataProvider.MethodName
+            // and the parameter is passed as string to this method:
+            // "MyDbValueList"
+            if (string.IsNullOrEmpty(acClassACIdentifier))
+                return null;
+
+            gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+            ACClass customValueListClass = db.GetACType(acClassACIdentifier);
+            if (customValueListClass != null)
+                return customValueListClass.ACValueListFromDatabase;
+            return null;
+        }
+
 
         /// <summary>
         /// Ermittelt den ACType (ACClass o. ACClassProperty) für die übergebene acUrl
