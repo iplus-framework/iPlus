@@ -2003,7 +2003,7 @@ namespace gip.core.datamodel
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle vb:UseCollapsed=True, (.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle $1}""", true),
-            (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
+            (@"\bVisibility=""\{Binding\s+(.*?)\s*Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}$2}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
