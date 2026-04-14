@@ -343,6 +343,8 @@ healthchecksdb
 /TwinCAT/V1/projects/TCatExample/*.~u
 
 .vscode/
+!.vscode/launch.json
+!.vscode/tasks.json
 .continue/mcpServers/new-mcp-server.yaml
 iplusAvaloniaUI_VSCode.sln
 .continue/mcpServers/iPlus.yaml
