@@ -125,7 +125,7 @@ print_color $YELLOW "Configuration: $CONFIGURATION"
 declare -a SOLUTION_PATHS=(
     "../../Avalonia/iPlusAvalonia.slnx"
     "../../AvDialogHost.Avalonia/iPlusAvalonia.slnx"
-    "../../AvaloniaEdit/iPlusAvalonia.sln"
+    "../../AvaloniaEdit/iPlusAvalonia.slnx"
     "../../Avalonia.Dock/iPlusAvalonia.sln"
     "../../roslynpad/iPlusAvalonia.sln"
     "../../Avalonia.Labs/iPlusAvalonia.sln"

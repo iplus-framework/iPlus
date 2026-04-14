@@ -4,6 +4,8 @@
   <PropertyGroup>
     <IsAvaloniaUIProject Condition="'$(IsAvaloniaUIProject)' == '' AND $(MSBuildProjectName.Contains('.avui'))">true</IsAvaloniaUIProject>
     <IsAvaloniaUIProject Condition="'$(IsAvaloniaUIProject)' == ''">false</IsAvaloniaUIProject>
+    <!-- BuildTargets.targets is imported in props phase; ensure Configuration is available for task path expansion. -->
+    <Configuration Condition="'$(UseAvaloniaFork)' == 'True' AND '$(IsAvaloniaUIProject)' == 'true' AND '$(Configuration)' == ''">Debug</Configuration>
   </PropertyGroup>
   
   <!-- Only import Avalonia generators for Avalonia UI projects -->

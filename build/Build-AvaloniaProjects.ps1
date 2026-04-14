@@ -32,7 +32,7 @@ Write-Host "Configuration: $Configuration" -ForegroundColor Yellow
 $SolutionFiles = @(
 	@{ Path = "..\..\Avalonia\iPlusAvalonia.slnx"; Name = "Avalonia Core"; Priority = 1; Critical = $true },
 	@{ Path = "..\..\AvDialogHost.Avalonia\iPlusAvalonia.slnx"; Name = "Dialog Host"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\AvaloniaEdit\iPlusAvalonia.sln"; Name = "Avalonia Edit"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\AvaloniaEdit\iPlusAvalonia.slnx"; Name = "Avalonia Edit"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\Avalonia.Dock\iPlusAvalonia.sln"; Name = "Avalonia Dock"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\roslynpad\iPlusAvalonia.sln"; Name = "Roslyn Pad"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\Avalonia.Labs\iPlusAvalonia.sln"; Name = "Avalonia Labs"; Priority = 1; Critical = $false },

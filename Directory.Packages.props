@@ -223,7 +223,7 @@
 		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Logging" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Maui.Resizetizer" Version="9.0.70" />
-		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+		<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
 		<PackageVersion Include="Microsoft.VisualStudio.Threading" Version="17.14.15" />
 		<PackageVersion Include="Microsoft.VisualStudio.Validation" Version="17.8.8" />
 		<PackageVersion Include="Mono.Cecil" Version="0.11.6" />
@@ -418,7 +418,7 @@
 		<PackageVersion Include="BarcodeLib" Version="3.1.5" />
 		<PackageVersion Include="BinaryKits.Zpl.Label" Version="3.3.1" />
 		<PackageVersion Include="ClosedXML" Version="0.105.0" />
-		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+		<PackageVersion Include="CommunityToolkit.Mvvm" Version="8.4.2" />
 		<PackageVersion Include="CoreWCF.ConfigurationManager" Version="$(CoreWCFVersion)" />
 		<PackageVersion Include="CoreWCF.Http" Version="$(CoreWCFVersion)" />
 		<PackageVersion Include="CoreWCF.NetTcp" Version="$(CoreWCFVersion)" />
@@ -432,7 +432,7 @@
 		<PackageVersion Include="HtmlAgilityPack" Version="1.12.4" />
 		<PackageVersion Include="IM.Xades" Version="3.0.0" />
 		<PackageVersion Include="MdXaml" Version="1.27.0" />
-		<PackageVersion Include="MicroCom.Runtime" Version="0.11.3" />
+		<PackageVersion Include="MicroCom.Runtime" Version="0.11.4" />
 		<PackageVersion Include="Microsoft.AspNetCore" Version="$(ASPNetVersion)" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication" Version="$(ASPNetVersion)" />
 		<PackageVersion Include="Microsoft.AspNetCore.Authentication.Abstractions" Version="$(ASPNetVersion)" />
@@ -581,7 +581,7 @@
 		<PackageVersion Include="Caliburn.Micro.Avalonia" Version="5.0.258-beta" />
 		<PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" />
-		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.102" />
+		<PackageVersion Include="Microsoft.SourceLink.GitHub" Version="10.0.201" />
 		<PackageVersion Include="Nuke.Common" Version="10.1.0" />
 		<PackageVersion Include="Prism.Core" Version="9.0.537" />
 		<PackageVersion Include="protobuf-net" Version="3.2.56" />
@@ -607,10 +607,10 @@
 
 		<!-- Additional Packages for Avalonia Edit -->
 		<PackageVersion Include="Moq" Version="4.20.72" />
-		<PackageVersion Include="TextMateSharp" Version="2.0.2" />
-		<PackageVersion Include="TextMateSharp.Grammars" Version="2.0.2" />
+		<PackageVersion Include="TextMateSharp" Version="2.0.3" />
+		<PackageVersion Include="TextMateSharp.Grammars" Version="2.0.3" />
 		<PackageVersion Include="System.Collections.Immutable" Version="$(DotNetExtensionsVersion)" />
-		<PackageVersion Include="NUnit" Version="4.4.0" />
+		<PackageVersion Include="NUnit" Version="4.5.1" />
 		<PackageVersion Include="NUnit3TestAdapter" Version="6.1.0" />
 		<!-- <PackageVersion Include="Avalonia.AvaloniaEdit" Version="12.0.0" /> -->
 
