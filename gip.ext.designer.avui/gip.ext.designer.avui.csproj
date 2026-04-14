@@ -72,7 +72,7 @@
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Controls.ColorPicker"  />
     <PackageReference Include="Avalonia.Controls.DataGrid"  />   
-    <PackageReference Include="Avalonia.ReactiveUI"  />
+    <PackageReference Include="ReactiveUI.Avalonia"  />
     <PackageReference Include="Avalonia.Labs.CommandManager"  />
   </ItemGroup>
   

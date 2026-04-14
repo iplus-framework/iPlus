@@ -274,11 +274,11 @@ namespace gip.core.layoutengine.avui
 
         internal void ApplyBinding(AvaloniaObject target, AvaloniaProperty property)
         {
-            IBinding binding = Binding;
+            BindingBase binding = Binding;
             ApplyBinding(binding, target, property);
         }
 
-        private static void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
+        private static void ApplyBinding(BindingBase binding, AvaloniaObject target, AvaloniaProperty property)
         {
             if (binding != null)
             {

@@ -631,7 +631,10 @@ namespace gip.core.communication
         {
             try
             {
-                X509Certificate2 certificate = new X509Certificate2(CertificateTokenPath, Password, X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
+                X509Certificate2 certificate = X509CertificateLoader.LoadPkcs12FromFile(
+                    CertificateTokenPath,
+                    Password,
+                    X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.Exportable);
                 return new UserIdentity(certificate);
             }
             catch (Exception e)
@@ -745,7 +748,7 @@ namespace gip.core.communication
         {
             bool domainFound = false;
 
-            X509Certificate2 serverCertificate = new X509Certificate2(endpoint.Description.ServerCertificate);
+            X509Certificate2 serverCertificate = X509CertificateLoader.LoadCertificate(endpoint.Description.ServerCertificate);
 
             // check the certificate domains.
             IList<string> domains = X509Utils.GetDomainsFromCertificate(serverCertificate);

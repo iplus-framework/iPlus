@@ -419,17 +419,17 @@ namespace gip.core.layoutengine.avui
             set { binding.Source = value; }
         }
 
-        public WeakReference DefaultAnchor
-        {
-            get { return binding.DefaultAnchor; }
-            set { binding.DefaultAnchor = value; }
-        }
+        // public WeakReference DefaultAnchor
+        // {
+        //     get { return binding.DefaultAnchor; }
+        //     set { binding.DefaultAnchor = value; }
+        // }
 
-        public WeakReference<INameScope> NameScope
-        {
-            get { return binding.NameScope; }
-            set { binding.NameScope = value; }
-        }
+        // public WeakReference<INameScope> NameScope
+        // {
+        //     get { return binding.NameScope; }
+        //     set { binding.NameScope = value; }
+        // }
 
 
         public Func<string, string, Type> TypeResolver

@@ -9,11 +9,10 @@ public static class TopLevelExtensions
 {
     public static Canvas GetCanvasFromUsableArea(this TopLevel topLevel)
     {
-        if (topLevel == null) return null;
-        var descendants = topLevel.GetVisualDescendants();
-        var titleBar = descendants.FirstOrDefault(x => x is TitleBar);
-
-
+        if (topLevel == null) 
+            return null;
+        // var descendants = topLevel.GetVisualDescendants();
+        // var titleBar = descendants.FirstOrDefault(x => x is TitleBar);
         return null;
     }
 }

@@ -1,4 +1,6 @@
-﻿using gip.core.layoutengine.avui;
+﻿#nullable enable
+
+using gip.core.layoutengine.avui;
 using Newtonsoft.Json;
 using ReactiveUI;
 using System;
@@ -9,6 +11,7 @@ using System.Reactive;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json.Serialization.Metadata;
 using System.Threading.Tasks;
 
 namespace gip.iplus.client.avui.Views
@@ -16,8 +19,8 @@ namespace gip.iplus.client.avui.Views
     [DataContract]
     public class Settings : ReactiveObject
     {
-        private string _UserName;
-        private string _Password;
+        private string _UserName = string.Empty;
+        private string _Password = string.Empty;
         private bool _CtrlPressed;
         private bool _F1Pressed;
         private eWpfTheme _WPFTheme;
@@ -87,10 +90,29 @@ namespace gip.iplus.client.avui.Views
         {
             var lines = File.ReadAllText(_file);
             var state = JsonConvert.DeserializeObject<object>(lines, _settings);
-            return Observable.Return(state);
+            return Observable.Return(state ?? new object());
+        }
+
+        public IObservable<T?> LoadState<T>(JsonTypeInfo<T> typeInfo)
+        {
+            throw new NotImplementedException();
         }
 
         public IObservable<Unit> SaveState(object state)
+        {
+            var lines = JsonConvert.SerializeObject(state, _settings);
+            File.WriteAllText(_file, lines);
+            return Observable.Return(Unit.Default);
+        }
+
+        public IObservable<Unit> SaveState<T>(T state)
+        {
+            var lines = JsonConvert.SerializeObject(state, _settings);
+            File.WriteAllText(_file, lines);
+            return Observable.Return(Unit.Default);
+        }
+
+        public IObservable<Unit> SaveState<T>(T state, JsonTypeInfo<T> typeInfo)
         {
             var lines = JsonConvert.SerializeObject(state, _settings);
             File.WriteAllText(_file, lines);

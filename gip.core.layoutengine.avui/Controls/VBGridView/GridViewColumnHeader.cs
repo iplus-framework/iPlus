@@ -290,7 +290,7 @@ namespace gip.core.layoutengine.avui
         ///     An event announcing that the keyboard is no longer focused
         /// </summary>
         /// <param name="e">Event arguments</param>
-        protected override void OnLostFocus(RoutedEventArgs e)
+        protected override void OnLostFocus(FocusChangedEventArgs e)
         {
             base.OnLostFocus(e);
 

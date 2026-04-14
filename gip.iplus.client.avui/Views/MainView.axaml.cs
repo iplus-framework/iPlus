@@ -176,7 +176,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     {
         if (_RootVBDesign != null)
             return;
-        _MainTransformControl.AddHandler(Gestures.PinchEvent, OnPinchGesture);
+        _MainTransformControl.AddHandler(InputElement.PinchEvent, OnPinchGesture);
         if (ACRoot.SRoot.Businessobjects != null)
         {
             ACClassDesign acClassDesign = ACRoot.SRoot.Businessobjects.GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
@@ -920,7 +920,7 @@ public partial class MainView : UserControl, IRootPageWPF, IFocusChangeListener
     //    LastFocusedElement = e.OldFocusedElement;
     //}
 
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         base.OnLostFocus(e);
         LastFocusedElement = e.Source as IInputElement;

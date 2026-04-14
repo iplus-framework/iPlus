@@ -502,7 +502,7 @@ namespace gip.core.layoutengine.avui
         /// Handles the OnLostFocus event.
         /// </summary>
         /// <param name="e">The event arguments.</param>
-        protected override void OnLostFocus(RoutedEventArgs e)
+        protected override void OnLostFocus(FocusChangedEventArgs e)
         {
             if (_PART_TextBox != null)
             {

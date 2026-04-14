@@ -14,9 +14,9 @@ x:ClassModifier="internal">
         <local:VBTextBox Classes="clearButton">Clear</local:VBTextBox>
         <local:VBTextBox PasswordChar="*" Classes="revealPasswordButton">Reveal Password</local:VBTextBox>
         <local:VBTextBox PasswordChar="*" Classes="revealPasswordButton" RevealPassword="True">Password Revealed</local:VBTextBox>
-        <local:VBTextBox Watermark="Watermark"/>
-        <local:VBTextBox Watermark="Floating Watermark" UseFloatingWatermark="True"/>
-        <local:VBTextBox Watermark="Floating Watermark" UseFloatingWatermark="True">Content</local:VBTextBox>
+        <local:VBTextBox PlaceholderText="PlaceholderText"/>
+        <local:VBTextBox PlaceholderText="Floating PlaceholderText" UseFloatingPlaceholder="True"/>
+        <local:VBTextBox PlaceholderText="Floating PlaceholderText" UseFloatingPlaceholder="True">Content</local:VBTextBox>
       </StackPanel>
     </Border>
   </Design.PreviewWith>
@@ -134,7 +134,7 @@ x:ClassModifier="internal">
 									   Foreground="{StaticResource ColorCtrlTxtDisabled}"
 									   FontSize="{TemplateBinding FontSize}"
 									   IsVisible="False"
-									   Text="{TemplateBinding Watermark}"
+									   Text="{TemplateBinding PlaceholderText}"
 									   DockPanel.Dock="Top" />
               <ScrollViewer Name="PART_ScrollViewer"
                             HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
@@ -146,7 +146,7 @@ x:ClassModifier="internal">
                   <TextBlock x:Name="PART_Watermark"
 											   Opacity="0.5"
 											   Foreground="{Binding (TextBlock.Foreground), ElementName=PART_TextPresenter, Mode=OneWay}"
-											   Text="{TemplateBinding Watermark}"
+											   Text="{TemplateBinding PlaceholderText}"
 											   TextAlignment="{TemplateBinding TextAlignment}"
 											   TextWrapping="{TemplateBinding TextWrapping}"
 											   IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}"
@@ -241,7 +241,7 @@ x:ClassModifier="internal">
 									   Foreground="{StaticResource ColorCtrlTxtDisabled}"
 									   FontSize="{TemplateBinding FontSize}"
 									   IsVisible="False"
-									   Text="{TemplateBinding Watermark}"
+									   Text="{TemplateBinding PlaceholderText}"
 									   DockPanel.Dock="Top" />
               <ScrollViewer x:Name="PART_ScrollViewer"
 										  HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
@@ -253,7 +253,7 @@ x:ClassModifier="internal">
                   <TextBlock x:Name="PART_Watermark"
 											   Opacity="0.5"
 											   Foreground="{Binding (TextBlock.Foreground), ElementName=PART_TextPresenter, Mode=OneWay}"
-											   Text="{TemplateBinding Watermark}"
+											   Text="{TemplateBinding PlaceholderText}"
 											   TextAlignment="{TemplateBinding TextAlignment}"
 											   TextWrapping="{TemplateBinding TextWrapping}"
 											   IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}"
@@ -355,7 +355,7 @@ x:ClassModifier="internal">
 									   Foreground="{StaticResource ColorCtrlTxtDisabled}"
 									   FontSize="{TemplateBinding FontSize}"
 									   IsVisible="False"
-									   Text="{TemplateBinding Watermark}"
+									   Text="{TemplateBinding PlaceholderText}"
 									   DockPanel.Dock="Top" />
               <ScrollViewer x:Name="PART_ScrollViewer"
 										  HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
@@ -367,7 +367,7 @@ x:ClassModifier="internal">
                   <TextBlock x:Name="PART_Watermark"
 											   Opacity="0.5"
 											   Foreground="{Binding (TextBlock.Foreground), ElementName=PART_TextPresenter, Mode=OneWay}"
-											   Text="{TemplateBinding Watermark}"
+											   Text="{TemplateBinding PlaceholderText}"
 											   TextAlignment="{TemplateBinding TextAlignment}"
 											   TextWrapping="{TemplateBinding TextWrapping}"
 											   IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}"
@@ -467,7 +467,7 @@ x:ClassModifier="internal">
 									   Foreground="{StaticResource ColorCtrlTxtDisabled}"
 									   FontSize="{TemplateBinding FontSize}"
 									   IsVisible="False"
-									   Text="{TemplateBinding Watermark}"
+									   Text="{TemplateBinding PlaceholderText}"
 									   DockPanel.Dock="Top" />
               <ScrollViewer Name="PART_ScrollViewer"
                             HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
@@ -479,7 +479,7 @@ x:ClassModifier="internal">
                   <TextBlock x:Name="PART_Watermark"
 											   Opacity="0.5"
 											   Foreground="{Binding (TextBlock.Foreground), ElementName=PART_TextPresenter, Mode=OneWay}"
-											   Text="{TemplateBinding Watermark}"
+											   Text="{TemplateBinding PlaceholderText}"
 											   TextAlignment="{TemplateBinding TextAlignment}"
 											   TextWrapping="{TemplateBinding TextWrapping}"
 											   IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}"

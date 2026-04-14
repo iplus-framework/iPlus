@@ -63,14 +63,14 @@ namespace gip.core.crypto
             var bouncyCert = certificateGenerator.Generate(signatureFactory);
 
             // Convert to X509Certificate2 WITH private key
-            var x509Cert = new X509Certificate2(DotNetUtilities.ToX509Certificate(bouncyCert));
+            var x509Cert = X509CertificateLoader.LoadCertificate(bouncyCert.GetEncoded());
 
             // Attach private key via PKCS#12 export/import
             var privateKey = DotNetUtilities.ToRSA(issuerKeyPair.Private as RsaPrivateCrtKeyParameters);
             X509Certificate2 certWithKey = x509Cert.CopyWithPrivateKey(privateKey);
             byte[] pfxBytes = certWithKey.Export(X509ContentType.Pfx, password);
 
-            X509Certificate2 x509Certificate = new X509Certificate2(pfxBytes, password, flags);
+            X509Certificate2 x509Certificate = X509CertificateLoader.LoadPkcs12(pfxBytes, password, flags);
             return x509Certificate;
         }
     }

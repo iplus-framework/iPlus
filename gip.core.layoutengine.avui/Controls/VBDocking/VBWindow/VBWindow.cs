@@ -53,7 +53,7 @@ namespace gip.core.layoutengine.avui
         public VBWindow()
         {
             this.WindowState = WindowState.Normal;
-            this.SystemDecorations = SystemDecorations.None;
+            this.WindowDecorations = WindowDecorations.None;
         }
 
         /// <summary>

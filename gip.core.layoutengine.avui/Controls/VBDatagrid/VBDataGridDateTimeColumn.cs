@@ -325,7 +325,7 @@ namespace gip.core.layoutengine.avui
             //}
         }
 
-        private static void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
+        private static void ApplyBinding(BindingBase binding, AvaloniaObject target, AvaloniaProperty property)
         {
             if (binding != null)
             {

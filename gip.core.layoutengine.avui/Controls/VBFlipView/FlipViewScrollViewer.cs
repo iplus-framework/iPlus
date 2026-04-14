@@ -86,6 +86,12 @@ namespace gip.core.layoutengine.avui
         private Size _oldViewport;
 
         /// <inheritdoc/>
+        public bool CanHorizontallyScroll => true;
+
+        /// <inheritdoc/>
+        public bool CanVerticallyScroll => true;
+
+        /// <inheritdoc/>
         public Control CurrentAnchor => (Presenter as IScrollAnchorProvider).CurrentAnchor;
 
         static FlipViewScrollViewer()

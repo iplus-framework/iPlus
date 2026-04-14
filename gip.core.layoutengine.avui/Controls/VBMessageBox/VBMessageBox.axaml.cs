@@ -262,7 +262,7 @@ public partial class VBMessageBox : UserControl
     {
         Window dialog = new Window();
         dialog.ExtendClientAreaTitleBarHeightHint = -1;
-        dialog.ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.NoChrome;
+        //dialog.ExtendClientAreaChromeHints = Avalonia.Platform.ExtendClientAreaChromeHints.NoChrome;
         dialog.ExtendClientAreaToDecorationsHint = true;
 
         dialog.SizeToContent = SizeToContent.WidthAndHeight;

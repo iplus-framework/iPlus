@@ -122,8 +122,8 @@ namespace gip.core.layoutengine.avui
             if (e.Property == RelationsProperty && this.Child != null)
             {
                 InsertAdorner();
-                vbWorkflowAdorner.FillUpdateRelationsVisual(e.NewValue as List<ConnectionIACObject>, VBVisualList);
-                if (e.NewValue != null && ((List<ConnectionIACObject>)e.NewValue).Any())
+                vbWorkflowAdorner.FillUpdateRelationsVisual(e.GetNewValue<List<ConnectionIACObject>>(), VBVisualList);
+                if (e.GetNewValue<List<ConnectionIACObject>>() != null && e.GetNewValue<List<ConnectionIACObject>>().Any())
                     RefreshAdorner();
                 else
                     RemoveAdorner();
@@ -132,8 +132,13 @@ namespace gip.core.layoutengine.avui
 
         private void InsertAdorner()
         {
-            if (AdornerLayer.GetAdornerLayer(this.Child) == null)
-                AdornerLayer.Children.Add(vbWorkflowAdorner);
+            var layer = AdornerLayer;
+            if (layer != null)
+            {
+                var adorners = AdornerLayer.GetAdornerLayer(this.Child);
+                if (adorners != null && !adorners.Children.Contains(vbWorkflowAdorner))
+                    adorners.Children.Add(vbWorkflowAdorner);
+            }
             this.Child.UpdateLayout();
         }
 
@@ -142,11 +147,13 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public void RefreshAdorner()
         {
-            var adorners = this.AdornerLayer.GetAdorners(this.Child);
-            if (adorners == null || !adorners.Any())
-                AdornerLayer.Children.Add(vbWorkflowAdorner);
-            else if (adorners != null && !adorners.Contains(vbWorkflowAdorner))
-                AdornerLayer.Children.Add(vbWorkflowAdorner);
+            var layer = AdornerLayer;
+            if (layer != null)
+            {
+                var adorners = AdornerLayer.GetAdornerLayer(this.Child);
+                if (adorners != null && !adorners.Children.Contains(vbWorkflowAdorner))
+                    adorners.Children.Add(vbWorkflowAdorner);
+            }
             vbWorkflowAdorner.InvalidateVisual();
         }
 
@@ -155,8 +162,13 @@ namespace gip.core.layoutengine.avui
         /// </summary>
         public void RemoveAdorner()
         {
-            if (AdornerLayer.GetAdorners(this.Child) != null)
-                AdornerLayer.Children.Remove(vbWorkflowAdorner);
+            var layer = AdornerLayer;
+            if (layer != null)
+            {
+                var adorners = AdornerLayer.GetAdornerLayer(this.Child);
+                if (adorners != null)
+                    adorners.Children.Remove(vbWorkflowAdorner);
+            }
         }
     }
 }

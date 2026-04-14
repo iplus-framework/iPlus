@@ -8,7 +8,7 @@ namespace gip.core.layoutengine.avui
     /// <summary>
     /// Old WPF class which creates a new Layer for Adorners and where Adorners will be rendered.
     /// </summary>
-    public class AdornerDecorator : VisualLayerManager
+    public class AdornerDecorator : ContentControl
     {
         //------------------------------------------------------
         //
@@ -27,18 +27,13 @@ namespace gip.core.layoutengine.avui
 
         #endregion Constructors
 
+        public Control Child
+        {
+            get => Content as Control;
+            set => Content = value;
+        }
 
-        #region Public Properties
-
-        //public AdornerLayer AdornerLayer
-        //{
-        //    get
-        //    {
-        //        return _adornerLayer;
-        //    }
-        //}
-
-        #endregion Public Properties
+        public AdornerLayer AdornerLayer => AdornerLayer.GetAdornerLayer(this);
 
         #region Protected Methods
 

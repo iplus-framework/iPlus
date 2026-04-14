@@ -872,21 +872,7 @@ namespace gip.ext.xamldom.avui
             var b = GetClonedInstance() as Binding;
             if (b == null)
                 return null;
-            object providedValue = null;
-            try
-            {
-                IProvideValueTarget service = (IProvideValueTarget)XamlObject.ServiceProvider.GetService(typeof(IProvideValueTarget));
-                if (service == null)
-                    return null;
-                providedValue = (b as IBinding).Initiate(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty);
-                // Future Avalonia Version 12:
-                //providedValue = (b as IBinding2).Instance(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty, null);
-                //providedValue = b.ProvideValue(XamlObject.ServiceProvider);
-            }
-            catch (Exception /*e*/)
-            {
-            }
-            return providedValue;
+            return b;
         }
 
         public override object GetClonedInstance()
@@ -921,21 +907,7 @@ namespace gip.ext.xamldom.avui
             var b = GetClonedInstance() as MultiBinding;
             if (b == null)
                 return null;
-            object providedValue = null;
-            try
-            {
-                IProvideValueTarget service = (IProvideValueTarget)XamlObject.ServiceProvider.GetService(typeof(IProvideValueTarget));
-                if (service == null)
-                    return null;
-                providedValue = (b as IBinding).Initiate(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty);
-                // Future Avalonia Version 12:
-                //providedValue = (b as IBinding2).Instance(service.TargetObject as AvaloniaObject, service.TargetProperty as AvaloniaProperty, null);
-                //providedValue = b.ProvideValue(XamlObject.ServiceProvider);
-            }
-            catch (Exception /*e*/)
-            {
-            }
-            return providedValue;
+            return b;
         }
 
         public override object GetClonedInstance()

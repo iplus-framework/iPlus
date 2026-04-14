@@ -76,8 +76,7 @@ public class RibbonTab : TabItem, IKeyTipHandler
     {
         base.OnAttachedToVisualTree(e);
 
-        var inputRoot = e.Root as IInputRoot;
-        if (inputRoot != null && inputRoot is WindowBase wnd)
+        if (e.RootVisual is IInputRoot { } inputRoot && inputRoot is WindowBase wnd)
             wnd.Deactivated += InputRoot_Deactivated;
     }
 
@@ -85,8 +84,7 @@ public class RibbonTab : TabItem, IKeyTipHandler
     {
         base.OnDetachedFromVisualTree(e);
 
-        var inputRoot = e.Root as IInputRoot;
-        if (inputRoot != null && inputRoot is WindowBase wnd)
+        if (e.RootVisual is IInputRoot { } inputRoot && inputRoot is WindowBase wnd)
             wnd.Deactivated -= InputRoot_Deactivated;
     }
 

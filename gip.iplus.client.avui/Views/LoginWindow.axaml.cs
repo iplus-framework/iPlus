@@ -13,7 +13,7 @@ using System;
 using Avalonia.Input;
 using System.Collections.Generic;
 using MsBox.Avalonia.Enums;
-using Avalonia.ReactiveUI;
+using ReactiveUI.Avalonia;
 using ReactiveUI;
 using gip.iplus.client.avui.Views;
 using Avalonia.Data;

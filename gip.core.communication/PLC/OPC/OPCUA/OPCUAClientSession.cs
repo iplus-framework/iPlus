@@ -103,7 +103,7 @@ namespace gip.core.communication
         {
             bool domainFound = false;
 
-            X509Certificate2 serverCertificate = new X509Certificate2(endpoint.Description.ServerCertificate);
+            X509Certificate2 serverCertificate = X509CertificateLoader.LoadCertificate(endpoint.Description.ServerCertificate);
 
             // check the certificate domains.
             IList<string> domains = X509Utils.GetDomainsFromCertificate(serverCertificate);

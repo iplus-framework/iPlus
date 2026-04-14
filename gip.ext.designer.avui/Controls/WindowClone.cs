@@ -226,12 +226,12 @@ namespace gip.ext.designer.avui.Controls
 			set { SetValue(WindowStateProperty, value); }
 		}
 		
-		SystemDecorations windowStyle;
+		WindowDecorations windowStyle;
 		
 		/// <summary>
 		/// This property has no effect. (for compatibility with <see cref="Window"/> only).
 		/// </summary>
-		public SystemDecorations WindowStyle {
+		public WindowDecorations WindowStyle {
 			get { return windowStyle; }
 			set { windowStyle = value; }
 		}

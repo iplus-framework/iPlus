@@ -496,9 +496,10 @@ public class Ribbon : TabControl, IRibbon
     {
         base.OnAttachedToVisualTree(e);
 
-        if (e.Root is WindowBase wnd)
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is WindowBase wnd)
             wnd.Deactivated += InputRoot_Deactivated;
-        if (e.Root is IInputRoot inputRoot)
+        if (topLevel is InputElement inputRoot)
             inputRoot.AddHandler(PointerPressedEvent, InputRoot_PointerPressed, handledEventsToo: true);
 
         RefreshTabs();
@@ -509,9 +510,10 @@ public class Ribbon : TabControl, IRibbon
     {
         base.OnDetachedFromVisualTree(e);
 
-        if (e.Root is WindowBase wnd)
+        var topLevel = TopLevel.GetTopLevel(this);
+        if (topLevel is WindowBase wnd)
             wnd.Deactivated -= InputRoot_Deactivated;
-        if (e.Root is IInputRoot inputRoot)
+        if (topLevel is InputElement inputRoot)
             inputRoot.RemoveHandler(PointerPressedEvent, InputRoot_PointerPressed);
     }
 
@@ -530,7 +532,7 @@ public class Ribbon : TabControl, IRibbon
         }
     }
 
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         base.OnLostFocus(e);
         KeyTip.SetShowChildKeyTipKeys(this, false);

@@ -1007,11 +1007,9 @@ namespace gip.core.layoutengine.avui
             }
             else if (e.Key == Key.Enter)
             {
-                var next = KeyboardNavigationHandler.GetNext(this, NavigationDirection.Next);
-                if (next != null)
-                {
-                    next.Focus();
-                }
+                TopLevel.GetTopLevel(this)?.FocusManager?.TryMoveFocus(
+                    NavigationDirection.Next,
+                    new FindNextElementOptions { FocusedElement = this });
                 e.Handled = true;
             }
         }

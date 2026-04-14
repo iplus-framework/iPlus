@@ -524,13 +524,10 @@ namespace gip.core.layoutengine.avui
             if (headerTemplate == null)
                 return;
 
-            // If it's a TreeDataTemplate, set up the ItemsSource binding for child items
-            if (headerTemplate is ITreeDataTemplate treeTemplate &&
-                treeTemplate.Match(item) &&
-                treeTemplate.ItemsSelector(item) is { } itemsBinding)
-            {
-                this.Bind(ItemsSourceProperty, itemsBinding.Source, itemsBinding.Priority);
-            }
+            // Avalonia 12 no longer exposes ITreeDataTemplate.ItemsSelector publicly.
+            // Child items are resolved by the template itself during normal TreeView processing.
+            if (headerTemplate is ITreeDataTemplate treeTemplate && treeTemplate.Match(item))
+                return;
         }
 
         protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

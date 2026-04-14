@@ -644,7 +644,8 @@ namespace gip.core.layoutengine.avui
             );
             using (var fb = writeableBitmap.Lock())
             {
-                bitmap.CopyPixels(fb, AlphaFormat.Opaque);
+               //bitmap.CopyPixels(fb, AlphaFormat.Opaque);
+               bitmap.CopyPixels(fb);
             }
             return writeableBitmap;
         }

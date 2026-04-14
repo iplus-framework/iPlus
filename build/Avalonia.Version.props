@@ -1,18 +1,19 @@
 <Project>
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
 		<AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
+		<AvaloniaVersion>11.3.9</AvaloniaVersion>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
 		<AvaloniaBuildFramework>net10.0</AvaloniaBuildFramework>
+		<AvaloniaVersion>12.0.0</AvaloniaVersion>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<UseAvaloniaFork>True</UseAvaloniaFork>
+		<UseAvaloniaFork>False</UseAvaloniaFork>
 		<!-- Set to True to use standalone Avalonia.Controls.DataGrid and exclude Avalonia.Diagnostics (which has internal DataGrid) -->
 		<UseStandaloneDataGrid>True</UseStandaloneDataGrid>
 		<!-- Specify Avalonia version to use. 11.3.11 are not available for ReactiveUI  -->
 		<!--<AvaloniaVersion>11.3.11</AvaloniaVersion>-->
-		<AvaloniaVersion>11.3.9</AvaloniaVersion>
 
 		<!-- Use forward slashes for cross-platform compatibility -->
 		<AvaloniaRootDir>$(MSBuildThisFileDirectory)../../Avalonia</AvaloniaRootDir>

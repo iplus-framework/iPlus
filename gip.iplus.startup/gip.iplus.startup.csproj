@@ -54,7 +54,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp"  />
     <PackageReference Include="System.Data.DataSetExtensions"  />
-    <PackageReference Include="System.Security.AccessControl"  />
+    <!-- <PackageReference Include="System.Security.AccessControl"  /> -->
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="InstallScripts\ihrastinski_2018-10-22 07-27_pre.cs" />

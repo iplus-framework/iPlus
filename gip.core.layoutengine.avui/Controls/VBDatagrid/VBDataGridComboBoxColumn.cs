@@ -92,28 +92,28 @@ namespace gip.core.layoutengine.avui
         }
 
 
-        public static readonly StyledProperty<IBinding> DisplayMemberBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(DisplayMemberBinding));
+        public static readonly StyledProperty<BindingBase> DisplayMemberBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, BindingBase>(nameof(DisplayMemberBinding));
         [AssignBinding]
         [InheritDataTypeFromItems(nameof(ItemsSource))]
-        public IBinding DisplayMemberBinding
+        public BindingBase DisplayMemberBinding
         {
             get => GetValue(DisplayMemberBindingProperty);
             set => SetValue(DisplayMemberBindingProperty, value);
         }
 
-        public static readonly StyledProperty<IBinding> SelectedValueBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(SelectedValueBinding));
+        public static readonly StyledProperty<BindingBase> SelectedValueBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, BindingBase>(nameof(SelectedValueBinding));
         [AssignBinding]
         [InheritDataTypeFromItems(nameof(ItemsSource))]
-        public IBinding SelectedValueBinding
+        public BindingBase SelectedValueBinding
         {
             get => GetValue(SelectedValueBindingProperty);
             set => SetValue(SelectedValueBindingProperty, value);
         }
 
-        public static readonly StyledProperty<IBinding> SelectedItemBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(SelectedItemBinding));
+        public static readonly StyledProperty<BindingBase> SelectedItemBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, BindingBase>(nameof(SelectedItemBinding));
         [AssignBinding]
         [InheritDataTypeFromItems(nameof(ItemsSource))]
-        public IBinding SelectedItemBinding
+        public BindingBase SelectedItemBinding
         {
             get => GetValue(SelectedItemBindingProperty);
             set => SetValue(SelectedItemBindingProperty, value);
@@ -141,10 +141,10 @@ namespace gip.core.layoutengine.avui
             set { SetAndRaise(HeaderTemplateProperty, ref _ItemTemplate, value); }
         }
 
-        public static readonly StyledProperty<IBinding> TextBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBinding>(nameof(TextBinding));
+        public static readonly StyledProperty<BindingBase> TextBindingProperty = AvaloniaProperty.Register<VBDataGridComboBoxColumn, BindingBase>(nameof(TextBinding));
         [AssignBinding]
         [InheritDataTypeFromItems(nameof(ItemsSource))]
-        public IBinding TextBinding
+        public BindingBase TextBinding
         {
             get => GetValue(TextBindingProperty);
             set => SetValue(TextBindingProperty, value);
@@ -645,7 +645,7 @@ namespace gip.core.layoutengine.avui
             DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.ItemsSourceProperty, ItemsSourceProperty);
         }
 
-        private static void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
+        private static void ApplyBinding(BindingBase binding, AvaloniaObject target, AvaloniaProperty property)
         {
             if (binding != null)
             {

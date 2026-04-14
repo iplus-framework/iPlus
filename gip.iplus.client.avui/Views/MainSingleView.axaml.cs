@@ -876,7 +876,7 @@ public partial class MainSingleView : UserControl, IRootPageWPF, IFocusChangeLis
     //    LastFocusedElement = e.OldFocusedElement;
     //}
 
-    protected override void OnLostFocus(RoutedEventArgs e)
+    protected override void OnLostFocus(FocusChangedEventArgs e)
     {
         base.OnLostFocus(e);
         LastFocusedElement = e.Source as IInputElement;

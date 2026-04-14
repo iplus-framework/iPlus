@@ -145,13 +145,13 @@ public sealed class RibbonMenu : ItemsControl, IRibbonMenu
         if (menuPopup == null) return;
 
         var descendants = topLevel.GetVisualDescendants();
-        var titleBar = descendants.FirstOrDefault(x => x is TitleBar);
+        //var titleBar = descendants.FirstOrDefault(x => x is TitleBar);
         var ribbon = descendants.FirstOrDefault(x => x is Ribbon) as Ribbon;
         if (ribbon == null) return;
 
         if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
         {
-            menuPopup.Height = topLevel.Bounds.Height - titleBar?.Bounds.Height ?? 0;
+            menuPopup.Height = topLevel.Bounds.Height; // - titleBar?.Bounds.Height ?? 0;
             menuPopup.Placement = PlacementMode.LeftEdgeAlignedTop;
             if (ribbon.Orientation == Orientation.Horizontal)
             {
@@ -164,9 +164,9 @@ public sealed class RibbonMenu : ItemsControl, IRibbonMenu
                 menuPopup.HorizontalOffset = -40;
             }
 
-            if (titleBar != null)
-            {
-            }
+            // if (titleBar != null)
+            // {
+            // }
         }
         else
         {

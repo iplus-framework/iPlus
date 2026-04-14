@@ -315,7 +315,7 @@ namespace gip.core.layoutengine.avui
                 return;
             _Initialized = true;
 
-            IBinding binding = null;
+            BindingBase binding = null;
             if (ContextACObject == null)
             {
                 if (!string.IsNullOrEmpty(ACCaption))

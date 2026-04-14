@@ -62,7 +62,7 @@ namespace gip.core.layoutengine.avui
             base.OnPointerReleased(e);
         }
 
-        protected override void OnLostFocus(RoutedEventArgs e)
+        protected override void OnLostFocus(FocusChangedEventArgs e)
         {
             if (_IsInDrag)
             {

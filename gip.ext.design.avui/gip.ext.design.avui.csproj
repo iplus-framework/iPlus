@@ -80,6 +80,7 @@
     <PackageReference Include="Avalonia"  />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader"  />
     <PackageReference Include="Simplecto.Avalonia.RichTextBox"  />
+    <PackageReference Include="Tmds.DBus.Protocol" />
     <PackageReference Include="Xaml.Behaviors"  />
   </ItemGroup>
 

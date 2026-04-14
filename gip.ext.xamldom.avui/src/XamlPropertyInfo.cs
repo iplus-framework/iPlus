@@ -314,7 +314,7 @@ namespace gip.ext.xamldom.avui
 
             // Markup-extension bindings (for example {vb:VBBinding ...}) must be applied via Bind,
             // otherwise SetValue treats the binding object as a literal value and type validation fails.
-            if (value is IBinding binding)
+            if (value is BindingBase binding)
             {
                 avaloniaObject.Bind(_avaloniaProperty, binding);
                 return;
@@ -376,7 +376,7 @@ namespace gip.ext.xamldom.avui
             {
                 // Apply bindings through Bind() so styled properties receive a binding expression
                 // instead of a raw binding object value.
-                if (value is IBinding binding)
+                if (value is BindingBase binding)
                 {
                     avaloniaObject.Bind(_avaloniaProperty, binding);
                     return;

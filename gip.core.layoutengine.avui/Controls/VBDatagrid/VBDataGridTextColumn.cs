@@ -423,7 +423,7 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        internal void ApplyBinding(IBinding binding, AvaloniaObject target, AvaloniaProperty property)
+        internal void ApplyBinding(BindingBase binding, AvaloniaObject target, AvaloniaProperty property)
         {
             if (binding != null)
             {

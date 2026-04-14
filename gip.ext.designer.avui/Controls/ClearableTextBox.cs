@@ -58,13 +58,13 @@ namespace gip.ext.designer.avui.Controls
 			this.Focus();
 		}
 
-        protected override void OnGotFocus(GotFocusEventArgs e)
+        protected override void OnGotFocus(FocusChangedEventArgs e)
         {
             this.UpdateState();
             base.OnGotFocus(e);
         }
 
-        protected override void OnLostFocus(RoutedEventArgs e)
+        protected override void OnLostFocus(FocusChangedEventArgs e)
         {
             this.UpdateState();
             base.OnLostFocus(e);

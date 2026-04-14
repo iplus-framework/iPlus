@@ -3,7 +3,6 @@ using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
-using Avalonia.ReactiveUI;
 using Avalonia.Threading;
 using CoreWCF.IdentityModel.Tokens;
 using gip.core.autocomponent;
@@ -13,6 +12,8 @@ using gip.ext.designer.avui.Controls;
 using gip.iplus.client.avui.Views;
 using Org.BouncyCastle.Bcpg.OpenPgp;
 using ReactiveUI;
+using ReactiveUI.Avalonia;
+using Splat;
 using System;
 using System.Configuration;
 using System.Diagnostics;
@@ -120,11 +121,8 @@ public partial class App : Application
         if (desktop != null)
         {
             // Create the AutoSuspendHelper.
-            var suspension = new AutoSuspendHelper(ApplicationLifetime);
-            RxApp.SuspensionHost.CreateNewAppState = () => new Settings();
-            RxApp.SuspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
-            // Load the saved view model state.
-            _AppSettings = RxApp.SuspensionHost.GetAppState<Settings>();
+            var suspension = new ReactiveUI.Avalonia.AutoSuspendHelper(ApplicationLifetime);
+            ConfigureReactiveUISuspension();
             suspension.OnFrameworkInitializationCompleted();
 
             // Avoid duplicate validations from both Avalonia and the CommunityToolkit. 
@@ -216,17 +214,25 @@ public partial class App : Application
         base.OnFrameworkInitializationCompleted();
     }
 
+    private void ConfigureReactiveUISuspension()
+    {
+        var suspensionHost = Locator.Current.GetService<ISuspensionHost>();
+
+        if (suspensionHost == null)
+        {
+            _AppSettings = new Settings();
+            return;
+        }
+
+        suspensionHost.CreateNewAppState = () => new Settings();
+        suspensionHost.SetupDefaultSuspendResume(new NewtonsoftJsonSuspensionDriver("appstate.json"));
+        _AppSettings = suspensionHost.GetAppState<Settings>() ?? new Settings();
+    }
+
     private void DisableAvaloniaDataAnnotationValidation()
     {
-        // Get an array of plugins to remove
-        var dataValidationPluginsToRemove =
-            BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
-
-        // remove each entry found
-        foreach (var plugin in dataValidationPluginsToRemove)
-        {
-            BindingPlugins.DataValidators.Remove(plugin);
-        }
+        // Avalonia 12 no longer exposes BindingPlugins publicly in this package variant.
+        // Keep method for compatibility; validation plugin cleanup is skipped.
     }
 
     public void ShutdownApplication()
@@ -351,8 +357,12 @@ public partial class App : Application
             if (result == 1)
             {
                 if (cmLineArg.Contains("/autologin"))
-                    RxApp.SuspensionHost.ShouldPersistState = Observable.Never<IDisposable>();
-                        
+                {
+                    var suspensionHost = Locator.Current.GetService<ISuspensionHost>();
+                    if (suspensionHost != null)
+                        suspensionHost.ShouldPersistState = Observable.Never<IDisposable>();
+                }
+
                     break;
             }
             // No License

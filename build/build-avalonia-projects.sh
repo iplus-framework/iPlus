@@ -123,8 +123,8 @@ print_color $YELLOW "Configuration: $CONFIGURATION"
 # Define solution files with their relative paths from the base directory
 # Using associative arrays to simulate PowerShell hashtables
 declare -a SOLUTION_PATHS=(
-    "../../Avalonia/iPlusAvalonia.sln"
-    "../../AvDialogHost.Avalonia/iPlusAvalonia.sln"
+    "../../Avalonia/iPlusAvalonia.slnx"
+    "../../AvDialogHost.Avalonia/iPlusAvalonia.slnx"
     "../../AvaloniaEdit/iPlusAvalonia.sln"
     "../../Avalonia.Dock/iPlusAvalonia.sln"
     "../../roslynpad/iPlusAvalonia.sln"

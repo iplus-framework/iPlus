@@ -70,6 +70,5 @@
     <PackageReference Include="System.ComponentModel.Annotations"  />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.Configuration.ConfigurationManager"  />
-    <PackageReference Include="System.Xml.XmlSerializer"  />
   </ItemGroup>
 </Project>

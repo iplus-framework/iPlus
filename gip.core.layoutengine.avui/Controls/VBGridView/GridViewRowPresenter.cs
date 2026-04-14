@@ -298,7 +298,7 @@ namespace gip.core.layoutengine.avui
                     Control cell = InternalChildren[index];
                     if (cell != null)
                     {
-                        IBinding binding = column.DisplayMemberBinding;
+                        BindingBase binding = column.DisplayMemberBinding;
                         if (binding != null && cell is TextBlock)
                         {
                             cell.Bind(TextBlock.TextProperty, binding);
@@ -572,7 +572,7 @@ namespace gip.core.layoutengine.avui
             Debug.Assert(column != null, "column shouldn't be null");
 
             Control cell;
-            IBinding binding;
+            BindingBase binding;
 
             // Priority: DisplayMemberBinding > CellTemplate > CellTemplateSelector
 

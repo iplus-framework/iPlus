@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Collections;
 using Avalonia.Controls;
+using Avalonia.Input.Platform;
 using ClosedXML.Excel;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;

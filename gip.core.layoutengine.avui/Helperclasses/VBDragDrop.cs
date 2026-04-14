@@ -27,7 +27,7 @@ namespace gip.core.layoutengine.avui
             dataTransfer.Add(DataTransferItem.Create(DragObjectTokenFormat, token));
             dataTransfer.Add(DataTransferItem.CreateText(DragTokenPrefix + token));
 
-            _ = DragDrop.DoDragDropAsync(e, dataTransfer, DragDropEffects.Copy)
+            _ = DragDrop.DoDragDropAsync(e as PointerPressedEventArgs, dataTransfer, DragDropEffects.Copy)
                 .ContinueWith(t => DragObjectCache.TryRemove(token, out _), TaskScheduler.Default);
         }
 

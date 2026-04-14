@@ -105,7 +105,7 @@ namespace gip.ext.xamldom.avui
             else
             {
                 // Prefer runtime collection dispatch to support interface-typed collection properties
-                // such as IList<IBinding> that are backed by concrete types with explicit/interface members.
+                // such as IList<BindingBase> that are backed by concrete types with explicit/interface members.
                 if (collectionInstance is IList list)
                 {
                     list.Add(value);

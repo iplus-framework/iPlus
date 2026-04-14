@@ -23,6 +23,7 @@
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AvaloniaUseCompiledBindingsByDefault>false</AvaloniaUseCompiledBindingsByDefault>
     <UseWindowsForms>false</UseWindowsForms>
     <UseWPF>false</UseWPF>
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
@@ -186,8 +187,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Threading" />
     <PackageReference Include="System.Composition" />
     <PackageReference Include="System.Linq.Async" />
-    <PackageReference Include="System.Reflection.Metadata" />
-    <PackageReference Include="System.Reflection.MetadataLoadContext" />
+    <!-- <PackageReference Include="System.Reflection.Metadata" />
+    <PackageReference Include="System.Reflection.MetadataLoadContext" /> -->
     <PackageReference Include="QuickGraphCore" />
     <PackageReference Include="System.Data.DataSetExtensions" />
     <PackageReference Include="System.ServiceModel.Duplex" />
@@ -207,7 +208,8 @@
     <PackageReference Include="Dock.Avalonia" />
     <PackageReference Include="Dock.Avalonia.Themes.Fluent" />
     <PackageReference Include="Dock.Model.Avalonia" />
-    <PackageReference Include="System.Text.Json" />
+    <!-- <PackageReference Include="System.Text.Json" /> -->
+    <!-- <PackageReference Include="Avalonia.AvaloniaEdit" /> -->
     <PackageReference Include="RoslynPad.Editor.Avalonia" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
     <PackageReference Include="OxyPlot.Avalonia" />

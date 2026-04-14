@@ -7,6 +7,7 @@ using gip.core.datamodel;
 using gip.core.layoutengine.avui.Controls.VBDocking.VBWindow;
 using Avalonia.Interactivity;
 using Avalonia.Input;
+using Avalonia.Input.Platform;
 using Avalonia.Controls;
 using Avalonia.Styling;
 using Avalonia;

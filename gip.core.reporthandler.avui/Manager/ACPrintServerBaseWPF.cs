@@ -110,8 +110,8 @@ namespace gip.core.reporthandler.avui
                 OnRenderSectionReportFooter(printJob, (SectionReportFooter)te);
             else if (te is SectionDataGroup)
                 OnRenderSectionDataGroup(printJob, (SectionDataGroup)te);
-            else if (block is Table)
-                OnRenderSectionTable(printJob, (Table)block);
+            else if (block is gip.core.reporthandler.avui.Flowdoc.Table)
+                OnRenderSectionTable(printJob, (gip.core.reporthandler.avui.Flowdoc.Table)block);
             else if (block is Paragraph)
                 OnRenderParagraph(printJob, (Paragraph)block);
             OnRenderBlockFooter(printJob, block, position);
@@ -158,7 +158,7 @@ namespace gip.core.reporthandler.avui
 
         #region Methods -> Render -> Table
 
-        protected void OnRenderSectionTable(PrintJob printJob, Table table)
+        protected void OnRenderSectionTable(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.Table table)
         {
             OnRenderSectionTableHeader(printJob, table);
 
@@ -176,39 +176,39 @@ namespace gip.core.reporthandler.avui
             printJob.ColumnDivisor = 1;
         }
 
-        public abstract void OnRenderSectionTableHeader(PrintJob printJob, Table table);
+        public abstract void OnRenderSectionTableHeader(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.Table table);
 
-        public abstract void OnRenderSectionTableFooter(PrintJob printJob, Table table);
+        public abstract void OnRenderSectionTableFooter(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.Table table);
 
-        public abstract void OnRenderTableColumn(PrintJob printJob, TableColumn tableColumn);
+        public abstract void OnRenderTableColumn(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableColumn tableColumn);
 
-        protected void OnRenderTableRowGroup(PrintJob printJob, TableRowGroup tableRowGroup)
+        protected void OnRenderTableRowGroup(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableRowGroup tableRowGroup)
         {
             OnRenderTableRowGroupHeader(printJob, tableRowGroup);
-            foreach (TableRow tableRow in tableRowGroup.Rows)
+            foreach (gip.core.reporthandler.avui.Flowdoc.TableRow tableRow in tableRowGroup.Rows)
                 OnRenderTableRow(printJob, tableRow);
             OnRenderTableRowGroupFooter(printJob, tableRowGroup);
         }
 
-        public abstract void OnRenderTableRowGroupHeader(PrintJob printJob, TableRowGroup tableRowGroup);
+        public abstract void OnRenderTableRowGroupHeader(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableRowGroup tableRowGroup);
 
-        public abstract void OnRenderTableRowGroupFooter(PrintJob printJob, TableRowGroup tableRowGroup);
+        public abstract void OnRenderTableRowGroupFooter(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableRowGroup tableRowGroup);
 
-        protected void OnRenderTableRow(PrintJob printJob, TableRow tableRow)
+        protected void OnRenderTableRow(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableRow tableRow)
         {
             OnRenderTableRowHeader(printJob, tableRow);
-            foreach (TableCell tableCell in tableRow.Cells)
+            foreach (gip.core.reporthandler.avui.Flowdoc.TableCell tableCell in tableRow.Cells)
             {
                 printJob.ColumnMultiplier = tableRow.Cells.IndexOf(tableCell);
                 OnRenderTableCell(printJob, tableCell);
             }
             OnRenderTableRowFooter(printJob, tableRow);
         }
-        public abstract void OnRenderTableRowHeader(PrintJob printJob, TableRow tableRow);
+        public abstract void OnRenderTableRowHeader(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableRow tableRow);
 
-        public abstract void OnRenderTableRowFooter(PrintJob printJob, TableRow tableRow);
+        public abstract void OnRenderTableRowFooter(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableRow tableRow);
 
-        protected void OnRenderTableCell(PrintJob printJob, TableCell tableCell)
+        protected void OnRenderTableCell(PrintJob printJob, gip.core.reporthandler.avui.Flowdoc.TableCell tableCell)
         {
             foreach (Block block in tableCell.Blocks)
                 OnRenderBlock(printJob, block, BlockDocumentPosition.InTable);

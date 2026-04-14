@@ -129,7 +129,7 @@ namespace gip.core.layoutengine.avui
 
             if (ScrollViewerPart != null)
             {
-                ScrollViewerPart.RemoveHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler);
+                ScrollViewerPart.ScrollGestureEnded -= ScrollEndedEventHandler;
                 ScrollViewerPart.SizeChanged -= ScrollViewerPart_SizeChanged;
             }
 
@@ -137,7 +137,7 @@ namespace gip.core.layoutengine.avui
 
             if (ScrollViewerPart != null)
             {
-                ScrollViewerPart.AddHandler(Gestures.ScrollGestureEndedEvent, ScrollEndedEventHandler, handledEventsToo: true);
+                ScrollViewerPart.ScrollGestureEnded += ScrollEndedEventHandler;
                 ScrollViewerPart.SizeChanged += ScrollViewerPart_SizeChanged;
             }
 

@@ -69,7 +69,7 @@ namespace gip.ext.designer.avui.PropertyGrid.Editors
             base.OnPointerPressed(e);
         }
 
-        protected override void OnLostFocus(RoutedEventArgs e)
+        protected override void OnLostFocus(FocusChangedEventArgs e)
         {
             if (PropertyNode != null && Text != ValueString)
             {

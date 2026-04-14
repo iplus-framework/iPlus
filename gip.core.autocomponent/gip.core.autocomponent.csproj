@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>$(DefaultNetCoreTargetFramework);$(DefaultNetCoreTargetFramework)-android</TargetFrameworks>
+    <TargetFrameworks Condition="'$(RuntimeIdentifier)' == '' or !$([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">$(DefaultNetCoreTargetFramework);$(DefaultNetCoreTargetFramework)-android</TargetFrameworks>
+    <TargetFramework Condition="'$(RuntimeIdentifier)' != '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">$(DefaultNetCoreTargetFramework)</TargetFramework>
     <OutputType>Library</OutputType>
     <SccProjectName>SAK</SccProjectName>
     <SccLocalPath>SAK</SccLocalPath>
@@ -95,6 +96,7 @@
 	<PackageReference Include="CoreWCF.ConfigurationManager"  />
 	<PackageReference Include="CoreWCF.Http"  />
 	<PackageReference Include="CoreWCF.WebHttp"  />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" />
     <!--<PackageReference Condition="'$(UseDotNet10)' == 'False'" Include="Microsoft.AspNetCore"  />-->
   </ItemGroup>
   <ItemGroup>

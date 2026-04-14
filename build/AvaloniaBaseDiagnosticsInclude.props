@@ -1,8 +1,10 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <!-- Only include Avalonia.Diagnostics if NOT using standalone DataGrid (to avoid internal DataGrid conflict) -->
-    <Reference Condition="'$(Configuration)' == 'Debug' AND '$(UseStandaloneDataGrid)' != 'True'" Include="Avalonia.Diagnostics">
+    <!-- <Reference Condition="'$(Configuration)' == 'Debug' AND '$(UseStandaloneDataGrid)' != 'True'" Include="Avalonia.Diagnostics">
       <HintPath>$(AvaloniaRootDir)/src/Avalonia.Diagnostics/bin/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.Diagnostics.dll</HintPath>
-    </Reference>
+    </Reference> -->
+    <!-- Diagnostics in Avalonia 12 doesn't exist as open source any more -->
+    <PackageReference Include="Avalonia.Diagnostics"/>
   </ItemGroup>
 </Project> 

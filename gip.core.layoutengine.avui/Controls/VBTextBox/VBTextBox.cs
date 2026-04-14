@@ -90,7 +90,7 @@ namespace gip.core.layoutengine.avui
                 ContextFlyout = null;
 
             _Initialized = true;
-            IBinding binding = null;
+            BindingBase binding = null;
             if (String.IsNullOrEmpty(VBContent))
             {
                 if (!string.IsNullOrEmpty(ACCaption) && ContextACObject != null)
@@ -229,8 +229,8 @@ namespace gip.core.layoutengine.avui
                                     if (setter is Setter)
                                     {
                                         var s = setter as Setter;
-                                        if (s.Value is IBinding)
-                                            this.Bind(s.Property, s.Value as IBinding);
+                                        if (s.Value is BindingBase)
+                                            this.Bind(s.Property, s.Value as BindingBase);
                                         else
                                             SetValue(s.Property, s.Value);
                                     }
@@ -1304,13 +1304,13 @@ namespace gip.core.layoutengine.avui
 
         #region Event-Handling and Mask-Handling
 
-        protected override void OnGotFocus(GotFocusEventArgs e)
+        protected override void OnGotFocus(FocusChangedEventArgs e)
         {
             //SelectAll();
             base.OnGotFocus(e);
         }
 
-        protected override void OnLostFocus(RoutedEventArgs e)
+        protected override void OnLostFocus(FocusChangedEventArgs e)
         {
             base.OnLostFocus(e);
 

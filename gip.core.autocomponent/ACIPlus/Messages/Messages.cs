@@ -14,7 +14,6 @@ using System.Net.Mail;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Build.ObjectModelRemoting;
 
 namespace gip.core.autocomponent
 {

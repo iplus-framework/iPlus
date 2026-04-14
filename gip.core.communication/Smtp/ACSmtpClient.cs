@@ -363,7 +363,11 @@ namespace gip.core.communication
                 }
             }
             if (IgnoreInvalidCertificate.ValueT)
+            {
+#pragma warning disable SYSLIB0014
                 ServicePointManager.ServerCertificateValidationCallback = delegate(object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
+#pragma warning restore SYSLIB0014
+            }
         }
 
         private void InitSyncSmtpClient()

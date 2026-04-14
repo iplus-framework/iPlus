@@ -111,7 +111,7 @@ namespace gip.ext.designer.avui.OutlineView
         {
             var dataTransfer = new DataTransfer();
             dataTransfer.Add(DataTransferItem.Create(DragTreeViewFormat, nameof(DragTreeView)));
-            _ = DragDrop.DoDragDropAsync(e, dataTransfer, DragDropEffects.Copy);
+            _ = DragDrop.DoDragDropAsync(e as PointerPressedEventArgs, dataTransfer, DragDropEffects.Copy);
         }
 
         protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
