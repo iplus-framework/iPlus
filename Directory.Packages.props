@@ -267,6 +267,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageVersion>
+		<PackageVersion Include="ReactiveUI.SourceGenerators" Version="2.6.1" />
 
 		<!-- Additional Packages for Avalonia Edit -->
 		<PackageVersion Include="Moq" Version="4.18.4" />
@@ -344,13 +345,13 @@
 
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">5.0.0</CodeAnalysisVersion>
-		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</CodeAnalysisVersion>
+		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">5.3.0</CodeAnalysisVersion>
+		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.3.0</CodeAnalysisVersion>
 		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
 		<RoslynVersion>4.12.1</RoslynVersion>
 		<DotNetExtensionsVersion>10.0.5</DotNetExtensionsVersion>
 		<SystemCompositionVersion>10.0.5</SystemCompositionVersion>
-		<NuGetVersion>7.0.1</NuGetVersion>
+		<NuGetVersion>7.0.3</NuGetVersion>
 		<CoreWCFVersion>1.8.0</CoreWCFVersion>
 		<ASPNetVersion>2.3.9</ASPNetVersion>
 
@@ -554,7 +555,7 @@
 		<PackageVersion Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.73.0" />
 		<PackageVersion Include="IgnoresAccessChecksToGenerator" Version="0.8.0" />
 		<PackageVersion Include="MessagePack" Version="3.1.4" />
-		<PackageVersion Include="Microsoft.CodeAnalysis.LanguageServer.Protocol" Version="4.14.0-3.25275.7" />
+		<PackageVersion Include="Microsoft.CodeAnalysis.LanguageServer.Protocol" Version="5.0.0-2.25567.12" />
 		<PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="$(DotNetExtensionsVersion)" />
 		<PackageVersion Include="Microsoft.Extensions.Logging.Debug" Version="$(DotNetExtensionsVersion)" />
@@ -568,13 +569,15 @@
 		<PackageVersion Include="NuGet.Commands" Version="$(NuGetVersion)" />
 		<PackageVersion Include="NuGet.Versioning" Version="$(NuGetVersion)" />
 		<PackageVersion Include="System.Linq.Async" Version="7.0.0" />
-		<PackageVersion Include="System.Reactive.Core" Version="6.1.0" />
+  		<PackageVersion Include="System.Linq.AsyncEnumerable" Version="$(DotNetExtensionsVersion)" />
+  		<PackageVersion Include="System.Reactive.Core" Version="6.1.0" />
 		<PackageVersion Include="System.Reactive.Linq" Version="6.1.0" />
 		<PackageVersion Include="System.Reflection.MetadataLoadContext" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Reflection.Metadata" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Composition" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="Xunit.StaFact" Version="3.0.13" />
 		<PackageVersion Include="xunit.v3" Version="3.2.2" />
+    	<PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
 
 		<!-- Additional Packages for Avalonia Dock, Avalonia Behaviours -->
 		<PackageVersion Include="Caliburn.Micro.Core" Version="5.0.258" />
@@ -604,6 +607,7 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageVersion>
+		<PackageVersion Include="ReactiveUI.SourceGenerators" Version="2.6.1" />
 
 		<!-- Additional Packages for Avalonia Edit -->
 		<PackageVersion Include="Moq" Version="4.20.72" />
@@ -621,6 +625,11 @@
 		<PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.22" />
 		<PackageVersion Include="MicroCom.CodeGenerator.Roslyn" Version="0.11.3" />
 		<PackageVersion Include="Microsoft.Windows.CsWin32" Version="0.3.269" />
+		<PackageVersion Include="Microsoft.Build" Version="18.0.2" />
+		<PackageVersion Include="Microsoft.Build.Framework" Version="18.0.2" />
+		<PackageVersion Include="Microsoft.Build.Locator" Version="1.11.2" />
+		<PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.0.2" />
+		<PackageVersion Include="Microsoft.Build.Utilities.Core" Version="18.0.2" />
 
 		<!-- Additional Packages for Avalonia DataGrid -->
 		<PackageVersion Include="JetBrains.dotMemoryUnit" Version="3.2.20220510" />
@@ -642,7 +651,6 @@
 		<PackageVersion Include="System.Memory" Version="4.6.3" />
 		<PackageVersion Include="System.CommandLine" Version="2.0.2" />
 		<PackageVersion Include="SixLabors.ImageSharp" Version="3.1.12" />
-		<PackageVersion Include="Microsoft.Build.Tasks.Core" Version="18.0.2" />
 
 		<!-- Additional Packages for RichtTextBox -->
 		<PackageVersion Include="DocumentFormat.OpenXml" Version="$(DocumentFormatOpenXmlVersion)" />
