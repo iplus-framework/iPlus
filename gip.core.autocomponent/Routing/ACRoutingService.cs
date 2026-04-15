@@ -1801,9 +1801,12 @@ namespace gip.core.autocomponent
             {
                 using (Database db = new datamodel.Database())
                 {
-                    DateTime last = db.ACClassPropertyRelation.Where(c => c.ConnectionTypeIndex == (short)Global.ConnectionTypes.ConnectionPhysical
-                                                                        || c.ConnectionTypeIndex == (short)Global.ConnectionTypes.LogicalBridge)
-                                                              .Max(c => c.LastManipulationDT);
+                    var query = db.ACClassPropertyRelation.Where(c => c.ConnectionTypeIndex == (short)Global.ConnectionTypes.ConnectionPhysical
+                                                                        || c.ConnectionTypeIndex == (short)Global.ConnectionTypes.LogicalBridge);
+                    if (!query.Any())
+                        return;
+
+                    DateTime last = query.Max(c => c.LastManipulationDT);
                     TimeSpan diff = DateTime.Now - last;
                     if (diff.TotalDays > 1)
                         //db.udpRestoreLastManipulationDT((int)diff.TotalDays);
