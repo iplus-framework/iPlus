@@ -20,6 +20,13 @@
 		<AvaloniaNativeBuildDir>$(AvaloniaRootDir)/src/Avalonia.Native/bin</AvaloniaNativeBuildDir>
 		<AvaloniaMarkupBuildDir>$(AvaloniaRootDir)/src/Markup/Avalonia.Markup.Xaml.Loader/bin</AvaloniaMarkupBuildDir>
 		<AvaloniaSkiaBuildDir>$(AvaloniaRootDir)/src/Skia/Avalonia.Skia/bin</AvaloniaSkiaBuildDir>
+
+		<!-- Resolve fork binaries from the active configuration, then fallback to Release/Debug if needed. -->
+		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and '$(Configuration)' != '' and Exists('$(AvaloniaNativeBuildDir)/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.dll')">$(Configuration)</AvaloniaForkBuildConfiguration>
+		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and Exists('$(AvaloniaNativeBuildDir)/Release/$(AvaloniaBuildFramework)/Avalonia.dll')">Release</AvaloniaForkBuildConfiguration>
+		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and Exists('$(AvaloniaNativeBuildDir)/Debug/$(AvaloniaBuildFramework)/Avalonia.dll')">Debug</AvaloniaForkBuildConfiguration>
+		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == '' and '$(Configuration)' != ''">$(Configuration)</AvaloniaForkBuildConfiguration>
+		<AvaloniaForkBuildConfiguration Condition="'$(AvaloniaForkBuildConfiguration)' == ''">Debug</AvaloniaForkBuildConfiguration>
     <!-- For Building Avalonia from source, create symbolic links to the Avalonia source directories with consistent path separators:
 				 WINDOWS CMD:
 				 mklink /D "D:\Devel\iPlusGit\V5\Avalonia\external\XamlX" "D:\Devel\iPlusGit\V5\XamlX"

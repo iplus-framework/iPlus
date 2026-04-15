@@ -4,11 +4,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <Analyzer Include="$(AvaloniaRootDir)/src/tools/Avalonia.Analyzers/bin/$(Configuration)/netstandard2.0/Avalonia.Analyzers.dll">
+    <Analyzer Include="$(AvaloniaRootDir)/src/tools/Avalonia.Analyzers/bin/$(AvaloniaForkBuildConfiguration)/netstandard2.0/Avalonia.Analyzers.dll" Condition="Exists('$(AvaloniaRootDir)/src/tools/Avalonia.Analyzers/bin/$(AvaloniaForkBuildConfiguration)/netstandard2.0/Avalonia.Analyzers.dll')">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <OutputItemType>Analyzer</OutputItemType>
     </Analyzer>
-    <Analyzer Include="$(AvaloniaRootDir)/src/tools/Avalonia.Generators/bin/$(Configuration)/netstandard2.0/Avalonia.Generators.dll">
+    <Analyzer Include="$(AvaloniaRootDir)/src/tools/Avalonia.Generators/bin/$(AvaloniaForkBuildConfiguration)/netstandard2.0/Avalonia.Generators.dll" Condition="Exists('$(AvaloniaRootDir)/src/tools/Avalonia.Generators/bin/$(AvaloniaForkBuildConfiguration)/netstandard2.0/Avalonia.Generators.dll')">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <OutputItemType>Analyzer</OutputItemType>
     </Analyzer>
