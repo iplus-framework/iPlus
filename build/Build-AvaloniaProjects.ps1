@@ -36,14 +36,14 @@ $SolutionFiles = @(
 	@{ Path = "..\..\Avalonia.Dock\iPlusAvalonia.slnx"; Name = "Avalonia Dock"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\roslynpad\iPlusAvalonia.slnx"; Name = "Roslyn Pad"; Priority = 1; Critical = $false },
 	@{ Path = "..\..\Avalonia.Labs\iPlusAvalonia.slnx"; Name = "Avalonia Labs"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\SVG\Source\iPlusAvalonia.sln"; Name = "SVG"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\Avalonia.Controls.DataGrid\iPlusAvalonia.sln"; Name = "DataGrid Controls"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\Xaml.Behaviors\iPlusAvalonia.sln"; Name = "XAML Behaviors"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\AvSvg.Skia\iPlusAvalonia.sln"; Name = "SVG Skia"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\AvRichTextBox\iPlusAvalonia.sln"; Name = "Rich Text Box"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\AvMarkdown.Avalonia\iPlusAvalonia.sln"; Name = "Markdown Avalonia"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\AvMessageBox.Avalonia\iPlusAvalonia.sln"; Name = "Message Box"; Priority = 1; Critical = $false },
-	@{ Path = "..\..\avOxyplot-avalonia\Source\iPlusAvalonia.sln"; Name = "OxyPlot Avalonia"; Priority = 1; Critical = $false }
+	@{ Path = "..\..\SVG\Source\iPlusAvalonia.slnx"; Name = "SVG"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\Avalonia.Controls.DataGrid\iPlusAvalonia.slnx"; Name = "DataGrid Controls"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\Xaml.Behaviors\iPlusAvalonia.slnx"; Name = "XAML Behaviors"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\AvSvg.Skia\iPlusAvalonia.slnx"; Name = "SVG Skia"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\AvRichTextBox\iPlusAvalonia.slnx"; Name = "Rich Text Box"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\AvMarkdown.Avalonia\iPlusAvalonia.slnx"; Name = "Markdown Avalonia"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\AvMessageBox.Avalonia\iPlusAvalonia.slnx"; Name = "Message Box"; Priority = 1; Critical = $false },
+	@{ Path = "..\..\avOxyplot-avalonia\Source\iPlusAvalonia.slnx"; Name = "OxyPlot Avalonia"; Priority = 1; Critical = $false }
 )
 
 # Build results tracking

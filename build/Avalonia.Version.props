@@ -53,7 +53,7 @@
 		<AvaloniaMessageBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvMessageBox.Avalonia/MsBox.Avalonia/bin</AvaloniaMessageBoxIncludeDir>
 		<AvaloniaOxyPlotIncludeDir>$(MSBuildThisFileDirectory)../../avOxyplot-avalonia/Source/OxyPlot.Avalonia/bin</AvaloniaOxyPlotIncludeDir>
 
-		<IncludeAvaloniaGenerators Condition="'$(UseAvaloniaFork)' == 'True'">True</IncludeAvaloniaGenerators>
+		<IncludeAvaloniaGenerators Condition="'$(UseAvaloniaFork)' == 'True'">False</IncludeAvaloniaGenerators>
 	</PropertyGroup>
 	<Import Condition="Exists('$(AvaloniaRootDir)/build/TargetFrameworks.props')" Project="$(AvaloniaRootDir)/build/TargetFrameworks.props" />
 </Project>

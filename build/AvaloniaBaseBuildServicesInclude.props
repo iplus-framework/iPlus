@@ -1,9 +1,14 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <!--
+    Disabled for Avalonia fork/source builds to avoid pulling Avalonia 11.x assemblies
+    via NuGet (for example Avalonia.Markup.Xaml) and causing MSB3277 conflicts with
+    locally built Avalonia 12.x binaries.
     <PackageReference Include="Avalonia.BuildServices">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    -->
     <Analyzer Include="$(AvaloniaRootDir)/src/tools/Avalonia.Analyzers/bin/$(AvaloniaForkBuildConfiguration)/netstandard2.0/Avalonia.Analyzers.dll" Condition="Exists('$(AvaloniaRootDir)/src/tools/Avalonia.Analyzers/bin/$(AvaloniaForkBuildConfiguration)/netstandard2.0/Avalonia.Analyzers.dll')">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <OutputItemType>Analyzer</OutputItemType>

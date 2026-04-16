@@ -1,9 +1,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <!-- <Reference Include="Avalonia.ReactiveUI">
-      <HintPath>$(AvaloniaRootDir)/src/Avalonia.ReactiveUI/bin/$(Configuration)/$(AvaloniaBuildFramework)/Avalonia.ReactiveUI.dll</HintPath>
-    </Reference> -->
-    <!-- ReactiveUI in Avalonia 12 is now ReactiveUI.Avalonia -->
-    <PackageReference Include="ReactiveUI.Avalonia"/>
+    <!-- Intentionally left empty.
+         ReactiveUI bridge package should be referenced only by projects that need it,
+         to avoid bringing incompatible compile assets into all Avalonia fork projects. -->
   </ItemGroup>
 </Project> 

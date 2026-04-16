@@ -129,14 +129,14 @@ declare -a SOLUTION_PATHS=(
     "../../Avalonia.Dock/iPlusAvalonia.slnx"
     "../../roslynpad/iPlusAvalonia.slnx"
     "../../Avalonia.Labs/iPlusAvalonia.slnx"
-    "../../SVG/Source/iPlusAvalonia.sln"
-    "../../Avalonia.Controls.DataGrid/iPlusAvalonia.sln"
-    "../../Xaml.Behaviors/iPlusAvalonia.sln"
-    "../../AvSvg.Skia/iPlusAvalonia.sln"
-    "../../AvRichTextBox/iPlusAvalonia.sln"
-    "../../AvMarkdown.Avalonia/iPlusAvalonia.sln"
-    "../../AvMessageBox.Avalonia/iPlusAvalonia.sln"
-    "../../avOxyplot-avalonia/Source/iPlusAvalonia.sln"
+    "../../SVG/Source/iPlusAvalonia.slnx"
+    "../../Avalonia.Controls.DataGrid/iPlusAvalonia.slnx"
+    "../../Xaml.Behaviors/iPlusAvalonia.slnx"
+    "../../AvSvg.Skia/iPlusAvalonia.slnx"
+    "../../AvRichTextBox/iPlusAvalonia.slnx"
+    "../../AvMarkdown.Avalonia/iPlusAvalonia.slnx"
+    "../../AvMessageBox.Avalonia/iPlusAvalonia.slnx"
+    "../../avOxyplot-avalonia/Source/iPlusAvalonia.slnx"
 )
 
 declare -a SOLUTION_NAMES=(

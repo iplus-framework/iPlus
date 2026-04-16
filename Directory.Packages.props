@@ -18,6 +18,7 @@
 
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
 		<DefaultCodeAnalysisVersion>4.12.0</DefaultCodeAnalysisVersion>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">4.14.0</CodeAnalysisVersion>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">$(DefaultCodeAnalysisVersion)</CodeAnalysisVersion>
@@ -67,7 +68,7 @@
 		<PackageVersion Include="Avalonia.Headless.NUnit" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.9" />
 		<PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.25547.20250602" />
@@ -197,6 +198,7 @@
 		<PackageVersion Include="System.Net.Http" Version="4.3.4" />
 		<PackageVersion Include="System.Reflection.Context" Version="9.0.10" />
 		<PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
+		<PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.6" />
 		<PackageVersion Include="System.ServiceModel.Duplex" Version="6.0.0" />
 		<PackageVersion Include="System.ServiceModel.Federation" Version="8.1.2" />
 		<PackageVersion Include="System.ServiceModel.NetTcp" Version="8.1.2" />
@@ -205,6 +207,7 @@
 		<PackageVersion Include="TimeStampClient" Version="1.2.0" />
 		<PackageVersion Include="WindowsAPICodePack" Version="8.0.6" />
 		<PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.17" />
+		<PackageVersion Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" />
 		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.2.0.3"  />
 		<PackageVersion Include="Xaml.Behaviors" Version="11.3.6.6" />
 		<!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
@@ -323,7 +326,7 @@
 		<PackageVersion Include="DocumentFormat.OpenXml.Office2021" Version="$(DocumentFormatOpenXmlVersion)" />
 
 		<!-- Additional Packages for Markdown -->
-		<PackageVersion Include="Avalonia.Svg" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Svg" Version="11.3.0" />
 		<PackageVersion Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Serilog" Version="3.0.1" />
 		<PackageVersion Include="Serilog.Sinks.File" Version="5.0.0" />
@@ -345,6 +348,7 @@
 
 	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
 		<ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+		<CentralPackageTransitivePinningEnabled>true</CentralPackageTransitivePinningEnabled>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'True'">5.3.0</CodeAnalysisVersion>
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.3.0</CodeAnalysisVersion>
 		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
@@ -364,7 +368,7 @@
 		<SkiaSharpVersion>3.119.3-preview.1.1</SkiaSharpVersion>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\HarfBuzzSharp.props -->
-		<HarfBuzzSharpVersion>8.3.1.2</HarfBuzzSharpVersion>
+		<HarfBuzzSharpVersion>8.3.1.3</HarfBuzzSharpVersion>
 
 		<!-- ClosedXML uses transitive packages of DocumentFormat.OpenXml and this result in an package conflict. 
     Therefore this declaration is used for override in csproj -->
@@ -394,7 +398,7 @@
 		<PackageVersion Include="Avalonia.Headless.NUnit" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.ReactiveUI" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.9" />
 		<PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.25547.20250602" />
@@ -535,6 +539,7 @@
 		<PackageVersion Include="System.Net.Http" Version="4.3.4" />
 		<PackageVersion Include="System.Reflection.Context" Version="10.0.2" />
 		<PackageVersion Include="System.Security.AccessControl" Version="6.0.1" />
+		<PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.6" />
 		<PackageVersion Include="System.ServiceModel.Duplex" Version="6.0.0" />
 		<PackageVersion Include="System.ServiceModel.Federation" Version="10.0.652802" />
 		<PackageVersion Include="System.ServiceModel.NetTcp" Version="10.0.652802" />
@@ -543,6 +548,7 @@
 		<PackageVersion Include="TimeStampClient" Version="1.2.0" />
 		<PackageVersion Include="WindowsAPICodePack" Version="8.0.14" />
 		<PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.2" />
+		<PackageVersion Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" />
 		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.5.1.2"  />
 		<PackageVersion Include="Xaml.Behaviors" Version="11.3.9.3" />
 		<!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
@@ -620,7 +626,7 @@
 
 		<!-- Additional Packages for Avalonia Labs -->
 		<PackageVersion Include="coverlet.collector" Version="6.0.4" />
-		<PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.2" />
+		<PackageVersion Include="Xamarin.AndroidX.AppCompat" Version="1.7.1.3" />
 		<PackageVersion Include="Tmds.DBus.Protocol" Version="0.92.0" />
 		<PackageVersion Include="Tmds.DBus.SourceGenerator" Version="0.0.22" />
 		<PackageVersion Include="MicroCom.CodeGenerator.Roslyn" Version="0.11.3" />
@@ -657,6 +663,8 @@
 		<PackageVersion Include="DocumentFormat.OpenXml" Version="$(DocumentFormatOpenXmlVersion)" />
 		<PackageVersion Include="DocumentFormat.OpenXml.Framework" Version="$(DocumentFormatOpenXmlVersion)" />
 		<PackageVersion Include="RtfDomParser" Version="7.0.0" />
+		<PackageVersion Include="Avalonia.Controls.ItemsRepeater" Version="$(AvaloniaVersion)" />
+
 		<!-- Force DocumentFormat.OpenXml version resolution -->
 		<PackageVersion Include="DocumentFormat.OpenXml.Packaging" Version="$(DocumentFormatOpenXmlVersion)" />
 		<PackageVersion Include="DocumentFormat.OpenXml.Drawing" Version="$(DocumentFormatOpenXmlVersion)" />
@@ -668,7 +676,7 @@
 		<PackageVersion Include="DocumentFormat.OpenXml.Office2021" Version="$(DocumentFormatOpenXmlVersion)" />
 
 		<!-- Additional Packages for Markdown -->
-		<PackageVersion Include="Avalonia.Svg" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Svg" Version="11.3.0" />
 		<PackageVersion Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Serilog" Version="4.3.0" />
 		<PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />

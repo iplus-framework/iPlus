@@ -31,6 +31,10 @@
 
   <ItemGroup>
     <PackageReference Include="Xamarin.AndroidX.Core.SplashScreen"  />
+
+    <!-- Workaround for duplicate androidx.compose.runtime.Immutable class:
+         keep Android annotation artifact, suppress JVM annotation artifact. -->
+    <PackageReference Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" ExcludeAssets="all" PrivateAssets="all" />
 	
     <PackageReference Include="ReactiveUI"  />
     <PackageReference Include="CoreWCF.Primitives" />
