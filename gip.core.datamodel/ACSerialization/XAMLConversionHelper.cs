@@ -1928,6 +1928,30 @@ namespace gip.core.datamodel
                     part1 += " " + nameSpace;
                 }
             }
+
+            // bool hasVBStaticResource = Regex.IsMatch(
+            //     part2,
+            //     @"\{(?:vb:)?VBStaticResource(?:Extension)?(?=[\s,\}])",
+            //     RegexOptions.CultureInvariant);
+
+            // if (hasVBStaticResource)
+            // {
+            //     // Ensure an explicit CLR namespace mapping exists for custom markup extensions.
+            //     // This avoids reliance on XmlnsDefinition resolution differences in NuGet XamlX runtime parsing.
+            //     const string vbClrNamespace = "xmlns:vbclr=\"clr-namespace:gip.core.layoutengine.avui;assembly=gip.core.layoutengine.avui\"";
+            //     if (!Regex.IsMatch(part1, @"\bxmlns:vbclr\s*=", RegexOptions.CultureInvariant))
+            //     {
+            //         part1 += " " + vbClrNamespace;
+            //     }
+
+            //     // Avalonia 12 NuGet parser does not always resolve legacy shorthand custom markup extension names.
+            //     // Keep old persisted layouts compatible by normalizing VBStaticResource to an explicit CLR-namespace extension.
+            //     part2 = Regex.Replace(
+            //         part2,
+            //         @"\{(?:vb:)?VBStaticResource(?:Extension)?(?=[\s,\}])",
+            //         "{vbclr:VBStaticResourceExtension",
+            //         RegexOptions.CultureInvariant);
+            // }
             
             return xmlDeclaration + part1 + part2;
         }

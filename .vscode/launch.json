@@ -22,9 +22,9 @@
             "request": "launch",
             "runtimeExecutable": "wine",
             "args": [
-                "${workspaceFolder}/bin/Debug/net9.0-windows7.0/win-x64/gip.iplus.client.exe"
+                "${workspaceFolder}/bin/Debug/${config:iplus.uiTargetFramework}/win-x64/gip.iplus.client.exe"
             ],
-            "cwd": "${workspaceFolder}/bin/Debug/net9.0-windows7.0/win-x64",
+            "cwd": "${workspaceFolder}/bin/Debug/${config:iplus.uiTargetFramework}/win-x64",
             "preLaunchTask": "Build Windows (wine)",
             "console": "integratedTerminal",
             "env": {
@@ -40,9 +40,9 @@
             "request": "launch",
             "runtimeExecutable": "wine",
             "args": [
-                "${workspaceFolder}/bin/Release/net9.0-windows7.0/win-x64/gip.iplus.client.exe"
+                "${workspaceFolder}/bin/Release/${config:iplus.uiTargetFramework}/win-x64/gip.iplus.client.exe"
             ],
-            "cwd": "${workspaceFolder}/bin/Release/net9.0-windows7.0/win-x64",
+            "cwd": "${workspaceFolder}/bin/Release/${config:iplus.uiTargetFramework}/win-x64",
             "preLaunchTask": "Build Windows Release (wine)",
             "console": "integratedTerminal",
             "env": {
@@ -56,7 +56,7 @@
             "name": "DNSPY Launch",
             "type": "node-terminal",
             "request": "launch",
-            "command": "${workspaceFolder}/../wine_debug_dnspy.sh \"${workspaceFolder}/bin/Debug/net9.0-windows7.0/win-x64/gip.iplus.client.exe\"",
+            "command": "${workspaceFolder}/../wine_debug_dnspy.sh \"${workspaceFolder}/bin/Debug/${config:iplus.uiTargetFramework}/win-x64/gip.iplus.client.exe\"",
             "cwd": "${workspaceFolder}",
             "env": {
                 //"WINEPREFIX": "${env:HOME}/.wine-netcore-64",
@@ -66,14 +66,24 @@
             }
         },
         {
-            "name": "Launch Avalonia Desktop",
+            "name": "Launch Avalonia Debug Desktop",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "Build Avalonia Desktop",
-            "program": "${workspaceFolder}/gip.iplus.client.avui.Desktop/bin/Debug/net9.0/gip.iplus.client.avui.Desktop.dll",
+            "preLaunchTask": "Build Avalonia Debug Desktop",
+            "program": "${workspaceFolder}/gip.iplus.client.avui.Desktop/bin/Debug/${config:iplus.defaultNetCoreTargetFramework}/gip.iplus.client.avui.Desktop.dll",
             "args": [],
             "cwd": "${workspaceFolder}/gip.iplus.client.avui.Desktop",
             "console": "integratedTerminal"
-        }                
+        },
+        {
+            "name": "Launch Avalonia Release Desktop",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Avalonia Release Desktop",
+            "program": "${workspaceFolder}/gip.iplus.client.avui.Desktop/bin/Release/${config:iplus.defaultNetCoreTargetFramework}/gip.iplus.client.avui.Desktop.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/gip.iplus.client.avui.Desktop",
+            "console": "integratedTerminal"
+        }
     ]
 }

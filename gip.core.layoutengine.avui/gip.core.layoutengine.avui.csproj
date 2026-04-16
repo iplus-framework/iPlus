@@ -27,7 +27,8 @@
     <UseWindowsForms>false</UseWindowsForms>
     <UseWPF>false</UseWPF>
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
-    <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">AVALONIAFORK</DefineConstants>
+    <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">$(DefineConstants);AVALONIAFORK;LOAD_AVALONIAEDIT_STYLES</DefineConstants>
+    <DefineConstants Condition="'$(UseAvaloniaFork)' != 'True' and '$(UseNugetAvaloniaEditStyleWorkaround)' != 'True'">$(DefineConstants);LOAD_AVALONIAEDIT_STYLES</DefineConstants>
     <!-- Prevent copy of satellite assemblies -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>

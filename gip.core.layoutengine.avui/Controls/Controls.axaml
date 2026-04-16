@@ -34,9 +34,7 @@
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeView/Themes/TreeViewStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTreeViewItem/Themes/TreeViewItemStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBSlider/Themes/SliderStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextEditorStyle.axaml"/>
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBScriptEditor/Themes/ScriptEditorStyle.axaml"/>
-        <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextAreaStyle.axaml"/>
           <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBQueryFilterControl/Themes/QueryFilterControlStyle.axaml"/>
         
         <ResourceInclude Source="avares://gip.core.layoutengine.avui/Controls/VBDocking/Themes/DockingWindowStyle.axaml"/>

@@ -387,20 +387,20 @@
 		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Tools" Version="$(EFCorePackageVersionFork)" />
 		<PackageVersion Condition="'$(UseEFCoreForkIPlus)' == 'True'" Include="iPlus.EntityFrameworkCore.Relational" Version="$(EFCorePackageVersionFork)"/>
 		
-		<PackageVersion Include="Avalonia" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Controls.ColorPicker" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="Avalonia.Android" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="Avalonia.Browser" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="Avalonia.Controls.ColorPicker" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Controls.DataGrid" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Desktop" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Diagnostics" Version="11.3.14" />
 		<PackageVersion Include="Avalonia.Headless.XUnit" Version="$(AvaloniaVersion)" />
 		<PackageVersion Include="Avalonia.Headless.NUnit" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.iOS" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="Avalonia.Markup.Xaml.Loader" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.ReactiveUI" Version="11.3.9" />
-		<PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersion)" />
-		<PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Themes.Fluent" Version="$(AvaloniaVersionLatest)" />
+		<PackageVersion Include="Avalonia.Fonts.Inter" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Avalonia.Angle.Windows.Natives" Version="2.1.25547.20250602" />
 		<PackageVersion Include="HarfBuzzSharp" Version="$(HarfBuzzSharpVersion)" />
 		<PackageVersion Include="ReactiveUI.Avalonia" Version="11.4.12" />
@@ -677,7 +677,7 @@
 
 		<!-- Additional Packages for Markdown -->
 		<PackageVersion Include="Avalonia.Svg" Version="11.3.0" />
-		<PackageVersion Include="Avalonia.Skia" Version="$(AvaloniaVersion)" />
+		<PackageVersion Include="Avalonia.Skia" Version="$(AvaloniaVersionLatest)" />
 		<PackageVersion Include="Serilog" Version="4.3.0" />
 		<PackageVersion Include="Serilog.Sinks.File" Version="7.0.0" />
 		<PackageVersion Include="ApprovalTests" Version="5.2.4" />

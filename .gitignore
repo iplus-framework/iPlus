@@ -345,6 +345,7 @@ healthchecksdb
 .vscode/
 !.vscode/launch.json
 !.vscode/tasks.json
+!.vscode/settings.json
 .continue/mcpServers/new-mcp-server.yaml
 iplusAvaloniaUI_VSCode.sln
 .continue/mcpServers/iPlus.yaml

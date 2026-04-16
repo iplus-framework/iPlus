@@ -9,7 +9,6 @@
                 "build",
                 "-t:Run",
                 "${workspaceFolder}/gip.iplus.client.avui.Android/gip.iplus.client.avui.Android.csproj",
-                "-p:TargetFramework=net10.0-android",
                 "-p:Configuration=Debug",
                 "-p:AndroidAttachDebugger=true",
                 "-p:AndroidSdbHostPort=10000",
@@ -27,7 +26,6 @@
                 "${workspaceFolder}/gip.iplus.client/gip.iplus.client.csproj",
                 "-r",
                 "win-x64",
-                "-p:TargetFramework=net10.0-windows",
                 "/p:Configuration=Debug"
             ],
             "group": "build",
@@ -42,20 +40,31 @@
                 "${workspaceFolder}/gip.iplus.client/gip.iplus.client.csproj",
                 "-r",
                 "win-x64",
-                "-p:TargetFramework=net10.0-windows",
                 "/p:Configuration=Release"
             ],
             "group": "build",
             "problemMatcher": "$msCompile"
         },
         {
-            "label": "Build Avalonia Desktop",
+            "label": "Build Avalonia Debug Desktop",
             "command": "dotnet",
             "type": "shell",
             "args": [
                 "build",
                 "${workspaceFolder}/gip.iplus.client.avui.Desktop/gip.iplus.client.avui.Desktop.csproj",
                 "/p:Configuration=Debug"
+            ],
+            "group": "build",
+            "problemMatcher": "$msCompile"
+        },
+        {
+            "label": "Build Avalonia Release Desktop",
+            "command": "dotnet",
+            "type": "shell",
+            "args": [
+                "build",
+                "${workspaceFolder}/gip.iplus.client.avui.Desktop/gip.iplus.client.avui.Desktop.csproj",
+                "/p:Configuration=Release"
             ],
             "group": "build",
             "problemMatcher": "$msCompile"
