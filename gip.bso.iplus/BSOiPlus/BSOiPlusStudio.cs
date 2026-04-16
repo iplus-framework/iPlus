@@ -2413,7 +2413,8 @@ namespace gip.bso.iplus
         [ACMethodInfo("ACClass", "en{'Drop Class'}de{'Drop Klasse'}", 9999, true, Global.ACKinds.MSMethodPrePost)]
         public void DropACClass(Global.ElementActionType action, IACInteractiveObject dropObject, IACInteractiveObject targetVBDataObject, double x, double y)
         {
-            if (!PreExecute("DropACClass")) return;
+            if (!PreExecute(nameof(DropACClass))) 
+                return;
 
             ACClassInfoWithItems newItem = null;
             switch (action)
@@ -2424,10 +2425,13 @@ namespace gip.bso.iplus
                         if (newItem != null)
                         {
                             CurrentProjectItem = newItem;
-                            IACObject targetACObject = targetVBDataObject.GetFirstInnerValue() as IACObject;
-                            CurrentProjectItemRootChangeInfo = new ChangeInfo(targetACObject, newItem, Const.CmdAddChildData);
-                            OnPropertyChanged("CurrentProjectItemRoot");
-                            PostExecute("DropACClass");
+
+                            ACClassInfoWithItems parent = newItem.ParentContainer as ACClassInfoWithItems;
+                            parent.ApplyFilterAndUpdateVisibilityInTree();
+                            CurrentProjectItemRootChangeInfo = new ChangeInfo(parent, newItem, Const.CmdAddChildData);
+                            OnPropertyChanged(nameof(CurrentProjectItemRoot));
+
+                            PostExecute(nameof(DropACClass));
                         }
                     }
                     break;
