@@ -75,6 +75,7 @@ public partial class <#= Options.ContextName #> : DbContext
     if ((entityType.Name).Substring(0, 1) == "@"){
 
 #>
+    [ACPropertyInfo(9999)]
     public virtual DbSet<<#= entityType.Name.Remove(0,1) #>> <#= entityType.Name.Remove(0,1) #> { get; set; }
 
 <#
@@ -83,6 +84,7 @@ public partial class <#= Options.ContextName #> : DbContext
     else
     {
 #>
+    [ACPropertyInfo(9999)]
     public virtual DbSet<<#= entityType.Name #>> <#= entityType.Name #> { get; set; }
 
 <#

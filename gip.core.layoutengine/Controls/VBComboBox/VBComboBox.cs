@@ -18,6 +18,7 @@ using gip.core.datamodel;
 using System.Transactions;
 using System.Reflection;
 using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.layoutengine
 {
@@ -451,7 +452,7 @@ namespace gip.core.layoutengine
                 Global.ControlModes dcRightControlMode = Global.ControlModes.Hidden;
                 if (!ContextACObject.ACUrlBinding(VBContent, ref dcACTypeInfo, ref dcSource, ref dcPath, ref dcRightControlMode))
                 {
-                    this.Root().Messages.LogDebug("Error00003", "VBComboBox", VBContent);
+                    this.Root().Messages.LogDebug("Error00003", nameof(VBComboBox), VBContent);
                     return;
                 }
                 _ACTypeInfo = dcACTypeInfo;
@@ -506,7 +507,7 @@ namespace gip.core.layoutengine
                     {
                         if (!sourceProperty.GetBindingForStaticProperty(ref dsSource, ref dsPath, ref dsRightControlMode))
                         {
-                            this.Root().Messages.LogDebug("Error00004", "VBComboBox", VBSource + " " + VBContent);
+                            this.Root().Messages.LogDebug("Error00004", nameof(VBComboBox), VBSource + " " + VBContent);
                             return;
                         }
                         dsACTypeInfo = sourceProperty;
@@ -515,7 +516,7 @@ namespace gip.core.layoutengine
                     {
                         if (!BSOACComponent.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
                         {
-                            this.Root().Messages.LogDebug("Error00004", "VBComboBox", VBSource + " " + VBContent);
+                            this.Root().Messages.LogDebug("Error00004", nameof(VBComboBox), VBSource + " " + VBContent);
                             //this.Root().Messages.ErrorAsync(ContextACObject, "Error00004", "VBComboBox", VBSource, VBContent);
                             return;
                         }
@@ -544,11 +545,11 @@ namespace gip.core.layoutengine
                                         if (initObject == null)
                                             initObject = BSOACComponent;
 
-                                        bool isObjectSet =    (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext))
+                                        bool isObjectSet =    (dsPath.StartsWith(nameof(Database) + ".") || (dsSource != null && dsSource is IACEntityObjectContext))
                                                            && dsACTypeInfo is ACClassProperty 
-                                                           && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable");
+                                                           && (dsACTypeInfo as ACClassProperty).ObjectGenericType == typeof(DbSet<>);
                                         if (initObject != null && isObjectSet)
-                                            ACAccess = queryDef.NewAccess("VBComboBox", initObject, dsSource as IACObject);
+                                            ACAccess = queryDef.NewAccess(nameof(VBComboBox), initObject, dsSource as IACObject);
                                         else
                                             ACQueryDefinition = queryDef;
                                     }
@@ -600,7 +601,7 @@ namespace gip.core.layoutengine
 
                     if ((vbShowColumns == null || !vbShowColumns.Any()) && (dsACTypeInfo == null || dsACTypeInfo.ObjectType != typeof(string)))
                     {
-                        this.Root().Messages.LogDebug("Error00005", "VBComboBox", VBShowColumns + " " + VBContent);
+                        this.Root().Messages.LogDebug("Error00005", nameof(VBComboBox), VBShowColumns + " " + VBContent);
                         //this.Root().Messages.ErrorAsync(ContextACObject, "Error00005", "VBComboBox", VBShowColumns, VBContent);
                         return;
                     }
@@ -640,7 +641,7 @@ namespace gip.core.layoutengine
                                 CollectionContainer container = new CollectionContainer();
                                 Binding binding = new Binding();
                                 binding.Source = ACAccess;
-                                binding.Path = new PropertyPath("NavObjectList");
+                                binding.Path = new PropertyPath(nameof(ACAccess.NavObjectList));
                                 binding.Mode = BindingMode.OneWay;
                                 BindingOperations.SetBinding(container, CollectionContainer.CollectionProperty, binding);
                                 ACAccessComposite.Add(container);
@@ -653,7 +654,7 @@ namespace gip.core.layoutengine
 
                                 binding = new Binding();
                                 binding.Source = this;
-                                binding.Path = new PropertyPath("ACAccessComposite");
+                                binding.Path = new PropertyPath(nameof(ACAccessComposite));
                                 SetBinding(ComboBox.ItemsSourceProperty, binding);
                             }
                             else
@@ -889,7 +890,7 @@ namespace gip.core.layoutengine
                     msg += " Inner:" + e.InnerException.Message;
 
                 if (datamodel.Database.Root != null && datamodel.Database.Root.Messages != null && datamodel.Database.Root.InitState == ACInitState.Initialized)
-                    datamodel.Database.Root.Messages.LogException("VBCheckBox", "InitVBControl(10)", msg);
+                    datamodel.Database.Root.Messages.LogException(nameof(VBComboBox), "InitVBControl(10)", msg);
             }
         }
 
