@@ -27,8 +27,7 @@
     <UseWindowsForms>false</UseWindowsForms>
     <UseWPF>false</UseWPF>
     <ImportWindowsDesktopTargets>false</ImportWindowsDesktopTargets>
-    <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">$(DefineConstants);AVALONIAFORK;LOAD_AVALONIAEDIT_STYLES</DefineConstants>
-    <DefineConstants Condition="'$(UseAvaloniaFork)' != 'True' and '$(UseNugetAvaloniaEditStyleWorkaround)' != 'True'">$(DefineConstants);LOAD_AVALONIAEDIT_STYLES</DefineConstants>
+    <DefineConstants Condition="'$(UseAvaloniaFork)' == 'True'">AVALONIAFORK</DefineConstants>
     <!-- Prevent copy of satellite assemblies -->
     <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
   </PropertyGroup>
@@ -211,11 +210,17 @@
     <PackageReference Include="Dock.Model.Avalonia" />
     <!-- <PackageReference Include="System.Text.Json" /> -->
     <!-- <PackageReference Include="Avalonia.AvaloniaEdit" /> -->
-    <PackageReference Include="RoslynPad.Editor.Avalonia" />
-    <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
     <PackageReference Include="OxyPlot.Avalonia" />
     <PackageReference Include="Markdown.Avalonia" />
     <PackageReference Include="MessageBox.Avalonia" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(UseDotNet10)' == 'True' AND '$(UseAvaloniaFork)' == 'False'">
+    <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />
+    <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(UseDotNet10)' == 'False' AND '$(UseAvaloniaFork)' == 'False'">
+    <PackageReference Include="RoslynPad.Editor.Avalonia" />
+    <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
   </ItemGroup>
 
   <!-- Use Avalonia Fork -->  

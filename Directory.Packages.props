@@ -353,7 +353,7 @@
 		<CodeAnalysisVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.3.0</CodeAnalysisVersion>
 		<!-- <RoslynVersion>$(CodeAnalysisVersion)</RoslynVersion> -->
 		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'True'">5.0.0</RoslynVersion>
-		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'False'">4.12.1</RoslynVersion>
+		<RoslynVersion Condition="'$(UseAvaloniaFork)' == 'False'">5.0.0</RoslynVersion>
 		<DotNetExtensionsVersion>10.0.5</DotNetExtensionsVersion>
 		<SystemCompositionVersion>10.0.5</SystemCompositionVersion>
 		<NuGetVersion>7.0.3</NuGetVersion>
@@ -408,8 +408,8 @@
 		<PackageVersion Include="AvaloniaUI.DiagnosticsSupport" Version="2.2.1" />
 
 		<!-- Third-party packages that depend on Avalonia - modify versions when using fork -->
-		<PackageVersion Include="RoslynPad.Editor.Avalonia" Version="$(RoslynVersion)" />
-		<PackageVersion Include="RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersion)" />
+		<PackageVersion Include="iPlus.RoslynPad.Editor.Avalonia" Version="$(RoslynVersion)" />
+		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Avalonia" Version="$(RoslynVersion)" />
 		<PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
 		<PackageVersion Include="MessageBox.Avalonia" Version="3.3.1.1" />
 		<PackageVersion Include="Markdown.Avalonia" Version="11.0.3-a1" />
@@ -506,9 +506,9 @@
 		<PackageVersion Include="Portable.BouncyCastle" Version="1.9.0" />
 		<PackageVersion Include="QuickGraphCore" Version="1.0.0" />
 		
-		<PackageVersion Include="RoslynPad.Editor.Windows" Version="$(RoslynVersion)" />
-		<PackageVersion Include="RoslynPad.Roslyn" Version="$(RoslynVersion)" />
-		<PackageVersion Include="RoslynPad.Roslyn.Windows" Version="$(RoslynVersion)" />
+		<PackageVersion Include="iPlus.RoslynPad.Editor.Windows" Version="$(RoslynVersion)" />
+		<PackageVersion Include="iPlus.RoslynPad.Roslyn" Version="$(RoslynVersion)" />
+		<PackageVersion Include="iPlus.RoslynPad.Roslyn.Windows" Version="$(RoslynVersion)" />
 		<PackageVersion Include="System.Composition.TypedParts" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Composition.AttributedModel" Version="$(SystemCompositionVersion)" />
 		<PackageVersion Include="System.Composition.Convention" Version="$(SystemCompositionVersion)" />
@@ -551,7 +551,7 @@
 		<PackageVersion Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.2.0.2" />
 		<PackageVersion Include="Xamarin.AndroidX.Compose.Runtime.Annotation.Jvm" Version="1.10.0.1" />
 		<PackageVersion Include="Xamarin.AndroidX.Window" Version="1.5.1.2"  />
-		<PackageVersion Include="Xaml.Behaviors" Version="11.3.9.3" />
+		<PackageVersion Include="Xaml.Behaviors" Version="12.0.0" />
 		<!--<PackageVersion Include="System.Text.Json" Version="$(NetCorePackageVersion)" />-->
 		<PackageVersion Include="System.Text.Json" Version="10.0.2" />
 

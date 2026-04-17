@@ -24,6 +24,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Layout;
 using Avalonia.Styling;
 using static Avalonia.Controls.AutoCompleteBox;
+using Microsoft.EntityFrameworkCore;
 
 namespace gip.core.layoutengine.avui
 {
@@ -408,9 +409,9 @@ namespace gip.core.layoutengine.avui
                                         if (initObject == null)
                                             initObject = BSOACComponent;
 
-                                        bool isObjectSet =    (dsPath.StartsWith("Database.") || (dsSource != null && dsSource is IACEntityObjectContext))
+                                        bool isObjectSet =    (dsPath.StartsWith(nameof(Database) + ".") || (dsSource != null && dsSource is IACEntityObjectContext))
                                                            && dsACTypeInfo is ACClassProperty 
-                                                           && (dsACTypeInfo as ACClassProperty).GenericType.StartsWith("System.Collections.Generic.IEnumerable");
+                                                           && (dsACTypeInfo as ACClassProperty).ObjectGenericType == typeof(DbSet<>);
                                         if (initObject != null && isObjectSet)
                                             ACAccess = queryDef.NewAccess("VBComboBox", initObject, dsSource as IACObject);
                                         else
