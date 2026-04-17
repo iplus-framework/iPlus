@@ -9,23 +9,23 @@ namespace gip.core.datamodel
 {
     /// <summary>Table for managing iPlus-users</summary>
     [ACClassInfo(Const.PackName_VarioSystem, "en{'User'}de{'Benutzer'}", Global.ACKinds.TACDBA, Global.ACStorableTypes.NotStorable, false, true)]
-    [ACPropertyEntity(1, "VBUserName", "en{'Name'}de{'Name'}","", "", true)]
-    [ACPropertyEntity(2, "VBUserNo", "en{'Login'}de{'Anmeldename'}","", "", true)]
-    [ACPropertyEntity(3, "Initials", "en{'Initials'}de{'Initialen'}","", "", true)]
-    [ACPropertyEntity(4, "AllowChangePW", "en{'Can change password'}de{'Darf Passwort ändern'}","", "", true)]
-    [ACPropertyEntity(5, "IsSuperuser", "en{'Has unrestricted rights'}de{'Hat uneingeschränkte Rechte'}","", "", true)]
-    [ACPropertyEntity(6, "VBLanguage", "en{'Language'}de{'Sprache'}", Const.ContextDatabase + "\\" + VBLanguage.ClassName + Const.DBSetAsEnumerablePostfix, "", true)]
-    [ACPropertyEntity(9999, "Password", "en{'Password'}de{'Passwort'}","", "", true)]
-    [ACPropertyEntity(9999, "MenuACClassDesign", "en{'Main Menu'}de{'Hauptmenü'}", Const.ContextDatabase + "\\MenuACClassList", "", true)]
-    [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUser.ClassName, "en{'User'}de{'Benutzer'}", typeof(VBUser), VBUser.ClassName, "VBUserName", "VBUserName")]
+    [ACPropertyEntity(1, nameof(VBUserName), "en{'Name'}de{'Name'}","", "", true)]
+    [ACPropertyEntity(2, nameof(VBUserNo), "en{'Login'}de{'Anmeldename'}","", "", true)]
+    [ACPropertyEntity(3, nameof(Initials), "en{'Initials'}de{'Initialen'}","", "", true)]
+    [ACPropertyEntity(4, nameof(AllowChangePW), "en{'Can change password'}de{'Darf Passwort ändern'}","", "", true)]
+    [ACPropertyEntity(5, nameof(IsSuperuser), "en{'Has unrestricted rights'}de{'Hat uneingeschränkte Rechte'}","", "", true)]
+    [ACPropertyEntity(6, nameof(VBLanguage), "en{'Language'}de{'Sprache'}", Const.ContextDatabase + "\\" + VBLanguage.ClassName, "", true)]
+    [ACPropertyEntity(9999, nameof(Password), "en{'Password'}de{'Passwort'}","", "", true)]
+    [ACPropertyEntity(9999, nameof(MenuACClassDesign), "en{'Main Menu'}de{'Hauptmenü'}", Const.ContextDatabase + "\\" + nameof(Database.MenuACClassList), "", true)]
+    [ACQueryInfoPrimary(Const.PackName_VarioSystem, Const.QueryPrefix + VBUser.ClassName, "en{'User'}de{'Benutzer'}", typeof(VBUser), VBUser.ClassName, nameof(VBUserName), nameof(VBUserName))]
     [ACSerializeableInfo(new Type[] { typeof(ACRef<VBUser>) })]
     [NotMapped]
     public partial class VBUser
     {
         [NotMapped]
-        public const string ClassName = "VBUser";
+        public const string ClassName = nameof(VBUser);
         [NotMapped]
-        public const string NoColumnName = "VBUserNo";
+        public const string NoColumnName = nameof(VBUserNo);
         [NotMapped]
         public const string FormatNewNo = null;
 

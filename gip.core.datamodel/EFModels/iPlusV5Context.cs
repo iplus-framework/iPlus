@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -17,98 +17,145 @@ public partial class iPlusV5Context : DbContext
     {
     }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACAssembly> ACAssembly { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACChangeLog> ACChangeLog { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClass> ACClass { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassConfig> ACClassConfig { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassDesign> ACClassDesign { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassMessage> ACClassMessage { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassMethod> ACClassMethod { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassMethodConfig> ACClassMethodConfig { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassProperty> ACClassProperty { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassPropertyRelation> ACClassPropertyRelation { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassRouteUsage> ACClassRouteUsage { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassRouteUsageGroup> ACClassRouteUsageGroup { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassRouteUsagePos> ACClassRouteUsagePos { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassTask> ACClassTask { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassTaskValue> ACClassTaskValue { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassTaskValuePos> ACClassTaskValuePos { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassText> ACClassText { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassWF> ACClassWF { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACClassWFEdge> ACClassWFEdge { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACPackage> ACPackage { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACProgram> ACProgram { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACProgramConfig> ACProgramConfig { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACProgramLog> ACProgramLog { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACProgramLogPropertyLog> ACProgramLogPropertyLog { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACProgramLogTask> ACProgramLogTask { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACProject> ACProject { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACPropertyLog> ACPropertyLog { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ACPropertyLogRule> ACPropertyLogRule { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<ControlScriptSyncInfo> ControlScriptSyncInfo { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<DBSyncerVersion> DBSyncerVersion { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<DbSyncerInfo> DbSyncerInfo { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<DbSyncerInfoContext> DbSyncerInfoContext { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<MsgAlarmLog> MsgAlarmLog { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBConfig> VBConfig { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBGroup> VBGroup { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBGroupRight> VBGroupRight { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBLanguage> VBLanguage { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBLicense> VBLicense { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBNoConfiguration> VBNoConfiguration { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBSystem> VBSystem { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBSystemColumns> VBSystemColumns { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBTranslationView> VBTranslationView { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBUser> VBUser { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBUserACClassDesign> VBUserACClassDesign { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBUserACProject> VBUserACProject { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBUserGroup> VBUserGroup { get; set; }
 
+    [ACPropertyInfo(9999)]
     public virtual DbSet<VBUserInstance> VBUserInstance { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -119,13 +166,11 @@ public partial class iPlusV5Context : DbContext
             .UseModel(iPlusV5ContextModel.Instance)
             .ConfigureWarnings(warnings => warnings.Ignore(CoreEventId.ManyServiceProvidersCreatedWarning));
             //Uncomment connection string when generating new CompiledModels
-            //.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString);
+//.UseSqlServer(ConfigurationManager.ConnectionStrings["iPlusV5_Entities"].ConnectionString);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.UseCollation("Latin1_General_CI_AS");
-
         modelBuilder.Entity<ACAssembly>(entity =>
         {
             entity.ToTable("ACAssembly");

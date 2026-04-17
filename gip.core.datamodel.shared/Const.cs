@@ -72,7 +72,7 @@ namespace gip.core.datamodel
         public const string MN_NewACObject = "NewACObject";
         public const string MN_GetEnumList = "GetEnumList";
         public const string MN_GetDatabaseACValueList = "GetDatabaseACValueList";
-        public const string DBSetAsEnumerablePostfix = "List";
+        public const string DBSetAsEnumerablePostfix = "";
 
         public const string PreConfigACUrl = "en{'Parent WF URL'}de{'WF Eltern-URL'}";
         public const string LocalConfigACUrl = "en{'Property URL'}de{'Eigenschafts-URL'}";
