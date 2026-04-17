@@ -12,17 +12,14 @@ namespace gip.core.layoutengine.avui
         // Shows a message box from a separate worker thread.
         public static async void BeginMessageBoxAsync(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
         {
-            ShowMessageBoxDelegate caller = new ShowMessageBoxDelegate(ShowMessageBox);
             if (Dispatcher.UIThread.CheckAccess())
             {
-                ShowMessageBox(strMessage, strCaption, enmButton, enmImage);
+                await ShowMessageBox(strMessage, strCaption, enmButton, enmImage);
             }
             else
             {
-                var workTask = Dispatcher.UIThread.InvokeAsync(() => caller.Invoke(strMessage, strCaption, enmButton, enmImage));
-                await workTask;
+                await Dispatcher.UIThread.InvokeAsync(async () => await ShowMessageBox(strMessage, strCaption, enmButton, enmImage));
             }
-            //caller.BeginInvoke(strMessage, strCaption, enmButton, enmImage, null, null);
         }
 
         // Shows a message box from a separate worker thread. The specified asynchronous
@@ -57,12 +54,13 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        private delegate IMsBox<ButtonResult> ShowMessageBoxDelegate(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage);
+        private delegate Task<ButtonResult> ShowMessageBoxDelegate(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage);
 
         // Method invoked on a separate thread that shows the message box.
-        public static IMsBox<ButtonResult> ShowMessageBox(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
+        public static async Task<ButtonResult> ShowMessageBox(string strMessage, string strCaption, ButtonEnum enmButton, Icon enmImage)
         {
-            return MessageBoxManager.GetMessageBoxStandard(strCaption, strMessage, enmButton, enmImage);
+            var box = MessageBoxManager.GetMessageBoxStandard(strCaption, strMessage, enmButton, enmImage);
+            return await box.ShowAsync();
         }
 
         //public static MessageBoxResult EndMessageBoxAsync(IAsyncResult result)

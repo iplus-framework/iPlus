@@ -164,7 +164,7 @@ namespace gip.core.layoutengine.avui
             app.Styles.Add(
                     AvaloniaXamlLoader.Load(new Uri("avares://gip.core.visualcontrols.avui/Themes/IPlusTheme.axaml", UriKind.Absolute)) as IStyle);
 
-            app.Styles.Add(new DockFluentTheme());
+            app.Styles.Add(new DockFluentTheme() { CacheDocumentTabContent = true });
             app.Styles.Add(new IPlusTheme());
         }
 

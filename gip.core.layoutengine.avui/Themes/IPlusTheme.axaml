@@ -12,6 +12,7 @@
     </ResourceDictionary>
   </Styles.Resources>
   <StyleInclude Source="avares://Avalonia.Controls.ColorPicker/Themes/Fluent/Fluent.xaml" />
+  <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml" />
   <StyleInclude Source="avares://gip.ext.designer.avui/themes/generic.axaml" />
   <StyleInclude Source="avares://gip.core.layoutengine.avui/Controls/Controls.axaml" />
   <StyleInclude Source="avares://OxyPlot.Avalonia/Themes/Default.axaml"/>

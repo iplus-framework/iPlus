@@ -18,11 +18,11 @@ namespace gip.core.layoutengine.avui
         public IPlusTheme()
         {
             AvaloniaXamlLoader.Load(this);
-    #if LOAD_AVALONIAEDIT_STYLES
-            Add(new StyleInclude(new Uri("avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml")));
-            Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextEditorStyle.axaml")));
-            Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextAreaStyle.axaml")));
-#endif
+    // #if LOAD_AVALONIAEDIT_STYLES
+    //         Add(new StyleInclude(new Uri("avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml")));
+    //         Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextEditorStyle.axaml")));
+    //         Add(new StyleInclude(new Uri("avares://gip.core.layoutengine.avui/Controls/VBTextEditor/Themes/TextAreaStyle.axaml")));
+    // #endif
         }
     }
 }

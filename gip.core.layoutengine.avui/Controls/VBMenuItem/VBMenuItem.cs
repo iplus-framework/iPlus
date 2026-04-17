@@ -1,7 +1,6 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Labs.Input;
 using Avalonia.Media.Imaging;
 using Avalonia.Platform;
 using gip.core.datamodel;
@@ -47,32 +46,39 @@ namespace gip.core.layoutengine.avui
 
             if (!string.IsNullOrEmpty(acCommand.GetACUrl()))
             {
-                Command = AppCommands.AddApplicationCommand(ACCommand);
-                CommandManager.SetCommandBindings(this, new List<CommandBinding>() { new CommandBinding(Command, VBMenuItem_Click, VBMenuItem_IsEnabled) });
+                // Keep global registry for keyboard shortcut handling
+                AppCommands.AddApplicationCommand(ACCommand);
+                // Use a direct ICommand instead of RoutedCommand+CommandBinding:
+                // RoutedCommand.ICommand.Execute/CanExecute routes through CommandManager.FocusedElement,
+                // so the CommandBinding on this VBMenuItem would never be found in the routing path.
+                Command = new DirectACCommand(this);
             }
         }
 
-        private async void VBMenuItem_Click(object sender, RoutedEventArgs e)
+        private sealed class DirectACCommand : System.Windows.Input.ICommand
         {
-            ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
-            await ACActionAsync(actionArgs);
-        }
+            private readonly VBMenuItem _menuItem;
+            public event EventHandler CanExecuteChanged { add { } remove { } }
 
-        private void VBMenuItem_IsEnabled(object sender, CanExecuteRoutedEventArgs e)
-        {
-            if (ACCommand.IsAutoEnabled)
+            public DirectACCommand(VBMenuItem menuItem) { _menuItem = menuItem; }
+
+            public bool CanExecute(object parameter)
             {
-                e.CanExecute = true;
-                return;
+                var cmd = _menuItem.ACCommand;
+                if (cmd == null) return false;
+                if (cmd.IsAutoEnabled) return true;
+                if (_menuItem.ContextACObject != null)
+                {
+                    var actionArgs = new ACActionArgs(_menuItem, 0, 0, Global.ElementActionType.ACCommand);
+                    return _menuItem.IsEnabledACAction(actionArgs);
+                }
+                return false;
             }
-            if (ContextACObject != null)
+
+            public void Execute(object parameter)
             {
-                ACActionArgs actionArgs = new ACActionArgs(this, 0, 0, Global.ElementActionType.ACCommand);
-                e.CanExecute = IsEnabledACAction(actionArgs);
-            }
-            else
-            {
-                e.CanExecute = false;
+                var actionArgs = new ACActionArgs(_menuItem, 0, 0, Global.ElementActionType.ACCommand);
+                _ = _menuItem.ACActionAsync(actionArgs);
             }
         }
         #endregion

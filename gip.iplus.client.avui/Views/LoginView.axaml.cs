@@ -278,8 +278,7 @@ public partial class LoginView : UserControl
                 if (!String.IsNullOrEmpty(errorMsg))
                     userMsg.Message += " // " + errorMsg;
 
-                Dispatcher.UIThread.Post(() =>
-                    AsyncMessageBox.ShowMessageBox(userMsg.Message, "Info", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning), DispatcherPriority.Send);
+                AsyncMessageBox.BeginMessageBoxAsync(userMsg.Message, "Info", ButtonEnum.Ok, MsBox.Avalonia.Enums.Icon.Warning);
 
                 UserSettings.Password = "";
             }
