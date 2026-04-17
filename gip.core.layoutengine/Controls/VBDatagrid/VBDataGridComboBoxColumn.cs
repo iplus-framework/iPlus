@@ -493,11 +493,18 @@ namespace gip.core.layoutengine
             List<ACColumnItem> dataShowColumnsColumn = dsColACTypeInfo.GetColumns();
 
             // Sonderbehandlung enum, da hier immer eine IEnumerable<ACValueItem> als Datasource generiert wird
-            if (dsColACTypeInfo.ObjectType.IsEnum)
+            //  for enums and                        ACValueItemList from DB         
+            if (dsColACTypeInfo.ObjectType.IsEnum || dscPath == "!" + Const.MN_GetDatabaseACValueList)
             {
                 this.SelectedValuePath = Const.Value;
                 Binding bindingEdit = new Binding();
-                bindingEdit.Path = new PropertyPath(dsColACTypeInfo.ACIdentifier);
+                string path = dsColACTypeInfo.ACIdentifier;
+                // Virtual properties should be accessed via indexer
+                if(dsColACTypeInfo is ACClassProperty && (dsColACTypeInfo as ACClassProperty).ACKind == Global.ACKinds.PSPropertyExt)
+                {
+                    path = "[" + path + "]";
+                }
+                bindingEdit.Path = new PropertyPath(path);
                 bindingEdit.Mode = this.IsReadOnly ? BindingMode.OneWay : BindingMode.TwoWay;
                 bindingEdit.UpdateSourceTrigger = UpdateSourceTrigger;
                 this.SelectedValueBinding = bindingEdit;
@@ -613,6 +620,7 @@ namespace gip.core.layoutengine
             //ApplyColumnProperties(comboBox);
             //return comboBox;
         }
+
 
         private void ApplyColumnProperties(VBComboBox comboBox)
         {
