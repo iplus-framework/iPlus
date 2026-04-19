@@ -27,5 +27,8 @@
     <Reference Include="Dock.Controls.Recycling.Model">
       <HintPath>$(AvaloniaDockIncludeDir)/Dock.Controls.Recycling.Model/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Controls.Recycling.Model.dll</HintPath>
     </Reference>
+    <Reference Include="Dock.Controls.DeferredContentControl">
+      <HintPath>$(AvaloniaDockIncludeDir)/Dock.Controls.DeferredContentControl/bin/$(Configuration)/$(AvaloniaBuildFramework)/Dock.Controls.DeferredContentControl.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project> 

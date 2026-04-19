@@ -16,6 +16,7 @@ using Avalonia.Platform;
 using Avalonia.Input.Platform;
 using Avalonia.Threading;
 using Avalonia.VisualTree;
+using Avalonia.LogicalTree;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
 using gip.ext.designer.avui;
@@ -135,6 +136,7 @@ namespace gip.core.layoutengine.avui
 
         public virtual void DeInitVBControl(IACComponent bso)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] DeInitVBControl(base): _LoadedBase={_LoadedBase}, IsLoaded={IsLoaded}, bso={bso?.GetACUrl()}");
             if (!_LoadedBase)
                 return;
             _LoadedBase = false;
@@ -168,6 +170,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnUnloaded(RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnUnloaded: _LoadedBase={_LoadedBase}, IsLoaded={IsLoaded}, Content={(Content == null ? "null" : "set")}");
             base.OnUnloaded(e);
             this.KeyUp -= DesignPanel_KeyUp;
             this.KeyDown -= DesignPanel_KeyDown;
@@ -185,6 +188,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnLoaded(RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnLoaded: _LoadedBase={_LoadedBase}, IsLoaded={IsLoaded}, Content={(Content == null ? "null" : "set")}, DataContext={(DataContext == null ? "null" : DataContext.GetType().Name)}");
             base.OnLoaded(e);
             this.KeyUp += DesignPanel_KeyUp;
             this.KeyDown += DesignPanel_KeyDown;
@@ -389,11 +393,29 @@ namespace gip.core.layoutengine.avui
                 thisControl.InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
+                System.Diagnostics.Debug.WriteLine($"[VBDesign|{thisControl.Name ?? thisControl.GetHashCode().ToString()}] BSOACComponent changed: {change.OldValue?.GetType().Name ?? "null"} → {change.NewValue?.GetType().Name ?? "null"}, IsLoaded={thisControl.IsLoaded}, _LoadedBase={thisControl._LoadedBase}, VBContent={thisControl.VBContent}");
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
-                    IACBSO bso = change.OldValue as IACBSO;
-                    if (bso != null)
-                        thisControl.DeInitVBControl(bso);
+                    // In Avalonia 12, ContentPresenter.UpdateChild first removes the child from
+                    // VisualChildren (which fires OnDetachedFromVisualTree → IsLoaded = false),
+                    // then removes from logicalChildren (which cascades InheritanceParent = null
+                    // and makes inherited properties like BSOACComponent transiently null).
+                    // So IsLoaded is already false when BSOACComponent becomes null during
+                    // reparenting. Only call DeInitVBControl when IsLoaded is true, which means
+                    // the control is genuinely visible and the BSO really went away.
+                    // Genuine BSO teardown (stop/destruct) is also handled via InitStateChanged
+                    // (ACCompInitState → Destructed/DisposedToPool), which doesn't rely on this path.
+                    if (thisControl.IsLoaded)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[VBDesign|{thisControl.Name ?? thisControl.GetHashCode().ToString()}] BSOACComponent→null while IsLoaded=true → calling DeInitVBControl");
+                        IACBSO bso = change.OldValue as IACBSO;
+                        if (bso != null)
+                            thisControl.DeInitVBControl(bso);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[VBDesign|{thisControl.Name ?? thisControl.GetHashCode().ToString()}] BSOACComponent→null while IsLoaded=false → skipping DeInitVBControl (transient reparenting)");
+                    }
                 }
             }
         }

@@ -84,8 +84,26 @@
     <Setter Property="(AutomationProperties.AutomationId)" Value="{Binding Id}" />
     <Setter Property="(AutomationProperties.Name)" Value="{Binding Title}" />
 
-    <Setter Property="(DockProperties.IsDragEnabled)" Value="{Binding CanDrag}" />
-    <Setter Property="(DockProperties.IsDropEnabled)" Value="{Binding CanDrop}" />
+    <Setter Property="(DockProperties.IsDragEnabled)">
+      <Setter.Value>
+        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanDragMultiConverter}">
+          <Binding />
+          <Binding Path="CanDrag" />
+          <Binding Path="DockCapabilityOverrides.CanDrag" />
+          <Binding Path="((core:IDock)Owner).DockCapabilityPolicy.CanDrag" />
+        </MultiBinding>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="(DockProperties.IsDropEnabled)">
+      <Setter.Value>
+        <MultiBinding Converter="{x:Static converters:DockCapabilityConverters.CanDropMultiConverter}">
+          <Binding />
+          <Binding Path="CanDrop" />
+          <Binding Path="DockCapabilityOverrides.CanDrop" />
+          <Binding Path="((core:IDock)Owner).DockCapabilityPolicy.CanDrop" />
+        </MultiBinding>
+      </Setter.Value>
+    </Setter>
     <Setter Property="(DockProperties.DockGroup)" Value="{Binding DockGroup}" />
 
     <Setter Property="(TextElement.FontSize)" Value="{DynamicResource DockFontSizeNormal}" />
@@ -124,12 +142,15 @@
                             Orientation="Horizontal"
                             Spacing="2">
                   <StackPanel Margin="2" Orientation="Horizontal">
-                    <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].IconTemplate}"
+                    <ContentPresenter x:Name="PART_IconPresenter"
+                                      ContentTemplate="{Binding $parent[ToolTabStrip].IconTemplate}"
                                       Content="{Binding}" />
-                    <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].HeaderTemplate}"
+                    <ContentPresenter x:Name="PART_HeaderPresenter"
+                                      ContentTemplate="{Binding $parent[ToolTabStrip].HeaderTemplate}"
                                       Content="{Binding}" />
                   </StackPanel>
-                  <ContentPresenter ContentTemplate="{Binding $parent[ToolControl].ModifiedTemplate}"
+                  <ContentPresenter x:Name="PART_ModifiedPresenter"
+                                    ContentTemplate="{Binding $parent[ToolTabStrip].ModifiedTemplate}"
                                     IsVisible="{Binding IsModified}"
                                     Content="{Binding}" />
                 </StackPanel>

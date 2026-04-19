@@ -1,4 +1,4 @@
-﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:dmc="using:Dock.Model.Controls"
                     xmlns:core="using:Dock.Model.Core"
@@ -9,6 +9,7 @@
     <DocumentControl Width="300" Height="400" />
   </Design.PreviewWith>
 
+  <!-- iPlus: custom close button theme -->
   <ControlTheme x:Key="DocumentCloseButtonTheme" TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Padding" Value="0" />
@@ -20,6 +21,119 @@
       <Setter Property="Background" Value="{DynamicResource DockApplicationAccentBrushHigh}" />
     </Style>
   </ControlTheme>
+
+  <ControlTemplate x:Key="DockDocumentControlSingleContentTemplate" TargetType="DocumentControl">
+    <DockPanel x:Name="PART_DockPanel"
+               DockProperties.IsDropArea="True"
+               DockProperties.IsDockTarget="True"
+               Background="Transparent"
+               ZIndex="1">
+      <DocumentTabStrip x:Name="PART_TabStrip"
+                        ItemsSource="{Binding VisibleDockables}"
+                        SelectedItem="{Binding ActiveDockable, Mode=TwoWay}"
+                        CanCreateItem="{Binding CanCreateDocument}"
+                        IconTemplate="{TemplateBinding IconTemplate}"
+                        HeaderTemplate="{TemplateBinding HeaderTemplate}"
+                        ModifiedTemplate="{TemplateBinding ModifiedTemplate}"
+                        CloseTemplate="{TemplateBinding CloseTemplate}"
+                        CloseButtonTheme="{TemplateBinding CloseButtonTheme}"
+                        IsActive="{TemplateBinding IsActive}"
+                        Orientation="{Binding TabsLayout, Converter={x:Static DocumentTabOrientationConverter.Instance}}"
+                        DockPanel.Dock="{Binding TabsLayout, Converter={x:Static DocumentTabDockConverter.Instance}}"
+                        DockProperties.IsDropArea="True"
+                        DockProperties.DockAdornerHost="{Binding #PART_DockPanel}">
+        <DocumentTabStrip.Styles>
+          <Style Selector="DocumentTabStripItem">
+            <Setter Property="IsActive" Value="{Binding $parent[DocumentTabStrip].IsActive}" />
+          </Style>
+        </DocumentTabStrip.Styles>
+      </DocumentTabStrip>
+      <Panel x:Name="PART_DocumentSeperatorHost" IsVisible="{Binding #PART_TabStrip.IsVisible}">
+        <Panel x:Name="PART_DocumentSeperator"
+               IsVisible="{DynamicResource DockDocumentTabStripSeparatorVisible}" />
+      </Panel>
+      <Border x:Name="PART_Border"
+              CornerRadius="0,0,6,6"
+              BoxShadow="3 3 3 0 #71000000"
+              Margin="0,-1,3,3">
+        <DockableControl DataContext="{Binding ActiveDockable}"
+                         TrackingMode="Visible"
+                         IsVisible="{Binding $parent[DocumentControl].HasVisibleDockables}">
+          <DeferredContentControl x:Name="PART_ContentPresenter"
+                                  Content="{Binding}"
+                                  HorizontalAlignment="Stretch"
+                                  VerticalAlignment="Stretch">
+            <DeferredContentControl.ContentTemplate>
+              <ControlRecyclingDataTemplate Parent="{Binding #PART_ContentPresenter}" />
+            </DeferredContentControl.ContentTemplate>
+          </DeferredContentControl>
+        </DockableControl>
+      </Border>
+    </DockPanel>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="DockDocumentControlCachedContentTemplate" TargetType="DocumentControl">
+    <DockPanel x:Name="PART_DockPanel"
+               DockProperties.IsDropArea="True"
+               DockProperties.IsDockTarget="True"
+               Background="Transparent"
+               ZIndex="1">
+      <DocumentTabStrip x:Name="PART_TabStrip"
+                        ItemsSource="{Binding VisibleDockables}"
+                        SelectedItem="{Binding ActiveDockable, Mode=TwoWay}"
+                        CanCreateItem="{Binding CanCreateDocument}"
+                        IconTemplate="{TemplateBinding IconTemplate}"
+                        HeaderTemplate="{TemplateBinding HeaderTemplate}"
+                        ModifiedTemplate="{TemplateBinding ModifiedTemplate}"
+                        CloseTemplate="{TemplateBinding CloseTemplate}"
+                        CloseButtonTheme="{TemplateBinding CloseButtonTheme}"
+                        IsActive="{TemplateBinding IsActive}"
+                        Orientation="{Binding TabsLayout, Converter={x:Static DocumentTabOrientationConverter.Instance}}"
+                        DockPanel.Dock="{Binding TabsLayout, Converter={x:Static DocumentTabDockConverter.Instance}}"
+                        DockProperties.IsDropArea="True"
+                        DockProperties.DockAdornerHost="{Binding #PART_DockPanel}">
+        <DocumentTabStrip.Styles>
+          <Style Selector="DocumentTabStripItem">
+            <Setter Property="IsActive" Value="{Binding $parent[DocumentTabStrip].IsActive}" />
+          </Style>
+        </DocumentTabStrip.Styles>
+      </DocumentTabStrip>
+      <Panel x:Name="PART_DocumentSeperatorHost" IsVisible="{Binding #PART_TabStrip.IsVisible}">
+        <Panel x:Name="PART_DocumentSeperator"
+               IsVisible="{DynamicResource DockDocumentTabStripSeparatorVisible}" />
+      </Panel>
+      <Border x:Name="PART_Border"
+              CornerRadius="0,0,6,6"
+              BoxShadow="3 3 3 0 #71000000"
+              Margin="0,-1,3,3">
+        <ItemsControl x:Name="PART_CachedContentHost"
+                      ItemsSource="{Binding VisibleDockables}"
+                      IsVisible="{Binding $parent[DocumentControl].HasVisibleDockables}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <Grid />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate DataType="core:IDockable">
+              <DockableControl TrackingMode="Visible">
+                <DockableControl.IsVisible>
+                  <MultiBinding Converter="{x:Static converters:ReferenceEqualsMultiConverter.Instance}">
+                    <Binding />
+                    <Binding Path="((core:IDock)Owner).ActiveDockable" />
+                  </MultiBinding>
+                </DockableControl.IsVisible>
+                <ContentControl x:Name="PART_CachedContentPresenter"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                Content="{Binding}" />
+              </DockableControl>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+    </DockPanel>
+  </ControlTemplate>
 
   <ControlTheme x:Key="{x:Type DocumentControl}" TargetType="DocumentControl">
 
@@ -37,9 +151,9 @@
 
     <Setter Property="HeaderTemplate">
       <DataTemplate DataType="core:IDockable">
-        <TextBlock Text="{Binding Title}" 
+        <TextBlock Text="{Binding Title}"
                    VerticalAlignment="Center"
-                   Padding="2"  />
+                   Padding="2" />
       </DataTemplate>
     </Setter>
 
@@ -51,113 +165,34 @@
       </DataTemplate>
     </Setter>
 
-    <Setter Property="CloseTemplate">
-      <DataTemplate DataType="core:IDockable">
-        <Button Command="{Binding Owner.Factory.CloseDockable}"
-                CommandParameter="{Binding}"
-                Theme="{Binding $parent[DocumentControl].CloseButtonTheme}">
-          <Button.IsVisible>
-            <MultiBinding Converter="{x:Static BoolConverters.And}">
-              <Binding Path="CanClose" />
-              <MultiBinding Converter="{x:Static converters:CanRemoveDockableConverter.Instance}">
-                <Binding Path="((core:IDock)Owner).CanCloseLastDockable" FallbackValue="{x:True}" />
-                <Binding Path="((core:IDock)Owner).VisibleDockables.Count" FallbackValue="0" />
-              </MultiBinding>
-            </MultiBinding>
-          </Button.IsVisible>
+    <Setter Property="CloseTemplate" Value="{DynamicResource DockDefaultDocumentCloseTemplate}" />
 
-          <Path x:Name="PART_ClosePath"
-                Classes.selected="{Binding $parent[DocumentTabStripItem].IsSelected}"
-                Classes.pointerover="{Binding $parent[DocumentTabStripItem].IsPointerOver}">
-            <Path.Styles>
-              <Style Selector="Path">
-                <Setter Property="Margin" Value="2" />
-                <Setter Property="Stretch" Value="Uniform" />
-                <Setter Property="UseLayoutRounding" Value="False" />
-                <Setter Property="Data" Value="{DynamicResource DockIconCloseGeometry}" />
-              </Style>
-              <Style Selector="Path.selected">
-                <Setter Property="Fill" Value="{DynamicResource DockApplicationAccentForegroundBrush}" />
-              </Style>
+    <Setter Property="Template" Value="{StaticResource DockDocumentControlSingleContentTemplate}" />
 
-              <Style Selector="Path.pointerover">
-                <Setter Property="Fill" Value="{DynamicResource DockApplicationAccentForegroundBrush}" />
-              </Style>
-            </Path.Styles>
-          </Path>
-        </Button>
-      </DataTemplate>
-    </Setter>
-
-    <Setter Property="Template">
-      <ControlTemplate>
-        <DockPanel x:Name="PART_DockPanel"
-                   DockProperties.IsDropArea="True"
-                   DockProperties.IsDockTarget="True"
-                   Background="Transparent"
-                   ZIndex="1">
-          <DocumentTabStrip x:Name="PART_TabStrip"
-                            ItemsSource="{Binding VisibleDockables}"
-                            SelectedItem="{Binding ActiveDockable, Mode=TwoWay}"
-                            CanCreateItem="{Binding CanCreateDocument}"
-                            IsActive="{TemplateBinding IsActive}"
-                            Orientation="{Binding TabsLayout, Converter={x:Static DocumentTabOrientationConverter.Instance}}"
-                            DockPanel.Dock="{Binding TabsLayout, Converter={x:Static DocumentTabDockConverter.Instance}}"
-                            DockProperties.IsDropArea="True"
-                            DockProperties.DockAdornerHost="{Binding #PART_DockPanel}">
-            <DocumentTabStrip.Styles>
-              <Style Selector="DocumentTabStripItem">
-                <Setter Property="IsActive" Value="{Binding $parent[DocumentTabStrip].IsActive}" />
-              </Style>
-            </DocumentTabStrip.Styles>
-          </DocumentTabStrip>
-          <Grid x:Name="PART_Grid"
-                IsVisible="{Binding #PART_TabStrip.IsVisible}"
-                Margin="0,-1,0,0"/>
-          <Border x:Name="PART_Border" 
-                  CornerRadius="0,0,6,6"
-                  BoxShadow="3 3 3 0 #71000000"
-                  Margin="0,-1,3,3">
-            <DockableControl DataContext="{Binding ActiveDockable}"
-                             TrackingMode="Visible">
-              <ContentControl x:Name="PART_ContentPresenter"
-                              Content="{Binding}"
-                              HorizontalAlignment="Stretch"
-                              VerticalAlignment="Stretch">
-                <ContentControl.ContentTemplate>
-                  <ControlRecyclingDataTemplate Parent="{Binding #PART_ContentPresenter}" />
-                </ContentControl.ContentTemplate>
-              </ContentControl>
-            </DockableControl>
-          </Border>
-        </DockPanel>
-      </ControlTemplate>
-    </Setter>
- 
-    <Style Selector="^[TabsLayout=Top]/template/ Grid#PART_Grid">
+    <Style Selector="^[TabsLayout=Top]/template/ Panel#PART_DocumentSeperatorHost">
       <Setter Property="DockPanel.Dock" Value="Top" />
       <Setter Property="Width" Value="NaN" />
       <Setter Property="Height" Value="2" />
     </Style>
-    
-    <Style Selector="^[TabsLayout=Left]/template/ Grid#PART_Grid">
+
+    <Style Selector="^[TabsLayout=Left]/template/ Panel#PART_DocumentSeperatorHost">
       <Setter Property="DockPanel.Dock" Value="Left" />
       <Setter Property="Width" Value="2" />
       <Setter Property="Height" Value="NaN" />
     </Style>
-    
-    <Style Selector="^[TabsLayout=Right]/template/ Grid#PART_Grid">
+
+    <Style Selector="^[TabsLayout=Right]/template/ Panel#PART_DocumentSeperatorHost">
       <Setter Property="DockPanel.Dock" Value="Right" />
       <Setter Property="Width" Value="2" />
       <Setter Property="Height" Value="NaN" />
     </Style>
 
-    <Style Selector="^/template/ Grid#PART_Grid">
-      <Setter Property="Background" Value="Transparent" />
+    <Style Selector="^/template/ DocumentTabStrip#PART_TabStrip">
+      <Setter Property="IsVisible" Value="{DynamicResource DockDocumentControlTabStripVisible}" />
     </Style>
 
-    <Style Selector="^:active /template/ Grid#PART_Grid">
-      <Setter Property="Background" Value="Transparent" />
+    <Style Selector="^/template/ Panel#PART_DocumentSeperator">
+      <Setter Property="Background" Value="{StaticResource TabItemSelectedBorderBrush}" />
     </Style>
 
     <Style Selector="^/template/ Border#PART_Border">

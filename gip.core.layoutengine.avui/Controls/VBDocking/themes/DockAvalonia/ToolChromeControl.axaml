@@ -104,10 +104,11 @@
                     Background="{TemplateBinding Background}"
                     CornerRadius="0,0,6,6"
                     BorderThickness="0">
-              <ContentPresenter x:Name="PART_ContentPresenter"
-                                Content="{TemplateBinding Content}"
-                                Padding="{TemplateBinding Padding}"
-                                Grid.Row="1" />
+              <DeferredContentPresenter x:Name="PART_ContentPresenter"
+                                        Content="{TemplateBinding Content}"
+                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                        Padding="{TemplateBinding Padding}"
+                                        Grid.Row="1" />
             </Border>
             <Border x:Name="PART_Border"
                   Background="{StaticResource DockingHeaderBackground}"
