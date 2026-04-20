@@ -37,6 +37,7 @@ namespace gip.core.layoutengine.avui
         }
 
         bool _TabStripVisibleStyleIsSet = false;
+        private readonly string _DockGroupId = $"VBDockingManager_{Guid.NewGuid():N}";
         DockControl _DockControl;
         public DockControl DockControl
         {
@@ -45,6 +46,8 @@ namespace gip.core.layoutengine.avui
                 return _DockControl;
             }
         }
+
+        internal string DockGroupId => _DockGroupId;
 
         private List<DockedDesignInfo> _DesignToolMap;
         internal List<DockedDesignInfo> DesignToolMap

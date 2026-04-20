@@ -73,16 +73,17 @@ namespace gip.core.layoutengine.avui
             _Factory.WindowClosing += _Factory_WindowClosing;
             _Factory.WindowClosed += _Factory_WindowClosed;
 
-            _MainLayout = new ProportionalDock() { Orientation = Orientation.Vertical };
+            _MainLayout = new ProportionalDock() { Orientation = Orientation.Vertical, DockGroup = DockGroupId };
             DocumentDock documentDock = new DocumentDock
             {
                 Id = "Documents",
                 IsCollapsable = false,
-                CanCreateDocument = false
+                CanCreateDocument = false,
+                DockGroup = DockGroupId
             };
 
             documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
-            ProportionalDock horizontalDock = new ProportionalDock() { Orientation = Orientation.Horizontal };
+            ProportionalDock horizontalDock = new ProportionalDock() { Orientation = Orientation.Horizontal, DockGroup = DockGroupId };
             horizontalDock.VisibleDockables.Add(documentDock);
             _MainLayout.VisibleDockables = _Factory.CreateList<IDockable>(horizontalDock);
 
@@ -100,6 +101,7 @@ namespace gip.core.layoutengine.avui
             }
 
             IRootDock root = _Factory.CreateRootDock();
+            root.DockGroup = DockGroupId;
             root.VisibleDockables = _Factory.CreateList<IDockable>(_MainLayout);
             root.DefaultDockable = _MainLayout;
             //root.LeftPinnedDockables = factory.CreateList<IDockable>(tool3);
@@ -549,6 +551,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Doc_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
                         CanClose = isCloseable,
                         CanFloat = isCloseable,
@@ -569,6 +572,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Doc_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
                         CanClose = isCloseable,
                         CanFloat = isCloseable,
@@ -615,6 +619,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Tool_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
@@ -644,6 +649,7 @@ namespace gip.core.layoutengine.avui
                         toolDock = new ToolDock
                         {
                             Id = "ToolDock_" + alignment.ToString(),
+                            DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
                             VisibleDockables = _Factory.CreateList<IDockable>(tool),
@@ -675,6 +681,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Tool_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
 #if AVALONIAFORK
                         MaxWidth = toolMaxWidth,
@@ -704,6 +711,7 @@ namespace gip.core.layoutengine.avui
                         toolDock = new ToolDock
                         {
                             Id = "ToolDock_" + alignment.ToString(),
+                            DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
                             VisibleDockables = _Factory.CreateList<IDockable>(tool),
@@ -941,6 +949,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Doc_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
                         CanClose = isCloseable,
                         CanFloat = isCloseable,
@@ -961,6 +970,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Doc_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
                         CanClose = isCloseable,
                         CanFloat = isCloseable,
@@ -1007,6 +1017,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Tool_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
@@ -1036,6 +1047,7 @@ namespace gip.core.layoutengine.avui
                         toolDock = new ToolDock
                         {
                             Id = "ToolDock_" + alignment.ToString(),
+                            DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
                             VisibleDockables = _Factory.CreateList<IDockable>(tool),
@@ -1067,6 +1079,7 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Tool_" + uiElement.GetHashCode().ToString(),
                         Title = acCaption,
+                        DockGroup = DockGroupId,
                         Content = content,
 #if AVALONIAFORK
                         MaxWidth = toolMaxWidth,
@@ -1096,6 +1109,7 @@ namespace gip.core.layoutengine.avui
                         toolDock = new ToolDock
                         {
                             Id = "ToolDock_" + alignment.ToString(),
+                            DockGroup = DockGroupId,
                             Alignment = alignment,
                             Proportion = 0.25,
                             VisibleDockables = _Factory.CreateList<IDockable>(tool),
@@ -1208,7 +1222,7 @@ namespace gip.core.layoutengine.avui
             // All Documents (BSO's) have been closed including Docked windows.
             if (horizontalArea == null)
             {
-                horizontalArea = new ProportionalDock() { Orientation = Orientation.Horizontal };
+                horizontalArea = new ProportionalDock() { Orientation = Orientation.Horizontal, DockGroup = DockGroupId };
                 int i = 0;
                 IDockable previousDockable = null;
                 ToolDock bottomDock = null;
@@ -1248,7 +1262,8 @@ namespace gip.core.layoutengine.avui
                     {
                         Id = "Documents",
                         IsCollapsable = false,
-                        CanCreateDocument = false
+                        CanCreateDocument = false,
+                        DockGroup = DockGroupId
                     };
                     documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
                     horizontalArea.VisibleDockables.Add(documentDock);
@@ -1276,7 +1291,8 @@ namespace gip.core.layoutengine.avui
                 {
                     Id = "Documents",
                     IsCollapsable = false,
-                    CanCreateDocument = false
+                    CanCreateDocument = false,
+                    DockGroup = DockGroupId
                 };
                 documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
                 horizontalArea.VisibleDockables.Add(documentDock);
