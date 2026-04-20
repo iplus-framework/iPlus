@@ -486,21 +486,21 @@ namespace gip.core.layoutengine.avui
             if (topLevel != null && topLevel.Screens != null && topLevel.Screens.Primary != null)
                 pixelRect = topLevel.Screens.Primary.Bounds;
 
-#if AVALONIAFORK
-            if (pixelRect.HasValue)
-            {
-                toolMaxWidth = pixelRect.Value.Width * 0.9;
-                toolMaxHeight = pixelRect.Value.Height * 0.9;
-            }
-#else
-            if (pixelRect.HasValue)
-            {
-                if (toolMaxWidth > pixelRect.Value.Width * 0.9)
-                    toolMaxWidth = pixelRect.Value.Width * 0.9;
-                if (toolMaxHeight > pixelRect.Value.Height * 0.9)
-                    toolMaxHeight = pixelRect.Value.Height * 0.9;
-            }
-#endif
+// #if AVALONIAFORK
+//             if (pixelRect.HasValue)
+//             {
+//                 toolMaxWidth = pixelRect.Value.Width * 0.9;
+//                 toolMaxHeight = pixelRect.Value.Height * 0.9;
+//             }
+// #else
+//             if (pixelRect.HasValue)
+//             {
+//                 if (toolMaxWidth > pixelRect.Value.Width * 0.9)
+//                     toolMaxWidth = pixelRect.Value.Width * 0.9;
+//                 if (toolMaxHeight > pixelRect.Value.Height * 0.9)
+//                     toolMaxHeight = pixelRect.Value.Height * 0.9;
+//             }
+// #endif
 
             Control content = uiElement;
             var ribbonVisibility = VBDockingManager.GetRibbonBarVisibility(uiElement);
@@ -557,13 +557,13 @@ namespace gip.core.layoutengine.avui
                         CanFloat = isCloseable,
                         //MaxWidth = toolMaxWidth,
                         //MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-#else
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+// #else
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                     };
                 }
                 else
@@ -578,13 +578,13 @@ namespace gip.core.layoutengine.avui
                         CanFloat = isCloseable,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-#else
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+// #else
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                     };
                 }
 
@@ -623,13 +623,13 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-#else
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+// #else
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                         CanClose = isCloseable
                     };
 
@@ -683,19 +683,19 @@ namespace gip.core.layoutengine.avui
                         Title = acCaption,
                         DockGroup = DockGroupId,
                         Content = content,
-#if AVALONIAFORK
-                        MaxWidth = toolMaxWidth,
-                        MaxHeight = toolMaxHeight,
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#else
-                        MaxWidth = toolMaxWidth,
-                        MaxHeight = toolMaxHeight,
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         MaxWidth = toolMaxWidth,
+//                         MaxHeight = toolMaxHeight,
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #else
+//                         MaxWidth = toolMaxWidth,
+//                         MaxHeight = toolMaxHeight,
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                         CanClose = isCloseable,
                         CanFloat = isCloseable
                     };
@@ -884,21 +884,21 @@ namespace gip.core.layoutengine.avui
             if (topLevel != null && topLevel.Screens != null && topLevel.Screens.Primary != null)
                 pixelRect = topLevel.Screens.Primary.Bounds;
 
-#if AVALONIAFORK
-            if (pixelRect.HasValue)
-            {
-                toolMaxWidth = pixelRect.Value.Width * 0.9;
-                toolMaxHeight = pixelRect.Value.Height * 0.9;
-            }
-#else
-            if (pixelRect.HasValue)
-            {
-                if (toolMaxWidth > pixelRect.Value.Width * 0.9)
-                    toolMaxWidth = pixelRect.Value.Width * 0.9;
-                if (toolMaxHeight > pixelRect.Value.Height * 0.9)
-                    toolMaxHeight = pixelRect.Value.Height * 0.9;
-            }
-#endif
+// #if AVALONIAFORK
+//             if (pixelRect.HasValue)
+//             {
+//                 toolMaxWidth = pixelRect.Value.Width * 0.9;
+//                 toolMaxHeight = pixelRect.Value.Height * 0.9;
+//             }
+// #else
+//             if (pixelRect.HasValue)
+//             {
+//                 if (toolMaxWidth > pixelRect.Value.Width * 0.9)
+//                     toolMaxWidth = pixelRect.Value.Width * 0.9;
+//                 if (toolMaxHeight > pixelRect.Value.Height * 0.9)
+//                     toolMaxHeight = pixelRect.Value.Height * 0.9;
+//             }
+// #endif
 
             Control content = uiElement;
             var ribbonVisibility = VBDockingManager.GetRibbonBarVisibility(uiElement);
@@ -955,13 +955,13 @@ namespace gip.core.layoutengine.avui
                         CanFloat = isCloseable,
                         //MaxWidth = toolMaxWidth,
                         //MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-#else
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+// #else
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                     };
                 }
                 else
@@ -976,13 +976,13 @@ namespace gip.core.layoutengine.avui
                         CanFloat = isCloseable,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-#else
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+// #else
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                     };
                 }
 
@@ -1021,13 +1021,13 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         MaxWidth = toolMaxWidth,
                         MaxHeight = toolMaxHeight,
-#if AVALONIAFORK
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-#else
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+// #else
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                         CanClose = isCloseable
                     };
 
@@ -1081,19 +1081,19 @@ namespace gip.core.layoutengine.avui
                         Title = acCaption,
                         DockGroup = DockGroupId,
                         Content = content,
-#if AVALONIAFORK
-                        MaxWidth = toolMaxWidth,
-                        MaxHeight = toolMaxHeight,
-                        // Width = toolWidth,
-                        // Height = toolHeight,
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#else
-                        MaxWidth = toolMaxWidth,
-                        MaxHeight = toolMaxHeight,
-                        MinWidth = toolMinWidth,
-                        MinHeight = toolMinHeight,
-#endif
+// #if AVALONIAFORK
+//                         MaxWidth = toolMaxWidth,
+//                         MaxHeight = toolMaxHeight,
+//                         // Width = toolWidth,
+//                         // Height = toolHeight,
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #else
+//                         MaxWidth = toolMaxWidth,
+//                         MaxHeight = toolMaxHeight,
+//                         MinWidth = toolMinWidth,
+//                         MinHeight = toolMinHeight,
+// #endif
                         CanClose = isCloseable,
                         CanFloat = isCloseable
                     };
