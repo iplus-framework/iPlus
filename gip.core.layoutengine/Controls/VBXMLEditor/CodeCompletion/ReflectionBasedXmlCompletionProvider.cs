@@ -150,11 +150,36 @@ namespace gip.core.layoutengine.CodeCompletion
             // Get parent element context
             XmlElementPath parentPath = XmlParser.GetParentElementPath(text);
             Type parentType = null;
+            string parentElementName = null;
 
             if (parentPath.Elements.Count > 0)
             {
                 var parentElement = parentPath.Elements[parentPath.Elements.Count - 1];
                 parentType = _typeFinder.GetType(parentElement.Namespace, parentElement.Name);
+                parentElementName = parentElement.Name;
+
+                // If parent element contains a dot, it's already a property element (e.g., Grid.ColumnDefinitions)
+                // so we don't add more property elements for it
+                if (!parentElement.Name.Contains("."))
+                {
+                    // Resolve the prefix from the parent element's XML namespace
+                    string prefix = null;
+                    if (declaredNamespaces != null && !string.IsNullOrEmpty(parentElement.Namespace))
+                    {
+                        declaredNamespaces.TryGetValue(parentElement.Namespace, out prefix);
+                    }
+
+                    // Build the full element name with prefix (e.g., "vb:VBGrid" instead of just "VBGrid")
+                    parentElementName = string.IsNullOrEmpty(prefix) 
+                        ? parentElement.Name 
+                        : $"{prefix}:{parentElement.Name}";
+                }
+            }
+
+            // Add property element syntax (e.g., vb:VBGrid.ColumnDefinitions) for the parent element
+            if (parentType != null && parentElementName != null)
+            {
+                AddPropertyElementCompletionData(completionData, addedElements, parentType, parentElementName, declaredNamespaces);
             }
 
             // Add available elements from all registered namespaces
@@ -278,6 +303,84 @@ namespace gip.core.layoutengine.CodeCompletion
                 return XmlCompletionData.DataType.Class;
             
             return XmlCompletionData.DataType.XmlElement;
+        }
+
+        /// <summary>
+        /// Adds property element completion items (e.g., Grid.ColumnDefinitions, Grid.RowDefinitions)
+        /// for the given parent element type. These are properties that use XAML property element syntax.
+        /// </summary>
+        private void AddPropertyElementCompletionData(List<ICompletionData> completionData, HashSet<string> addedElements, 
+            Type parentType, string parentElementName, Dictionary<string, string> declaredNamespaces)
+        {
+            try
+            {
+                // Determine the prefix for the parent element if it had one
+                string parentPrefix = "";
+                if (parentElementName.Contains(":"))
+                {
+                    parentPrefix = parentElementName.Substring(0, parentElementName.IndexOf(':') + 1);
+                    parentElementName = parentElementName.Substring(parentElementName.IndexOf(':') + 1);
+                }
+
+                // Get all public properties that are suitable for property element syntax
+                var properties = TypeDescriptor.GetProperties(parentType);
+                foreach (PropertyDescriptor prop in properties)
+                {
+                    if (IsPropertyElementCandidate(prop))
+                    {
+                        string propElementName = $"{parentPrefix}{parentElementName}.{prop.Name}";
+                        if (addedElements.Add(propElementName))
+                        {
+                            completionData.Add(new XmlCompletionData(propElementName, 
+                                GetPropertyDescription(prop), XmlCompletionData.DataType.Property));
+                        }
+                    }
+                }
+
+                // Also check dependency properties that might not appear in TypeDescriptor
+                var dpFields = parentType.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+                foreach (var field in dpFields)
+                {
+                    if (typeof(DependencyProperty).IsAssignableFrom(field.FieldType) && field.Name.EndsWith("Property"))
+                    {
+                        string propName = field.Name.Substring(0, field.Name.Length - "Property".Length);
+                        string propElementName = $"{parentPrefix}{parentElementName}.{propName}";
+                        
+                        if (addedElements.Add(propElementName))
+                        {
+                            var dp = field.GetValue(null) as DependencyProperty;
+                            string desc = dp != null ? $"{dp.PropertyType.Name} (Dependency Property)" : "Dependency Property";
+                            completionData.Add(new XmlCompletionData(propElementName, desc, XmlCompletionData.DataType.Property));
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Continue without property element completion
+            }
+        }
+
+        /// <summary>
+        /// Determines if a property is a good candidate for property element syntax.
+        /// Complex types, collections, and non-string types are typically used with property element syntax.
+        /// </summary>
+        private bool IsPropertyElementCandidate(PropertyDescriptor prop)
+        {
+            if (prop.Attributes.OfType<BrowsableAttribute>().Any(a => !a.Browsable))
+                return false;
+
+            Type propType = prop.PropertyType;
+
+            // Collections are prime candidates for property element syntax
+            if (typeof(System.Collections.IEnumerable).IsAssignableFrom(propType) && propType != typeof(string))
+                return true;
+
+            // Complex object types (not primitives, not string, not enums)
+            if (!propType.IsPrimitive && !propType.IsEnum && propType != typeof(string) && propType != typeof(decimal))
+                return true;
+
+            return false;
         }
 
         #endregion
