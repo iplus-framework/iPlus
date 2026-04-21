@@ -890,6 +890,40 @@ namespace gip.core.autocomponent
             return null;
         }
 
+        [ACMethodInfo("", "", 9999)]
+        public void SetDatabaseValueListValue(string acClassACIdentifier, object value, string desc)
+        {
+            if (string.IsNullOrEmpty(acClassACIdentifier))
+                return;
+
+            gip.core.datamodel.Database db = Database as gip.core.datamodel.Database;
+            ACClass customValueListClass = db.GetACType(acClassACIdentifier);
+            if (customValueListClass != null)
+            {
+                gip.core.datamodel.ACClassConfig config =
+                    customValueListClass
+                    .ACClassConfig_ACClass
+                    .AsEnumerable()
+                    .Where(c => c.LocalConfigACUrl == nameof(ACValueItem) && c.Value == value)
+                    .FirstOrDefault();
+
+                if(config == null)
+                {
+                    IACConfigStore acConfigHandler = customValueListClass as IACConfigStore;
+                    gip.core.datamodel.ACClassConfig acConfig = acConfigHandler.NewACConfig(customValueListClass) as gip.core.datamodel.ACClassConfig;
+                    acConfig.ValueTypeACClass = db.GetACType(typeof(String)) as gip.core.datamodel.ACClass;
+                    acConfig.Value = value;
+                    acConfig.LocalConfigACUrl = nameof(ACValueItem);
+                    customValueListClass.ACClassConfig_ACClass.Add(acConfig);
+                }
+                if(config.ACCaption != desc)
+                {
+                    config.ACCaption = desc;
+                }
+            }
+            return;
+        }
+
 
         /// <summary>
         /// Ermittelt den ACType (ACClass o. ACClassProperty) für die übergebene acUrl

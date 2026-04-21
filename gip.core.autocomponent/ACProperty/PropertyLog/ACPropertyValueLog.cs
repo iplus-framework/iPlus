@@ -464,7 +464,7 @@ namespace gip.core.autocomponent
                     forComponent.Messages.LogException("ACUrl2ArchiveDirectoryManager.FindAndCreateArchivePath", forComponent.GetACUrl(), e.Message);
             }
             if (!Directory.Exists(rootPath))
-                throw new InvalidOperationException("RootPath for Archive doesn't exist");
+                    throw new InvalidOperationException("RootPath for Archive doesn't exist");
             string archivePath = rootPath + subPath;
             if (!Directory.Exists(archivePath))
             {

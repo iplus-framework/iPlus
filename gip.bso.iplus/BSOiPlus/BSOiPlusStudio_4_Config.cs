@@ -87,9 +87,9 @@ namespace gip.bso.iplus
                 if (_CurrentConfigPointACClassProperty != value)
                 {
                     _CurrentConfigPointACClassProperty = value;
-                    OnPropertyChanged("CurrentConfigPointACClassProperty");
-                    OnPropertyChanged("ConfigACClassPropertyList");
-                    OnPropertyChanged("PointConfigList");
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(ConfigACClassPropertyList));
+                    OnPropertyChanged(nameof(PointConfigList));
                     UpdateConfigPointACClassPropertyLayout();
                 }
             }
@@ -134,7 +134,7 @@ namespace gip.bso.iplus
             set
             {
                 _CurrentConfigACClassProperty = value;
-                OnPropertyChanged("CurrentConfigACClassProperty");
+                OnPropertyChanged();
                 //OnPropertyChanged("CurrentPointPropertyLayout");
             }
         }
@@ -184,8 +184,8 @@ namespace gip.bso.iplus
                     _CurrentPointConfig.PropertyChanged -= _CurrentPointConfig_PropertyChanged;
 
                 _CurrentPointConfig = value;
-                OnPropertyChanged("CurrentPointConfig");
-                OnPropertyChanged("CurrentPointConfigLayout");
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentPointConfigLayout));
 
                 if (_CurrentPointConfig != null)
                     _CurrentPointConfig.PropertyChanged += new System.ComponentModel.PropertyChangedEventHandler(_CurrentPointConfig_PropertyChanged); 
@@ -206,8 +206,8 @@ namespace gip.bso.iplus
                     {
                         ACClassConfig acClassConfig = sender as ACClassConfig;
                         acClassConfig.SetDefaultValue();
-                        OnPropertyChanged("CurrentPointConfigLayout");
-                        OnPropertyChanged("CurrentPointConfig");
+                        OnPropertyChanged(nameof(CurrentPointConfigLayout));
+                        OnPropertyChanged(nameof(CurrentPointConfig));
                     }
                     break;
             }
@@ -256,8 +256,8 @@ namespace gip.bso.iplus
                 mi.Invoke(t, new object[] { Database.ContextIPlus, acClassProperty });
             }
 
-            OnPropertyChanged("ConfigACClassPropertyList");
-            PostExecute("NewConfigACClassProperty");
+            OnPropertyChanged(nameof(ConfigACClassPropertyList));
+            PostExecute(nameof(NewConfigACClassProperty));
             // Creates a Configuration-Value, don't remove var x
             var x = acClassProperty.ConfigValue;
             CurrentConfigACClassProperty = acClassProperty;
@@ -291,8 +291,8 @@ namespace gip.bso.iplus
                 return;
             }
 
-            OnPropertyChanged("ConfigACClassPropertyList");
-            PostExecute("DeleteConfigACClassProperty");
+            OnPropertyChanged(nameof(ConfigACClassPropertyList));
+            PostExecute(nameof(DeleteConfigACClassProperty));
         }
 
         /// <summary>
@@ -320,9 +320,9 @@ namespace gip.bso.iplus
             acConfig.ValueTypeACClass = database.GetACType(typeof(Int32)) as ACClass;
             acConfig.Value = 0;
 
-            OnPropertyChanged("PointConfigList");
+            OnPropertyChanged(nameof(PointConfigList));
             CurrentPointConfig = acConfig;
-            PostExecute("NewPointConfig");
+            PostExecute(nameof(NewPointConfig));
         }
 
         /// <summary>
@@ -359,8 +359,8 @@ namespace gip.bso.iplus
             //    return;
             //}
 
-            OnPropertyChanged("PointConfigList");
-            PostExecute("DeletePointConfig");
+            OnPropertyChanged(nameof(PointConfigList));
+            PostExecute(nameof(DeletePointConfig));
         }
 
         /// <summary>
@@ -492,7 +492,7 @@ namespace gip.bso.iplus
 //                if (_ControlModePointProperty != value)
                 {
                     _ControlModePointProperty = value;
-                    OnPropertyChanged("ControlModePointProperty");
+                    OnPropertyChanged();
                 }
             }
         }
@@ -517,7 +517,7 @@ namespace gip.bso.iplus
 //                if (_ControlModePointConfig != value)
                 {
                     _ControlModePointConfig = value;
-                    OnPropertyChanged("ControlModePointConfig");
+                    OnPropertyChanged();
                 }
             }
         }
