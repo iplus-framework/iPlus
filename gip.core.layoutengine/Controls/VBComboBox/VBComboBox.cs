@@ -562,7 +562,7 @@ namespace gip.core.layoutengine
                                     {
                                         if (container.ValueTypeACClass.ACValueListForEnum == null)
                                         {
-                                            VBSource = String.Format("\\!{0}(#{1}\\{1}#)", Const.MN_GetEnumList, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
+                                            VBSource = ACUrlHelper.CreateACSourceForObjectDataProvider(Const.MN_GetEnumList, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName, container.ValueTypeACClass.ObjectType.AssemblyQualifiedName);
                                             if (!BSOACComponent.ACUrlBinding(VBSource, ref dsACTypeInfo, ref dsSource, ref dsPath, ref dsRightControlMode))
                                                 return;
                                         }
