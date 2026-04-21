@@ -136,6 +136,7 @@ namespace gip.core.layoutengine.avui
 
         public virtual void DeInitVBControl(IACComponent bso)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] DeInitVBControl(base): _LoadedBase={_LoadedBase}, IsLoaded={IsLoaded}, bso={bso?.GetACUrl()}");
             if (!_LoadedBase)
                 return;
             _LoadedBase = false;
@@ -169,6 +170,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnUnloaded(RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnUnloaded: _LoadedBase={_LoadedBase}, IsLoaded={IsLoaded}, Content={(Content == null ? "null" : "set")}");
             base.OnUnloaded(e);
             this.KeyUp -= DesignPanel_KeyUp;
             this.KeyDown -= DesignPanel_KeyDown;
@@ -194,6 +196,7 @@ namespace gip.core.layoutengine.avui
 
         protected override void OnLoaded(RoutedEventArgs e)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnLoaded: _LoadedBase={_LoadedBase}, IsLoaded={IsLoaded}, Content={(Content == null ? "null" : "set")}, DataContext={(DataContext == null ? "null" : DataContext.GetType().Name)}");
             base.OnLoaded(e);
             this.KeyUp += DesignPanel_KeyUp;
             this.KeyDown += DesignPanel_KeyDown;
@@ -398,6 +401,7 @@ namespace gip.core.layoutengine.avui
                 thisControl.InitStateChanged();
             else if (change.Property == BSOACComponentProperty)
             {
+                System.Diagnostics.Debug.WriteLine($"[VBDesign|{thisControl.Name ?? thisControl.GetHashCode().ToString()}] BSOACComponent changed: {change.OldValue?.GetType().Name ?? "null"} → {change.NewValue?.GetType().Name ?? "null"}, IsLoaded={thisControl.IsLoaded}, _LoadedBase={thisControl._LoadedBase}, VBContent={thisControl.VBContent}");
                 if (change.NewValue == null && change.OldValue != null && !String.IsNullOrEmpty(thisControl.VBContent))
                 {
                     // In Avalonia 12, ContentPresenter.UpdateChild first removes the child from
@@ -411,9 +415,14 @@ namespace gip.core.layoutengine.avui
                     // (ACCompInitState → Destructed/DisposedToPool), which doesn't rely on this path.
                     if (thisControl.IsLoaded)
                     {
+                        System.Diagnostics.Debug.WriteLine($"[VBDesign|{thisControl.Name ?? thisControl.GetHashCode().ToString()}] BSOACComponent→null while IsLoaded=true → calling DeInitVBControl");
                         IACBSO bso = change.OldValue as IACBSO;
                         if (bso != null)
                             thisControl.DeInitVBControl(bso);
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[VBDesign|{thisControl.Name ?? thisControl.GetHashCode().ToString()}] BSOACComponent→null while IsLoaded=false → skipping DeInitVBControl (transient reparenting)");
                     }
                 }
             }

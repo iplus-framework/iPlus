@@ -27,6 +27,7 @@ public partial class App : Application
 {
     static ACStartUpRoot _StartUpManager = null;
     public static App _GlobalApp = null;
+    public static Func<IWPFServices> WpfServicesFactory { get; set; }
     private LoginWindow _LoginWindow = null;
     private LoginView _LoginView = null;
     private Settings _AppSettings = null;
@@ -111,7 +112,10 @@ public partial class App : Application
     public override void OnFrameworkInitializationCompleted()
     {
         _GlobalApp = this;
-        _StartUpManager = new ACStartUpRoot(new core.wpfservices.avui.WPFServices());
+        IWPFServices wpfServices = WpfServicesFactory != null
+            ? WpfServicesFactory()
+            : new core.wpfservices.avui.WPFServices();
+        _StartUpManager = new ACStartUpRoot(wpfServices);
 
 
         IClassicDesktopStyleApplicationLifetime desktop = ApplicationLifetime as IClassicDesktopStyleApplicationLifetime;

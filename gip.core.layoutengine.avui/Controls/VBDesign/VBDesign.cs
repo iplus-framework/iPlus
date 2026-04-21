@@ -92,6 +92,7 @@ namespace gip.core.layoutengine.avui
                                        (Content == null || (ContextACObject == null && BSOACComponent == null));
             if (needsRecoveryRebind)
             {
+                System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] OnLoaded recovery: forcing rebind (_Loaded={_Loaded}, Content={(Content == null ? "null" : "set")}, DataContext={DataContext.GetType().Name}, BSOACComponent={(BSOACComponent == null ? "null" : BSOACComponent.GetACUrl())})");
                 _Loaded = false;
                 InitBinding();
             }
@@ -141,6 +142,7 @@ namespace gip.core.layoutengine.avui
         /// <param name="bso">The bound BSOACComponent</param>
         public override void DeInitVBControl(IACComponent bso)
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] DeInitVBControl: _Loaded={_Loaded}, IsLoaded={IsLoaded}, bso={bso?.GetACUrl()}");
             if (_Loaded)
             {
                 _LoadDesignLocked = true;
@@ -158,8 +160,12 @@ namespace gip.core.layoutengine.avui
 
         private void InitBinding()
         {
+            System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding: _Loaded={_Loaded}, DataContext={(DataContext == null ? "null" : DataContext.GetType().Name)}, BSOACComponent={(BSOACComponent == null ? "null" : BSOACComponent.GetACUrl())}, Content={(Content == null ? "null" : "set")}, IsLoaded={IsLoaded}");
             if (_Loaded || DataContext == null)
+            {
+                System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding early return: _Loaded={_Loaded}, DataContext={(DataContext == null ? "null" : "set")}");
                 return;
+            }
 
             if (!string.IsNullOrEmpty(this.AutoStartACComponent))
             {
