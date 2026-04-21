@@ -268,22 +268,13 @@ namespace gip.core.layoutengine
                     TBAlignment = TextAlignment.Right;
             }
 
-            string acAccessColumn = "";
-            string dataSourceColumn = _ACColumnItem.PropertyName;
-            ACClassProperty sourceProperty = null;
-            if (isShowColumnAMethod)
-                dataSourceColumn = acColumnItem.PropertyName;
-            else if (isColDisabled)
-                dataSourceColumn = dsColACTypeInfo is ACClassProperty ? (dsColACTypeInfo as ACClassProperty).GetACSource("", out acAccessColumn, out sourceProperty) : "";
-
-
             if (isShowColumnAMethod)
             {
                 IACType dscACTypeInfo = null;
                 object dscSource = null;
                 string dscPath = "";
                 Global.ControlModes dscRightControlMode = Global.ControlModes.Hidden;
-                if (!dataGrid.ContextACObject.ACUrlBinding(dataSourceColumn, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode))
+                if (!dataGrid.ContextACObject.ACUrlBinding(_ACColumnItem.PropertyName, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode))
                 {
                     this.Root().Messages.LogDebug("Error00004", "VBDataGrid", dataGrid.VBSource + " " + VBContent + "-" + dsColACTypeInfo.ACIdentifier);
                     //this.Root().Messages.ErrorAsync(dataGrid.ContextACObject, "Error00004", "VBDataGrid", dataGrid.VBSource, VBContent + "-" + dsColACTypeInfo.ACIdentifier);
@@ -294,13 +285,6 @@ namespace gip.core.layoutengine
             }
             else
             {
-                IACType dscACTypeInfo = null;
-                object dscSource = null;
-                string dscPath = "";
-                Global.ControlModes dscRightControlMode = Global.ControlModes.Hidden;
-
-                dataGrid.ContextACObject.ACUrlBinding(dataSourceColumn, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode);
-
                 RightControlMode = dsColRightControlMode;
                 InitWithBinding(dsColACTypeInfo, _ACColumnItem, dsColSource, dsColPath, "", isColDisabled);
             }
