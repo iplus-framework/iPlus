@@ -757,17 +757,17 @@ namespace gip.core.layoutengine
                         {
                             VBDataGridTextColumn dataGridTextColumn = new VBDataGridTextColumn();
                             Columns.Add(dataGridTextColumn);
-                            dataGridTextColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod);
+                            dataGridTextColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod, isDisabledCol);
                             dataGridTextColumn.VBContent = dsColPath;
                         }
                         // Sonst ist Spalte eine Liste
                         else
                         {
-                            if (isShowColumnAMethod /*|| isDisabledCol*/)
+                            if (isShowColumnAMethod || isDisabledCol && (dsColACTypeInfo != null && dsColACTypeInfo.ObjectType.IsEnum == false))
                             {
                                 VBDataGridTextColumn dataGridTextColumn = new VBDataGridTextColumn();
                                 Columns.Add(dataGridTextColumn);
-                                dataGridTextColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod);
+                                dataGridTextColumn.Initialize(dataShowColumn, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod, isDisabledCol);
                                 dataGridTextColumn.VBContent = dsColPath;
                             }
                             else

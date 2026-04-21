@@ -1,5 +1,6 @@
 using gip.core.datamodel;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -22,6 +23,12 @@ namespace gip.core.layoutengine
         {
             ElementStyleProperty.OverrideMetadata(typeof(VBDataGridComboBoxColumn), new FrameworkPropertyMetadata(VBDefaultElementStyle));
             EditingElementStyleProperty.OverrideMetadata(typeof(VBDataGridComboBoxColumn), new FrameworkPropertyMetadata(VBDefaultEditingElementStyle));
+            ItemsSourceProperty.OverrideMetadata(
+                typeof(VBDataGridComboBoxColumn),
+                new FrameworkPropertyMetadata(
+                    default(IEnumerable),
+                    null, // no property changed callback override needed
+                    CoerceItemsSource));
         }
 
         private static Style _defaultElementStyle;
@@ -106,6 +113,18 @@ namespace gip.core.layoutengine
             get { return (bool)GetValue(VBIsReadOnlyProperty); }
             set { SetValue(VBIsReadOnlyProperty, value); }
         }
+
+        [Category("VBControl")]
+        public string VBSource
+        {
+            get { return (string)GetValue(VBSourceProperty); }
+            set { SetValue(VBSourceProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for VBSource.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty VBSourceProperty =
+            DependencyProperty.Register(nameof(VBSource), typeof(string), typeof(VBDataGridComboBoxColumn), new PropertyMetadata(""));
+
 
 
         public static readonly DependencyProperty IsEditableProperty
@@ -596,6 +615,7 @@ namespace gip.core.layoutengine
             {
                 FrameworkElement element = base.GenerateElement(cell, dataItem);
                 return element;
+                
             }
             catch (Exception e)
             {
@@ -693,6 +713,21 @@ namespace gip.core.layoutengine
             this.SelectedItemBinding = null;
             _ACColumnItem = null;
             _ColACTypeInfo = null;
+        }
+
+        private static object CoerceItemsSource(DependencyObject d, object baseValue)
+        {
+            if (baseValue is IQueryable queryable && baseValue is not IList)
+            {
+                // Materialize the query once to avoid NotSupportedException
+                // when WPF iterates the data during cell generation
+                var list = new List<object>();
+                foreach (var item in (IEnumerable)queryable)
+                    list.Add(item);
+
+                return list;
+            }
+            return baseValue;
         }
     }
 }

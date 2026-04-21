@@ -1,5 +1,6 @@
 using gip.core.datamodel;
 using gip.core.layoutengine.Helperclasses;
+using SkiaSharp;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -190,7 +191,7 @@ namespace gip.core.layoutengine
                     {
                         if (dsColRightControlMode != Global.ControlModes.Hidden)
                         {
-                            Initialize(value, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod);
+                            Initialize(value, dsColACTypeInfo, dsColSource, dsColPath, dsColRightControlMode, isShowColumnAMethod, false);
                         }
                     }
 
@@ -251,7 +252,7 @@ namespace gip.core.layoutengine
         /// <param name="dsColSource">The data source for column.</param>
         /// <param name="dsColPath">The data source column path.</param>
         /// <param name="dsColRightControlMode">The data source right control mode for column.</param>
-        public void Initialize(ACColumnItem acColumnItem, IACType dsColACTypeInfo, object dsColSource, string dsColPath, Global.ControlModes dsColRightControlMode, bool isShowColumnAMethod)
+        public void Initialize(ACColumnItem acColumnItem, IACType dsColACTypeInfo, object dsColSource, string dsColPath, Global.ControlModes dsColRightControlMode, bool isShowColumnAMethod, bool isColDisabled)
         {
             VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
             if (dataGrid == null)
@@ -267,13 +268,22 @@ namespace gip.core.layoutengine
                     TBAlignment = TextAlignment.Right;
             }
 
+            string acAccessColumn = "";
+            string dataSourceColumn = _ACColumnItem.PropertyName;
+            ACClassProperty sourceProperty = null;
+            if (isShowColumnAMethod)
+                dataSourceColumn = acColumnItem.PropertyName;
+            else if (isColDisabled)
+                dataSourceColumn = dsColACTypeInfo is ACClassProperty ? (dsColACTypeInfo as ACClassProperty).GetACSource("", out acAccessColumn, out sourceProperty) : "";
+
+
             if (isShowColumnAMethod)
             {
                 IACType dscACTypeInfo = null;
                 object dscSource = null;
                 string dscPath = "";
                 Global.ControlModes dscRightControlMode = Global.ControlModes.Hidden;
-                if (!dataGrid.ContextACObject.ACUrlBinding(_ACColumnItem.PropertyName, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode))
+                if (!dataGrid.ContextACObject.ACUrlBinding(dataSourceColumn, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode))
                 {
                     this.Root().Messages.LogDebug("Error00004", "VBDataGrid", dataGrid.VBSource + " " + VBContent + "-" + dsColACTypeInfo.ACIdentifier);
                     //this.Root().Messages.ErrorAsync(dataGrid.ContextACObject, "Error00004", "VBDataGrid", dataGrid.VBSource, VBContent + "-" + dsColACTypeInfo.ACIdentifier);
@@ -284,12 +294,19 @@ namespace gip.core.layoutengine
             }
             else
             {
+                IACType dscACTypeInfo = null;
+                object dscSource = null;
+                string dscPath = "";
+                Global.ControlModes dscRightControlMode = Global.ControlModes.Hidden;
+
+                dataGrid.ContextACObject.ACUrlBinding(dataSourceColumn, ref dscACTypeInfo, ref dscSource, ref dscPath, ref dscRightControlMode);
+
                 RightControlMode = dsColRightControlMode;
-                InitWithBinding(dsColACTypeInfo, _ACColumnItem, dsColSource, dsColPath);
+                InitWithBinding(dsColACTypeInfo, _ACColumnItem, dsColSource, dsColPath, "", isColDisabled);
             }
         }
 
-        private void InitWithBinding(IACType dsColACTypeInfo, ACColumnItem acColumnItem, object dsColSource, string dsColPath, string methodName = "")
+        private void InitWithBinding(IACType dsColACTypeInfo, ACColumnItem acColumnItem, object dsColSource, string dsColPath, string methodName = "", bool isColDisabled = false)
         {
             VBDataGrid dataGrid = this.DataGridOwner as VBDataGrid;
             if (dataGrid == null)
@@ -309,11 +326,13 @@ namespace gip.core.layoutengine
             //}
             //else
             //{
+
             Binding binding = new Binding();
+            
             binding.Path = new PropertyPath(dsColPath);
             ACClassProperty propertyInfo = dsColACTypeInfo as ACClassProperty;
             if (propertyInfo != null)
-                binding.Mode = propertyInfo.IsInput ? BindingMode.TwoWay : BindingMode.OneWay;
+                binding.Mode = propertyInfo.IsInput && isColDisabled == false ? BindingMode.TwoWay : BindingMode.OneWay;
             if (!String.IsNullOrEmpty(StringFormat))
                 binding.StringFormat = StringFormat;
             binding.ConverterCulture = System.Globalization.CultureInfo.CurrentCulture; //System.Globalization.CultureInfo.CurrentUICulture;
