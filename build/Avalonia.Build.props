@@ -1,7 +1,4 @@
 <Project>
-  <PropertyGroup>
-    <UseDotNet10>True</UseDotNet10>
-  </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)/Avalonia.Version.props" />
   <Import Project="$(MSBuildThisFileDirectory)/AvaloniaBaseCompileInclude.props" />
 </Project>

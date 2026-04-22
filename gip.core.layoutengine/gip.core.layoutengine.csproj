@@ -32,13 +32,13 @@
     <WarningLevel>3</WarningLevel>
     <DocumentationFile>$(SolutionDir)bin\Debug\gip.core.layoutengine.xml</DocumentationFile>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
-    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;VSTHRD001</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>$(SolutionDir)bin\$(Configuration)</OutputPath>
     <DocumentationFile>
     </DocumentationFile>
-    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002</NoWarn>
+    <NoWarn>1591;CA1416;VSTHRD100;VSTHRD110;VSTHRD200;VSTHRD002;VSTHRD001</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -172,16 +172,16 @@
     <PackageReference Include="System.Composition.Hosting" />
     <PackageReference Include="System.Composition.Runtime" />	  
   </ItemGroup>
-  <ItemGroup Condition=" '$(UseDotNet10)' == 'True'">
+  <ItemGroup>
     <PackageReference Include="iPlus.RoslynPad.Editor.Windows"  />
     <PackageReference Include="iPlus.RoslynPad.Roslyn"  />
     <PackageReference Include="iPlus.RoslynPad.Roslyn.Windows"  />
   </ItemGroup>
-  <ItemGroup Condition=" '$(UseDotNet10)' == 'False'">
+  <!--<ItemGroup>
     <PackageReference Include="RoslynPad.Editor.Windows"  />
     <PackageReference Include="RoslynPad.Roslyn"  />
     <PackageReference Include="RoslynPad.Roslyn.Windows"  />
-  </ItemGroup>
+  </ItemGroup> -->
   <ItemGroup>
     <Compile Remove="CodeCompletionXsdGenerator.cs" />
     <Compile Remove="Controls\VBButton.xaml.cs" />

@@ -97,7 +97,6 @@
 	<PackageReference Include="CoreWCF.Http"  />
 	<PackageReference Include="CoreWCF.WebHttp"  />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel.Core" />
-    <!--<PackageReference Condition="'$(UseDotNet10)' == 'False'" Include="Microsoft.AspNetCore"  />-->
   </ItemGroup>
   <ItemGroup>
 	  <PackageReference Include="Microsoft.CodeAnalysis"  />

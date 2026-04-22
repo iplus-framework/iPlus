@@ -12,20 +12,7 @@
 	<UseEFCoreForkIPlus>True</UseEFCoreForkIPlus>
 	</PropertyGroup>
 
-	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
-		<!-- Settings for entity framework main and DOT-NET 9.0 -->
-		<DefaultNetCoreTargetFramework>net9.0</DefaultNetCoreTargetFramework>
-		<UITargetFramework>net9.0-windows7.0</UITargetFramework>
-		<EFCoreBuildFramework>net8.0</EFCoreBuildFramework>
-		<!-- <EFCoreRootDir>$(MSBuildThisFileDirectory)../../../ef_90_iPlus</EFCoreRootDir> -->
-		<EFCoreRootDir>$(MSBuildThisFileDirectory)../../packages/ef_90_iPlus</EFCoreRootDir>
-		<!-- <EFCoreIncludeDir>$(EFCoreRootDir)/artifacts\bin</EFCoreIncludeDir>
-		<EFCoreToolsDir>$(EFCoreRootDir)/src/EFCore.Tools</EFCoreToolsDir> -->
-		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'True'">EFCR</CompilerDefFCoreForkIPlus>
-		<CompilerDefFCoreForkIPlus Condition="'$(UseEFCoreForkIPlus)' == 'False'"></CompilerDefFCoreForkIPlus>
-	</PropertyGroup>
-
-	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
+	<PropertyGroup>
 		<!-- Settings for entity framework main and DOT-NET 10.0 and higher -->
 		<DefaultNetCoreTargetFramework>net10.0</DefaultNetCoreTargetFramework>
 		<UITargetFramework>net10.0-windows</UITargetFramework>

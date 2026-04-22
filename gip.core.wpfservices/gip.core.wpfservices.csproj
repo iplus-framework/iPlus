@@ -5,6 +5,12 @@
     <UseWPF>true</UseWPF>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <NoWarn>$(NoWarn);VSTHRD110</NoWarn>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <NoWarn>$(NoWarn);VSTHRD110</NoWarn>
+  </PropertyGroup>
   <PropertyGroup>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
     <Title>iplus-framework wpfservices</Title>

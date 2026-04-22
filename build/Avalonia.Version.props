@@ -1,9 +1,5 @@
 <Project>
-	<PropertyGroup Condition="'$(UseDotNet10)' == 'False'">
-		<AvaloniaBuildFramework>net8.0</AvaloniaBuildFramework>
-		<AvaloniaVersion>11.3.9</AvaloniaVersion>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(UseDotNet10)' == 'True'">
+	<PropertyGroup>
 		<AvaloniaBuildFramework>net10.0</AvaloniaBuildFramework>
 		<AvaloniaVersion>12.0.0</AvaloniaVersion>
 		<AvaloniaVersionLatest>12.0.1</AvaloniaVersionLatest>

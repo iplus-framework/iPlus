@@ -214,14 +214,14 @@
     <PackageReference Include="Markdown.Avalonia" />
     <PackageReference Include="MessageBox.Avalonia" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(UseDotNet10)' == 'True' AND '$(UseAvaloniaFork)' == 'False'">
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="iPlus.RoslynPad.Editor.Avalonia" />
     <PackageReference Include="iPlus.RoslynPad.Roslyn.Avalonia" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(UseDotNet10)' == 'False' AND '$(UseAvaloniaFork)' == 'False'">
+  <!-- <ItemGroup '$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="RoslynPad.Editor.Avalonia" />
     <PackageReference Include="RoslynPad.Roslyn.Avalonia" />
-  </ItemGroup>
+  </ItemGroup> -->
 
   <!-- Use Avalonia Fork -->  
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/AvaloniaInclude.props" />

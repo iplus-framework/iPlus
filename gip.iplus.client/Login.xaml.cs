@@ -3,15 +3,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Windows.Threading;
@@ -22,7 +15,7 @@ using gip.core.autocomponent;
 using gip.core.datamodel.Licensing;
 using System.Threading.Tasks;
 
-namespace gip.iplus.client
+namespace gip.mes.client
 {
     /// <summary>
     /// Interaktionslogik für StartupProgress.xaml
@@ -31,8 +24,8 @@ namespace gip.iplus.client
     {
         protected object _WaitOnOkClick = new object();
         int _CountAttempts = 0;
+        private int _displayLoginDispatchPending = 0;
 
-        //public VarioiplusLogin(MsgWithDetails infoMessage)
         public Login()
         {
 
@@ -47,12 +40,6 @@ namespace gip.iplus.client
 
         #region Eventhandler
 
-        /// <summary>
-        /// Ereignishandler der ausgelöst wird, wenn die Form VarioiplusLogin komplett geladen wurde.
-        /// </summary>
-        /// <param name="sender">Die Klasse VarioiplusLogin als Objekt.</param>
-        /// <param name="e">Die gerouteten Ereignisdaten.</param>
-        /// <remarks></remarks>
         private async void Login_Loaded(object sender, RoutedEventArgs e)
         {
             Monitor.Enter(_WaitOnOkClick);
@@ -70,29 +57,10 @@ namespace gip.iplus.client
             }
 
             await result;
-            await Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Invoker)delegate { Close(); });
-
-
-            // dieser anonyme Delegat wird aufgerufen, wenn die
-            // Initialisierung abgeschlossen wurde
-            //AsyncCallback initCompleted = delegate(IAsyncResult ar)
-           // {
-                //if ((App.Current != null) && (App.Current.ApplicationInitialize != null))
-                //    App.Current.ApplicationInitialize.EndInvoke(result);
-
-                // Sicherstellen das Close auf dem UI Thread ausgeführt wird.
-                // Deshalb wird auf den anwendungsweiten Delegaten Invoker gecastet.
-                //Dispatcher.BeginInvoke(DispatcherPriority.Normal, (Invoker)delegate { Close(); });
-            //};
-
+            await App.UiJtf.SwitchToMainThreadAsync();
+            Close();
         }
 
-        /// <summary>
-        /// Ereignishandler der ausgelöst wird, wenn die Form VarioiplusLogin entladen wurde.
-        /// </summary>
-        /// <param name="sender">Die Klasse VarioiplusLogin als Objekt.</param>
-        /// <param name="e">Die gerouteten Ereignisdaten.</param>
-        /// <remarks></remarks>
         private void Login_Unloaded(object sender, RoutedEventArgs e)
         {
             if (this._contentLoaded)
@@ -100,6 +68,12 @@ namespace gip.iplus.client
                 // EventHandler löschen
                 this.Loaded -= new RoutedEventHandler(Login_Loaded);
                 this.Unloaded -= new RoutedEventHandler(Login_Unloaded);
+                if (_CollectionChangedSubscr && InfoMessage.MsgDetails != null)
+                {
+                    _CollectionChangedSubscr = false;
+                    (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged -= _Messages_CollectionChanged;
+                }
+                selTheme.ItemsSource = null;
             }
 
             // prüfen ob der Ladevorgang abgebrochen wurde
@@ -114,7 +88,6 @@ namespace gip.iplus.client
         }
         #endregion
 
-
         #region Progress-Area
         public MsgWithDetails InfoMessage
         {
@@ -125,6 +98,7 @@ namespace gip.iplus.client
         }
 
         ObservableCollection<Msg> _Messages = null;
+        private bool _CollectionChangedSubscr = false;
         public ObservableCollection<Msg> MsgDetails
         {
             get
@@ -135,6 +109,7 @@ namespace gip.iplus.client
                     {
                         if (InfoMessage.MsgDetails is ObservableCollection<Msg>)
                         {
+                            _CollectionChangedSubscr = true;
                             (InfoMessage.MsgDetails as ObservableCollection<Msg>).CollectionChanged += new System.Collections.Specialized.NotifyCollectionChangedEventHandler(_Messages_CollectionChanged);
                         }
                     }
@@ -151,7 +126,11 @@ namespace gip.iplus.client
             {
                 if (!this.listboxInfo.CheckAccess())
                 {
-                    this.listboxInfo.Dispatcher.BeginInvoke(DispatcherPriority.Send, new Action<object, System.Collections.Specialized.NotifyCollectionChangedEventArgs>(_Messages_CollectionChanged), sender, e);
+                    App.UiJtf.RunAsync(async delegate
+                    {
+                        await App.UiJtf.SwitchToMainThreadAsync();
+                        _Messages_CollectionChanged(sender, e);
+                    });
                     return;
                 }
                 AddItems(e.NewItems);
@@ -191,7 +170,21 @@ namespace gip.iplus.client
         {
             if (!this.ProgressGrid.CheckAccess())
             {
-                this.ProgressGrid.Dispatcher.BeginInvoke(DispatcherPriority.Send, new Action<bool, string, string, eWpfTheme, String>(DisplayLogin), display, defaultUser, defaultPassword, wpfTheme, errorMsg);
+                if (Interlocked.Exchange(ref _displayLoginDispatchPending, 1) == 1)
+                    return;
+
+                App.UiJtf.RunAsync(async delegate
+                {
+                    try
+                    {
+                        await App.UiJtf.SwitchToMainThreadAsync();
+                        DisplayLogin(display, defaultUser, defaultPassword, wpfTheme, errorMsg);
+                    }
+                    finally
+                    {
+                        Interlocked.Exchange(ref _displayLoginDispatchPending, 0);
+                    }
+                });
                 return;
             }
 
@@ -227,8 +220,10 @@ namespace gip.iplus.client
                     }
                     if (!String.IsNullOrEmpty(errorMsg))
                         userMsg.Message += " // " + errorMsg;
+
                     //VBWindowDialogMsg vbMessagebox = new VBWindowDialogMsg(userMsg, eMsgButton.OK, null);
-                    //vbMessagebox.ShowMessageBox();
+                    //    vbMessagebox.ShowMessageBox();
+   
                     MessageBox.Show(userMsg.Message, "Info", MessageBoxButton.OK, MessageBoxImage.Exclamation);
 
                     _Password = "";
@@ -302,9 +297,15 @@ namespace gip.iplus.client
             Monitor.Exit(_WaitOnOkClick);
         }
 
+        private void task_OnStatusChange(core.dbsyncer.Messages.BaseSyncMessage msg)
+        {
+            Msg internalMessage = new Msg();
+            internalMessage.Message = msg.ToString();
+            AddItems(new List<Msg>() { internalMessage });
+        }
+
         private void ButtonCancel_Click(object sender, RoutedEventArgs e)
         {
-            // VarioiplusLogin schliessen
             this.Close();
 
             // Unload-EreignisHandler mit Ereignis=null aufrufen
@@ -383,11 +384,9 @@ namespace gip.iplus.client
                     labelTouchScreen.Visibility = Visibility.Visible;
                     CheckTouchScreen.Visibility = Visibility.Visible;
                 }
-
                 _Keyword = License.GenerateRemoteLoginCode();
                 TextboxKey.Text = _Keyword;
                 e.Handled = true;
-
                 return;
             }
         }
