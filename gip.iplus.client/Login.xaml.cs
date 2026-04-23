@@ -15,7 +15,7 @@ using gip.core.autocomponent;
 using gip.core.datamodel.Licensing;
 using System.Threading.Tasks;
 
-namespace gip.mes.client
+namespace gip.iplus.client
 {
     /// <summary>
     /// Interaktionslogik für StartupProgress.xaml
