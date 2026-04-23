@@ -40,6 +40,7 @@ namespace gip.core.autocomponent
                         PWBase.PoolWFComponents = coreConfig.PoolWFNodes;
                         PWProcessFunction.ConsistencyCheckWF = coreConfig.ConsistencyCheckWF;
                         PoolReference.UseWeekRef = coreConfig.UseWeekRefForPooling;
+                        ACThreadDiagnostics.Enabled = coreConfig.UseCooperativeThreadDiagnostics;
                     }
                 }
                 catch (Exception e)

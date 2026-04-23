@@ -59,6 +59,21 @@ namespace gip.core.datamodel
         /// </summary>
         private static Dictionary<ACMonitorObject, MonitorState> _monitorStates = new Dictionary<ACMonitorObject, MonitorState>();
 
+        private static string CaptureCurrentThreadStackTrace()
+        {
+            try
+            {
+                return new StackTrace(true).ToString();
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                if (e.InnerException != null && e.InnerException.Message != null)
+                    msg += " Inner:" + e.InnerException.Message;
+                return "<stack-trace-unavailable>: " + msg;
+            }
+        }
+
         private static bool? _UseSimpleMonitor;
         public static bool UseSimpleMonitor
         {
@@ -257,6 +272,7 @@ namespace gip.core.datamodel
                         if (ms.OwningThread != Thread.CurrentThread)
                         {
                             ms.WaitingThreads.Add(Thread.CurrentThread);
+                            ms.SetWaitingThreadStack(Thread.CurrentThread, CaptureCurrentThreadStackTrace());
                             ThrowIfDeadlockDetected(ms, ValidateLockHierarchy, monitor);
                         }
                         else if (ValidateLockHierarchy)
@@ -333,12 +349,16 @@ namespace gip.core.datamodel
                             // We're no longer waiting on the monitor, either because something went wrong
                             // in the wait or because we now own the monitor
                             ms.WaitingThreads.Remove(Thread.CurrentThread);
+                            ms.RemoveWaitingThreadStack(Thread.CurrentThread);
 
                             // If we did get the monitor, then note that we now own it
                             if (thisThreadOwnsMonitor)
                             {
                                 if (ms.OwningThread != Thread.CurrentThread) 
+                                {
                                     ms.OwningThread = Thread.CurrentThread;
+                                    ms.OwningThreadAcquireStackTrace = CaptureCurrentThreadStackTrace();
+                                }
                                 else 
                                     ms.ReentranceCount++;
                             }
@@ -395,6 +415,7 @@ namespace gip.core.datamodel
                     else
                     {
                         ms.OwningThread = null;
+                        ms.OwningThreadAcquireStackTrace = null;
                         if (ms.WaitingThreads.Count == 0) 
                             _monitorStates.Remove(monitor);
                     }
@@ -520,96 +541,50 @@ namespace gip.core.datamodel
             Dictionary<Thread, List<MonitorState>> locksHeldByThreads)
         {
 //#if !EFCR
-//            StringBuilder desc = new StringBuilder();
-//            for (CycleComponentNode node = currentChain; node != null; node = node.Next)
-//            {
-//                desc.AppendFormat("Thread {0}, {1} waiting on {2} ({3:X}) while holding ",
-//                    node.Thread.ManagedThreadId, node.Thread.Name, node.MonitorState.MonitorObject.ToString(),
-//                    RuntimeHelpers.GetHashCode(node.MonitorState.MonitorObject));
-//                bool needsComma = false;
-//                foreach (MonitorState ms in locksHeldByThreads[node.Thread])
-//                {
-//                    if (needsComma) desc.Append(", ");
-//                    desc.AppendFormat("{0} ({1:X})", ms.MonitorObject.ToString(),
-//                        RuntimeHelpers.GetHashCode(ms.MonitorObject));
-//                    needsComma = true;
-//                }
+           StringBuilder desc = new StringBuilder();
+           for (CycleComponentNode node = currentChain; node != null; node = node.Next)
+           {
+               desc.AppendFormat("Thread {0}, {1} waiting on {2} ({3:X}) while holding ",
+                   node.Thread.ManagedThreadId, node.Thread.Name, node.MonitorState.MonitorObject.ToString(),
+                   RuntimeHelpers.GetHashCode(node.MonitorState.MonitorObject));
+               bool needsComma = false;
+               foreach (MonitorState ms in locksHeldByThreads[node.Thread])
+               {
+                   if (needsComma) desc.Append(", ");
+                   desc.AppendFormat("{0} ({1:X})", ms.MonitorObject.ToString(),
+                       RuntimeHelpers.GetHashCode(ms.MonitorObject));
 
-//                StackTrace stackTrace = null;
-//                var ready = new ManualResetEventSlim();
-//                new Thread(() =>
-//                {
-//                    ready.Set();
-//                    Thread.Sleep(200);
-//                    try
-//                    {
-//                        node.Thread.Resume();
-//                    }
-//                    catch (Exception e)
-//                    {
-//                        string msg = e.Message;
-//                        if (e.InnerException != null && e.InnerException.Message != null)
-//                            msg += " Inner:" + e.InnerException.Message;
+                   if (!String.IsNullOrEmpty(ms.OwningThreadAcquireStackTrace))
+                   {
+                       desc.AppendLine();
+                       desc.AppendFormat("  Lock-acquire stack for monitor {0}:", ms.MonitorObject);
+                       desc.AppendLine();
+                       desc.Append(ms.OwningThreadAcquireStackTrace);
+                   }
+                   needsComma = true;
+               }
 
-//                        if (Database.Root != null && Database.Root.Messages != null)
-//                            Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription", msg);
-//                    }
-//                }
-//                ).Start();
+               desc.AppendLine();
+               string waitingTrace;
+               if (node.MonitorState.TryGetWaitingThreadStack(node.Thread, out waitingTrace))
+               {
+                   desc.AppendFormat("Captured waiting stack of Thread: {0}, {1}", node.Thread.Name, node.Thread.ManagedThreadId);
+                   desc.AppendLine();
+                   desc.Append(waitingTrace);
+               }
+               else
+               {
+                   desc.AppendFormat("Captured waiting stack of Thread: {0}, {1} is unavailable.", node.Thread.Name, node.Thread.ManagedThreadId);
+               }
 
-//                ready.Wait();
-//                try
-//                {
-//                    desc.AppendLine();
-//                    node.Thread.Suspend();
-//                    stackTrace = new StackTrace(node.Thread, true);
-//            desc.AppendFormat("Stacktrace of Thread: {0}, {1}", node.Thread.Name, node.Thread.ManagedThreadId);
-//                    desc.AppendLine();
-//                    for (int i = 0; i < stackTrace.FrameCount; i++)
-//                    {
-//                        StackFrame sf = stackTrace.GetFrame(i);
-//                        desc.AppendFormat(" Method: {0}", sf.GetMethod());
-//                        desc.AppendFormat(" File: {0}", sf.GetFileName());
-//                        desc.AppendFormat(" Line Number: {0}", sf.GetFileLineNumber());
-//                        desc.AppendLine();
-//                    }
-//                }
-//                catch (Exception e)
-//                {
-//                    string msg = e.Message;
-//                    if (e.InnerException != null && e.InnerException.Message != null)
-//                        msg += " Inner:" + e.InnerException.Message;
-
-//                    if (Database.Root != null && Database.Root.Messages != null)
-//                        Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription(10)", msg);
-//                }
-//                finally
-//                {
-//                    try
-//                    {
-//                        node.Thread.Resume();
-//                    }
-//                    catch (Exception e)
-//                    {
-//                        stackTrace = null;
-
-//                        string msg = e.Message;
-//                        if (e.InnerException != null && e.InnerException.Message != null)
-//                            msg += " Inner:" + e.InnerException.Message;
-
-//                        if (Database.Root != null && Database.Root.Messages != null)
-//                            Database.Root.Messages.LogException("ACMonitor", "CreateDeadlockDescription(20)", msg);
-//                    }
-//                }
-
-//                desc.AppendLine();
-//            }
-//            string deadlockDesc = desc.ToString();
-//            if (Database.Root != null)
-//                Database.Root.Messages.LogException("ACMonitor.CreateDeadlockDescription()", "Deadlock!", deadlockDesc);
-//            return deadlockDesc;
+               desc.AppendLine();
+           }
+           string deadlockDesc = desc.ToString();
+           if (Database.Root != null)
+               Database.Root.Messages.LogException("ACMonitor.CreateDeadlockDescription()", "Deadlock!", deadlockDesc);
+           return deadlockDesc;
 //#endif
-            return "";
+            //return "";
         }
 
         /// <summary>
@@ -687,11 +662,40 @@ namespace gip.core.datamodel
             /// </summary>
             public int ReentranceCount;
 
+            public string OwningThreadAcquireStackTrace;
+
             public int Sequence;
             /// <summary>
             /// The waiting threads
             /// </summary>
             public List<Thread> WaitingThreads = new List<Thread>();
+
+            private Dictionary<int, string> _waitingThreadStackTraces = new Dictionary<int, string>();
+
+            public void SetWaitingThreadStack(Thread thread, string stackTrace)
+            {
+                if (thread == null)
+                    return;
+
+                _waitingThreadStackTraces[thread.ManagedThreadId] = stackTrace ?? String.Empty;
+            }
+
+            public void RemoveWaitingThreadStack(Thread thread)
+            {
+                if (thread == null)
+                    return;
+
+                _waitingThreadStackTraces.Remove(thread.ManagedThreadId);
+            }
+
+            public bool TryGetWaitingThreadStack(Thread thread, out string stackTrace)
+            {
+                stackTrace = null;
+                if (thread == null)
+                    return false;
+
+                return _waitingThreadStackTraces.TryGetValue(thread.ManagedThreadId, out stackTrace);
+            }
         }
 
         /// <summary>

@@ -120,5 +120,18 @@ namespace gip.core.autocomponent
                 this[nameof(RoutingDefaultAlternatives)] = value;
             }
         }
+
+        [ConfigurationProperty("UseCooperativeThreadDiagnostics", DefaultValue = true, IsRequired = false)]
+        public bool UseCooperativeThreadDiagnostics
+        {
+            get
+            {
+                return (bool)this["UseCooperativeThreadDiagnostics"];
+            }
+            set
+            {
+                this["UseCooperativeThreadDiagnostics"] = value;
+            }
+        }
     }
 }

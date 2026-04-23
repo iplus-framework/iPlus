@@ -257,6 +257,7 @@ namespace gip.core.datamodel
         /// <returns><c>true</c> if XXXX, <c>false</c> otherwise</returns>
         protected override bool OnStartQueueProcessing(int countActions)
         {
+            ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnStartQueueProcessing", InstanceName, false);
             //EnterCS();
             bool isOpen = true;
             if (!_AutoOpenClose)
@@ -272,12 +273,16 @@ namespace gip.core.datamodel
         /// <param name="action">The action.</param>
         public override void ProcessAction(Action action)
         {
+            ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.ProcessAction.Enter", InstanceName, false);
             using (ACMonitor.Lock(Context.QueryLock_1X000))
             {
                 bool isOpen = true;
                 if (!_AutoOpenClose)
                     isOpen = OpenConnection();
+
+                ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.ProcessAction.InsideQueryLock", InstanceName, false);
                 action();
+                ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.ProcessAction.Completed", InstanceName, false);
                 //if (openTemporary)
                 //    CloseConnection();
 
@@ -414,6 +419,7 @@ namespace gip.core.datamodel
         /// <param name="countActions">The count actions.</param>
         protected override void OnQueueProcessed(int countActions)
         {
+            ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.Enter", InstanceName, false);
             //IDisposable cookie1 = null;
             //IDisposable cookie2 = null;
             try
@@ -425,9 +431,11 @@ namespace gip.core.datamodel
                     {
                         if (Context.HasModifiedObjectStateEntries())
                         {
+                            ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.ACSaveChanges.Begin", InstanceName, false);
                             MsgWithDetails msg = Context.ACSaveChanges(true, SaveChangesWithoutValidation);
                             if (msg != null)
                             {
+                                ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.ACSaveChanges.Error", InstanceName, true);
                                 bool isDisconnected = ACObjectContextHelper.IsDisconnectedException(msg);
                                 if (isDisconnected)
                                     _UncommitedRead = 0;
@@ -452,12 +460,14 @@ namespace gip.core.datamodel
                             }
                             else
                             {
+                                ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.ACSaveChanges.Success", InstanceName, false);
                                 _SaveChangesRetriesA = 0;
                             }
                         }
                     }
                     catch (Exception e)
                     {
+                        ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.CatchA", InstanceName, true);
                         Context.ACUndoChanges();
                         _SaveChangesRetriesA = 0;
 
@@ -479,9 +489,11 @@ namespace gip.core.datamodel
                         {
                             if (Context.ContextIPlus.HasModifiedObjectStateEntries())
                             {
+                                ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.ContextIPlus.ACSaveChanges.Begin", InstanceName, false);
                                 MsgWithDetails msg = Context.ContextIPlus.ACSaveChanges(true, _TransScope == null, SaveChangesWithoutValidation);
                                 if (msg != null)
                                 {
+                                    ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.ContextIPlus.ACSaveChanges.Error", InstanceName, true);
                                     Database.Root.Messages.LogError(InstanceName, "ACEntityOpQueue.OnQueueProcessed(10)", "ContextIPlus.ACSaveChanges failed");
                                     Database.Root.Messages.LogMessageMsg(msg);
                                     bool isDisconnected = ACObjectContextHelper.IsDisconnectedException(msg);
@@ -501,12 +513,14 @@ namespace gip.core.datamodel
                                 }
                                 else
                                 {
+                                    ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.ContextIPlus.ACSaveChanges.Success", InstanceName, false);
                                     _SaveChangesRetriesB = 0;
                                 }
                             }
                         }
                         catch (Exception e)
                         {
+                            ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.CatchB", InstanceName, true);
                             Context.ContextIPlus.ACUndoChanges();
                             _SaveChangesRetriesB = 0;
 
@@ -522,6 +536,7 @@ namespace gip.core.datamodel
             }
             finally
             {
+                ACThreadDiagnostics.MarkCurrentThread("ACEntityOpQueue.OnQueueProcessed.Finally", InstanceName, false);
                 if (   _SaveChangesRetriesA == 0 
                     && _SaveChangesRetriesB == 0 
                     && (DefaultTransactionScopeOption.HasValue || DefaultIsolationLevel.HasValue))

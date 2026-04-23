@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Diagnostics.Tracing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -103,7 +104,7 @@ namespace gip.core.autocomponent
         [ACPropertyInfo(true, 200, DefaultValue = 0)]
         public int PerfTimeoutStackTrace { get; set; }
 
-        [ACPropertyInfo(true, 201, DefaultValue = 0)]
+        [ACPropertyInfo(true, 201, DefaultValue = 0)] 
         public int PerfMonitoringTimeout { get; set; }
 
         /// <summary>
@@ -389,6 +390,35 @@ namespace gip.core.autocomponent
 
         private const string C_IdleMethod = "Int32 WaitOneNative";
 
+        private static bool TryCreateThreadStackTrace(Thread thread, bool needFileInfo, out StackTrace stackTrace)
+        {
+            stackTrace = null;
+            try
+            {
+                ConstructorInfo ctor = typeof(StackTrace).GetConstructor(new Type[] { typeof(Thread), typeof(bool) });
+                if (ctor == null)
+                    return false;
+
+                stackTrace = ctor.Invoke(new object[] { thread, needFileInfo }) as StackTrace;
+                return stackTrace != null;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private static string GetThreadDiagnosticsSuffix(ACThread thread)
+        {
+            if (thread == null)
+                return String.Empty;
+
+            if (!ACThreadDiagnostics.Enabled)
+                return String.Empty;
+
+            return "\nThread diagnostics: " + ACThreadDiagnostics.FormatForThread(thread.ManagedThreadId);
+        }
+
         public void DumpStackTrace(Thread ignoreThread = null, bool ignoreIdleThreads = false)
         {
             StackTrace st = new StackTrace(true);
@@ -397,34 +427,86 @@ namespace gip.core.autocomponent
 
             //Solution https://github.com/dotnet/runtime/issues/80555#issuecomment-1386817390
 
-            //foreach (ACThread thread in ACThread.ACThreadList)
-            //{
-            //    if (ignoreThread != null && thread.Thread == ignoreThread)
-            //        continue;
-            //    StringBuilder builder = new StringBuilder();
-            //    thread.Suspend();
-            //    st = new StackTrace(thread.Thread, true);
-            //    //trace = st.ToString();
-            //    string stackIndent = "";
-            //    for (int i = 0; i < st.FrameCount; i++)
-            //    {
-            //        StackFrame sf = st.GetFrame(i);
-            //        if (ignoreIdleThreads && i == 0)
-            //        {
-            //            string methodName = sf.GetMethod().ToString();
-            //            if (!String.IsNullOrEmpty(methodName) && methodName.StartsWith(C_IdleMethod))
-            //                break;
-            //        }
-            //        builder.AppendLine(stackIndent + "Method: " + sf.GetMethod());
-            //        builder.AppendLine(stackIndent + "File: " + sf.GetFileName());
-            //        builder.AppendLine(stackIndent + "Line: " + sf.GetFileLineNumber());
-            //        stackIndent += "  ";
-            //    }
-            //    if (!String.IsNullOrEmpty(stackIndent))
-            //        Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}", thread.Name, builder.ToString()));
+            foreach (ACThread thread in ACThread.ACThreadList)
+            {
+               if (ignoreThread != null && thread.Thread == ignoreThread)
+                   continue;
 
-            //    thread.Resume();
-            //}
+               if (ignoreIdleThreads && thread.ThreadState == System.Threading.ThreadState.WaitSleepJoin)
+                   continue;
+
+               bool wasSuspended = false;
+               try
+               {
+                   if (thread.Thread != Thread.CurrentThread)
+                   {
+                       try
+                       {
+                           thread.Suspend();
+                           wasSuspended = true;
+                       }
+                       catch
+                       {
+                       }
+                   }
+
+                   StackTrace threadStackTrace;
+                   if (TryCreateThreadStackTrace(thread.Thread, true, out threadStackTrace))
+                   {
+                       StringBuilder builder = new StringBuilder();
+                       string stackIndent = "";
+                       for (int i = 0; i < threadStackTrace.FrameCount; i++)
+                       {
+                           StackFrame sf = threadStackTrace.GetFrame(i);
+                           if (ignoreIdleThreads && i == 0)
+                           {
+                               string methodName = sf.GetMethod().ToString();
+                               if (!String.IsNullOrEmpty(methodName) && methodName.StartsWith(C_IdleMethod))
+                                   break;
+                           }
+                           builder.AppendLine(stackIndent + "Method: " + sf.GetMethod());
+                           builder.AppendLine(stackIndent + "File: " + sf.GetFileName());
+                           builder.AppendLine(stackIndent + "Line: " + sf.GetFileLineNumber());
+                           stackIndent += "  ";
+                       }
+
+                       if (!String.IsNullOrEmpty(stackIndent))
+                           Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}{2}", thread.Name, builder.ToString(), GetThreadDiagnosticsSuffix(thread)));
+                   }
+                   else if (thread.Thread == Thread.CurrentThread)
+                   {
+                       Messages.LogDebug(this.GetACUrl(), "RuntimeDump.Dump(StackTrace)", String.Format("Thread: {0}, Trace {1}{2}", thread.Name, new StackTrace(true).ToString(), GetThreadDiagnosticsSuffix(thread)));
+                   }
+                   else
+                   {
+                       Messages.LogDebug(
+                           this.GetACUrl(),
+                           "RuntimeDump.Dump(StackTrace)",
+                           String.Format(
+                               "Thread: {0}, Id: {1}, State: {2}, IsAlive: {3}, IsBackground: {4}, IsThreadPool: {5}. Cross-thread stack capture is not supported on this runtime. Use cooperative snapshots or a process dump (dotnet-dump).{6}",
+                               thread.Name,
+                               thread.ManagedThreadId,
+                               thread.ThreadState,
+                               thread.IsAlive,
+                               thread.IsBackground,
+                               thread.IsThreadPoolThread,
+                               GetThreadDiagnosticsSuffix(thread)));
+                   }
+               }
+               finally
+               {
+                   if (wasSuspended)
+                   {
+                       try
+                       {
+                           thread.Resume();
+                       }
+                       catch
+                       {
+                       }
+                   }
+               }
+            }
         }
 #pragma warning restore CS0618
 
