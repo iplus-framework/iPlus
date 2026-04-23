@@ -137,13 +137,7 @@ namespace gip.iplus.client
         #endregion
 
         #region Startup
-        /// <summary>
-        /// Lädt die VarioiplusLogin- und Window1-Klasse und stellt die Interaktionslogik
-        /// für das UI der VarioiplusLogin-Klasse.
-        /// </summary>
-        /// <param name="VarioiplusLogin">Eine Instanz der VarioiplusLogin-Klasse</param>
-        /// <remarks>Wird in einer Instanz des ApplicationInitializeDelegate verarbeitet.</remarks>
-        private void applicationInitialize(Login VarioiplusLogin)
+        private void applicationInitialize(Login loginWindow)
         {
             string[] cmLineArg = System.Environment.GetCommandLineArgs();
 
@@ -165,18 +159,18 @@ namespace gip.iplus.client
             }
 
             if (cmLineArg.Contains("-controlLoad=True"))
-                VarioiplusLogin.IsLoginWithControlLoad = true;
+                loginWindow.IsLoginWithControlLoad = true;
 
             String errorMsg = "";
             for (int i = 0; i < 3; i++)
             {
                 if (!cmLineArg.Contains("/autologin") || i > 0)
                 {
-                    VarioiplusLogin.DisplayLogin(true, UserName, PassWord, wpfTheme, errorMsg);
-                    VarioiplusLogin.GetLoginResult(ref UserName, ref PassWord, ref RegisterACObjects, ref PropPersistenceOff);
-                    wpfTheme = VarioiplusLogin.WpfTheme;
+                    loginWindow.DisplayLogin(true, UserName, PassWord, wpfTheme, errorMsg);
+                    loginWindow.GetLoginResult(ref UserName, ref PassWord, ref RegisterACObjects, ref PropPersistenceOff);
+                    wpfTheme = loginWindow.WpfTheme;
                     errorMsg = "";
-                    VarioiplusLogin.DisplayLogin(false, "", "", wpfTheme, errorMsg);
+                    loginWindow.DisplayLogin(false, "", "", wpfTheme, errorMsg);
                 }
                 else
                 {

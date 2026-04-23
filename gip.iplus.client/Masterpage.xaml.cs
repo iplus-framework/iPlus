@@ -521,7 +521,7 @@ namespace gip.iplus.client
         #region IRootPageWPF
 
         delegate Global.MsgResult ShowMsgBoxDelegate(Msg msg, eMsgButton msgButton);
-        public Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
+        public async Task<Global.MsgResult> ShowMsgBoxAsync(Msg msg, Global.MsgResult defaultResult, eMsgButton msgButton)
         {
             // Workaround: Wenn MessageBox in OnApplyTemplate aufgerufen wird, dann findet eine Exception statt weil die Nachrichtenverarbeitungsschleife des Dispatchers noch deaktiviert ist
             // Das findet man über den Zugriff auf eine interne Member heraus:
@@ -531,15 +531,15 @@ namespace gip.iplus.client
             int _disableProcessingCount = 0;
             if (fieldInfo != null)
             {
-                _disableProcessingCount = (int) fieldInfo.GetValue(this.Dispatcher);
+                _disableProcessingCount = (int)fieldInfo.GetValue(this.Dispatcher);
             }
             if (_disableProcessingCount <= 0)
             {
                 try
                 {
-                    return Task.FromResult<Global.MsgResult>(ShowMsgBoxIntern(msg, msgButton));
+                    return ShowMsgBoxIntern(msg, msgButton);
                 }
-                catch (InvalidOperationException /*iopEx*/)
+                catch (InvalidOperationException)
                 {
                     _ = App.UiJtf.RunAsync(async delegate
                     {
