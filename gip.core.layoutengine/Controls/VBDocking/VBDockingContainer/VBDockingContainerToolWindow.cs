@@ -101,7 +101,12 @@ namespace gip.core.layoutengine
                                 Rect wndRect = wndPos.WndRect;
                                 if (wndPos.WndRect.Location.X > (System.Windows.SystemParameters.VirtualScreenWidth - 50)
                                     || wndPos.WndRect.Location.Y > (System.Windows.SystemParameters.VirtualScreenHeight - 50))
-                                    wndRect = new Rect(DockManager.PointToScreen(Mouse.GetPosition(DockManager)), new Size(desiredWidth, desiredHeight));
+                                {
+                                    if (DockManager.IsLoaded)
+                                        wndRect = new Rect(DockManager.PointToScreen(Mouse.GetPosition(DockManager)), new Size(desiredWidth, desiredHeight));
+                                    else
+                                        wndRect = new Rect(new Point(50, 50), new Size(desiredWidth, desiredHeight));
+                                }
                                 else if (ControlManager.RestoreWindowsOnSameScreen)
                                 {
                                     Window window = Window.GetWindow(DockManager);
