@@ -900,21 +900,25 @@ namespace gip.core.autocomponent
             ACClass customValueListClass = db.GetACType(acClassACIdentifier);
             if (customValueListClass != null)
             {
-                gip.core.datamodel.ACClassConfig config =
-                    customValueListClass
+                gip.core.datamodel.ACClassConfig[] allConfigs =
+                     customValueListClass
                     .ACClassConfig_ACClass
-                    .AsEnumerable()
-                    .Where(c => c.LocalConfigACUrl == nameof(ACValueItem) && c.Value == value)
+                    .Where(c => c.LocalConfigACUrl == nameof(ACValueItem))
+                    .ToArray();
+
+                gip.core.datamodel.ACClassConfig config =
+                    allConfigs
+                    .Where(c => string.Equals(c.Value, value))
                     .FirstOrDefault();
 
                 if(config == null)
                 {
                     IACConfigStore acConfigHandler = customValueListClass as IACConfigStore;
-                    gip.core.datamodel.ACClassConfig acConfig = acConfigHandler.NewACConfig(customValueListClass) as gip.core.datamodel.ACClassConfig;
-                    acConfig.ValueTypeACClass = db.GetACType(typeof(String)) as gip.core.datamodel.ACClass;
-                    acConfig.Value = value;
-                    acConfig.LocalConfigACUrl = nameof(ACValueItem);
-                    customValueListClass.ACClassConfig_ACClass.Add(acConfig);
+                    config = acConfigHandler.NewACConfig(customValueListClass) as gip.core.datamodel.ACClassConfig;
+                    config.ValueTypeACClass = db.GetACType(typeof(String)) as gip.core.datamodel.ACClass;
+                    config.Value = value;
+                    config.LocalConfigACUrl = nameof(ACValueItem);
+                    customValueListClass.ACClassConfig_ACClass.Add(config);
                 }
                 if(config.ACCaption != desc)
                 {

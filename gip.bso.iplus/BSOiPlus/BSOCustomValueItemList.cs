@@ -250,7 +250,12 @@ namespace gip.bso.iplus
                 if (CurrentCustomList == null || ConfigPointACClassProperty == null)
                     return null;
 
-                return ConfigPointACClassProperty.GetConfigListOfType(CurrentCustomList).Select(c => c as ACClassConfig).ToList();
+                return
+                    ConfigPointACClassProperty
+                    .GetConfigListOfType(CurrentCustomList)
+                    .Select(c => c as ACClassConfig)
+                    .OrderBy(c => c.ACCaption)
+                    .ToList();
             }
         }
 
@@ -405,7 +410,7 @@ namespace gip.bso.iplus
             ACClassConfig acConfig = acConfigHandler.NewACConfig(CurrentCustomList) as ACClassConfig;
             Database database = acConfig.GetObjectContext<Database>();
             ACClassConfig otherConfig = PointConfigList.Where(c => c.ACClassConfigID != acConfig.ACClassConfigID).OrderBy(c => c.InsertDate).FirstOrDefault();
-            if(otherConfig != null)
+            if (otherConfig != null)
             {
                 acConfig.ValueTypeACClass = otherConfig.ValueTypeACClass;
                 acConfig.Value = Activator.CreateInstance(otherConfig.ValueTypeACClass.ObjectFullType);
@@ -497,7 +502,7 @@ namespace gip.bso.iplus
         }
 
         #endregion
-        
+
 
         #endregion
     }
