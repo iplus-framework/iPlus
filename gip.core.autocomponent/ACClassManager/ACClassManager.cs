@@ -3219,9 +3219,8 @@ namespace gip.core.autocomponent
             ACClassWF dummyACClassWF = dummyACClassMethod.ACClassWF_ACClassMethod.FirstOrDefault();
             if (dummyACClassWF == null)
             {
-                string secondaryKey = ACRoot.SRoot.NoManager.GetNewNo(_Database, typeof(ACClassWF), ACClassWF.NoColumnName, ACClassWF.FormatNewNo, null);
-                dummyACClassWF = ACClassWF.NewACObject(_Database, dummyACClassMethod, secondaryKey);
-                dummyACClassWF.ACIdentifier = Const.UnknownWorkflow;
+                //string secondaryKey = ACRoot.SRoot.NoManager.GetNewNo(_Database, typeof(ACClassWF), ACClassWF.NoColumnName, ACClassWF.FormatNewNo, null);
+                dummyACClassWF = ACClassWF.NewACObject(_Database, dummyACClassMethod, Const.UnknownWorkflow);
                 dummyACClassWF.PWACClass = dummyACClass;
                 if (dummyACClassWF.EntityState == EntityState.Detached)
                     _Database.ACClassWF.Add(dummyACClassWF);

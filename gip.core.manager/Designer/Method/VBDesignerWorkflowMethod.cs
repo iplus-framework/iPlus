@@ -792,11 +792,9 @@ namespace gip.core.manager
 
                 ACClassWF workflowClass = visualTargetEdge.FromWFNode as ACClassWF;
 
-                if (
-                        parentACClass != null 
-                        &&
-                        ((parentACClass.ACKind == Global.ACKinds.TPAProcessModuleGroup && parentACClass.ACClass1_ParentACClass != workflowClass.ParentACClass)
-                        || (parentACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup && parentACClass != workflowClass.ParentACClass))
+                if (parentACClass == null 
+                    || ((parentACClass.ACKind == Global.ACKinds.TPAProcessModuleGroup && parentACClass.ACClass1_ParentACClass != workflowClass.ParentACClass)
+                    || (parentACClass.ACKind != Global.ACKinds.TPAProcessModuleGroup && parentACClass != workflowClass.ParentACClass))
                    )
                     return false;
 
