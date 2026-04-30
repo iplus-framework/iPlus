@@ -37,10 +37,10 @@
 		<EFCorePackageVersionFork>10.0.5</EFCorePackageVersionFork>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\SkiaSharp.props -->
-		<SkiaSharpVersion>3.119.3-preview.1.1</SkiaSharpVersion>
+		<SkiaSharpVersion>3.119.4-preview.1.1</SkiaSharpVersion>
 
 		<!-- $(AvaloniaRootDir)\av_main\build\HarfBuzzSharp.props -->
-		<HarfBuzzSharpVersion>8.3.1.3</HarfBuzzSharpVersion>
+		<HarfBuzzSharpVersion>8.3.1.6-preview.1.1</HarfBuzzSharpVersion>
 
 		<!-- ClosedXML uses transitive packages of DocumentFormat.OpenXml and this result in an package conflict. 
     Therefore this declaration is used for override in csproj -->
@@ -84,9 +84,9 @@
 		<PackageVersion Include="OxyPlot.Avalonia" Version="2.1.0-Avalonia11" />
 		<PackageVersion Include="MessageBox.Avalonia" Version="12.0.0" />
 		<PackageVersion Include="Markdown.Avalonia" Version="12.0.0-a3" />
-		<PackageVersion Include="Dock.Avalonia" Version="12.0.0.1" />
-		<PackageVersion Include="Dock.Avalonia.Themes.Fluent" Version="12.0.0.1" />
-		<PackageVersion Include="Dock.Model.Avalonia" Version="12.0.0.1" />
+		<PackageVersion Include="Dock.Avalonia" Version="12.0.0.2" />
+		<PackageVersion Include="Dock.Avalonia.Themes.Fluent" Version="12.0.0.2" />
+		<PackageVersion Include="Dock.Model.Avalonia" Version="12.0.0.2" />
 
 		<!-- iplus using packages -->
 		<PackageVersion Include="AvalonEdit" Version="6.3.1.120" />
