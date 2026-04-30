@@ -1,0 +1,43 @@
+﻿
+<UserControl x:Class="gip.core.layoutengine.avui.PropertyGrid.Editors.VBTimeSpanEditor"
+                     xmlns="https://github.com/avaloniaui"
+					 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                     xmlns:local="clr-namespace:gip.core.layoutengine.avui"
+                     x:Name="root"
+					>
+	<UserControl.Styles>
+		<Style Selector="local|VBCheckBox.negativeCheckbox">
+			<Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="Template">
+				<ControlTemplate TargetType="local:VBCheckBox">
+					<Grid x:Name="templateRoot" Background="Transparent">
+						<Grid x:Name="markGrid">
+							<local:VBTextBlock Margin="0,-2,0,0" x:Name="optionMark" FontWeight="Bold" Text="-" />
+						</Grid>
+					</Grid>
+				</ControlTemplate>
+			</Setter>
+		</Style>
+		<Style Selector="local|VBCheckBox.negativeCheckbox:checked /template/ TextBlock#optionMark">
+			<Setter Property="Opacity" Value="1"/>
+		</Style>
+		<Style Selector="local|VBCheckBox.negativeCheckbox:not(:checked) /template/ TextBlock#optionMark">
+			<Setter Property="Opacity" Value="0"/>
+		</Style>
+	</UserControl.Styles>
+	<StackPanel Orientation="Horizontal" DataContext="{Binding ElementName=root}">
+		<local:VBCheckBox Margin="2,0,2,0" VerticalAlignment="Center" Classes="negativeCheckbox" IsThreeState="False" IsChecked="{Binding Negative}"/>
+		<local:VBNumericUpDown MinWidth="40" Value="{Binding Days}" Minimum="-1" Maximum="10675199" />
+		<local:VBTextBlock Text="d " />
+		<local:VBNumericUpDown MinWidth="36" Value="{Binding Hours}" Minimum="-1" Maximum="25" />
+		<local:VBTextBlock Text="h " />
+		<local:VBNumericUpDown MinWidth="36" Value="{Binding Minutes}" Minimum="-1" Maximum="60" />
+		<local:VBTextBlock Text="m " />
+		<local:VBNumericUpDown MinWidth="36" Value="{Binding Seconds}" Minimum="-1" Maximum="60"  />
+		<local:VBTextBlock Text="s " />
+		<local:VBNumericUpDown MinWidth="44" Value="{Binding Milliseconds}" Minimum="-1" Maximum="1000" />
+		<local:VBTextBlock Text="ms" />
+	</StackPanel>
+</UserControl>
+

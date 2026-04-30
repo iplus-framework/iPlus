@@ -4442,6 +4442,7 @@ namespace gip.bso.iplus
 
                 case nameof(NewOK):
                 case nameof(IsEnabledNewOK):
+                case nameof(NewCancel):
                     return new string[] { nameof(CurrentNewACIdentifier), nameof(CurrentNewMessage) };
 
                 case nameof(DeleteACTranslation):

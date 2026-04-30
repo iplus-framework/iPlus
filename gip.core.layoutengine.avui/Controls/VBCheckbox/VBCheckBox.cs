@@ -36,6 +36,8 @@ namespace gip.core.layoutengine.avui
         {
         }
 
+        protected override Type StyleKeyOverride => typeof(VBCheckBox);
+
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>

@@ -45,6 +45,8 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        protected override Type StyleKeyOverride => typeof(VBListBox);
+
         /// <summary>
         /// The event hander for Initialized event.
         /// </summary>

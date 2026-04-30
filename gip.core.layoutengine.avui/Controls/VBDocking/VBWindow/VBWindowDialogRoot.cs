@@ -305,11 +305,19 @@ namespace gip.core.layoutengine.avui
         {
             base.OnOpened(e);
 
-            if (Owner != null && Position.Y + this.Bounds.Height > Owner.Bounds.Height)
-            {
-                double calc = (Owner.Bounds.Height - Bounds.Height) / 2;
-                Position = new PixelPoint(Position.X, calc > 0 ? (int)calc : 1);
-            }
+            // if (Owner is Window ownerWindow)
+            // {
+            //     // Position is in screen coordinates, so compare against owner bounds in screen coordinates as well.
+            //     var ownerTop = ownerWindow.Position.Y;
+            //     var ownerBottom = ownerTop + (int)ownerWindow.Bounds.Height;
+            //     var dialogBottom = Position.Y + (int)Bounds.Height;
+
+            //     if (dialogBottom > ownerBottom)
+            //     {
+            //         double centeredY = ownerTop + (ownerWindow.Bounds.Height - Bounds.Height) / 2;
+            //         Position = new PixelPoint(Position.X, centeredY > ownerTop ? (int)centeredY : ownerTop);
+            //     }
+            // }
         }
 
         #region IDialog Members

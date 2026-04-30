@@ -66,6 +66,8 @@ namespace gip.core.layoutengine.avui
             VisibilityFilterRow = false;
         }
 
+        protected override Type StyleKeyOverride => typeof(VBComboBox);
+
         protected override void OnInitialized()
         {
             base.OnInitialized();

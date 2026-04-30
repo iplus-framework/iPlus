@@ -2,6 +2,7 @@
 // This code was originally distributed under the GNU LGPL. The modifications by gipSoft d.o.o. are now distributed under GPLv3.
 
 using Avalonia.Input;
+using Avalonia.Interactivity;
 
 namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 {
@@ -28,6 +29,11 @@ namespace gip.core.layoutengine.avui.PropertyGrid.Editors
 			//} else if (e.Key == Key.Escape) {
 			//	BindingOperations.GetBindingExpression(this, TextProperty).UpdateTarget();
 			//}
+		}
+
+		protected override void OnLoaded(RoutedEventArgs e)
+		{
+			base.OnLoaded(e);
 		}
 	}
 }
