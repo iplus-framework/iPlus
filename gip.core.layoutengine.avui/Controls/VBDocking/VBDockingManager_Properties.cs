@@ -1,6 +1,7 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Metadata;
+using Avalonia.Styling;
 using Dock.Avalonia.Controls;
 using Dock.Model.Avalonia;
 using Dock.Model.Avalonia.Controls;
@@ -36,7 +37,10 @@ namespace gip.core.layoutengine.avui
             }
         }
 
-        bool _TabStripVisibleStyleIsSet = false;
+        private Style _tabStripStyle;
+        private Setter _tabStripVisibleSetter;
+
+
         private readonly string _DockGroupId = $"VBDockingManager_{Guid.NewGuid():N}";
         DockControl _DockControl;
         public DockControl DockControl

@@ -538,7 +538,7 @@ namespace gip.core.layoutengine.avui
             }
 
             ProportionalDock horizontalArea = null;
-            DocumentDock documentDock = null;
+            DocumentDock documentDock = null; 
             EnsureDocumentDockStructure(out horizontalArea, out documentDock);
 
             if (   containerType == Global.VBDesignContainer.TabItem
@@ -576,8 +576,8 @@ namespace gip.core.layoutengine.avui
                         Content = content,
                         CanClose = isCloseable,
                         CanFloat = isCloseable,
-                        MaxWidth = toolMaxWidth,
-                        MaxHeight = toolMaxHeight,
+                        // MaxWidth = toolMaxWidth,
+                        // MaxHeight = toolMaxHeight,
 // #if AVALONIAFORK
 //                         // Width = toolWidth,
 //                         // Height = toolHeight,
@@ -594,16 +594,9 @@ namespace gip.core.layoutengine.avui
                     DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = doc });
                 }
 
-                if (!isCloseable && !_TabStripVisibleStyleIsSet)
+                if (!isCloseable)
                 {
-                    _TabStripVisibleStyleIsSet = true;
-                    DockControl.Styles.Add(new Style(x => x.OfType<DocumentControl>().Template().OfType<DocumentTabStrip>().Name("PART_TabStrip"))
-                    {
-                        Setters = 
-                        {
-                            new Setter(Visual.IsVisibleProperty, false)
-                        }
-                    });
+                    UpdateTabStripVisibility();
                 }
 
                 if (documentDock.VisibleDockables == null)
@@ -992,16 +985,9 @@ namespace gip.core.layoutengine.avui
                     DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = doc });
                 }
 
-                if (!isCloseable && !_TabStripVisibleStyleIsSet)
+                if (!isCloseable)
                 {
-                    _TabStripVisibleStyleIsSet = true;
-                    DockControl.Styles.Add(new Style(x => x.OfType<DocumentControl>().Template().OfType<DocumentTabStrip>().Name("PART_TabStrip"))
-                    {
-                        Setters =
-                        {
-                            new Setter(Visual.IsVisibleProperty, false)
-                        }
-                    });
+                    UpdateTabStripVisibility();
                 }
 
                 if (documentDock.VisibleDockables == null)
@@ -1299,6 +1285,36 @@ namespace gip.core.layoutengine.avui
             }
         }
 
+        private void EnsureTabStripStyle(bool tabsVisible)
+        {
+            if (_tabStripStyle == null || _tabStripVisibleSetter == null)
+            {
+                _tabStripVisibleSetter = new Setter(Visual.IsVisibleProperty, tabsVisible);
+                _tabStripStyle = new Style(x => x
+                    .OfType<DocumentControl>()
+                    .Template()
+                    .OfType<DocumentTabStrip>()
+                    .Name("PART_TabStrip"))
+                {
+                    Setters = { _tabStripVisibleSetter }
+                };
+
+                DockControl.Styles.Add(_tabStripStyle);
+            }
+            else
+            {
+                _tabStripVisibleSetter.Value = tabsVisible;
+            }
+        }
+
+        private void UpdateTabStripVisibility()
+        {
+            bool tabsVisible = VBDesignList.Count > 1;
+            if (tabsVisible)
+                tabsVisible = VBDesignList.Where(c => VBDockingManager.GetContainer(c) == Global.VBDesignContainer.TabItem || VBDockingManager.GetDockState(c) == Global.VBDesignDockState.Tabbed).Count() > 1;
+            EnsureTabStripStyle(tabsVisible);
+        }
+
         private void UiElementAsDataDesign_OnContextACObjectChanged(object sender, EventArgs e)
         {
             if (sender == null)
@@ -1333,8 +1349,16 @@ namespace gip.core.layoutengine.avui
         {
             string acCaption = vbDesign.ACCaption;
             string title = VBDockingManager.GetWindowTitle(vbDesign);
+            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(vbDesign);
             if (!string.IsNullOrEmpty(title))
                 return title;
+            if (vbDesign.ContentACObject != null && !isCloseable)
+            {
+                if (!string.IsNullOrEmpty(vbDesign.CustomizedACCaption))
+                    acCaption = vbDesign.CustomizedACCaption;
+                if (!string.IsNullOrEmpty(acCaption))
+                    return acCaption;
+            }
             if (vbDesign.ContextACObject != null)
             {
                 if (!string.IsNullOrEmpty(vbDesign.CustomizedACCaption))

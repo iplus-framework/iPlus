@@ -199,8 +199,6 @@ namespace gip.core.layoutengine.avui
                 return;
             if (!(ContextACObject is IACComponent))
                 return;
-            if (OnContextACObjectChanged != null)
-                OnContextACObjectChanged(this, new EventArgs());
 
             var bindingVarioWPF = new Binding
             {
@@ -222,6 +220,8 @@ namespace gip.core.layoutengine.avui
                 else
                     ContentACObject = (ContextACObject as IACComponent).GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
                 _LoadDesignLocked = false;
+                if (OnContextACObjectChanged != null)
+                    OnContextACObjectChanged(this, new EventArgs());
                 LoadDesign();
             }
             else if (VBContent[0] == '*')
@@ -239,6 +239,8 @@ namespace gip.core.layoutengine.avui
                 }
 
                 _LoadDesignLocked = false;
+                if (OnContextACObjectChanged != null)
+                    OnContextACObjectChanged(this, new EventArgs());
                 LoadDesign();
             }
             else
@@ -250,6 +252,8 @@ namespace gip.core.layoutengine.avui
                     Mode = BindingMode.OneWay
                 };
                 this.Bind(VBDesign.ContentACObjectProperty, binding);
+                if (OnContextACObjectChanged != null)
+                    OnContextACObjectChanged(this, new EventArgs());
                 LoadDesign();
             }
 
