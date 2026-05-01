@@ -5,6 +5,7 @@ using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Metadata;
+using Avalonia.Media;
 using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -253,6 +254,90 @@ namespace gip.core.layoutengine.avui
         {
             get;
             set;
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundPathProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(ConditionalForegroundPath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundPath
+        {
+            get { return GetValue(ConditionalForegroundPathProperty); }
+            set { SetValue(ConditionalForegroundPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundTrueColorProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(ConditionalForegroundTrueColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundTrueColor
+        {
+            get { return GetValue(ConditionalForegroundTrueColorProperty); }
+            set { SetValue(ConditionalForegroundTrueColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundFalseColorProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(ConditionalForegroundFalseColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundFalseColor
+        {
+            get { return GetValue(ConditionalForegroundFalseColorProperty); }
+            set { SetValue(ConditionalForegroundFalseColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<IBrush> CellBackgroundProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, IBrush>(nameof(CellBackground));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public IBrush CellBackground
+        {
+            get { return GetValue(CellBackgroundProperty); }
+            set { SetValue(CellBackgroundProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundPathProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(ConditionalBackgroundPath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundPath
+        {
+            get { return GetValue(ConditionalBackgroundPathProperty); }
+            set { SetValue(ConditionalBackgroundPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundTrueColorProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(ConditionalBackgroundTrueColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundTrueColor
+        {
+            get { return GetValue(ConditionalBackgroundTrueColorProperty); }
+            set { SetValue(ConditionalBackgroundTrueColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundFalseColorProperty =
+            AvaloniaProperty.Register<VBDataGridComboBoxColumn, string>(nameof(ConditionalBackgroundFalseColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundFalseColor
+        {
+            get { return GetValue(ConditionalBackgroundFalseColorProperty); }
+            set { SetValue(ConditionalBackgroundFalseColorProperty, value); }
         }
 
         /// <summary>
@@ -630,6 +715,9 @@ namespace gip.core.layoutengine.avui
             comboBox.SetValue(VBComboBox.SelectedValueBindingProperty, SelectedValueBinding);
             comboBox.SetValue(TextSearch.TextProperty, TextBinding);
             DataGridHelper.SyncColumnProperty(this, comboBox, VBComboBox.SelectedValueBindingProperty, SelectedValueBindingProperty);
+            ApplyTextStyleProperties(comboBox);
+            ApplyConditionalForegroundBinding(comboBox, TemplatedControl.ForegroundProperty);
+            ApplyConditionalBackgroundBinding(comboBox, TemplatedControl.BackgroundProperty);
             if (string.IsNullOrEmpty(DisplayMemberPath) && ItemTemplate == null)
             {
                 comboBox.ItemTemplate = new FuncDataTemplate<object>((value, namescope) =>
@@ -656,6 +744,79 @@ namespace gip.core.layoutengine.avui
                 target.ClearAllBindings();
                 target.ClearBinding(property);
             }
+        }
+
+        private void ApplyTextStyleProperties(VBComboBox comboBox)
+        {
+            if (comboBox == null)
+                return;
+
+            DataGridHelper.SyncColumnProperty(this, comboBox, FontFamilyProperty);
+            DataGridHelper.SyncColumnProperty(this, comboBox, FontSizeProperty);
+            DataGridHelper.SyncColumnProperty(this, comboBox, FontStyleProperty);
+            DataGridHelper.SyncColumnProperty(this, comboBox, FontWeightProperty);
+            DataGridHelper.SyncColumnProperty(this, comboBox, ForegroundProperty);
+            comboBox.Background = CellBackground;
+        }
+
+        private void ApplyConditionalForegroundBinding(AvaloniaObject target, AvaloniaProperty property)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalForegroundPath) || string.IsNullOrWhiteSpace(ConditionalForegroundTrueColor))
+                return;
+
+            string falseColor = ConditionalForegroundFalseColor;
+            if (string.IsNullOrWhiteSpace(falseColor) && Foreground is ISolidColorBrush solidForeground)
+            {
+                falseColor = solidForeground.Color.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(falseColor))
+                falseColor = "#FF000000";
+
+            var converter = new ConverterBoolFillColor
+            {
+                TrueColor = ConditionalForegroundTrueColor,
+                FalseColor = falseColor
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalForegroundPath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(property, binding);
+        }
+
+        private void ApplyConditionalBackgroundBinding(AvaloniaObject target, AvaloniaProperty property)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalBackgroundPath) || string.IsNullOrWhiteSpace(ConditionalBackgroundTrueColor))
+                return;
+
+            string falseColor = ConditionalBackgroundFalseColor;
+            if (string.IsNullOrWhiteSpace(falseColor) && CellBackground is ISolidColorBrush solidBackground)
+            {
+                falseColor = solidBackground.Color.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(falseColor))
+                falseColor = "#00FFFFFF";
+
+            var converter = new ConverterBoolFillColor
+            {
+                TrueColor = ConditionalBackgroundTrueColor,
+                FalseColor = falseColor
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalBackgroundPath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(property, binding);
         }
 
         /// <summary>

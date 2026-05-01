@@ -1,6 +1,9 @@
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Documents;
+using Avalonia.Controls.Primitives;
 using Avalonia.Data;
+using Avalonia.Media;
 using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -57,6 +60,150 @@ namespace gip.core.layoutengine.avui
         {
             get { return (bool)GetValue(VBIsReadOnlyProperty); }
             set { SetValue(VBIsReadOnlyProperty, value); }
+        }
+
+        public static readonly AttachedProperty<FontFamily> FontFamilyProperty =
+            TextElement.FontFamilyProperty.AddOwner<VBDataGridCheckBoxColumn>();
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public FontFamily FontFamily
+        {
+            get { return GetValue(FontFamilyProperty); }
+            set { SetValue(FontFamilyProperty, value); }
+        }
+
+        public static readonly AttachedProperty<double> FontSizeProperty =
+            TextElement.FontSizeProperty.AddOwner<VBDataGridCheckBoxColumn>();
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public double FontSize
+        {
+            get { return GetValue(FontSizeProperty); }
+            set { SetValue(FontSizeProperty, value); }
+        }
+
+        public static readonly AttachedProperty<FontStyle> FontStyleProperty =
+            TextElement.FontStyleProperty.AddOwner<VBDataGridCheckBoxColumn>();
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public FontStyle FontStyle
+        {
+            get { return GetValue(FontStyleProperty); }
+            set { SetValue(FontStyleProperty, value); }
+        }
+
+        public static readonly AttachedProperty<FontWeight> FontWeightProperty =
+            TextElement.FontWeightProperty.AddOwner<VBDataGridCheckBoxColumn>();
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public FontWeight FontWeight
+        {
+            get { return GetValue(FontWeightProperty); }
+            set { SetValue(FontWeightProperty, value); }
+        }
+
+        public static readonly AttachedProperty<IBrush> ForegroundProperty =
+            TextElement.ForegroundProperty.AddOwner<VBDataGridCheckBoxColumn>();
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public IBrush Foreground
+        {
+            get { return GetValue(ForegroundProperty); }
+            set { SetValue(ForegroundProperty, value); }
+        }
+
+        public static readonly StyledProperty<IBrush> CellBackgroundProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, IBrush>(nameof(CellBackground));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public IBrush CellBackground
+        {
+            get { return GetValue(CellBackgroundProperty); }
+            set { SetValue(CellBackgroundProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundPathProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(ConditionalForegroundPath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundPath
+        {
+            get { return GetValue(ConditionalForegroundPathProperty); }
+            set { SetValue(ConditionalForegroundPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundTrueColorProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(ConditionalForegroundTrueColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundTrueColor
+        {
+            get { return GetValue(ConditionalForegroundTrueColorProperty); }
+            set { SetValue(ConditionalForegroundTrueColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundFalseColorProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(ConditionalForegroundFalseColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundFalseColor
+        {
+            get { return GetValue(ConditionalForegroundFalseColorProperty); }
+            set { SetValue(ConditionalForegroundFalseColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundPathProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(ConditionalBackgroundPath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundPath
+        {
+            get { return GetValue(ConditionalBackgroundPathProperty); }
+            set { SetValue(ConditionalBackgroundPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundTrueColorProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(ConditionalBackgroundTrueColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundTrueColor
+        {
+            get { return GetValue(ConditionalBackgroundTrueColorProperty); }
+            set { SetValue(ConditionalBackgroundTrueColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundFalseColorProperty =
+            AvaloniaProperty.Register<VBDataGridCheckBoxColumn, string>(nameof(ConditionalBackgroundFalseColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundFalseColor
+        {
+            get { return GetValue(ConditionalBackgroundFalseColorProperty); }
+            set { SetValue(ConditionalBackgroundFalseColorProperty, value); }
         }
 
         /// <summary>
@@ -198,6 +345,9 @@ namespace gip.core.layoutengine.avui
             {
                 checkBox.Theme = theme;
             }
+            SyncProperties(checkBox);
+            ApplyConditionalForegroundBinding(checkBox, TextElement.ForegroundProperty);
+            ApplyConditionalBackgroundBinding(checkBox, TemplatedControl.BackgroundProperty);
             checkBox.ShowCaption = false;
             return checkBox;
         }
@@ -237,6 +387,9 @@ namespace gip.core.layoutengine.avui
             }
             checkBox.IsEnabled = isEnabled;
             checkBox.IsHitTestVisible = false;
+            SyncProperties(checkBox);
+            ApplyConditionalForegroundBinding(checkBox, TextElement.ForegroundProperty);
+            ApplyConditionalBackgroundBinding(checkBox, TemplatedControl.BackgroundProperty);
             //ConfigureCheckBox(checkBoxElement);
             //if (Binding != null)
             //{
@@ -272,6 +425,17 @@ namespace gip.core.layoutengine.avui
             DataGridHelper.SyncColumnProperty(this, checkBox, IsThreeStateProperty);
         }
 
+        private void SyncProperties(AvaloniaObject content)
+        {
+            DataGridHelper.SyncColumnProperty(this, content, FontFamilyProperty);
+            DataGridHelper.SyncColumnProperty(this, content, FontSizeProperty);
+            DataGridHelper.SyncColumnProperty(this, content, FontStyleProperty);
+            DataGridHelper.SyncColumnProperty(this, content, FontWeightProperty);
+            DataGridHelper.SyncColumnProperty(this, content, ForegroundProperty);
+            if (content is TemplatedControl templatedControl)
+                templatedControl.Background = CellBackground;
+        }
+
         internal void ApplyBinding(AvaloniaObject target, AvaloniaProperty property)
         {
             BindingBase binding = Binding;
@@ -289,6 +453,66 @@ namespace gip.core.layoutengine.avui
                 target.ClearAllBindings();
                 target.ClearBinding(property);
             }
+        }
+
+        private void ApplyConditionalForegroundBinding(AvaloniaObject target, AvaloniaProperty property)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalForegroundPath) || string.IsNullOrWhiteSpace(ConditionalForegroundTrueColor))
+                return;
+
+            string falseColor = ConditionalForegroundFalseColor;
+            if (string.IsNullOrWhiteSpace(falseColor) && Foreground is ISolidColorBrush solidForeground)
+            {
+                falseColor = solidForeground.Color.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(falseColor))
+                falseColor = "#FF000000";
+
+            var converter = new ConverterBoolFillColor
+            {
+                TrueColor = ConditionalForegroundTrueColor,
+                FalseColor = falseColor
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalForegroundPath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(property, binding);
+        }
+
+        private void ApplyConditionalBackgroundBinding(AvaloniaObject target, AvaloniaProperty property)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalBackgroundPath) || string.IsNullOrWhiteSpace(ConditionalBackgroundTrueColor))
+                return;
+
+            string falseColor = ConditionalBackgroundFalseColor;
+            if (string.IsNullOrWhiteSpace(falseColor) && CellBackground is ISolidColorBrush solidBackground)
+            {
+                falseColor = solidBackground.Color.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(falseColor))
+                falseColor = "#00FFFFFF";
+
+            var converter = new ConverterBoolFillColor
+            {
+                TrueColor = ConditionalBackgroundTrueColor,
+                FalseColor = falseColor
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalBackgroundPath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(property, binding);
         }
 
         /// <summary>

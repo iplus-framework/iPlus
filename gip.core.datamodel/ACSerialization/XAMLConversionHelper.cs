@@ -138,10 +138,6 @@ namespace gip.core.datamodel
                 return m.Value;
             }, RegexOptions.IgnoreCase);
 
-            // Convert WPF RenderTransformOrigin decimals to Avalonia percent point values
-            // (e.g., 0.5,0.5 -> 50%,50%).
-            avaloniaXAML = ConvertRenderTransformOriginToPercent(avaloniaXAML);
-
             // Avalonia expects RadialGradientBrush radii/origin/center in percent notation.
             avaloniaXAML = ConvertRadialGradientBrushValuesToPercent(avaloniaXAML);
 
@@ -152,13 +148,19 @@ namespace gip.core.datamodel
             // Convert {vb:VBBinding vb:VBContent=...} -> {vb:VBBinding VBContent=...}.
             avaloniaXAML = RemovePrefixedVBBindingParameterNames(avaloniaXAML);
 
-            // Convert typed WPF resource styles (x:Key/TargetType with x:Type)
-            // into Avalonia selector styles under *.Styles.
-            avaloniaXAML = ConvertResourceControlThemesToSelectorStyles(avaloniaXAML);
-
             // RelativeTransform was renamed to Transform for Avalonia brushes.
             // Convert both attribute usage and *.RelativeTransform property elements.
             avaloniaXAML = ConvertRelativeTransformsToTransforms(avaloniaXAML);
+
+            // Convert WPF ComboBox attributes to Avalonia equivalents:
+            // SelectedValuePath -> SelectedValueBinding, DisplayMemberPath -> *.ItemTemplate.
+            avaloniaXAML = ConvertComboBoxSelectionAttributes(avaloniaXAML);
+
+            // Convert DataGridTextColumn.ElementStyle to supported VBDataGridTextColumn attributes.
+            avaloniaXAML = ConvertDataGridTextColumnElementStyle(avaloniaXAML);
+
+            // Remove WPF DataGrid virtualization attributes not used by Avalonia.
+            avaloniaXAML = RemoveUnsupportedVirtualizationAttributes(avaloniaXAML);
 
             // Convert WPF Line coordinates to Avalonia points:
             // <Line X1="0" Y1="6" X2="60" Y2="6" ... /> -> <Line StartPoint="0,6" EndPoint="60,6" ... />
@@ -172,301 +174,8 @@ namespace gip.core.datamodel
             // Convert WPF-style trigger blocks embedded in *.Style property elements into
             // Xaml.Behaviors-based triggers and copy default Setter values to owner attributes.
             avaloniaXAML = ConvertControlThemeTriggersToBehaviors(avaloniaXAML);
-
-            // Convert direct element trigger blocks (e.g. Border.Triggers/EventTrigger)
-            // into behavior-based equivalents.
-            avaloniaXAML = ConvertElementTriggersToBehaviors(avaloniaXAML);
             
             return avaloniaXAML;
-        }
-
-        private static string ConvertResourceControlThemesToSelectorStyles(string xaml)
-        {
-            if (string.IsNullOrWhiteSpace(xaml))
-                return xaml;
-
-            try
-            {
-                var doc = new XmlDocument
-                {
-                    PreserveWhitespace = true
-                };
-                doc.LoadXml(xaml);
-
-                if (doc.DocumentElement == null)
-                    return xaml;
-
-                string xamlNs = GetDefaultXamlNamespace(doc);
-                if (string.IsNullOrEmpty(xamlNs))
-                    return xaml;
-
-                var resourcePropertyNodes = doc.SelectNodes("//*[contains(local-name(), '.Resources')]");
-                if (resourcePropertyNodes == null || resourcePropertyNodes.Count == 0)
-                    return xaml;
-
-                var resourceProperties = resourcePropertyNodes
-                    .OfType<XmlNode>()
-                    .OfType<XmlElement>()
-                    .Where(e => e.LocalName.EndsWith(".Resources", StringComparison.OrdinalIgnoreCase))
-                    .ToList();
-
-                foreach (var resourcesProperty in resourceProperties)
-                {
-                    var ownerElement = resourcesProperty.ParentNode as XmlElement;
-                    if (ownerElement == null)
-                        continue;
-
-                    string stylesPropertyLocalName = ownerElement.LocalName + ".Styles";
-
-                    var selectorStyles = new List<XmlElement>();
-                    var convertedControlThemes = new List<XmlElement>();
-
-                    foreach (var controlTheme in resourcesProperty
-                        .ChildNodes
-                        .OfType<XmlElement>()
-                        .Where(e => string.Equals(e.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase)))
-                    {
-                        string key = controlTheme.GetAttribute("x:Key");
-                        if (string.IsNullOrWhiteSpace(key))
-                            key = controlTheme.GetAttribute("Key");
-
-                        string targetType = controlTheme.GetAttribute("TargetType");
-                        string selector = TryCreateSelectorFromTypedStyleKeyOrTargetType(key, targetType);
-                        if (string.IsNullOrWhiteSpace(selector))
-                            continue;
-
-                        var style = doc.CreateElement("Style", xamlNs);
-                        style.SetAttribute("Selector", selector);
-
-                        var setters = controlTheme
-                            .ChildNodes
-                            .OfType<XmlElement>()
-                            .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase))
-                            .ToList();
-
-                        var settersContainer = controlTheme
-                            .ChildNodes
-                            .OfType<XmlElement>()
-                            .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Setters", StringComparison.OrdinalIgnoreCase));
-
-                        if (settersContainer != null)
-                        {
-                            setters.AddRange(settersContainer
-                                .ChildNodes
-                                .OfType<XmlElement>()
-                                .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)));
-                        }
-
-                        foreach (var setter in setters)
-                        {
-                            if (!(setter.CloneNode(true) is XmlElement setterClone))
-                                continue;
-
-                            ConvertToolTipSetterValueToTemplate(doc, xamlNs, setterClone);
-                            style.AppendChild(setterClone);
-                        }
-
-                        selectorStyles.Add(style);
-                        convertedControlThemes.Add(controlTheme);
-                    }
-
-                    if (selectorStyles.Count == 0)
-                        continue;
-
-                    var stylesProperty = ownerElement
-                        .ChildNodes
-                        .OfType<XmlElement>()
-                        .FirstOrDefault(e =>
-                            string.Equals(e.LocalName, stylesPropertyLocalName, StringComparison.OrdinalIgnoreCase)
-                            || e.LocalName.EndsWith(".Styles", StringComparison.OrdinalIgnoreCase));
-
-                    bool createdStylesProperty = stylesProperty == null;
-                    if (stylesProperty == null)
-                    {
-                        if (!string.IsNullOrWhiteSpace(ownerElement.Prefix) && !string.IsNullOrWhiteSpace(ownerElement.NamespaceURI))
-                        {
-                            stylesProperty = doc.CreateElement(ownerElement.Prefix, stylesPropertyLocalName, ownerElement.NamespaceURI);
-                        }
-                        else
-                        {
-                            stylesProperty = doc.CreateElement(stylesPropertyLocalName, xamlNs);
-                        }
-                    }
-
-                    foreach (var style in selectorStyles)
-                    {
-                        stylesProperty.AppendChild(style);
-                    }
-
-                    foreach (var controlTheme in convertedControlThemes)
-                    {
-                        resourcesProperty.RemoveChild(controlTheme);
-                    }
-
-                    // If resources became empty after moving typed styles, collapse it so the
-                    // output matches the expected Avalonia pattern with only *.Styles.
-                    if (!HasMeaningfulResourceContent(resourcesProperty))
-                    {
-                        if (createdStylesProperty)
-                        {
-                            ownerElement.ReplaceChild(stylesProperty, resourcesProperty);
-                        }
-                        else
-                        {
-                            ownerElement.RemoveChild(resourcesProperty);
-                        }
-                    }
-                    else if (createdStylesProperty)
-                    {
-                        ownerElement.AppendChild(stylesProperty);
-                    }
-                }
-
-                return doc.OuterXml;
-            }
-            catch
-            {
-                // Keep conversion resilient: if this pass fails, return the original text.
-                return xaml;
-            }
-        }
-
-        private static bool HasMeaningfulResourceContent(XmlElement resourcesProperty)
-        {
-            if (resourcesProperty == null)
-                return false;
-
-            foreach (var node in resourcesProperty.ChildNodes.Cast<XmlNode>())
-            {
-                if (node is XmlElement)
-                    return true;
-
-                if ((node is XmlText || node is XmlCDataSection) && !string.IsNullOrWhiteSpace(node.Value))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private static string TryCreateSelectorFromTypedStyleKeyOrTargetType(string keyMarkup, string targetTypeMarkup)
-        {
-            string typeToken = TryExtractTypeTokenFromXTypeMarkup(keyMarkup);
-            if (string.IsNullOrWhiteSpace(typeToken))
-            {
-                typeToken = TryExtractTypeTokenFromXTypeMarkup(targetTypeMarkup);
-            }
-
-            if (string.IsNullOrWhiteSpace(typeToken))
-                return null;
-
-            int colon = typeToken.IndexOf(':');
-            if (colon > 0 && colon < typeToken.Length - 1)
-            {
-                return typeToken.Substring(0, colon) + "|" + typeToken.Substring(colon + 1);
-            }
-
-            return typeToken;
-        }
-
-        private static string TryExtractTypeTokenFromXTypeMarkup(string markup)
-        {
-            if (string.IsNullOrWhiteSpace(markup))
-                return null;
-
-            string trimmed = markup.Trim();
-            if (!trimmed.StartsWith("{", StringComparison.Ordinal) || !trimmed.EndsWith("}", StringComparison.Ordinal))
-                return null;
-
-            string content = trimmed.Substring(1, trimmed.Length - 2).Trim();
-            if (!content.StartsWith("x:Type", StringComparison.OrdinalIgnoreCase))
-                return null;
-
-            string args = content.Substring("x:Type".Length).Trim();
-            if (args.StartsWith(",", StringComparison.Ordinal))
-            {
-                args = args.Substring(1).Trim();
-            }
-
-            if (string.IsNullOrWhiteSpace(args))
-                return null;
-
-            const string TypeNamePrefix = "TypeName=";
-            int typeNameIndex = args.IndexOf(TypeNamePrefix, StringComparison.OrdinalIgnoreCase);
-            if (typeNameIndex >= 0)
-            {
-                string typeNameText = args.Substring(typeNameIndex + TypeNamePrefix.Length).Trim();
-                int commaIndex = typeNameText.IndexOf(',');
-                if (commaIndex >= 0)
-                    typeNameText = typeNameText.Substring(0, commaIndex).Trim();
-
-                return typeNameText.Trim('"', '\'');
-            }
-
-            int separatorIndex = args.IndexOf(',');
-            string positional = separatorIndex >= 0 ? args.Substring(0, separatorIndex).Trim() : args;
-            if (string.IsNullOrWhiteSpace(positional))
-                return null;
-
-            int spaceIndex = positional.IndexOf(' ');
-            if (spaceIndex >= 0)
-            {
-                positional = positional.Substring(0, spaceIndex).Trim();
-            }
-
-            return positional.Trim('"', '\'');
-        }
-
-        private static void ConvertToolTipSetterValueToTemplate(XmlDocument doc, string xamlNs, XmlElement setter)
-        {
-            if (doc == null || setter == null)
-                return;
-
-            string property = setter.GetAttribute("Property");
-            if (string.IsNullOrWhiteSpace(property))
-                return;
-
-            if (!string.Equals(property, "ToolTip", StringComparison.OrdinalIgnoreCase)
-                && !string.Equals(property, "ToolTip.Tip", StringComparison.OrdinalIgnoreCase))
-                return;
-
-            var setterValue = setter
-                .ChildNodes
-                .OfType<XmlElement>()
-                .FirstOrDefault(e => string.Equals(e.LocalName, "Setter.Value", StringComparison.OrdinalIgnoreCase));
-
-            if (setterValue == null)
-                return;
-
-            var toolTipElement = setterValue
-                .ChildNodes
-                .OfType<XmlElement>()
-                .FirstOrDefault(e => string.Equals(e.LocalName, "ToolTip", StringComparison.OrdinalIgnoreCase));
-
-            if (toolTipElement == null)
-                return;
-
-            var template = doc.CreateElement("Template", xamlNs);
-            var payloadElements = toolTipElement.ChildNodes.OfType<XmlElement>().ToList();
-            if (payloadElements.Count == 0)
-                return;
-
-            foreach (var child in payloadElements)
-            {
-                if (child.CloneNode(true) is XmlNode childClone)
-                {
-                    template.AppendChild(childClone);
-                }
-            }
-
-            setter.RemoveAttribute("Value");
-            setter.SetAttribute("Property", "ToolTip.Tip");
-
-            foreach (var child in setterValue.ChildNodes.Cast<XmlNode>().ToList())
-            {
-                setterValue.RemoveChild(child);
-            }
-
-            setterValue.AppendChild(template);
         }
 
         private static string ConvertControlThemeTriggersToBehaviors(string xaml)
@@ -863,62 +572,6 @@ namespace gip.core.datamodel
             }
         }
 
-        private static string ConvertElementTriggersToBehaviors(string xaml)
-        {
-            if (string.IsNullOrWhiteSpace(xaml))
-                return xaml;
-
-            try
-            {
-                var doc = new XmlDocument
-                {
-                    PreserveWhitespace = true
-                };
-                doc.LoadXml(xaml);
-
-                if (doc.DocumentElement == null)
-                    return xaml;
-
-                string xamlNs = GetDefaultXamlNamespace(doc);
-                if (string.IsNullOrEmpty(xamlNs))
-                    return xaml;
-
-                var triggersPropertyNodes = doc.SelectNodes("//*[contains(local-name(), '.Triggers') and not(local-name()='ControlTheme.Triggers')]");
-                if (triggersPropertyNodes == null || triggersPropertyNodes.Count == 0)
-                    return xaml;
-
-                var triggersProperties = triggersPropertyNodes
-                    .OfType<XmlNode>()
-                    .OfType<XmlElement>()
-                    .ToList();
-
-                foreach (var triggersProperty in triggersProperties)
-                {
-                    if (!triggersProperty.LocalName.EndsWith(".Triggers", StringComparison.OrdinalIgnoreCase))
-                        continue;
-
-                    var ownerElement = triggersProperty.ParentNode as XmlElement;
-                    if (ownerElement == null)
-                        continue;
-
-                    var interactionBehaviors = doc.CreateElement("Interaction.Behaviors", xamlNs);
-                    int behaviorCount = AppendEventTriggers(doc, xamlNs, ownerElement, interactionBehaviors, triggersProperty);
-
-                    if (behaviorCount > 0)
-                    {
-                        ownerElement.ReplaceChild(interactionBehaviors, triggersProperty);
-                    }
-                }
-
-                return doc.OuterXml;
-            }
-            catch
-            {
-                // Keep conversion resilient: if this pass fails, return the original text.
-                return xaml;
-            }
-        }
-
         private static string NormalizeTriggerPropertyName(string propertyName)
         {
             if (string.IsNullOrWhiteSpace(propertyName))
@@ -946,65 +599,6 @@ namespace gip.core.datamodel
             }
 
             return trimmed;
-        }
-
-        private static int AppendEventTriggers(
-            XmlDocument doc,
-            string xamlNs,
-            XmlElement ownerElement,
-            XmlElement interactionBehaviors,
-            XmlElement triggersContainer)
-        {
-            if (doc == null || ownerElement == null || interactionBehaviors == null || triggersContainer == null)
-                return 0;
-
-            int behaviorCount = 0;
-            foreach (var eventTrigger in triggersContainer
-                .ChildNodes
-                .OfType<XmlElement>()
-                .Where(e => string.Equals(e.LocalName, "EventTrigger", StringComparison.OrdinalIgnoreCase)))
-            {
-                string eventName = ConvertRoutedEventToEventName(eventTrigger.GetAttribute("RoutedEvent"), ownerElement.LocalName);
-                if (string.IsNullOrWhiteSpace(eventName))
-                    continue;
-
-                var behavior = doc.CreateElement("EventTriggerBehavior", xamlNs);
-                behavior.SetAttribute("EventName", eventName);
-
-                int actionCount = AppendBeginStoryboardAnimations(doc, xamlNs, ownerElement, behavior, eventTrigger, null);
-                if (actionCount > 0)
-                {
-                    interactionBehaviors.AppendChild(behavior);
-                    behaviorCount++;
-                }
-            }
-
-            return behaviorCount;
-        }
-
-        private static string ConvertRoutedEventToEventName(string routedEvent, string ownerTypeName)
-        {
-            if (string.IsNullOrWhiteSpace(routedEvent))
-                return null;
-
-            string text = routedEvent.Trim();
-            int dotIndex = text.LastIndexOf('.');
-            if (dotIndex >= 0 && dotIndex < text.Length - 1)
-            {
-                string eventOwner = text.Substring(0, dotIndex);
-                string eventName = text.Substring(dotIndex + 1);
-
-                if (string.IsNullOrWhiteSpace(ownerTypeName)
-                    || string.Equals(eventOwner, ownerTypeName, StringComparison.OrdinalIgnoreCase)
-                    || eventOwner.EndsWith(ownerTypeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    return eventName;
-                }
-
-                return eventName;
-            }
-
-            return text;
         }
 
         private static int AppendBeginStoryboardAnimations(
@@ -1494,6 +1088,339 @@ namespace gip.core.datamodel
             }
         }
 
+        private static string RemoveUnsupportedVirtualizationAttributes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var allElements = doc.SelectNodes("//*");
+                if (allElements == null || allElements.Count == 0)
+                    return xaml;
+
+                foreach (var element in allElements.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    // Remove by local-name so both prefixed and unprefixed forms are handled.
+                    var attributesToRemove = element.Attributes
+                        .OfType<XmlAttribute>()
+                        .Where(a =>
+                            string.Equals(a.LocalName, "VirtualizingStackPanel.IsVirtualizing", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(a.LocalName, "VirtualizingStackPanel.VirtualizationMode", StringComparison.OrdinalIgnoreCase) ||
+                            string.Equals(a.LocalName, "EnableRowVirtualization", StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    foreach (var attribute in attributesToRemove)
+                    {
+                        element.Attributes.Remove(attribute);
+                    }
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        private static string ConvertComboBoxSelectionAttributes(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                string xamlNs = GetDefaultXamlNamespace(doc);
+                if (string.IsNullOrEmpty(xamlNs))
+                    return xaml;
+
+                var elements = doc.SelectNodes("//*");
+                if (elements == null || elements.Count == 0)
+                    return xaml;
+
+                foreach (var element in elements.OfType<XmlNode>().OfType<XmlElement>())
+                {
+                    bool isComboBox =
+                        string.Equals(element.LocalName, "ComboBox", StringComparison.OrdinalIgnoreCase) ||
+                        string.Equals(element.LocalName, "VBComboBox", StringComparison.OrdinalIgnoreCase);
+
+                    if (!isComboBox)
+                        continue;
+
+                    // WPF: SelectedValuePath="MaterialWFID"
+                    // Avalonia: SelectedValueBinding="{Binding Path=MaterialWFID}"
+                    if (element.HasAttribute("SelectedValuePath"))
+                    {
+                        string selectedValuePath = element.GetAttribute("SelectedValuePath")?.Trim();
+
+                        if (!string.IsNullOrWhiteSpace(selectedValuePath) && !element.HasAttribute("SelectedValueBinding"))
+                        {
+                            element.SetAttribute("SelectedValueBinding", $"{{Binding Path={selectedValuePath}}}");
+                        }
+
+                        element.RemoveAttribute("SelectedValuePath");
+                    }
+
+                    // WPF: DisplayMemberPath="Name"
+                    // Avalonia: <*.ItemTemplate><DataTemplate><TextBlock Text="{Binding Path=Name}"/></DataTemplate></*.ItemTemplate>
+                    if (!element.HasAttribute("DisplayMemberPath"))
+                        continue;
+
+                    string displayMemberPath = element.GetAttribute("DisplayMemberPath")?.Trim();
+                    element.RemoveAttribute("DisplayMemberPath");
+
+                    if (string.IsNullOrWhiteSpace(displayMemberPath))
+                        continue;
+
+                    bool hasItemTemplate = element
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .Any(e => e.LocalName.EndsWith(".ItemTemplate", StringComparison.OrdinalIgnoreCase));
+
+                    if (hasItemTemplate)
+                        continue;
+
+                    XmlElement itemTemplateProperty;
+                    if (string.IsNullOrEmpty(element.Prefix))
+                    {
+                        itemTemplateProperty = doc.CreateElement($"{element.LocalName}.ItemTemplate", element.NamespaceURI);
+                    }
+                    else
+                    {
+                        itemTemplateProperty = doc.CreateElement(element.Prefix, $"{element.LocalName}.ItemTemplate", element.NamespaceURI);
+                    }
+
+                    var dataTemplate = doc.CreateElement("DataTemplate", xamlNs);
+                    var textBlock = doc.CreateElement("TextBlock", xamlNs);
+                    textBlock.SetAttribute("Text", $"{{Binding Path={displayMemberPath}}}");
+
+                    dataTemplate.AppendChild(textBlock);
+                    itemTemplateProperty.AppendChild(dataTemplate);
+                    element.AppendChild(itemTemplateProperty);
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        private static string ConvertDataGridTextColumnElementStyle(string xaml)
+        {
+            if (string.IsNullOrWhiteSpace(xaml))
+                return xaml;
+
+            try
+            {
+                var doc = new XmlDocument
+                {
+                    PreserveWhitespace = true
+                };
+                doc.LoadXml(xaml);
+
+                var styleNodes = doc.SelectNodes("//*[contains(local-name(), '.ElementStyle')]");
+                if (styleNodes == null || styleNodes.Count == 0)
+                    return xaml;
+
+                foreach (var styleElement in styleNodes.OfType<XmlNode>().OfType<XmlElement>().ToList())
+                {
+                    if (!styleElement.LocalName.EndsWith(".ElementStyle", StringComparison.OrdinalIgnoreCase))
+                        continue;
+
+                    var ownerElement = styleElement.ParentNode as XmlElement;
+                    if (ownerElement == null)
+                        continue;
+
+                    bool isTextColumn = string.Equals(ownerElement.LocalName, "VBDataGridTextColumn", StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(ownerElement.LocalName, "DataGridTextColumn", StringComparison.OrdinalIgnoreCase);
+                    bool isDateTimeColumn = string.Equals(ownerElement.LocalName, "VBDataGridDateTimeColumn", StringComparison.OrdinalIgnoreCase);
+                    bool isComboBoxColumn = string.Equals(ownerElement.LocalName, "VBDataGridComboBoxColumn", StringComparison.OrdinalIgnoreCase);
+                    bool isCheckBoxColumn = string.Equals(ownerElement.LocalName, "VBDataGridCheckBoxColumn", StringComparison.OrdinalIgnoreCase);
+                    bool isACValueColumn = string.Equals(ownerElement.LocalName, "VBDataGridACValueColumn", StringComparison.OrdinalIgnoreCase);
+
+                    if (!(isTextColumn || isDateTimeColumn || isComboBoxColumn || isCheckBoxColumn || isACValueColumn))
+                        continue;
+
+                    var controlTheme = styleElement
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme", StringComparison.OrdinalIgnoreCase));
+
+                    if (controlTheme == null)
+                        continue;
+
+                    foreach (var setter in controlTheme
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)))
+                    {
+                        string propertyName = setter.GetAttribute("Property");
+                        string propertyValue = setter.GetAttribute("Value");
+
+                        if (string.Equals(propertyName, "Foreground", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(propertyValue)
+                            && !ownerElement.HasAttribute("Foreground"))
+                        {
+                            ownerElement.SetAttribute("Foreground", propertyValue);
+                        }
+                        else if (string.Equals(propertyName, "Background", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(propertyValue)
+                            && !ownerElement.HasAttribute("CellBackground"))
+                        {
+                            ownerElement.SetAttribute("CellBackground", propertyValue);
+                        }
+                        else if (string.Equals(propertyName, "TextAlignment", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(propertyValue)
+                            && (isTextColumn || isDateTimeColumn || isACValueColumn)
+                            && !ownerElement.HasAttribute("CellTextAlignment"))
+                        {
+                            ownerElement.SetAttribute("CellTextAlignment", propertyValue);
+                        }
+                        else if (string.Equals(propertyName, "FontWeight", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(propertyValue)
+                            && !ownerElement.HasAttribute("FontWeight"))
+                        {
+                            ownerElement.SetAttribute("FontWeight", propertyValue);
+                        }
+                        else if (string.Equals(propertyName, "FontStyle", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(propertyValue)
+                            && !ownerElement.HasAttribute("FontStyle"))
+                        {
+                            ownerElement.SetAttribute("FontStyle", propertyValue);
+                        }
+                        else if (string.Equals(propertyName, "FontSize", StringComparison.OrdinalIgnoreCase)
+                            && !string.IsNullOrWhiteSpace(propertyValue)
+                            && !ownerElement.HasAttribute("FontSize"))
+                        {
+                            ownerElement.SetAttribute("FontSize", propertyValue);
+                        }
+                    }
+
+                    var triggers = controlTheme
+                        .ChildNodes
+                        .OfType<XmlElement>()
+                        .FirstOrDefault(e => string.Equals(e.LocalName, "ControlTheme.Triggers", StringComparison.OrdinalIgnoreCase));
+
+                    if (triggers != null)
+                    {
+                        foreach (var dataTrigger in triggers
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .Where(e => string.Equals(e.LocalName, "DataTrigger", StringComparison.OrdinalIgnoreCase)))
+                        {
+                            string triggerValue = dataTrigger.GetAttribute("Value");
+                            if (!IsTrueLiteral(triggerValue))
+                                continue;
+
+                            string bindingMarkup = dataTrigger.GetAttribute("Binding");
+                            string conditionPath = ExtractBindingPathFromMarkup(bindingMarkup);
+                            if (string.IsNullOrWhiteSpace(conditionPath))
+                                continue;
+
+                            string trueColor = dataTrigger
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)
+                                            && string.Equals(e.GetAttribute("Property"), "Foreground", StringComparison.OrdinalIgnoreCase))
+                                .Select(e => e.GetAttribute("Value"))
+                                .FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+                            string trueBackgroundColor = dataTrigger
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .Where(e => string.Equals(e.LocalName, "Setter", StringComparison.OrdinalIgnoreCase)
+                                            && string.Equals(e.GetAttribute("Property"), "Background", StringComparison.OrdinalIgnoreCase))
+                                .Select(e => e.GetAttribute("Value"))
+                                .FirstOrDefault(v => !string.IsNullOrWhiteSpace(v));
+
+                            if (string.IsNullOrWhiteSpace(trueColor) && string.IsNullOrWhiteSpace(trueBackgroundColor))
+                                continue;
+
+                            if (!ownerElement.HasAttribute("ConditionalForegroundPath") && !string.IsNullOrWhiteSpace(trueColor))
+                                ownerElement.SetAttribute("ConditionalForegroundPath", conditionPath);
+
+                            if (!ownerElement.HasAttribute("ConditionalForegroundTrueColor") && !string.IsNullOrWhiteSpace(trueColor))
+                                ownerElement.SetAttribute("ConditionalForegroundTrueColor", trueColor);
+
+                            if (!ownerElement.HasAttribute("ConditionalForegroundFalseColor")
+                                && !string.IsNullOrWhiteSpace(trueColor)
+                                && ownerElement.HasAttribute("Foreground"))
+                            {
+                                ownerElement.SetAttribute("ConditionalForegroundFalseColor", ownerElement.GetAttribute("Foreground"));
+                            }
+
+                            if (!ownerElement.HasAttribute("ConditionalBackgroundPath") && !string.IsNullOrWhiteSpace(trueBackgroundColor))
+                                ownerElement.SetAttribute("ConditionalBackgroundPath", conditionPath);
+
+                            if (!ownerElement.HasAttribute("ConditionalBackgroundTrueColor") && !string.IsNullOrWhiteSpace(trueBackgroundColor))
+                                ownerElement.SetAttribute("ConditionalBackgroundTrueColor", trueBackgroundColor);
+
+                            if (!ownerElement.HasAttribute("ConditionalBackgroundFalseColor")
+                                && !string.IsNullOrWhiteSpace(trueBackgroundColor)
+                                && ownerElement.HasAttribute("CellBackground"))
+                            {
+                                ownerElement.SetAttribute("ConditionalBackgroundFalseColor", ownerElement.GetAttribute("CellBackground"));
+                            }
+
+                            break;
+                        }
+                    }
+
+                    ownerElement.RemoveChild(styleElement);
+                }
+
+                return doc.OuterXml;
+            }
+            catch
+            {
+                // Keep conversion resilient: if this pass fails, return the original text.
+                return xaml;
+            }
+        }
+
+        private static string ExtractBindingPathFromMarkup(string bindingMarkup)
+        {
+            if (string.IsNullOrWhiteSpace(bindingMarkup))
+                return null;
+
+            var parsed = ParseMarkupExtension(bindingMarkup);
+            if (parsed != null)
+            {
+                if (parsed.Properties.TryGetValue("Path", out string pathFromProperty)
+                    && !string.IsNullOrWhiteSpace(pathFromProperty))
+                {
+                    return pathFromProperty;
+                }
+            }
+
+            var positionalMatch = Regex.Match(
+                bindingMarkup,
+                @"^\{\s*(?:[a-zA-Z_][\w.]*)?Binding\s+(?<path>[^,}\s]+)",
+                RegexOptions.IgnoreCase);
+
+            if (positionalMatch.Success)
+                return positionalMatch.Groups["path"].Value.Trim();
+
+            return null;
+        }
+
         private static bool IsEmptyRelativeTransformElement(XmlElement relativeTransformElement)
         {
             if (relativeTransformElement == null)
@@ -1545,9 +1472,6 @@ namespace gip.core.datamodel
                                     && e.HasAttribute("Source"))
                         .ToList();
 
-                    if (sourceDictionaries.Count == 0)
-                        continue;
-
                     var includeSources = new List<string>();
                     foreach (var sourceDictionary in sourceDictionaries)
                     {
@@ -1561,49 +1485,95 @@ namespace gip.core.datamodel
                         resourcesElement.RemoveChild(sourceDictionary);
                     }
 
-                    if (includeSources.Count == 0)
-                        continue;
-
-                    var targetDictionary = resourcesElement
-                        .ChildNodes
-                        .OfType<XmlElement>()
-                        .FirstOrDefault(e => string.Equals(e.LocalName, "ResourceDictionary", StringComparison.OrdinalIgnoreCase));
-
-                    if (targetDictionary == null)
+                    if (includeSources.Count > 0)
                     {
-                        targetDictionary = doc.CreateElement("ResourceDictionary", xamlNs);
-                        resourcesElement.AppendChild(targetDictionary);
-                    }
-
-                    var mergedDictionaries = targetDictionary
-                        .ChildNodes
-                        .OfType<XmlElement>()
-                        .FirstOrDefault(e => string.Equals(e.LocalName, "ResourceDictionary.MergedDictionaries", StringComparison.OrdinalIgnoreCase));
-
-                    if (mergedDictionaries == null)
-                    {
-                        mergedDictionaries = doc.CreateElement("ResourceDictionary.MergedDictionaries", xamlNs);
-                        targetDictionary.AppendChild(mergedDictionaries);
-                    }
-
-                    var existingSources = new HashSet<string>(
-                        mergedDictionaries
+                        var targetDictionary = resourcesElement
                             .ChildNodes
                             .OfType<XmlElement>()
-                            .Where(e => string.Equals(e.LocalName, "ResourceInclude", StringComparison.OrdinalIgnoreCase))
-                            .Select(e => e.GetAttribute("Source"))
-                            .Where(s => !string.IsNullOrWhiteSpace(s)),
-                        StringComparer.OrdinalIgnoreCase);
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "ResourceDictionary", StringComparison.OrdinalIgnoreCase));
 
-                    foreach (string source in includeSources)
+                        if (targetDictionary == null)
+                        {
+                            targetDictionary = doc.CreateElement("ResourceDictionary", xamlNs);
+                            resourcesElement.AppendChild(targetDictionary);
+                        }
+
+                        var mergedDictionaries = targetDictionary
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .FirstOrDefault(e => string.Equals(e.LocalName, "ResourceDictionary.MergedDictionaries", StringComparison.OrdinalIgnoreCase));
+
+                        if (mergedDictionaries == null)
+                        {
+                            mergedDictionaries = doc.CreateElement("ResourceDictionary.MergedDictionaries", xamlNs);
+                            targetDictionary.AppendChild(mergedDictionaries);
+                        }
+
+                        var existingSources = new HashSet<string>(
+                            mergedDictionaries
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .Where(e => string.Equals(e.LocalName, "ResourceInclude", StringComparison.OrdinalIgnoreCase))
+                                .Select(e => e.GetAttribute("Source"))
+                                .Where(s => !string.IsNullOrWhiteSpace(s)),
+                            StringComparer.OrdinalIgnoreCase);
+
+                        foreach (string source in includeSources)
+                        {
+                            if (existingSources.Contains(source))
+                                continue;
+
+                            var resourceInclude = doc.CreateElement("ResourceInclude", xamlNs);
+                            resourceInclude.SetAttribute("Source", source);
+                            mergedDictionaries.AppendChild(resourceInclude);
+                            existingSources.Add(source);
+                        }
+                    }
+
+                    // Handle nested WPF dictionaries inside existing MergedDictionaries blocks:
+                    // <ResourceDictionary Source="..." /> -> <ResourceInclude Source="avares://..." />
+                    var mergedDictionariesNodes = resourcesElement.SelectNodes(".//*[local-name()='ResourceDictionary.MergedDictionaries']");
+                    if (mergedDictionariesNodes == null)
+                        continue;
+
+                    foreach (var mergedDictionariesNode in mergedDictionariesNodes.OfType<XmlNode>().OfType<XmlElement>())
                     {
-                        if (existingSources.Contains(source))
+                        var nestedSourceDictionaries = mergedDictionariesNode
+                            .ChildNodes
+                            .OfType<XmlElement>()
+                            .Where(e => string.Equals(e.LocalName, "ResourceDictionary", StringComparison.OrdinalIgnoreCase)
+                                        && e.HasAttribute("Source"))
+                            .ToList();
+
+                        if (nestedSourceDictionaries.Count == 0)
                             continue;
 
-                        var resourceInclude = doc.CreateElement("ResourceInclude", xamlNs);
-                        resourceInclude.SetAttribute("Source", source);
-                        mergedDictionaries.AppendChild(resourceInclude);
-                        existingSources.Add(source);
+                        var nestedExistingSources = new HashSet<string>(
+                            mergedDictionariesNode
+                                .ChildNodes
+                                .OfType<XmlElement>()
+                                .Where(e => string.Equals(e.LocalName, "ResourceInclude", StringComparison.OrdinalIgnoreCase))
+                                .Select(e => e.GetAttribute("Source"))
+                                .Where(s => !string.IsNullOrWhiteSpace(s)),
+                            StringComparer.OrdinalIgnoreCase);
+
+                        foreach (var nestedSourceDictionary in nestedSourceDictionaries)
+                        {
+                            string source = nestedSourceDictionary.GetAttribute("Source");
+                            string avaresSource = ConvertWpfResourceSourceToAvares(source);
+                            if (string.IsNullOrWhiteSpace(avaresSource))
+                                continue;
+
+                            if (!nestedExistingSources.Contains(avaresSource))
+                            {
+                                var resourceInclude = doc.CreateElement("ResourceInclude", xamlNs);
+                                resourceInclude.SetAttribute("Source", avaresSource);
+                                mergedDictionariesNode.AppendChild(resourceInclude);
+                                nestedExistingSources.Add(avaresSource);
+                            }
+
+                            mergedDictionariesNode.RemoveChild(nestedSourceDictionary);
+                        }
                     }
                 }
 
@@ -1763,27 +1733,6 @@ namespace gip.core.datamodel
             return $"{rounded}%";
         }
 
-        private static string ConvertRenderTransformOriginToPercent(string xaml)
-        {
-            if (string.IsNullOrWhiteSpace(xaml))
-                return xaml;
-
-            return Regex.Replace(xaml, @"\bRenderTransformOrigin=""([^""]+)""", m =>
-            {
-                string points = m.Groups[1].Value;
-                var coords = points.Split(',');
-                if (coords.Length != 2)
-                    return m.Value;
-
-                var x = ConvertNumericValueToPercent(coords[0]);
-                var y = ConvertNumericValueToPercent(coords[1]);
-                if (string.IsNullOrWhiteSpace(x) || string.IsNullOrWhiteSpace(y))
-                    return m.Value;
-
-                return $"RenderTransformOrigin=\"{x},{y}\"";
-            }, RegexOptions.IgnoreCase);
-        }
-
         private static string ConvertLineCoordinatesToStartEndPoint(string xaml)
         {
             if (string.IsNullOrWhiteSpace(xaml))
@@ -1928,30 +1877,6 @@ namespace gip.core.datamodel
                     part1 += " " + nameSpace;
                 }
             }
-
-            // bool hasVBStaticResource = Regex.IsMatch(
-            //     part2,
-            //     @"\{(?:vb:)?VBStaticResource(?:Extension)?(?=[\s,\}])",
-            //     RegexOptions.CultureInvariant);
-
-            // if (hasVBStaticResource)
-            // {
-            //     // Ensure an explicit CLR namespace mapping exists for custom markup extensions.
-            //     // This avoids reliance on XmlnsDefinition resolution differences in NuGet XamlX runtime parsing.
-            //     const string vbClrNamespace = "xmlns:vbclr=\"clr-namespace:gip.core.layoutengine.avui;assembly=gip.core.layoutengine.avui\"";
-            //     if (!Regex.IsMatch(part1, @"\bxmlns:vbclr\s*=", RegexOptions.CultureInvariant))
-            //     {
-            //         part1 += " " + vbClrNamespace;
-            //     }
-
-            //     // Avalonia 12 NuGet parser does not always resolve legacy shorthand custom markup extension names.
-            //     // Keep old persisted layouts compatible by normalizing VBStaticResource to an explicit CLR-namespace extension.
-            //     part2 = Regex.Replace(
-            //         part2,
-            //         @"\{(?:vb:)?VBStaticResource(?:Extension)?(?=[\s,\}])",
-            //         "{vbclr:VBStaticResourceExtension",
-            //         RegexOptions.CultureInvariant);
-            // }
             
             return xmlDeclaration + part1 + part2;
         }
@@ -1965,6 +1890,8 @@ namespace gip.core.datamodel
             ("</Style>", "</ControlTheme>", false),
             ("ToolTip=", "ToolTip.Tip=", false),
             ("DataGrid.Columns", "vb:VBDataGrid.Columns", false),
+            (@"<DataGridTextColumn(?=[\s>])", "<vb:VBDataGridTextColumn", true),
+            (@"</DataGridTextColumn(?=\s*>)", "</vb:VBDataGridTextColumn", true),
             ("AllowDrop=", "DragDrop.AllowDrop=", false),
             ("<Style", "<ControlTheme", false),
             ("</Style", "</ControlTheme", false),    
@@ -2003,7 +1930,6 @@ namespace gip.core.datamodel
             (@" ?PreviewKeyDown=""\{vb:VBDelegateExtension (.*?)\}""", @" KeyDown=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             (@" ?PreviewKeyUp=""\{vb:VBDelegateExtension (.*?)\}""", @" KeyUp=""{vb:VBDelegate $1, HandlePreviewEvents=True}""", true),
             
-            (" ContextMenuService.HasDropShadow=\"True\"", " ", false),
             (" ColorInterpolationMode=\"SRgbLinearInterpolation\"", " ", false),
             (" MappingMode=\"RelativeToBoundingBox\"", " ", false),
             ("Property=\"X2\" Value=\"1\"", "Property=\"EndPoint\" Value=\"1,0\"", false),
@@ -2026,8 +1952,7 @@ namespace gip.core.datamodel
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleBool.Current}$1}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilityInverseBool\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}$1}""", true),
             (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
-            (@"\bVisibility=""\{vb:VBBinding\s+Converter=\{vb:ConverterVisibilitySingle vb:UseCollapsed=True, (.*?)\}""", @"IsVisible=""{vb:VBBinding Converter={vb:ConverterIsVisibleSingle $1}""", true),
-            (@"\bVisibility=""\{Binding\s+(.*?)\s*Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:IsVisibleNullConverter.Current}$2}""", true),
+            (@"\bVisibility=""\{Binding\s+Converter=\{vb:VisibilityNullConverter\}(.*?)\}""", @"IsVisible=""{Binding Converter={x:Static vb:IsVisibleNullConverter.Current}$1}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+(.*?),\s*Converter=\{vb:ConverterVisibilityInverseBool\}\}""", @"IsVisible=""{Binding $1, Converter={x:Static vb:ConverterIsVisibleInverseBool.Current}}""", true),
             (@"\bVisibility=""\{Binding\s+Converter=\{vb:ConverterVisibilitySingle(.*?)\}(.*?)\}""", @"IsVisible=""{Binding Converter={vb:ConverterIsVisibleSingle$1}$2}""", true),
@@ -2055,7 +1980,6 @@ namespace gip.core.datamodel
 
             // Remove obsolete Shape property not available in Avalonia.
             (@"\s+StrokeMiterLimit=""[^""]*""", "", true),
-            (@"\s+StrokeDashCap=""[^""]*""", "", true),
 
             // Pen property mapping: StartLineCap -> LineCap, removal of EndLineCap
             (@"<Pen\s+([^>]*?)StartLineCap=""([^""]*)""([^>]*?)", @"<Pen $1LineCap=""$2""$3", true),
@@ -2092,10 +2016,6 @@ namespace gip.core.datamodel
             // Note: The conversion engine usually runs these patterns. If we want to replace spaces with commas INSIDE the value:
             // We use a lookahead/lookbehind approach or a specialized mapping.
             (@"\bStrokeDashArray=""([^""]*?\d)\s+(\d[^""]*?)\""", @"StrokeDashArray=""$1,$2""", true),
-
-            // Convert WPF ToolTip style (Control.ToolTip/ToolTip) to Avalonia attached property style (ToolTip.Tip)
-            (@"<[\w.]+\.ToolTip>\s*<ToolTip>", "<ToolTip.Tip>", true),
-            (@"</ToolTip>\s*</[\w.]+\.ToolTip>", "</ToolTip.Tip>", true),
 
             // Note: xmlns removal from child elements is handled separately in XAMLDesign property to preserve root element xmlns
         };

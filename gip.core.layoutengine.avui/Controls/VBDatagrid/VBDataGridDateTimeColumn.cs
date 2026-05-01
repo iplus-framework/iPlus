@@ -3,6 +3,8 @@ using Avalonia.Controls;
 using Avalonia.Data;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
+using Avalonia.Controls.Primitives;
 using Avalonia.Styling;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui.Helperclasses;
@@ -84,6 +86,102 @@ namespace gip.core.layoutengine.avui
         {
             get { return (DateTimeFormat)GetValue(FormatDTPickerProperty); }
             set { SetValue(FormatDTPickerProperty, value); }
+        }
+
+        public static readonly StyledProperty<TextAlignment?> CellTextAlignmentProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, TextAlignment?>(nameof(CellTextAlignment));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public TextAlignment? CellTextAlignment
+        {
+            get { return GetValue(CellTextAlignmentProperty); }
+            set { SetValue(CellTextAlignmentProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundPathProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, string>(nameof(ConditionalForegroundPath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundPath
+        {
+            get { return GetValue(ConditionalForegroundPathProperty); }
+            set { SetValue(ConditionalForegroundPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundTrueColorProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, string>(nameof(ConditionalForegroundTrueColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundTrueColor
+        {
+            get { return GetValue(ConditionalForegroundTrueColorProperty); }
+            set { SetValue(ConditionalForegroundTrueColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalForegroundFalseColorProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, string>(nameof(ConditionalForegroundFalseColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalForegroundFalseColor
+        {
+            get { return GetValue(ConditionalForegroundFalseColorProperty); }
+            set { SetValue(ConditionalForegroundFalseColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<IBrush> CellBackgroundProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, IBrush>(nameof(CellBackground));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public IBrush CellBackground
+        {
+            get { return GetValue(CellBackgroundProperty); }
+            set { SetValue(CellBackgroundProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundPathProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, string>(nameof(ConditionalBackgroundPath));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundPath
+        {
+            get { return GetValue(ConditionalBackgroundPathProperty); }
+            set { SetValue(ConditionalBackgroundPathProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundTrueColorProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, string>(nameof(ConditionalBackgroundTrueColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundTrueColor
+        {
+            get { return GetValue(ConditionalBackgroundTrueColorProperty); }
+            set { SetValue(ConditionalBackgroundTrueColorProperty, value); }
+        }
+
+        public static readonly StyledProperty<string> ConditionalBackgroundFalseColorProperty =
+            AvaloniaProperty.Register<VBDataGridDateTimeColumn, string>(nameof(ConditionalBackgroundFalseColor));
+
+        [Category("VBControl")]
+        [Bindable(true)]
+        [ACPropertyInfo(9999)]
+        public string ConditionalBackgroundFalseColor
+        {
+            get { return GetValue(ConditionalBackgroundFalseColorProperty); }
+            set { SetValue(ConditionalBackgroundFalseColorProperty, value); }
         }
 
 
@@ -281,6 +379,8 @@ namespace gip.core.layoutengine.avui
             SyncProperties(textBlock);
             textBlock.IsEnabled = !this.IsReadOnly;
             ApplyBinding(Binding, textBlock, VBTextBlock.TextProperty);
+            ApplyConditionalForegroundBinding(textBlock, TextBlock.ForegroundProperty);
+            ApplyConditionalBackgroundBinding(textBlock, TextBlock.BackgroundProperty);
             //if (this.BindingTooltip != null)
             //    ApplyBinding(BindingTooltip, textBlock, ToolTip.TipProperty);
             return textBlock;
@@ -315,6 +415,17 @@ namespace gip.core.layoutengine.avui
             DataGridHelper.SyncColumnProperty(this, content, FontStyleProperty);
             DataGridHelper.SyncColumnProperty(this, content, FontWeightProperty);
             DataGridHelper.SyncColumnProperty(this, content, ForegroundProperty);
+            if (content is TextBlock textBlockBackground)
+                textBlockBackground.Background = CellBackground;
+            else if (content is TemplatedControl templatedBackground)
+                templatedBackground.Background = CellBackground;
+            if (CellTextAlignment.HasValue)
+            {
+                if (content is TextBlock textBlockContent)
+                    textBlockContent.TextAlignment = CellTextAlignment.Value;
+                else if (content is TextBox textBoxContent)
+                    textBoxContent.TextAlignment = CellTextAlignment.Value;
+            }
             if (content is TextBlock)
             {
                 DataGridHelper.SyncColumnProperty(this, content, ContentPropertyHandler.StringFormatProperty, StringFormatProperty);
@@ -336,6 +447,66 @@ namespace gip.core.layoutengine.avui
                 target.ClearAllBindings();
                 target.ClearBinding(property);
             }
+        }
+
+        private void ApplyConditionalForegroundBinding(AvaloniaObject target, AvaloniaProperty property)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalForegroundPath) || string.IsNullOrWhiteSpace(ConditionalForegroundTrueColor))
+                return;
+
+            string falseColor = ConditionalForegroundFalseColor;
+            if (string.IsNullOrWhiteSpace(falseColor) && Foreground is ISolidColorBrush solidForeground)
+            {
+                falseColor = solidForeground.Color.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(falseColor))
+                falseColor = "#FF000000";
+
+            var converter = new ConverterBoolFillColor
+            {
+                TrueColor = ConditionalForegroundTrueColor,
+                FalseColor = falseColor
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalForegroundPath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(property, binding);
+        }
+
+        private void ApplyConditionalBackgroundBinding(AvaloniaObject target, AvaloniaProperty property)
+        {
+            if (target == null || string.IsNullOrWhiteSpace(ConditionalBackgroundPath) || string.IsNullOrWhiteSpace(ConditionalBackgroundTrueColor))
+                return;
+
+            string falseColor = ConditionalBackgroundFalseColor;
+            if (string.IsNullOrWhiteSpace(falseColor) && CellBackground is ISolidColorBrush solidBackground)
+            {
+                falseColor = solidBackground.Color.ToString();
+            }
+
+            if (string.IsNullOrWhiteSpace(falseColor))
+                falseColor = "#00FFFFFF";
+
+            var converter = new ConverterBoolFillColor
+            {
+                TrueColor = ConditionalBackgroundTrueColor,
+                FalseColor = falseColor
+            };
+
+            var binding = new Binding
+            {
+                Path = ConditionalBackgroundPath,
+                Mode = BindingMode.OneWay,
+                Converter = converter
+            };
+
+            target.Bind(property, binding);
         }
 
         protected override void RefreshCellContent(Control element, string propertyName)
