@@ -169,6 +169,14 @@ namespace gip.core.layoutengine.avui
 
             if (!string.IsNullOrEmpty(this.AutoStartACComponent))
             {
+                // During startup restore, pinned/auto-hide tools may be initialized before
+                // BSOACComponent binding is available. Defer auto-start binding until it exists.
+                if (BSOACComponent == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[VBDesign|{Name ?? GetHashCode().ToString()}] InitBinding defer: BSOACComponent is null for AutoStart '{AutoStartACComponent}'");
+                    return;
+                }
+
                 if (AutoStartParameter == null || !AutoStartParameter.Any())
                 {
                     var binding = new Binding

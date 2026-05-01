@@ -17,6 +17,7 @@ using gip.ext.design.avui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace gip.core.layoutengine.avui
@@ -588,20 +589,17 @@ namespace gip.core.layoutengine.avui
                     };
                 }
 
-                if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
-                {
-                    uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
-                    DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = doc });
-                }
+                RegisterDesignDockable(uiElementAsDataDesign, doc);
 
                 if (!isCloseable)
                 {
                     UpdateTabStripVisibility();
                 }
 
-                if (documentDock.VisibleDockables == null)
-                    documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
-                documentDock.VisibleDockables.Add(doc);
+                bool activateNewTab = isCloseable
+                    && uiElementAsDataDesign != null
+                    && !string.IsNullOrEmpty(uiElementAsDataDesign.AutoStartACComponent);
+                AddAndActivateDocumentDockable(documentDock, doc, activateNewTab);
             }
             else if (containerType == Global.VBDesignContainer.DockableWindow)
             {
@@ -626,11 +624,7 @@ namespace gip.core.layoutengine.avui
                         CanClose = isCloseable
                     };
 
-                    if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
-                    {
-                        uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
-                        DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = tool });
-                    }
+                    RegisterDesignDockable(uiElementAsDataDesign, tool);
 
                     //if (this.VBDesignContent is VBDesign)
                     //    (this.VBDesignContent as VBDesign).OnContextACObjectChanged += new EventHandler(VBDockingContainerBase_OnElementACComponentChanged);
@@ -693,11 +687,7 @@ namespace gip.core.layoutengine.avui
                         CanFloat = isCloseable
                     };
 
-                    if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
-                    {
-                        uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
-                        DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = tool });
-                    }
+                    RegisterDesignDockable(uiElementAsDataDesign, tool);
 
                     if (toolDock == null)
                     {
@@ -979,20 +969,17 @@ namespace gip.core.layoutengine.avui
                     };
                 }
 
-                if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
-                {
-                    uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
-                    DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = doc });
-                }
+                RegisterDesignDockable(uiElementAsDataDesign, doc);
 
                 if (!isCloseable)
                 {
                     UpdateTabStripVisibility();
                 }
 
-                if (documentDock.VisibleDockables == null)
-                    documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
-                documentDock.VisibleDockables.Add(doc);
+                bool activateNewTab = isCloseable
+                    && uiElementAsDataDesign != null
+                    && !string.IsNullOrEmpty(uiElementAsDataDesign.AutoStartACComponent);
+                AddAndActivateDocumentDockable(documentDock, doc, activateNewTab);
             }
             else if (containerType == Global.VBDesignContainer.DockableWindow)
             {
@@ -1017,11 +1004,7 @@ namespace gip.core.layoutengine.avui
                         CanClose = isCloseable
                     };
 
-                    if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
-                    {
-                        uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
-                        DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = tool });
-                    }
+                    RegisterDesignDockable(uiElementAsDataDesign, tool);
 
                     //if (this.VBDesignContent is VBDesign)
                     //    (this.VBDesignContent as VBDesign).OnContextACObjectChanged += new EventHandler(VBDockingContainerBase_OnElementACComponentChanged);
@@ -1084,11 +1067,7 @@ namespace gip.core.layoutengine.avui
                         CanFloat = isCloseable
                     };
 
-                    if (uiElementAsDataDesign != null && !DesignToolMap.Where(c => c.Design == uiElementAsDataDesign).Any())
-                    {
-                        uiElementAsDataDesign.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
-                        DesignToolMap.Add(new DockedDesignInfo() { Design = uiElementAsDataDesign, Dockable = tool });
-                    }
+                    RegisterDesignDockable(uiElementAsDataDesign, tool);
 
                     if (toolDock == null)
                     {
@@ -1315,6 +1294,73 @@ namespace gip.core.layoutengine.avui
             EnsureTabStripStyle(tabsVisible);
         }
 
+        private void AddAndActivateDocumentDockable(DocumentDock documentDock, DockableBase doc, bool activateNewTab)
+        {
+            if (documentDock == null || doc == null)
+                return;
+
+            // During initial layout construction DockControl.Layout is not assigned yet,
+            // so we cannot rely on factory activation plumbing.
+            if (DockControl?.Layout == null)
+            {
+                if (documentDock.VisibleDockables == null)
+                    documentDock.VisibleDockables = _Factory.CreateList<IDockable>();
+                documentDock.VisibleDockables.Add(doc);
+                if (activateNewTab)
+                    documentDock.ActiveDockable = doc;
+                return;
+            }
+
+            _Factory.AddDockable(documentDock, doc);
+            if (activateNewTab)
+            {
+                _Factory.SetActiveDockable(doc);
+                _Factory.SetFocusedDockable(documentDock, doc);
+            }
+        }
+
+        private void RegisterDesignDockable(VBDesign design, DockableBase dockable)
+        {
+            if (design == null || dockable == null)
+                return;
+
+            var map = DesignToolMap.Where(c => c.Design == design).FirstOrDefault();
+            if (map == null)
+            {
+                design.OnContextACObjectChanged += UiElementAsDataDesign_OnContextACObjectChanged;
+                map = new DockedDesignInfo { Design = design, Dockable = dockable };
+                DesignToolMap.Add(map);
+            }
+            else
+            {
+                map.Dockable = dockable;
+            }
+
+            // For AutoStart designs the real child context is often not resolved yet.
+            // Keep the existing dock title until BSOACComponent is available, otherwise
+            // fallback resolution can incorrectly overwrite it with manager caption.
+            if (!IsDeferredAutoStartDesign(design))
+            {
+                // Deferred tab content may initialize later; force the best available title immediately.
+                var title = RefreshTitle(design);
+                if (!string.IsNullOrEmpty(title))
+                    dockable.Title = title;
+            }
+            else
+            {
+                // Try to resolve caption from the target businessobject class metadata.
+                var autoStartCaption = TryResolveAutoStartCaption(design);
+                if (!string.IsNullOrEmpty(autoStartCaption))
+                    dockable.Title = autoStartCaption;
+            }
+
+            if (design.BSOACComponent != null)
+            {
+                design.BSOACComponent.PropertyChanged -= Docked_BSOACComponent_PropertyChanged;
+                design.BSOACComponent.PropertyChanged += Docked_BSOACComponent_PropertyChanged;
+            }
+        }
+
         private void UiElementAsDataDesign_OnContextACObjectChanged(object sender, EventArgs e)
         {
             if (sender == null)
@@ -1328,7 +1374,10 @@ namespace gip.core.layoutengine.avui
             {
                 map.Dockable.Title = RefreshTitle(uiElementAsDataDesign);
                 if (uiElementAsDataDesign.BSOACComponent != null)
+                {
+                    uiElementAsDataDesign.BSOACComponent.PropertyChanged -= Docked_BSOACComponent_PropertyChanged;
                     uiElementAsDataDesign.BSOACComponent.PropertyChanged += Docked_BSOACComponent_PropertyChanged;
+                }
             }
         }
 
@@ -1349,36 +1398,87 @@ namespace gip.core.layoutengine.avui
         {
             string acCaption = vbDesign.ACCaption;
             string title = VBDockingManager.GetWindowTitle(vbDesign);
-            bool isCloseable = VBDockingManager.GetIsCloseableBSORoot(vbDesign);
+
             if (!string.IsNullOrEmpty(title))
                 return title;
-            if (vbDesign.ContentACObject != null && !isCloseable)
-            {
-                if (!string.IsNullOrEmpty(vbDesign.CustomizedACCaption))
-                    acCaption = vbDesign.CustomizedACCaption;
-                if (!string.IsNullOrEmpty(acCaption))
-                    return acCaption;
-            }
-            if (vbDesign.ContextACObject != null)
-            {
-                if (!string.IsNullOrEmpty(vbDesign.CustomizedACCaption))
-                    acCaption = vbDesign.CustomizedACCaption;
-                else
-                    acCaption = vbDesign.ContextACObject.ACCaption;
-            }
-            if (!string.IsNullOrEmpty(acCaption))
-                return acCaption;
-            if (vbDesign.DataContext is IACComponent acComponent
+
+            if (!string.IsNullOrEmpty(vbDesign.CustomizedACCaption))
+                return vbDesign.CustomizedACCaption;
+
+            if (vbDesign.ContentACObject != null && !string.IsNullOrEmpty(vbDesign.ContentACObject.ACCaption))
+                return vbDesign.ContentACObject.ACCaption;
+
+            var autoStartCaption = TryResolveAutoStartCaption(vbDesign);
+            if (!string.IsNullOrEmpty(autoStartCaption))
+                return autoStartCaption;
+
+            // For VBContent path bindings (without '*'), resolve the target design directly
+            // from DataContext so startup-restored auto-hide buttons can get the final title
+            // before deferred content initialization runs.
+            if (vbDesign.DataContext != null
                 && !string.IsNullOrEmpty(vbDesign.VBContent)
-                && vbDesign.VBContent.StartsWith("*"))
+                && !vbDesign.VBContent.StartsWith("*"))
             {
-                ACClassDesign acClassDesign = acComponent.GetDesign(vbDesign.VBContent.Substring(1));
-                if (acClassDesign != null)
+                var boundDesign = ResolveFromPropertyPath(vbDesign.DataContext, vbDesign.VBContent) as IACObjectDesign;
+                if (boundDesign != null && !string.IsNullOrEmpty(boundDesign.ACCaption))
+                    return boundDesign.ACCaption;
+            }
+
+            // Resolve potential design caption without waiting for VBDesign to be attached/initialized.
+            if (vbDesign.DataContext is IACComponent acComponent)
+            {
+                ACClassDesign acClassDesign = null;
+
+                if (!string.IsNullOrEmpty(vbDesign.VBContent) && vbDesign.VBContent.StartsWith("*"))
+                {
+                    acClassDesign = acComponent.GetDesign(vbDesign.VBContent.Substring(1));
+                }
+                else if (string.IsNullOrEmpty(vbDesign.VBContent))
+                {
+                    // Parent is often not known yet while deferred tab content is not realized,
+                    // so try mobile first and then desktop as best-effort early lookup.
+                    acClassDesign = acComponent.GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMainMobile)
+                                   ?? acComponent.GetDesign(Global.ACKinds.DSDesignLayout, Global.ACUsages.DUMain);
+                }
+
+                if (acClassDesign != null && !string.IsNullOrEmpty(acClassDesign.ACCaption))
                     return acClassDesign.ACCaption;
             }
+
+            if (vbDesign.ContextACObject != null)
+            {
+                acCaption = vbDesign.ContextACObject.ACCaption;
+            }
+
+            if (!string.IsNullOrEmpty(acCaption))
+                return acCaption;
+
             if (string.IsNullOrEmpty(acCaption))
                 acCaption = vbDesign.VBContent;
+
             return acCaption;
+        }
+
+        private object ResolveFromPropertyPath(object source, string propertyPath)
+        {
+            if (source == null || string.IsNullOrWhiteSpace(propertyPath))
+                return null;
+
+            object current = source;
+            string[] parts = propertyPath.Split('.');
+            foreach (string part in parts)
+            {
+                if (current == null || string.IsNullOrWhiteSpace(part))
+                    return null;
+
+                var property = current.GetType().GetProperty(part, BindingFlags.Instance | BindingFlags.Public);
+                if (property == null)
+                    return null;
+
+                current = property.GetValue(current);
+            }
+
+            return current;
         }
 
 
@@ -1406,6 +1506,16 @@ namespace gip.core.layoutengine.avui
             foreach (IDockable dockable in MainLayout.VisibleDockables)
             {
                 InitVBDesignsRecursively(dockable);
+            }
+
+            // Auto-hidden tools are pinned and not part of MainLayout.VisibleDockables.
+            // Initialize them as well so their caption/title is ready before first preview click.
+            if (DockControl?.Layout is IRootDock rootDock)
+            {
+                InitVBDesignsFromCollection(rootDock.LeftPinnedDockables);
+                InitVBDesignsFromCollection(rootDock.RightPinnedDockables);
+                InitVBDesignsFromCollection(rootDock.TopPinnedDockables);
+                InitVBDesignsFromCollection(rootDock.BottomPinnedDockables);
             }
 
             //foreach (VBDockingContainerToolWindow toolWin in ToolWindowContainerList)
@@ -1445,17 +1555,158 @@ namespace gip.core.layoutengine.avui
             //}
         }
 
+        private void InitVBDesignsFromCollection(IEnumerable<IDockable> dockables)
+        {
+            if (dockables == null)
+                return;
+
+            foreach (var dockable in dockables)
+            {
+                InitVBDesignsRecursively(dockable);
+            }
+        }
+
+        private VBDesign TryGetVBDesignFromDockableContent(object content)
+        {
+            if (content is VBDesign vbDesign)
+                return vbDesign;
+
+            if (content is Panel panel)
+            {
+                foreach (var child in panel.Children)
+                {
+                    var nested = TryGetVBDesignFromDockableContent(child);
+                    if (nested != null)
+                        return nested;
+                }
+            }
+
+            if (content is ContentControl contentControl)
+            {
+                var nested = TryGetVBDesignFromDockableContent(contentControl.Content);
+                if (nested != null)
+                    return nested;
+            }
+
+            if (content is Decorator decorator)
+            {
+                var nested = TryGetVBDesignFromDockableContent(decorator.Child);
+                if (nested != null)
+                    return nested;
+            }
+
+            if (content is AvaloniaObject avaloniaObject)
+            {
+                return VBVisualTreeHelper.FindChildObjectInVisualTree(avaloniaObject, typeof(VBDesign)) as VBDesign;
+            }
+
+            return null;
+        }
+
+        private bool CanInitializeDesignAtStartup(VBDesign vbDesign)
+        {
+            if (vbDesign == null)
+                return false;
+
+            // AutoStart designs require BSOACComponent for ACUrlCommand invocation.
+            // During startup restore this can still be null for pinned/auto-hide tools.
+            if (IsDeferredAutoStartDesign(vbDesign))
+                return false;
+
+            return true;
+        }
+
+        private bool IsDeferredAutoStartDesign(VBDesign vbDesign)
+        {
+            return vbDesign != null
+                && !string.IsNullOrEmpty(vbDesign.AutoStartACComponent)
+                && vbDesign.BSOACComponent == null;
+        }
+
+        private string TryResolveAutoStartCaption(VBDesign vbDesign)
+        {
+            if (vbDesign == null || string.IsNullOrWhiteSpace(vbDesign.AutoStartACComponent))
+                return null;
+
+            var autoStartIdentifier = ExtractAutoStartIdentifier(vbDesign.AutoStartACComponent);
+            if (string.IsNullOrEmpty(autoStartIdentifier))
+                return null;
+
+            ACClass classInfo = null;
+
+            if (vbDesign.DataContext is IACComponent dataComponent && dataComponent.ACType is ACClass parentClass)
+            {
+                classInfo = parentClass.ACClass_ParentACClass?.FirstOrDefault(c => c.ACIdentifier == autoStartIdentifier);
+            }
+
+            if (classInfo == null && Database.GlobalDatabase != null)
+            {
+                classInfo = Database.GlobalDatabase.ACClass.FirstOrDefault(c => c.ACIdentifier == autoStartIdentifier);
+            }
+
+            return string.IsNullOrEmpty(classInfo?.ACCaption) ? null : classInfo.ACCaption;
+        }
+
+        private string ExtractAutoStartIdentifier(string autoStartAcUrl)
+        {
+            if (string.IsNullOrWhiteSpace(autoStartAcUrl))
+                return null;
+
+            var token = autoStartAcUrl.Trim();
+
+            var hashIndex = token.LastIndexOf('#');
+            if (hashIndex >= 0 && hashIndex + 1 < token.Length)
+                token = token.Substring(hashIndex + 1);
+
+            var slashIndex = token.LastIndexOf('\\');
+            if (slashIndex >= 0 && slashIndex + 1 < token.Length)
+                token = token.Substring(slashIndex + 1);
+
+            return string.IsNullOrWhiteSpace(token) ? null : token;
+        }
+
+        private void UpdateDockableTitleFromDesign(IDockable dockable, VBDesign vbDesign)
+        {
+            if (dockable == null || vbDesign == null)
+                return;
+
+            // Keep the title that came from persisted state/creation until AutoStart context is resolved.
+            if (IsDeferredAutoStartDesign(vbDesign))
+            {
+                var autoStartCaption = TryResolveAutoStartCaption(vbDesign);
+                if (!string.IsNullOrEmpty(autoStartCaption) && dockable.Title != autoStartCaption)
+                    dockable.Title = autoStartCaption;
+                return;
+            }
+
+            var title = RefreshTitle(vbDesign);
+            if (!string.IsNullOrEmpty(title) && dockable.Title != title)
+                dockable.Title = title;
+        }
+
         private void InitVBDesignsRecursively(IDockable dockable)
         {
             // Check if this dockable is a Tool with VBDesign content
-            if (dockable is Tool tool && tool.Content is VBDesign vbDesignTool)
+            if (dockable is Tool tool)
             {
-                vbDesignTool.InitVBControl();
+                var vbDesignTool = TryGetVBDesignFromDockableContent(tool.Content);
+                if (vbDesignTool != null)
+                {
+                    UpdateDockableTitleFromDesign(dockable, vbDesignTool);
+                    if (CanInitializeDesignAtStartup(vbDesignTool))
+                        vbDesignTool.InitVBControl();
+                }
             }
             // Check if this dockable is a Document with VBDesign content
-            else if (dockable is Document document && document.Content is VBDesign vbDesignDoc)
+            else if (dockable is Document document)
             {
-                vbDesignDoc.InitVBControl();
+                var vbDesignDoc = TryGetVBDesignFromDockableContent(document.Content);
+                if (vbDesignDoc != null)
+                {
+                    UpdateDockableTitleFromDesign(dockable, vbDesignDoc);
+                    if (CanInitializeDesignAtStartup(vbDesignDoc))
+                        vbDesignDoc.InitVBControl();
+                }
             }
             // Check if this dockable has VisibleDockables (like ProportionalDock, ToolDock, DocumentDock)
             else if (dockable is IDock dock && dock.VisibleDockables != null)
