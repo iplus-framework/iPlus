@@ -25,9 +25,9 @@ using System.Collections.Concurrent;
 namespace gip.bso.iplus
 {
     /// <summary>
-    /// Partial class for BSOChatBot handling MCP integration
-    /// You need to install node.js for using npx to connect to MCP servers:
-    /// https://nodejs.org/en/download
+    /// Partial class for BSOChatBot handling MCP integration.
+    /// Node.js is only required for legacy stdio bridges (for example npx mcp-remote).
+    /// Direct HTTP MCP connections do not require Node.js.
     /// </summary>
     public partial class BSOChatBot : ACBSO
     {
@@ -281,18 +281,33 @@ namespace gip.bso.iplus
                             McpServerInfo iPlusServer = serverEntry.Value;
                             if (iPlusServer != null)
                             {
-                                List<string> args = iPlusServer.args != null ? iPlusServer.args.ToList() : new List<string>();
-                                if (!args.Contains("--header"))
-                                    args.Add("--header");
-                                if (!args.Contains("-y"))
-                                    args.Add("-y");
-                                string authorization = args.Where(c => c.StartsWith("Authorization")).FirstOrDefault();
-                                if (!String.IsNullOrEmpty(authorization))
-                                    args.Remove(authorization);
                                 var vbUser = this.Root.CurrentInvokingUser;
-                                if (vbUser != null)
-                                    args.Add(String.Format("Authorization:{0}#{1}", vbUser.VBUserName, vbUser.Password));
-                                iPlusServer.args = args.ToArray();
+                                string authorizationHeader = vbUser != null ? String.Format("{0}#{1}", vbUser.VBUserName, vbUser.Password) : null;
+
+                                if (!string.IsNullOrWhiteSpace(ResolveHttpEndpoint(iPlusServer)))
+                                {
+                                    if (iPlusServer.headers == null)
+                                        iPlusServer.headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+                                    if (!string.IsNullOrEmpty(authorizationHeader))
+                                        iPlusServer.headers["Authorization"] = authorizationHeader;
+                                    else if (iPlusServer.headers.ContainsKey("Authorization"))
+                                        iPlusServer.headers.Remove("Authorization");
+                                }
+                                else
+                                {
+                                    List<string> args = iPlusServer.args != null ? iPlusServer.args.ToList() : new List<string>();
+                                    if (!args.Contains("--header"))
+                                        args.Add("--header");
+                                    if (!args.Contains("-y"))
+                                        args.Add("-y");
+                                    string authorization = args.Where(c => c.StartsWith("Authorization", StringComparison.OrdinalIgnoreCase)).FirstOrDefault();
+                                    if (!String.IsNullOrEmpty(authorization))
+                                        args.Remove(authorization);
+                                    if (!string.IsNullOrEmpty(authorizationHeader))
+                                        args.Add(String.Format("Authorization:{0}", authorizationHeader));
+                                    iPlusServer.args = args.ToArray();
+                                }
                             }
                         }
                     }
@@ -413,34 +428,171 @@ namespace gip.bso.iplus
             McpClientOptions clientOptions,
             ConcurrentBag<(string serverName, McpClient client, List<AITool> tools, Exception error)> results)
         {
-            try
+            async Task<(McpClient client, List<AITool> tools)> ConnectWithTransport(IClientTransport transport)
             {
-                // Create stdio transport for MCP server
-                var transport = new StdioClientTransport(new StdioClientTransportOptions
-                {
-                    Command = serverInfo.command,
-                    Arguments = serverInfo.args ?? new string[0],
-                    Name = serverName,
-                    EnvironmentVariables = serverInfo.env,
-                }, 
-                _LoggerFactory);
-
-                // Connect to MCP server with timeout
-                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30)); // 30-second timeout
+                using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
                 var mcpClient = await McpClient.CreateAsync(
                     transport,
                     clientOptions,
                     _LoggerFactory,
                     cts.Token).ConfigureAwait(false);
 
-                // Get available tools from this server
                 var tools = await mcpClient.ListToolsAsync().ConfigureAwait(false);
-                results.Add((serverName, mcpClient, tools.Cast<AITool>().ToList(), null));
+                return (mcpClient, tools.Cast<AITool>().ToList());
+            }
+
+            IClientTransport BuildStdioTransport(string[] arguments)
+            {
+                return new StdioClientTransport(new StdioClientTransportOptions
+                {
+                    Command = serverInfo.command,
+                    Arguments = arguments,
+                    Name = serverName,
+                    EnvironmentVariables = serverInfo.env,
+                },
+                _LoggerFactory);
+            }
+
+            var endpoint = ResolveHttpEndpoint(serverInfo);
+            if (!string.IsNullOrWhiteSpace(endpoint))
+            {
+                try
+                {
+                    var httpOptions = new HttpClientTransportOptions
+                    {
+                        Endpoint = new Uri(endpoint, UriKind.Absolute),
+                        Name = serverName,
+                        TransportMode = HttpTransportMode.AutoDetect,
+                        ConnectionTimeout = TimeSpan.FromSeconds(30),
+                    };
+
+                    var additionalHeaders = BuildAdditionalHeaders(serverInfo);
+                    if (additionalHeaders.Count > 0)
+                        httpOptions.AdditionalHeaders = additionalHeaders;
+
+                    var transport = new HttpClientTransport(httpOptions, _LoggerFactory);
+                    var connection = await ConnectWithTransport(transport).ConfigureAwait(false);
+                    results.Add((serverName, connection.client, connection.tools, null));
+                    return;
+                }
+                catch (Exception httpEx)
+                {
+                    results.Add((serverName, null, new List<AITool>(), httpEx));
+                    return;
+                }
+            }
+
+            var originalArgs = serverInfo.args ?? new string[0];
+            try
+            {
+                var transport = BuildStdioTransport(originalArgs);
+                var connection = await ConnectWithTransport(transport).ConfigureAwait(false);
+                results.Add((serverName, connection.client, connection.tools, null));
             }
             catch (Exception ex)
             {
                 results.Add((serverName, null, new List<AITool>(), ex));
             }
+        }
+
+        private static string ResolveHttpEndpoint(McpServerInfo serverInfo)
+        {
+            if (serverInfo == null)
+                return null;
+
+            if (TryNormalizeHttpEndpoint(serverInfo.url, out var normalizedUrl))
+                return normalizedUrl;
+
+            var args = serverInfo.args;
+            if (args == null || args.Length == 0)
+                return null;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (TryNormalizeHttpEndpoint(args[i], out normalizedUrl))
+                    return normalizedUrl;
+            }
+
+            return null;
+        }
+
+        private static bool TryNormalizeHttpEndpoint(string value, out string endpoint)
+        {
+            endpoint = null;
+
+            if (string.IsNullOrWhiteSpace(value))
+                return false;
+
+            if (!Uri.TryCreate(value, UriKind.Absolute, out var uri))
+                return false;
+
+            bool isHttp = uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+                || uri.Scheme.Equals(Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
+            if (!isHttp)
+                return false;
+
+            var endpointBuilder = new UriBuilder(uri);
+            if (endpointBuilder.Path.EndsWith("/sse", StringComparison.OrdinalIgnoreCase))
+            {
+                endpointBuilder.Path = endpointBuilder.Path.Substring(0, endpointBuilder.Path.Length - 4);
+                if (string.IsNullOrEmpty(endpointBuilder.Path))
+                    endpointBuilder.Path = "/";
+            }
+
+            endpoint = endpointBuilder.Uri.AbsoluteUri;
+            return true;
+        }
+
+        private static Dictionary<string, string> BuildAdditionalHeaders(McpServerInfo serverInfo)
+        {
+            var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            if (serverInfo?.headers != null)
+            {
+                foreach (var pair in serverInfo.headers)
+                {
+                    if (!string.IsNullOrWhiteSpace(pair.Key) && pair.Value != null)
+                        headers[pair.Key] = pair.Value;
+                }
+            }
+
+            var args = serverInfo?.args;
+            if (args == null)
+                return headers;
+
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (TryParseHeaderArgument(args[i], out var name, out var value))
+                    headers[name] = value;
+            }
+
+            return headers;
+        }
+
+        private static bool TryParseHeaderArgument(string argument, out string name, out string value)
+        {
+            name = null;
+            value = null;
+
+            if (string.IsNullOrWhiteSpace(argument) || argument.StartsWith("--", StringComparison.Ordinal))
+                return false;
+
+            if (Uri.TryCreate(argument, UriKind.Absolute, out _))
+                return false;
+
+            int separatorIndex = argument.IndexOf(':');
+            if (separatorIndex <= 0 || separatorIndex >= argument.Length - 1)
+                return false;
+
+            var headerName = argument.Substring(0, separatorIndex).Trim();
+            var headerValue = argument.Substring(separatorIndex + 1).Trim();
+
+            if (string.IsNullOrWhiteSpace(headerName) || string.IsNullOrWhiteSpace(headerValue) || headerName.Contains(" "))
+                return false;
+
+            name = headerName;
+            value = headerValue;
+            return true;
         }
 
         [ACMethodInfo("MCP", "en{'Disconnect MCP'}de{'MCP trennen'}", 103)]

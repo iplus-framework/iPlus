@@ -311,9 +311,13 @@ namespace gip.bso.iplus
         {
             if (conversationList == null || _update == null || _update.Contents == null)
                 return;
+
+            // Newer streaming providers can emit content deltas without role on each update.
+            // These updates belong to the assistant message context, so default accordingly.
+            var role = _update.Role ?? ChatRole.Assistant;
             
             // Create a new ChatMessage from this update
-            var chatMessage = new ChatMessage(_update.Role.Value, _update.Contents)
+            var chatMessage = new ChatMessage(role, _update.Contents)
             {
                 MessageId = _update.MessageId,
                 AdditionalProperties = _update.AdditionalProperties,

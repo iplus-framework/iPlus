@@ -127,6 +127,10 @@ namespace gip.core.webservices
                 this.Root.RootPageWPF.SuppressOpenMessageBoxes = true;
             try
             {
+                // Keep backward compatibility for existing clients that connect via
+                // legacy SSE endpoints (/sse and /message), e.g. mcp-remote configs.
+                AppContext.SetSwitch("ModelContextProtocol.AspNetCore.EnableLegacySse", true);
+
                 //var builder = Host.CreateApplicationBuilder();
                 //builder.Services.AddMcpServer()
                 //    .WithStdioServerTransport()
