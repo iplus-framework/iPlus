@@ -2,8 +2,11 @@
   "mcp": {
     "servers": {
       "iPlus": {
-        "type": "http",
-        "url": "http://localhost:8750/sse"
+        "ForLocalBotUsage": false,
+        "url": "http://localhost:8750",
+        "headers": {
+          "Authorization": "00#00"
+        }
       },
       "github": {
         "type": "http",
