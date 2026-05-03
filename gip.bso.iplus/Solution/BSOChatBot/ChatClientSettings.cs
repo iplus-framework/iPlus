@@ -123,6 +123,18 @@ namespace gip.bso.iplus
         }
 
         [JsonIgnore]
+        private int? _TopK;
+        [ACPropertyInfo(8, "", "en{'Top K'}de{'Top K'}")]
+        public int? TopK
+        {
+            get => _TopK;
+            set
+            {
+                SetProperty(ref _TopK, value);
+            }
+        }
+
+        [JsonIgnore]
         private float? _FrequencyPenalty;
         [ACPropertyInfo(9, "", "en{'Frequency Penalty'}de{'Frequency Penalty'}")]
         public float? FrequencyPenalty
@@ -168,6 +180,30 @@ namespace gip.bso.iplus
             {
                 SetProperty(ref _Seed, value, nameof(Seed));
             }
+        }
+
+        [JsonIgnore]
+        private ReasoningEffort _ReasoningEffort;
+        [ACPropertyInfo(17, "", "en{'Reasoning Effort'}de{'Reasoning Effort'}")]
+        public ReasoningEffort ReasoningEffort
+        {
+            get => _ReasoningEffort;
+            set
+            {
+                SetProperty(ref _ReasoningEffort, value, nameof(ReasoningEffort));
+            }
+        }
+
+        [JsonIgnore]
+        private ReasoningOutput _ReasoningOutput;
+        [ACPropertyInfo(18, "", "en{'Reasoning Output'}de{'Reasoning Output'}")]
+        public ReasoningOutput ReasoningOutput
+        {
+            get => _ReasoningOutput;
+            set
+            {                
+                SetProperty(ref _ReasoningOutput, value, nameof(ReasoningOutput));
+            }      
         }
 
         [JsonIgnore]
@@ -375,6 +411,7 @@ namespace gip.bso.iplus
                 MaxOutputTokens = MaxOutputTokens,
                 Temperature = Temperature,
                 TopP = TopP,
+                TopK = TopK,
                 FrequencyPenalty = FrequencyPenalty,
                 PresencePenalty = PresencePenalty,
                 StopSequences = StopSequences,
@@ -382,6 +419,15 @@ namespace gip.bso.iplus
                 AllowMultipleToolCalls = AllowMultipleToolCalls,
                 ToolMode = ToolMode
             };
+
+            if (ReasoningEffort != ReasoningEffort.None)
+            {
+                chatOptions.Reasoning = new ReasoningOptions
+                {
+                    Effort = ReasoningEffort,
+                    Output = ReasoningOutput
+                };
+            }
 
             if (AdditionalProperties != null)
             {
@@ -409,12 +455,15 @@ namespace gip.bso.iplus
                 MaxOutputTokens = chatOptions.MaxOutputTokens,
                 Temperature = chatOptions.Temperature,
                 TopP = chatOptions.TopP,
+                TopK = chatOptions.TopK,
                 FrequencyPenalty = chatOptions.FrequencyPenalty,
                 PresencePenalty = chatOptions.PresencePenalty,
                 StopSequences = chatOptions.StopSequences.ToArray(),
                 Seed = chatOptions.Seed,
                 AllowMultipleToolCalls = chatOptions.AllowMultipleToolCalls,
-                ToolMode = chatOptions.ToolMode
+                ToolMode = chatOptions.ToolMode,
+                ReasoningEffort = chatOptions.Reasoning?.Effort ?? ReasoningEffort.None, // Default to None if Reasoning is null
+                ReasoningOutput = chatOptions.Reasoning?.Output ?? ReasoningOutput.None // Default to None if Reasoning is null
             };
 
             if (chatOptions.AdditionalProperties != null)

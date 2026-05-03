@@ -128,6 +128,9 @@ namespace Microsoft.Extensions.AI
                         case nameof(ChatClientSettings.TopP):
                             settings.TopP = reader.TokenType == JsonTokenType.Null ? null : reader.GetSingle();
                             break;
+                        case nameof(ChatClientSettings.TopK):
+                            settings.TopK = reader.TokenType == JsonTokenType.Null ? null : reader.GetInt32();
+                            break;
                         case nameof(ChatClientSettings.FrequencyPenalty):
                             settings.FrequencyPenalty = reader.TokenType == JsonTokenType.Null ? null : reader.GetSingle();
                             break;
@@ -185,6 +188,42 @@ namespace Microsoft.Extensions.AI
                                 settings.StopSequences = stopSequences.ToArray();
                             }
                             break;
+                        case nameof(ChatClientSettings.ReasoningEffort):
+                            if (reader.TokenType == JsonTokenType.Null)
+                            {
+                                settings.ReasoningEffort = ReasoningEffort.None;
+                            }
+                            else if (reader.TokenType == JsonTokenType.String)
+                            {
+                                var reasoningEffortString = reader.GetString();
+                                if (string.IsNullOrEmpty(reasoningEffortString) || reasoningEffortString == nameof(ReasoningEffort.None))
+                                    settings.ReasoningEffort = ReasoningEffort.None;
+                                else if (reasoningEffortString == nameof(ReasoningEffort.Low))
+                                    settings.ReasoningEffort = ReasoningEffort.Low;
+                                else if (reasoningEffortString == nameof(ReasoningEffort.Medium))
+                                    settings.ReasoningEffort = ReasoningEffort.Medium;
+                                else if (reasoningEffortString == nameof(ReasoningEffort.High))
+                                    settings.ReasoningEffort = ReasoningEffort.High;
+                                else if (reasoningEffortString == nameof(ReasoningEffort.ExtraHigh))
+                                    settings.ReasoningEffort = ReasoningEffort.ExtraHigh;
+                            }
+                            break;
+                        case nameof(ChatClientSettings.ReasoningOutput):
+                            if (reader.TokenType == JsonTokenType.Null)
+                            {
+                                settings.ReasoningOutput = ReasoningOutput.None;
+                            }
+                            else if (reader.TokenType == JsonTokenType.String)
+                            {
+                                var reasoningOutputString = reader.GetString();
+                                if (string.IsNullOrEmpty(reasoningOutputString) || reasoningOutputString == nameof(ReasoningOutput.None))
+                                    settings.ReasoningOutput = ReasoningOutput.None;
+                                else if (reasoningOutputString == nameof(ReasoningOutput.Summary))
+                                    settings.ReasoningOutput = ReasoningOutput.Summary;
+                                else if (reasoningOutputString == nameof(ReasoningOutput.Full))
+                                    settings.ReasoningOutput = ReasoningOutput.Full;
+                            }
+                            break;
                         default:
                             reader.Skip();
                             break;
@@ -224,6 +263,9 @@ namespace Microsoft.Extensions.AI
 
             if (value.TopP.HasValue)
                 writer.WriteNumber(nameof(ChatClientSettings.TopP), value.TopP.Value);
+
+            if (value.TopK.HasValue)
+                writer.WriteNumber(nameof(ChatClientSettings.TopK), value.TopK.Value);
 
             if (value.FrequencyPenalty.HasValue)
                 writer.WriteNumber(nameof(ChatClientSettings.FrequencyPenalty), value.FrequencyPenalty.Value);
@@ -265,6 +307,11 @@ namespace Microsoft.Extensions.AI
                 }
                 writer.WriteEndArray();
             }
+
+            if (value.ReasoningEffort != ReasoningEffort.None)
+                writer.WriteString(nameof(ChatClientSettings.ReasoningEffort), value.ReasoningEffort.ToString());
+            if (value.ReasoningOutput != ReasoningOutput.None)                
+                writer.WriteString(nameof(ChatClientSettings.ReasoningOutput), value.ReasoningOutput.ToString());
 
             // Serialize AdditionalPropertiesJSON instead of AdditionalProperties
             if (!string.IsNullOrEmpty(value.AdditionalPropertiesJSON))

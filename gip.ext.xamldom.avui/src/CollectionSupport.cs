@@ -100,7 +100,7 @@ namespace gip.ext.xamldom.avui
                 }
                 if (key == null || (key as string) == "")
                     key = val;
-                ((IDictionary)collectionInstance).Add(key, val);
+                ((IResourceDictionary)collectionInstance).Add(key, val);
             }
             else
             {

@@ -275,6 +275,7 @@ IMPORTANT NOTES:
                     LoadSelectedChatHistory();
                     ChatInput = "";
                     ChatOutput = "";
+                    ReasoningOutput = "";
                     ChatImages = "";
                 }
             }
@@ -403,6 +404,18 @@ IMPORTANT NOTES:
                 OnPropertyChanged();
             }
         }
+
+        private string _ReasoningOutput = "";
+        [ACPropertyInfo(2, "ReasoningOutput", "en{'Reasoning Output'}de{'Begründungsausgabe'}", Description = "Last reasoning output from the LLM.")]
+        public string ReasoningOutput
+        {
+            get { return _ReasoningOutput; }
+            set
+            {
+                _ReasoningOutput = value;
+                OnPropertyChanged();
+            }
+        }        
 
         private string _chatImages = "";
         [ACPropertyInfo(11, "ChatInput", "en{'Chat Input Images'}de{'Chat Eingabe Bilder'}", Description = "Pass a semicolon-separated list of paths or http-URL to image files here.")]
@@ -599,6 +612,7 @@ IMPORTANT NOTES:
                 return;
 
             ChatOutput = "";
+            ReasoningOutput = "";
             try
             {
                 CurrentChatUpdates = new ObservableCollection<ChatResponseUpdateWrapper>();
@@ -665,6 +679,19 @@ IMPORTANT NOTES:
                         else
                             ChatOutput += updateText;
                     }
+
+                    var reasoningText = string.Concat(update.Contents?
+                                                            .OfType<TextReasoningContent>()
+                                                            .Select(x => x.Text ?? string.Empty)
+                                                        ?? Enumerable.Empty<string>());
+                    if (!string.IsNullOrEmpty(reasoningText))
+                    {
+                        if (string.IsNullOrEmpty(ReasoningOutput))
+                            ReasoningOutput = reasoningText;
+                        else
+                            ReasoningOutput += reasoningText;
+                    }
+
                     OnPropertyChanged(nameof(SelectedChatMessage));
                     SelectedChatMessage.Refresh();
                     if (AgentStopRequested)
@@ -728,6 +755,7 @@ IMPORTANT NOTES:
         {
             ChatInput = "";
             ChatOutput = "";
+            ReasoningOutput = "";
             ChatImages = "";
             ChatMessagesObservable.Clear();
             CurrentChatUpdates.Clear();

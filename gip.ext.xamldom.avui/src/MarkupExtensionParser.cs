@@ -423,6 +423,28 @@ namespace gip.ext.xamldom.avui
 			return result;
 		}
 
+		static bool IsSupportedExtensionType(Type extensionType)
+		{
+			if (extensionType == null)
+				return false;
+
+			if (typeof(MarkupExtension).IsAssignableFrom(extensionType)
+				|| typeof(Avalonia.Data.Converters.IValueConverter).IsAssignableFrom(extensionType)
+				|| typeof(Binding).IsAssignableFrom(extensionType))
+			{
+				return true;
+			}
+
+			var provideValue = extensionType.GetMethod(
+				"ProvideValue",
+				BindingFlags.Public | BindingFlags.Instance,
+				null,
+				new[] { typeof(IServiceProvider) },
+				null);
+
+			return provideValue != null;
+		}
+
 		public static XamlObject Parse(string text, XamlObject parent, XmlAttribute attribute)
 		{
 			var tokens = MarkupExtensionTokenizer.Tokenize(text);
@@ -487,10 +509,7 @@ namespace gip.ext.xamldom.avui
             }
 			if (extensionType == null) 
                 extensionType = typeResolver.Resolve(typeName);
-            if (extensionType == null 
-                || !(    typeof(MarkupExtension).IsAssignableFrom(extensionType)
-                      || typeof(Avalonia.Data.Converters.IValueConverter).IsAssignableFrom(extensionType)
-					  || typeof(Binding).IsAssignableFrom(extensionType)))
+			if (!IsSupportedExtensionType(extensionType))
             {
 				throw new XamlMarkupExtensionParseException("Unknown markup extension " + typeName + "Extension");
 			}
