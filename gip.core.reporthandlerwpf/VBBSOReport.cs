@@ -995,7 +995,53 @@ namespace gip.core.reporthandlerwpf
                                 // On Wine the dialog path should never fall back to writer.Write —
                                 // that would submit a raw XPS job through Wine's PS driver, producing
                                 // the garbled "System.Windows.Documents.FixedDocumentSequence.pdf".
-                                if (!IsRunningUnderWine())
+                                if (IsRunningUnderWine())
+                                {
+                                    // Wine 11.x can throw PrintQueueException from PrintDialog after the
+                                    // user picks a printer (PTProvider ConvertDevModeToPrintTicket path).
+                                    // Fall back to a direct queue-based print so PDF generation still works.
+                                    try
+                                    {
+                                        string fallbackPrinterName = !String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName)
+                                            ? reportDoc.AutoSelectPrinterName
+                                            : printerName;
+                                        PrintQueue pQ = ResolvePrintQueue(fallbackPrinterName) ?? LocalPrintServer.GetDefaultPrintQueue();
+                                        if (pQ != null)
+                                        {
+                                            PrintTicket pt = new PrintTicket();
+                                            pt.CopyCount = copies;
+                                            if (reportDoc.AutoSelectPageOrientation.HasValue)
+                                            {
+                                                pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
+                                            }
+                                            else
+                                            {
+                                                if (reportDoc.PageWidth > reportDoc.PageHeight)
+                                                    pt.PageOrientation = PageOrientation.Landscape;
+                                                else
+                                                    pt.PageOrientation = PageOrientation.Portrait;
+                                            }
+
+                                            if (reportDoc.AutoPageMediaSize != null)
+                                                pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+
+                                            if (reportDoc.AutoSelectTray.HasValue)
+                                            {
+                                                string nameSpaceURI = string.Empty;
+                                                string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
+                                                pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
+                                            }
+
+                                            PrintFixedDocumentSequenceToQueue(pQ, fDocSeq, pt, _wineXpsPath);
+                                        }
+                                    }
+                                    catch (Exception exFallback)
+                                    {
+                                        this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10-WineFallback)",
+                                            exFallback.InnerException?.Message ?? exFallback.Message);
+                                    }
+                                }
+                                else
                                 {
                                     PrintDocumentImageableArea area = null;
                                     XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
@@ -1102,7 +1148,7 @@ namespace gip.core.reporthandlerwpf
                         // On Linux/Wine, File.Delete works on open files (POSIX unlink semantics), so
                         // we can safely remove _wineXpsPath while xps still holds the file handle.
                         if (_wineXpsPath != null)
-                            try { File.Delete(_wineXpsPath); } catch { }
+                            TryDeleteFileWithRetries(_wineXpsPath);
                         try
                         {
                             // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
@@ -1177,10 +1223,13 @@ namespace gip.core.reporthandlerwpf
                 // Verified in WPF source (System.Printing.resx):
                 // RegKeyBasePath = HKEY_CURRENT_USER\Software\Microsoft\.NETFramework\Windows Presentation Foundation\Printing
                 // PrintSystemJobInfo_disableXPSOMPrinting_RegValue = DisableXPSOMPrinting
-                Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\.NETFramework\Windows Presentation Foundation\Printing",
-                    "DisableXPSOMPrinting",
-                    1,
-                    RegistryValueKind.DWord);
+                if (OperatingSystem.IsWindows())
+                {
+                    Registry.SetValue(@"HKEY_CURRENT_USER\Software\Microsoft\.NETFramework\Windows Presentation Foundation\Printing",
+                        "DisableXPSOMPrinting",
+                        1,
+                        RegistryValueKind.DWord);
+                }
             }
             catch
             {
@@ -1276,7 +1325,13 @@ namespace gip.core.reporthandlerwpf
                 // In Wine, proc.Start() may return false for ELF binaries launched via binfmt —
                 // the process still runs but we have no handle and WaitForExit cannot be called.
                 // Poll until the output file appears (up to 60 s) before declaring failure.
-                RunLinuxProcess("/usr/bin/xpstopdf", $"{linuxXpsPath} {linuxPdfPath}");
+                bool xpstopdfOk = RunLinuxProcess("/usr/bin/xpstopdf", $"{linuxXpsPath} {linuxPdfPath}",
+                    out string xpstopdfStdOut, out string xpstopdfStdErr, out int xpstopdfExitCode, out bool xpstopdfStarted);
+                if (!xpstopdfOk)
+                {
+                    this.Root().Messages.LogException("VBBSOReport", "TryPrintViaLinuxTools",
+                        $"xpstopdf launch/exec failed (started={xpstopdfStarted}, exit={xpstopdfExitCode}). stderr={xpstopdfStdErr}");
+                }
                 if (!File.Exists(winPdfPath))
                 {
                     var deadline = DateTime.UtcNow.AddSeconds(60);
@@ -1286,7 +1341,7 @@ namespace gip.core.reporthandlerwpf
                 if (!File.Exists(winPdfPath))
                 {
                     this.Root().Messages.LogException("VBBSOReport", "TryPrintViaLinuxTools",
-                        "xpstopdf produced no output — falling back to Wine print path");
+                        $"xpstopdf produced no output — falling back to Wine print path. started={xpstopdfStarted}, exit={xpstopdfExitCode}, stderr={xpstopdfStdErr}, stdout={xpstopdfStdOut}");
                     return false;
                 }
 
@@ -1305,8 +1360,13 @@ namespace gip.core.reporthandlerwpf
                 else
                 {
                     // Generic CUPS printer: submit PDF via lpr.
-                    if (!RunLinuxProcess("/usr/bin/lpr", $"-P \"{pQ.Name}\" {linuxPdfPath}"))
+                    if (!RunLinuxProcess("/usr/bin/lpr", $"-P \"{pQ.Name}\" {linuxPdfPath}",
+                        out string lprStdOut, out string lprStdErr, out int lprExitCode, out bool lprStarted))
+                    {
+                        this.Root().Messages.LogException("VBBSOReport", "TryPrintViaLinuxTools",
+                            $"lpr failed (started={lprStarted}, exit={lprExitCode}). stderr={lprStdErr}, stdout={lprStdOut}");
                         return false;
+                    }
                 }
                 return true;
             }
@@ -1320,7 +1380,7 @@ namespace gip.core.reporthandlerwpf
             {
                 // Note: winXpsPath may still be held open by the XpsDocument in FlowPrint.
                 // On Wine/Linux, unlink works even on open files (fd-based access).
-                try { File.Delete(winPdfPath); } catch { }
+                TryDeleteFileWithRetries(winPdfPath);
                 // winXpsPath is deleted by FlowPrint's finally block.
             }
         }
@@ -1331,8 +1391,13 @@ namespace gip.core.reporthandlerwpf
         /// via Wine's binfmt mechanism (Wine does not always track the resulting process handle).
         /// Callers should check output file existence as the primary success criterion.
         /// </summary>
-        private static bool RunLinuxProcess(string path, string arguments)
+        private static bool RunLinuxProcess(string path, string arguments,
+            out string stdOut, out string stdErr, out int exitCode, out bool started)
         {
+            stdOut = string.Empty;
+            stdErr = string.Empty;
+            exitCode = -1;
+            started = false;
             try
             {
                 using var proc = new Process
@@ -1347,21 +1412,96 @@ namespace gip.core.reporthandlerwpf
                         RedirectStandardError = true,
                     }
                 };
-                bool started = proc.Start();
+                started = proc.Start();
                 if (started)
                 {
                     // Process handle was tracked — wait and check exit code.
                     proc.WaitForExit(60_000);
+                    exitCode = proc.ExitCode;
+                    stdOut = proc.StandardOutput.ReadToEnd();
+                    stdErr = proc.StandardError.ReadToEnd();
                     return proc.ExitCode == 0;
                 }
                 // proc.Start() returned false: Wine launched the ELF via binfmt but didn't give us
                 // a handle.  The process may still have run — let the caller verify by output file.
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                stdErr = ex.Message;
                 return false;
             }
+        }
+
+        private static bool TryDeleteFileWithRetries(string filePath, int retries = 20, int delayMs = 250)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                return true;
+
+            for (int i = 0; i < retries; i++)
+            {
+                try
+                {
+                    if (!File.Exists(filePath))
+                        return true;
+
+                    File.Delete(filePath);
+                    if (!File.Exists(filePath))
+                        return true;
+                }
+                catch (IOException)
+                {
+                }
+                catch (UnauthorizedAccessException)
+                {
+                }
+
+                System.Threading.Thread.Sleep(delayMs);
+            }
+
+            return false;
+        }
+
+        private static PrintQueue ResolvePrintQueue(string printerName)
+        {
+            if (string.IsNullOrEmpty(printerName))
+                return null;
+
+            if (printerName.StartsWith("\\\\"))
+            {
+                int index = printerName.LastIndexOf("\\");
+                if (index > 0)
+                {
+                    string server = printerName.Substring(0, index);
+                    string printerName2 = printerName.Substring(index + 1);
+                    PrintServer pServer = new PrintServer(server);
+                    if (pServer != null)
+                        return pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
+                }
+                return null;
+            }
+
+            PrintServer localServer = new LocalPrintServer();
+            if (localServer != null)
+            {
+                PrintQueue pQ = localServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
+                if (pQ != null)
+                    return pQ;
+            }
+
+            PrintServer anyServer = new PrintServer();
+            if (anyServer != null)
+            {
+                PrintQueueCollection printQueues = anyServer.GetPrintQueues(new[]
+                {
+                    EnumeratedPrintQueueTypes.Local,
+                    EnumeratedPrintQueueTypes.Connections,
+                    EnumeratedPrintQueueTypes.Shared
+                });
+                return printQueues.Where(c => c.Name == printerName).FirstOrDefault();
+            }
+
+            return null;
         }
 
         /// <summary>
