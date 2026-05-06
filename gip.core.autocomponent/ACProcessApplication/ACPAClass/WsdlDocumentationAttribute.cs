@@ -26,17 +26,7 @@ namespace gip.core.autocomponent
 
         public void ExportContract(WsdlExporter exporter, WsdlContractConversionContext context)
         {
-            if (_xmlDoc == null && System.IO.File.Exists(_xmlPath))
-            {
-                try
-                {
-                    _xmlDoc = XDocument.Load(_xmlPath);
-                }
-                catch
-                {
-                    // Ignore XML load errors
-                }
-            }
+            EnsureXmlLoaded();
 
             if (_xmlDoc == null) return;
 
@@ -55,8 +45,15 @@ namespace gip.core.autocomponent
                 string methodKey = GetMethodKey(operation.SyncMethod ?? operation.BeginMethod ?? operation.TaskMethod);
                 AddDocumentation(wsdlOperation, methodKey);
             }
+        }
+
+        public void ExportEndpoint(WsdlExporter exporter, WsdlEndpointConversionContext context)
+        {
+            EnsureXmlLoaded();
+            if (_xmlDoc == null) return;
 
             // 3. Add documentation to XSD Types (xs:complexType) and Elements (xs:element)
+            // By the time ExportEndpoint is called, all contracts should have their schemas generated.
             foreach (XmlSchema schema in exporter.GeneratedXmlSchemas.Schemas())
             {
                 foreach (XmlSchemaObject schemaObject in schema.Items)
@@ -68,6 +65,30 @@ namespace gip.core.autocomponent
                     else if (schemaObject is XmlSchemaElement element)
                     {
                         ProcessElement(element, null);
+                    }
+                }
+            }
+        }
+
+        private void EnsureXmlLoaded()
+        {
+            if (_xmlDoc == null)
+            {
+                string fullPath = _xmlPath;
+                if (!System.IO.Path.IsPathRooted(fullPath))
+                {
+                    fullPath = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, _xmlPath);
+                }
+
+                if (System.IO.File.Exists(fullPath))
+                {
+                    try
+                    {
+                        _xmlDoc = XDocument.Load(fullPath);
+                    }
+                    catch
+                    {
+                        // Ignore XML load errors
                     }
                 }
             }
@@ -173,7 +194,6 @@ namespace gip.core.autocomponent
             return $"M:{method.DeclaringType.FullName}.{method.Name}({paramString})";
         }
 
-        public void ExportEndpoint(WsdlExporter exporter, WsdlEndpointConversionContext context) { }
         public void ApplyClientBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, CoreWCF.Dispatcher.ClientRuntime clientRuntime) { }
         public void ApplyDispatchBehavior(ContractDescription contractDescription, ServiceEndpoint endpoint, CoreWCF.Dispatcher.DispatchRuntime dispatchRuntime) { }
         public void Validate(ContractDescription contractDescription, ServiceEndpoint endpoint) { }
