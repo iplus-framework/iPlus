@@ -1,3 +1,4 @@
+#if !ANDROID
 using System;
 using System.Linq;
 using System.Reflection;
@@ -14,6 +15,8 @@ namespace gip.core.autocomponent
     /// <summary>
     /// Custom behavior to export XML documentation comments to WSDL.
     /// </summary>
+    /// 
+
     public class WsdlDocumentationAttribute : Attribute, IContractBehavior, IWsdlExportExtension
     {
         private readonly string _xmlPath;
@@ -203,3 +206,5 @@ namespace gip.core.autocomponent
         }
     }
 }
+
+#endif
