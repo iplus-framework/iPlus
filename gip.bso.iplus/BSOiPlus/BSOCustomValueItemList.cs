@@ -100,7 +100,7 @@ namespace gip.bso.iplus
             {
                 List<ACFilterItem> aCFilterItems = new List<ACFilterItem>();
 
-                ACFilterItem filterBaseClass = new ACFilterItem(Global.FilterTypes.filter, $"{nameof(ACClass.ACClass1_BasedOnACClass)}\\{nameof(ACClass.ACIdentifier)}", Global.LogicalOperators.equal, Global.Operators.and, nameof(ACValueItemList), true);
+                ACFilterItem filterBaseClass = new ACFilterItem(Global.FilterTypes.filter, $"{nameof(ACClass.ACClass1_BasedOnACClass)}\\{nameof(ACClass.ACIdentifier)}", Global.LogicalOperators.startsWith, Global.Operators.and, nameof(ACValueItemList), true);
                 aCFilterItems.Add(filterBaseClass);
 
                 ACFilterItem filterACKindIndex = new ACFilterItem(Global.FilterTypes.filter, $"{nameof(ACClass.ACKindIndex)}", Global.LogicalOperators.equal, Global.Operators.and, ((short)Global.ACKinds.TACClass).ToString(), true);
@@ -420,7 +420,7 @@ namespace gip.bso.iplus
                 acConfig.ValueTypeACClass = database.GetACType(typeof(Int32)) as ACClass;
                 acConfig.Value = 0;
             }
-            acConfig.LocalConfigACUrl = nameof(ACValueItem);
+            acConfig.LocalConfigACUrl = $"{nameof(ACValueItem)}()";
 
             OnPropertyChanged(nameof(PointConfigList));
             CurrentPointConfig = acConfig;
@@ -499,6 +499,40 @@ namespace gip.bso.iplus
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Validates the input.
+        /// </summary>
+        /// <param name="vbContent">Content of the vb.</param>
+        /// <param name="value">The value.</param>
+        /// <param name="cultureInfo">The culture info.</param>
+        /// <returns>Msg.</returns>
+        [ACMethodInfo(nameof(ValidateInput), "en{'Validate input'}de{'Überprüfe Eingabe'}", 9999, false)]
+        public Msg ValidateInput(string vbContent, object value, System.Globalization.CultureInfo cultureInfo)
+        {
+            if (value == null)
+            {
+                return new Msg() { MessageLevel = eMsgLevel.Info };
+            }
+            else
+            {
+                String strValue = value as String;
+                if (String.IsNullOrEmpty(strValue))
+                {
+                    return new Msg() { MessageLevel = eMsgLevel.Info };
+                }
+                if (strValue.ContainsACUrlDelimiters() || strValue.Contains(" "))
+                {
+                    // Warning50095
+                    // BSOCustomValueItemList
+                    // The ACIdentifier (Designname) mustn't contain special characters, which are used for ACURLCommand
+                    // Der ACIdentifier (Designname) darf keine Sonder- und Leerzeichen enthalten, die für die ACURLCommand verwendet werden
+                 Msg msg = new Msg { ACIdentifier = this.ACCaption, Message = Root.Environment.TranslateMessage(this, "Warning50095"), MessageLevel = eMsgLevel.Error };
+                    return msg;
+                }
+            }
+            return new Msg() { MessageLevel = eMsgLevel.Info };
         }
 
         #endregion
