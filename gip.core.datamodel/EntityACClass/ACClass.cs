@@ -2793,7 +2793,7 @@ namespace gip.core.datamodel
 
                 _ACValueListFromDatabase = new ACValueItemList(nameof(ACValueListFromDatabase));
                 //ACClassText[] translations = null;
-                foreach (var acConfig in ConfigurationEntries.Where(c => c.LocalConfigACUrl == nameof(ACValueItem)))
+                foreach (var acConfig in ConfigurationEntries.Where(c => c.LocalConfigACUrl != null && c.LocalConfigACUrl.StartsWith($"{nameof(ACValueItem)}(")))
                 {
                     // if (translations == null)
                     //     translations = ACClassText_ACClass.ToArray();
