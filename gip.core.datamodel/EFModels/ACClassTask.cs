@@ -138,7 +138,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassTaskValue_ACClassTaskReference
+    public virtual CollectionEntry<ACClassTask, ACClassTaskValue> ACClassTaskValue_ACClassTaskReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassTaskValue_ACClassTask); }
     }
@@ -198,7 +198,7 @@ public partial class ACClassTask : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassTask_ParentACClassTaskReference
+    public virtual CollectionEntry<ACClassTask, ACClassTask> ACClassTask_ParentACClassTaskReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassTask_ParentACClassTask); }
     }

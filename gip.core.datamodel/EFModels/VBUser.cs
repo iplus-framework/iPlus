@@ -131,7 +131,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACChangeLog_VBUserReference
+    public virtual CollectionEntry<VBUser, ACChangeLog> ACChangeLog_VBUserReference
     {
         get { return Context.Entry(this).Collection(c => c.ACChangeLog_VBUser); }
     }
@@ -151,7 +151,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassTaskValue_VBUserReference
+    public virtual CollectionEntry<VBUser, ACClassTaskValue> ACClassTaskValue_VBUserReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassTaskValue_VBUser); }
     }
@@ -211,7 +211,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUserACClassDesign_VBUserReference
+    public virtual CollectionEntry<VBUser, VBUserACClassDesign> VBUserACClassDesign_VBUserReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUserACClassDesign_VBUser); }
     }
@@ -231,7 +231,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUserACProject_VBUserReference
+    public virtual CollectionEntry<VBUser, VBUserACProject> VBUserACProject_VBUserReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUserACProject_VBUser); }
     }
@@ -251,7 +251,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUserGroup_VBUserReference
+    public virtual CollectionEntry<VBUser, VBUserGroup> VBUserGroup_VBUserReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUserGroup_VBUser); }
     }
@@ -271,7 +271,7 @@ public partial class VBUser : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUserInstance_VBUserReference
+    public virtual CollectionEntry<VBUser, VBUserInstance> VBUserInstance_VBUserReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUserInstance_VBUser); }
     }

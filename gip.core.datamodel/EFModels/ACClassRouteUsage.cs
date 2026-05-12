@@ -82,7 +82,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
         }
     }
 
-    public virtual CollectionEntry ACClassRouteUsageGroup_ACClassRouteUsageReference
+    public virtual CollectionEntry<ACClassRouteUsage, ACClassRouteUsageGroup> ACClassRouteUsageGroup_ACClassRouteUsageReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassRouteUsageGroup_ACClassRouteUsage); }
     }
@@ -102,7 +102,7 @@ public partial class ACClassRouteUsage : VBEntityObject , IInsertInfo, IUpdateIn
         }
     }
 
-    public virtual CollectionEntry ACClassRouteUsagePos_ACClassRouteUsageReference
+    public virtual CollectionEntry<ACClassRouteUsage, ACClassRouteUsagePos> ACClassRouteUsagePos_ACClassRouteUsageReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassRouteUsagePos_ACClassRouteUsage); }
     }

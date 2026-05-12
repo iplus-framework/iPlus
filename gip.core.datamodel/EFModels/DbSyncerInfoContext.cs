@@ -61,7 +61,7 @@ public partial class DbSyncerInfoContext : VBEntityObject
         }
     }
 
-    public virtual CollectionEntry DbSyncerInfo_DbSyncerInfoContextReference
+    public virtual CollectionEntry<DbSyncerInfoContext, DbSyncerInfo> DbSyncerInfo_DbSyncerInfoContextReference
     {
         get { return Context.Entry(this).Collection(c => c.DbSyncerInfo_DbSyncerInfoContext); }
     }

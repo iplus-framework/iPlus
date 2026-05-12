@@ -124,7 +124,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassTask_ACProgramReference
+    public virtual CollectionEntry<ACProgram, ACClassTask> ACClassTask_ACProgramReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassTask_ACProgram); }
     }
@@ -144,7 +144,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACProgramConfig_ACProgramReference
+    public virtual CollectionEntry<ACProgram, ACProgramConfig> ACProgramConfig_ACProgramReference
     {
         get { return Context.Entry(this).Collection(c => c.ACProgramConfig_ACProgram); }
     }
@@ -164,7 +164,7 @@ public partial class ACProgram : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACProgramLog_ACProgramReference
+    public virtual CollectionEntry<ACProgram, ACProgramLog> ACProgramLog_ACProgramReference
     {
         get { return Context.Entry(this).Collection(c => c.ACProgramLog_ACProgram); }
     }

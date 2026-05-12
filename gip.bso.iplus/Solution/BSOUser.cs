@@ -1060,6 +1060,8 @@ namespace gip.bso.iplus
         {
             switch (acMethodName)
             {
+                case nameof(Search):
+                    return new string[] { nameof(InitState) };
                 case nameof(Load):
                 case nameof(IsEnabledLoad):
                 case nameof(Delete):

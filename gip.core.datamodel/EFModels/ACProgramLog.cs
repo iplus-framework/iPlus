@@ -179,7 +179,7 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACProgramLogTask_ACProgramLogReference
+    public virtual CollectionEntry<ACProgramLog, ACProgramLogTask> ACProgramLogTask_ACProgramLogReference
     {
         get { return Context.Entry(this).Collection(c => c.ACProgramLogTask_ACProgramLog); }
     }
@@ -199,7 +199,7 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACProgramLog_ParentACProgramLogReference
+    public virtual CollectionEntry<ACProgramLog, ACProgramLog> ACProgramLog_ParentACProgramLogReference
     {
         get { return Context.Entry(this).Collection(c => c.ACProgramLog_ParentACProgramLog); }
     }
@@ -219,7 +219,7 @@ public partial class ACProgramLog : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry MsgAlarmLog_ACProgramLogReference
+    public virtual CollectionEntry<ACProgramLog, MsgAlarmLog> MsgAlarmLog_ACProgramLogReference
     {
         get { return Context.Entry(this).Collection(c => c.MsgAlarmLog_ACProgramLog); }
     }

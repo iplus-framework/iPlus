@@ -185,7 +185,7 @@ public partial class ACClassConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassConfig_ParentACClassConfigReference
+    public virtual CollectionEntry<ACClassConfig, ACClassConfig> ACClassConfig_ParentACClassConfigReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassConfig_ParentACClassConfig); }
     }

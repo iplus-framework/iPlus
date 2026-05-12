@@ -117,7 +117,7 @@ public partial class VBLanguage : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUser_VBLanguageReference
+    public virtual CollectionEntry<VBLanguage, VBUser> VBUser_VBLanguageReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUser_VBLanguage); }
     }

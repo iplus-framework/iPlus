@@ -270,7 +270,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBGroupRight_ACClassDesignReference
+    public virtual CollectionEntry<ACClassDesign, VBGroupRight> VBGroupRight_ACClassDesignReference
     {
         get { return Context.Entry(this).Collection(c => c.VBGroupRight_ACClassDesign); }
     }
@@ -290,7 +290,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUserACClassDesign_ACClassDesignReference
+    public virtual CollectionEntry<ACClassDesign, VBUserACClassDesign> VBUserACClassDesign_ACClassDesignReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUserACClassDesign_ACClassDesign); }
     }
@@ -310,7 +310,7 @@ public partial class ACClassDesign : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUser_MenuACClassDesignReference
+    public virtual CollectionEntry<ACClassDesign, VBUser> VBUser_MenuACClassDesignReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUser_MenuACClassDesign); }
     }

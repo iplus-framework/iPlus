@@ -205,7 +205,7 @@ public partial class ACProgramConfig : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACProgramConfig_ParentACProgramConfigReference
+    public virtual CollectionEntry<ACProgramConfig, ACProgramConfig> ACProgramConfig_ParentACProgramConfigReference
     {
         get { return Context.Entry(this).Collection(c => c.ACProgramConfig_ParentACProgramConfig); }
     }

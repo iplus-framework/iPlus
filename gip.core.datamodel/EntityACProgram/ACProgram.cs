@@ -379,6 +379,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public string XMLDesign
         {
             get
@@ -394,6 +395,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public string XMLDesign2
         {
             get
@@ -409,6 +411,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public DateTime? XMLDesignUpdateDate
         {
             get
@@ -424,6 +427,7 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         public DateTime? XMLDesign2UpdateDate
         {
             get

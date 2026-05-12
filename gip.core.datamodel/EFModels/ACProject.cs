@@ -166,7 +166,7 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClass_ACProjectReference
+    public virtual CollectionEntry<ACProject, ACClass> ACClass_ACProjectReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClass_ACProject); }
     }
@@ -206,7 +206,7 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACProject_BasedOnACProjectReference
+    public virtual CollectionEntry<ACProject, ACProject> ACProject_BasedOnACProjectReference
     {
         get { return Context.Entry(this).Collection(c => c.ACProject_BasedOnACProject); }
     }
@@ -246,7 +246,7 @@ public partial class ACProject : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry VBUserACProject_ACProjectReference
+    public virtual CollectionEntry<ACProject, VBUserACProject> VBUserACProject_ACProjectReference
     {
         get { return Context.Entry(this).Collection(c => c.VBUserACProject_ACProject); }
     }

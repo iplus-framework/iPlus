@@ -165,7 +165,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassMethodConfig_ACClassWFReference
+    public virtual CollectionEntry<ACClassWF, ACClassMethodConfig> ACClassMethodConfig_ACClassWFReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassMethodConfig_ACClassWF); }
     }
@@ -185,7 +185,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassTask_ContentACClassWFReference
+    public virtual CollectionEntry<ACClassWF, ACClassTask> ACClassTask_ContentACClassWFReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassTask_ContentACClassWF); }
     }
@@ -205,7 +205,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassWFEdge_SourceACClassWFReference
+    public virtual CollectionEntry<ACClassWF, ACClassWFEdge> ACClassWFEdge_SourceACClassWFReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassWFEdge_SourceACClassWF); }
     }
@@ -225,7 +225,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassWFEdge_TargetACClassWFReference
+    public virtual CollectionEntry<ACClassWF, ACClassWFEdge> ACClassWFEdge_TargetACClassWFReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassWFEdge_TargetACClassWF); }
     }
@@ -245,7 +245,7 @@ public partial class ACClassWF : VBEntityObject , IInsertInfo, IUpdateInfo
         }
     }
 
-    public virtual CollectionEntry ACClassWF_ParentACClassWFReference
+    public virtual CollectionEntry<ACClassWF, ACClassWF> ACClassWF_ParentACClassWFReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassWF_ParentACClassWF); }
     }

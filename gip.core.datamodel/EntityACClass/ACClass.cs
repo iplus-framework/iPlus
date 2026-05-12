@@ -2877,7 +2877,9 @@ namespace gip.core.datamodel
             }
         }
 
+        [NotMapped]
         private ACValueItemList _ACValueListFromDatabase = null;
+        [NotMapped]
         public ACValueItemList ACValueListFromDatabase
         {
             get

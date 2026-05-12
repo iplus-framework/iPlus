@@ -17,6 +17,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace gip.core.datamodel
 {
@@ -157,7 +158,11 @@ namespace gip.core.datamodel
 
                 using (ACMonitor.Lock(Database.QueryLock_1X000))
                 {
-                    return ACClass_ACProject.Where(c => c.ACClass1_ParentACClass == null && c.ACIdentifier == filterValues[0]).FirstOrDefault();
+                    // return Database.ACClass
+                    //     .Where(c => c.ACProjectID == this.ACProjectID && c.ParentACClassID == null && c.ACIdentifier == filterValues[0])
+                    //     .FirstOrDefault();
+                    return ACClass_ACProjectReference.Query().Where(c => c.ACClass1_ParentACClass == null && c.ACIdentifier == filterValues[0]).FirstOrDefault();
+                    //return ACClass_ACProject.Where(c => c.ACClass1_ParentACClass == null && c.ACIdentifier == filterValues[0]).FirstOrDefault();
                 }
             }
             return null;

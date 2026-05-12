@@ -136,11 +136,15 @@ namespace gip.core.autocomponent
 
         private void ChangeTracker_StateChanged(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityStateChangedEventArgs e)
         {
+            if (e.Entry?.State == Microsoft.EntityFrameworkCore.EntityState.Unchanged)
+                return;
             DbChangeCount++;
         }
 
         private void ChangeTracker_Tracked(object sender, Microsoft.EntityFrameworkCore.ChangeTracking.EntityTrackedEventArgs e)
         {
+            if (e.Entry?.State == Microsoft.EntityFrameworkCore.EntityState.Unchanged)
+                return;
             DbChangeCount++;
         }
 

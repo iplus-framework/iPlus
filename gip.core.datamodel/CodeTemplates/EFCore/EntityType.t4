@@ -221,7 +221,7 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
         }
     }
 
-    public virtual CollectionEntry <#= relName + "Reference"#>
+    public virtual CollectionEntry<<#= entityTypeNewName #>, <#= targetType #>> <#= relName + "Reference"#>
     {
         get { return Context.Entry(this).Collection(c => c.<#= relName #>); }
     }
@@ -278,9 +278,9 @@ public partial class <#= entityTypeNewName #> : VBEntityObject <#= setInsertUpda
         set { SetProperty<ICollection<<#= skipNavigation.TargetEntityType.Name #>>>(ref _<#= skipNavigation.Name #>, value); }
     }
 
-    public virtual CollectionEntry <#= skipNavigation.Name + "Reference"#>
+    public virtual CollectionEntry<<#= entityTypeNewName #>, <#= skipNavigation.TargetEntityType.Name.Contains("@") ? skipNavigation.TargetEntityType.Name.Remove(0,1) : skipNavigation.TargetEntityType.Name #>> <#= skipNavigation.Name + "Reference"#>
     {
-        get { return Context.Entry(this).Collections(c => c.<#= skipNavigation.Name #>); }
+        get { return Context.Entry(this).Collection(c => c.<#= skipNavigation.Name #>); }
     }
 <#
     }

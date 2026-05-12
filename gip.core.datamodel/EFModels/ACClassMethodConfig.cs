@@ -192,7 +192,7 @@ public partial class ACClassMethodConfig : VBEntityObject , IInsertInfo, IUpdate
         }
     }
 
-    public virtual CollectionEntry ACClassMethodConfig_ParentACClassMethodConfigReference
+    public virtual CollectionEntry<ACClassMethodConfig, ACClassMethodConfig> ACClassMethodConfig_ParentACClassMethodConfigReference
     {
         get { return Context.Entry(this).Collection(c => c.ACClassMethodConfig_ParentACClassMethodConfig); }
     }
