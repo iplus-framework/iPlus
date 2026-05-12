@@ -1955,7 +1955,7 @@ namespace gip.bso.iplus
         }
 
         [ACMethodCommand("SwitchACClass", Const.Ok, (short)MISort.Okay)]
-        public void SwitchACClassOK()
+        public async void SwitchACClassOK()
         {
             CloseTopDialog();
             if (ACClassToSwitch != null)
@@ -1965,8 +1965,10 @@ namespace gip.bso.iplus
                 {
                     if (IsACClassReferenced(CurrentProjectItem.ValueT))
                     {
-                        Messages.WarningAsync(this, "Can't switch class because there are already references in the derived instances", false, null);
-                        return;
+                        if (await Messages.QuestionAsync(this, "Can't switch class because there are already references in the derived instances. Are you sure to switch?", Global.MsgResult.Yes, false) != Global.MsgResult.Yes)
+                        {
+                            return;
+                        }
                     }
                 }
                 CurrentProjectItem.ValueT.ACClass1_BasedOnACClass = ACClassToSwitch;
