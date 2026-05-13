@@ -279,6 +279,23 @@ namespace gip.core.autocomponent
         #endregion
 
 
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region ShowSelectionDialog
+                case "ShowSelectionDialog":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
+
+
         //string _Update = "";
         public abstract string CurrentLayout
         {

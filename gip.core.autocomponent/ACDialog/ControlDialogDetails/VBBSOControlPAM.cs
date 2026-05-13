@@ -1031,6 +1031,32 @@ namespace gip.core.autocomponent
 
         #endregion
 
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Start / EditValue
+                case "Start":
+                case Const.IsEnabledPrefix + "Start":
+                    return new string[] { nameof(CurrentACComponent) };
+                case "EditValue":
+                case Const.IsEnabledPrefix + "EditValue":
+                    return new string[] { nameof(CurrentACComponent) };
+                #endregion
+
+                #region Always Enabled (no IsEnabled method)
+                case "EditComplexValueOk":
+                case "EditComplexValueCancel":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
+
         #endregion
     }
 }

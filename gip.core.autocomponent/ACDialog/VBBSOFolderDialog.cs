@@ -1,6 +1,7 @@
 // Copyright (c) 2024, gipSoft d.o.o.
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using gip.core.datamodel;
 
@@ -150,6 +151,28 @@ namespace gip.core.autocomponent
                     return true;
             }
                 return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        #endregion
+
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region All methods are always enabled (no IsEnabled methods)
+                case "FolderDlg":
+                case "OK":
+                case "Cancel":
+                case "PathVariobatchData":
+                case "PathDesktop":
+                case "PathProgramFiles":
+                case "PathMyDocuments":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

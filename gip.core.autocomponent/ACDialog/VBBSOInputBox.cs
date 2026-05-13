@@ -271,5 +271,24 @@ namespace gip.core.autocomponent.ACDialog
         }
         #endregion
 
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region All methods are always enabled (no IsEnabled methods)
+                case "ShowInputBoxValues":
+                case "ShowInputBox":
+                case "OK":
+                case "Cancel":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
+
     }
 }

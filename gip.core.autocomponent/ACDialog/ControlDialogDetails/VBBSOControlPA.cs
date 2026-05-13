@@ -1052,5 +1052,47 @@ namespace gip.core.autocomponent
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
         }
         #endregion
+
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Search
+                case "Search":
+                case Const.IsEnabledPrefix + "Search":
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region Mass Update
+                case "MassUpdateInPoint":
+                case Const.IsEnabledPrefix + "MassUpdateInPoint":
+                    return new string[] { nameof(SelectedInPointConfig) };
+                case "MassUpdateOutPoint":
+                case Const.IsEnabledPrefix + "MassUpdateOutPoint":
+                    return new string[] { nameof(SelectedOutPointConfig) };
+                #endregion
+
+                #region Acknowledge
+                case "AcknowledgeCurrent":
+                case Const.IsEnabledPrefix + "AcknowledgeCurrent":
+                    return new string[] { nameof(CurrentACMsgAlarm) };
+                case "AcknowledgeAll":
+                case Const.IsEnabledPrefix + "AcknowledgeAll":
+                    return new string[] { nameof(ACMsgAlarmList) };
+                #endregion
+
+                #region Always Enabled (no IsEnabled method)
+                case "SaveConfig":
+                case "ShowACProgramLog":
+                case "EventCallback":
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
     }
 }

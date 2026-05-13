@@ -254,5 +254,22 @@ namespace gip.core.autocomponent
 
         #endregion
 
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region CallACUrlCommand
+                case nameof(CallACUrlCommand):
+                case nameof(IsEnabledCallACUrlCommand):
+                    return new string[] { nameof(CurrentSelection), nameof(ACUrlCommandText) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
+
     }
 }

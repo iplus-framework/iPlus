@@ -184,5 +184,30 @@ namespace gip.core.autocomponent
         }
 #endregion
 
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Save / GoToParent
+                case nameof(SaveSolProperties):
+                    return new string[] { nameof(InitState) };
+                case nameof(GoToParent):
+                case nameof(IsEnabledGoToParent):
+                    return new string[] { nameof(SelectionManager) };
+                #endregion
+
+                #region ShowComplexValue
+                case nameof(ShowComplexValue):
+                case nameof(IsEnabledShowComplexValue):
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
+
     }
 }
