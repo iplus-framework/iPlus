@@ -1290,7 +1290,7 @@ namespace gip.core.autocomponent
 
         void ParentACComponent_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (ParentACComponent is VBBSOSelectionDependentDialog)
+            if (ParentACComponent is VBBSOSelectionDependentDialog && e.PropertyName != nameof(DbChangeCount))
             {
                 IACObject currentSelection1 = ((VBBSOSelectionDependentDialog)ParentACComponent).CurrentSelection;
                 if (currentSelection1 != null && currentSelection1 is IACComponentPWNode)
