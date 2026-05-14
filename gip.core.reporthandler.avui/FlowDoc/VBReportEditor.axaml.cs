@@ -8,10 +8,12 @@ using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.layoutengine.avui;
 using gip.core.layoutengine.avui.Helperclasses;
+using gip.core.reporthandler;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 //using Document.Editor;
 
 namespace gip.core.reporthandler.avui
@@ -22,6 +24,8 @@ namespace gip.core.reporthandler.avui
     [ACClassInfo(Const.PackName_VarioSystem, "en{'VBReportEditor'}de{'VBReportEditor'}", Global.ACKinds.TACVBControl, Global.ACStorableTypes.Required, true, false)]
     public partial class VBReportEditor : UserControl, IVBContent, IACMenuBuilder, IACObject
     {
+        private bool _HtmlBindingsInitialized = false;
+
         public VBReportEditor()
         {
             InitializeComponent();
@@ -86,6 +90,11 @@ namespace gip.core.reporthandler.avui
                         VBXMLEditor.VBContent = this.VBContent;
                     }
 
+                    if (ucHtmlEditor != null)
+                    {
+                        ucHtmlEditor.VBContent = this.VBContent;
+                    }
+
                     Binding binding = new Binding();
                     binding.Source = dcSource;
                     binding.Path = dcPath;
@@ -117,6 +126,9 @@ namespace gip.core.reporthandler.avui
                     binding3.Path = Const.ACUrlCmdMessage;
                     binding3.Mode = BindingMode.OneWay;
                     Bind(VBReportEditor.ACUrlCmdMessageProperty, binding3);
+
+                    EnsureHtmlBindings();
+                    ApplyTemplateMode();
 
 
                 }
@@ -256,6 +268,11 @@ namespace gip.core.reporthandler.avui
             //if (!String.IsNullOrEmpty(VBDesignerReportData))
             //    BindingOperations.ClearBinding(this, VBReportEditor.DesignerReportDataProperty);
             this.ClearBinding(VBReportEditor.XMLTextProperty);
+            if (_HtmlBindingsInitialized)
+            {
+                ucHtmlEditor.ClearBinding(gip.core.layoutengine.avui.VBTextEditor.VBTextProperty);
+                _HtmlBindingsInitialized = false;
+            }
 
             if (bso == null && BSOACComponent != null)
             {
@@ -358,6 +375,7 @@ namespace gip.core.reporthandler.avui
 
         public void RefreshDesignEditor()
         {
+            ApplyTemplateMode();
             VBTabItem vbTabitemAdded = this.ucTabControl.SelectedItem as VBTabItem;
             if (vbTabitemAdded == DesignTab)
                 RefreshDesignerFromXAML();
@@ -368,6 +386,13 @@ namespace gip.core.reporthandler.avui
         {
             if (!IsLoaded)
                 return;
+
+            ApplyTemplateMode();
+            if (IsHtmlTemplate)
+            {
+                _WrongXAML = false;
+                return;
+            }
 
             //string newXMLText = XAMLConversionHelper.CheckOrUpdateNamespaceInLayout(this.XMLText);
             //if (DesignerReportData == null || (_ReportDocument != null && _ReportDocument.XamlData == newXMLText))
@@ -395,6 +420,44 @@ namespace gip.core.reporthandler.avui
 
         public void RefreshViewerFromXAML()
         {
+            if (!IsLoaded)
+                return;
+
+            ApplyTemplateMode();
+            if (IsHtmlTemplate)
+            {
+                if (ucHtmlViewer == null)
+                    return;
+
+                try
+                {
+                    if (String.IsNullOrWhiteSpace(XMLText))
+                    {
+                        ucHtmlViewer.HtmlText = String.Empty;
+                        _WrongXAML = false;
+                        return;
+                    }
+
+                    if (DesignerReportData == null)
+                    {
+                        ucHtmlViewer.HtmlText = XMLText;
+                        _WrongXAML = false;
+                        return;
+                    }
+
+                    ucHtmlViewer.HtmlText = ScryberReportEngine.RenderHtmlPreview(XMLText, DesignerReportData);
+                    _WrongXAML = false;
+                }
+                catch (Exception ex)
+                {
+                    _WrongXAML = true;
+                    ucHtmlViewer.HtmlText = "<html><body><pre>Preview error: "
+                        + WebUtility.HtmlEncode(ex.Message)
+                        + "</pre></body></html>";
+                }
+                return;
+            }
+
             //if (String.IsNullOrEmpty(this.XMLText) || !IsLoaded)
             //    return;
 
@@ -429,7 +492,15 @@ namespace gip.core.reporthandler.avui
 
         public void SaveToXAML()
         {
-            throw new NotImplementedException();
+            if (IsHtmlTemplate)
+            {
+                if (ucHtmlEditor != null && XMLText != ucHtmlEditor.VBText)
+                    XMLText = ucHtmlEditor.VBText;
+                _WrongXAML = false;
+                return;
+            }
+
+            _WrongXAML = false;
             //if ((UCDesigner == null) || (UCDesigner.Document == null))
             //    return;
             //if (_ReportDocument != null && !_WrongXAML)
@@ -439,6 +510,49 @@ namespace gip.core.reporthandler.avui
             //        XMLText = newXaml;
             //}
             //_WrongXAML = false;
+        }
+
+        private bool IsHtmlTemplate
+        {
+            get
+            {
+                return ScryberReportEngine.IsScryberTemplate(XMLText);
+            }
+        }
+
+        private void EnsureHtmlBindings()
+        {
+            if (_HtmlBindingsInitialized)
+                return;
+
+            var htmlEditorBinding = new Binding(nameof(XMLText))
+            {
+                Source = this,
+                Mode = BindingMode.TwoWay
+            };
+            ucHtmlEditor.Bind(gip.core.layoutengine.avui.VBTextEditor.VBTextProperty, htmlEditorBinding);
+
+            _HtmlBindingsInitialized = true;
+        }
+
+        private void ApplyTemplateMode()
+        {
+            bool isHtmlTemplate = IsHtmlTemplate;
+
+            if (XAMLTab != null)
+                XAMLTab.IsVisible = !isHtmlTemplate;
+
+            if (ucXMLEditor != null)
+                ucXMLEditor.IsVisible = !isHtmlTemplate;
+
+            if (ucHtmlEditor != null)
+                ucHtmlEditor.IsVisible = isHtmlTemplate;
+
+            if (ucHtmlViewer != null)
+                ucHtmlViewer.IsVisible = isHtmlTemplate;
+
+            if (isHtmlTemplate && ucTabControl != null && ucTabControl.SelectedItem == XAMLTab)
+                ucTabControl.SelectedItem = DesignTab;
         }
 
         #region IDataField Members

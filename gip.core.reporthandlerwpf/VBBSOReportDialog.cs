@@ -960,7 +960,7 @@ namespace gip.core.reporthandlerwpf
             if (parentReport != null && parentReport.ACUsage == newDesign.ACUsage)
                 newDesign.XMLDesign = parentReport.XMLDesign;
             else if (newDesign.ACUsage == Global.ACUsages.DUReport)
-                newDesign.XMLDesign = "<?xml version=\"1.0\" encoding=\"utf-8\"?><FlowDocument PageWidth=\"816\" PageHeight=\"1056\" PagePadding=\"96,96,96,96\" AllowDrop=\"True\" NumberSubstitution.CultureSource=\"User\" xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\"><Paragraph LineHeight=\"1.15\"><Run xml:lang=\"de-de\" xml:space=\"preserve\" /></Paragraph></FlowDocument>";
+                newDesign.XMLDesign = ScryberReportEngine.GetDefaultHtmlTemplate();
 
 
 
@@ -1401,8 +1401,78 @@ namespace gip.core.reporthandlerwpf
         }
         #endregion
 
+        #region GetPropsToObserveForIsEnabled
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Dialoge öffnen und schliessen
+                case nameof(ReportPrintDlg):
+                case nameof(IsEnabledReportPrintDlg):
+                    return new string[] { nameof(ACClassDesignList) };
+                case nameof(ReportPreviewDlg):
+                case nameof(IsEnabledReportPreviewDlg):
+                    return new string[] { nameof(ACClassDesignList) };
+                case nameof(ReportDesignDlg):
+                case nameof(IsEnabledReportDesignDlg):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region Neu anlegen, Löschen, Speichern
+                case nameof(ReportNew):
+                case nameof(IsEnabledReportNew):
+                    return new string[] { nameof(InitState) };
+                case nameof(ReportDelete):
+                case nameof(IsEnabledReportDelete):
+                    return new string[] { nameof(CurrentACClassDesign) };
+                case nameof(ReportSave):
+                case nameof(IsEnabledReportSave):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region Drucken / Vorschau / Entwerfen
+                case nameof(ReportPrint):
+                case nameof(IsEnabledReportPrint):
+                    return new string[] { nameof(CurrentACClassDesign) };
+                case nameof(ReportPreview):
+                case nameof(IsEnabledReportPreview):
+                    return new string[] { nameof(SelectedACClassDesign) };
+                case nameof(ReportDesign):
+                case nameof(IsEnabledReportDesign):
+                    return new string[] { nameof(SelectedACClassDesign) };
+                #endregion
+
+                #region ACQuery bearbeiten
+                case nameof(ReportModifyQuery):
+                case nameof(IsEnabledReportModifyQuery):
+                    return new string[] { nameof(CurrentACQueryDefinition) };
+                #endregion
+
+                #region Printer configuration
+                case nameof(AddPrintServer):
+                case nameof(IsEnabledAddPrintServer):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(SelectedPrintServer) };
+                case nameof(AddWinPrinter):
+                case nameof(IsEnabledAddWinPrinter):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(SelectedWindowsPrinter) };
+                case nameof(DeleteConfiguredPrinter):
+                case nameof(IsEnabledDeleteConfiguredPrinter):
+                    return new string[] { nameof(SelectedConfiguredPrinter), nameof(CurrentACClassDesign) };
+                #endregion
+
+                #region State Methods (no IsEnabled)
+                case nameof(SMReadOnly):
+                case nameof(SMNew):
+                case nameof(SMEdit):
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
 
         #endregion
+        #endregion
+
     }
 }

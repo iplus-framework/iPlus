@@ -30,4 +30,5 @@ using Avalonia.Metadata;
 [assembly: AssemblyFileVersion("1.0.0.0")]
 
 [assembly: XmlnsDefinition("http://www.iplus-framework.com/report/axaml", "gip.core.reporthandler.avui.Flowdoc")]
+[assembly: XmlnsDefinition("http://www.iplus-framework.com/report/axaml", "gip.core.reporthandler.avui")]
 [assembly: XmlnsPrefix("http://www.iplus-framework.com/report/axaml", "vbr")]

@@ -5,6 +5,7 @@ using gip.core.datamodel;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -309,14 +310,14 @@ namespace gip.core.reporthandler.avui
 
         #endregion
 
-        #region Properties -> Windows printers
+        #region Properties -> System printers
 
         private PrinterInfo _SelectedWindowsPrinter;
         /// <summary>
         /// Selected property for PrinterInfo
         /// </summary>
-        /// <value>The selected WindowsPrinter</value>
-        [ACPropertySelected(9999, "WindowsPrinter", "en{'TODO: WindowsPrinter'}de{'TODO: WindowsPrinter'}")]
+        /// <value>The selected system printer</value>
+        [ACPropertySelected(9999, "WindowsPrinter", "en{'Selected system printer'}de{'Ausgewaehlter Systemdrucker'}")]
         public PrinterInfo SelectedWindowsPrinter
         {
             get
@@ -342,8 +343,8 @@ namespace gip.core.reporthandler.avui
         /// <summary>
         /// List property for PrinterInfo
         /// </summary>
-        /// <value>The WindowsPrinter list</value>
-        [ACPropertyList(9999, "WindowsPrinter")]
+        /// <value>The system printer list</value>
+        [ACPropertyList(9999, "WindowsPrinter", "en{'System printers'}de{'Systemdrucker'}")]
         public List<PrinterInfo> WindowsPrinterList
         {
             get
@@ -356,10 +357,77 @@ namespace gip.core.reporthandler.avui
 
         private List<PrinterInfo> LoadWindowsPrinterList()
         {
-            var printers = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            var printers = GetDesktopPrinters();
             if (printers != null)
                 return ACPrintManager.GetPrinters(printers);
             return new List<PrinterInfo>();
+        }
+
+        private IEnumerable<string> GetDesktopPrinters()
+        {
+            var windowsPrinters = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            if (windowsPrinters != null && windowsPrinters.Any())
+                return windowsPrinters;
+
+            return GetCupsPrinters();
+        }
+
+        private IEnumerable<string> GetCupsPrinters()
+        {
+            var result = new List<string>();
+            result.AddRange(RunLpstatAndParse("-a", ""));
+            if (!result.Any())
+                result.AddRange(RunLpstatAndParse("-p", "printer "));
+
+            return result.Where(c => !String.IsNullOrWhiteSpace(c))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .OrderBy(c => c)
+                         .ToList();
+        }
+
+        private IEnumerable<string> RunLpstatAndParse(string arguments, string requiredPrefix)
+        {
+            try
+            {
+                using (Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "lpstat",
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }))
+                {
+                    if (process == null)
+                        return Enumerable.Empty<string>();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit(2000);
+
+                    if (String.IsNullOrWhiteSpace(output))
+                        return Enumerable.Empty<string>();
+
+                    return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(line => line.Trim())
+                                 .Where(line => String.IsNullOrEmpty(requiredPrefix)
+                                     || line.StartsWith(requiredPrefix, StringComparison.OrdinalIgnoreCase))
+                                 .Select(line => String.IsNullOrEmpty(requiredPrefix)
+                                     ? line
+                                     : line.Substring(requiredPrefix.Length).TrimStart())
+                                 .Select(line =>
+                                 {
+                                     int separator = line.IndexOf(' ');
+                                     return separator > 0 ? line.Substring(0, separator) : line;
+                                 })
+                                 .Where(line => !String.IsNullOrWhiteSpace(line))
+                                 .ToList();
+                }
+            }
+            catch
+            {
+                return Enumerable.Empty<string>();
+            }
         }
 
         #endregion

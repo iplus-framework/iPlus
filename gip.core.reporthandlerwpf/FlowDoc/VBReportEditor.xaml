@@ -3,6 +3,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:vb="http://www.iplus-framework.com/xaml"
     xmlns:vbr="http://www.iplus-framework.com/report/xaml"
+    xmlns:local="clr-namespace:gip.core.reporthandlerwpf.Flowdoc"
     xmlns:p="clr-namespace:Document.Editor"
     Background="Transparent" Padding="0,0,0,0">
     <!--<UserControl.Resources>
@@ -10,13 +11,19 @@
     </UserControl.Resources>-->
     <vb:VBTabControl x:Name="ucTabControl" SelectionChanged="TabControl_SelectionChanged">
         <vb:VBTabItem Header="Design" x:Name="DesignTab">
-            <p:FlowDocEditor x:Name="ucDesigner" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <Grid>
+                <p:FlowDocEditor x:Name="ucDesigner" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <local:VBHtmlEditor x:Name="ucHtmlEditor" Visibility="Collapsed"/>
+            </Grid>
         </vb:VBTabItem>
         <vb:VBTabItem Header="XAML" x:Name="XAMLTab">
             <vb:VBXMLEditor x:Name="ucXMLEditor" CodeCompletionSchema="VBReportEditor.xsd"/>
         </vb:VBTabItem>
         <vb:VBTabItem Header="Preview" x:Name="PreviewTab">
-            <DocumentViewer x:Name="ucDocumentViewer"/>
+            <Grid>
+                <DocumentViewer x:Name="ucDocumentViewer"/>
+                <local:VBWebBrowser x:Name="ucHtmlViewer" Visibility="Collapsed"/>
+            </Grid>
         </vb:VBTabItem>
         <vb:VBTabItem Header="Configuration" x:Name="ConfigurationTab">
             <vb:VBTabItem.Style>

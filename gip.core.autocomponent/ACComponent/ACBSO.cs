@@ -589,6 +589,7 @@ namespace gip.core.autocomponent
             }
             if (!ACSaveChanges())
                 return false;
+            DbChangeCount++;
             NotifyAllPostSave();
             return true;
         }
@@ -608,6 +609,7 @@ namespace gip.core.autocomponent
             }
             if (!ACUndoChanges())
                 return false;
+            DbChangeCount++;
             NotifyAllPostUndoSave();
             return true;
         }

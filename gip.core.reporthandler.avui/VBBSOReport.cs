@@ -5,8 +5,11 @@ using gip.core.autocomponent;
 using gip.core.datamodel;
 using gip.core.reporthandler.avui.Flowdoc;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace gip.core.reporthandler.avui
@@ -45,6 +48,7 @@ namespace gip.core.reporthandler.avui
             //    _LL = null;
             //}
             _PrintServerList = null;
+            _WindowsPrinterList = null;
             //if (_SR != null)
             //{
             //    _SR.Dispose();
@@ -52,6 +56,8 @@ namespace gip.core.reporthandler.avui
             //}
             this._CurrentACClassDesign = null;
             this._CurrentReportData = null;
+            this._SelectedWindowsPrinter = null;
+            this._PendingDesktopPrintPdfPath = null;
 
             if (_VarioConfigManager != null)
                 ConfigManagerIPlus.DetachACRefFromServiceInstance(this, _VarioConfigManager);
@@ -215,6 +221,32 @@ namespace gip.core.reporthandler.avui
             return null;
         }
 
+        public async Task<Msg> PrintAsync(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies = 1, int maxPrintJobsInSpooler = 0)
+        {
+            if (acClassDesign == null || data == null)
+                return null;
+
+            CurrentACClassDesign = acClassDesign;
+            CurrentReportData = data;
+            WithDialog = withDialog;
+            PrinterName = printerName;
+
+            if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
+            {
+                return await FlowPrintAsync(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
+            }
+            else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
+            {
+                //RunLL(false, LlPrintMode.Export);
+            }
+            else if (acClassDesign.ACUsage == Global.ACUsages.DUReportPrintServer)
+            {
+                await DoPrintComponent(acClassDesign, withDialog, copies, ReloadOnServer);
+            }
+
+            return null;
+        }
+
         [ACMethodInfo("Report", "en{'Preview'}de{'Vorschau'}", 9999, false)]
         public async Task Preview(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data)
         {
@@ -224,6 +256,11 @@ namespace gip.core.reporthandler.avui
             PrinterName = printerName;
             if (acClassDesign.ACUsage == Global.ACUsages.DUReport)
             {
+                if (ScryberReportEngine.IsScryberTemplate(acClassDesign?.XAMLDesign))
+                {
+                    await PreviewScryberReportAsync(acClassDesign, data);
+                    return;
+                }
                 await ShowDialogAsync(this, "PreviewFlowDoc");
             }
             else if (acClassDesign.ACUsageIndex >= (short)Global.ACUsages.DULLReport && acClassDesign.ACUsageIndex <= (short)Global.ACUsages.DULLFilecard)
@@ -258,6 +295,128 @@ namespace gip.core.reporthandler.avui
         }
 
         #endregion
+
+        #endregion
+
+        #region Desktop printer selection
+
+        private PrinterInfo _SelectedWindowsPrinter;
+        /// <summary>
+        /// Selected property for PrinterInfo
+        /// </summary>
+        /// <value>The selected system printer</value>
+        [ACPropertySelected(9999, "WindowsPrinter", "en{'Selected system printer'}de{'Ausgewaehlter Systemdrucker'}")]
+        public PrinterInfo SelectedWindowsPrinter
+        {
+            get
+            {
+                return _SelectedWindowsPrinter;
+            }
+            set
+            {
+                if (_SelectedWindowsPrinter != value)
+                {
+                    _SelectedWindowsPrinter = value;
+                    if (value != null)
+                        PrinterName = value.PrinterName;
+                    OnPropertyChanged("SelectedWindowsPrinter");
+                }
+            }
+        }
+
+        private List<PrinterInfo> _WindowsPrinterList;
+        /// <summary>
+        /// List property for PrinterInfo
+        /// </summary>
+        /// <value>The system printer list</value>
+        [ACPropertyList(9999, "WindowsPrinter", "en{'System printers'}de{'Systemdrucker'}")]
+        public List<PrinterInfo> WindowsPrinterList
+        {
+            get
+            {
+                if (_WindowsPrinterList == null)
+                    _WindowsPrinterList = LoadWindowsPrinterList();
+                return _WindowsPrinterList;
+            }
+        }
+
+        private List<PrinterInfo> LoadWindowsPrinterList()
+        {
+            var printers = GetDesktopPrinters();
+            if (printers == null)
+                return new List<PrinterInfo>();
+
+            return ACPrintManager.GetPrinters(printers)
+                                 .OrderBy(c => c.PrinterName)
+                                 .ToList();
+        }
+
+        private IEnumerable<string> GetDesktopPrinters()
+        {
+            var windowsPrinters = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            if (windowsPrinters != null && windowsPrinters.Any())
+                return windowsPrinters;
+
+            return GetCupsPrinters();
+        }
+
+        private IEnumerable<string> GetCupsPrinters()
+        {
+            var result = new List<string>();
+            result.AddRange(RunLpstatAndParse("-a", ""));
+            if (!result.Any())
+                result.AddRange(RunLpstatAndParse("-p", "printer "));
+
+            return result.Where(c => !String.IsNullOrWhiteSpace(c))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .OrderBy(c => c)
+                         .ToList();
+        }
+
+        private IEnumerable<string> RunLpstatAndParse(string arguments, string requiredPrefix)
+        {
+            try
+            {
+                using (Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "lpstat",
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }))
+                {
+                    if (process == null)
+                        return Enumerable.Empty<string>();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit(2000);
+
+                    if (String.IsNullOrWhiteSpace(output))
+                        return Enumerable.Empty<string>();
+
+                    return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(line => line.Trim())
+                                 .Where(line => String.IsNullOrEmpty(requiredPrefix)
+                                     || line.StartsWith(requiredPrefix, StringComparison.OrdinalIgnoreCase))
+                                 .Select(line => String.IsNullOrEmpty(requiredPrefix)
+                                     ? line
+                                     : line.Substring(requiredPrefix.Length).TrimStart())
+                                 .Select(line =>
+                                 {
+                                     int separator = line.IndexOf(' ');
+                                     return separator > 0 ? line.Substring(0, separator) : line;
+                                 })
+                                 .Where(line => !String.IsNullOrWhiteSpace(line))
+                                 .ToList();
+                }
+            }
+            catch
+            {
+                return Enumerable.Empty<string>();
+            }
+        }
 
         #endregion
 
@@ -344,25 +503,9 @@ namespace gip.core.reporthandler.avui
 
         #region Properties
 
-        //#region private
-        //private bool _LLEventsSubscribed;
-        //#endregion
 
         #region public
-        //private VBListLabel _LL;
-        //public VBListLabel LL
-        //{
-        //    get
-        //    {
-        //        return _LL;
-        //    }
-        //}
 
-        //public LlPrintMode PrintMode
-        //{
-        //    get;
-        //    set;
-        //}
         #endregion
 
         #region overrideable
@@ -380,39 +523,6 @@ namespace gip.core.reporthandler.avui
                 return _CurrentReportData;
             }
         }
-
-        //protected virtual LlProject ProjectType
-        //{
-        //    get
-        //    {
-        //        if (CurrentACClassDesign == null)
-        //            return LlProject.List;
-        //        else if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLLabel)
-        //            return LlProject.Label;
-
-        //        else if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLFilecard)
-        //            return LlProject.Card;
-        //        else
-        //            //if (CurrentACClassDesign.ACUsage == Global.ACUsages.DUList
-        //            //|| CurrentACClassDesign.ACUsage == Global.ACUsages.DUReport
-        //            //|| CurrentACClassDesign.ACUsage == Global.ACUsages.DUOverview)
-        //            return LlProject.List;
-        //    }
-        //}
-
-        //protected virtual bool IsReportWithVariables
-        //{
-        //    get
-        //    {
-        //        if (ProjectType == LlProject.List && CurrentACClassDesign != null)
-        //        {
-        //            if (CurrentACClassDesign.ACUsage == Global.ACUsages.DULLReport
-        //                || CurrentACClassDesign.ACUsage == Global.ACUsages.DULLList)
-        //                return true;
-        //        }
-        //        return false;
-        //    }
-        //}
 
         private ACPropertyConfigValue<int> _MaxRecursionDepthConfig;
         [ACPropertyConfig("en{'Maximum recursion depth for Object Provider'}de{'Maximale rekursionstiefe für Object-Provider'}")]
@@ -460,372 +570,10 @@ namespace gip.core.reporthandler.avui
         #region Methods
 
         #region overridable
-        //protected virtual VBListLabel OnCreateLLInstance()
-        //{
-        //    LlLanguage language = LlLanguage.English;
-        //    switch (this.Root.Environment.VBLanguageCode.ToUpper())
-        //    {
-        //        case "DE":
-        //            language = LlLanguage.German;
-        //            break;
-        //        case "EN":
-        //            language = LlLanguage.English;
-        //            break;
-        //        case "FR":
-        //            language = LlLanguage.French;
-        //            break;
-        //        case "IT":
-        //            language = LlLanguage.Italian;
-        //            break;
-        //        case "ES":
-        //            language = LlLanguage.Spanish;
-        //            break;
-        //        case "RU":
-        //            language = LlLanguage.Russian;
-        //            break;
-        //        default:
-        //            language = LlLanguage.English;
-        //            break;
-        //    }
 
-        //    VBListLabel instance = new VBListLabel(language, true);
-        //    instance.LicensingInfo = "/BfwD";
-        //    return instance;
-        //}
         #endregion
 
         #region Protected
-        //protected void SubscribeToLLEvents()
-        //{
-        //    if (_LL == null || _LLEventsSubscribed)
-        //        return;
-        //    _LLEventsSubscribed = true;
-        //    _LL.AutoDefineField += new AutoDefineElementHandler(OnLL_AutoDefineField);
-        //    _LL.AutoDefineNewLine += new AutoDefineNewLineHandler(OnLL_AutoDefineNewLine);
-        //    _LL.AutoDefineNewPage += new AutoDefineNewPageHandler(OnLL_AutoDefineNewPage);
-        //    _LL.AutoDefineTable += new AutoDefineDataItemHandler(OnLL_AutoDefineTable);
-        //    _LL.AutoDefineTableRelation += new AutoDefineDataItemHandler(OnLL_AutoDefineTableRelation);
-        //    _LL.AutoDefineTableSortOrder += new AutoDefineDataItemHandler(OnLL_AutoDefineTableSortOrder);
-        //    _LL.AutoDefineVariable += new AutoDefineElementHandler(OnLL_AutoDefineVariable);
-        //    _LL.DefinePrintOptions += new DefinePrintOptionsHandler(OnLL_DefinePrintOptions);
-        //    _LL.DesignerPrintJob += new DesignerPrintJobHandler(OnLL_DesignerPrintJob);
-        //    _LL.DrawObject += new DrawObjectHandler(OnLL_DrawObject);
-        //    _LL.DrawPage += new DrawPageHandler(OnLL_DrawPage);
-        //    _LL.DrawProject += new DrawProjectHandler(OnLL_DrawProject);
-        //    _LL.DrawTableField += new DrawTableFieldHandler(OnLL_DrawTableField);
-        //    _LL.DrawTableLine += new DrawTableLineHandler(OnLL_DrawTableLine);
-        //    _LL.Evaluate += new EvaluateHandler(OnLL_Evaluate);
-        //}
-
-        //protected void UnSubscribeToLLEvents()
-        //{
-        //    if (_LL == null || !_LLEventsSubscribed)
-        //        return;
-        //    _LLEventsSubscribed = false;
-        //    _LL.AutoDefineField -= OnLL_AutoDefineField;
-        //    _LL.AutoDefineNewLine -= OnLL_AutoDefineNewLine;
-        //    _LL.AutoDefineNewPage -= OnLL_AutoDefineNewPage;
-        //    _LL.AutoDefineTable -= OnLL_AutoDefineTable;
-        //    _LL.AutoDefineTableRelation -= OnLL_AutoDefineTableRelation;
-        //    _LL.AutoDefineTableSortOrder -= OnLL_AutoDefineTableSortOrder;
-        //    _LL.AutoDefineVariable -= OnLL_AutoDefineVariable;
-        //    _LL.DefinePrintOptions -= OnLL_DefinePrintOptions;
-        //    _LL.DesignerPrintJob -= OnLL_DesignerPrintJob;
-        //    _LL.DrawObject -= OnLL_DrawObject;
-        //    _LL.DrawPage -= OnLL_DrawPage;
-        //    _LL.DrawProject -= OnLL_DrawProject;
-        //    _LL.DrawTableField -= OnLL_DrawTableField;
-        //    _LL.DrawTableLine -= OnLL_DrawTableLine;
-        //    _LL.Evaluate -= OnLL_Evaluate;
-        //}
-
-        //protected void RunLL(bool designer, LlPrintMode printMode = LlPrintMode.Normal)
-        //{
-        //    object data = SourceDataForObjectProvider;
-        //    if (data == null)
-        //        return;
-
-        //    ObjectDataProvider objectDataProvider = null;
-        //    try
-        //    {
-        //        if (this.ACQueryDefinitionRoot != null)
-        //            objectDataProvider = new ObjectDataProvider(data, this.ACQueryDefinitionRoot, MaxRecursionDepthObjectProvider);
-        //        else
-        //            objectDataProvider = new ObjectDataProvider(data, MaxRecursionDepthObjectProvider);
-        //        objectDataProvider.HandleEnumerableProperty += new EventHandler<LLHandleEnumerablePropertyEventArgs>(OnHandleObjectProviderEnumerableProperty);
-
-        //        if (_LL == null)
-        //            _LL = OnCreateLLInstance();
-        //        SubscribeToLLEvents();
-        //        LL.DataSource = objectDataProvider;
-
-        //        if (this.IsReportWithVariables)
-        //        {
-        //            if (ACQueryDefinitionRoot != null)
-        //                LL.DataMember = ACQueryDefinitionRoot.ChildACUrl;
-        //            else
-        //                LL.DataMember = objectDataProvider.RootTableName;
-        //            LL.AutoMasterMode = LlAutoMasterMode.AsVariables;
-        //        }
-
-        //        using (MemoryStream memStream = new MemoryStream())
-        //        {
-        //            if (CurrentACClassDesign.DesignBinary != null && CurrentACClassDesign.DesignBinary.Any())
-        //            {
-        //                using (MemoryStream memStream2 = new MemoryStream(CurrentACClassDesign.DesignBinary, true))
-        //                {
-        //                    memStream.Write(CurrentACClassDesign.DesignBinary, 0, (int)memStream2.Length);
-        //                    memStream.Seek(0, SeekOrigin.Begin);
-        //                }
-        //            }
-
-        //            if (designer)
-        //            {
-        //                LL.Design(this.ProjectType, memStream);
-        //                CurrentACClassDesign.DesignBinary = memStream.GetBuffer();
-        //            }
-        //            else
-        //            {
-        //                LL.AutoDestination = printMode;
-        //                if (WithDialog)
-        //                    LL.AutoBoxType = LlBoxType.StandardAbort;
-        //                else
-        //                {
-        //                    LL.AutoShowSelectFile = false;
-        //                    LL.AutoShowPrintOptions = false;
-        //                }
-        //                if (!string.IsNullOrEmpty(PrinterName))
-        //                    LL.Print(memStream, ProjectType, PrinterName);
-        //                else
-        //                    LL.Print(ProjectType, memStream);
-        //            }
-        //        }
-        //    }
-
-        //    catch (ListLabelException e /*LlException*/)
-        //    {
-        //        string msg = e.Message;
-        //        if (e.InnerException != null && e.InnerException.Message != null)
-        //            msg += " Inner:" + e.InnerException.Message;
-
-        //        this.Root().Messages.LogException("VBBSOReport", "RunLL", msg);
-        //        Catch Exceptions
-        //        MessageBox.Show("Information: " + LlException.Message + "\n\nThis information was generated by a List & Label custom exception.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //    }
-        //    catch (Exception e /*e*/)
-        //    {
-        //        string msg = e.Message;
-        //        if (e.InnerException != null && e.InnerException.Message != null)
-        //            msg += " Inner:" + e.InnerException.Message;
-
-        //        this.Root().Messages.LogException("VBBSOReport", "RunLL(10)", msg);
-        //    }
-        //    finally
-        //    {
-        //        if (objectDataProvider != null)
-        //            objectDataProvider.HandleEnumerableProperty -= OnHandleObjectProviderEnumerableProperty;
-        //        if (_LL != null)
-        //        {
-        //            UnSubscribeToLLEvents();
-        //            _LL.Dispose();
-        //            _LL = null;
-        //        }
-        //    }
-        //}
-
-        //private void GetStiBusinessObjectData(ACQueryDefinition qry, IACObject parent, List<StiBusinessObjectData> dataList)
-        //{
-        //    foreach (ACQueryDefinition child in qry.ACQueryDefinitionChilds)
-        //    {
-        //        if (!child.IsUsed)
-        //            continue;
-        //        IQueryable queryPos = parent.ACSelect(child);
-        //        foreach (IACObject pos in queryPos)
-        //        {
-        //            dataList.Add(new StiBusinessObjectData("Test", child.ChildACUrl, queryPos));
-        //            GetStiBusinessObjectData(child, pos, dataList);
-        //            break;
-        //        }
-        //    }
-        //}
-
-
-        //protected void RunSR(bool designer, LlPrintMode printMode = LlPrintMode.Normal)
-        //{
-        //    object data = SourceDataForObjectProvider;
-        //    if (data == null)
-        //        return;
-
-        //    //SR.RegData("RootData", data);
-        //    List<String> assemblies = SR.ReferencedAssemblies.ToList();
-        //    foreach (Assembly classAssembly in AppDomain.CurrentDomain.GetAssemblies())
-        //    {
-        //        try
-        //        {
-        //            if (classAssembly.GlobalAssemblyCache
-        //                || classAssembly.IsDynamic
-        //                || classAssembly.EntryPoint != null
-        //                || String.IsNullOrEmpty(classAssembly.Location))
-        //                continue;
-        //            if (!assemblies.Contains(classAssembly.Location))
-        //                assemblies.Add(classAssembly.Location);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //        }
-        //    }
-
-        //    //assemblies.Add(System.Reflection.Assembly.GetAssembly(typeof(ACClass)).Location);
-        //    SR.ReferencedAssemblies = assemblies.ToArray();
-        //    List<StiBusinessObjectData> dataList = new List<StiBusinessObjectData>();
-        //    dataList.Add(new StiBusinessObjectData("Test", ACQueryDefinitionRoot.ChildACUrl, data));
-
-        //    foreach (IACObject objValue in data as IEnumerable)
-        //    {
-        //        GetStiBusinessObjectData(ACQueryDefinitionRoot, objValue, dataList);
-        //        break;
-        //    }
-        //    SR.RegBusinessObject(dataList);
-
-        //    //if (this.IsReportWithVariables)
-        //    //{
-        //    //    if (ACQueryDefinitionRoot != null)
-        //    //        LL.DataMember = ACQueryDefinitionRoot.ChildACUrl;
-        //    //    else
-        //    //        LL.DataMember = objectDataProvider.RootTableName;
-        //    //    LL.AutoMasterMode = LlAutoMasterMode.AsVariables;
-        //    //}
-
-        //    try
-        //    {
-        //        using (MemoryStream memStream = new MemoryStream())
-        //        {
-        //            if (CurrentACClassDesign.DesignBinary != null && CurrentACClassDesign.DesignBinary.Any())
-        //            {
-        //                using (MemoryStream memStream2 = new MemoryStream(CurrentACClassDesign.DesignBinary, true))
-        //                {
-        //                    memStream.Write(CurrentACClassDesign.DesignBinary, 0, (int)memStream2.Length);
-        //                    memStream.Seek(0, SeekOrigin.Begin);
-        //                }
-        //            }
-
-        //            if (designer)
-        //            {
-        //                SR.Load(memStream);
-        //                SR.Design();
-        //                CurrentACClassDesign.DesignBinary = SR.SaveDocumentToByteArray();
-        //            }
-        //            else
-        //            {
-        //                //LL.AutoDestination = printMode;
-        //                //if (WithDialog)
-        //                //    LL.AutoBoxType = LlBoxType.StandardAbort;
-        //                //else
-        //                //{
-        //                //    LL.AutoShowSelectFile = false;
-        //                //    LL.AutoShowPrintOptions = false;
-        //                //}
-        //                //if (!string.IsNullOrEmpty(PrinterName))
-        //                //    LL.Print(memStream, ProjectType, PrinterName);
-        //                //else
-        //                //    LL.Print(ProjectType, memStream);
-        //            }
-        //        }
-        //    }
-
-        //    catch (ListLabelException /*LlException*/)
-        //    {
-        //        // Catch Exceptions
-        //        //MessageBox.Show("Information: " + LlException.Message + "\n\nThis information was generated by a List & Label custom exception.", "Information", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        //    }
-        //    catch (Exception /*e*/)
-        //    {
-        //    }
-        //    finally
-        //    {
-        //    }
-        //}
-
-        #endregion
-
-        #region Event callbacks
-
-        //protected virtual void OnHandleObjectProviderEnumerableProperty(object sender, LLHandleEnumerablePropertyEventArgs e)
-        //{
-        //    if (!typeof(EntityObject).IsAssignableFrom(e.ObjectType)
-        //        && e.ObjectType.Namespace == "gip.core.datamodel")
-        //        e.CancelRecursion = true;
-        //    else if (e.PropertyPath.IndexOf("ACType") >= 0
-        //        || e.PropertyPath.IndexOf(ACClass.ClassName) >= 0
-        //        || e.PropertyPath.IndexOf("ObjectType") >= 0
-        //        || e.PropertyPath.IndexOf("ObjectFullType") >= 0
-        //        || e.PropertyPath.IndexOf("ParentACObject") >= 0
-        //        || e.PropertyPath.IndexOf("ACContent") >= 0
-        //        || e.PropertyPath.IndexOf("ACProperty") >= 0
-        //        || e.PropertyPath.IndexOf("DocumentationList") >= 0
-        //        || e.PropertyPath.IndexOf("Businessobject") >= 0)
-        //        e.CancelRecursion = true;
-        //}
-
-        //protected virtual void OnLL_Evaluate(object sender, EvaluateEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DrawTableLine(object sender, DrawTableLineEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DrawTableField(object sender, DrawTableFieldEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DrawProject(object sender, DrawProjectEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DrawPage(object sender, DrawPageEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DrawObject(object sender, DrawObjectEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DesignerPrintJob(object sender, DesignerPrintJobEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_DefinePrintOptions(object sender, EventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineVariable(object sender, AutoDefineElementEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineTableSortOrder(object sender, AutoDefineDataItemEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineTableRelation(object sender, AutoDefineDataItemEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineTable(object sender, AutoDefineDataItemEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineNewPage(object sender, AutoDefineNewPageEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineNewLine(object sender, AutoDefineNewLineEventArgs e)
-        //{
-        //}
-
-        //protected virtual void OnLL_AutoDefineField(object sender, AutoDefineElementEventArgs e)
-        //{
-        //}
         #endregion
 
         #endregion
@@ -872,222 +620,180 @@ namespace gip.core.reporthandler.avui
             }
         }
 
+        private async Task PreviewScryberReportAsync(ACClassDesign acClassDesign, ReportData data)
+        {
+            if (acClassDesign == null || data == null)
+                return;
+
+            try
+            {
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XAMLDesign, data);
+                if (pdfBytes == null || pdfBytes.Length == 0)
+                    return;
+
+                string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
+                File.WriteAllBytes(tempPdfPath, pdfBytes);
+                OpenWithDefaultApplication(tempPdfPath);
+            }
+            catch (Exception e)
+            {
+                this.Root().Messages.LogException("VBBSOReport", "PreviewScryberReportAsync", e);
+            }
+
+            await Task.CompletedTask;
+        }
+
+        private static void OpenWithDefaultApplication(string filePath)
+        {
+            if (String.IsNullOrWhiteSpace(filePath))
+                return;
+
+            Process.Start(new ProcessStartInfo(filePath)
+            {
+                UseShellExecute = true
+            });
+        }
+
+        private string _PendingDesktopPrintPdfPath;
+        private int _PendingDesktopPrintCopies = 1;
+
+        private void PrepareDesktopPrinterSelection(string pdfPath, string printerName, int copies)
+        {
+            _PendingDesktopPrintPdfPath = pdfPath;
+            _PendingDesktopPrintCopies = copies <= 0 ? 1 : copies;
+
+            _WindowsPrinterList = null;
+            OnPropertyChanged("WindowsPrinterList");
+
+            PrinterInfo preferredPrinter = null;
+            if (!String.IsNullOrWhiteSpace(printerName))
+            {
+                preferredPrinter = WindowsPrinterList.FirstOrDefault(c => String.Equals(c.PrinterName, printerName, StringComparison.OrdinalIgnoreCase));
+            }
+
+            if (preferredPrinter == null)
+                preferredPrinter = WindowsPrinterList.FirstOrDefault(c => c.IsDefault) ?? WindowsPrinterList.FirstOrDefault();
+
+            SelectedWindowsPrinter = preferredPrinter;
+        }
+
+        private void ClearDesktopPrinterSelection()
+        {
+            _PendingDesktopPrintPdfPath = null;
+            _PendingDesktopPrintCopies = 1;
+        }
+
+        private async Task ShowDesktopPrinterSelectionAsync()
+        {
+            try
+            {
+                await ShowDialogAsync(this, "PrinterSelection");
+            }
+            catch (Exception e)
+            {
+                this.Root().Messages.LogException("VBBSOReport", nameof(ShowDesktopPrinterSelectionAsync), e);
+            }
+        }
+
+        private bool TryPrintPdf(string pdfPath, string printerName, int copies)
+        {
+            if (String.IsNullOrWhiteSpace(pdfPath) || String.IsNullOrWhiteSpace(printerName))
+                return false;
+
+            if (copies <= 0)
+                copies = 1;
+
+            try
+            {
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                {
+                    Process process = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = pdfPath,
+                        Verb = "printto",
+                        Arguments = $"\"{printerName}\"",
+                        UseShellExecute = true,
+                        CreateNoWindow = true,
+                    });
+                    return process != null;
+                }
+
+                if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                {
+                    Process process = Process.Start(new ProcessStartInfo
+                    {
+                        FileName = "lp",
+                        Arguments = $"-d \"{printerName}\" -n {copies} \"{pdfPath}\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true,
+                    });
+
+                    if (process == null)
+                        return false;
+
+                    process.WaitForExit(3000);
+                    return process.ExitCode == 0;
+                }
+            }
+            catch
+            {
+            }
+
+            return false;
+        }
+
         public Msg FlowPrint(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
         {
-            throw new NotImplementedException("Avalonia TODO");
-            //if (acClassDesign == null || data == null)
-            //    return null;
+            _ = FlowPrintAsync(acClassDesign, withDialog, printerName, data, copies, maxPrintJobsInSpooler);
+            return null;
+        }
 
-            //using (ReportDocument reportDoc = new ReportDocument(CurrentACClassDesign.XAMLDesign))
-            //{
-            //    if (reportDoc == null)
-            //        return null;
-            //    XpsDocument xps = null;
-            //    if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://"))
-            //    {
-            //        string fileName = printerName.Substring(7);
-            //        xps = reportDoc.CreateXpsDocument(data, fileName);
-            //        return null;
-            //    }
-            //    else
-            //        xps = reportDoc.CreateXpsDocument(data);
-            //    if (xps == null)
-            //        return null;
+        public async Task<Msg> FlowPrintAsync(ACClassDesign acClassDesign, bool withDialog, string printerName, ReportData data, int copies, int maxPrintJobsInSpooler = 0)
+        {
+            if (acClassDesign == null || data == null)
+                return null;
 
-            //    using (xps)
-            //    {
-            //        FixedDocumentSequence fDocSeq = null;
-            //        try
-            //        {
-            //            fDocSeq = xps.GetFixedDocumentSequence();
-            //            if (fDocSeq == null)
-            //                return null;
+            if (!ScryberReportEngine.IsScryberTemplate(acClassDesign.XAMLDesign))
+            {
+                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(5)", "Avalonia report printing currently supports only Scryber HTML templates.");
+                return null;
+            }
 
-            //            if (copies <= 0)
-            //                copies = 1;
+            try
+            {
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(acClassDesign.XAMLDesign, data);
+                if (pdfBytes == null || pdfBytes.Length == 0)
+                    return null;
 
-            //            if (withDialog)
-            //            {
-            //                try
-            //                {
-            //                    var printDialog = new System.Windows.Controls.PrintDialog();
-            //                    if (printDialog.ShowDialog() == true)
-            //                    {
-            //                        PrintQueue pQ = printDialog.PrintQueue;
-            //                        XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-            //                        if (writer != null)
-            //                        {
-            //                            PrintTicket pt = new PrintTicket();
-            //                            pt.CopyCount = printDialog.PrintTicket != null && printDialog.PrintTicket.CopyCount.HasValue ? printDialog.PrintTicket.CopyCount : copies;
-            //                            if (reportDoc.AutoSelectPageOrientation.HasValue)
-            //                            {
-            //                                pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-            //                            }
-            //                            else
-            //                            {
-            //                                if (reportDoc.PageWidth > reportDoc.PageHeight)
-            //                                    pt.PageOrientation = PageOrientation.Landscape;
-            //                                else
-            //                                    pt.PageOrientation = PageOrientation.Portrait;
-            //                            }
+                if (!String.IsNullOrEmpty(printerName) && printerName.StartsWith("file://", StringComparison.OrdinalIgnoreCase))
+                {
+                    string fileName = printerName.Substring(7);
+                    if (!String.IsNullOrWhiteSpace(Path.GetDirectoryName(fileName)))
+                        Directory.CreateDirectory(Path.GetDirectoryName(fileName));
+                    File.WriteAllBytes(fileName, pdfBytes);
+                    return null;
+                }
 
-            //                            if (reportDoc.AutoPageMediaSize != null)
-            //                                pt.PageMediaSize = reportDoc.AutoPageMediaSize;
+                string tempPdfPath = Path.Combine(Path.GetTempPath(), $"iplus_{Guid.NewGuid():N}.pdf");
+                File.WriteAllBytes(tempPdfPath, pdfBytes);
 
-            //                            // example of calling above code
-            //                            if (reportDoc.AutoSelectTray.HasValue)
-            //                            {
-            //                                string nameSpaceURI = string.Empty;
-            //                                string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-            //                                pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-            //                            }
+                if (withDialog)
+                {
+                    PrepareDesktopPrinterSelection(tempPdfPath, printerName, copies);
+                    await ShowDesktopPrinterSelectionAsync();
+                    return null;
+                }
 
-            //                            writer.Write(fDocSeq, pt);
-            //                        }
-            //                    }
-            //                }
-            //                catch (Exception e)
-            //                {
-            //                    this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e.Message);
-            //                    PrintDocumentImageableArea area = null;
-            //                    XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(ref area);
-            //                    if (writer != null)
-            //                        writer.Write(fDocSeq);
-            //                }
-            //            }
-            //            else
-            //            {
-            //                PrintQueue pQ = null;
-            //                if (!String.IsNullOrEmpty(reportDoc.AutoSelectPrinterName))
-            //                    printerName = reportDoc.AutoSelectPrinterName;
-            //                if (String.IsNullOrEmpty(printerName))
-            //                {
-            //                    pQ = LocalPrintServer.GetDefaultPrintQueue();
-            //                }
-            //                else
-            //                {
-            //                    if (printerName.StartsWith("\\\\"))
-            //                    {
-            //                        int index = printerName.LastIndexOf("\\");
-            //                        if (index > 0)
-            //                        {
-            //                            string server = printerName.Substring(0, index);
-            //                            string printerName2 = printerName.Substring(index + 1);
-            //                            PrintServer pServer = new PrintServer(server);
-            //                            if (pServer != null)
-            //                            {
-            //                                pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName2).FirstOrDefault();
-            //                            }
-            //                        }
-            //                    }
-            //                    else
-            //                    {
-            //                        PrintServer pServer = new LocalPrintServer();
-            //                        if (pServer != null)
-            //                        {
-            //                            pQ = pServer.GetPrintQueues().Where(c => c.Name == printerName).FirstOrDefault();
-            //                        }
-            //                        if (pQ == null)
-            //                        {
-            //                            pServer = new PrintServer();
-            //                            PrintQueueCollection printQueues = pServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections, EnumeratedPrintQueueTypes.Shared });
-            //                            pQ = printQueues.Where(c => c.Name == printerName).FirstOrDefault();
-            //                        }
-            //                    }
-            //                }
-            //                if (pQ == null)
-            //                    return null;
+                bool sentToPrinter = TryPrintPdf(tempPdfPath, printerName, copies);
+                if (!sentToPrinter)
+                    OpenWithDefaultApplication(tempPdfPath);
+            }
+            catch (Exception e)
+            {
+                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(10)", e);
+            }
 
-            //                if (maxPrintJobsInSpooler > 0
-            //                    && (pQ.IsInError || pQ.NumberOfJobs >= maxPrintJobsInSpooler))
-            //                {
-            //                    return new Msg(this, eMsgLevel.Question, "VBBSOReport", "FlowPrint", 947, "Question50078", eMsgButton.YesNo);
-            //                }
-
-            //                XpsDocumentWriter writer = PrintQueue.CreateXpsDocumentWriter(pQ);
-            //                if (writer != null)
-            //                {
-            //                    PrintTicket pt = new PrintTicket();
-            //                    pt.CopyCount = copies;
-            //                    if (reportDoc.AutoSelectPageOrientation.HasValue)
-            //                    {
-            //                        pt.PageOrientation = reportDoc.AutoSelectPageOrientation;
-            //                    }
-            //                    else
-            //                    {
-            //                        if (reportDoc.PageWidth > reportDoc.PageHeight)
-            //                            pt.PageOrientation = PageOrientation.Landscape;
-            //                        else
-            //                            pt.PageOrientation = PageOrientation.Portrait;
-            //                    }
-
-            //                    if (reportDoc.AutoPageMediaSize != null)
-            //                        pt.PageMediaSize = reportDoc.AutoPageMediaSize;
-
-            //                    // example of calling above code
-            //                    if (reportDoc.AutoSelectTray.HasValue)
-            //                    {
-            //                        string nameSpaceURI = string.Empty;
-            //                        string selectedtray = XpsPrinterUtils.GetInputBinName(pQ.Name, reportDoc.AutoSelectTray.Value, out nameSpaceURI);
-            //                        pt = XpsPrinterUtils.ModifyPrintTicket(pt, "psk:JobInputBin", selectedtray, nameSpaceURI);
-            //                    }
-
-            //                    //for (int i = 0; i < copies; i++)
-            //                    //{
-            //                    try
-            //                    {
-            //                        writer.Write(fDocSeq, pt);
-            //                    }
-            //                    catch (Exception ex2)
-            //                    {
-            //                        this.Root().Messages.LogException("VBBSOReport", "FlowPrint(50)", ex2.Message);
-            //                    }
-            //                    //}
-            //                }
-            //            }
-            //        }
-            //        finally
-            //        {
-            //            if (xps != null)
-            //                xps.Close();
-            //            try
-            //            {
-            //                // https://stackoverflow.com/questions/8742454/saving-a-fixeddocument-to-an-xps-file-causes-memory-leak
-            //                if (fDocSeq != null)
-            //                {
-            //                    for (int i = 0; i < fDocSeq.DocumentPaginator.PageCount; i++)
-            //                    {
-            //                        var docpage = fDocSeq.DocumentPaginator.GetPage(i);
-            //                        if (docpage != null && docpage.Visual != null)
-            //                        {
-            //                            FixedPage fixedPage = docpage.Visual as FixedPage;
-            //                            if (fixedPage != null)
-            //                            {
-            //                                fixedPage.Children.Clear();
-            //                                fixedPage.UpdateLayout();
-            //                                //var dispatcher = fixedPage.Dispatcher;
-            //                                //if (dispatcher != null
-            //                                //    && dispatcher.Thread != null
-            //                                //    && !String.IsNullOrEmpty(dispatcher.Thread.Name)
-            //                                //    && (dispatcher.Thread.Name.Contains(RootDbOpQueue.ClassName)
-            //                                //        || dispatcher.Thread.Name.Contains(ACUrlHelper.Delimiter_DirSeperator)))
-            //                                //{
-            //                                //    fixedPage.DetachFromDispatcherExt();
-            //                                //}
-            //                            }
-            //                        }
-            //                    }
-            //                }
-            //            }
-            //            catch (Exception ex2)
-            //            {
-            //                this.Root().Messages.LogException("VBBSOReport", "FlowPrint(99)", ex2.Message);
-            //            }
-            //        }
-            //    }
-            //}
-
-            //return null;
+            return null;
         }
 
         #endregion
@@ -1116,6 +822,38 @@ namespace gip.core.reporthandler.avui
             if (!IsEnabledPrintComponent())
                 return;
             PrintOnServer(CurrentACClassDesign, SelectedPrintServer.PrinterACUrl, CopyCount, ReloadOnServer);
+            CloseTopDialog();
+        }
+
+        [ACMethodCommand("Report", "en{'Print'}de{'Drucken'}", (short)MISort.Okay)]
+        public void PrinterSelectionOk()
+        {
+            if (!IsEnabledPrinterSelectionOk())
+                return;
+
+            string pendingPdfPath = _PendingDesktopPrintPdfPath;
+            int pendingCopies = _PendingDesktopPrintCopies;
+            string selectedPrinterName = SelectedWindowsPrinter?.PrinterName;
+
+            ClearDesktopPrinterSelection();
+            CloseTopDialog();
+
+            PrinterName = selectedPrinterName;
+            bool sentToPrinter = TryPrintPdf(pendingPdfPath, selectedPrinterName, pendingCopies);
+            if (!sentToPrinter)
+                OpenWithDefaultApplication(pendingPdfPath);
+        }
+
+        [ACMethodInfo("", "en{'Is enabled print'}de{'Drucken aktiviert'}", 9999)]
+        public bool IsEnabledPrinterSelectionOk()
+        {
+            return !String.IsNullOrWhiteSpace(_PendingDesktopPrintPdfPath) && SelectedWindowsPrinter != null;
+        }
+
+        [ACMethodCommand("Report", "en{'Cancel'}de{'Abbrechen'}", (short)MISort.Cancel)]
+        public void PrinterSelectionCancel()
+        {
+            ClearDesktopPrinterSelection();
             CloseTopDialog();
         }
 
@@ -1547,11 +1285,63 @@ namespace gip.core.reporthandler.avui
                 case nameof(FlowDialogOk):
                     FlowDialogOk();
                     return true;
+                case nameof(PrinterSelectionOk):
+                    PrinterSelectionOk();
+                    return true;
+                case nameof(IsEnabledPrinterSelectionOk):
+                    result = IsEnabledPrinterSelectionOk();
+                    return true;
+                case nameof(PrinterSelectionCancel):
+                    PrinterSelectionCancel();
+                    return true;
                 case nameof(ApplyConfig):
                     ApplyConfig();
                     return true;
             }
             return base.HandleExecuteACMethod(out result, invocationMode, acMethodName, acClassMethod, acParameter);
+        }
+
+        #endregion
+
+        #region GetPropsToObserveForIsEnabled
+
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Print/Preview/Design
+                case nameof(Print):
+                case nameof(Preview):
+                case nameof(Design):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(CurrentReportData), nameof(PrinterName) };
+                #endregion
+
+                #region FlowDoc Dialog
+                case nameof(FlowDialogCancel):
+                case nameof(FlowDialogOk):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region PrinterSelection Dialog
+                case nameof(PrinterSelectionOk):
+                case nameof(IsEnabledPrinterSelectionOk):
+                    return new string[] { nameof(SelectedWindowsPrinter) };
+                case nameof(PrinterSelectionCancel):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region Config
+                case nameof(ApplyConfig):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region PrintComponent
+                case nameof(PrintComponentOk):
+                case nameof(IsEnabledPrintComponent):
+                    return new string[] { nameof(SelectedPrintServer) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
         }
 
         #endregion

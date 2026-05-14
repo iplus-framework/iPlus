@@ -26,6 +26,7 @@ namespace gip.core.reporthandler
             _PrintTries = new ACPropertyConfigValue<int>(this, nameof(PrintTries), 1);
             _CodePage = new ACPropertyConfigValue<int>(this, nameof(CodePage), 0);
             _DumpToTempFolder = new ACPropertyConfigValue<bool>(this, nameof(DumpToTempFolder), false);
+            _SupportsPdfPrintJobs = new ACPropertyConfigValue<bool>(this, nameof(SupportsPdfPrintJobs), false);
         }
 
         public override bool ACInit(Global.ACStartTypes startChildMode = Global.ACStartTypes.Automatic)
@@ -64,6 +65,7 @@ namespace gip.core.reporthandler
             _ = ReceiveTimeout;
             _ = PrintTries;
             _ = CodePage;
+            _ = SupportsPdfPrintJobs;
 
             return baseReturn;
         }
@@ -148,6 +150,14 @@ namespace gip.core.reporthandler
         {
             get => _DumpToTempFolder.ValueT;
             set => _DumpToTempFolder.ValueT = value;
+        }
+
+        private ACPropertyConfigValue<bool> _SupportsPdfPrintJobs;
+        [ACPropertyConfig("en{'Printer accepts raw PDF jobs'}de{'Drucker akzeptiert rohe PDF-Jobs'}")]
+        public bool SupportsPdfPrintJobs
+        {
+            get => _SupportsPdfPrintJobs.ValueT;
+            set => _SupportsPdfPrintJobs.ValueT = value;
         }
 
         private ACDispatchedDelegateQueue _DelegateQueue = null;
@@ -268,8 +278,11 @@ namespace gip.core.reporthandler
             ACClassDesign aCClassDesign = acBSO.GetDesignForPrinting(GetACUrl(), designACIdentifier, pAOrderInfo);
             if (aCClassDesign == null)
                 return;
+
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
-            PrintJob printJob = OnDoPrint(aCClassDesign, CodePage, reportData);
+            PrintJob printJob = TryCreateScryberPdfPrintJob(aCClassDesign, reportData)
+                ?? OnDoPrint(aCClassDesign, CodePage, reportData);
+
             _CancelPrint = false;
 
             if (printJob != null)
@@ -286,6 +299,55 @@ namespace gip.core.reporthandler
 
                 SendDataAfterPrint(printJob);
             }
+        }
+
+        protected virtual PrintJob TryCreateScryberPdfPrintJob(ACClassDesign aCClassDesign, ReportData reportData)
+        {
+            if (!SupportsPdfPrintJobs || aCClassDesign == null || reportData == null)
+                return null;
+
+            string template = GetScryberTemplate(aCClassDesign);
+            if (String.IsNullOrWhiteSpace(template))
+                return null;
+
+            try
+            {
+                byte[] pdfBytes = ScryberReportEngine.RenderPdf(template, reportData);
+                if (pdfBytes == null || pdfBytes.Length == 0)
+                    return null;
+
+                return new PrintJob
+                {
+                    Name = aCClassDesign.ACIdentifier,
+                    Main = pdfBytes
+                };
+            }
+            catch (Exception e)
+            {
+                Messages.LogException(GetACUrl(), nameof(TryCreateScryberPdfPrintJob), e);
+                return null;
+            }
+        }
+
+        protected virtual string GetScryberTemplate(ACClassDesign aCClassDesign)
+        {
+            if (aCClassDesign == null)
+                return null;
+
+            bool isAvaloniaUi = gip.core.datamodel.Database.Root?.IsAvaloniaUI ?? false;
+            string primaryDesign = isAvaloniaUi ? aCClassDesign.XMLDesign2 : aCClassDesign.XMLDesign;
+            string secondaryDesign = isAvaloniaUi ? aCClassDesign.XMLDesign : aCClassDesign.XMLDesign2;
+
+            if (ScryberReportEngine.IsScryberTemplate(primaryDesign))
+                return primaryDesign;
+
+            if (ScryberReportEngine.IsScryberTemplate(secondaryDesign))
+                return secondaryDesign;
+
+            if (ScryberReportEngine.IsScryberTemplate(aCClassDesign.XAMLDesign))
+                return aCClassDesign.XAMLDesign;
+
+            return null;
         }
 
         protected abstract PrintJob OnDoPrint(ACClassDesign aCClassDesign, int codePage, ReportData reportData);

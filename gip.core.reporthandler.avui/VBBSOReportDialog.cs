@@ -2,6 +2,7 @@
 // Licensed under the GNU GPLv3 License. See LICENSE file in the project root for full license information.
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using gip.core.datamodel;
@@ -535,14 +536,14 @@ namespace gip.core.reporthandler.avui
 
         #region BSO-> ACProperty -> Printer configuration
 
-        #region BSO-> ACProperty ->Printer configuration -> Windows printers
+        #region BSO-> ACProperty ->Printer configuration -> System printers
 
         private PrinterInfo _SelectedWindowsPrinter;
         /// <summary>
         /// Selected property for PrinterInfo
         /// </summary>
-        /// <value>The selected WindowsPrinter</value>
-        [ACPropertySelected(9999, "WindowsPrinter", "en{'SelectedWindowsPrinter'}de{'SelectedWindowsPrinter'}")]
+        /// <value>The selected system printer</value>
+        [ACPropertySelected(9999, "WindowsPrinter", "en{'Selected system printer'}de{'Ausgewaehlter Systemdrucker'}")]
         public PrinterInfo SelectedWindowsPrinter
         {
             get
@@ -567,8 +568,8 @@ namespace gip.core.reporthandler.avui
         /// <summary>
         /// List property for PrinterInfo
         /// </summary>
-        /// <value>The WindowsPrinter list</value>
-        [ACPropertyList(9999, "WindowsPrinter")]
+        /// <value>The system printer list</value>
+        [ACPropertyList(9999, "WindowsPrinter", "en{'System printers'}de{'Systemdrucker'}")]
         public List<PrinterInfo> WindowsPrinterList
         {
             get
@@ -582,12 +583,79 @@ namespace gip.core.reporthandler.avui
         private List<PrinterInfo> LoadWindowsPrinterList()
         {
             List<PrinterInfo> printerInfos = new List<PrinterInfo>();
-            var printers = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            var printers = GetDesktopPrinters();
             if (printers != null)
                 printerInfos = ACPrintManager.GetPrinters(printers);
             if (ConfiguredPrinterList != null && ConfiguredPrinterList.Any())
                 printerInfos = printerInfos.Where(c => !ConfiguredPrinterList.Select(x => x.ACCaption).Contains(c.PrinterName)).OrderBy(c => c.PrinterName).ToList();
             return printerInfos;
+        }
+
+        private IEnumerable<string> GetDesktopPrinters()
+        {
+            var windowsPrinters = Root?.WPFServices?.VBMediaControllerService?.GetWindowsPrinters();
+            if (windowsPrinters != null && windowsPrinters.Any())
+                return windowsPrinters;
+
+            return GetCupsPrinters();
+        }
+
+        private IEnumerable<string> GetCupsPrinters()
+        {
+            var result = new List<string>();
+            result.AddRange(RunLpstatAndParse("-a", ""));
+            if (!result.Any())
+                result.AddRange(RunLpstatAndParse("-p", "printer "));
+
+            return result.Where(c => !String.IsNullOrWhiteSpace(c))
+                         .Distinct(StringComparer.OrdinalIgnoreCase)
+                         .OrderBy(c => c)
+                         .ToList();
+        }
+
+        private IEnumerable<string> RunLpstatAndParse(string arguments, string requiredPrefix)
+        {
+            try
+            {
+                using (Process process = Process.Start(new ProcessStartInfo
+                {
+                    FileName = "lpstat",
+                    Arguments = arguments,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    CreateNoWindow = true,
+                }))
+                {
+                    if (process == null)
+                        return Enumerable.Empty<string>();
+
+                    string output = process.StandardOutput.ReadToEnd();
+                    process.WaitForExit(2000);
+
+                    if (String.IsNullOrWhiteSpace(output))
+                        return Enumerable.Empty<string>();
+
+                    return output.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries)
+                                 .Select(line => line.Trim())
+                                 .Where(line => String.IsNullOrEmpty(requiredPrefix)
+                                     || line.StartsWith(requiredPrefix, StringComparison.OrdinalIgnoreCase))
+                                 .Select(line => String.IsNullOrEmpty(requiredPrefix)
+                                     ? line
+                                     : line.Substring(requiredPrefix.Length).TrimStart())
+                                 .Select(line =>
+                                 {
+                                     int separator = line.IndexOf(' ');
+                                     return separator > 0 ? line.Substring(0, separator) : line;
+                                 })
+                                 .Where(line => !String.IsNullOrWhiteSpace(line))
+                                 .ToList();
+                }
+            }
+            catch
+            {
+                return Enumerable.Empty<string>();
+            }
         }
 
         #endregion
@@ -960,7 +1028,7 @@ namespace gip.core.reporthandler.avui
             if (parentReport != null && parentReport.ACUsage == newDesign.ACUsage)
                 newDesign.XAMLDesign = parentReport.XAMLDesign;
             else if (newDesign.ACUsage == Global.ACUsages.DUReport)
-                newDesign.XAMLDesign = string.Format("<?xml version=\"1.0\" encoding=\"utf-8\"?><FlowDocument PageWidth=\"816\" PageHeight=\"1056\" PagePadding=\"96,96,96,96\" AllowDrop=\"True\" NumberSubstitution.CultureSource=\"User\" xmlns=\"{0}\"><Paragraph LineHeight=\"1.15\"><Run xml:lang=\"de-de\" xml:space=\"preserve\" /></Paragraph></FlowDocument>", ACxmlnsResolver.C_AvaloniaNamespaceMapping[0].AvaloniaNamespace);
+                newDesign.XAMLDesign = ScryberReportEngine.GetDefaultHtmlTemplate();
 
 
 
@@ -1150,7 +1218,7 @@ namespace gip.core.reporthandler.avui
                 if (reportData == null)
                     return;
 
-                acReportQuery.Print(CurrentACClassDesign, WithDialog, PrinterName, reportData, CopyCount);
+                await acReportQuery.PrintAsync(CurrentACClassDesign, WithDialog, PrinterName, reportData, CopyCount);
 
                 if (cloneInstantiated)
                     reportData.StopACComponents();
@@ -1400,8 +1468,77 @@ namespace gip.core.reporthandler.avui
         }
         #endregion
 
+        #region GetPropsToObserveForIsEnabled
 
+        public override IEnumerable<string> GetPropsToObserveForIsEnabled(string acMethodName)
+        {
+            switch (acMethodName)
+            {
+                #region Dialoge öffnen und schliessen
+                case nameof(ReportPrintDlg):
+                case nameof(IsEnabledReportPrintDlg):
+                    return new string[] { nameof(ACClassDesignList) };
+                case nameof(ReportPreviewDlg):
+                case nameof(IsEnabledReportPreviewDlg):
+                    return new string[] { nameof(ACClassDesignList) };
+                case nameof(ReportDesignDlg):
+                case nameof(IsEnabledReportDesignDlg):
+                    return new string[] { nameof(InitState) };
+                #endregion
 
+                #region Neu anlegen, Löschen, Speichern
+                case nameof(ReportNew):
+                case nameof(IsEnabledReportNew):
+                    return new string[] { nameof(InitState) };
+                case nameof(ReportDelete):
+                case nameof(IsEnabledReportDelete):
+                    return new string[] { nameof(CurrentACClassDesign) };
+                case nameof(ReportSave):
+                case nameof(IsEnabledReportSave):
+                    return new string[] { nameof(InitState) };
+                #endregion
+
+                #region Drucken / Vorschau / Entwerfen
+                case nameof(ReportPrint):
+                case nameof(IsEnabledReportPrint):
+                    return new string[] { nameof(CurrentACClassDesign) };
+                case nameof(ReportPreview):
+                case nameof(IsEnabledReportPreview):
+                    return new string[] { nameof(SelectedACClassDesign) };
+                case nameof(ReportDesign):
+                case nameof(IsEnabledReportDesign):
+                    return new string[] { nameof(SelectedACClassDesign) };
+                #endregion
+
+                #region ACQuery bearbeiten
+                case nameof(ReportModifyQuery):
+                case nameof(IsEnabledReportModifyQuery):
+                    return new string[] { nameof(CurrentACQueryDefinition) };
+                #endregion
+
+                #region Printer configuration
+                case nameof(AddPrintServer):
+                case nameof(IsEnabledAddPrintServer):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(SelectedPrintServer) };
+                case nameof(AddWinPrinter):
+                case nameof(IsEnabledAddWinPrinter):
+                    return new string[] { nameof(CurrentACClassDesign), nameof(SelectedWindowsPrinter) };
+                case nameof(DeleteConfiguredPrinter):
+                case nameof(IsEnabledDeleteConfiguredPrinter):
+                    return new string[] { nameof(SelectedConfiguredPrinter), nameof(CurrentACClassDesign) };
+                #endregion
+
+                #region State Methods (no IsEnabled)
+                case nameof(SMReadOnly):
+                case nameof(SMNew):
+                case nameof(SMEdit):
+                    return new string[] { nameof(InitState) };
+                #endregion
+            }
+            return base.GetPropsToObserveForIsEnabled(acMethodName);
+        }
+
+        #endregion
         #endregion
     }
 }
