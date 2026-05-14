@@ -110,6 +110,7 @@
     <PackageReference Include="ESCPOS"  />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.Reflection.Context"  />
+    <PackageReference Include="Scryber.Core" />
   </ItemGroup>
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>

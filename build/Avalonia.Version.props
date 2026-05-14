@@ -48,7 +48,8 @@
 		<AvaloniaRichTextBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvRichTextBox/AvRichTextBox/bin</AvaloniaRichTextBoxIncludeDir>
 		<AvaloniaMarkdownIncludeDir>$(MSBuildThisFileDirectory)../../AvMarkdown.Avalonia</AvaloniaMarkdownIncludeDir>
 		<AvaloniaMessageBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvMessageBox.Avalonia/MsBox.Avalonia/bin</AvaloniaMessageBoxIncludeDir>
-		<AvaloniaOxyPlotIncludeDir>$(MSBuildThisFileDirectory)../../avOxyplot-avalonia/Source/OxyPlot.Avalonia/bin</AvaloniaOxyPlotIncludeDir>
+		<AvaloniaOxyPlotIncludeDir>$(MSBuildThisFileDirectory)../../avOxyplot-avalonia/Source/OxyPlot.Avalonia/bin</AvaloniaOxyPlotIncludeDir>		
+		<AvaloniaHtmlRendererIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.HtmlRenderer/src/Avalonia.HtmlRenderer/bin</AvaloniaHtmlRendererIncludeDir>
 
 		<IncludeAvaloniaGenerators Condition="'$(UseAvaloniaFork)' == 'True'">False</IncludeAvaloniaGenerators>
 	</PropertyGroup>
