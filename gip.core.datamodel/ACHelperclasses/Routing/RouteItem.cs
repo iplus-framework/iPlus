@@ -488,19 +488,18 @@ namespace gip.core.datamodel
 
             if (Target != null && Target.EntityState != EntityState.Detached)
                 Target.Database.Entry(Target).State = EntityState.Detached;
-                //Target.Database.Detach(Target);
+            //Target.Database.Detach(Target);
 
             if (SourceProperty != null && SourceProperty.EntityState != EntityState.Detached)
-                SourceProperty.Context.Entry(this).State = EntityState.Detached;
-                //SourceProperty.Database.Detach(SourceProperty);
+                SourceProperty.Database.Entry(SourceProperty).State = EntityState.Detached;
+            //SourceProperty.Database.Detach(SourceProperty);
 
             if (TargetProperty != null && TargetProperty.EntityState != EntityState.Detached)
-                TargetProperty.Context.Entry(this).State = EntityState.Detached;
-                //TargetProperty.Database.Detach(TargetProperty);
-
+                TargetProperty.Database.Entry(TargetProperty).State = EntityState.Detached;
+            //TargetProperty.Database.Detach(TargetProperty);
         }
 
-#endregion
+        #endregion
 
         public override bool Equals(object obj)
         {
