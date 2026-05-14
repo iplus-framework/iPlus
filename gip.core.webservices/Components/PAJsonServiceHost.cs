@@ -2,8 +2,7 @@
 using gip.core.datamodel;
 using System;
 using System.Collections.Concurrent;
-using System.Data.Common;
-using System.Runtime.Remoting.Contexts;
+using System.Linq;
 using System.ServiceModel;
 using System.ServiceModel.Channels;
 using System.ServiceModel.Description;
@@ -44,10 +43,24 @@ namespace gip.core.webservices
 
         public override ServiceHost CreateService()
         {
-            if (UseCustomHttpListener)
-                return CreateHttpListenerService();
+            IOAuthTokenValidator oAuthTokenValidator = null;
+            var searchOAuth = FindChildComponents<IOAuthTokenValidator>();
+            if (searchOAuth != null)
+            {
+                oAuthTokenValidator = searchOAuth.FirstOrDefault();
+            }
+
+            if(oAuthTokenValidator != null)
+            {
+                return CreateWCFHttpServiceOAuth(oAuthTokenValidator);
+            }
             else
-                return CreateWCFHttpService();
+            {
+                if (UseCustomHttpListener)
+                    return CreateHttpListenerService();
+                else
+                    return CreateWCFHttpService();
+            }
         }
 
         protected ServiceHost CreateWCFHttpService()
@@ -77,6 +90,60 @@ namespace gip.core.webservices
             ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
             if (serviceEndpoint != null)
                 serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
+
+            ServiceMetadataBehavior metad = serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
+            if (metad == null)
+            {
+                metad = new ServiceMetadataBehavior();
+                serviceHost.Description.Behaviors.Add(metad);
+            }
+            metad.HttpGetEnabled = true;
+
+            foreach (ServiceEndpoint endpoint in serviceHost.Description.Endpoints)
+            {
+                foreach (OperationDescription opDescr in endpoint.Contract.Operations)
+                {
+                    OnAddKnownTypesToOperationContract(endpoint, opDescr);
+                }
+            }
+
+            return serviceHost;
+        }
+
+        protected ServiceHost CreateWCFHttpServiceOAuth(IOAuthTokenValidator oAuthTokenValidator)
+        {
+            int servicePort = ServicePort;
+            if (servicePort <= 0)
+            {
+                servicePort = 8730;
+                ServicePort = servicePort;
+            }
+
+            string strUri = String.Format("http://{0}:{1}/", this.Root.Environment.UserInstance.Hostname, servicePort);
+            Uri uri = new Uri(strUri);
+            WebServiceHost serviceHost = new WebServiceHost(ServiceType, uri);
+            serviceHost.Authorization.ServiceAuthorizationManager = new OAuthBearerAuthorizationManager(oAuthTokenValidator.ValidatePrincipalFromBearerToken);
+            serviceHost.Authorization.PrincipalPermissionMode = PrincipalPermissionMode.None;
+
+            WebHttpBinding httpBinding = new WebHttpBinding()
+            {
+                ContentTypeMapper = GetContentTypeMapper(),
+                AllowCookies = false
+            };
+            httpBinding.MaxReceivedMessageSize = int.MaxValue;
+            httpBinding.ReaderQuotas.MaxStringContentLength = 1000000;
+            httpBinding.MaxBufferSize = int.MaxValue;
+            httpBinding.MaxBufferPoolSize = int.MaxValue;
+
+            ServiceEndpoint serviceEndpoint = serviceHost.AddServiceEndpoint(ServiceInterfaceType, httpBinding, "");
+            if (serviceEndpoint != null)
+            {
+                serviceEndpoint.EndpointBehaviors.Add(new PAWebServiceBaseErrorBehavior(this.GetACUrl()));
+
+                WebHttpBehavior webHttpBehavior = serviceEndpoint.EndpointBehaviors.OfType<WebHttpBehavior>().FirstOrDefault();
+                if (webHttpBehavior == null)
+                    serviceEndpoint.EndpointBehaviors.Add(new WebHttpBehavior());
+            }
 
             ServiceMetadataBehavior metad = serviceHost.Description.Behaviors.Find<ServiceMetadataBehavior>();
             if (metad == null)

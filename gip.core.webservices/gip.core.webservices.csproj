@@ -50,6 +50,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\DemoOAuthTokenValidator.cs" />
+    <Compile Include="Components\IOAuthTokenValidator.cs" />
+    <Compile Include="Components\OAuthBearerAuthorizationManager.cs" />
     <Compile Include="Components\PAJsonServiceHost.cs" />
     <Compile Include="Components\PAJsonServiceHostListener.cs" />
     <Compile Include="Components\WSRestAuthorizationManager.cs" />
