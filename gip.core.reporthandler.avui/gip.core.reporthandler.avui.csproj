@@ -147,7 +147,7 @@
 			<Generator>SettingsSingleFileGenerator</Generator>
 			<LastGenOutput>Settings.Designer.cs</LastGenOutput>
 		</None>
-		<None Update="VBControlScripts\2024-12-11 14-39_ihrastinski.zip">
+		<None Update="VBControlScripts\2026-05-15 16-48_dlisak.zip">
 		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
