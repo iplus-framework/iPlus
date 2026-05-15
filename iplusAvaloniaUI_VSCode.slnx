@@ -81,4 +81,12 @@
     <File Path="build/Build-AvaloniaProjects.ps1" />
     <File Path="build/EntityFramework.Build.props" />
   </Folder>
+  <Project Path="../iPlugIn-Linx/linx.core.reporthandler/linx.core.reporthandler.csproj" />
+  <Project Path="../scryber.core/Scryber.Common/Scryber.Common.csproj" />
+  <Project Path="../scryber.core/Scryber.Components/Scryber.Components.csproj" />
+  <Project Path="../scryber.core/Scryber.Drawing/Scryber.Drawing.csproj" />
+  <Project Path="../scryber.core/Scryber.Expressions/Scryber.Expressive.csproj" />
+  <Project Path="../scryber.core/Scryber.Generation/Scryber.Generation.csproj" />
+  <Project Path="../scryber.core/Scryber.Imaging/Scryber.Imaging.csproj" />
+  <Project Path="../scryber.core/Scryber.Styles/Scryber.Styles.csproj" />
 </Solution>

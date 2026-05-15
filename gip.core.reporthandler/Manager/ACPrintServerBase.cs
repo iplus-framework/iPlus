@@ -280,7 +280,8 @@ namespace gip.core.reporthandler
                 return;
 
             ReportData reportData = GetReportData(acBSO, aCClassDesign);
-            PrintJob printJob = TryCreateScryberPdfPrintJob(aCClassDesign, reportData)
+            PrintJob printJob = TryCreateScryberCustomPrintJob(aCClassDesign, reportData)
+                ?? TryCreateScryberPdfPrintJob(aCClassDesign, reportData)
                 ?? OnDoPrint(aCClassDesign, CodePage, reportData);
 
             _CancelPrint = false;
@@ -299,6 +300,16 @@ namespace gip.core.reporthandler
 
                 SendDataAfterPrint(printJob);
             }
+        }
+
+        /// <summary>
+        /// Hook for custom printer-language generation based on Scryber templates/layout
+        /// (for example ESC/POS, ZPL, LINX). Override in specific print servers.
+        /// Return null to continue with the default Scryber-PDF or legacy print flow.
+        /// </summary>
+        protected virtual PrintJob TryCreateScryberCustomPrintJob(ACClassDesign aCClassDesign, ReportData reportData)
+        {
+            return null;
         }
 
         protected virtual PrintJob TryCreateScryberPdfPrintJob(ACClassDesign aCClassDesign, ReportData reportData)

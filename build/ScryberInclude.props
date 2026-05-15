@@ -25,4 +25,9 @@
       <HintPath>$(ScryberIncludeDir)/Scryber.Styles/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Styles.dll</HintPath>
     </Reference>
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Scryber.Components loads OpenType support dynamically for non-standard fonts. -->
+    <PackageReference Include="Scryber.Core.OpenType" />
+  </ItemGroup>
 </Project> 

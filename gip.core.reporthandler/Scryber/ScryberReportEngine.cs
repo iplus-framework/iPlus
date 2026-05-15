@@ -94,6 +94,64 @@ namespace gip.core.reporthandler
         }
 
         /// <summary>
+        /// Renders a Scryber template using a custom layout renderer.
+        /// </summary>
+        /// <param name="template">Template content (HTML/XHTML).</param>
+        /// <param name="reportData">Report data for binding.</param>
+        /// <param name="renderer">Custom renderer that consumes the computed layout tree.</param>
+        /// <returns>Renderer output as bytes.</returns>
+        public static byte[] RenderWithLayoutRenderer(string template, ReportData reportData, IDocumentLayoutRenderer renderer)
+        {
+            if (renderer == null)
+                throw new ArgumentNullException(nameof(renderer));
+
+            using (MemoryStream memory = new MemoryStream())
+            {
+                RenderWithLayoutRenderer(template, reportData, renderer, memory);
+                return memory.ToArray();
+            }
+        }
+
+        /// <summary>
+        /// Renders a Scryber template using a custom layout renderer and writes output to the destination stream.
+        /// </summary>
+        /// <param name="template">Template content (HTML/XHTML).</param>
+        /// <param name="reportData">Report data for binding.</param>
+        /// <param name="renderer">Custom renderer that consumes the computed layout tree.</param>
+        /// <param name="output">Destination stream for renderer output.</param>
+        public static void RenderWithLayoutRenderer(string template, ReportData reportData, IDocumentLayoutRenderer renderer, Stream output)
+        {
+            if (String.IsNullOrWhiteSpace(template))
+                throw new ArgumentException("Template is empty.", nameof(template));
+            if (reportData == null)
+                throw new ArgumentNullException(nameof(reportData));
+            if (renderer == null)
+                throw new ArgumentNullException(nameof(renderer));
+            if (output == null)
+                throw new ArgumentNullException(nameof(output));
+
+            using (TextReader reader = new StringReader(template))
+            using (Document document = IsScryberTemplate(template)
+                ? Document.ParseHtmlDocument(reader)
+                : Document.ParseDocument(reader))
+            {
+                BindReportData(document, reportData);
+
+                reportData.InformComponents(document, ACPrintingPhase.Started);
+                try
+                {
+                    document.SaveAs(output, true, renderer);
+                    reportData.InformComponents(document, ACPrintingPhase.Completed);
+                }
+                catch
+                {
+                    reportData.InformComponents(document, ACPrintingPhase.Cancelled);
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the default Scryber HTML template used when creating new DUReport designs.
         /// </summary>
         public static string GetDefaultHtmlTemplate()
