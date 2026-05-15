@@ -232,7 +232,7 @@ namespace gip.core.reporthandler
                     // by many concurent request is exception thrown:
                     // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
                     if (acBSO != null)
-                        acBSO.Stop();
+                        _ = acBSO.Stop();
                 }
                 catch (Exception e)
                 {
@@ -264,7 +264,7 @@ namespace gip.core.reporthandler
                     // by many concurent request is exception thrown:
                     // ObjectContext instance has been disposed and can no longer be used for operations that require a connection.
                     if (acBSO != null)
-                        acBSO.Stop();
+                        _ = acBSO.Stop();
                 }
                 catch (Exception e)
                 {
