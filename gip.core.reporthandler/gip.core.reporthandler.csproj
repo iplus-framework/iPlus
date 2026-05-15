@@ -113,7 +113,7 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
-    <PackageReference Include="Scryber.Core" />
+    <PackageReference Include="iPlus.Scryber.Core" />
   </ItemGroup>
   <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/ScryberInclude.props" />
 
