@@ -110,8 +110,13 @@
     <PackageReference Include="ESCPOS"  />
     <PackageReference Include="System.Data.DataSetExtensions"  />
     <PackageReference Include="System.Reflection.Context"  />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseAvaloniaFork)' == 'False'">
     <PackageReference Include="Scryber.Core" />
   </ItemGroup>
+  <Import Condition="'$(UseAvaloniaFork)' == 'True'" Project="../build/ScryberInclude.props" />
+
   <PropertyGroup>
     <BaseOutputPath>$(SolutionDir)bin\</BaseOutputPath>
     <GeneratePackageOnBuild>False</GeneratePackageOnBuild>

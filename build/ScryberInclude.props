@@ -1,0 +1,28 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Reference Include="Scryber.Common">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Common/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Components">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Components/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Components.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Components.Mvc">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Components.Mvc/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Components.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Drawing">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Drawing/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Drawing.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Expressions">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Expressions/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Expressive.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Generation">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Generation/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Generation.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Imaging">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Imaging/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Imaging.dll</HintPath>
+    </Reference>
+    <Reference Include="Scryber.Styles">
+      <HintPath>$(ScryberIncludeDir)/Scryber.Styles/bin/$(Configuration)/$(DefaultNetCoreTargetFramework)/Scryber.Styles.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project> 

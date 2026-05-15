@@ -50,6 +50,7 @@
 		<AvaloniaMessageBoxIncludeDir>$(MSBuildThisFileDirectory)../../AvMessageBox.Avalonia/MsBox.Avalonia/bin</AvaloniaMessageBoxIncludeDir>
 		<AvaloniaOxyPlotIncludeDir>$(MSBuildThisFileDirectory)../../avOxyplot-avalonia/Source/OxyPlot.Avalonia/bin</AvaloniaOxyPlotIncludeDir>		
 		<AvaloniaHtmlRendererIncludeDir>$(MSBuildThisFileDirectory)../../Avalonia.HtmlRenderer/src/Avalonia.HtmlRenderer/bin</AvaloniaHtmlRendererIncludeDir>
+		<ScryberIncludeDir>$(MSBuildThisFileDirectory)../../scryber.core</ScryberIncludeDir>
 
 		<IncludeAvaloniaGenerators Condition="'$(UseAvaloniaFork)' == 'True'">False</IncludeAvaloniaGenerators>
 	</PropertyGroup>
